@@ -1,3 +1,4 @@
+[[https://github.com/oleg-shilo/cs-script/blob/master/Source/wiki/images/css_logo_codeplex_256x256_2.png|alt=octocat]]
 # CS-Script
 CS-Script is a CLR (Common Language Runtime) based scripting system which uses ECMA-compliant C# as a programming language.
 
