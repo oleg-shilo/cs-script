@@ -1,0 +1,514 @@
+Release v3.8.8.1
+ * Improved isolate.cs script. It now processes search directories defined in the script with //css_dir.
+ * Fixed debugVS12.0.cs problem with not handling correctly VS2013 Express
+
+Release v3.8.8
+ * Added auto resetting Mono.Evaluator after script compilation error.
+
+Release v3.8.7
+ * Added printing compiler output in verbose mode
+
+Release v3.8.6
+ * Fixed problem with Mono.CSharp compiling concurrency by merging CompileCode with GetAssembly and making it transactional
+
+Release v3.8.5
+ * Fixed problem with the warnings getting hidden in case of the successful compilation
+
+Release v3.8.4
+ * CSScript.Evaluator is migrated to Mono v3.3.0
+ * Added aggregating //css_ignore_ns from the imported scripts
+
+Release v3.8.3
+ * Added support for wild cards in //css_dir directives
+
+Release v3.8.2
+ * Fixed //css_ignore_namespace not being processes from the secondary scripts
+
+Release v3.8.1 (published on CodePlex)
+ * Improved ConfigConsole AdvancedShell extensions support 
+
+Release v3.6.0+
+ * Added setting additional includes from precompilers
+ * Added probing for additional includes from precompilers and precompilers itself
+ * Extended support for AutoClasses to handle lower-case 'main' entrypoints
+ * Auto-generated content is made read-only
+ * Added retry and extra synch mechanism for generating AttributeInjectionCode 
+ * AlignToInterface now flattens the inheritance hierarchy 
+ * Added support for wild cards in //css_dir
+ * Updated hosting of Mono.CSharp.dll of Mono-3.2.3
+ * Fixed problem with the compiler warnings being hidden when there is no compiler errors
+ * Fixed problem with Mono.CSharp compiling concurrency by merging CompileCode with GetAssembly and making it transactional
+
+Release v3.6.0
+ * Improved compiled script assembly access synchronization with all CSScriptLibrary.Load calls
+ * Implemented support for custom caching mechanism with CSScript.IsOutOfDateAlgorithm delegate.
+ * Added support for script caching with CSScript.LoadWithConfig calls when user defines compiled script assembly argument ('assemblyFile').
+ * Fixed bug with double "public" injection in CodeDOM LoadMethod
+ * Added CachProbing (CSScript.IsOutOfDateAlgorithm) algorithm implementations 
+ * CSScript.IsOutOfDateAlgorithm set to CachProbing.Advanced by default.
+ * Added CSScript.GetCachedScriptPath()  
+ * Added CSScript.CreateCompilerLock()  
+ * Added LoadCodeFrom equivalents for all LoadCode methods
+ * Added more accurate IsDynamic 
+ * Added clearing pdb prior the build
+ * Fixed problem with //css_ref returning the highest version of the GAC assembly even when the full asm name is specified
+ * Fixed problem with previously compiled scripts being loaded (instead of just returning the cached file name) with the CSScript.Compile call
+ * Fixed Hosting VS samples (project files and dependencies)
+
+Release v3.5.2
+ * Implemented CSScript.Evaluator.ReferenceAssembliesFromCode().
+ * Implemented CSScript.Evaluator.GetReferencedAssemblies().
+ * Fixed CSScript.Evaluator.LoadFile<T>(...).
+
+Release v3.5.1
+ * Implemented CSScript.Evaluator.ReferenceAssemblyByNamespace.
+ * Fixed ConfigConsole.exe problem when running on the setup incomplete environment.
+
+Release v3.5.0
+ * Implemented CSScript.Evaluator ("compiler as service")
+ * Distributables are spit into Default Pack and Extension Pack.
+
+Release v3.4.2
+ * Added support for dual target CLR (4.0/4.5) through in-place CSScriptLibrary.dll patching.
+
+Release v3.4.1
+ * Added support for Windows 8 new Default program support
+ * Added integration for with Visual Studio 2012 extension for automatic source file loading on "cscs <script> //x"
+ * New product logo
+
+Release v3.4.0
+ * Added AsmHelper.RemoteObject for lifetime management in Remote execution scenarios
+ * Added ExtendLife extension method for MarshalByRefObject
+ * Added XML assembly reference documentation for CSScriptLibrary.dll legacy builds
+ * Added CSScript.LoadWithConfig method
+ * Fixed probem with the console output buffer containing some data just after the ".compiled.host.exe" process exited
+ * Fixed problem with the open end //css_ directives in the "/n-based" EOL scripts (e.g. On Linux)  
+ * Implemented new reserved value ("out") for the "file" component of the command line parameter /noconfig:<file>. Thus /noconfig:out can be used to generate the default config file css_config.xml 
+ * Fixed problem with the referenced assemblies not being processed when passed to CSScript.Load(...)
+ * Added ShellExtensions for debugging with VS2012
+ * Added support for VS2012
+
+Release v3.3.0
+ * Fixed problem with script source not beilg avaiable for debugging with CompileCode calls
+ * AlignToInterface is adjusted to handle dynamic assemblies (avoid exceptions) when iterating through AppDomain loded assemblies
+ * Fixed problem with the script args not being passed through when script double-click action is set to "Run"
+ * CS-Script is published on NuGet 
+ * "csx" extension is registered as CS-Script file type for executing in the command prompt
+ * Implemented CSSEnvironment.SetScriptTempDir()
+ * Silverlight sample adjusted to work under x64 environment
+ * Fixed "Precompilers samples"
+
+Release v3.2.2
+ * Fixed (globally) problem with accessing GetExecutingAssembly().Location being empty.
+
+Release v3.2.1
+ * Fixed problem for running surrogate host for assemblies (scripts) containig space
+
+Release v3.2.0
+ * Fixed problem with assembly probing being disabled for CS-Script remoete execution with AsmHelper
+ * CompilerException is properly serializable
+ * Added AppDomain extension methods for remote execution of the custom routines.
+
+Release v3.1.0
+ * Added opening script in MonoDevelop on Linux with "debug" script
+ * Allow simple reactivation on moving cs-script directory  
+ * Improved performance by avoiding raising Exceptions on analysis of Assembly.Location
+ * Improved reliability of the InstalledCLRVersion analysis in Config.cs
+ * Renamed CSScript.Eval -> CSScript.BuildEval
+ * Added unloadable eval CSScript.Eval
+ * Added change script file associated icon 
+
+Release v3.0.0
+ * Added full Linux support. 
+ * Implemented Precompilers.
+ * Implemented Eval.
+ * Fixed occasional lose of Recent Scripts history content with CS-Script VS2010 extension.
+ * Added unconditional injection of the AssemblyDescriptionAttribute into every script being executed.
+ * The file extension of the compiled scripts are changed from <script>.css to <script>.cs.compiled.
+ * Added /v command-line switch
+ * Added /precompiler - command-line switch
+ * Added //css_precompiler directive
+ * Added extra information on /verbose print out.
+ * Added new ReflectScript.cs script sample.
+
+Release v2.8.3
+ * Fixed problem with failing to include empty scripts with //css_inc directive. 
+ * Added OpenEndDirectiveSyntax setting for more "forgiving" syntax with CS-Script directives to allow  omitting closing character (';') for CS-Script directives (e.g. "//css_ref System.Xml.dll" instead of "//css_ref System.Xml.dll;"). 
+ * Updated  system requirement for .NET (v3.5 -> v4.0) through all documantation. 
+ * Fixed setup problems with ShellExtensions on WinXP
+
+Release v2.8.2
+ * Fixed problem with CS-Script engine failing to parse "using directive" if it contains class alias. 
+ * Fixed compiling error for com.cs 
+ * Implemented CacheProbingResults
+
+Release v2.8.0
+   * CS-Script Tools for Visual Studio 2010 Extension (CS-Script VS Tools)
+   * Added //css_host direvtive for fine control over CLR version and CPU architecture of the runtime environment. Initial implementation of this feature (runasm32.exe) is dropped.
+   * Assorted Fixes and usability improvements:
+	  - CS-Script launcher (css.exe) now handles script exit code returned by the script engine.
+	  - Added nested interfaces support for InterfaceAlighnment.
+	  - Fixed problem with ShellExtensions sometimes not being activated on the first run of Configuration Console.
+	  - Shell Extensions are moved to public (ApplicationCommon) folder to avoid UAC penalties
+   * Added new scripts to the Script/Samples Library
+	  - Hosting/SurrogateHostScript.cs 
+
+Release v2.7.5
+ * Added x86 surrogate process runner (runasm32.exe) for running x86 scripts with the "AnyCPU" script engine executable (cscs.exe/csws.exe).
+ * Added setting the TragetFramework version of the VS2010 project on "Open with 2010"
+
+Release v2.7.4
+ * Added x86 specific binaries of stand alone script engine (cscs32.exe and csws32.exe).
+ * Added support for /platform option for the //css_dbg directive to allow loading/opening the script in VS2010 as the project of the specified platform target (e.g. x86, x64).
+
+Release v2.7.3
+ * Introduced new runtime setting OptimisticConcurrencyModel for allowing more presice concurrency control. 
+ * Fixed problem with CSScriptLibrary.v3.5.dll failing to locate C# compiler (csc.exe) on .NET 3.5 PCs.
+ * Added code sample for using "unsafe" keyword in the script.
+ * Added HostVBScript.cs sample
+ * Added "unsafe_keyword.cs" sample
+
+Release v2.7.0
+ * Ported to .NET 4.0
+ * Added support for default referenced assemblies
+
+Release v2.6.0
+ * Fixed problem with AsmHelper.InvokeInst() failing to find type in the script when class name contains namespace.
+ * CSScriptLibrary.dll is signed now.
+ * During assembly probing files with expected file extensions do not have higher priority than any other files.
+ * Implemented //css_co directive for passing compiler options string directly to the language compiler from the script file.
+ * Added support for PostSharp AOP.
+ * Added GetStaticMethodWithArgs to AsmHelper and Assembly to allow search and matching static methods with method arguments specified as Type[]
+ * Added new scripts to the Script/Samples Library
+    - Hosting/ConditionalCompilation.cs
+    - Added CompileErrors to the CompilerException class
+    - Added Simplified Sandboxing sample.
+    - Added CSScript.GetScriptTempFile()
+    - Added CSScript.GetScriptTempDir()
+    - Added Sandbox syntactic sugar class.
+    - //css_dir is always relative to the parent script location
+    - //css_dir and //css_res are now processed in all imported scripts too.
+
+Release v2.5.0
+ * Added integration with NAnt
+ * Added Silverlight Player
+ * Added //css_classless directive
+ * Implemented Interface Alignment for script remote execution
+ * Usability improvements
+    - Check for C# compiler (csc.exe) availability at the first start of css_config.exe
+    - All tutorials are reworked to demonstrate all hosting scenarios and to be in accordance with the script hosting guideline.
+    - Implementation of the Res.cs script for generating *.resources files is finalized.
+    - CSSCodeProvider.dll updated to access VB compiler for .NET v3.5.
+ * Added new scripts to the Script/Samples Library
+    - Lib/fkill.cs 
+    - Lib/noCache.cs
+    - Samples/Resourses/script.cs
+    - Samples/linq.cs
+    - Samples/NAnt/*.*
+    - Samples/Silverlight/*.*
+
+Release v2.4.4
+ * CSSCodeProvider.dll implementation changed to use v3.5 VB.NET compiler.
+
+Release v2.4.3
+ * Added //css_classless directive.
+
+Release v2.4.2
+ * Fixed problem with CSScript.GlobalSettings.InMemoryAsssembly switch not being processed ar runtime.
+
+Release v2.4.1
+ * Added /sconfig[:filename] command line argument extension to allow custom .NET config file name
+ * Added startup validation for css_config.exe to validate if tharget system has required .NET version installed
+ * All legasy scripts targeting .NET 1.1 moved from [cs-script]\Lib to [cs-script]\Lib\Bin\NET 1.1
+ * Added runtime assembly attribute "stamp" to distinguish script assemblies from the rest of the assembly set in hosted scenarios.
+ * Added new scripts to the Script Samples Library
+    - Samples\ConfigFiles\*.*
+    - Samples\Hosting\DetectingScriptCodeCalls\*.cs
+
+Release v2.4.0
+ * Implemented Interface Alignment (DuckTyping) 
+ * Added command-line switch /autoclass
+ * Added CS-Script launcher for Linux (csslinux.exe).
+ * Fixed problem with paths being internally converted into lower-case at runtime. 
+ * Added new scripts to the Samples Library
+    - Samples/HostingInterfaceAlignment/*.cs 
+ * CS-Script API changes and defect fixes
+    - AsmHelper extended with ScriptExecutionDomain property.
+    - Added preventing creation of cache directory if caching is disabled. (CSScript.CacheEnabled = false) 
+    - Added fix for AsmHelper.InvokeInst failing to resolve type name when only method name specified.
+    - Added synchronization for "simultaneous" script loading/compilation for running from different threads/processes.
+
+Release v2.3.2
+ * Added preventing creation of cache directory if caching is disabled. (CSScript.CacheEnabled = false)
+ * Added fix for AsmHelper.InvokeInst failing to resolve type name when only method name specified.
+ * Added synchronization for "simultaneous" script loading/compilation for running from different threads/processes.
+
+Release v2.3.0.0
+ * Added command-line switch /verbose 
+ * Added command-line switch /dir 
+ * Added support for environment variables in script engine directive
+ * Added //css_searchdir directive
+ * Added interactive environment CSI
+ * Script caching algorithm for hosted script execution is extended to retain compiled script cache between the host application sessions.
+ * Changes in the CLR target selection approach ("Target Framework" instead of "CLR Version")
+ * Added new scripts to the Script Samples Library
+    - Samples/Hosting/Sandboxing/*.cs    
+    - Samples/Hello.js 
+    - Samples/ErrorLevelTester.cs
+
+Release v2.2.0.0
+ * AsmHelper functionality extended with LoadMethod() 
+ * Performance improvements
+    - 2 times faster comparing to v2.1 when using AsmHelper.Invoke (Reflection)
+    - 200 times faster comparing to v2.1 when using FastMethodInvoker, GetStaticMethod and GetMethod (emitted delegates)
+ * CS-Script class library (CSScriptLibrary.dll) is build against .NET 3.5 compiler.
+ * The script engine executables aliases cscscript.exe  and cscscript.exe are phased out and moved into legacy repository  Lib\Bin\NET 1.1.  
+ * Added wild card support for type instantiation with AsmHelper.TryCreateObject and AsmHelper.CreateObject. 
+ * Created set of extension methods for more expressive code for dynamic content execution.
+ * Improved error handling for emitted assemblies: Simplified Hosting Model is more tolerant to environments with emitted in-memory assemblies like ASP.NET. 
+ * Configuration console now allows selection of predefined double-click action for script files from the list of predefined actions (e.g. "Run", "Open with..." ).
+ * CS-Script can now be forcibly and completely removed from the system (even without starting the configuration console) by launching css_config.exe with "/u" argument.
+ * Added new scripts to the Script Library
+    - Samples/Hosting/Performance.cs    
+    - Samples/Hosting/TypeSafety.cs 
+    - Samples/Hosting/MethodSignatures.cs
+    - Samples/Hosting/Classless.cs
+
+Release v2.1.0.0
+ * Implemented support for Simplified Hosting Model
+ * Implemented support for C++ style Macros
+ * Complete Visual Studio Integration
+ * Added custom compiler for C# 3.0 
+ * Implemented some Configuration Console improvements
+ * Implemented some Auto update improvements
+ * Implemented some CS-Script Interface Changes
+    - Added support for WWF projects when opening script in Visual Studio.
+    - Implemented new directive //css_ignore_namespace.
+    - Change AsmHelper constructor to treat null as valid AppDomain name.
+    - At runtime all SearchDirs are added to the system PATH environment variable.
+    - Runtime value CSScript.GlobalSettings.UseAlternativeCompiler can be now set to assembly file name only
+    - Deprecated CSSEnvironment.Settings has been removed.
+    - When opening script in Visual Studio script.cs.config (or script.exe.config) is automatically included into project as app.config.
+    - Simplified Hosting Model can be enabled/disabled by setting CSScript.ShareHostRefAssemblies property (default is true). 
+    - When hosting the script engine with CSScriptLibrary.dll developers can specify now assemblies that the script is referencing as part of the method signature. 
+    - Added compiler symbol CSS_PROJECT which can be used to for conditional compilation of script code
+    - When running with /sconfig option the script engine will treat *.exe.config file (if found) as a script config file in absence of *.cs.config (see this document for details).
+ * Added new scripts to the Script Library
+    - Samples/Hosting/HostingSimplified/Hello.cs    
+    - Samples/Hosting/HostingSimplified/Host.cs
+    - Samples/Hosting/HostingSimplified/Script.cs
+    - Samples/Hosting/HostingWithInterfaces/Host.cs
+    - Samples/Hosting/HostingWithInterfaces/Script.cs
+    - Samples/Hosting/Net v3.5/Host.cs
+    - Samples/Hosting/Net v3.5/Script.cs   
+    - Samples/Hosting/Referencing/Host.cs
+    - Samples/Hosting/Referencing/Script.cs
+    - Samples/Hosting/Referencing/ExternalAsm.cs 
+    - Samples/Macros/script_simple.cs
+    - Samples/Macros/script.cs
+    - Samples/Macros/precompile.cs       
+    - Samples/WWF/HelloWorld.cs
+    - Samples/WWFMsgBoxActivity.cs
+    - Lib/linq.includes.cs
+    - Lib/wpf.includes.cs
+    - Lib/wwf.includes.cs               
+
+Release v2.0.0.0
+ * Added css_config.exe to handle Vista UAC.
+ * Support for starting  scripts in elevated mode 
+    - from the command-line.
+    - from the code by calling VistaCSS.RestartElevated() explicitly.
+    - from the code by including the script engine directive //css_pre elevate();.
+ * Implemented script caching support for hosting the script engine (CSScriptLibrary.dll) from applications
+ * Added SearchDirs console, which offers advanced view of CS-Script search directories and allows you to add, remove and change the order of directories in more convenient way.  
+ * AsmHelper improvements
+    - AsmHelper now supports the wild card character for indicating that the Type name of the method is irrelevant (e.g. "*.Method").  Such approach is useful when you want to execute the method without specifying its Type name. For example, the method name is unique for a given script.
+    - The implementation of AsmHelper.Invoke has been changed to include a procedure for matching the number of method parameters.  This is useful when Type has more than one method with the same name but with a different number of parameters.
+    - AsmHelper.CreateObject now throws an exception if the Type name is incorrect. If you need to avoid the exception use AsmHelper.TryCreateObject, which returns null if Type is not found. 
+ * Added InMemoryAssembly configuration setting, which is used to prevent locking the script assembly file (compiled script) during the execution. 
+ * Added support for absolute path for //css_imp and //css_ref.
+ * Introduced the concept of "script alias". Script alias is a "script like" file which links to the actual script file.  Script alias is a logical equivalent of a file shortcut in Windows.
+ * Improved documentation format (code snippets).
+ * Added new Shell extension "Open cache directory" directory to navigate to the script specific cache location.
+ * Added new Shell extension "New WinForm script" to create new script file containing the WinForm application skeleton.
+ * Added new scripts to the Script and Samples Libraries.
+    - Samples/Vista/VistaUAC_code.cs
+    - Samples/VistaVistaUAC_command-line.cs
+    - Samples/VistaVistaUAC_pre-script.cs
+    - Lib/searchDirs.cs 
+    - Lib/elevate.cs
+    - Lib/startElevated.cs
+    - Lib/asadmin.cs (script alias for startElevated.cs)
+    - Lib/Vista.cs
+    - Lib/debug2005.cs (script alias for debugVS8.0.cs)
+    - Lib/cache.cs
+    - Lib/verify2.cs (to allow multiple code verification during the single verify2.cs execution)
+    - full sample for hosting CS-Script from WebService (Samples/WebService)
+
+Release v1.9.0.0
+ * Added support for C++/CLI syntax.
+ * Dramatic improvements in the assembly/script probing algorithm
+ * ExtraLib configuration option has been replaced with SearchDirs. This functionality is similar to the system environment variable PATH.
+ * Added support for WPF/XAML scripts.
+ * /sconfig option has made now a default command line argument for new installations and upgrades. 
+ * Added new scripts to the Script Library
+	- Example of WCF service and client applications implemented as C# scripts.
+	- Example of WPF application implemented as C# scripts.
+	- Example of Remoting server and client applications implemented as C# scripts.
+	- Lib/soapsuds.cs for generating C# code for WebService client.
+ * Added support for resolving .exe assemblies referenced by using <namespace>; directives in C# code.
+ * Added support for debugging the pre-post scripts as part of the primary script debugging process.
+ * Added support for app.config custom sections through assembly name aliases (e.g. "GetExecutingAssembly()") specified in the custom config section header.
+ * Added new overrides for CScript.Load() and CScript.Compile().
+ * Settings.ExtraLibDir and CSSEnvironment.AppSettings are marked as depreciated.
+
+Release v1.8.0.0
+ * Added configurable (editable) Advanced Shell Extensions.
+    - Open script file in VS8.0
+    - Run script as a WinForm application
+    - Run script as a console application
+    - Start script under debugger
+    - Check script for errors (verify)
+    - Start configuration console
+    - Convert script to a VS2003 project
+    - Convert script to a VS2005 project
+	- Create shortcut to the script file for to running it by double-clicking
+    - Compile script into a WinForm application
+    - Compile script into a console application
+    - Compile script into a class library
+    - Compile script into a WinForm application with embedded debug information
+    - Compile script into a console application  with embedded debug information
+ * Added support for //css_include directive, which is logically similar to the #include in C++.
+ * Added passing script command-line arguments directly from code (//css_args directive).
+ * Added non-engine directive (//css_dbg) allows controlling how the script is loaded in VS2005/VS2005E execution time. 
+ * Added /co command line switch for passing compiler options directly to the language compiler.
+ * Added new scripts in the Script library:
+	- css2cs.cs   
+	- setEV.cs   
+	- createShortcut.cs
+	- lib.cs
+ * Changed format and name of the CS-Script runtime settings file  is changed (css_config.dat -> css_config.xml).
+ * Added HideCompilerWrnings option to control level of details in compiler output information.
+ * Added option for enabling /disabling the Advanced Shell Extensions from the configuration console.
+ * Added InvokeInst method to the AsmHelper class to invoke instance methods. 
+ * Changed CS-Script directory structure: Debug folder has been moved from the CS-Script root directory to the root/Lib.
+
+Release v1.7.0.0
+ * Added limited support for Compact Framework.
+ * Added new command line argument /sconfig to load true app.config files (etc. if the script name is test.cs CLR will load test.cs.config).
+ * Added support for ActiveX controls when working with WinForm designer. 
+ * Added support for resource files (with //css_res directive).
+ * Added support for TypeLibrary GUIDS in the com.cs when used with //css_pre directive.
+ * Added new scripts in the Script library:
+	- nkill.cs   
+	- ver.cs
+	- netpath.cs   
+	- shortName.cs    
+	- runas.cs
+ * Added "Debug script" shell extension which uses //x command-line switch what ensures the same runtime conditions when running under debugger or without it.
+ * Changed "Run" shell extension now it hides console window if the script does not do any output to the console window.
+ * Fixed problem with CSScriptLibrary.CSScript.CompileWithConfig method, which ignored ExtraLibDirectory provided with the custom configuration file.
+
+Release v1.6.0.0
+ * Added AppSetting support for the script config file (eg. script.cs.config)
+ * Added CSEnvironment class to the CSScriptLibrary to asses CS-Script environment settings.
+ * Added hideCache option, which allows completelly remove the cached script files from the script directory.
+ * Added CSScript.CompileWithConfig method to allow controlling the way how the script compiled into assembly through custom CS-Script configuration file.
+ * Added setting the exit code from the static int Main(...) of the script. Also the exit code is set to 1 if the script throws unhandled exception. 
+ * Added #Develop v2.0 support
+ * Added //x command line switch. It is similar to '//x' switch for MS cscript.exe. It forces the engine to launch Just-In-Time debugger just before starting the script so it can be attached to the script application.
+ * Added alias '/d' for '/dbg' command-line switch
+ * Added Help.cs script for opening the CS-Script help from command-line.
+ * Added script engine launcher css.exe, which allows running console scripts without displaying the console window, in case if the script does not do any console output.
+
+Release v1.5.0.0
+ * Added full support (with custom compiler) for classless C# syntax
+ * Added support for aliases of all //css_... directives
+ * Added ability to execute pre/post execution scripts
+ * Added "single-line access" for COM and Web Services (no importing type library or running wsdl.exe is requirred)
+ * Added support for conversion C# script to Web Service
+ * Added support for conversion C# script to classless C# script and vise versa
+ * Compiler for CC#, C#, VB, JScript is enabled by default on new installation
+ * Added support for opening WinForm scripts containing partial classes in Visual Studio
+ * Implemented support for the CS-Script automatic update 
+
+Release v1.4.0.0
+ * Added preserve_main option to the //css_import directive to prevent renaming the "static...Main" of imported scripts.
+ * Added noclass.cs script to run classless C# scripts 
+ * Added ability to use (at runtime) assemblies from CS-Scripot libraries during assembly probing at compile/runtime
+ * Added command-line switch /noconfig[:<file>], to ignore default config file (css_config.dat) or use alternative one.
+ * Mirrored copies of the script engine executables are changed to avoid any confusion with MS .NET applications: csc.exe->cscs.exe and csw.exe->csws.exe.
+ * Config.cs script is changed to run under the user account with restricted rights.
+ * The script engine implementation is changed to recompile script "cache" on the engine or "target CLR" version change.
+ * Fixed debugVS8.0.cs script problem when it creates not needed copies of imported scripts.
+ * Fixed C# parser bug when it does not rename "static Main" of the imported script if the return type is not void.
+
+Release v1.3.1.23047
+ * Fixed problem with assembly display name for 'compiled script' assembly
+ * C# parser optimised: does not use RE any more and it is faster now
+ * Added optional cleanup shell command triggered by specific number of the consecutive script executions.
+ * Added WebService sample (googleWebService.cs, GoogleSearchService.cs)
+ * Added support for VS2005 Express edition.
+ * The functionality of the configuration console (config.cs) is signifficantly extended:
+    - enabling a particular debugger (VS2003, VS2005, VS2005E, CLRDebuger, SharpDevelop)
+    - selecting the target CLR version
+    - enabling "New file" and double-click shell extensions
+    - checking for updates, sending feedback and accessing local and online documantation		 
+    - removing CS-Script from the system
+
+Release v1.3.0.21354 			
+ * Added general support for non-C# plug'n'play compilers. 
+ * Added support for VB and JScript languages. 
+ * Significantly improved start-up time when using /c switch (450 -> 110 ms average for hello.cs script) 
+ * Added support for default runtime settings (command-line arguments, ThreadingModel...)
+ * Added config.cs script, which implements CS-Script configuration console. 
+ * Added new switch /l (Local), which forces script to start in the same directory where it is. 
+ * Fixed broken /c command-line switch 
+ * Fixed debugVS7.1.cs so it can work when multiple versions of the VisualStudio is present 
+ * Added support for extra ScriptLibrary directory. 
+ * ImageProcessor tutorial adjusted for .NET2.0
+
+Release v1.2.0.35519
+ * Added instance method Execute(...) to CSScript class (CSScriptLibrary.dll).
+ * Added script and shell extension that tests another script if it can be successfully compiled.
+ * Added support for [STAThread] and [MTAThread] attributes in the script.
+ * Changed priority of search directories for loading imported scripts (CurrentDir->ScriptDir->CSScriptLibDir->Path).
+ * Fixed bug that prevented installation of shell extension for VisualStudio 2005.
+ * Fixed bug that caused the installation problem when running under Total Commander or similar shell utilities.
+ * //css_import now can support relative and absolute path.
+ * Added AsmHelper class to CSScriptLibrary.
+ * Created Documentation package (HTMLHelp, Manual, Tutorials)
+ * Added number of scripts to the ScriptLibrary	
+
+Release v1.1.0.21572
+ * Added support for .NET 2.0 Framework 
+ * Added support for VisualStudio 8.0, SharpDevelop and MS CLR Debugger. 
+ * Added generating optional debug info for script so it can be debugged by attaching a debugger or by triggering an assertion. 
+ * Fixed restriction for static Main() to be public only. Now private is supported as well. 
+ * Added support for aliases in using directive.
+ * Improved support for script hosting.
+
+Release v1.0.0.17912
+ * Significantly reworked script parsing routine to implement improved algorithm.
+ * Improved compile error reporting.
+
+Release v0.1.1938.26230
+ * Added support for referencing assemblies from the code
+ * Updated debug.cs script. It is able now to add assemblies referenced from the code to the project ScriptDebugger.project.
+
+Release v0.1.1862.23752
+ * Added support for the multiple script files
+ * Updated debug.cs script. It is able now to 
+ * Updated debug.cs script. It is able now to resolve all referenced namespaces from the code to the local or GAC assemblies and generate appropriate project. Also generated project will contain links to all refferenced (imported) script files if any.
+
+Release v0.1.1780.17250
+ * Added changes to the debugger project to allow using Form designers when opening script file with Visual Studio
+
+Release v0.1.1779.37312
+ * Added support for arbitrary namespaces in a script file (cscscript.exe; cswscript.exe;)
+ * Changed debug.cs now it opens the script file in IDE and makes that file a "current document"
+ * Added support for local assemblies
+ * Implemented compiling into executable
+ * Added implementation of script engine as an assembly (CSScriptLibrary.dll) so it can be hosted by CLR applications. 
+ * Script engine applications are mirrored now cscscript.exe/csc.exe and cswscript.exe/csw.exe
+
