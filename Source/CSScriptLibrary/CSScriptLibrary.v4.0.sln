@@ -1,0 +1,33 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSScriptLibrary.v4.0", "CSScriptLibrary.v4.0.csproj", "{F33DDB9A-918F-43D9-A1CF-CECD269AD958}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cscscript.v4.0", "..\cscscript\cscscript.v4.0.csproj", "{7DD203B9-D251-46BF-9175-5CE3786C9705}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cswscript.v4.0", "..\cswscript\cswscript.v4.0.csproj", "{BB38EC0E-0AEA-46ED-9581-660375DBF7BA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F33DDB9A-918F-43D9-A1CF-CECD269AD958}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F33DDB9A-918F-43D9-A1CF-CECD269AD958}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F33DDB9A-918F-43D9-A1CF-CECD269AD958}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F33DDB9A-918F-43D9-A1CF-CECD269AD958}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DD203B9-D251-46BF-9175-5CE3786C9705}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DD203B9-D251-46BF-9175-5CE3786C9705}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DD203B9-D251-46BF-9175-5CE3786C9705}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DD203B9-D251-46BF-9175-5CE3786C9705}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB38EC0E-0AEA-46ED-9581-660375DBF7BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB38EC0E-0AEA-46ED-9581-660375DBF7BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB38EC0E-0AEA-46ED-9581-660375DBF7BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB38EC0E-0AEA-46ED-9581-660375DBF7BA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
