@@ -127,20 +127,26 @@ ECHO Building CSScriptLibrary.dll: >> ..\Build\build.log
 "%net45_tools%\msbuild.exe" ..\CSScriptLibrary\CSScriptLibrary.csproj /p:AssemblyName=CSScriptLibrary /p:TargetFrameworkVersion=v4.5  /p:configuration=Release;Platform="AnyCPU" /p:OutDir=bin\Distro /p:DefineConstants="net4;net45;InterfaceAssembly" /t:Rebuild  %common_msbuild_params%
 ECHO ------------ >> ..\Build\build.log
 move ..\CSScriptLibrary\bin\Distro\CSScriptLibrary.dll ..\Build\CSScriptLibrary.dll
+move ..\CSScriptLibrary\bin\Distro\CSScriptLibrary.xml ..\Build\CSScriptLibrary.xml
+copy ..\Build\CSScriptLibrary.dll %CS-S_DEV_ROOT%\lib\CSScriptLibrary.dll 
+copy ..\Build\CSScriptLibrary.xml %CS-S_DEV_ROOT%\lib\CSScriptLibrary.xml 
 
 rem -------------------------------------------------------------------------------------
-
 cd ..\Build
 rem need to ensure ConfigConsole.cs doesn't contain "{ 25D84CB0", which is a formatting CSScript.Npp artefact 
 cscs.exe /l /dbg /nl "..\ConfigConsole\buildCheck.cs" >> ..\Build\build.log
+
+rem neet to remap CSSCRIPT_DIR as otherwise ConfigConsole will be linked against choco CS-S binaries  
+set old_css_dir=%CSSCRIPT_DIR%
+set CSSCRIPT_DIR=%CS-S_DEV_ROOT%
 
 ECHO Building ConfigConsole.exe: 
 ECHO Building ConfigConsole.exe: >> ..\Build\build.log
 cscs.exe /nl /l /dbg /ew "..\ConfigConsole\ConfigConsole.cs"
 move ..\ConfigConsole\ConfigConsole.exe ..\Build\ConfigConsole.exe
 ECHO ------------ >> ..\Build\build.log
+set CSSCRIPT_DIR=%old_css_dir% 
  
-
 move temp\temp\CSScriptLibrary.v1.1.xml CSScriptLibrary.v1.1.xml
 move temp\temp\CSScriptLibrary.v3.5.xml CSScriptLibrary.v3.5.xml
 move temp\temp\CSScriptLibrary.v1.1.dll CSScriptLibrary.v1.1.dll
@@ -220,11 +226,11 @@ ECHO Building CSSCodeProvider.v4.6.dll: >> ..\Build\build.log
 rem cannot build v4.6 with csc.exe it needs to be VS+manual build
 rem ECHO Building CSSCodeProvider.v4.6.dll: >> ..\Build\build.log
 rem "%net4_tools%\csc.exe" /nologo /nowarn:618 /o /out:..\Build\temp\temp\CSSCodeProvider.v4.6.dll /t:library ..\CSSCodeProvider.v4.6\CSSCodeProvider.cs ..\CSSCodeProvider.v3.5\AssemblyInfo.cs /r:System.dll /r:E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\bin\roslyn\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll >> build.log
-copy E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\bin\roslyn\*.* "%local_dev%\Lib\Bin\Roslyn\"
-
+copy ..\CSSCodeProvider.v4.6\bin\roslyn\*.* "%local_dev%\Lib\Bin\Roslyn\"
+     
 del "%local_dev%\Lib\Bin\Roslyn\*.xml"
-copy E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\bin\Release\CSSCodeProvider.v4.6.dll "%local_dev%\Lib\CSSCodeProvider.v4.6.dll"
-copy E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\bin\Release\CSSCodeProvider.v4.6.dll CSSCodeProvider.v4.6.dll
+copy ..\CSSCodeProvider.v4.6\bin\Release\CSSCodeProvider.v4.6.dll "%local_dev%\Lib\CSSCodeProvider.v4.6.dll"
+copy ..\CSSCodeProvider.v4.6\bin\Release\CSSCodeProvider.v4.6.dll CSSCodeProvider.v4.6.dll
 ECHO ------------ >> ..\Build\build.log
 
 ECHO Building css.exe: >> ..\Build\build.log

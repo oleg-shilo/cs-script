@@ -32,7 +32,7 @@ namespace Config
 {
     public class ConfigForm : Form
     {
-        private CSScriptInstaller installer;
+        private CSScriptInstaller installer; 
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
