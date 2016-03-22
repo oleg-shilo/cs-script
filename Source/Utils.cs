@@ -1840,7 +1840,14 @@ namespace csscript
                         string libDir = Path.Combine(Environment.ExpandEnvironmentVariables("%CSSCRIPT_DIR%"), "lib"); //CS-S installed
                         nuGetExe = Path.Combine(libDir, "nuget.exe");
                         if (!File.Exists(nuGetExe))
+                        {
+                            try
+                            {
+                                Console.WriteLine("Warning: Cannot find 'nuget.exe'. Ensure it is in the application directory or in the %CSSCRIPT_DIR%/lib");
+                            }
+                            catch { }
                             nuGetExe = null;
+                        }
                     }
                 }
                 return nuGetExe;
@@ -2008,12 +2015,18 @@ namespace csscript
         {
             var result = Path.GetFileName(path);
 
-            //WixSharp.bin.1.0.30.4
-            int i = result.Length - 1;
-            for (; i > 0; i--)
+            //WixSharp.bin.1.0.30.4-HotFix
+            int i = 0;
+            char? prev = null;
+            for (; i < result.Length; i++)
             {
-                if (result[i] != '.' && !char.IsDigit(result[i]))
+                char current = result[i];
+                if ((prev.HasValue && prev == '.') && char.IsDigit(current))
+                {
+                    i = i - 2; //-currPos-prevPos
                     break;
+                }
+                prev = current;
             }
 
             result = result.Substring(0, i+1); //i-inclusive
