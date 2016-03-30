@@ -103,6 +103,7 @@ namespace CSScriptLibrary
             public bool debug;
             public Type evaluatorType;
             public object scriptObj;
+            public string error;
 
             public static IEvaluator CreateEvaluator(RemoteLoadingContext context) //must be static to ensure the instance is created in the calling AppDomain
             {
@@ -341,16 +342,26 @@ namespace CSScriptLibrary
 
             remoteDomain.Execute(context =>
             {
-                IEvaluator eval = RemoteLoadingContext.CreateEvaluator(context);
+                try
+                {
+                    IEvaluator eval = RemoteLoadingContext.CreateEvaluator(context);
 
-                context.scriptObj = eval.CompileCode(context.code)
-                                        .CreateObject("*");
+                    context.scriptObj = eval.CompileCode(context.code)
+                                            .CreateObject("*");
 
-                bool implementsInterface = typeof(T).IsAssignableFrom(context.scriptObj.GetType());
+                    bool implementsInterface = typeof(T).IsAssignableFrom(context.scriptObj.GetType());
 
-                if (!implementsInterface) //try to align to T
-                    context.scriptObj = context.scriptObj.AlignToInterface<T>();
+                    if (!implementsInterface) //try to align to T
+                        context.scriptObj = context.scriptObj.AlignToInterface<T>();
+                }
+                catch (Exception e)
+                {
+                    context.error = e.ToString();
+                }
             }, cx, searchDirs);
+
+            if (cx.error != null)
+                throw new CompilerException("Exception in the remote AppDomain: " + cx.error);
 
             var result = (T) cx.scriptObj;
 
@@ -408,25 +419,34 @@ namespace CSScriptLibrary
 
             remoteDomain.Execute(context =>
             {
-                IEvaluator eval = RemoteLoadingContext.CreateEvaluator(context);
+                try
+                {
+                    IEvaluator eval = RemoteLoadingContext.CreateEvaluator(context);
 
-                var script = eval.ReferenceAssemblyOf<CSScript>()
-                                 .CompileCode(context.code);
+                    var script = eval.ReferenceAssemblyOf<CSScript>()
+                                     .CompileCode(context.code);
 
 #if net45
-                string agentTypeName = script.DefinedTypes.Where(t => t.Name == "RemoteAgent").First().FullName;
+                    string agentTypeName = script.DefinedTypes.Where(t => t.Name == "RemoteAgent").First().FullName;
 #else
-                string agentTypeName = script.GetModules()
-                                             .SelectMany(m => m.GetTypes())
-                                             .Where(t => t.Name == "RemoteAgent")
-                                             .First()
-                                             .FullName;
-#endif
-                var agent = (IRemoteAgent) script.CreateObject(agentTypeName);
-                agent.Implementation = script.GetStaticMethod();
-                context.scriptObj = agent;
-            },
-            cx, probingDirs);
+                    string agentTypeName = script.GetModules()
+                                                 .SelectMany(m => m.GetTypes())
+                                                 .Where(t => t.Name == "RemoteAgent")
+                                                 .First()
+                                                 .FullName;
+#endif             
+                    var agent = (IRemoteAgent) script.CreateObject(agentTypeName);
+                    agent.Implementation = script.GetStaticMethod();
+                    context.scriptObj = agent;
+                }
+                catch (Exception e)
+                {
+                    context.error = e.ToString();
+                }
+            }, cx, probingDirs);
+
+            if (cx.error != null)
+                throw new CompilerException("Exception in the remote AppDomain: " + cx.error);
 
             var agentProxy = (IRemoteAgent) cx.scriptObj;
 

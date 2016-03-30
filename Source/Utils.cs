@@ -2088,17 +2088,21 @@ namespace csscript
             result.AddRange(GetSinglePackageLibDirs(package, version));
 
             foreach (string dependency in GetPackageDependencies(packageDir, package))
-                result.AddRange(GetSinglePackageLibDirs(dependency, "")); //do not assume the dependency has the same version as the major package; Get the latest instead 
+                result.AddRange(GetSinglePackageLibDirs(dependency, "", packageDir)); //do not assume the dependency has the same version as the major package; Get the latest instead 
 
             return result.ToArray();
         }
 
         static public string[] GetSinglePackageLibDirs(string package, string version)
         {
+            return GetSinglePackageLibDirs(package, version, null);
+        }
+
+        static public string[] GetSinglePackageLibDirs(string package, string version, string rootDir)
+        {
             List<string> result = new List<string>();
 
-            string packageDir = Path.Combine(NuGetCache, package);
-
+            string packageDir = rootDir??Path.Combine(NuGetCache, package);
 
             string requiredVersion;
 
