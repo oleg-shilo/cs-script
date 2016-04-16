@@ -698,7 +698,8 @@ namespace csscript
                         catch { } //will fail for windows app
 
                         CSSUtils.VerbosePrint("  CurrentDirectory: " + Environment.CurrentDirectory, options);
-                        if (!Utils.IsLinux())
+
+                        if (!Utils.IsLinux() && options.verbose)
                         {
                             CSSUtils.VerbosePrint("  NuGet manager: " + NuGet.NuGetExeView, options);
                             CSSUtils.VerbosePrint("  NuGet cache: " + NuGet.NuGetCacheView, options);
