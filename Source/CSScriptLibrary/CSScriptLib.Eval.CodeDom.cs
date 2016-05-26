@@ -148,6 +148,13 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
+        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies 
+        /// that the script depend on (via '//css_...' and 'using ...' directives) should be referenced.
+        /// </summary>
+        /// <value></value>
+        public bool DisableReferencingFromCode { get; set; }
+
+        /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>) and evaluates it.
         /// <para>
         /// This method is a logical equivalent of <see cref="CSScriptLibrary.IEvaluator.CompileCode"/> but is allows you to define 
@@ -257,8 +264,12 @@ namespace CSScriptLibrary
 
             dirs = CSScript.RemovePathDuplicates(dirs);
 
+            var asms = new List<string>(parser.RefAssemblies);
 
-            foreach (var asm in parser.RefAssemblies.Concat(parser.RefNamespaces))
+            if (!parser.IgnoreNamespaces.Any(x => x == "*"))
+                asms.AddRange(parser.RefNamespaces.Except(parser.IgnoreNamespaces));
+
+            foreach (var asm in asms)
                 foreach (string asmFile in AssemblyResolver.FindAssembly(asm, dirs))
                     retval.Add(asmFile);
 

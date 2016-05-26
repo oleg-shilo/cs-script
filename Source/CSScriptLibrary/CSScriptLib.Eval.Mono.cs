@@ -130,6 +130,14 @@ namespace CSScriptLibrary
         /// </summary>
         /// <value>The throw on error.</value>
         public bool ThrowOnError { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies 
+        /// that the script depend on (via '//css_...' and 'using ...' directives) should be referenced.
+        /// </summary>
+        /// <value></value>
+        public bool DisableReferencingFromCode { get; set; }
+
 
         /// <summary>
         /// Gets or sets a value indicating whether to reset <c>Mono.Evaluator</c> automatically after it fails
@@ -673,7 +681,12 @@ namespace CSScriptLibrary
 
             dirs = CSScript.RemovePathDuplicates(dirs);
 
-            foreach (var asm in parser.RefAssemblies.Concat(parser.RefNamespaces))
+            var asms = new List<string>(parser.RefAssemblies);
+
+            if (!parser.IgnoreNamespaces.Any(x => x == "*"))
+                asms.AddRange(parser.RefNamespaces.Except(parser.IgnoreNamespaces));
+
+            foreach (var asm in asms)
                 foreach (string asmFile in AssemblyResolver.FindAssembly(asm, dirs))
                     retval.Add(asmFile);
 
@@ -919,7 +932,8 @@ namespace CSScriptLibrary
         {
             Assembly result = null;
 
-            ReferenceAssembliesFromCode(scriptText);
+            if (!DisableReferencingFromCode)
+                ReferenceAssembliesFromCode(scriptText);
 
             try
             {

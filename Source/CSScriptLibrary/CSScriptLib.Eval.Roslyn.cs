@@ -205,7 +205,9 @@ namespace CSScriptLibrary
         /// <returns>The compiled assembly.</returns>
         public Assembly CompileCode(string scriptText)
         {
-            ReferenceAssembliesFromCode(scriptText);
+            if (!DisableReferencingFromCode)
+                ReferenceAssembliesFromCode(scriptText);
+
             var asmName = CSharpScript.Create(scriptText, CompilerSettings)
                                       .RunAsync()
                                       .Result
@@ -330,7 +332,12 @@ namespace CSScriptLibrary
 
             dirs = CSScript.RemovePathDuplicates(dirs);
 
-            foreach (var asm in parser.RefAssemblies.Concat(parser.RefNamespaces))
+            var asms = new List<string>(parser.RefAssemblies);
+
+            if (!parser.IgnoreNamespaces.Any(x => x == "*"))
+                asms.AddRange(parser.RefNamespaces.Except(parser.IgnoreNamespaces));
+
+            foreach (var asm in asms)
                 foreach (string asmFile in AssemblyResolver.FindAssembly(asm, dirs))
                     retval.Add(asmFile);
 
@@ -393,7 +400,9 @@ namespace CSScriptLibrary
         /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script.</returns>
         public T LoadCode<T>(string scriptText, params object[] args) where T : class
         {
-            ReferenceAssembliesFromCode(scriptText);
+            if (!DisableReferencingFromCode)
+                ReferenceAssembliesFromCode(scriptText);
+
             //compile script and proxy as two separate actions
             var scriptComp = CSharpScript.Create(scriptText, CompilerSettings).RunAsync().Result;
             var scriptAsmName = scriptComp.Script.GetCompilation().AssemblyName;
@@ -550,6 +559,13 @@ namespace CSScriptLibrary
 
             return LoadCode<T>(scriptText);
         }
+
+        /// <summary>
+        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies 
+        /// that the script depend on (via '//css_...' and 'using ...' directives) should be referenced.
+        /// </summary>
+        /// <value></value>
+        public bool DisableReferencingFromCode { get; set; }
 
         /// <summary>
         /// References the assemblies from the script code.

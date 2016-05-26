@@ -225,6 +225,13 @@ namespace CSScriptLibrary
         bool DebugBuild { get; set; }
 
         /// <summary>
+        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies 
+        /// that the script depend on (via '//css_...' and 'using ...' directives) should be referenced.
+        /// </summary>
+        /// <value></value>
+        bool DisableReferencingFromCode { get; set; }
+
+        /// <summary>
         /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s). 
         /// </summary>
         /// <example>

@@ -419,6 +419,21 @@ namespace CSScriptLibrary
 #endif
 
         /// <summary>
+        /// Extension method. To assist with Fluent API.
+        /// </summary>
+        /// <param name="obj">The object that is a subject of Fluent invocation.</param>
+        /// <param name="action">The action to be performed against object.</param>
+#if net1
+        public static T With<T>(T obj, Action<T> action)
+#else
+        public static T With<T>(this T obj, Action<T> action)
+        {
+            action(obj);
+            return obj;
+        }
+#endif
+
+        /// <summary>
         /// Extension method. Executes <see cref="T:System.Action"/> with the specified array of permissions
         /// </summary>
         /// <param name="permissions">The permissions set to be used for the execution.</param>

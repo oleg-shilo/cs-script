@@ -139,6 +139,29 @@ public class MonoEval
     }
 
     [Fact]
+    public void LoadCode2()
+    {
+        dynamic script = CSScript.MonoEvaluator
+                                 .With(eval=>eval.DisableReferencingFromCode = true)
+                                 .LoadCode(@"
+                    using System;
+
+                    public class Script
+                    {
+                        public int Run()
+                        {
+                            Console.WriteLine(""Hello from Script.Run()"");
+                            int x = (int)System.Net.HttpStatusCode.OK;
+                            return x;
+                        }
+                    }");
+
+        int result = script.Run();
+
+        Assert.Equal(200, result);
+    }
+
+    [Fact]
     public void ProcessCodeDirectives()
     {
         dynamic script = CSScript.MonoEvaluator
