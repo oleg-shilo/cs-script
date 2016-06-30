@@ -2,6 +2,7 @@
 using CSScriptLibrary;
 using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Tests;
 using Xunit;
 
@@ -159,6 +160,34 @@ public class MonoEval
         int result = script.Run();
 
         Assert.Equal(200, result);
+    }
+
+    [Fact]
+    public void LoadCode3()
+    {
+        dynamic script = CSScript.MonoEvaluator
+                                 .LoadCode(@"
+                    using System;
+                    using System.Runtime.InteropServices;
+
+                    public class Script
+                    {
+                        public TestStruct Run()
+                        {
+                            return new TestStruct();
+                        }
+                    }
+                    
+                    [StructLayout(LayoutKind.Explicit, Size = 64)]
+                    public struct TestStruct
+                    {
+                        [FieldOffset(0)]
+                        public int Index;
+                    }");
+
+        var result = script.Run();
+
+        Assert.NotNull(result);
     }
 
     [Fact]

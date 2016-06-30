@@ -1081,6 +1081,8 @@ namespace csscript
                         if (code[i] == delimiter)
                         {
                             lastDelimiter = delimiter;
+                            if (i == endIndex)
+                                return i;
                             break;
                         }
                 }

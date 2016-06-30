@@ -622,6 +622,8 @@ namespace CSScriptLibrary
                     "which are not loaded from the file location. You may want to use CS-Script MonoEvaluator (Mono.CSharp)");
 
             if (!CompilerSettings.MetadataReferences.Cast<PortableExecutableReference>().Any(r => Utils.IsSamePath(r.FilePath, assembly.Location)))
+                //Future assembly aliases support:
+                //MetadataReference.CreateFromFile("asm.dll", new MetadataReferenceProperties().WithAliases(new[] { "lib_a", "external_lib_a" } })
                 CompilerSettings = CompilerSettings.AddReferences(assembly);
 
             return this;

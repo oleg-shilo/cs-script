@@ -97,6 +97,7 @@ namespace CSScriptCompilers //CS-Script
             string outputName = Path.GetFileNameWithoutExtension(options.OutputAssembly);
             string tempDir = Path.Combine(Path.GetTempPath(), "CSSCRIPT\\CPP\\" + System.Guid.NewGuid().ToString());
             string tempProj = Path.Combine(tempDir, outputName + ".csproj");
+            string tempSln = Path.Combine(tempDir, outputName + ".sln");
             string outputFile = Path.Combine(tempDir, outputName + (options.GenerateExecutable ? ".exe" : ".dll"));
 
             if (Directory.Exists(tempDir))
@@ -104,10 +105,12 @@ namespace CSScriptCompilers //CS-Script
 
             Directory.CreateDirectory(tempDir);
 
-            using (StreamReader sr = new StreamReader(ProjTemplateFile))
+            File.WriteAllText(tempSln, GetSolutionTemplateContent().Replace("$PROJECT_FILE$", outputName + ".csproj"));
+
+            string content = GetProjTemplateContent();
+
             using (StreamWriter sw = new StreamWriter(tempProj))
             {
-                string content = sr.ReadToEnd();
                 content = content.Replace("$NAME$", outputName);
                 content = content.Replace("$DEBUG_TYPE$", options.IncludeDebugInformation ? "<DebugType>full</DebugType>" : "");
                 content = content.Replace("$OPTIMIZE$", options.IncludeDebugInformation ? "false" : "true");
@@ -137,7 +140,7 @@ namespace CSScriptCompilers //CS-Script
                     references += string.Format(reference_template, Path.GetFileName(file), file);
                 content = content.Replace("$REFERENCES$", references);
 
-                content = content.Replace("$MIN_CLR_VER$", "<MinFrameworkVersionRequired>3.0</MinFrameworkVersionRequired>");
+                content = content.Replace("$MIN_CLR_VER$", "<MinFrameworkVersionRequired>4.0</MinFrameworkVersionRequired>");
                 //content = content.Replace("$IMPORT_PROJECT$", "<Import Project=\"$(MSBuildBinPath)\\Microsoft.WinFX.targets\" />");
                 content = content.Replace("$IMPORT_PROJECT$", "");
                 string sources = "";
@@ -158,14 +161,17 @@ namespace CSScriptCompilers //CS-Script
 
                 sw.Write(content);
             }
-
+             
             string compileLog = "";
             //Stopwatch sw1 = new Stopwatch();
             //sw1.Start();
 
             string msbuild = Path.Combine(Path.GetDirectoryName("".GetType().Assembly.Location), "MSBuild.exe");
 
-            compileLog = RunApp(Path.GetDirectoryName(tempProj), msbuild, "\"" + tempProj + "\" /p:Configuration=\"CSSBuild\" /nologo /verbosity:m").Trim();
+            string args = string.Format(@"/nologo /verbosity:minimal /t:Clean,Build /p:Configuration=CSSBuild /p:Platform=""Any CPU"" ""{0}""", tempSln);
+
+            compileLog = RunApp(Path.GetDirectoryName(tempProj), msbuild, args).Trim();
+            //compileLog = RunApp(Path.GetDirectoryName(tempProj), msbuild, "\"" + tempProj + "\" /p:Configuration=\"CSSBuild\" /nologo /verbosity:m").Trim();
 
             //sw1.Stop();
 
@@ -248,15 +254,79 @@ namespace CSScriptCompilers //CS-Script
             return retval;
         }
 
+        static string GetSolutionTemplateContent()
+        {
+            return @"Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project(""{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"") = ""onfly.xaml.cs"", ""$PROJECT_FILE$"", ""{31BEEBF9-835A-4A03-BBB6-EFC6A9CB293F}""
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		CSSBuild|Any CPU = CSSBuild|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{31BEEBF9-835A-4A03-BBB6-EFC6A9CB293F}.CSSBuild|Any CPU.ActiveCfg = CSSBuild|Any CPU
+		{31BEEBF9-835A-4A03-BBB6-EFC6A9CB293F}.CSSBuild|Any CPU.Build.0 = CSSBuild|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal";
+        }
+        static string GetProjTemplateContent()
+        {
+            var file = ProjTemplateFile;
+            if (File.Exists(file))
+            {
+                using (StreamReader sr = new StreamReader(file))
+                    return sr.ReadToEnd();
+            }
+            else
+                return @"<?xml version=""1.0"" encoding=""utf-8""?>
+<Project DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"" ToolsVersion=""4.0"">
+  <PropertyGroup>
+    <Configuration Condition="" '$(Configuration)' == '' "">CSSBuild</Configuration>
+    <Platform Condition="" '$(Platform)' == '' "">AnyCPU</Platform>
+    <ProjectGuid>{31BEEBF9-835A-4A03-BBB6-EFC6A9CB293F}</ProjectGuid>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <AssemblyName>$NAME$</AssemblyName>
+    <WarningLevel>4</WarningLevel>
+    <OutputType>$TYPE$</OutputType>
+    $MIN_CLR_VER$
+	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="" '$(Configuration)|$(Platform)' == 'CSSBuild|AnyCPU' "">
+    <DebugSymbols>$DEBUG$</DebugSymbols>
+	$DEBUG_TYPE$
+    <Optimize>$OPTIMIZE$</Optimize>
+    <OutputPath>$OUPTUT_DIR$</OutputPath> 
+    <DefineConstants>$DEBUG_CONST$TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    $REFERENCES$
+  </ItemGroup>
+  <ItemGroup>
+    $SOURCE_FILES$
+  </ItemGroup>
+  <Import Project=""$(MSBuildBinPath)\Microsoft.CSharp.targets"" />
+  $IMPORT_PROJECT$
+</Project>";
+        }
+
         static string ProjTemplateFile
         {
             get
             {
+                string file;
                 //return @"C:\cs-script\Dev\WPF\VS\xaml.template";
                 if (Environment.GetEnvironmentVariable("CSScriptDebugging") != null || Environment.GetEnvironmentVariable("CSScriptDebugging") == null)
-                    return Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\Lib\xaml.template");
+                    file = Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\Lib\xaml.template");
                 else
-                    return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"xaml.template");
+                    file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"xaml.template");
+
+                return file;
             }
         }
         static string RunApp(string workingDir, string app, string args)
@@ -295,13 +365,13 @@ namespace CSScriptCompilers //CS-Script
 
             CompilerParameters options = new CompilerParameters(
                 new string[]
-				{
-					@"C:\WINDOWS\assembly\GAC_MSIL\System\2.0.0.0__b77a5c561934e089\System.dll",
-					@"C:\WINDOWS\assembly\GAC_32\System.Data\2.0.0.0__b77a5c561934e089\System.Data.dll",
-					@"C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.0\WindowsBase.dll",
-					@"C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.0\PresentationCore.dll",
-					@"C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.0\PresentationFramework.dll"
-				},
+                {
+                    @"C:\WINDOWS\assembly\GAC_MSIL\System\2.0.0.0__b77a5c561934e089\System.dll",
+                    @"C:\WINDOWS\assembly\GAC_32\System.Data\2.0.0.0__b77a5c561934e089\System.Data.dll",
+                    @"C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.0\WindowsBase.dll",
+                    @"C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.0\PresentationCore.dll",
+                    @"C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.0\PresentationFramework.dll"
+                },
                 Path.ChangeExtension(source1, dll ? ".dll" : ".exe"),
                 false);
 
@@ -310,10 +380,10 @@ namespace CSScriptCompilers //CS-Script
             options.IncludeDebugInformation = true;
 
             CompilerResults result = new CSCompiler("v3.5").CompileAssemblyFromFileBatch(options, new string[]
-				{
+                {
 					//source3, 
-					source2, source1 
-				});
+					source2, source1
+                });
         }
     }
 }

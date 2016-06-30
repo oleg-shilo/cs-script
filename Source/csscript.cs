@@ -797,8 +797,7 @@ namespace csscript
 
                                     assemblyFileName = Compile(options.scriptFileName);
 
-
-                                    Debug.WriteLine("Asm is compiled");
+                                    //Debug.WriteLine("Asm is compiled");
 
                                     if (Profiler.Stopwatch.IsRunning)
                                     {
@@ -1638,7 +1637,7 @@ namespace csscript
             {
                 if (options.verbose)
                 {
-                    Console.WriteLine("  Compiler Oputput: ", options);
+                    Console.WriteLine("  Compiler Output: ", options);
                     foreach (CompilerError err in results.Errors)
                         Console.WriteLine("  {0}({1},{2}):{3} {4} {5}", err.FileName, err.Line, err.Column, (err.IsWarning ? "warning" : "error"), err.ErrorNumber, err.ErrorText);
                     Console.WriteLine("> ----------------", options);
