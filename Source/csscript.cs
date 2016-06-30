@@ -1154,10 +1154,11 @@ namespace csscript
                     else
                     {
                         //look in the following folders
-                        // 1. Executable location
-                        // 2. Executable location + "Lib"
-                        // 3. CSScriptLibrary.dll location
-                        string probingDir = Path.GetFullPath(Utils.GetAssemblyDirectoryName(Assembly.GetExecutingAssembly()));
+                        // 1. Script location
+                        // 2. Executable location
+                        // 3. Executable location + "Lib"
+                        // 4. CSScriptLibrary.dll location
+                        string probingDir = Path.GetDirectoryName(Path.GetFullPath(scriptFileName));
                         string altCompilerFile = Path.Combine(probingDir, options.altCompiler);
                         if (File.Exists(altCompilerFile))
                         {
@@ -1165,7 +1166,7 @@ namespace csscript
                         }
                         else
                         {
-                            probingDir = Path.Combine(probingDir, "Lib");
+                            probingDir = Path.GetFullPath(Utils.GetAssemblyDirectoryName(Assembly.GetExecutingAssembly()));
                             altCompilerFile = Path.Combine(probingDir, options.altCompiler);
                             if (File.Exists(altCompilerFile))
                             {
@@ -1173,8 +1174,7 @@ namespace csscript
                             }
                             else
                             {
-                                //in case of CSScriptLibrary.dll "this" is not defined in the main executable
-                                probingDir = Path.GetFullPath(Utils.GetAssemblyDirectoryName(this.GetType().Assembly));
+                                probingDir = Path.Combine(probingDir, "Lib");
                                 altCompilerFile = Path.Combine(probingDir, options.altCompiler);
                                 if (File.Exists(altCompilerFile))
                                 {
@@ -1182,7 +1182,17 @@ namespace csscript
                                 }
                                 else
                                 {
-                                    throw new ApplicationException("Cannot find alternative compiler \"" + options.altCompiler + "\"");
+                                    //in case of CSScriptLibrary.dll "this" is not defined in the main executable
+                                    probingDir = Path.GetFullPath(Utils.GetAssemblyDirectoryName(this.GetType().Assembly));
+                                    altCompilerFile = Path.Combine(probingDir, options.altCompiler);
+                                    if (File.Exists(altCompilerFile))
+                                    {
+                                        asm = Assembly.LoadFrom(altCompilerFile);
+                                    }
+                                    else
+                                    {
+                                        throw new ApplicationException("Cannot find alternative compiler \"" + options.altCompiler + "\"");
+                                    }
                                 }
                             }
                         }
