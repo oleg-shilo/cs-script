@@ -66,12 +66,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Every time the member variable is accessed a new object is created.
         /// </summary>
-        AlwaysCreate,
-        /// <summary>
-        /// Every time the member variable is accessed a new object is created. After the evaluator instance 
-        /// is created it is auto reset with <c>CSScript.Evaluator.Reset(true)</c> so the evaluator does not references 
-        /// </summary>
-        AlwaysCreateIgnoreDomainAssemblies
+        AlwaysCreate
     }
 
     /// <summary>
