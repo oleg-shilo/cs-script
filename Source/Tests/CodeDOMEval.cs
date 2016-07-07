@@ -129,6 +129,7 @@ public class CodeDomEval
     [Fact]
     public void LoadCode()
     {
+        //CSScript.EvaluatorConfig.RefernceDomainAsemblies = false; 
         dynamic script = CSScript.CodeDomEvaluator
                                  .LoadCode(@"using System;
                                              public class Script

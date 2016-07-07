@@ -72,7 +72,8 @@ namespace CSScriptLibrary
         /// </summary>
         public CodeDomEvaluator()
         {
-            Reset(true);
+            if (CSScript.EvaluatorConfig.RefernceDomainAsemblies)
+                ReferenceDomainAssemblies();
             DebugBuild = CSScript.EvaluatorConfig.DebugBuild;
         }
 

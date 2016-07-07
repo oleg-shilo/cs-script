@@ -66,7 +66,12 @@ namespace CSScriptLibrary
         /// <summary>
         /// Every time the member variable is accessed a new object is created.
         /// </summary>
-        AlwaysCreate
+        AlwaysCreate,
+        /// <summary>
+        /// Every time the member variable is accessed a new object is created. After the evaluator instance 
+        /// is created it is auto reset with <c>CSScript.Evaluator.Reset(true)</c> so the evaluator does not references 
+        /// </summary>
+        AlwaysCreateIgnoreDomainAssemblies
     }
 
     /// <summary>
@@ -101,6 +106,18 @@ namespace CSScriptLibrary
         {
             get { return debugBuild; }
             set { debugBuild = value; }
+        }
+
+        bool refDomainAsms = true;
+
+        /// <summary>
+        /// Flag that controls if the host AppDo,main referenced assemblies are automatically referenced at creation 
+        /// of <see cref="CSScriptLibrary.IEvaluator"/>.
+        /// </summary>
+        public bool RefernceDomainAsemblies
+        {
+            get { return refDomainAsms; }
+            set { refDomainAsms = value; }
         }
 
         /// <summary>
