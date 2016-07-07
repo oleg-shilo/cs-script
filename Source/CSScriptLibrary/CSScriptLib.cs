@@ -415,9 +415,6 @@ namespace CSScriptLibrary
         /// </summary>
         public delegate void Action();
 
-#if net1
-#endif
-
         /// <summary>
         /// Extension method. To assist with Fluent API.
         /// </summary>
@@ -427,11 +424,11 @@ namespace CSScriptLibrary
         public static T With<T>(T obj, Action<T> action)
 #else
         public static T With<T>(this T obj, Action<T> action)
+#endif
         {
             action(obj);
             return obj;
         }
-#endif
 
         /// <summary>
         /// Extension method. Executes <see cref="T:System.Action"/> with the specified array of permissions

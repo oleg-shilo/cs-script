@@ -23,7 +23,7 @@ public class EvalRemoteExtensions
     }
 
     [Fact]
-    public void CreateDelegateRemotelyTypedy()
+    public void CreateDelegateRemotelyTyped()
     {
         var sum = CSScript.Evaluator
                           .CreateDelegateRemotely<int>(@"int Sum(int a, int b)
@@ -134,7 +134,7 @@ public class EvalRemoteExtensions
     public void LoadCodeRemotelyTyped()
     {
         //Mono and Roslyn file-less asms cannot be used to build duck-typed proxies
-        var script = CSScript.Evaluator
+        var script = CSScript.CodeDomEvaluator
                              .LoadCodeRemotely<ICalc>(@"using System;
                                                         public class Calc : MarshalByRefObject
                                                         {
