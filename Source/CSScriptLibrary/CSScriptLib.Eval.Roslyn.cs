@@ -126,7 +126,8 @@ namespace CSScriptLibrary
         /// </summary>
         public RoslynEvaluator()
         {
-            Reset(true);
+            if (CSScript.EvaluatorConfig.RefernceDomainAsemblies)
+                ReferenceDomainAssemblies();
         }
 
         /// <summary>

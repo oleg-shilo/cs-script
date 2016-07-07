@@ -164,7 +164,8 @@ namespace CSScriptLibrary
         {
             ThrowOnError = true;
             AutoResetEvaluatorOnError = true;
-            Reset(true);
+            if (CSScript.EvaluatorConfig.RefernceDomainAsemblies)
+                ReferenceDomainAssemblies(); 
             DebugBuild = CSScript.EvaluatorConfig.DebugBuild;
         }
 
