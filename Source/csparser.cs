@@ -237,7 +237,7 @@ namespace csscript
                         parts[0] = file; //substitute the file path pattern with the actual path 
                         result.Add(new ImportInfo(parts));
                     }
-                    return result.ToArray(typeof(ImportInfo));
+                    return (ImportInfo[])result.ToArray(typeof(ImportInfo));
 #else
                     List<ImportInfo> result = new List<ImportInfo>();
                     foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
@@ -250,7 +250,7 @@ namespace csscript
 #endif
                 }
                 else
-                    return new[] { new ImportInfo(statement, parentScript) };
+                    return new ImportInfo[] { new ImportInfo(statement, parentScript) };
             }
             /// <summary>
             /// Creates an instance of ImportInfo.

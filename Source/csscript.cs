@@ -70,8 +70,17 @@ namespace csscript
     /// <param name="searchDirs">The extra dirs.</param>
     /// <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
     /// <returns></returns>
+    [Obsolete("This type is obsolete. Use ResolveSourceFileAlgorithm instead.")]
     public delegate string ResolveSourceFileHandler(string file, string[] searchDirs, bool throwOnError);
-    public delegate string[] ResolveSourceFilesHandler(string file, string[] searchDirs, bool throwOnError);
+
+    /// <summary>
+    /// Delegate implementing source file probing algorithm.
+    /// </summary>
+    /// <param name="file">The file.</param>
+    /// <param name="searchDirs">The extra dirs.</param>
+    /// <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
+    /// <returns></returns>
+    public delegate string[] ResolveSourceFileAlgorithm(string file, string[] searchDirs, bool throwOnError);
     /// <summary>
     /// Delegate implementing assembly file probing algorithm.
     /// </summary>
@@ -326,7 +335,7 @@ namespace csscript
                             {
                                 string file = FileParser.ResolveFile(info.file, options.searchDirs);
                                 if (file.IndexOf(".g.cs") == -1) //non auto-generated file
-                                    preScripts.AddRange(new CSharpParser(file, true).CmdScripts);
+                                    preScripts.AddRange(new CSharpParser(file, true, options.searchDirs).CmdScripts);
                             }
                             catch { } //some files may not be generated yet
                         }

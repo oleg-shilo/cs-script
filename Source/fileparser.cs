@@ -341,7 +341,7 @@ namespace CSScriptLibrary
         /// </para>
         /// </summary>
         internal static ResolveSourceFileHandler ResolveFileAlgorithm = ResolveFileDefault;
-        internal static ResolveSourceFilesHandler ResolveFilesAlgorithm = ResolveFilesDefault;
+        internal static ResolveSourceFileAlgorithm ResolveFilesAlgorithm = ResolveFilesDefault;
 
         /// <summary>
         /// Searches for script file by given script name. Search order:
@@ -458,13 +458,20 @@ namespace CSScriptLibrary
             {
                 string dir = Path.GetDirectoryName(filePath);
                 string name = Path.GetFileName(filePath);
+#if net1
+                ArrayList result = new ArrayList();
+#else
                 List<string> result = new List<string>();
-
+#endif
                 if(Directory.Exists(dir))
-                    foreach (var item in Directory.GetFiles(dir, name))
+                    foreach (string item in Directory.GetFiles(dir, name))
                         result.Add(Path.GetFullPath(item));
 
+#if net1
+                return (string[])result.ToArray(typeof(string));
+#else
                 return result.ToArray();
+#endif
 
             }
             catch { }

@@ -1,58 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
-    <!-- The configuration and platform will be used to determine which
-         assemblies to include from solution and project documentation
-         sources -->
+    <!-- The configuration and platform will be used to determine which assemblies to include from solution and
+				 project documentation sources -->
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{12f7a748-f685-43df-bc03-1591a76df1ab}</ProjectGuid>
+    <ProjectGuid>{0a0e7b87-dbc0-47d0-953f-f4144d51bd3f}</ProjectGuid>
     <SHFBSchemaVersion>1.9.9.0</SHFBSchemaVersion>
-    <!-- AssemblyName, Name, and RootNamespace are not used by SHFB but Visual
-         Studio adds them anyway -->
+    <!-- AssemblyName, Name, and RootNamespace are not used by SHFB but Visual Studio adds them anyway -->
     <AssemblyName>Documentation</AssemblyName>
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
     <!-- SHFB properties -->
+    <FrameworkVersion>.NET Framework 4.0</FrameworkVersion>
     <OutputPath>Build\</OutputPath>
     <HtmlHelpName>CSScriptLibrary</HtmlHelpName>
-    <ProjectSummary>
-    </ProjectSummary>
-    <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter</MissingTags>
+    <Language>en-US</Language>
+ <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter</MissingTags>
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</VisibleItems>
     <HtmlHelp1xCompilerPath>C:\Program Files (x86)\HTML Help Workshop\</HtmlHelp1xCompilerPath>
-    <HtmlHelp2xCompilerPath>
-    </HtmlHelp2xCompilerPath>
-    <SandcastlePath>
-    </SandcastlePath>
-    <WorkingPath>
-    </WorkingPath>
-    <FrameworkVersion>.NET Framework 4 Platform Update 1 (KB2478063)</FrameworkVersion>
-    <PresentationStyle>Prototype</PresentationStyle>
-    <DocumentationSources>
-      <DocumentationSource sourceFile="Build\CSScriptLibrary.dll" />
-      <DocumentationSource sourceFile="Build\CSScriptLibrary.XML" />
+       <DocumentationSources>
+      <DocumentationSource sourceFile="Build\CSScriptLibrary.dll" xmlns="" />
+      <DocumentationSource sourceFile="Build\CSScriptLibrary.xml" xmlns="" />
     </DocumentationSources>
-    <NamespaceSummaries>
-      <NamespaceSummaryItem name="(global)" isDocumented="True">Namespace Summary: N/A</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="csscript" isDocumented="True">Namespace Summary: N/A</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="CSScriptLibrary" isDocumented="True">Namespace Summary: N/A</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils" isDocumented="True">Namespace Summary: N/A</NamespaceSummaryItem>
-    </NamespaceSummaries>
-    <HelpFileFormat>HtmlHelp1</HelpFileFormat>
-    <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
-    <IndentHtml>False</IndentHtml>
-    <KeepLogFile>True</KeepLogFile>
-    <DisableCodeBlockComponent>False</DisableCodeBlockComponent>
-    <CppCommentsFixup>False</CppCommentsFixup>
-    <CleanIntermediates>True</CleanIntermediates>
   </PropertyGroup>
-  <!-- There are no properties for these two groups but they need to appear in
-       order for Visual Studio to perform the build. -->
+  <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
+			 the build.  The others are optional common platform types that may appear. -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Win32' ">
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeAnalysis">
@@ -83,7 +72,7 @@
       <HintPath>Roslyn.Scripting\System.Reflection.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime">
-      <HintPath>C:\Program Files (x86)\Microsoft SDKs\NETCoreSDK\System.Runtime\4.0.20\ref\dotnet\System.Runtime.dll</HintPath>
+      <HintPath>Roslyn.Scripting\SandCastleDependencies\System.Runtime.dll</HintPath>
     </Reference>
   </ItemGroup>
   <!-- Import the SHFB build targets -->
