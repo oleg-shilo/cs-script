@@ -121,7 +121,7 @@ namespace CSScriptLibrary
         #endregion Public interface...
 
 #if net1
-        private ArrayList renameNamespaceMap;
+        ArrayList renameNamespaceMap;
 #else
         List<string[]> renameNamespaceMap;
 #endif
@@ -254,12 +254,13 @@ namespace CSScriptLibrary
             referencedNamespaces.Clear();
             referencedResources.Clear();
 
-            this.parser = new CSharpParser(fileName, true);
+            this.parser = new CSharpParser(fileName, true, this.searchDirs);
 
             foreach (CSharpParser.ImportInfo info in parser.Imports)
             {
                 referencedScripts.Add(new ScriptInfo(info));
             }
+
             referencedAssemblies.AddRange(parser.RefAssemblies);
             referencedNamespaces.AddRange(Utils.Except(parser.RefNamespaces, parser.IgnoreNamespaces));
             referencedResources.AddRange(parser.ResFiles);
@@ -300,20 +301,20 @@ namespace CSScriptLibrary
         }
 
 #if net1
-        private ArrayList referencedScripts = new ArrayList();
-        private ArrayList referencedNamespaces = new ArrayList();
-        private ArrayList referencedAssemblies = new ArrayList();
-        private ArrayList packages = new ArrayList();
-        private ArrayList referencedResources = new ArrayList();
+        ArrayList referencedScripts = new ArrayList();
+        ArrayList referencedNamespaces = new ArrayList();
+        ArrayList referencedAssemblies = new ArrayList();
+        ArrayList packages = new ArrayList();
+        ArrayList referencedResources = new ArrayList();
 #else
-        private List<ScriptInfo> referencedScripts = new List<ScriptInfo>();
-        private List<string> referencedNamespaces = new List<string>();
-        private List<string> referencedAssemblies = new List<string>();
-        private List<string> packages = new List<string>();
-        private List<string> referencedResources = new List<string>();
+        List<ScriptInfo> referencedScripts = new List<ScriptInfo>();
+        List<string> referencedNamespaces = new List<string>();
+        List<string> referencedAssemblies = new List<string>();
+        List<string> packages = new List<string>();
+        List<string> referencedResources = new List<string>();
 #endif
-        private string[] searchDirs;
-        private bool imported = false;
+        string[] searchDirs;
+        bool imported = false;
 
         /// <summary>
         /// Searches for script file by given script name. Calls ResolveFile(string fileName, string[] extraDirs, bool throwOnError)
@@ -322,6 +323,11 @@ namespace CSScriptLibrary
         public static string ResolveFile(string fileName, string[] extraDirs)
         {
             return ResolveFile(fileName, extraDirs, _throwOnError);
+        }
+
+        internal static string[] ResolveFiles(string fileName, string[] extraDirs)
+        {
+            return ResolveFiles(fileName, extraDirs, _throwOnError);
         }
 
         /// <summary>
@@ -335,6 +341,7 @@ namespace CSScriptLibrary
         /// </para>
         /// </summary>
         internal static ResolveSourceFileHandler ResolveFileAlgorithm = ResolveFileDefault;
+        internal static ResolveSourceFilesHandler ResolveFilesAlgorithm = ResolveFilesDefault;
 
         /// <summary>
         /// Searches for script file by given script name. Search order:
@@ -350,6 +357,11 @@ namespace CSScriptLibrary
             return ResolveFileAlgorithm(file, extraDirs, throwOnError);
         }
 
+        internal static string[] ResolveFiles(string file, string[] extraDirs, bool throwOnError)
+        {
+            return ResolveFilesAlgorithm(file, extraDirs, throwOnError);
+        }
+
         //static string ResolveFileTest(string file, string[] extraDirs, bool throwOnError)
         //{
         //    string result = ResolveFileDefault(file, extraDirs, throwOnError);
@@ -357,6 +369,28 @@ namespace CSScriptLibrary
         //        result = Path.Combine(Path.GetDirectoryName(result), Path.GetFileNameWithoutExtension(result) + "_1.cs");
         //    return result;
         //}
+
+        internal static string[] ResolveFilesDefault(string file, string[] extraDirs, bool throwOnError)
+        {
+            string[] retval = ResolveFiles(file, extraDirs, "");
+            if (retval.Length == 0)
+                retval = ResolveFiles(file, extraDirs, ".cs");
+            if (retval.Length == 0)
+                retval = ResolveFiles(file, extraDirs, ".csl"); //script link file
+
+            if (retval.Length == 0)
+            {
+                if (throwOnError)
+                    throw new FileNotFoundException(string.Format("Could not find file \"{0}\"", file));
+
+                if (!file.EndsWith(".cs"))
+                    retval = new string[] { file + ".cs" };
+                else
+                    retval = new string[] { file };
+            }
+
+            return retval;
+        }
 
         internal static string ResolveFileDefault(string file, string[] extraDirs, bool throwOnError)
         {
@@ -379,7 +413,7 @@ namespace CSScriptLibrary
             return retval;
         }
 
-        private static string ResolveFile(string file, string[] extraDirs, string extension)
+        static string ResolveFile(string file, string[] extraDirs, string extension)
         {
             string fileName = file;
             //current directory
@@ -416,6 +450,62 @@ namespace CSScriptLibrary
             }
 
             return "";
+        }
+
+        static string[] LocateFiles(string filePath)
+        {
+            try
+            {
+                string dir = Path.GetDirectoryName(filePath);
+                string name = Path.GetFileName(filePath);
+                List<string> result = new List<string>();
+
+                if(Directory.Exists(dir))
+                    foreach (var item in Directory.GetFiles(dir, name))
+                        result.Add(Path.GetFullPath(item));
+
+                return result.ToArray();
+
+            }
+            catch { }
+            return new string[0];
+        }
+
+        static string[] ResolveFiles(string file, string[] extraDirs, string extension)
+        {
+            string fileName = file;
+
+            //current directory
+            if (Path.GetExtension(fileName) == "")
+                fileName += extension;
+
+            string[] files = LocateFiles(Path.Combine(Environment.CurrentDirectory, fileName));
+            if (files.Length > 0)
+                return files;
+
+
+            //arbitrary directories
+            if (extraDirs != null)
+            {
+                foreach (string dir in extraDirs)
+                {
+                    files = LocateFiles(Path.Combine(dir, fileName));
+                    if (files.Length > 0)
+                        return files;
+                }
+
+            }
+
+            //PATH
+            string[] pathDirs = Environment.GetEnvironmentVariable("PATH").Replace("\"", "").Split(';');
+            foreach (string dir in pathDirs)
+            {
+                files = LocateFiles(Path.Combine(dir, fileName));
+                if (files.Length > 0)
+                    return files;
+            }
+
+            return new string[0];
         }
 
         static public string headerTemplate =
@@ -716,7 +806,7 @@ namespace CSScriptLibrary
         public string ScriptPath
         {
             get { return scriptPath; }
-            private set { scriptPath = value;}
+            set { scriptPath = value; }
         }
         string scriptPath;
 
@@ -725,7 +815,7 @@ namespace CSScriptLibrary
         /// </summary>
         /// <param name="fileName">Script file name</param>
         /// <param name="searchDirs">Extra ScriptLibrary directory(ies) </param>
-        private void Init(string fileName, string[] searchDirs)
+        void Init(string fileName, string[] searchDirs)
         {
             ScriptPath = fileName;
 #if net1
@@ -780,7 +870,7 @@ namespace CSScriptLibrary
                     dirs.Add(Path.GetFullPath(dir));
                 else
                     dirs.Add(Path.Combine(Path.GetDirectoryName(mainFile.fileName), dir));
-            this.SearchDirs = (string[])dirs.ToArray(typeof(string));
+            this.SearchDirs =  Utils.RemovePathDuplicates((string[])dirs.ToArray(typeof(string)));
 #else
             List<string> dirs = new List<string>();
             dirs.Add(Path.GetDirectoryName(mainFile.fileName));//note: mainFile.fileName is warrantied to be a full name but fileName is not
@@ -795,7 +885,7 @@ namespace CSScriptLibrary
                     dirs.Add(Path.Combine(Path.GetDirectoryName(mainFile.fileName), dir));
             }
 
-            this.SearchDirs = dirs.ToArray();
+            this.SearchDirs = Utils.RemovePathDuplicates(dirs.ToArray());  
 #endif
 
             //process imported files if any
@@ -806,7 +896,7 @@ namespace CSScriptLibrary
             this.fileParsers.Insert(0, mainFile);
         }
 
-        private void ProcessFile(ScriptInfo fileInfo)
+        void ProcessFile(ScriptInfo fileInfo)
         {
             FileParserComparer fileComparer = new FileParserComparer();
 
@@ -868,9 +958,9 @@ namespace CSScriptLibrary
         }
 
 #if net1
-        private ArrayList fileParsers = new ArrayList();
+        ArrayList fileParsers = new ArrayList();
 #else
-        private List<FileParser> fileParsers = new List<FileParser>();
+        List<FileParser> fileParsers = new List<FileParser>();
 #endif
 
         /// <summary>
@@ -879,7 +969,7 @@ namespace CSScriptLibrary
         /// <returns>Collection of the saved imported scrips file names</returns>
         public string[] SaveImportedScripts()
         {
-            string workingDir = Path.GetDirectoryName(((FileParser)fileParsers[0]).fileName);
+            string workingDir = Path.GetDirectoryName(((FileParser) fileParsers[0]).fileName);
 #if net1
             ArrayList retval = new ArrayList();
 #else
@@ -922,30 +1012,30 @@ namespace CSScriptLibrary
         }
 
 #if net1
-        private ArrayList referencedNamespaces;
-        private ArrayList ignoreNamespaces;
-        private ArrayList compilerOptions;
-        private ArrayList referencedResources;
-        private ArrayList precompilers;
-        private ArrayList referencedAssemblies;
-        private ArrayList packages;
+        ArrayList referencedNamespaces;
+        ArrayList ignoreNamespaces;
+        ArrayList compilerOptions;
+        ArrayList referencedResources;
+        ArrayList precompilers;
+        ArrayList referencedAssemblies;
+        ArrayList packages;
 #else
-        private List<string> referencedNamespaces;
-        private List<string> ignoreNamespaces;
-        private List<string> referencedResources;
-        private List<string> compilerOptions;
-        private List<string> precompilers;
-        private List<string> referencedAssemblies;
-        private List<string> packages;
+        List<string> referencedNamespaces;
+        List<string> ignoreNamespaces;
+        List<string> referencedResources;
+        List<string> compilerOptions;
+        List<string> precompilers;
+        List<string> referencedAssemblies;
+        List<string> packages;
 #endif
         /// <summary>
         /// CS-Script SearchDirectories specified in the parsed script or its dependent scripts.
         /// </summary>
         public string[] SearchDirs;
 #if net1
-        private void PushItem(ArrayList collection, string item)
+        void PushItem(ArrayList collection, string item)
 #else
-        private void PushItem(List<string> collection, string item)
+        void PushItem(List<string> collection, string item)
 #endif
         {
             if (collection.Count > 1)
@@ -954,37 +1044,37 @@ namespace CSScriptLibrary
             AddIfNotThere(collection, item);
         }
 
-        private void PushNamespace(string nameSpace)
+        void PushNamespace(string nameSpace)
         {
             PushItem(referencedNamespaces, nameSpace);
         }
 
-        private void PushPrecompiler(string file)
+        void PushPrecompiler(string file)
         {
             PushItem(precompilers, file);
         }
 
-        private void PushIgnoreNamespace(string nameSpace)
+        void PushIgnoreNamespace(string nameSpace)
         {
             PushItem(ignoreNamespaces, nameSpace);
         }
 
-        private void PushAssembly(string asmName)
+        void PushAssembly(string asmName)
         {
             PushItem(referencedAssemblies, asmName);
         }
 
-        private void PushPackage(string name)
+        void PushPackage(string name)
         {
             PushItem(packages, name);
         }
 
-        private void PushResource(string resName)
+        void PushResource(string resName)
         {
             PushItem(referencedResources, resName);
         }
 
-        private void PushCompilerOptions(string option)
+        void PushCompilerOptions(string option)
         {
             AddIfNotThere(compilerOptions, option);
         }

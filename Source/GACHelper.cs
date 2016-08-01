@@ -380,7 +380,7 @@ namespace csscript
             return retval;
         }
 
-        private string GetFullName(IAssemblyName asmName)
+        string GetFullName(IAssemblyName asmName)
         {
             StringBuilder fullName = new StringBuilder(1024);
             int iLen = fullName.Capacity;
@@ -403,7 +403,7 @@ namespace csscript
             CreateAssemblyNameObjectFlags flags,
             IntPtr pvReserved);
 
-        private bool m_done;
-        private IAssemblyEnum m_assemblyEnum = null;
+        bool m_done;
+        IAssemblyEnum m_assemblyEnum = null;
     }
 }

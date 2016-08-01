@@ -53,6 +53,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Text;
 using System.Globalization;
+using CSScriptLibrary;
 
 namespace csscript
 {
@@ -218,6 +219,39 @@ namespace csscript
         /// </summary>
         public class ImportInfo
         {
+            internal static ImportInfo[] ResolveStatement(string statement, string parentScript, params string[] probinghDirs)
+            {
+                if (statement.Contains("*") || statement.Contains("?"))
+                {
+                    //e.g. resolve ..\subdir\*.cs into multiple concrete imports
+                    string statementToParse = statement.Replace("($this.name)", Path.GetFileNameWithoutExtension(parentScript));
+                    statementToParse = statementToParse.Replace("\t", "").Trim();
+
+                    string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
+
+                    string filePattern = parts[0];
+#if net1
+                    ArrayList result = new ArrayList();
+                    foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
+                    {
+                        parts[0] = file; //substitute the file path pattern with the actual path 
+                        result.Add(new ImportInfo(parts));
+                    }
+                    return result.ToArray(typeof(ImportInfo));
+#else
+                    List<ImportInfo> result = new List<ImportInfo>();
+                    foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
+                    {
+                        parts[0] = file; //substitute the file path pattern with the actual path 
+                        result.Add(new ImportInfo(parts));
+                    }
+
+                    return result.ToArray();
+#endif
+                }
+                else
+                    return new[] { new ImportInfo(statement, parentScript) };
+            }
             /// <summary>
             /// Creates an instance of ImportInfo.
             /// </summary>
@@ -225,28 +259,39 @@ namespace csscript
             /// <param name="parentScript">name of the parent (primary) script file.</param>
             public ImportInfo(string statement, string parentScript)
             {
+                string statementToParse = statement.Replace("($this.name)", Path.GetFileNameWithoutExtension(parentScript));
+                statementToParse = statementToParse.Replace("\t", "").Trim();
+
+                string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
+                this.file = parts[0];
+
+                InternalInit(parts, 1);
+            }
+
+            private ImportInfo(string[] parts)
+            {
+                this.file = parts[0];
+                InternalInit(parts, 1);
+            }
+
+            private void InternalInit(string[] statementParts, int startIndex)
+            {
 #if net1
                 ArrayList renameingMap = new ArrayList();
 #else
                 List<string[]> renameingMap = new List<string[]>();
 #endif
-                string statementToParse = statement.Replace("($this.name)", Path.GetFileNameWithoutExtension(parentScript));
-                statementToParse = statementToParse.Replace("\t", "").Trim();
 
-                string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
-
-                this.file = parts[0];
-
-                for (int i = 1; i < parts.Length; )
+                for (int i = startIndex; i < statementParts.Length;)
                 {
-                    parts[i] = parts[i].Trim();
-                    if (parts[i] == "rename_namespace" && i + 2 < parts.Length)
+                    statementParts[i] = statementParts[i].Trim();
+                    if (statementParts[i] == "rename_namespace" && i + 2 < statementParts.Length)
                     {
-                        string[] names = new string[] { parts[i + 1], parts[i + 2].Replace(")", "") };
+                        string[] names = new string[] { statementParts[i + 1], statementParts[i + 2].Replace(")", "") };
                         renameingMap.Add(names);
                         i += 3;
                     }
-                    else if (parts[i] == "preserve_main")
+                    else if (statementParts[i] == "preserve_main")
                     {
                         preserveMain = true;
                         i += 1;
@@ -314,7 +359,7 @@ namespace csscript
                     }
                     catch (Exception e)
                     {
-                        System.Diagnostics.Trace.WriteLine("Cannot initialize NuGet cache folder.\n"+e.ToString());
+                        System.Diagnostics.Trace.WriteLine("Cannot initialize NuGet cache folder.\n" + e.ToString());
                     }
                 }
                 NeedInitEnvironment = false;
@@ -331,21 +376,21 @@ namespace csscript
             Init(code, "");
         }
 
-        /// <summary>
-        /// Creates an instance of CSharpParser.
-        /// </summary>
-        /// <param name="script">C# script (code or file).</param>
-        /// <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
-        public CSharpParser(string script, bool isFile)
-        {
-            InitEnvironment();
+        ///// <summary>
+        ///// Creates an instance of CSharpParser.
+        ///// </summary>
+        ///// <param name="script">C# script (code or file).</param>
+        ///// <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
+        //public CSharpParser(string script, bool isFile)
+        //{
+        //    InitEnvironment();
 
-            if (!isFile)
-                Init(script, "");
-            else
-                using (StreamReader sr = new StreamReader(script, Encoding.UTF8))
-                    Init(sr.ReadToEnd(), script);
-        }
+        //    if (!isFile)
+        //        Init(script, "");
+        //    else
+        //        using (StreamReader sr = new StreamReader(script, Encoding.UTF8))
+        //            Init(sr.ReadToEnd(), script);
+        //}
 
         /// <summary>
         /// Creates an instance of CSharpParser.
@@ -442,13 +487,13 @@ namespace csscript
 
             //analyse script imports/includes
             foreach (string statement in GetRawStatements("//css_import", endCodePos))
-                imports.Add(new ImportInfo(Environment.ExpandEnvironmentVariables(statement).Trim(), file));
+                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim(), file, directivesToSearch));
             foreach (string statement in GetRawStatements("//css_imp", endCodePos))
-                imports.Add(new ImportInfo(Environment.ExpandEnvironmentVariables(statement).Trim(), file));
+                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim(), file, directivesToSearch));
             foreach (string statement in GetRawStatements("//css_include", endCodePos))
-                imports.Add(new ImportInfo(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file));
+                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, directivesToSearch));
             foreach (string statement in GetRawStatements("//css_inc", endCodePos))
-                imports.Add(new ImportInfo(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file));
+                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, directivesToSearch));
 
             //analyse assembly references
             foreach (string statement in GetRawStatements("//css_reference", endCodePos))
@@ -525,7 +570,7 @@ namespace csscript
             }
         }
 
-        private class RenamingInfo
+        class RenamingInfo
         {
             public RenamingInfo(int stratPos, int endPos, string newValue)
             {
@@ -540,7 +585,7 @@ namespace csscript
         }
 
 #if net1
-        private class RenamingInfoComparer : IComparer
+        class RenamingInfoComparer : IComparer
         {
             int IComparer.Compare(object x, object y)
             {
@@ -554,7 +599,7 @@ namespace csscript
         }
 #else
 
-        private class RenamingInfoComparer : System.Collections.Generic.IComparer<RenamingInfo>
+        class RenamingInfoComparer : System.Collections.Generic.IComparer<RenamingInfo>
         {
             public int Compare(RenamingInfo x, RenamingInfo y)
             {
@@ -1289,7 +1334,7 @@ namespace csscript
 
                 if (startPos != -1 && endPos != -1)
                 {
-                    int startCode = commentRegions.Count == 0 ? 0 : ((int[])commentRegions[commentRegions.Count - 1])[1] + 1;
+                    int startCode = commentRegions.Count == 0 ? 0 : ((int[]) commentRegions[commentRegions.Count - 1])[1] + 1;
 
                     int[] quotationIndexes = AllRawIndexOf("\"", startCode, startPos);
                     if ((quotationIndexes.Length % 2) != 0)

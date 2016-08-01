@@ -456,13 +456,6 @@
             </summary>
             <param name="code">C# code string</param>
         </member>
-        <member name="M:csscript.CSharpParser.#ctor(System.String,System.Boolean)">
-            <summary>
-            Creates an instance of CSharpParser.
-            </summary>
-            <param name="script">C# script (code or file).</param>
-            <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
-        </member>
         <member name="M:csscript.CSharpParser.#ctor(System.String,System.Boolean,System.String[])">
             <summary>
             Creates an instance of CSharpParser.

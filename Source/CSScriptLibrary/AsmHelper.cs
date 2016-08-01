@@ -1030,7 +1030,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Unloads 'remote' AppDomain if it was created.
         /// </summary>
-        private void Unload()
+        void Unload()
         {
             try
             {
@@ -1096,7 +1096,7 @@ namespace CSScriptLibrary
             set { this.asmBrowser.ProbingDirs = value; }
         }
 
-        private void InitProbingDirs()
+        void InitProbingDirs()
         {
             ArrayList dirs = new ArrayList();
             if (CSScript.AssemblyResolvingEnabled && CSScript.ShareHostRefAssemblies)
@@ -1164,7 +1164,7 @@ namespace CSScriptLibrary
 
     internal class AsmRemoteBrowser : MarshalByRefObject, IAsmBrowser
     {
-        private string workingDir;
+        string workingDir;
 
         AsmBrowser asmBrowser;
 
@@ -1252,7 +1252,7 @@ namespace CSScriptLibrary
             return this.AsmBrowser.GetMethodInvoker(methodName, list);
         }
 
-        private Assembly ResolveEventHandler(object sender, ResolveEventArgs args)
+        Assembly ResolveEventHandler(object sender, ResolveEventArgs args)
         {
             Assembly retval = AssemblyResolver.ResolveAssembly(args.Name, workingDir, false);
             if (retval == null)
@@ -1361,16 +1361,16 @@ namespace CSScriptLibrary
             return Reflector.GetMembersOf(obj);
         }
 
-        private string workingDir;
+        string workingDir;
 #if net1
-        private Hashtable methodCache = new Hashtable(); //cached delegates of the type methods
-        private Hashtable infoCache = new Hashtable(); //cached MethodInfo(f) of the type method(s)
+        Hashtable methodCache = new Hashtable(); //cached delegates of the type methods
+        Hashtable infoCache = new Hashtable(); //cached MethodInfo(f) of the type method(s)
 #else
-        private Dictionary<MethodInfo, FastInvoker> methodCache = new Dictionary<MethodInfo, FastInvoker>(); //cached delegates of the type methods
-        private Dictionary<MethodSignature, MethodInfo> infoCache = new Dictionary<MethodSignature, MethodInfo>(); //cached MethodInfo(f) of the type method(s)
+        Dictionary<MethodInfo, FastInvoker> methodCache = new Dictionary<MethodInfo, FastInvoker>(); //cached delegates of the type methods
+        Dictionary<MethodSignature, MethodInfo> infoCache = new Dictionary<MethodSignature, MethodInfo>(); //cached MethodInfo(f) of the type method(s)
 #endif
 
-        private Assembly asm;
+        Assembly asm;
 
         public AsmBrowser(Assembly asm)
         {
@@ -1412,7 +1412,7 @@ namespace CSScriptLibrary
 
         bool cachingEnabled = true;
 
-        private Assembly ResolveEventHandler(object sender, ResolveEventArgs args)
+        Assembly ResolveEventHandler(object sender, ResolveEventArgs args)
         {
             Assembly retval = AssemblyResolver.ResolveAssembly(args.Name, workingDir, false);
             if (retval == null)
@@ -1519,7 +1519,7 @@ namespace CSScriptLibrary
             }
         }
 
-        private MethodInfo FindMethod(string methodName, object[] list)
+        MethodInfo FindMethod(string methodName, object[] list)
         {
             Type[] args = new Type[list.Length];
             for (int i = 0; i < list.Length; i++)
@@ -1528,7 +1528,7 @@ namespace CSScriptLibrary
             return FindMethod(methodName, args);
         }
 
-        private MethodInfo FindMethod(string methodName, Type[] args)
+        MethodInfo FindMethod(string methodName, Type[] args)
         {
             string[] names = methodName.Split(".".ToCharArray());
             if (names.Length < 2)
@@ -1600,7 +1600,7 @@ namespace CSScriptLibrary
             return GetMethodInvoker(method);
         }
 
-        private FastInvokeDelegate GetMethodInvoker(MethodInfo method)
+        FastInvokeDelegate GetMethodInvoker(MethodInfo method)
         {
             try
             {
@@ -1758,7 +1758,7 @@ namespace CSScriptLibrary
             return method;
         }
 
-        private FastInvokeDelegate GenerateMethodInvoker(MethodInfo methodInfo)
+        FastInvokeDelegate GenerateMethodInvoker(MethodInfo methodInfo)
         {
 #if net1
             throw new NotImplementedException("This version of AsmHelper does not implement GenerateMethodInvoker()\n"+
@@ -1830,7 +1830,7 @@ namespace CSScriptLibrary
 #endif
         }
 
-        private static void EmitCastToReference(ILGenerator il, System.Type type)
+        static void EmitCastToReference(ILGenerator il, System.Type type)
         {
 #if net1
             throw new NotImplementedException("This version of AsmHelper does not implement EmitCastToReference().\n"+
@@ -1847,7 +1847,7 @@ namespace CSScriptLibrary
 #endif
         }
 
-        private static void EmitBoxIfNeeded(ILGenerator il, System.Type type)
+        static void EmitBoxIfNeeded(ILGenerator il, System.Type type)
         {
             if (type.IsValueType)
             {
@@ -1855,7 +1855,7 @@ namespace CSScriptLibrary
             }
         }
 
-        private static void EmitFastInt(ILGenerator il, int value)
+        static void EmitFastInt(ILGenerator il, int value)
         {
             switch (value)
             {

@@ -100,17 +100,17 @@ namespace CSScriptLibrary
         }
 
 #if net1
-        private static readonly System.Collections.Hashtable NotFoundAssemblies = new System.Collections.Hashtable();
+        static readonly System.Collections.Hashtable NotFoundAssemblies = new System.Collections.Hashtable();
 #else
-        private static readonly HashSet<int> NotFoundAssemblies = new HashSet<int>();
+        static readonly HashSet<int> NotFoundAssemblies = new HashSet<int>();
 #endif
 
-        private static int BuildHashSetValue(string assemblyName, string directory)
+        static int BuildHashSetValue(string assemblyName, string directory)
         {
             return CSSUtils.GetHashCodeEx((assemblyName ?? "") + (directory ?? ""));
         }
 
-        //private static Assembly TryLoadAssemblyFrom(string assemblyName, string asmFile)
+        //static Assembly TryLoadAssemblyFrom(string assemblyName, string asmFile)
         //{
         //    try
         //    {
@@ -125,9 +125,9 @@ namespace CSScriptLibrary
         //}
 
 #if net4
-        private static Assembly LoadAssemblyFrom(string assemblyName, string asmFile, bool throwException = false)
+        static Assembly LoadAssemblyFrom(string assemblyName, string asmFile, bool throwException = false)
 #else
-        private static Assembly LoadAssemblyFrom(string assemblyName, string asmFile, bool throwException)
+        static Assembly LoadAssemblyFrom(string assemblyName, string asmFile, bool throwException)
 #endif
         {
             try
@@ -424,7 +424,7 @@ namespace CSScriptLibrary
             return false;
         }
 
-        private bool ProbeAssembly(string file)
+        bool ProbeAssembly(string file)
         {
             try
             {

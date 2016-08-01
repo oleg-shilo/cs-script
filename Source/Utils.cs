@@ -695,7 +695,7 @@ namespace csscript
             return args.Length;
         }
 
-        private delegate bool CompileMethod(ref string content, string scriptFile, bool IsPrimaryScript, Hashtable context);
+        delegate bool CompileMethod(ref string content, string scriptFile, bool IsPrimaryScript, Hashtable context);
 
         internal static PrecompilationContext Precompile(string scriptFile, string[] filesToCompile, ExecuteOptions options)
         {
@@ -1432,7 +1432,7 @@ namespace csscript
             return false;
         }
 
-        private new string ToString()
+        new string ToString()
         {
             StringBuilder bs = new StringBuilder();
             foreach (MetaDataItem fileInfo in items)
@@ -1447,7 +1447,7 @@ namespace csscript
             return bs.ToString();
         }
 
-        private bool Parse(string data)
+        bool Parse(string data)
         {
             foreach (string itemData in data.Split("|".ToCharArray()))
             {
@@ -1463,14 +1463,14 @@ namespace csscript
             return true;
         }
 
-        private int stampID = CSSUtils.GetHashCodeEx(Assembly.GetExecutingAssembly().FullName.Split(",".ToCharArray())[1]);
-        private int intSize = Marshal.SizeOf((Int32) 0);
+        int stampID = CSSUtils.GetHashCodeEx(Assembly.GetExecutingAssembly().FullName.Split(",".ToCharArray())[1]);
+        int intSize = Marshal.SizeOf((Int32) 0);
 
         //#pragma warning disable 414
-        //private int executionFlag = Marshal.SizeOf((Int32)0);
+        //int executionFlag = Marshal.SizeOf((Int32)0);
         //#pragma warning restore 414
 
-        private bool IsGACAssembly(string file)
+        bool IsGACAssembly(string file)
         {
             string s = file.ToLower();
 #if net1

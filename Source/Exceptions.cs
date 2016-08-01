@@ -58,7 +58,7 @@ namespace csscript
             ScriptArgs = scriptArgs;
         }
 
-        private string scriptAssembly;
+        string scriptAssembly;
 
         public string ScriptAssembly
         {
@@ -66,7 +66,7 @@ namespace csscript
             set { scriptAssembly = value; }
         }
 
-        private bool startDebugger;
+        bool startDebugger;
 
         public bool StartDebugger
         {
@@ -74,7 +74,7 @@ namespace csscript
             set { startDebugger = value; }
         }
 
-        private string[] scriptArgs;
+        string[] scriptArgs;
 
         public string[] ScriptArgs
         {

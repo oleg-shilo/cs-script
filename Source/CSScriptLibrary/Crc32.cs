@@ -8,10 +8,10 @@ internal class Crc32 : HashAlgorithm
     public const UInt32 DefaultPolynomial = 0xedb88320;
     public const UInt32 DefaultSeed = 0xffffffff;
 
-    private UInt32 hash;
-    private UInt32 seed;
-    private UInt32[] table;
-    private static UInt32[] defaultTable;
+    UInt32 hash;
+    UInt32 seed;
+    UInt32[] table;
+    static UInt32[] defaultTable;
 
     public Crc32()
     {
@@ -64,7 +64,7 @@ internal class Crc32 : HashAlgorithm
         return ~CalculateHash(InitializeTable(polynomial), seed, buffer, 0, buffer.Length);
     }
 
-    private static UInt32[] InitializeTable(UInt32 polynomial)
+    static UInt32[] InitializeTable(UInt32 polynomial)
     {
         if (polynomial == DefaultPolynomial && defaultTable != null)
             return defaultTable;
@@ -87,7 +87,7 @@ internal class Crc32 : HashAlgorithm
         return createTable;
     }
 
-    private static UInt32 CalculateHash(UInt32[] table, UInt32 seed, byte[] buffer, int start, int size)
+    static UInt32 CalculateHash(UInt32[] table, UInt32 seed, byte[] buffer, int start, int size)
     {
         UInt32 crc = seed;
         for (int i = start; i < size; i++)
@@ -98,7 +98,7 @@ internal class Crc32 : HashAlgorithm
         return crc;
     }
 
-    private byte[] UInt32ToBigEndianBytes(UInt32 x)
+    byte[] UInt32ToBigEndianBytes(UInt32 x)
     {
         return new byte[] {
 			(byte)((x >> 24) & 0xff),

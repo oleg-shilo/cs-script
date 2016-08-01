@@ -71,6 +71,7 @@ namespace csscript
     /// <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
     /// <returns></returns>
     public delegate string ResolveSourceFileHandler(string file, string[] searchDirs, bool throwOnError);
+    public delegate string[] ResolveSourceFilesHandler(string file, string[] searchDirs, bool throwOnError);
     /// <summary>
     /// Delegate implementing assembly file probing algorithm.
     /// </summary>
@@ -291,7 +292,7 @@ namespace csscript
                     CSharpParser.CmdScriptInfo[] cmdScripts = new CSharpParser.CmdScriptInfo[0];
 
                     //do quick parsing for pre/post scripts, ThreadingModel and embedded script arguments
-                    CSharpParser parser = new CSharpParser(options.scriptFileName, true);
+                    CSharpParser parser = new CSharpParser(options.scriptFileName, true, options.searchDirs);
 
                     if (parser.Inits.Length != 0)
                         options.initContext = parser.Inits[0];
@@ -356,21 +357,22 @@ namespace csscript
                         {
                             try
                             {
-                                string file = FileParser.ResolveFile(info.file, options.searchDirs);
-                                if (file.IndexOf(".g.cs") == -1) //non auto-generated file
-                                {
-                                    using (IDisposable currDir = new CurrentDirGuard())
+                                string[] files = FileParser.ResolveFiles(info.file, options.searchDirs);
+                                foreach(string file in files)
+                                    if (file.IndexOf(".g.cs") == -1) //non auto-generated file
                                     {
-                                        CSharpParser impParser = new CSharpParser(file, true, options.searchDirs);
-                                        Environment.CurrentDirectory = Path.GetDirectoryName(file);
+                                        using (IDisposable currDir = new CurrentDirGuard())
+                                        {
+                                            CSharpParser impParser = new CSharpParser(file, true, options.searchDirs);
+                                            Environment.CurrentDirectory = Path.GetDirectoryName(file);
 
-                                        foreach (string dir in impParser.ExtraSearchDirs)
-                                            newSearchDirs.Add(Path.GetFullPath(dir));
+                                            foreach (string dir in impParser.ExtraSearchDirs)
+                                                newSearchDirs.Add(Path.GetFullPath(dir));
 
-                                        options.searchDirs = newSearchDirs.ToArray();
+                                            options.searchDirs = newSearchDirs.ToArray();
+                                        }
+                                        preScripts.AddRange(new CSharpParser(file, true, options.searchDirs).CmdScripts);
                                     }
-                                    preScripts.AddRange(new CSharpParser(file, true).CmdScripts);
-                                }
                             }
                             catch { } //some files may not be generated yet
                         }

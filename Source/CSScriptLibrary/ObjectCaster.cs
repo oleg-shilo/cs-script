@@ -53,7 +53,7 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
         /// <summary>
         /// Represents a map from a object type to the type of its proxy class.
         /// </summary>
-        private static Dictionary<Type, Type> _proxyCache = new Dictionary<Type, Type>();
+        static Dictionary<Type, Type> _proxyCache = new Dictionary<Type, Type>();
 
         /// <summary>
         /// Converts specified object to an another object which implements interface T.
@@ -93,7 +93,7 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
         /// <param name="refAssemblies">The string array containing file nemes to the additional dependency assemblies
         /// the interface depends in. </param>
         /// <returns>true if conversion can be performed; false otherwise</returns>
-        private static bool CheckSourceObject(Type interfaceType, Type sourceType, params string[] refAssemblies)
+        static bool CheckSourceObject(Type interfaceType, Type sourceType, params string[] refAssemblies)
         {
             // Check Properties
             foreach (PropertyInfo prop in interfaceType.GetProperties())
@@ -194,7 +194,7 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
         /// <param name="refAssemblies">The string array containing file names to the additional dependency assemblies
         /// the interface depends in. </param>
         /// <returns>Instance of the proxy object.</returns>
-        private static T CastToInterface(Type interfaceType, object o, params string[] refAssemblies)
+        static T CastToInterface(Type interfaceType, object o, params string[] refAssemblies)
         {
             Type sourceType = o.GetType();
 
@@ -222,7 +222,7 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
         /// <param name="refAssemblies">The string array containing file names to the additional dependency assemblies
         /// the interface depends in.</param>
         /// <returns>Type definition for proxy class.</returns>
-        private static Type BuildProxyClass(Type interfaceType, Type sourceType, bool injectNamespace, params string[] refAssemblies)
+        static Type BuildProxyClass(Type interfaceType, Type sourceType, bool injectNamespace, params string[] refAssemblies)
         {
             CodeCompileUnit compileUnit = GenerateProxyClass(interfaceType, sourceType, injectNamespace);
             CodeDomProvider provider = CodeDomProvider.CreateProvider("CSharp");
@@ -283,13 +283,13 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
         /// <param name="injectNamespace">if set to <c>true</c> the <c>CSScriptLibrary.DynamicTypes</c>
         /// will be injected the proxy class name.</param>
         /// <returns></returns>
-        private static CodeCompileUnit GenerateProxyClass(Type interfaceType, Type sourceType, bool injectNamespace)
+        static CodeCompileUnit GenerateProxyClass(Type interfaceType, Type sourceType, bool injectNamespace)
         {
             string dummy;
             return GenerateProxyClass(interfaceType, sourceType, injectNamespace, out dummy);
         }
 
-        private static CodeCompileUnit GenerateProxyClass(Type interfaceType, Type sourceType, bool injectNamespace, out string typeFuleName)
+        static CodeCompileUnit GenerateProxyClass(Type interfaceType, Type sourceType, bool injectNamespace, out string typeFuleName)
         {
             CodeCompileUnit compileUnit = new CodeCompileUnit();
 
@@ -363,7 +363,7 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
         /// <param name="genClass">The generated class.</param>
         /// <param name="interfaceType">Type of the interface.</param>
         /// <param name="sourceType">Type of the source.</param>
-        private static void GenerateProxyClassProperties(CodeTypeDeclaration genClass, Type interfaceType, Type sourceType)
+        static void GenerateProxyClassProperties(CodeTypeDeclaration genClass, Type interfaceType, Type sourceType)
         {
             List<string> processed = new List<string>();
 
@@ -447,7 +447,7 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
         /// <param name="genClass">The generated class.</param>
         /// <param name="interfaceType">Type of the interface.</param>
         /// <param name="sourceType">Type of the source.</param>
-        private static void GenerateProxyClassMethods(CodeTypeDeclaration genClass, Type interfaceType, Type sourceType)
+        static void GenerateProxyClassMethods(CodeTypeDeclaration genClass, Type interfaceType, Type sourceType)
         {
             List<string> processed = new List<string>();
 
@@ -524,7 +524,7 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
         /// <param name="constructor">The generated class constructor.</param>
         /// <param name="interfaceType">Type of the interface.</param>
         /// <param name="sourceType">Type of the source.</param>
-        private static void GenerateProxyClassEvents(CodeTypeDeclaration genClass, CodeConstructor constructor, Type interfaceType, Type sourceType)
+        static void GenerateProxyClassEvents(CodeTypeDeclaration genClass, CodeConstructor constructor, Type interfaceType, Type sourceType)
         {
             List<string> processed = new List<string>();
 

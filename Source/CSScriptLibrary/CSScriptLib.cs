@@ -198,7 +198,7 @@ namespace CSScriptLibrary
     /// </summary>
     public static class AppDomainHelper
     {
-        private class RemoteExecutor : MarshalByRefObject
+        class RemoteExecutor : MarshalByRefObject
         {
             SimpleAsmProbing AsmProbing = new SimpleAsmProbing();
 
@@ -614,10 +614,10 @@ namespace CSScriptLibrary
             }
         }
 
-        static private bool shareHostRefAssemblies = true;
+        static bool shareHostRefAssemblies = true;
         static Assembly callingResolveEnabledAssembly;
 
-        private static Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
+        static Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
         {
             Assembly retval = null;
             if (args.Name == "GetExecutingAssembly()")
@@ -651,7 +651,7 @@ namespace CSScriptLibrary
         /// </summary>
         public static Dictionary<FileInfo, CompilerResults> CompilingHistory = new Dictionary<FileInfo, CompilerResults>();
 
-        private static bool keepCompilingHistory = false;
+        static bool keepCompilingHistory = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether compiling history should be kept. The compilation results are stored in <see cref="CompilingHistory"></see>.
@@ -912,17 +912,17 @@ namespace CSScriptLibrary
             }
         }
 
-        private static string ResolveConfigFilePath(string cssConfigFile)
+        static string ResolveConfigFilePath(string cssConfigFile)
         {
             return cssConfigFile != null ? cssConfigFile : Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml");
         }
 
-        private static string GetCompilerLockName(string script, Settings scriptSettings)
+        static string GetCompilerLockName(string script, Settings scriptSettings)
         {
             return GetCompilerLockName(script, scriptSettings.OptimisticConcurrencyModel);
         }
 
-        private static string GetCompilerLockName(string script, bool optimisticConcurrencyModel)
+        static string GetCompilerLockName(string script, bool optimisticConcurrencyModel)
         {
             if (optimisticConcurrencyModel)
             {
@@ -1033,7 +1033,7 @@ namespace CSScriptLibrary
             }
         }
 
-        private static ExecuteOptions InitExecuteOptions(ExecuteOptions options, Settings scriptSettings, string compilerOptions, ref string scriptFile)
+        static ExecuteOptions InitExecuteOptions(ExecuteOptions options, Settings scriptSettings, string compilerOptions, ref string scriptFile)
         {
             Settings settings = (scriptSettings == null ? CSScript.GlobalSettings : scriptSettings);
 
@@ -1330,7 +1330,7 @@ namespace CSScriptLibrary
 #endif
         public static string EvalNamespaces
         {
-            private get
+            get
             {
                 if (evalNamespaces == null)
                     evalNamespaces = SplitNamespaces("System;System.IO;System.Diagnostics;System.Collections.Generic;System.Threading");
@@ -1342,7 +1342,7 @@ namespace CSScriptLibrary
             }
         }
 
-        private static string SplitNamespaces(string text)
+        static string SplitNamespaces(string text)
         {
             StringBuilder sb = new StringBuilder();
             foreach (string @namespace in text.Split(new char[] { ';' }))
@@ -1474,7 +1474,7 @@ namespace CSScriptLibrary
 #if !net35 && !net1
         [Obsolete("This type member will be removed in the future releases. Please use CSScript.Evaluator instead.")]
 #endif
-        static private string GenerateEvalSourceCode(string methodCode, out string[] refAssemblies, bool injectClassDef)
+        static string GenerateEvalSourceCode(string methodCode, out string[] refAssemblies, bool injectClassDef)
         {
             string code = evalNamespaces;
 
@@ -1514,7 +1514,7 @@ namespace CSScriptLibrary
         }
 
 #endif
-        private static object LoadAutoCodeSynch = new object();
+        static object LoadAutoCodeSynch = new object();
 
         /// <summary>
         /// Surrounds the method implementation code into a class and compiles it code into
@@ -1804,14 +1804,14 @@ namespace CSScriptLibrary
             }
         }
 
-        private static void CurrentDomain_DomainUnload(object sender, EventArgs e)
+        static void CurrentDomain_DomainUnload(object sender, EventArgs e)
         {
             OnApplicationExit(sender, e);
         }
 
         static ArrayList tempFiles;
 
-        private static void OnApplicationExit(object sender, EventArgs e)
+        static void OnApplicationExit(object sender, EventArgs e)
         {
             if (tempFiles != null)
                 foreach (string file in tempFiles)
@@ -1972,7 +1972,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Default implementation of displaying application messages.
         /// </summary>
-        private static void DefaultPrint(string msg)
+        static void DefaultPrint(string msg)
         {
             //do nothing
         }
@@ -2267,7 +2267,7 @@ namespace csscript
             }
         }
 
-        static private string scriptFile = null;
+        static string scriptFile = null;
 
         /// <summary>
         /// The full name of the primary script file being executed. Usually it is the same file as ScriptFile.
@@ -2289,9 +2289,9 @@ namespace csscript
             }
         }
 
-        static private string scriptFileNamePrimary = null;
+        static string scriptFileNamePrimary = null;
 
-        static private string FindExecuteOptionsField(Assembly asm, string field)
+        static string FindExecuteOptionsField(Assembly asm, string field)
         {
             Type t = asm.GetModules()[0].GetType("csscript.ExecuteOptions");
             if (t != null)
@@ -2316,7 +2316,7 @@ namespace csscript
             return null;
         }
 
-        private CSSEnvironment()
+        CSSEnvironment()
         {
         }
     }
