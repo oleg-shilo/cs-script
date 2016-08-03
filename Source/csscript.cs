@@ -301,7 +301,7 @@ namespace csscript
                     CSharpParser.CmdScriptInfo[] cmdScripts = new CSharpParser.CmdScriptInfo[0];
 
                     //do quick parsing for pre/post scripts, ThreadingModel and embedded script arguments
-                    CSharpParser parser = new CSharpParser(options.scriptFileName, true, options.searchDirs);
+                    CSharpParser parser = new CSharpParser(options.scriptFileName, true, null, options.searchDirs);
 
                     if (parser.Inits.Length != 0)
                         options.initContext = parser.Inits[0];
@@ -372,7 +372,7 @@ namespace csscript
                                     {
                                         using (IDisposable currDir = new CurrentDirGuard())
                                         {
-                                            CSharpParser impParser = new CSharpParser(file, true, options.searchDirs);
+                                            CSharpParser impParser = new CSharpParser(file, true, null, options.searchDirs);
                                             Environment.CurrentDirectory = Path.GetDirectoryName(file);
 
                                             foreach (string dir in impParser.ExtraSearchDirs)
@@ -380,7 +380,7 @@ namespace csscript
 
                                             options.searchDirs = newSearchDirs.ToArray();
                                         }
-                                        preScripts.AddRange(new CSharpParser(file, true, options.searchDirs).CmdScripts);
+                                        preScripts.AddRange(new CSharpParser(file, true, null, options.searchDirs).CmdScripts);
                                     }
                             }
                             catch { } //some files may not be generated yet

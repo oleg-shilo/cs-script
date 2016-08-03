@@ -174,8 +174,8 @@ namespace CSScriptLibrary
             FileParser._throwOnError = throwOnError;
             this.imported = imported;
             this.prams = prams;
-            this.searchDirs = searchDirs;
             this.fileName = ResolveFile(fileName, searchDirs);
+            this.searchDirs = Utils.RemovePathDuplicates(Utils.Concat(searchDirs, Path.GetDirectoryName(this.fileName)));
             if (process)
                 ProcessFile();
         }
@@ -254,7 +254,7 @@ namespace CSScriptLibrary
             referencedNamespaces.Clear();
             referencedResources.Clear();
 
-            this.parser = new CSharpParser(fileName, true, this.searchDirs);
+            this.parser = new CSharpParser(fileName, true, null, this.searchDirs);
 
             foreach (CSharpParser.ImportInfo info in parser.Imports)
             {
@@ -372,11 +372,11 @@ namespace CSScriptLibrary
 
         internal static string[] ResolveFilesDefault(string file, string[] extraDirs, bool throwOnError)
         {
-            string[] retval = ResolveFiles(file, extraDirs, "");
+            string[] retval = _ResolveFiles(file, extraDirs, "");
             if (retval.Length == 0)
-                retval = ResolveFiles(file, extraDirs, ".cs");
+                retval = _ResolveFiles(file, extraDirs, ".cs");
             if (retval.Length == 0)
-                retval = ResolveFiles(file, extraDirs, ".csl"); //script link file
+                retval = _ResolveFiles(file, extraDirs, ".csl"); //script link file
 
             if (retval.Length == 0)
             {
@@ -394,11 +394,11 @@ namespace CSScriptLibrary
 
         internal static string ResolveFileDefault(string file, string[] extraDirs, bool throwOnError)
         {
-            string retval = ResolveFile(file, extraDirs, "");
+            string retval = _ResolveFile(file, extraDirs, "");
             if (retval == "")
-                retval = ResolveFile(file, extraDirs, ".cs");
+                retval = _ResolveFile(file, extraDirs, ".cs");
             if (retval == "")
-                retval = ResolveFile(file, extraDirs, ".csl"); //script link file
+                retval = _ResolveFile(file, extraDirs, ".csl"); //script link file
 
             if (retval == "")
             {
@@ -413,7 +413,7 @@ namespace CSScriptLibrary
             return retval;
         }
 
-        static string ResolveFile(string file, string[] extraDirs, string extension)
+        static string _ResolveFile(string file, string[] extraDirs, string extension)
         {
             string fileName = file;
             //current directory
@@ -478,7 +478,7 @@ namespace CSScriptLibrary
             return new string[0];
         }
 
-        static string[] ResolveFiles(string file, string[] extraDirs, string extension)
+        static string[] _ResolveFiles(string file, string[] extraDirs, string extension)
         {
             string fileName = file;
 

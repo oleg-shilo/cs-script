@@ -456,6 +456,13 @@
             </summary>
             <param name="code">C# code string</param>
         </member>
+        <member name="M:csscript.CSharpParser.#ctor(System.String,System.Boolean)">
+            <summary>
+            Creates an instance of CSharpParser.
+            </summary>
+            <param name="script">C# script (code or file).</param>
+            <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
+        </member>
         <member name="M:csscript.CSharpParser.#ctor(System.String,System.Boolean,System.String[])">
             <summary>
             Creates an instance of CSharpParser.
@@ -464,25 +471,28 @@
             <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
             <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
         </member>
+        <member name="M:csscript.CSharpParser.#ctor(System.String,System.Boolean,System.String[],System.String[])">
+            <summary>
+            Creates an instance of CSharpParser.
+            </summary>
+            <param name="script">C# script (code or file).</param>
+            <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
+            <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
+            <param name="probingDirs">Search directories for resolving wild card paths in //css_inc and //css_imp</param>
+        </member>
         <member name="F:csscript.CSharpParser.CustomDirectives">
             <summary>
             The result of search for additional C# script directives to search (directive vs. value).
             </summary>
         </member>
-        <member name="M:csscript.CSharpParser.Init(System.String,System.String)">
-            <summary>
-            Parses the C# code. Only one of the 'code' and 'file' parameters can be non empty.
-            </summary>
-            <param name="code">C# script code (empty string if code is in a file form).</param>
-            <param name="file">The script file name (empty if code is in the text form).</param>
-        </member>
-        <member name="M:csscript.CSharpParser.Init(System.String,System.String,System.String[])">
+        <member name="M:csscript.CSharpParser.Init(System.String,System.String,System.String[],System.String[])">
             <summary>
             Parses the C# code.
             </summary>
             <param name="code">C# script (code or file).</param>
             <param name="file">If set to 'true' the script is a file, otherwise it is a C# code.</param>
             <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
+            <param name="probingDirs">Search directories for resolving wild card paths in //css_inc and //css_imp</param>
         </member>
         <member name="M:csscript.CSharpParser.DoRenaming(System.String[][],System.Boolean)">
             <summary>
@@ -619,6 +629,15 @@
             </summary>
         </member>
         <member name="T:csscript.ResolveSourceFileHandler">
+            <summary>
+            Delegate implementing source file probing algorithm.
+            </summary>
+            <param name="file">The file.</param>
+            <param name="searchDirs">The extra dirs.</param>
+            <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
+            <returns></returns>
+        </member>
+        <member name="T:csscript.ResolveSourceFileAlgorithm">
             <summary>
             Delegate implementing source file probing algorithm.
             </summary>

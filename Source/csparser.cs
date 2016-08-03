@@ -219,7 +219,7 @@ namespace csscript
         /// </summary>
         public class ImportInfo
         {
-            internal static ImportInfo[] ResolveStatement(string statement, string parentScript, params string[] probinghDirs)
+            internal static ImportInfo[] ResolveStatement(string statement, string parentScript, string[] probinghDirs)
             {
                 if (statement.Contains("*") || statement.Contains("?"))
                 {
@@ -240,6 +240,7 @@ namespace csscript
                     return (ImportInfo[])result.ToArray(typeof(ImportInfo));
 #else
                     List<ImportInfo> result = new List<ImportInfo>();
+
                     foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
                     {
                         parts[0] = file; //substitute the file path pattern with the actual path 
@@ -373,24 +374,19 @@ namespace csscript
         public CSharpParser(string code)
         {
             InitEnvironment();
-            Init(code, "");
+            Construct(code, false, null, null);
         }
 
-        ///// <summary>
-        ///// Creates an instance of CSharpParser.
-        ///// </summary>
-        ///// <param name="script">C# script (code or file).</param>
-        ///// <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
-        //public CSharpParser(string script, bool isFile)
-        //{
-        //    InitEnvironment();
-
-        //    if (!isFile)
-        //        Init(script, "");
-        //    else
-        //        using (StreamReader sr = new StreamReader(script, Encoding.UTF8))
-        //            Init(sr.ReadToEnd(), script);
-        //}
+        /// <summary>
+        /// Creates an instance of CSharpParser.
+        /// </summary>
+        /// <param name="script">C# script (code or file).</param>
+        /// <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
+        public CSharpParser(string script, bool isFile)
+        {
+            InitEnvironment();
+            Construct(script, isFile, null, null);
+        }
 
         /// <summary>
         /// Creates an instance of CSharpParser.
@@ -400,11 +396,30 @@ namespace csscript
         /// <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
         public CSharpParser(string script, bool isFile, string[] directivesToSearch)
         {
+            InitEnvironment();
+            Construct(script, isFile, directivesToSearch, null);
+        }
+
+        /// <summary>
+        /// Creates an instance of CSharpParser.
+        /// </summary>
+        /// <param name="script">C# script (code or file).</param>
+        /// <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
+        /// <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
+        /// <param name="probingDirs">Search directories for resolving wild card paths in //css_inc and //css_imp</param>
+        public CSharpParser(string script, bool isFile, string[] directivesToSearch, string[] probingDirs)
+        {
+            InitEnvironment();
+            Construct(script, isFile, directivesToSearch, probingDirs);
+        }
+
+        void Construct(string script, bool isFile, string[] directivesToSearch, string[] probingDirs)
+        {
             if (!isFile)
-                Init(script, "", directivesToSearch);
+                Init(script, "", directivesToSearch, probingDirs);
             else
                 using (StreamReader sr = new StreamReader(script))
-                    Init(sr.ReadToEnd(), script, directivesToSearch);
+                    Init(sr.ReadToEnd(), script, directivesToSearch, probingDirs);
         }
 
         /// <summary>
@@ -412,23 +427,34 @@ namespace csscript
         /// </summary>
         public Hashtable CustomDirectives = new Hashtable();
 
-        /// <summary>
-        /// Parses the C# code. Only one of the 'code' and 'file' parameters can be non empty.
-        /// </summary>
-        /// <param name="code">C# script code (empty string if code is in a file form).</param>
-        /// <param name="file">The script file name (empty if code is in the text form).</param>
-        public void Init(string code, string file)
-        {
-            Init(code, file, null);
-        }
+        ///// <summary>
+        ///// Parses the C# code. Only one of the 'code' and 'file' parameters can be non empty.
+        ///// </summary>
+        ///// <param name="code">C# script code (empty string if code is in a file form).</param>
+        ///// <param name="file">The script file name (empty if code is in the text form).</param>
+        //public void Init(string code, string file)
+        //{
+        //    Init(code, file, null, null);
+        //}
 
+        ///// <summary>
+        ///// Parses the C# code.
+        ///// </summary>
+        ///// <param name="code">C# script (code or file).</param>
+        ///// <param name="file">If set to 'true' the script is a file, otherwise it is a C# code.</param>
+        ///// <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
+        //void Init(string code, string file, string[] directivesToSearch)
+        //{
+        //    Init(code, file, directivesToSearch, null);
+        //}
         /// <summary>
         /// Parses the C# code.
         /// </summary>
         /// <param name="code">C# script (code or file).</param>
         /// <param name="file">If set to 'true' the script is a file, otherwise it is a C# code.</param>
         /// <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
-        public void Init(string code, string file, string[] directivesToSearch)
+        /// <param name="probingDirs">Search directories for resolving wild card paths in //css_inc and //css_imp</param>
+        void Init(string code, string file, string[] directivesToSearch, string[] probingDirs)
         {
             string workingDir = Environment.CurrentDirectory;
             if (file != "")
@@ -487,13 +513,13 @@ namespace csscript
 
             //analyse script imports/includes
             foreach (string statement in GetRawStatements("//css_import", endCodePos))
-                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim(), file, directivesToSearch));
+                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim(), file, probingDirs));
             foreach (string statement in GetRawStatements("//css_imp", endCodePos))
-                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim(), file, directivesToSearch));
+                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim(), file, probingDirs));
             foreach (string statement in GetRawStatements("//css_include", endCodePos))
-                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, directivesToSearch));
+                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, probingDirs));
             foreach (string statement in GetRawStatements("//css_inc", endCodePos))
-                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, directivesToSearch));
+                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, probingDirs));
 
             //analyse assembly references
             foreach (string statement in GetRawStatements("//css_reference", endCodePos))

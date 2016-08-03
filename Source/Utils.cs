@@ -120,7 +120,12 @@ namespace csscript
             System.Collections.ArrayList retval = new System.Collections.ArrayList();
             foreach (string item in list)
             {
-                string path = Path.GetFullPath(item.Trim());
+
+                string path = item.Trim();
+                if (path == "")
+                    continue;
+
+                path = Path.GetFullPath(path);
 
                 bool found = false;
                 foreach (string pathItem in retval)
@@ -132,6 +137,8 @@ namespace csscript
 
                 if (!found)
                     retval.Add(path);
+
+
             }
 
             return (string[]) retval.ToArray(typeof(string));
@@ -2029,7 +2036,7 @@ namespace csscript
                 prev = current;
             }
 
-            result = result.Substring(0, i+1); //i-inclusive
+            result = result.Substring(0, i + 1); //i-inclusive
             return result;
         }
 
@@ -2070,7 +2077,7 @@ namespace csscript
                                     .Where(x => x != package)
                                     .Distinct()
                                     .ToArray();
-   
+
             return packages;
         }
 
@@ -2102,7 +2109,7 @@ namespace csscript
         {
             List<string> result = new List<string>();
 
-            string packageDir = rootDir??Path.Combine(NuGetCache, package);
+            string packageDir = rootDir ?? Path.Combine(NuGetCache, package);
 
             string requiredVersion;
 

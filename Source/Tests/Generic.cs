@@ -36,7 +36,7 @@ public class GenericTest
                              Console.WriteLine(greeting);
                          }";
 
-            var parser = new CSharpParser(code, false, null);
+            var parser = new CSharpParser(code, false, null, null);
         });
         //parser.GetRawStatements("//css_inc", code.Length-1);
 
@@ -78,6 +78,6 @@ public class GenericTest
 
     CSharpParser.InitInfo Parse(string code)
     {
-        return new CSharpParser(code + "\n", false, null).Inits.FirstOrDefault();
+        return new CSharpParser(code + "\n", false, null, null).Inits.FirstOrDefault();
     }
 }
