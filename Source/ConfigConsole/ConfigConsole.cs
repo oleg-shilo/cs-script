@@ -79,6 +79,8 @@ namespace Config
         private CheckBox allFilesAdvancedShellEx;
         private PictureBox pictureBox1;
         private LinkLabel linkLabel11;
+        private Button updateNuGetBtn;
+        private LinkLabel integrateNpp;
         private bool ignoreDirtyOnClose = false;
 
         public ConfigForm(bool quiet, bool update)
@@ -201,6 +203,7 @@ namespace Config
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.iconPictureBox = new System.Windows.Forms.PictureBox();
             this.changeIconButton = new System.Windows.Forms.Button();
+            this.updateNuGetBtn = new System.Windows.Forms.Button();
             this.repareBtn = new System.Windows.Forms.Button();
             this.deactivateBtn = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -216,6 +219,7 @@ namespace Config
             this.donateBtn = new System.Windows.Forms.Button();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.linkLabel11 = new System.Windows.Forms.LinkLabel();
             this.linkLabel9 = new System.Windows.Forms.LinkLabel();
             this.linkLabel8 = new System.Windows.Forms.LinkLabel();
             this.linkLabel7 = new System.Windows.Forms.LinkLabel();
@@ -228,7 +232,7 @@ namespace Config
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.linkLabel11 = new System.Windows.Forms.LinkLabel();
+            this.integrateNpp = new System.Windows.Forms.LinkLabel();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -245,8 +249,8 @@ namespace Config
             // 
             // tabControl1
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
@@ -260,6 +264,7 @@ namespace Config
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.doubleClickAction);
+            this.tabPage1.Controls.Add(this.integrateNpp);
             this.tabPage1.Controls.Add(this.integrateVS);
             this.tabPage1.Controls.Add(this.groupBox4);
             this.tabPage1.Controls.Add(this.groupBox1);
@@ -272,7 +277,7 @@ namespace Config
             // 
             // doubleClickAction
             // 
-            this.doubleClickAction.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            this.doubleClickAction.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.doubleClickAction.FormattingEnabled = true;
             this.doubleClickAction.Location = new System.Drawing.Point(10, 318);
@@ -288,7 +293,7 @@ namespace Config
             this.integrateVS.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.integrateVS.Location = new System.Drawing.Point(7, 343);
             this.integrateVS.Name = "integrateVS";
-            this.integrateVS.Size = new System.Drawing.Size(165, 19);
+            this.integrateVS.Size = new System.Drawing.Size(134, 19);
             this.integrateVS.TabIndex = 13;
             this.integrateVS.TabStop = true;
             this.integrateVS.Text = "Visual Studio Integration";
@@ -297,8 +302,8 @@ namespace Config
             // 
             // groupBox4
             // 
-            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox4.Controls.Add(this.tabControl2);
             this.groupBox4.Location = new System.Drawing.Point(3, 97);
@@ -330,8 +335,8 @@ namespace Config
             // 
             // checkedListBox1
             // 
-            this.checkedListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.checkedListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.checkedListBox1.CausesValidation = false;
             this.checkedListBox1.CheckOnClick = true;
@@ -402,10 +407,11 @@ namespace Config
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.iconPictureBox);
             this.groupBox1.Controls.Add(this.changeIconButton);
+            this.groupBox1.Controls.Add(this.updateNuGetBtn);
             this.groupBox1.Controls.Add(this.repareBtn);
             this.groupBox1.Controls.Add(this.deactivateBtn);
             this.groupBox1.Controls.Add(this.textBox1);
@@ -436,6 +442,19 @@ namespace Config
             this.changeIconButton.Text = "Change Icon";
             this.changeIconButton.Click += new System.EventHandler(this.changeIconButton_Click);
             // 
+            // updateNuGetBtn
+            // 
+            this.updateNuGetBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.updateNuGetBtn.Location = new System.Drawing.Point(160, 51);
+            this.updateNuGetBtn.Name = "updateNuGetBtn";
+            this.updateNuGetBtn.Size = new System.Drawing.Size(93, 24);
+            this.updateNuGetBtn.TabIndex = 5;
+            this.updateNuGetBtn.Text = "Update Nuget";
+            this.toolTip1.SetToolTip(this.updateNuGetBtn, "Update nugetexe local copy.\r\n-------------------------------------------\r\nCheck N" +
+        "uGet.olg for the latest nuget.exe version.\r\nDownload and replace the local copy " +
+        "if the update is found.");
+            this.updateNuGetBtn.Click += new System.EventHandler(this.updateNuGetBtn_Click);
+            // 
             // repareBtn
             // 
             this.repareBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -460,8 +479,8 @@ namespace Config
             // 
             // textBox1
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox1.Location = new System.Drawing.Point(95, 18);
             this.textBox1.Name = "textBox1";
@@ -480,8 +499,8 @@ namespace Config
             // 
             // comboBox1
             // 
-            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox1.Location = new System.Drawing.Point(112, 45);
             this.comboBox1.Name = "comboBox1";
@@ -533,8 +552,8 @@ namespace Config
             // 
             // propertyGrid1
             // 
-            this.propertyGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.propertyGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.propertyGrid1.LineColor = System.Drawing.SystemColors.ScrollBar;
             this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
@@ -602,6 +621,17 @@ namespace Config
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Resources";
+            // 
+            // linkLabel11
+            // 
+            this.linkLabel11.Location = new System.Drawing.Point(8, 16);
+            this.linkLabel11.Name = "linkLabel11";
+            this.linkLabel11.Size = new System.Drawing.Size(187, 13);
+            this.linkLabel11.TabIndex = 1;
+            this.linkLabel11.TabStop = true;
+            this.linkLabel11.Tag = "http://www.csscript.net/Feedback.html";
+            this.linkLabel11.Text = "Support/Feedback";
+            this.linkLabel11.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
             // 
             // linkLabel9
             // 
@@ -719,16 +749,16 @@ namespace Config
             this.button3.Text = "&Apply";
             this.button3.Click += new System.EventHandler(this.ApplyButton_Click);
             // 
-            // linkLabel11
+            // integrateNpp
             // 
-            this.linkLabel11.Location = new System.Drawing.Point(8, 16);
-            this.linkLabel11.Name = "linkLabel11";
-            this.linkLabel11.Size = new System.Drawing.Size(187, 13);
-            this.linkLabel11.TabIndex = 1;
-            this.linkLabel11.TabStop = true;
-            this.linkLabel11.Tag = "http://www.csscript.net/Feedback.html";
-            this.linkLabel11.Text = "Support/Feedback";
-            this.linkLabel11.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
+            this.integrateNpp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.integrateNpp.Location = new System.Drawing.Point(160, 343);
+            this.integrateNpp.Name = "integrateNpp";
+            this.integrateNpp.Size = new System.Drawing.Size(165, 19);
+            this.integrateNpp.TabIndex = 13;
+            this.integrateNpp.TabStop = true;
+            this.integrateNpp.Text = "Notepad++ Integration";
+            this.integrateNpp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.integrateNpp_LinkClicked);
             // 
             // ConfigForm
             // 
@@ -762,6 +792,7 @@ namespace Config
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
+
         }
 
         static void InitEnvVars()
@@ -1389,6 +1420,28 @@ namespace Config
         private void allFilesAdvancedShellEx_CheckedChanged(object sender, EventArgs e)
         {
             CSScriptInstaller.EnableComShellExtForAll(allFilesAdvancedShellEx.Checked);
+        }
+
+        private void updateNuGetBtn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("cmd.exe", "/K \"%CSSCRIPT_DIR%\\lib\\nuget.exe\" Update -self");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void integrateNpp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            try
+            {
+                Process.Start("http://csscriptnpp.codeplex.com/");
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+
         }
     }
 
