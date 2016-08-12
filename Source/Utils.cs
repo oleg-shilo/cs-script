@@ -742,7 +742,7 @@ namespace csscript
                                 CSSUtils.VerbosePrint("  Precompilers: ", options);
                                 int index = 0;
                                 foreach (string file in filesToCompile)
-                                    CSSUtils.VerbosePrint("   " + index++ + " - " + precompiler.GetType() + "\n       " + precompilerFile, options);
+                                    CSSUtils.VerbosePrint("   " + index++ + " - " + Path.GetFileName(file)+ " -> " + precompiler.GetType() + "\n           from " + precompilerFile, options);
                                 CSSUtils.VerbosePrint("", options);
                             }
 
