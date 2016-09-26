@@ -148,7 +148,13 @@ namespace CSScriptLibrary
         /// <para>Generic <see cref="CSScriptLibrary.IEvaluator"/> interface provides a convenient way of accessing 
         /// compilers without 'committing' to a specific compiler technology (e.g. Mono, Roslyn, CodeDOM). This may be 
         /// required during troubleshooting or performance tuning.</para>
-        /// <para>Switching between compilers can be done via global CSScript.<see cref="P:CSScriptLibrary.CSScript.EvaluatorConfig.Engine"/>.</para>
+        /// <para>Switching between compilers can be done via global 
+        /// CSScript.<see cref="P:CSScriptLibrary.CSScript.EvaluatorConfig.Engine"/>.</para>
+        /// <remarks>
+        /// By default <see cref="CSScriptLibrary.MonoEvaluator"/> always returns a new instance of 
+        /// <see cref="CSScriptLibrary.IEvaluator"/>. If this behaver is undesired change the evaluator access 
+        /// policy by setting CSScript.EvaluatorConfig.<see cref="CSScriptLibrary.EvaluatorConfig.Access"/> value.
+        /// </remarks>
         /// </summary>
         /// <value>The <see cref="CSScriptLibrary.MonoEvaluator"/> instance.</value>
         /// <example>
