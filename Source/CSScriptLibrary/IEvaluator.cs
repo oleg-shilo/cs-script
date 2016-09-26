@@ -151,12 +151,12 @@ namespace CSScriptLibrary
         /// <para>Switching between compilers can be done via global 
         /// CSScript.<see cref="P:CSScriptLibrary.CSScript.EvaluatorConfig.Engine"/>.</para>
         /// <remarks>
-        /// By default <see cref="CSScriptLibrary.MonoEvaluator"/> always returns a new instance of 
+        /// By default CSScript.<see cref="CSScriptLibrary.CSScript.Evaluator"/> always returns a new instance of 
         /// <see cref="CSScriptLibrary.IEvaluator"/>. If this behaver is undesired change the evaluator access 
-        /// policy by setting CSScript.EvaluatorConfig.<see cref="CSScriptLibrary.EvaluatorConfig.Access"/> value.
+        /// policy by setting CSScript.EvaluatorConfig.<see cref="CSScriptLibrary.CSScript.EvaluatorConfig.Access"/> value.
         /// </remarks>
         /// </summary>
-        /// <value>The <see cref="CSScriptLibrary.MonoEvaluator"/> instance.</value>
+        /// <value>The <see cref="CSScriptLibrary.IEvaluator"/> instance.</value>
         /// <example>
         ///<code>
         /// if(testingWithMono)

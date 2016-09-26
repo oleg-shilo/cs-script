@@ -9,6 +9,7 @@ class Program
     static void Main(string[] args)
     {
         Load(); return;
+        testVb(); return;
 
         string baseDir = @"E:\Galos\Projects\CS-Script.Npp\CSScript.Npp\src\CSScriptNpp\CSScriptNpp\Roslyn\";
         //baseDir = @"E:\Galos\Projects\CS-Script.Npp\gittest\csscriptnpp\bin\Plugins\CSScriptNpp\Roslyn\";
@@ -25,7 +26,7 @@ class Program
 
 
         CSSCodeProvider.CompilerServerTimeToLive = 60;
-        //Environment.SetEnvironmentVariable("CSS_CompilerDefaultSyntax", "vb");
+        Environment.SetEnvironmentVariable("CSS_CompilerDefaultSyntax", "vb");
 
         ICodeCompiler compiler = CSSCodeProvider.CreateCompiler("");
 
@@ -35,7 +36,8 @@ class Program
         var compilerParams = new CompilerParameters();
 
         var file = @"E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\CSSCodeProvider.Client\Script.cs";
-        
+        file = @"E:\cs-script\samples\Hello.vb";
+
         compilerParams.GenerateExecutable = false;
         compilerParams.GenerateInMemory = false;
 
@@ -45,8 +47,42 @@ class Program
         Console.WriteLine((failed ? "failed - " : "OK - ") + sw.ElapsedMilliseconds);
     }
 
+    static void testVb()
+    {
+        try
+        {
+            var baseDir = @"C:\Program Files (x86)\Notepad++\plugins\CSScriptNpp\Roslyn\";
+            //baseDir = @"E:\Galos\Projects\CS-Script.Npp\CSScript.Npp\src\CSScriptNpp\CSScriptNpp\Roslyn\";
+            CSSCodeProvider.CompilerPath = baseDir + "vbc.exe";
+            CSSCodeProvider.ProviderPath = baseDir + "Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll";
+            CSSCodeProvider.CompilerServerTimeToLive = 600;
+            CSSCodeProvider.CompilerServerTimeToLive = 6;
+
+
+            ICodeCompiler compiler = CSSCodeProvider.CreateCompiler("code.vb");
+            var compilerParams = new CompilerParameters();
+            //var file = @"E:\cs-script\samples\Hello.vb";
+            //compilerParams.ReferencedAssemblies.Add(@"System.Net.Http.Formatting.dll");
+            //compilerParams.ReferencedAssemblies.Add(@"System.dll");
+            //var result = compiler.CompileAssemblyFromFile(compilerParams, file);
+
+
+            var result = compiler.CompileAssemblyFromSource(compilerParams, @"
+Imports System
+Imports System.Windows.Forms
+
+Module Module1
+    Sub Main()
+        Console.WriteLine(""Hello World!(VB)"")
+    End Sub
+End Module");
+            bool success = !result.Errors.HasErrors;
+        }
+        catch { }
+        Console.WriteLine("done");
+    }
     static void Load()
-    { 
+    {
         try
         {
             var baseDir = @"C:\Program Files (x86)\Notepad++\plugins\CSScriptNpp\Roslyn\";
