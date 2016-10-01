@@ -269,7 +269,7 @@ namespace csscript
 #if net4
             if (Utils.IsLinux())
             {
-                return "System.Core;";
+                return "System;System.Core;";
             }
             else
             {
