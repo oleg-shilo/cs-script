@@ -367,7 +367,7 @@ namespace csscript
                             try
                             {
                                 string[] files = FileParser.ResolveFiles(info.file, options.searchDirs);
-                                foreach(string file in files)
+                                foreach (string file in files)
                                     if (file.IndexOf(".g.cs") == -1) //non auto-generated file
                                     {
                                         using (IDisposable currDir = new CurrentDirGuard())
@@ -406,7 +406,7 @@ namespace csscript
 
                     #endregion Parse command-line arguments...
 
-                    ExecuteOptions originalOptions = (ExecuteOptions)options.Clone(); //preserve master script options
+                    ExecuteOptions originalOptions = (ExecuteOptions) options.Clone(); //preserve master script options
                     string originalCurrDir = Environment.CurrentDirectory;
 
                     //run prescripts
@@ -1078,7 +1078,10 @@ namespace csscript
         {
             string retval = null;
 
-            string asmFileName = options.hideTemp != Settings.HideOptions.DoNotHide ? Path.Combine(CSExecutor.ScriptCacheDir, Path.GetFileName(scripFileName) + ".compiled") : scripFileName + ".c";
+            string asmFileName = options.forceOutputAssembly;
+
+            if (asmFileName == null)
+                asmFileName = options.hideTemp != Settings.HideOptions.DoNotHide ? Path.Combine(CSExecutor.ScriptCacheDir, Path.GetFileName(scripFileName) + ".compiled") : scripFileName + ".c";
 
             if (File.Exists(asmFileName) && File.Exists(scripFileName))
             {
@@ -1217,12 +1220,12 @@ namespace csscript
                     MethodInfo method = types[0].GetMethod("CreateCompilerVersion");
                     if (method != null)
                     {
-                        compiler = (ICodeCompiler)method.Invoke(null, new object[] { scriptFileName, options.TargetFramework });  //the script file name may influence what compiler will be created (e.g. *.vb vs. *.cs)
+                        compiler = (ICodeCompiler) method.Invoke(null, new object[] { scriptFileName, options.TargetFramework });  //the script file name may influence what compiler will be created (e.g. *.vb vs. *.cs)
                     }
                     else
                     {
                         method = types[0].GetMethod("CreateCompiler");
-                        compiler = (ICodeCompiler)method.Invoke(null, new object[] { scriptFileName });  //the script file name may influence what compiler will be created (e.g. *.vb vs. *.cs)
+                        compiler = (ICodeCompiler) method.Invoke(null, new object[] { scriptFileName });  //the script file name may influence what compiler will be created (e.g. *.vb vs. *.cs)
                     }
 #endif
                 }
@@ -1371,7 +1374,7 @@ namespace csscript
                 }
             }
 
-            return (string[])requestedRefAsms;
+            return (string[]) requestedRefAsms;
         }
 
         string NormalizeGacAssemblyPath(string asm)
@@ -1524,6 +1527,10 @@ namespace csscript
                 catch { }
 
             compilerParams.OutputAssembly = assemblyFileName;
+
+            string outDir = Path.GetDirectoryName(compilerParams.OutputAssembly);
+            if (!Directory.Exists(outDir))
+                Directory.CreateDirectory(outDir);
 
             //compilerParams.ReferencedAssemblies.Add(this.GetType().Assembly.Location);
 
@@ -1863,6 +1870,6 @@ namespace csscript
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool SetEnvironmentVariable(string lpName, string lpValue);
 
-#endregion Class methods...
+        #endregion Class methods...
     }
 }

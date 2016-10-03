@@ -55,6 +55,12 @@ namespace csscript
             //Debug.Assert();
             string[] args = rawArgs;
 
+            //work around of nasty Win7x64 problem.
+            //http://superuser.com/questions/527728/cannot-resolve-windir-cannot-modify-path-or-path-being-reset-on-boot
+            if (Environment.GetEnvironmentVariable("windir") == null)
+                Environment.SetEnvironmentVariable("windir", Environment.GetEnvironmentVariable("SystemRoot"));
+            Environment.SetEnvironmentVariable("pid", Process.GetCurrentProcess().Id.ToString());
+
             if (Utils.IsLinux())
             {
                 //because Linux shebang does not properly split arguments we need to take care of this

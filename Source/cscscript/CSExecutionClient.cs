@@ -73,6 +73,8 @@ namespace csscript
                 if (Environment.GetEnvironmentVariable("windir") == null)
                     Environment.SetEnvironmentVariable("windir", Environment.GetEnvironmentVariable("SystemRoot"));
 
+                Environment.SetEnvironmentVariable("pid", Process.GetCurrentProcess().Id.ToString());
+
                 Profiler.Stopwatch.Start();
 
                 string[] args = rawArgs;

@@ -566,6 +566,11 @@ namespace csscript
                     {
                         options.noLogo = true;
                     }
+                    else if (args[i].StartsWith(cmdFlagPrefix + "out:")) // -out
+                    {
+                        string file = args[i].Substring((cmdFlagPrefix + "out:").Length);
+                        options.forceOutputAssembly = Environment.ExpandEnvironmentVariables(file);
+                    }
                     else if (args[i] == cmdFlagPrefix + "c" && (!options.supressExecution)) // -c
                     {
                         options.useCompiled = true;
@@ -1534,6 +1539,8 @@ namespace csscript
             builder.Append("         Value \"out\" of the <file> is reserved for creating the config file (css_config.xml) with the default settings.\n");
             builder.Append("         (e.g. " + AppInfo.appName + " {0}noconfig sample.cs\n");
             builder.Append("         " + AppInfo.appName + " {0}noconfig:c:\\cs-script\\css_VB.dat sample.vb)\n");
+            builder.Append(" {0}out[:<file>]\n       - Forces the script to be compiled into a specific location. Used only for very fine hosting tuning.\n");
+            builder.Append("         (e.g. " + AppInfo.appName + " {0}out:%temp%\\%pid%\\sample.dll sample.cs\n");
             builder.Append(" {0}sconfig[:<file>]\n       - Use script config file or custom config file as a .NET application configuration file.\n");
             builder.Append("  This option might be useful for running scripts, which usually cannot be executed without configuration file (e.g. WCF, Remoting).\n\n");
             builder.Append("          (e.g. if {0}sconfig is used the expected config file name is <script_name>.cs.config or <script_name>.exe.config\n");
