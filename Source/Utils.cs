@@ -557,55 +557,71 @@ namespace csscript
             //Debug.Assert(false);
             for (int i = 0; i < args.Length; i++)
             {
-                if (File.Exists(args[i]))
+                string arg = args[i];
+
+                if (File.Exists(arg))
                     return i; //on Linux '/' may indicate dir but not command
 
-                if (args[i].StartsWith(cmdFlagPrefix))
+                if (arg.StartsWith(cmdFlagPrefix))
                 {
-                    if (args[i] == cmdFlagPrefix + "nl") // -nl
+                    if (arg == cmdFlagPrefix + "nl") // -nl
                     {
                         options.noLogo = true;
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "out:")) // -out
+                    else if (arg.StartsWith(cmdFlagPrefix + "out:")) // -out
                     {
-                        string file = args[i].Substring((cmdFlagPrefix + "out:").Length);
+                        string file = arg.Substring((cmdFlagPrefix + "out:").Length);
                         options.forceOutputAssembly = Environment.ExpandEnvironmentVariables(file);
                     }
-                    else if (args[i] == cmdFlagPrefix + "c" && (!options.supressExecution)) // -c
+                    else if ((arg == cmdFlagPrefix + "c" || arg.StartsWith(cmdFlagPrefix + "c:")) && !options.supressExecution) // -c
                     {
-                        options.useCompiled = true;
+                        if (arg == cmdFlagPrefix + "c")
+                            options.useCompiled = true;
+                        else if (arg == cmdFlagPrefix + "c:0")
+                            options.useCompiled = false;
+                        else //if (arg == cmdFlagPrefix + "c:1")
+                            options.useCompiled = true;
                     }
-                    else if (args[i] == cmdFlagPrefix + "sconfig")// -sconfig
+                    else if ((arg == cmdFlagPrefix + "inmem" || arg.StartsWith(cmdFlagPrefix + "inmem:")) && !options.supressExecution) // -inmem
+                    {
+                        if (arg == cmdFlagPrefix + "inmem")
+                            options.inMemoryAsm = true;
+                        else if (arg == cmdFlagPrefix + "inmem:0")
+                            options.inMemoryAsm = false;
+                        else //if (arg == cmdFlagPrefix + "inmem:1")
+                            options.inMemoryAsm = true;
+                    }
+                    else if (arg == cmdFlagPrefix + "sconfig")// -sconfig
                     {
                         options.useScriptConfig = true;
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "sconfig:")) // -sconfig:file
+                    else if (arg.StartsWith(cmdFlagPrefix + "sconfig:")) // -sconfig:file
                     {
                         options.useScriptConfig = true;
-                        options.customConfigFileName = args[i].Substring((cmdFlagPrefix + "sconfig:").Length);
+                        options.customConfigFileName = arg.Substring((cmdFlagPrefix + "sconfig:").Length);
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "provider:")) // -provider:file
+                    else if (arg.StartsWith(cmdFlagPrefix + "provider:")) // -provider:file
                     {
                         try
                         {
-                            options.altCompiler = Environment.ExpandEnvironmentVariables(args[i]).Substring((cmdFlagPrefix + "provider:").Length);
+                            options.altCompiler = Environment.ExpandEnvironmentVariables(arg).Substring((cmdFlagPrefix + "provider:").Length);
                         }
                         catch { }
                     }
-                    else if (args[i] == cmdFlagPrefix + "verbose")
+                    else if (arg == cmdFlagPrefix + "verbose")
                     {
                         options.verbose = true;
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "dir:")) // -dir:path1,path2
+                    else if (arg.StartsWith(cmdFlagPrefix + "dir:")) // -dir:path1,path2
                     {
-                        foreach (string dir in args[i].Substring((cmdFlagPrefix + "dir:").Length).Split(','))
+                        foreach (string dir in arg.Substring((cmdFlagPrefix + "dir:").Length).Split(','))
                             options.AddSearchDir(dir.Trim());
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "precompiler"))
+                    else if (arg.StartsWith(cmdFlagPrefix + "precompiler"))
                     {
-                        if (args[i].StartsWith(cmdFlagPrefix + "precompiler:")) // -precompiler:file1,file2
+                        if (arg.StartsWith(cmdFlagPrefix + "precompiler:")) // -precompiler:file1,file2
                         {
-                            options.preCompilers = args[i].Substring((cmdFlagPrefix + "precompiler:").Length);
+                            options.preCompilers = arg.Substring((cmdFlagPrefix + "precompiler:").Length);
                         }
                         else
                         {
@@ -613,77 +629,77 @@ namespace csscript
                             options.processFile = false;
                         }
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "pc:")) // -pc:
+                    else if (arg.StartsWith(cmdFlagPrefix + "pc:")) // -pc:
                     {
-                        options.preCompilers = args[i].Substring((cmdFlagPrefix + "pc:").Length);
+                        options.preCompilers = arg.Substring((cmdFlagPrefix + "pc:").Length);
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "noconfig"))// -noconfig:file
+                    else if (arg.StartsWith(cmdFlagPrefix + "noconfig"))// -noconfig:file
                     {
                         options.noConfig = true;
-                        if (args[i].StartsWith(cmdFlagPrefix + "noconfig:"))
+                        if (arg.StartsWith(cmdFlagPrefix + "noconfig:"))
                         {
-                            if (args[i] == (cmdFlagPrefix + "noconfig:out"))
+                            if (arg == (cmdFlagPrefix + "noconfig:out"))
                             {
                                 executor.CreateDefaultConfigFile();
                                 options.processFile = false;
                             }
                             else
-                                options.altConfig = args[i].Substring((cmdFlagPrefix + "noconfig:").Length);
+                                options.altConfig = arg.Substring((cmdFlagPrefix + "noconfig:").Length);
                         }
                     }
-                    else if (args[i] == cmdFlagPrefix + "autoclass" || args[i] == cmdFlagPrefix + "ac") // -autoclass -ac
+                    else if (arg == cmdFlagPrefix + "autoclass" || arg == cmdFlagPrefix + "ac") // -autoclass -ac
                     {
                         options.autoClass = true;
                     }
-                    else if (args[i] == cmdFlagPrefix + "nathash")
+                    else if (arg == cmdFlagPrefix + "nathash")
                     {
                         //-nathash //native hashing; by default it is deterministic but slower custom string hashing algorithm
                         //it is a hidden option for the cases when faster hashing is desired
                         options.customHashing = false;
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "ca")) // -ca
+                    else if (arg.StartsWith(cmdFlagPrefix + "ca")) // -ca
                     {
                         options.useCompiled = true;
                         options.forceCompile = true;
                         options.supressExecution = true;
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "co:")) // -co
+                    else if (arg.StartsWith(cmdFlagPrefix + "co:")) // -co
                     {
                         //this one is accumulative
-                        string cOption = args[i].Substring((cmdFlagPrefix + "co:").Length);
+                        string cOption = arg.Substring((cmdFlagPrefix + "co:").Length);
 
                         if (!options.compilerOptions.Contains(cOption))
                             options.compilerOptions += " " + cOption;
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "cd")) // -cd
+                    else if (arg.StartsWith(cmdFlagPrefix + "cd")) // -cd
                     {
                         options.supressExecution = true;
                         options.DLLExtension = true;
                     }
-                    else if (args[i] == cmdFlagPrefix + "dbg" || args[i] == cmdFlagPrefix + "d") // -dbg -d
+                    else if (arg == cmdFlagPrefix + "dbg" || arg == cmdFlagPrefix + "d") // -dbg -d
                     {
                         options.DBG = true;
                     }
-                    else if (args[i] == cmdFlagPrefix + "l")
+                    else if (arg == cmdFlagPrefix + "l")
                     {
                         options.local = true;
                     }
-                    else if (args[i] == cmdFlagPrefix + "v" || args[i] == cmdFlagPrefix + "V") // -v
+                    else if (arg == cmdFlagPrefix + "v" || arg == cmdFlagPrefix + "V") // -v
                     {
                         executor.ShowVersion();
                         options.processFile = false;
                         options.versionOnly = true;
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "r:")) // -r:file1,file2
+                    else if (arg.StartsWith(cmdFlagPrefix + "r:")) // -r:file1,file2
                     {
-                        string[] assemblies = args[i].Remove(0, 3).Split(",;".ToCharArray()); //important change
+                        string[] assemblies = arg.Remove(0, 3).Split(",;".ToCharArray()); //important change
                         options.refAssemblies = assemblies;
                     }
-                    else if (args[i].StartsWith(cmdFlagPrefix + "e") && !options.buildExecutable) // -e
+                    else if (arg.StartsWith(cmdFlagPrefix + "e") && !options.buildExecutable) // -e
                     {
                         options.buildExecutable = true;
                         options.supressExecution = true;
-                        options.buildWinExecutable = args[i].StartsWith(cmdFlagPrefix + "ew"); // -ew
+                        options.buildWinExecutable = arg.StartsWith(cmdFlagPrefix + "ew"); // -ew
                     }
                     else if (args[0] == cmdFlagPrefix + "?" || args[0] == cmdFlagPrefix + "help") // -? -help
                     {
@@ -1507,7 +1523,10 @@ namespace csscript
             builder.Append(" {0}?    - Display help info.\n");
             builder.Append(" {0}e    - Compile script into console application executable.\n");
             builder.Append(" {0}ew   - Compile script into Windows application executable.\n");
-            builder.Append(" {0}c    - Use compiled file (cache file .compiled) if found (to improve performance).\n");
+            builder.Append(" {0}c[:<0|1>]\n");
+            builder.Append("         - Use compiled file (cache file .compiled) if found (to improve performance).\n");
+            builder.Append("         {0}c:1|{0}c - enable caching\n");
+            builder.Append("         {0}c:0 - disable caching (which might be enabled globally);\n");
             builder.Append(" {0}ca   - Compile script file into assembly (cache file .compiled) without execution.\n");
             builder.Append(" {0}cd   - Compile script file into assembly (.dll) without execution.\n\n");
             builder.Append(" {0}co:<options>\n");
@@ -1529,10 +1548,18 @@ namespace csscript
             builder.Append("<switch 2>\n");
             if (AppInfo.appParamsHelp != "")
                 builder.Append(" {0}" + AppInfo.appParamsHelp);	//application specific usage info
-            builder.Append(" {0}dbg | " + CSSUtils.cmdFlagPrefix + "d\n");
+            builder.Append(" {0}dbg|" + CSSUtils.cmdFlagPrefix + "d\n");
             builder.Append("         - Force compiler to include debug information.\n");
             builder.Append(" {0}l    - 'local'(makes the script directory a 'current directory')\n");
             builder.Append(" {0}v    - Prints CS-Script version information\n");
+            builder.Append("         - Use compiled file (cache file .compiled) if found (to improve performance).\n");
+            builder.Append(" {0}inmem[:<0|1>]\n");
+            builder.Append("         Loads compiled script in memory before execution. This mode allows preventing locking the \n");
+            builder.Append("         compiled script file. Can be beneficial for fine concurrency control as it allows changing \n");
+            builder.Append("         and executing the scripts that are already loaded (being executed). This mode is incompatible \n");
+            builder.Append("         with the scripting scenarios that require scriptassembly to be file based (e.g. advanced Reflection).\n");
+            builder.Append("         {0}inmem:1|inmem - disable caching (which might be enabled globally);\n");
+            builder.Append("         {0}inmem:0 - disable caching (which might be enabled globally);\n");
             builder.Append(" {0}verbose \n");
             builder.Append("       - prints runtime information during the script execution (applicable for console clients only)\n");
             builder.Append(" {0}noconfig[:<file>]\n       - Do not use default CS-Script config file or use alternative one.\n");
@@ -1630,7 +1657,7 @@ namespace csscript
                 builder.Append("//css_args arg0[,arg1]..[,argN];\n");
                 builder.Append("\n");
                 builder.Append("Embedded script arguments. The both script and engine arguments are allowed except \"/noconfig\" engine command switch.\n");
-                builder.Append(" Example: //css_args {0}dbg;\n This directive will always force script engine to execute the script in debug mode.\n");
+                builder.Append(" Example: //css_args {0}dbg, {0}inmem;\n This directive will always force script engine to execute the script in debug mode.\n");
                 builder.Append("------------------------------------\n");
                 builder.Append("//css_reference <file>;\n");
                 builder.Append("\n");
