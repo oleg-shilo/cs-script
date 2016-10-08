@@ -51,17 +51,57 @@ namespace csscript
 
         public AssemblyExecutor(string fileNname, string domainName)
         {
+            if (!InitLegacy(fileNname, domainName))
+                Init(fileNname, domainName);
+        }
+
+        void Init(string fileNname, string domainName)
+        {
+            //difference comparing to InitLagacy:
+            // CreateInstanceAndUnwrap instead of CreateInstanceFromAndUnwrap
+            //
+            // setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            // instead of setup.ApplicationBase = Path.GetDirectoryName(assemblyFileName); 
+            //
+            // In 2016 just discovered that InitLegacy doesn't longer work. May be because some changes in .NET versions...  
+            // This is a low impact change as AssemblyExecutor is only used for cached vs. non-cached execution in stand alone 
+            // hosting mode.
+             
             assemblyFileName = fileNname;
+
             AppDomainSetup setup = new AppDomainSetup();
-            setup.ApplicationBase = Path.GetDirectoryName(assemblyFileName);
+            setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             setup.PrivateBinPath = AppDomain.CurrentDomain.BaseDirectory;
             setup.ApplicationName = Utils.GetAssemblyFileName(Assembly.GetExecutingAssembly());
             setup.ShadowCopyFiles = "true";
             setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
-            appDomain = AppDomain.CreateDomain(domainName, null, setup);
 
-            remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
+            appDomain = AppDomain.CreateDomain(domainName, null, setup);
+            remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
             remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
+        }
+
+        bool InitLegacy(string fileNname, string domainName)
+        {
+            try
+            {
+                assemblyFileName = fileNname;
+                AppDomainSetup setup = new AppDomainSetup();
+                setup.ApplicationBase = Path.GetDirectoryName(assemblyFileName);
+                setup.PrivateBinPath = AppDomain.CurrentDomain.BaseDirectory;
+                setup.ApplicationName = Utils.GetAssemblyFileName(Assembly.GetExecutingAssembly());
+                setup.ShadowCopyFiles = "true";
+                setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
+
+                appDomain = AppDomain.CreateDomain(domainName, null, setup);
+                remoteExecutor = (RemoteExecutor) appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
+                remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public void Execute(string[] args)
