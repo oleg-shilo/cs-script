@@ -153,7 +153,7 @@ namespace CSScriptLibrary
         /// <remarks>
         /// By default CSScript.<see cref="CSScriptLibrary.CSScript.Evaluator"/> always returns a new instance of 
         /// <see cref="CSScriptLibrary.IEvaluator"/>. If this behavior is undesired change the evaluator access 
-        /// policy by setting CSScript.EvaluatorConfig.<see cref="CSScriptLibrary.CSScript.EvaluatorConfig.Access"/> value.
+        /// policy by setting <see cref="CSScriptLibrary.CSScript.EvaluatorConfig"/>.Access value.
         /// </remarks>
         /// </summary>
         /// <value>The <see cref="CSScriptLibrary.IEvaluator"/> instance.</value>

@@ -66,7 +66,7 @@ namespace csscript
             // In 2016 just discovered that InitLegacy doesn't longer work. May be because some changes in .NET versions...  
             // This is a low impact change as AssemblyExecutor is only used for cached vs. non-cached execution in stand alone 
             // hosting mode.
-             
+
             assemblyFileName = fileNname;
 
             AppDomainSetup setup = new AppDomainSetup();
@@ -77,7 +77,7 @@ namespace csscript
             setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
             appDomain = AppDomain.CreateDomain(domainName, null, setup);
-            remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
+            remoteExecutor = (RemoteExecutor) appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
             remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
         }
 
@@ -198,10 +198,23 @@ namespace csscript
                 Utils.ReleaseFileLock(asmLock);
             }
 
-            string location = Path.GetFullPath(filename);
-            Environment.SetEnvironmentVariable("location:" + assembly.GetHashCode(), location);
+            SetScriptReflection(assembly, Path.GetFullPath(filename));
 
             InvokeStaticMain(assembly, args);
+        }
+
+        static void SetScriptReflection(Assembly assembly, string location)
+        {
+            Environment.SetEnvironmentVariable("location:" + assembly.GetHashCode(), location);
+
+            string source = null;
+            //Note assembly can contain only single AssemblyDescriptionAttribute
+            foreach (AssemblyDescriptionAttribute attribute in assembly.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true))
+                source = attribute.Description;
+            
+            //check if executing the primary script 
+            if (source == Environment.GetEnvironmentVariable("EntryScript")) 
+                Environment.SetEnvironmentVariable("EntryScriptAssembly", location);
         }
 
         public void InvokeStaticMain(Assembly compiledAssembly, string[] scriptArgs)
@@ -232,7 +245,7 @@ namespace csscript
                 //System.Diagnostics.Debug.Assert(false);
                 object retval = null;
                 if (method.GetParameters().Length != 0)
-                    retval = method.Invoke(new object(), new object[] { (Object)scriptArgs });
+                    retval = method.Invoke(new object(), new object[] { (Object) scriptArgs });
                 else
                     retval = method.Invoke(new object(), null);
 

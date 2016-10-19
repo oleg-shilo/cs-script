@@ -484,19 +484,22 @@ namespace csscript
                 pos = newRootDir.LastIndexOf(Path.DirectorySeparatorChar);
                 newRootDir = rootDir.Remove(pos);
 
-                foreach (string dir in Directory.GetDirectories(newRootDir, "*", SearchOption.AllDirectories))
-                    if (wildcard.IsMatch(dir))
-                    {
-                        if (!result.Contains(dir))
+                if (Directory.Exists(newRootDir))
+                {
+                    foreach (string dir in Directory.GetDirectories(newRootDir, "*", SearchOption.AllDirectories))
+                        if (wildcard.IsMatch(dir))
                         {
-                            result.Add(dir);
+                            if (!result.Contains(dir))
+                            {
+                                result.Add(dir);
 
-                            if (useAllSubDirs)
-                                foreach (string subDir in Directory.GetDirectories(dir, "*", SearchOption.AllDirectories))
-                                    //if (!result.Contains(subDir))
-                                    result.Add(subDir);
+                                if (useAllSubDirs)
+                                    foreach (string subDir in Directory.GetDirectories(dir, "*", SearchOption.AllDirectories))
+                                        //if (!result.Contains(subDir))
+                                        result.Add(subDir);
+                            }
                         }
-                    }
+                }
             }
             else
                 result.Add(rootDir);
@@ -763,7 +766,7 @@ namespace csscript
                                 CSSUtils.VerbosePrint("  Precompilers: ", options);
                                 int index = 0;
                                 foreach (string file in filesToCompile)
-                                    CSSUtils.VerbosePrint("   " + index++ + " - " + Path.GetFileName(file)+ " -> " + precompiler.GetType() + "\n           from " + precompilerFile, options);
+                                    CSSUtils.VerbosePrint("   " + index++ + " - " + Path.GetFileName(file) + " -> " + precompiler.GetType() + "\n           from " + precompilerFile, options);
                                 CSSUtils.VerbosePrint("", options);
                             }
 
@@ -1924,6 +1927,8 @@ namespace csscript
             }
         }
 
+        public static bool newPackageWasInstalled = false;
+
         static public string[] Resolve(string[] packages, bool supressDownloading, string script)
         {
 #if net1
@@ -2041,6 +2046,7 @@ namespace csscript
                                 var sw = new Stopwatch();
                                 sw.Start();
                                 Run(NuGetExe, "install " + package + " " + nugetArgs + " -OutputDirectory " + packageDir);
+                                newPackageWasInstalled = true;
                                 sw.Stop();
                             }
                             catch { }

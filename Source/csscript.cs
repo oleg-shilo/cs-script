@@ -823,7 +823,13 @@ namespace csscript
                                 catch
                                 {
                                     if (!CSSUtils.IsRuntimeErrorReportingSupressed)
+                                    {
                                         print("Error: Specified file could not be compiled.\n");
+                                        if (NuGet.newPackageWasInstalled)
+                                        {
+                                            print("> -----\nA new NuGet package has been installed. If some of it's components are not found you may need to restart the script again.\n> -----\n");
+                                        }
+                                    }
                                     throw;
                                 }
                                 finally
