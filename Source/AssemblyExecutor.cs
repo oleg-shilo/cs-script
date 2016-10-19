@@ -197,6 +197,10 @@ namespace csscript
 
                 Utils.ReleaseFileLock(asmLock);
             }
+
+            string location = Path.GetFullPath(filename);
+            Environment.SetEnvironmentVariable("location:" + assembly.GetHashCode(), location);
+
             InvokeStaticMain(assembly, args);
         }
 

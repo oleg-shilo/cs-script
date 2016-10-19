@@ -241,6 +241,10 @@ namespace csscript
 #else
                     List<ImportInfo> result = new List<ImportInfo>();
 
+                    // to ensure that parent script dir is on top
+                    // required because FileParser.ResolveFiles stops searching when it finds
+                    probinghDirs = Utils.RemoveDuplicates(Utils.Concat(new[] { Path.GetDirectoryName(parentScript) }, probinghDirs));
+
                     foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
                     {
                         parts[0] = file; //substitute the file path pattern with the actual path 

@@ -1448,9 +1448,7 @@ namespace csscript
             compilerParams.GenerateInMemory = false;
             compilerParams.WarningLevel = (options.hideCompilerWarnings ? -1 : 4);
 
-            string[] filesToCompile = new string[parser.FilesToCompile.Length];
-            Array.Copy(parser.FilesToCompile, filesToCompile, parser.FilesToCompile.Length);
-
+            string[] filesToCompile = Utils.RemoveDuplicates(parser.FilesToCompile);
             PrecompilationContext context = CSSUtils.Precompile(scriptFileName, filesToCompile, options);
 
             if (context.NewIncludes.Count > 0)
@@ -1528,7 +1526,7 @@ namespace csscript
 
             compilerParams.OutputAssembly = assemblyFileName;
 
-            string outDir = Path.GetDirectoryName(compilerParams.OutputAssembly);
+            string outDir = Path.GetDirectoryName(Path.GetFullPath(compilerParams.OutputAssembly));
             if (!Directory.Exists(outDir))
                 Directory.CreateDirectory(outDir);
 

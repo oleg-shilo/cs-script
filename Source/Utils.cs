@@ -1615,6 +1615,8 @@ namespace csscript
                 builder.Append("\n");
                 builder.Append("This directive is used to include one script into another one.It is a logical equivalent of '#include' in C++.\n");
                 builder.Append("This directive is a simplified version of //css_import.\n");
+                builder.Append("Note if you use wildcard in the imported script name (e.g. *_build.cs) the directive will only import from the first\n");
+                builder.Append("probing directory where the match ing file(s) is found.\n");
                 builder.Append("------------------------------------\n");
                 builder.Append("//css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];\n");
                 builder.Append("\n");
@@ -1736,6 +1738,17 @@ namespace csscript
                 builder.Append("\n");
                 builder.Append("These directive is used to execute script from a surrogate host process. The script engine application (cscs.exe or csws.exe) launches the script\n");
                 builder.Append("execution as a separate process of the specified CLR version and CPU architecture.\n");
+                builder.Append("------------------------------------\n");
+                builder.Append("Note the script engine always sets the following environment variables:\n");
+                builder.Append(" 'pid' - host processId (e.g. Environment.GetEnvironmentVariable(\"pid\")\n");
+                builder.Append(" 'CSScriptRuntime' - script engine version\n");
+                builder.Append(" 'CSScriptRuntimeLocation' - script engine location\n");
+                builder.Append(" 'css_nuget' - location of the NuGet packages scripts can load/reference\n");
+                builder.Append(" 'EntryScript' - location of the entry script\n");
+                builder.Append(" 'location:<assm_hash>' - location of the compiled script assembly.\n");
+                builder.Append("                          This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script code.\n");
+                builder.Append("                          Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file.\n");
+                builder.Append("                          (e.g. var location = Environment.GetEnvironmentVariable(\"location:\" + Assembly.GetExecutingAssembly().GetHashCode());\n");
                 builder.Append("------------------------------------\n");
                 builder.Append("\n");
                 builder.Append("Any directive has to be written as a single line in order to have no impact on compiling by CLI compliant compiler.\n");

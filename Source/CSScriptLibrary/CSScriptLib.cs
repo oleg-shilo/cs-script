@@ -1627,6 +1627,9 @@ namespace CSScriptLibrary
         /// Compiles script code from the specified file into assembly with CSExecutor and loads it in current AppDomain.
         /// <para>This method is a logical equivalent of the corresponding <c>LoadCode</c> method except the code is
         /// not specified as a call argument but read from the file instead.</para>
+        /// <para>It is recommended to use LoadFrom method instead as it is more straight forward and arguably faster.
+        /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or 
+        /// if the original location of the source file for some how is incompatible with the actual C# compiler.</para>
         /// </summary>
         /// <param name="scriptFile">The script file.</param>
         /// <param name="refAssemblies">The string array containing file names to the additional assemblies referenced by the script. </param>
@@ -1668,6 +1671,9 @@ namespace CSScriptLibrary
         /// Compiles script code from the specified file into assembly with CSExecutor and loads it in current AppDomain.
         /// <para>This method is a logical equivalent of the corresponding <c>LoadCode</c> method except the code is
         /// not specified as a call argument but read from the file instead.</para>
+        /// <para>It is recommended to use LoadFrom method instead as it is more straight forward and arguably faster.
+        /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or 
+        /// if the original location of the source file for some how is incompatible with the actual C# compiler.</para>
         /// </summary>
         /// <param name="scriptFile">The script file.</param>
         /// <param name="assemblyFile">The name of compiled assembly. If set to null a temporary file name will be used.</param>
@@ -1684,6 +1690,9 @@ namespace CSScriptLibrary
         /// </summary>
         /// <para>This method is a logical equivalent of the corresponding <c>LoadCode</c> method except the code is
         /// not specified as a call argument but read from the file instead.</para>
+        /// <para>It is recommended to use LoadFrom method instead as it is more straight forward and arguably faster.
+        /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or 
+        /// if the original location of the source file for some how is incompatible with the actual C# compiler.</para>
         /// <param name="scriptFile">The script file.</param>
         /// <param name="tempFileExtension">The file extension of the temporary file to hold script code during compilation. This parameter may be
         /// needed if custom CS-Script compilers rely on file extension to identify the script syntax.</param>
@@ -1693,7 +1702,7 @@ namespace CSScriptLibrary
         /// <returns>Compiled assembly.</returns>
         static public Assembly LoadCodeFrom(string scriptFile, string tempFileExtension, string assemblyFile, bool debugBuild, params string[] refAssemblies)
         {
-            return LoadCodeFrom(File.ReadAllText(scriptFile), tempFileExtension, assemblyFile, debugBuild, refAssemblies);
+            return LoadCode(File.ReadAllText(scriptFile), tempFileExtension, assemblyFile, debugBuild, refAssemblies);
         }
         /// <summary>
         /// Compiles script code into assembly with CSExecutor and loads it in current AppDomain.
