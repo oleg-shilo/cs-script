@@ -214,6 +214,22 @@ namespace csscript
             return PathCompare(path1, path2) == 0;
         }
 
+        public static void ClearFile(string path)
+        {
+            string parentDir = null;
+            if (File.Exists(path))
+                parentDir = Path.GetDirectoryName(path);
+
+            FileDelete(path, false);
+
+            if (parentDir != null && Directory.GetFiles(parentDir).Length == 0)
+                try
+                {
+                    Directory.Delete(parentDir);
+                }
+                catch { }
+        }
+
         public static void FileDelete(string path)
         {
             FileDelete(path, false);
@@ -1753,6 +1769,7 @@ namespace csscript
                 builder.Append(" 'CSScriptRuntimeLocation' - script engine location\n");
                 builder.Append(" 'css_nuget' - location of the NuGet packages scripts can load/reference\n");
                 builder.Append(" 'EntryScript' - location of the entry script\n");
+                builder.Append(" 'EntryScriptAssembly' - location of the compiled script assembly\n");
                 builder.Append(" 'location:<assm_hash>' - location of the compiled script assembly.\n");
                 builder.Append("                          This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script code.\n");
                 builder.Append("                          Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file.\n");

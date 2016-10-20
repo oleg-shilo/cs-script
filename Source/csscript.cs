@@ -903,7 +903,7 @@ namespace csscript
                                 //cleanup
                                 if (File.Exists(assemblyFileName) && !options.useCompiled && options.cleanupShellCommand == "")
                                 {
-                                    Utils.FileDelete(assemblyFileName);
+                                    Utils.ClearFile(assemblyFileName);
                                 }
 
                                 //Debug.Assert(false);
@@ -1150,10 +1150,14 @@ namespace csscript
         {
             ICodeCompiler compiler;
 
+
             if (options.InjectScriptAssemblyAttribute &&
                 (options.altCompiler == "" || scriptFileName.EndsWith(".cs"))) //injection code syntax is C# compatible
             {
-                filesToInject = Utils.Concat(filesToInject, CSSUtils.GetScriptedCodeAttributeInjectionCode(scriptFileName));
+                //script may be loaded from in-memory string/code
+                bool isRealScriptFile = !scriptFileName.Contains(@"CSSCRIPT\dynamic");
+                if (isRealScriptFile)
+                    filesToInject = Utils.Concat(filesToInject, CSSUtils.GetScriptedCodeAttributeInjectionCode(scriptFileName));
             }
 
             if (options.altCompiler == "")
@@ -1524,11 +1528,7 @@ namespace csscript
 
             string dbgSymbols = Path.ChangeExtension(assemblyFileName, ".pdb");
             if (options.DBG && File.Exists(dbgSymbols))
-                try
-                {
-                    Utils.FileDelete(dbgSymbols);
-                }
-                catch { }
+                Utils.FileDelete(dbgSymbols);
 
             compilerParams.OutputAssembly = assemblyFileName;
 

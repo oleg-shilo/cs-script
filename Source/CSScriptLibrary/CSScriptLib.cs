@@ -1040,6 +1040,7 @@ namespace CSScriptLibrary
             options.altCompiler = settings.ExpandUseAlternativeCompiler();
             options.compilerOptions = compilerOptions != null ? compilerOptions : "";
             options.apartmentState = settings.DefaultApartmentState;
+            options.InjectScriptAssemblyAttribute  = settings.InjectScriptAssemblyAttribute;
             options.reportDetailedErrorInfo = settings.ReportDetailedErrorInfo;
             options.cleanupShellCommand = settings.CleanupShellCommand;
             options.customHashing = settings.CustomHashing;
@@ -1830,7 +1831,9 @@ namespace CSScriptLibrary
         {
             if (tempFiles != null)
                 foreach (string file in tempFiles)
+                {
                     Utils.FileDelete(file);
+                }
         }
 
         /// <summary>

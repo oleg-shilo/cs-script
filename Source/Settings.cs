@@ -161,6 +161,14 @@ namespace csscript
             set { defaultArguments = value; }
         }
 
+        bool injectScriptAssemblyAttribute = true;
+        [Browsable(false)]
+        public bool InjectScriptAssemblyAttribute
+        {
+            get { return injectScriptAssemblyAttribute; }
+            set { injectScriptAssemblyAttribute = value; }
+        }
+
         string defaultArguments = CSSUtils.cmdFlagPrefix + "c " + CSSUtils.cmdFlagPrefix + "sconfig " + CSSUtils.cmdFlagPrefix + "co:" + CSSUtils.cmdFlagPrefix + "warn:0";
 
         ///// <summary>
