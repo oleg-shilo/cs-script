@@ -1629,11 +1629,13 @@ namespace CSScriptLibrary
         /// not specified as a call argument but read from the file instead.</para>
         /// <para>It is recommended to use LoadFrom method instead as it is more straight forward and arguably faster.
         /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or 
-        /// if the original location of the source file for some how is incompatible with the actual C# compiler.</para>
+        /// if the original location of the source file some how is incompatible with the actual C# compiler.</para>
         /// </summary>
         /// <param name="scriptFile">The script file.</param>
         /// <param name="refAssemblies">The string array containing file names to the additional assemblies referenced by the script. </param>
         /// <returns>Compiled assembly.</returns>
+        [Obsolete("This method is obsolete due to the low value/popularity. Use CSScript.Load instead. " +
+                  "Alternatively you can achieve the same functionality with LoadCode(File.ReadAllText(scriptFile), refAssemblies).")]
         static public Assembly LoadCodeFrom(string scriptFile, params string[] refAssemblies)
         {
             return LoadCode(File.ReadAllText(scriptFile), refAssemblies);
@@ -1673,13 +1675,15 @@ namespace CSScriptLibrary
         /// not specified as a call argument but read from the file instead.</para>
         /// <para>It is recommended to use LoadFrom method instead as it is more straight forward and arguably faster.
         /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or 
-        /// if the original location of the source file for some how is incompatible with the actual C# compiler.</para>
+        /// if the original location of the source file some how is incompatible with the actual C# compiler.</para>
         /// </summary>
         /// <param name="scriptFile">The script file.</param>
         /// <param name="assemblyFile">The name of compiled assembly. If set to null a temporary file name will be used.</param>
         /// <param name="debugBuild">'true' if debug information should be included in assembly; otherwise, 'false'.</param>
         /// <param name="refAssemblies">The string array containing file names to the additional assemblies referenced by the script. </param>
         /// <returns>Compiled assembly.</returns>
+        [Obsolete("This method is obsolete due to the low value/popularity. Use CSScript.Load instead. " +
+                  "Alternatively you can achieve the same functionality with LoadCode(File.ReadAllText(scriptFile), refAssemblies).")]
         static public Assembly LoadCodeFrom(string scriptFile, string assemblyFile, bool debugBuild, params string[] refAssemblies)
         {
             return LoadCode(File.ReadAllText(scriptFile), assemblyFile, debugBuild, refAssemblies);
@@ -1692,7 +1696,7 @@ namespace CSScriptLibrary
         /// not specified as a call argument but read from the file instead.</para>
         /// <para>It is recommended to use LoadFrom method instead as it is more straight forward and arguably faster.
         /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or 
-        /// if the original location of the source file for some how is incompatible with the actual C# compiler.</para>
+        /// if the original location of the source file some how is incompatible with the actual C# compiler.</para>
         /// <param name="scriptFile">The script file.</param>
         /// <param name="tempFileExtension">The file extension of the temporary file to hold script code during compilation. This parameter may be
         /// needed if custom CS-Script compilers rely on file extension to identify the script syntax.</param>
@@ -1700,6 +1704,8 @@ namespace CSScriptLibrary
         /// <param name="debugBuild">'true' if debug information should be included in assembly; otherwise, 'false'.</param>
         /// <param name="refAssemblies">The string array containing file names to the additional assemblies referenced by the script. </param>
         /// <returns>Compiled assembly.</returns>
+        [Obsolete("This method is obsolete due to the low value/popularity. Use CSScript.Load instead. " +
+                  "Alternatively you can achieve the same functionality with LoadCode(File.ReadAllText(scriptFile), refAssemblies).")]
         static public Assembly LoadCodeFrom(string scriptFile, string tempFileExtension, string assemblyFile, bool debugBuild, params string[] refAssemblies)
         {
             return LoadCode(File.ReadAllText(scriptFile), tempFileExtension, assemblyFile, debugBuild, refAssemblies);

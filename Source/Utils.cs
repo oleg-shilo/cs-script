@@ -228,6 +228,11 @@ namespace csscript
             return new Mutex(false, mutexName);
         }
 
+        public static bool Wait(Mutex @lock, int millisecondsTimeout)
+        {
+            return @lock.WaitOne(millisecondsTimeout, false);
+        }
+
         public static void ReleaseFileLock(Mutex @lock)
         {
             if (@lock != null)

@@ -736,7 +736,7 @@ namespace csscript
                         try
                         {
                             //validate
-                            bool availableForChecking = validatingFileLock.WaitOne(-1, false);
+                            bool availableForChecking = Utils.Wait(validatingFileLock, -1);
 
                             //GetAvailableAssembly also checks timestamps
                             string assemblyFileName = options.useCompiled ? GetAvailableAssembly(options.scriptFileName) : null;
@@ -754,7 +754,7 @@ namespace csscript
 
                             if (options.forceCompile && assemblyFileName != null)
                             {
-                                bool lockedByCompiler = !compilingFileLock.WaitOne(3000, false);
+                                bool lockedByCompiler = !Utils.Wait(compilingFileLock, 3000);
                                 //no need to act on lockedByCompiler as FileDelete will throw the exception
 
                                 Utils.FileDelete(assemblyFileName, true);
@@ -785,8 +785,8 @@ namespace csscript
                             {
                                 //infinite is not good here as it may block forever but continuing while the file is still locked will
                                 //throw a nice informative exception
-                                bool lockedByCompiler = !compilingFileLock.WaitOne(3000, false);
-                                bool lockedByHost = !executingFileLock.WaitOne(3000, false);
+                                bool lockedByCompiler = !Utils.Wait(compilingFileLock, 3000);
+                                bool lockedByHost = !Utils.Wait(executingFileLock, 3000);
 
                                 if (!lockedByHost)
                                 {
