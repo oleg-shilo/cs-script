@@ -115,6 +115,13 @@ namespace csscript
         {
         }
 
+        int errorCount;
+        
+        public int ErrorCount
+        {
+            get { return errorCount; }
+            set { errorCount = value; }
+        }
         /// <summary>
         /// Creates the CompilerException instance from the specified compiler errors.
         /// </summary>
@@ -124,8 +131,14 @@ namespace csscript
         public static CompilerException Create(CompilerErrorCollection Errors, bool hideCompilerWarnings)
         {
             StringBuilder compileErr = new StringBuilder();
+
+            int errorCount = 0;
+
             foreach (CompilerError err in Errors)
             {
+                if (!err.IsWarning)
+                    errorCount++;
+
                 if (err.IsWarning && hideCompilerWarnings)
                     continue;
 
@@ -147,6 +160,7 @@ namespace csscript
             }
             CompilerException retval = new CompilerException(compileErr.ToString());
             retval.Data.Add("Errors", Errors);
+            retval.ErrorCount = errorCount;
             return retval;
         }
     }

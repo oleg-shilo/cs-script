@@ -80,6 +80,7 @@ namespace csscript
             clone.DLLExtension = this.DLLExtension;
             clone.forceCompile = this.forceCompile;
             clone.supressExecution = this.supressExecution;
+            clone.syntaxCheck = this.syntaxCheck;
             clone.DBG = this.DBG;
             clone.TargetFramework = this.TargetFramework;
             clone.verbose = this.verbose;
@@ -194,6 +195,7 @@ namespace csscript
         public bool DLLExtension = false;
         public bool forceCompile = false;
         public bool supressExecution = false;
+        public bool syntaxCheck = false;
         public bool DBG = false;
 #if net35
         public string TargetFramework = "v3.5";

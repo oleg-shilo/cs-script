@@ -97,6 +97,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mono.Posix.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -129,6 +133,9 @@
     </Compile>
     <Compile Include="..\Settings.cs">
       <Link>Settings.cs</Link>
+    </Compile>
+    <Compile Include="..\Unix.FileMutex.cs">
+      <Link>Unix.FileMutex.cs</Link>
     </Compile>
     <Compile Include="..\Utils.cs">
       <Link>Utils.cs</Link>

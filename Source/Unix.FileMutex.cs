@@ -13,14 +13,23 @@ using Mono.Unix;
 
 namespace Mono.Unix
 {
-    class FileMutex
+    internal class FileMutex
     {
+        static string lockRoot = Path.Combine(Path.GetTempPath(), "cs-script", "locks");
+
         int handle;
         Flock wl;
 
+        static FileMutex()
+        {
+            if (!Directory.Exists(lockRoot))
+                Directory.CreateDirectory(lockRoot);
+        }
+
         public FileMutex(string name, bool initiallyOwned = false)
         {
-            handle = Syscall.open(name, OpenFlags.O_CREAT | OpenFlags.O_RDWR, FilePermissions.DEFFILEMODE);
+            string filName = Path.Combine(lockRoot, name.GetHashCode().ToString());
+            handle = Syscall.open(filName, OpenFlags.O_CREAT | OpenFlags.O_RDWR, FilePermissions.DEFFILEMODE);
 
             wl.l_len = 0;
             wl.l_pid = Syscall.getpid();
@@ -86,11 +95,8 @@ namespace Mono.Unix
             }
         }
     }
-}
 
-namespace ConsoleApplication14
-{
-    class Program
+    class TestScript
     {
         static void __Main(string[] args)
         {

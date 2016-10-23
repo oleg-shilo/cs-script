@@ -1613,6 +1613,9 @@ namespace csscript
                 }
             }
 
+            if (options.syntaxCheck && File.Exists(compilerParams.OutputAssembly))
+                Utils.FileDelete(compilerParams.OutputAssembly, false);
+
             ProcessCompilingResult(results, compilerParams, parser, scriptFileName, assemblyFileName, additionalDependencies);
 
             if (options.useSurrogateHostingProcess)
@@ -1663,10 +1666,17 @@ namespace csscript
 
             if (results.Errors.HasErrors)
             {
-                throw CompilerException.Create(results.Errors, options.hideCompilerWarnings);
+                CompilerException ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings);
+                if (options.syntaxCheck)
+                    Console.WriteLine("Compile: {0} error(s)\n{1}", ex.ErrorCount, ex.Message);
+                else
+                    throw ex;
             }
             else
             {
+                if (options.syntaxCheck)
+                    Console.WriteLine("Compile: OK");
+
                 if (options.verbose)
                 {
                     Console.WriteLine("  Compiler Output: ", options);

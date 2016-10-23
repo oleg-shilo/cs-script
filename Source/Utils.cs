@@ -241,6 +241,13 @@ namespace csscript
                 file = file.ToLower(CultureInfo.InvariantCulture);
 
             string mutexName = context.ToString() + "." + CSSUtils.GetHashCodeEx(file).ToString();
+
+            if (Utils.IsLinux())
+            {
+                //Utils.Ge
+                //scriptTextCRC = Crc32.Compute(Encoding.UTF8.GetBytes(scriptText));
+            }
+
             return new Mutex(false, mutexName);
         }
 
@@ -597,7 +604,8 @@ namespace csscript
                         string file = arg.Substring((cmdFlagPrefix + "out:").Length);
                         options.forceOutputAssembly = Environment.ExpandEnvironmentVariables(file);
                     }
-                    else if ((arg == cmdFlagPrefix + "c" || arg.StartsWith(cmdFlagPrefix + "c:")) && !options.supressExecution) // -c
+                    //else if ((arg == cmdFlagPrefix + "c" || arg.StartsWith(cmdFlagPrefix + "c:")) && !options.supressExecution) // -c
+                    else if (arg == cmdFlagPrefix + "c" || arg.StartsWith(cmdFlagPrefix + "c:")) // -c
                     {
                         if (arg == cmdFlagPrefix + "c")
                             options.useCompiled = true;
@@ -680,6 +688,13 @@ namespace csscript
                         //-nathash //native hashing; by default it is deterministic but slower custom string hashing algorithm
                         //it is a hidden option for the cases when faster hashing is desired
                         options.customHashing = false;
+                    }
+                    else if (arg.StartsWith(cmdFlagPrefix + "check")) // -check
+                    {
+                        options.useCompiled = false;
+                        options.forceCompile = true;
+                        options.supressExecution = true;
+                        options.syntaxCheck = true;
                     }
                     else if (arg.StartsWith(cmdFlagPrefix + "ca")) // -ca
                     {
@@ -1544,20 +1559,21 @@ namespace csscript
             builder.Append("\nUsage: " + AppInfo.appName + " <switch 1> <switch 2> <file> [params] [//x]\n");
             builder.Append("\n");
             builder.Append("<switch 1>\n");
-            builder.Append(" {0}?    - Display help info.\n");
-            builder.Append(" {0}e    - Compile script into console application executable.\n");
-            builder.Append(" {0}ew   - Compile script into Windows application executable.\n");
+            builder.Append(" {0}?     - Display help info.\n");
+            builder.Append(" {0}e     - Compile script into console application executable.\n");
+            builder.Append(" {0}ew    - Compile script into Windows application executable.\n");
             builder.Append(" {0}c[:<0|1>]\n");
-            builder.Append("         - Use compiled file (cache file .compiled) if found (to improve performance).\n");
+            builder.Append("          - Use compiled file (cache file .compiled) if found (to improve performance).\n");
             builder.Append("         {0}c:1|{0}c - enable caching\n");
             builder.Append("         {0}c:0 - disable caching (which might be enabled globally);\n");
-            builder.Append(" {0}ca   - Compile script file into assembly (cache file .compiled) without execution.\n");
-            builder.Append(" {0}cd   - Compile script file into assembly (.dll) without execution.\n\n");
+            builder.Append(" {0}ca    - Compile script file into assembly (cache file .compiled) without execution.\n");
+            builder.Append(" {0}cd    - Compile script file into assembly (.dll) without execution.\n\n");
+            builder.Append(" {0}check - Check script fro errors without execution.\n\n");
             builder.Append(" {0}co:<options>\n");
             builder.Append("       - Pass compiler options directly to the language compiler\n");
             builder.Append("       (e.g.  {0}co:/d:TRACE pass /d:TRACE option to C# compiler\n");
             builder.Append("        or  {0}co:/platform:x86 to produce Win32 executable)\n\n");
-            builder.Append(" {0}s    - Print content of sample script file (e.g. " + AppInfo.appName + " /s > sample.cs).\n");
+            builder.Append(" {0}s     - Print content of sample script file (e.g. " + AppInfo.appName + " /s > sample.cs).\n");
             builder.Append(" {0}ac | {0}autoclass\n");
             builder.Append("       - Automatically generates wrapper class if the script does not define any class of its own:\n");
             builder.Append("\n");
