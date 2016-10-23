@@ -67,11 +67,11 @@ namespace csscript
                 //http://www.daniweb.com/software-development/c/threads/268382
                 List<string> tempArgs = new List<string>();
                 foreach (string arg in rawArgs)
-                    if (arg.StartsWith(CSSUtils.cmdFlagPrefix))
+                    if (arg.StartsWith(CSSUtils.Args.DefaultPrefix))
                     {
-                        foreach (string subArg in arg.Split(CSSUtils.cmdFlagPrefix.ToCharArray()))
+                        foreach (string subArg in arg.Split(CSSUtils.Args.DefaultPrefix.ToCharArray()))
                             if (subArg.Trim() != "")
-                                tempArgs.Add(CSSUtils.cmdFlagPrefix + subArg.Trim());
+                                tempArgs.Add(CSSUtils.Args.DefaultPrefix + subArg.Trim());
                     }
                     else
                         tempArgs.Add(arg);
@@ -139,7 +139,7 @@ namespace csscript
                 try
                 {
                     string assemblyHost = ScriptLauncherBuilder.GetLauncherName(e.ScriptAssembly);
-                    string appArgs = CSSUtils.cmdFlagPrefix + "css_host_parent:" + Process.GetCurrentProcess().Id + " \"" + CSSUtils.cmdFlagPrefix + "css_host_asm:" + e.ScriptAssembly + "\" " + GenerateCommandLineArgumentsString(e.ScriptArgs);
+                    string appArgs = CSSUtils.Args.DefaultPrefix + "css_host_parent:" + Process.GetCurrentProcess().Id + " \"" + CSSUtils.Args.DefaultPrefix + "css_host_asm:" + e.ScriptAssembly + "\" " + GenerateCommandLineArgumentsString(e.ScriptArgs);
                     if (e.StartDebugger)
                         appArgs = "/css_host_dbg:true " + appArgs;
 

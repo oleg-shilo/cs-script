@@ -169,7 +169,8 @@ namespace csscript
             set { injectScriptAssemblyAttribute = value; }
         }
 
-        string defaultArguments = CSSUtils.cmdFlagPrefix + "c " + CSSUtils.cmdFlagPrefix + "sconfig " + CSSUtils.cmdFlagPrefix + "co:" + CSSUtils.cmdFlagPrefix + "warn:0";
+        string defaultArguments = CSSUtils.Args.Join("c","sconfig","co:" + CSSUtils.Args.DefaultPrefix + "warn:0");
+        //string defaultArguments = CSSUtils.Args.DefaultPrefix + "c " + CSSUtils.Args.DefaultPrefix + "sconfig " + CSSUtils.Args.DefaultPrefix + "co:" + CSSUtils.Args.DefaultPrefix + "warn:0";
 
         ///// <summary>
         ///// Enables using a surrogate process to host the script engine at runtime. This may be a useful option for fine control over the hosting process

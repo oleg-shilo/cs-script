@@ -425,12 +425,12 @@ namespace csscript
 #if net1
                                 ArrayList newArgs = new ArrayList();
                                 newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.cmdFlagPrefix + "dbg");
+                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "dbg");
                                 info.args = (string[])newArgs.ToArray(typeof(string));
 #else
                                 List<string> newArgs = new List<string>();
                                 newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.cmdFlagPrefix + "dbg");
+                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "dbg");
                                 info.args = newArgs.ToArray();
 #endif
                             }
@@ -439,12 +439,12 @@ namespace csscript
 #if net1
                                 ArrayList newArgs = new ArrayList();
                                 newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.cmdFlagPrefix + "verbose");
+                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "verbose");
                                 info.args = (string[])newArgs.ToArray(typeof(string));
 #else
                                 List<string> newArgs = new List<string>();
                                 newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.cmdFlagPrefix + "verbose");
+                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "verbose");
                                 info.args = newArgs.ToArray();
 #endif
                             }
@@ -491,13 +491,13 @@ namespace csscript
 #if net1
                                 ArrayList newArgs = new ArrayList();
                                 newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.cmdFlagPrefix + "dbg");
+                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "dbg");
                                 info.args = (string[])newArgs.ToArray(typeof(string));
 #else
 
                                 List<string> newArgs = new List<string>();
                                 newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.cmdFlagPrefix + "dbg");
+                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "dbg");
                                 info.args = newArgs.ToArray();
 #endif
                             }
@@ -506,13 +506,13 @@ namespace csscript
 #if net1
                                 ArrayList newArgs = new ArrayList();
                                 newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.cmdFlagPrefix + "verbose");
+                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "verbose");
                                 info.args = (string[])newArgs.ToArray(typeof(string));
 #else
 
                                 List<string> newArgs = new List<string>();
                                 newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.cmdFlagPrefix + "verbose");
+                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "verbose");
                                 info.args = newArgs.ToArray();
 #endif
                             }
@@ -586,7 +586,7 @@ namespace csscript
                             if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
                                 settings = Settings.Load(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml"));
                         }
-                        if (!options.useScriptConfig && (settings == null || settings.DefaultArguments.IndexOf(CSSUtils.cmdFlagPrefix + "sconfig") == -1))
+                        if (!options.useScriptConfig && (settings == null || settings.DefaultArguments.IndexOf(CSSUtils.Args.DefaultPrefix + "sconfig") == -1))
                             return "";
 
                         string script = args[firstScriptArg];

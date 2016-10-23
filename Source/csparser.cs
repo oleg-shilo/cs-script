@@ -93,7 +93,7 @@ namespace csscript
 #else
                     List<string> argList = new List<string>();
 #endif
-                    argList.Add(CSSUtils.cmdFlagPrefix + "nl");
+                    argList.Add(CSSUtils.Args.DefaultPrefix + "nl");
                     argList.Add(statement.Substring(0, lBracket).Trim());
 
                     rBracket = statement.LastIndexOf(")");
@@ -119,9 +119,9 @@ namespace csscript
                 {
                     int pos = statement.LastIndexOfAny(new char[] { ' ', '\t', ';' });
                     if (pos != -1)
-                        args = new string[] { CSSUtils.cmdFlagPrefix + "nl", statement.Substring(0, pos) };
+                        args = new string[] { CSSUtils.Args.DefaultPrefix + "nl", statement.Substring(0, pos) };
                     else
-                        args = new string[] { CSSUtils.cmdFlagPrefix + "nl", statement };
+                        args = new string[] { CSSUtils.Args.DefaultPrefix + "nl", statement };
                 }
             }
 
