@@ -145,7 +145,7 @@ namespace csscript
                             runner = Path.Combine(Path.GetDirectoryName(thisAssembly), "runasm32.exe");
 
                         if (!File.Exists(runner))
-                            runner = Environment.ExpandEnvironmentVariables("CSSCRIPT_32RUNNER");
+                            runner = Environment.ExpandEnvironmentVariables("%CSSCRIPT_32RUNNER%");
 
                         if (!File.Exists(runner))
                         {
@@ -326,13 +326,10 @@ namespace csscript
             {
                 if (originalEncoding != null)
                     Console.OutputEncoding = originalEncoding;
-
-
-                string[] tempFiles = Directory.GetFiles(CSExecutor.GetScriptTempDir(), "*????????-????-????-????-????????????.dll");
-                if (tempFiles.Length > 5)
-                    foreach (string file in tempFiles)
-                        try { File.Delete(file); }
-                        catch { }
+                
+                //collect abandoned temp files
+                if (Environment.GetEnvironmentVariable("CSScript_Suspend_Housekeeping") == null)
+                    Utils.CleanUnusedTmpFiles(CSExecutor.GetScriptTempDir(), "*????????-????-????-????-????????????.dll", false);
             }
             catch { }
         }

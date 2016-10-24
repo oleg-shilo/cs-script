@@ -247,7 +247,7 @@ namespace CSScriptLibrary
         /// <returns>Reference to the <see cref="System.AppDomain"/>. It is the same object, which is passed as the <paramref name="domain"/>.</returns>
         public static AppDomain Execute(this AppDomain domain, Action action, params string[] probingDirs)
         {
-            var remote = (RemoteExecutor)domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(RemoteExecutor).ToString());
+            var remote = (RemoteExecutor) domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(RemoteExecutor).ToString());
             remote.InitProbing(probingDirs);
             remote.Execute(action);
             remote.UninitProbing();
@@ -285,7 +285,7 @@ namespace CSScriptLibrary
         {
             //also possible to serialize lambda and execute it in remote AppDomain (yest it is dangerous) 
             //look at MetaLinq\ExpressionBuilder
-            var remote = (RemoteExecutor)domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(RemoteExecutor).ToString());
+            var remote = (RemoteExecutor) domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(RemoteExecutor).ToString());
             remote.InitProbing(probingDirs);
             remote.Execute(action, context);
             remote.UninitProbing();
@@ -360,6 +360,20 @@ namespace CSScriptLibrary
         public static StrongName GetStrongName(this Assembly assembly)
         {
             return assembly.Evidence.GetHostEvidence<StrongName>();
+        }
+
+        public static string GetOriginalLocation(this Assembly assembly)
+        {
+            string location = null;
+            try
+            {
+                location = assembly.Location;
+                if (location != null && location != "")
+                    return location;
+            }
+            catch { }
+            location = Environment.GetEnvironmentVariable("location:" + assembly.GetHashCode());
+            return location;
         }
 #endif
 
@@ -1040,7 +1054,7 @@ namespace CSScriptLibrary
             options.altCompiler = settings.ExpandUseAlternativeCompiler();
             options.compilerOptions = compilerOptions != null ? compilerOptions : "";
             options.apartmentState = settings.DefaultApartmentState;
-            options.InjectScriptAssemblyAttribute  = settings.InjectScriptAssemblyAttribute;
+            options.InjectScriptAssemblyAttribute = settings.InjectScriptAssemblyAttribute;
             options.reportDetailedErrorInfo = settings.ReportDetailedErrorInfo;
             options.cleanupShellCommand = settings.CleanupShellCommand;
             options.customHashing = settings.CustomHashing;
@@ -1085,11 +1099,11 @@ namespace CSScriptLibrary
 
             if (scriptFile != "")
             {
-                scriptFile = FileParser.ResolveFile(scriptFile, (string[])dirs.ToArray(typeof(string))); //to handle the case when the script file is specified by file name only
+                scriptFile = FileParser.ResolveFile(scriptFile, (string[]) dirs.ToArray(typeof(string))); //to handle the case when the script file is specified by file name only
                 dirs.Add(Path.GetDirectoryName(scriptFile));
             }
 
-            options.searchDirs = RemovePathDuplicates((string[])dirs.ToArray(typeof(string)));
+            options.searchDirs = RemovePathDuplicates((string[]) dirs.ToArray(typeof(string)));
 
             options.scriptFileName = scriptFile;
 
@@ -1452,7 +1466,7 @@ namespace CSScriptLibrary
             if (lastArg == null || !(lastArg is string))
                 throw new Exception("You did not specify the code to 'Eval'");
 
-            string methodCode = ((string)lastArg).Trim();
+            string methodCode = ((string) lastArg).Trim();
 
             string methodName = methodCode.Split(new char[] { '(', ' ' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
 
@@ -1595,7 +1609,7 @@ namespace CSScriptLibrary
                             }
 
                             if (inheritFrom != null)
-                                code.Append("   public class DynamicClass : "+ inheritFrom + "\r\n");
+                                code.Append("   public class DynamicClass : " + inheritFrom + "\r\n");
                             else
                                 code.Append("   public class DynamicClass\r\n");
 
@@ -1755,6 +1769,8 @@ namespace CSScriptLibrary
         {
             lock (typeof(CSScript))
             {
+                ScheduleCleanup();
+
                 UInt32 scriptTextCRC = 0;
                 if (CacheEnabled)
                 {
@@ -1804,19 +1820,24 @@ namespace CSScriptLibrary
                     if (!debugBuild)
                         Utils.FileDelete(tempFile);
                     else
-                    {
-                        if (tempFiles == null)
-                        {
-                            tempFiles = new ArrayList();
-
-                            //Note: ApplicationExit will not be called if this library is hosted by a console application.
-                            //Thus CS-Script periodical cleanup will take care of the temp files
-                            //Application.ApplicationExit += new EventHandler(OnApplicationExit); //will not be available on .NET CE
-                            AppDomain.CurrentDomain.DomainUnload += new EventHandler(CurrentDomain_DomainUnload);
-                        }
                         tempFiles.Add(tempFile);
-                    }
                 }
+            }
+        }
+
+        static void ScheduleCleanup()
+        {
+            if (tempFiles == null)
+            {
+                tempFiles = new ArrayList();
+
+                //Note: ApplicationExit will not be called if this library is hosted by an application.
+                //Thus CS-Script periodical cleanup will take care of the temp files
+                //Application.ApplicationExit += new EventHandler(OnApplicationExit); //will not be available on .NET CE
+                AppDomain.CurrentDomain.DomainUnload += new EventHandler(CurrentDomain_DomainUnload);
+
+                //start background cleaning just in case if previous session crashed
+                //ThreadPool.QueueUserWorkItem((x) => CleanDynamicSources());
             }
         }
 
@@ -1834,7 +1855,21 @@ namespace CSScriptLibrary
                 {
                     Utils.FileDelete(file);
                 }
+
+            CleanDynamicSources();
         }
+
+        static void CleanDynamicSources()
+        {
+            string dir = Path.Combine(CSExecutor.GetScriptTempDir(), "dynamic");
+            if (Environment.GetEnvironmentVariable("CSScript_Suspend_Housekeeping") == null)
+            {
+                Utils.CleanUnusedTmpFiles(dir, "*????????-????-????-????-????????????.???", true);
+                string cachForDynamicFiles = CSExecutor.GetCacheDirectory(Path.Combine(dir, "dummy.cs"));
+                Utils.CleanUnusedTmpFiles(cachForDynamicFiles, "*????????-????-????-????-????????????.???*", true);
+            }
+        }
+
 
         /// <summary>
         /// Compiles script file into assembly with CSExecutor and loads it in current AppDomain
@@ -1951,6 +1986,8 @@ namespace CSScriptLibrary
 
                             if (retval != null)
                                 scriptCache.Add(new LoadedScript(scriptFile, retval));
+
+                            RemoteExecutor.SetScriptReflection(retval, outputFile);
                         }
                         return retval;
                     }

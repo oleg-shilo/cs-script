@@ -1757,7 +1757,7 @@ namespace csscript
                 if (!Directory.Exists(tempDir))
                     Directory.CreateDirectory(tempDir);
 
-                return Path.Combine(tempDir, Guid.NewGuid() + ".tmp");
+                return Path.Combine(tempDir, string.Format("{0}.{1}.tmp", Process.GetCurrentProcess().Id, Guid.NewGuid()));
             }
         }
 

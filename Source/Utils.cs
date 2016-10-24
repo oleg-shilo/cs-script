@@ -235,6 +235,42 @@ namespace csscript
             FileDelete(path, false);
         }
 
+        public static void CleanUnusedTmpFiles(string dir, string pattern, bool verifyPid)
+        {
+            var oldTempFiles = Directory.GetFiles(dir, pattern);
+            foreach (string file in oldTempFiles)
+            {
+                try
+                {
+                    if (verifyPid)
+                    {
+                        string name = Path.GetFileName(file);
+                        int pos = name.IndexOf('.');
+                        if (pos > 0)
+                        {
+                            string pidValue = name.Substring(0, pos);
+                            int pid = 0;
+                            if (int.TryParse(pidValue, out pid))
+                            {
+                                try
+                                {
+                                    if (Process.GetProcessById(pid) != null)
+                                        continue; //still running
+                                }
+                                catch
+                                {
+                                    //GetProcessById will throw if pid is not running and Utils.FileDelete handles all unexpected
+                                }
+                            }
+                        }
+                    }
+
+                    Utils.FileDelete(file);
+                }
+                catch { }
+            }
+        }
+
         public static Mutex FileLock(string file, object context)
         {
             if (!IsLinux())

@@ -212,7 +212,7 @@ namespace csscript
             InvokeStaticMain(assembly, args);
         }
 
-        static void SetScriptReflection(Assembly assembly, string location)
+        internal static void SetScriptReflection(Assembly assembly, string location)
         {
             Environment.SetEnvironmentVariable("location:" + assembly.GetHashCode(), location);
 
@@ -221,8 +221,8 @@ namespace csscript
             foreach (AssemblyDescriptionAttribute attribute in assembly.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true))
                 source = attribute.Description;
 
-            //check if executing the primary script 
-            if (source == Environment.GetEnvironmentVariable("EntryScript"))
+            //check if executing the primary script and not hosted execution ("CSScriptRuntime" == null)
+            if (Environment.GetEnvironmentVariable("CSScriptRuntime") != null && source == Environment.GetEnvironmentVariable("EntryScript"))
                 Environment.SetEnvironmentVariable("EntryScriptAssembly", location);
         }
 
