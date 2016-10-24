@@ -148,6 +148,12 @@
       <Link>GACHelper.cs</Link>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="..\HelpProvider.cs">
+      <Link>HelpProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\NuGet.cs">
+      <Link>NuGet.cs</Link>
+    </Compile>
     <Compile Include="..\Precompiler.cs">
       <Link>Precompiler.cs</Link>
     </Compile>
@@ -163,7 +169,7 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CSExecutorClient.cs">
+    <Compile Include="CSExecutionClient.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

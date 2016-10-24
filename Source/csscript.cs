@@ -1745,7 +1745,7 @@ namespace csscript
         {
             lock (typeof(CSExecutor))
             {
-                return Path.Combine(GetScriptTempDir(), Guid.NewGuid().ToString() + ".tmp");
+                return Path.Combine(GetScriptTempDir(), string.Format("{0}.{1}.tmp", Process.GetCurrentProcess().Id, Guid.NewGuid()));
             }
         }
 

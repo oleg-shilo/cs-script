@@ -255,7 +255,7 @@ namespace csscript
                             break;
                         }
 
-                        dest.WriteByte((byte)nextChar);
+                        dest.WriteByte((byte) nextChar);
                         dest.Flush();
                     }
                 }
@@ -276,7 +276,7 @@ namespace csscript
                 while (true)
                 {
                     int nextChar = Console.Read();
-                    process.StandardInput.Write((char)nextChar);
+                    process.StandardInput.Write((char) nextChar);
                     process.StandardInput.Flush();
                 }
             });
@@ -322,8 +322,19 @@ namespace csscript
 
         public static void OnExit()
         {
-            if (originalEncoding != null)
-                Console.OutputEncoding = originalEncoding;
+            try
+            {
+                if (originalEncoding != null)
+                    Console.OutputEncoding = originalEncoding;
+
+
+                string[] tempFiles = Directory.GetFiles(CSExecutor.GetScriptTempDir(), "*????????-????-????-????-????????????.dll");
+                if (tempFiles.Length > 5)
+                    foreach (string file in tempFiles)
+                        try { File.Delete(file); }
+                        catch { }
+            }
+            catch { }
         }
 
         public static void SetEncoding(string encoding)
