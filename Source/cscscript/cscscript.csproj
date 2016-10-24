@@ -125,6 +125,9 @@
     <Compile Include="..\ExecuteOptions.cs">
       <Link>ExecuteOptions.cs</Link>
     </Compile>
+    <Compile Include="..\NuGet.cs">
+      <Link>NuGet.cs</Link>
+    </Compile>
     <Compile Include="..\Precompiler.cs">
       <Link>Precompiler.cs</Link>
     </Compile>

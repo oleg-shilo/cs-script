@@ -43,6 +43,7 @@ namespace csscript
     /// <summary>
     /// Executes "public static void Main(..)" of assembly in a separate domain.
     /// </summary>
+    [Serializable]
     class AssemblyExecutor
     {
         AppDomain appDomain;
@@ -77,8 +78,15 @@ namespace csscript
             setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
             appDomain = AppDomain.CreateDomain(domainName, null, setup);
+            appDomain.AssemblyResolve += AppDomain_AssemblyResolve;
             remoteExecutor = (RemoteExecutor) appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
             remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
+        }
+
+        private Assembly AppDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            var name = args.Name;
+            return null;
         }
 
         bool InitLegacy(string fileNname, string domainName)
@@ -94,6 +102,7 @@ namespace csscript
                 setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
                 appDomain = AppDomain.CreateDomain(domainName, null, setup);
+                appDomain.AssemblyResolve += AppDomain_AssemblyResolve;
                 remoteExecutor = (RemoteExecutor) appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
                 remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
                 return true;
@@ -211,9 +220,9 @@ namespace csscript
             //Note assembly can contain only single AssemblyDescriptionAttribute
             foreach (AssemblyDescriptionAttribute attribute in assembly.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true))
                 source = attribute.Description;
-            
+
             //check if executing the primary script 
-            if (source == Environment.GetEnvironmentVariable("EntryScript")) 
+            if (source == Environment.GetEnvironmentVariable("EntryScript"))
                 Environment.SetEnvironmentVariable("EntryScriptAssembly", location);
         }
 

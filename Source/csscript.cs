@@ -375,6 +375,13 @@ namespace csscript
                                             CSharpParser impParser = new CSharpParser(file, true, null, options.searchDirs);
                                             Environment.CurrentDirectory = Path.GetDirectoryName(file);
 
+                                            string[] packageAsms = NuGet.Resolve(impParser.NuGets, true, file);
+                                            foreach (string asmName in packageAsms)
+                                            {
+                                                var packageDir = Path.GetDirectoryName(asmName);
+                                                newSearchDirs.Add(packageDir);
+                                            }
+
                                             foreach (string dir in impParser.ExtraSearchDirs)
                                                 newSearchDirs.Add(Path.GetFullPath(dir));
 
