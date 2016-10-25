@@ -78,15 +78,8 @@ namespace csscript
             setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
             appDomain = AppDomain.CreateDomain(domainName, null, setup);
-            appDomain.AssemblyResolve += AppDomain_AssemblyResolve;
-            remoteExecutor = (RemoteExecutor) appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
+            remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
             remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
-        }
-
-        private Assembly AppDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            var name = args.Name;
-            return null;
         }
 
         bool InitLegacy(string fileNname, string domainName)
@@ -102,8 +95,7 @@ namespace csscript
                 setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
                 appDomain = AppDomain.CreateDomain(domainName, null, setup);
-                appDomain.AssemblyResolve += AppDomain_AssemblyResolve;
-                remoteExecutor = (RemoteExecutor) appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
+                remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
                 remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
                 return true;
             }
@@ -148,6 +140,7 @@ namespace csscript
         public Assembly ResolveEventHandler(object sender, ResolveEventArgs args)
         {
             Assembly retval = null;
+
             foreach (string dir in searchDirs)
             {
                 //it is tempting to throw but should not as there can be other (e.g. host) ResolveEventHandler(s)
@@ -173,7 +166,7 @@ namespace csscript
             ExecuteAssembly(filename, args, null);
         }
 
-        public void ExecuteAssembly(string filename, string[] args, Mutex asmLock)
+        public void ExecuteAssembly(string filename, string[] args, SystemWideLock asmLock)
         {
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(ResolveEventHandler);
             AppDomain.CurrentDomain.ResourceResolve += new ResolveEventHandler(ResolveResEventHandler); //xaml
@@ -181,6 +174,7 @@ namespace csscript
             asmFile = filename;
 
             Assembly assembly;
+
             if (!ExecuteOptions.options.inMemoryAsm)
             {
                 assembly = Assembly.LoadFrom(filename);
@@ -193,6 +187,7 @@ namespace csscript
                     byte[] data = new byte[fs.Length];
                     fs.Read(data, 0, data.Length);
                     string dbg = Path.ChangeExtension(filename, ".pdb");
+
                     if (ExecuteOptions.options.DBG && File.Exists(dbg))
                         using (FileStream fsDbg = new FileStream(dbg, FileMode.Open))
                         {
@@ -204,7 +199,7 @@ namespace csscript
                         assembly = Assembly.Load(data);
                 }
 
-                Utils.ReleaseFileLock(asmLock);
+                asmLock.Release();
             }
 
             SetScriptReflection(assembly, Path.GetFullPath(filename));
@@ -229,11 +224,13 @@ namespace csscript
         public void InvokeStaticMain(Assembly compiledAssembly, string[] scriptArgs)
         {
             MethodInfo method = null;
+
             foreach (Module m in compiledAssembly.GetModules())
             {
                 foreach (Type t in m.GetTypes())
                 {
                     BindingFlags bf = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Static;
+
                     foreach (MemberInfo mi in t.GetMembers(bf))
                     {
                         if (mi.Name == "Main")
@@ -253,8 +250,9 @@ namespace csscript
             {
                 //System.Diagnostics.Debug.Assert(false);
                 object retval = null;
+
                 if (method.GetParameters().Length != 0)
-                    retval = method.Invoke(new object(), new object[] { (Object) scriptArgs });
+                    retval = method.Invoke(new object(), new object[] { (Object)scriptArgs });
                 else
                     retval = method.Invoke(new object(), null);
 

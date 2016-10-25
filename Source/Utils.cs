@@ -98,9 +98,11 @@ namespace csscript
         public static string[] Except(string[] array1, string[] array2)
         {
             System.Collections.ArrayList retval = new System.Collections.ArrayList();
+
             foreach (string item1 in array1)
             {
                 bool found = false;
+
                 foreach (string item2 in array2)
                     if (item2 == item1)
                     {
@@ -118,16 +120,18 @@ namespace csscript
         public static string[] RemovePathDuplicates(string[] list)
         {
             System.Collections.ArrayList retval = new System.Collections.ArrayList();
+
             foreach (string item in list)
             {
-
                 string path = item.Trim();
+
                 if (path == "")
                     continue;
 
                 path = Path.GetFullPath(path);
 
                 bool found = false;
+
                 foreach (string pathItem in retval)
                     if (Utils.IsSamePath(pathItem, path))
                     {
@@ -137,8 +141,6 @@ namespace csscript
 
                 if (!found)
                     retval.Add(path);
-
-
             }
 
             return (string[]) retval.ToArray(typeof(string));
@@ -147,6 +149,7 @@ namespace csscript
         public static string[] RemoveDuplicates(string[] list)
         {
             System.Collections.ArrayList retval = new System.Collections.ArrayList();
+
             foreach (string item in list)
             {
                 if (item.Trim() != "")
@@ -162,6 +165,7 @@ namespace csscript
         public static string[] RemoveEmptyStrings(string[] list)
         {
             System.Collections.ArrayList retval = new System.Collections.ArrayList();
+
             foreach (string item in list)
             {
                 if (item.Trim() != "")
@@ -217,6 +221,7 @@ namespace csscript
         public static void ClearFile(string path)
         {
             string parentDir = null;
+
             if (File.Exists(path))
                 parentDir = Path.GetDirectoryName(path);
 
@@ -237,7 +242,8 @@ namespace csscript
 
         public static void CleanUnusedTmpFiles(string dir, string pattern, bool verifyPid)
         {
-            var oldTempFiles = Directory.GetFiles(dir, pattern);
+            string[] oldTempFiles = Directory.GetFiles(dir, pattern);
+
             foreach (string file in oldTempFiles)
             {
                 try
@@ -245,11 +251,15 @@ namespace csscript
                     if (verifyPid)
                     {
                         string name = Path.GetFileName(file);
+
                         int pos = name.IndexOf('.');
+
                         if (pos > 0)
                         {
                             string pidValue = name.Substring(0, pos);
+
                             int pid = 0;
+
                             if (int.TryParse(pidValue, out pid))
                             {
                                 try
@@ -271,39 +281,38 @@ namespace csscript
             }
         }
 
-        public static Mutex FileLock(string file, object context)
-        {
-            if (!IsLinux())
-                file = file.ToLower(CultureInfo.InvariantCulture);
+        //public static Mutex FileLock_(string file, object context)
+        //{
+        //    if (!IsLinux())
+        //        file = file.ToLower(CultureInfo.InvariantCulture);
 
-            string mutexName = context.ToString() + "." + CSSUtils.GetHashCodeEx(file).ToString();
+        //    string mutexName = context.ToString() + "." + CSSUtils.GetHashCodeEx(file).ToString();
 
-            if (Utils.IsLinux())
-            {
-                //Utils.Ge
-                //scriptTextCRC = Crc32.Compute(Encoding.UTF8.GetBytes(scriptText));
-            }
+        //    if (Utils.IsLinux())
+        //    {
+        //        //Utils.Ge
+        //        //scriptTextCRC = Crc32.Compute(Encoding.UTF8.GetBytes(scriptText));
+        //    }
 
-            return new Mutex(false, mutexName);
-        }
+        //    return new Mutex(false, mutexName);
+        //}
 
-        public static bool Wait(Mutex @lock, int millisecondsTimeout)
-        {
-            return @lock.WaitOne(millisecondsTimeout, false);
-        }
+        //public static bool Wait(Mutex @lock, int millisecondsTimeout)
+        //{
+        //    return @lock.WaitOne(millisecondsTimeout, false);
+        //}
 
-        public static void ReleaseFileLock(Mutex @lock)
-        {
-            if (@lock != null)
-                try { @lock.ReleaseMutex(); }
-                catch { }
-        }
+        //public static void ReleaseFileLock(Mutex @lock)
+        //{
+        //    if (@lock != null)
+        //        try { @lock.ReleaseMutex(); }
+        //        catch { }
+        //}
 
         public delegate string ProcessNewEncodingHandler(string requestedEncoding);
         public static ProcessNewEncodingHandler ProcessNewEncoding = DefaultProcessNewEncoding;
         public static bool IsDefaultConsoleEncoding = true;
         static string DefaultProcessNewEncoding(string requestedEncoding) { return requestedEncoding; }
-
 
         /// <summary>
         /// Waits for file idle.
@@ -317,6 +326,7 @@ namespace csscript
 
             //very conservative "file in use" checker
             int start = Environment.TickCount;
+
             while ((Environment.TickCount - start) <= delay && IsFileLocked(file))
             {
                 Thread.Sleep(200);
@@ -338,11 +348,6 @@ namespace csscript
             }
 
             return false;
-        }
-
-        public static Mutex FileLock(string file)
-        {
-            return FileLock(file, "");
         }
 
         public static void FileDelete(string path, bool rethrow)
@@ -446,14 +451,16 @@ namespace csscript
 
         internal static string GetScriptedCodeAttributeInjectionCode(string scriptFileName)
         {
-            using (Mutex fileLock = Utils.FileLock(scriptFileName, "GetScriptedCodeAttributeInjectionCode"))
+            //using (Mutex fileLock = Utils.FileLock_(scriptFileName, "GetScriptedCodeAttributeInjectionCode"))
             {
                 //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will 
                 //throw a nice informative exception.
-                fileLock.WaitOne(1000, false);
+                //fileLock.WaitOne(1000, false);
 
                 string code = string.Format("[assembly: System.Reflection.AssemblyDescriptionAttribute(@\"{0}\")]", scriptFileName);
+
                 string currentCode = "";
+
                 string file = Path.Combine(CSExecutor.GetCacheDirectory(scriptFileName), Path.GetFileNameWithoutExtension(scriptFileName) + ".attr.g.cs");
 
                 Exception lastError = null;
@@ -469,6 +476,7 @@ namespace csscript
                         if (currentCode != code)
                         {
                             string dir = Path.GetDirectoryName(file);
+
                             if (!Directory.Exists(dir))
                                 Directory.CreateDirectory(dir);
 
@@ -496,6 +504,7 @@ namespace csscript
         public static bool HaveSameTimestamp(string file1, string file2)
         {
             FileInfo info1 = new FileInfo(file1);
+
             FileInfo info2 = new FileInfo(file2);
 
             return (info2.LastWriteTime == info1.LastWriteTime &&
@@ -505,6 +514,7 @@ namespace csscript
         public static void SetTimestamp(string fileDest, string fileSrc)
         {
             FileInfo info1 = new FileInfo(fileSrc);
+
             FileInfo info2 = new FileInfo(fileDest);
 
             info2.LastWriteTime = info1.LastWriteTime;
@@ -528,6 +538,7 @@ namespace csscript
                 bool useAllSubDirs = rootDir.EndsWith("**");
 
                 string pattern = ConvertSimpleExpToRegExp(useAllSubDirs ? rootDir.Remove(rootDir.Length - 1) : rootDir);
+
                 Regex wildcard = new Regex(pattern, RegexOptions.IgnoreCase);
 
                 int pos = rootDir.IndexOfAny(new char[] { '*', '?' });
@@ -605,6 +616,7 @@ namespace csscript
             static internal string Join(params string[] args)
             {
                 StringBuilder sb = new StringBuilder();
+
                 foreach (string arg in args)
                 {
                     sb.Append(" ");
@@ -626,14 +638,15 @@ namespace csscript
 
             public static bool Same(string arg, params string[] patterns)
             {
-                foreach (var pattern in patterns)
+                foreach (string pattern in patterns)
                 {
                     if (arg.StartsWith("-"))
-                        return arg.Length == pattern.Length + 1 && arg.IndexOf(pattern) == 1;
+                        if (arg.Length == pattern.Length + 1 && arg.IndexOf(pattern) == 1)
+                            return true;
 
-                    if (!Utils.IsLinux())
-                        if (arg[0] == '/')
-                            return arg.Length == pattern.Length + 1 && arg.IndexOf(pattern) == 1;
+                    if (!Utils.IsLinux() && arg[0] == '/')
+                        if (arg.Length == pattern.Length + 1 && arg.IndexOf(pattern) == 1)
+                            return true;
                 }
                 return false;
             }
@@ -707,7 +720,7 @@ namespace csscript
             {
                 string arg = args[i];
 
-                if (File.Exists(arg))
+                if (arg[0] != '-' && File.Exists(arg))
                     return i; //on Linux '/' may indicate dir but not command
 
                 string argValue = null;
@@ -897,6 +910,7 @@ namespace csscript
                     string content = File.ReadAllText(filesToCompile[i]);
 
                     bool modified = false;
+
                     foreach (string precompilerFile in precompilers.Keys)
                     {
 #if net1
@@ -909,13 +923,16 @@ namespace csscript
                             {
                                 CSSUtils.VerbosePrint("  Precompilers: ", options);
                                 int index = 0;
+
                                 foreach (string file in filesToCompile)
                                     CSSUtils.VerbosePrint("   " + index++ + " - " + Path.GetFileName(file) + " -> " + precompiler.GetType() + "\n           from " + precompilerFile, options);
                                 CSSUtils.VerbosePrint("", options);
                             }
 
                             MethodInfo method = precompiler.GetType().GetMethod("Compile");
+
                             CompileMethod compile = (CompileMethod) Delegate.CreateDelegate(typeof(CompileMethod), method);
+
                             bool result = compile(ref content,
                                                   filesToCompile[i],
                                                   filesToCompile[i] == scriptFile,
@@ -995,10 +1012,12 @@ namespace csscript
                 if (precompilerFile != "" && precompilerFile != noDefaultPrecompilerSwitch)
                 {
                     string sourceFile = FindImlementationFile(precompilerFile, options.searchDirs);
+
                     if (sourceFile == null)
                         throw new ApplicationException("Cannot find Precompiler file " + precompilerFile);
 
                     Assembly asm;
+
                     if (sourceFile.EndsWith(".dll", true, CultureInfo.InvariantCulture))
                         asm = Assembly.LoadFrom(sourceFile);
                     else
@@ -1007,6 +1026,7 @@ namespace csscript
                     //string typeName = typeof(IPrecompiler).Name;
 
                     object precompilerObj = null;
+
                     foreach (Module m in asm.GetModules())
                     {
                         if (precompilerObj != null)
@@ -1148,6 +1168,7 @@ namespace csscript
                     }
 
                     ScriptParser parser = new ScriptParser(sourceFile, searchDirs);
+
                     CompilerParameters compilerParams = new CompilerParameters();
 
                     compilerParams.IncludeDebugInformation = true;
@@ -1178,6 +1199,7 @@ namespace csscript
                             string nameSpace = Utils.RemoveAssemblyExtension(asmName);
 
                             string[] files = AssemblyResolver.FindAssembly(nameSpace, searchDirs);
+
                             if (files.Length > 0)
                                 foreach (string asm in files)
                                     refAssemblies.Add(asm);
@@ -1254,13 +1276,19 @@ namespace csscript
         static int GetHashCode32(string s)
         {
             char[] chars = s.ToCharArray();
+
             int lastCharInd = chars.Length - 1;
+
             int num1 = 0x15051505;
+
             int num2 = num1;
+
             int ind = 0;
+
             while (ind <= lastCharInd)
             {
                 char ch = chars[ind];
+
                 char nextCh = ++ind > lastCharInd ? '\0' : chars[ind];
                 num1 = (((num1 << 5) + num1) + (num1 >> 0x1b)) ^ (nextCh << 16 | ch);
                 if (++ind > lastCharInd)
@@ -1315,7 +1343,9 @@ namespace csscript
             //code.Append("using System;\r\n");
 
             bool headerProcessed = false;
+
             string line;
+
             using (StreamReader sr = new StreamReader(file, Encoding.UTF8))
                 while ((line = sr.ReadLine()) != null)
                 {
@@ -1397,6 +1427,7 @@ namespace csscript
                 //    Trace.WriteLine(item.file + " : " + item.date);
 
                 string dependencyFile = "";
+
                 foreach (MetaDataItem item in depInfo.items)
                 {
                     if (item.assembly)
@@ -1457,6 +1488,7 @@ namespace csscript
                         if (!IsGACAssembly(asmFile))
                         {
                             bool found = false;
+
                             foreach (string dir in searchDirs)
                                 if (!IsGACAssembly(asmFile) && string.Compare(dir, Path.GetDirectoryName(asmFile), true) == 0)
                                 {
@@ -1497,6 +1529,7 @@ namespace csscript
                     string fullPath = Path.GetFullPath(file);
 
                     bool local = false;
+
                     foreach (string dir in searchDirs)
                         if ((local = (string.Compare(dir, Path.GetDirectoryName(fullPath), true) == 0)))
                             break;
@@ -1560,6 +1593,7 @@ namespace csscript
                     {
                         fs.Seek(-intSize, SeekOrigin.End);
                         int stamp = r.ReadInt32();
+
                         if (stamp == stampID)
                         {
                             fs.Seek(-(intSize * 2), SeekOrigin.End);
@@ -1610,6 +1644,7 @@ namespace csscript
         new string ToString()
         {
             StringBuilder bs = new StringBuilder();
+
             foreach (MetaDataItem fileInfo in items)
             {
                 bs.Append(fileInfo.file);
@@ -1629,6 +1664,7 @@ namespace csscript
                 if (itemData.Length > 0)
                 {
                     string[] parts = itemData.Split(";".ToCharArray());
+
                     if (parts.Length == 3)
                         this.items.Add(new MetaDataItem(parts[0], DateTime.FromFileTimeUtc(long.Parse(parts[1])), parts[2] == "Y"));
                     else

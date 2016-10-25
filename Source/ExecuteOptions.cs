@@ -57,6 +57,12 @@ using Microsoft.CSharp;
 
 namespace csscript
 {
+    public enum ConcurrencyControl
+    {
+        Standard,
+        HighResolution,
+        None
+    }
     /// <summary>
     /// Application specific runtime settings
     /// </summary>
@@ -124,6 +130,7 @@ namespace csscript
             clone.scriptFileNamePrimary = this.scriptFileNamePrimary;
             clone.doCleanupAfterNumberOfRuns = this.doCleanupAfterNumberOfRuns;
             clone.inMemoryAsm = this.inMemoryAsm;
+            clone.concurrencyControl = this.concurrencyControl;
             clone.shareHostRefAssemblies = this.shareHostRefAssemblies;
             return clone;
         }
@@ -176,6 +183,7 @@ namespace csscript
             clone.scriptFileNamePrimary = this.scriptFileNamePrimary;
             clone.doCleanupAfterNumberOfRuns = this.doCleanupAfterNumberOfRuns;
             clone.shareHostRefAssemblies = this.shareHostRefAssemblies;
+            clone.concurrencyControl = this.concurrencyControl;
             clone.inMemoryAsm = this.inMemoryAsm;
 
             return clone;
@@ -221,6 +229,7 @@ namespace csscript
         public bool reportDetailedErrorInfo = false;
         public bool hideCompilerWarnings = false;
         public ApartmentState apartmentState = ApartmentState.STA;
+        public ConcurrencyControl concurrencyControl = ConcurrencyControl.Standard;
         public string forceOutputAssembly = "";
         public string cleanupShellCommand = "";
         public bool noConfig = false;

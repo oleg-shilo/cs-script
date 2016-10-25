@@ -70,7 +70,7 @@ namespace csscript
     /// <param name="searchDirs">The extra dirs.</param>
     /// <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
     /// <returns></returns>
-    [Obsolete("This type is obsolete. Use ResolveSourceFileAlgorithm instead.")]
+    [Obsolete("This type is obsolete. Use ResolveSourceFileAlgorithm instead.", false)]
     public delegate string ResolveSourceFileHandler(string file, string[] searchDirs, bool throwOnError);
 
     /// <summary>
@@ -166,6 +166,7 @@ namespace csscript
                 options.inMemoryAsm = settings.InMemoryAssembly;
 
                 //options.useSurrogateHostingProcess = settings.UseSurrogateHostingProcess;
+                options.concurrencyControl = settings.ConcurrencyControl;
                 options.hideCompilerWarnings = settings.HideCompilerWarnings;
                 options.TargetFramework = settings.TargetFramework;
 
@@ -733,67 +734,156 @@ namespace csscript
                         CSSUtils.VerbosePrint("", options);
                     }
 
-                    bool compilingFileUnlocked = false;
-                    //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
-                    //throw a nice informative exception.
+                    // The following long comment is also reflected on Wiki
 
-                    using (Mutex validatingFileLock = Utils.FileLock(options.scriptFileName, "TimestampValidating"))
-                    using (Mutex compilingFileLock = Utils.FileLock(options.scriptFileName, "Compiling"))
-                    using (Mutex executingFileLock = Utils.FileLock(options.scriptFileName, "Executing")) //will need it in the future for more accurate concurrency control 
-                        try
+                    // Execution consist of multiple stages and some of them need to be atomic and need to be synchronized system wide. 
+                    // Note: synchronization (concurrency control) may only be required for execution of a given script by two or more competing
+                    // processes. If one process executes script_a.cs and another one executes script_b.cs then trhere is no need for any synchronization 
+                    // as the script files are different and their executions do not collide with each other.
+
+                    // ---
+                    // VALIDATION
+                    // First, script should be validated: assessed for having valid already compiled up to date assembly. Validation is done 
+                    // by checking if the compiled assembly available at alls and then comparing timestamps of the assembly and the script file.
+                    // After all on checks are done all script dependencies (imports and ref assemblies) are also validated. Dependency validation is
+                    // also timestamp based. For the script the dependencies are identified by parsing the script and for the assembly by extracting the 
+                    // dependencies metadata injected into assembly during the last compilation by the script engine.
+                    // The whole validation stage is atomic and it's synchronized system wide via SystemWideLock validatingFileLock. 
+                    // SystemWideLock is a decorated Mutex-like system wide synchronization object: Mutex on Windows and file-lock on Linux. 
+                    // This stage is very fast as there is no heavy lifting to be done just comparing timestamps.
+                    // Timeout is infinite as there is very little chance for the stage to hang.
+                    // ---
+                    // COMPILATION
+                    // Next, if assembly is valid (the script hasn't been changed since last compilation) the it is loaded for further execution without recompilation. 
+                    // Otherwise it is compiled again. Compilation stage is also atomic, so concurrent compilations (if happen) do not try to build the assembly potentially 
+                    // in the same location with the same name (e.g. caching). The whole validation stage is atomic and it's also synchronized system wide via SystemWideLock 
+                    // 'compilingFileLock'. 
+                    // This stage is potentially heavy. Some compilers, while being relatively fast may introduce significant startup overhead (like Roslyn). 
+                    // That is why caching is a preferred execution approach.
+                    // Timeout is fixed as there is a chance that the third party compiler can hang.
+                    // ---
+                    // EXECUTION
+                    // Next, the script assembly needs to be loaded/executed.This stage is extremely heavy as the execution may take infinite time depending on business logic. 
+                    // When the assembly file is loaded it is locked by CLR and none can delete/recreate it. Meaning that if any one is to recompile the assembly then this
+                    // cannot be done until the execution is completed and CLR releases the assembly file. System wide synchronization doesn't make much sense in this case 
+                    // as open end waiting is not practical at all. Thus it's more practical to let the compiler throw an informative locking (access denied) exception. 
+                    //
+                    // Note: if the assembly is loaded as in-memory file copy (options.inMemoryAsm) then the assembly locking is completely eliminated. This is in fact an extremely 
+                    // attractive execution model as it eliminates any problems associated with the assembly looking during the execution. The only reason why it's not activated by 
+                    // default is contradicts the traditional .NET loading model when the assembly loaded as a file. 
+                    //
+                    // While execution stage cannot benefit from synchronization it is still using executingFileLock synchronization object. Though the objective is not to wait 
+                    // when file lock is detected but rather to detect unlocking and start compiling with a little delay. Reason for this is that (on Windows at least) CLR holds 
+                    // the file lock a little bit longer event after the assembly execution is finished. It is completely undocumented CLR behaver, that is hard to catch and reproduce. 
+                    // It has bee confirmed by the users that this work around helps in the intense concurrent "border line" scenarios. Though there is no warranty it will be still 
+                    // valid with any future releases of CLR. There ware no reports about this behaver on Linux.
+                    // ---
+                    // Synchronizing the stages via the lock object that is based on the assembly file name seems like the natural and best option. However the actual assembly name 
+                    // (unless caching is active) is only determined during the compilation, which needs to be synchronized (chicken egg problem). Thus script file is a more practical 
+                    // (and more conservative) approach for basing synchronization objects identity. Though if the need arises the assembly-based approach can be attempted.
+                    // ------------------------------------------------------
+                    // The concurrency model described above was an unconditional behaver until v3.16
+                    // Since v3.16 concurrency model can be chosen based on the user preferences:
+                    // * ConcurrencyControl.HighResolution 
+                    //      The model described above.
+                    //
+                    // * ConcurrencyControl.Standard 
+                    //      Due to the limited choices with the system wide named synchronization objects on Linux both Validation and Compilations stages are treated as a single stage,
+                    //      controlled by a single synch object compilingFileLock. 
+                    //      This happens to be a good default choice for Windows as well.
+                    //
+                    // * ConcurrencyControl.None 
+                    //      All synchronization is the responsibility of the hosting environment.
+
+                    using (SystemWideLock validatingFileLock = new SystemWideLock(options.scriptFileName, "v"))
+                    using (SystemWideLock compilingFileLock = new SystemWideLock(options.scriptFileName, null))
+                    using (SystemWideLock executingFileLock = new SystemWideLock(options.scriptFileName, "e"))
+                    {
+                        bool lockByCSScriptEngine = false;
+                        bool lockedByCompiler = false;
+
+                        // --- VALIDATE ---
+                        switch (options.concurrencyControl)
                         {
-                            //validate
-                            bool availableForChecking = Utils.Wait(validatingFileLock, -1);
+                            case ConcurrencyControl.Standard: lockedByCompiler = !compilingFileLock.Wait(3000); break;
+                            case ConcurrencyControl.HighResolution: lockByCSScriptEngine = !validatingFileLock.Wait(-1); break;
+                        }
 
-                            //GetAvailableAssembly also checks timestamps
-                            string assemblyFileName = options.useCompiled ? GetAvailableAssembly(options.scriptFileName) : null;
+                        //GetAvailableAssembly also checks timestamps
+                        string assemblyFileName = options.useCompiled ? GetAvailableAssembly(options.scriptFileName) : null;
 
-                            if (options.useCompiled && options.useSmartCaching)
+                        if (options.useCompiled && options.useSmartCaching)
+                        {
+                            if (assemblyFileName != null)
                             {
-                                if (assemblyFileName != null)
+                                if (MetaDataItems.IsOutOfDate(options.scriptFileName, assemblyFileName))
                                 {
-                                    if (MetaDataItems.IsOutOfDate(options.scriptFileName, assemblyFileName))
-                                    {
-                                        assemblyFileName = null;
-                                    }
+                                    assemblyFileName = null;
                                 }
                             }
+                        }
 
-                            if (options.forceCompile && assemblyFileName != null)
+                        if (options.forceCompile && assemblyFileName != null)
+                        {
+                            switch (options.concurrencyControl)
                             {
-                                bool lockedByCompiler = !Utils.Wait(compilingFileLock, 3000);
-                                //no need to act on lockedByCompiler as FileDelete will throw the exception
-
-                                Utils.FileDelete(assemblyFileName, true);
-                                assemblyFileName = null;
+                                case ConcurrencyControl.Standard: /*we already acquired compiler lock*/ break;
+                                case ConcurrencyControl.HighResolution: lockedByCompiler = !compilingFileLock.Wait(3000); break;
                             }
 
-                            if (assemblyFileName != null)
-                                Utils.ReleaseFileLock(validatingFileLock); //OK, there is a compiled script file and it is current 
+                            //If file is still locked (lockedByCompiler == true) FileDelete will throw the exception
+                            Utils.FileDelete(assemblyFileName, true);
+                            assemblyFileName = null;
+                        }
 
-                            //add searchDirs to PATH to support search path for native dlls
-                            //need to do this before compilation or execution
-                            string path = Environment.GetEnvironmentVariable("PATH");
-                            foreach (string s in options.searchDirs)
-                                path += ";" + s;
+                        if (assemblyFileName != null)
+                        {
+                            //OK, there is a compiled script file and it is current.
+                            //Validating stage is over as we are not going to recompile the script 
+                            //Release the lock immediately so other instances can do their validation if waiting.
+                            validatingFileLock.Release();
+                        }
+                        else
+                        {
+                            //do not release validation lock as we will need to compile the script and any pending validations 
+                            //will need to wait until we finish.
+                        }
+
+                        //add searchDirs to PATH to support search path for native dlls
+                        //need to do this before compilation or execution
+                        string path = Environment.GetEnvironmentVariable("PATH");
+                        foreach (string s in options.searchDirs)
+                            path += ";" + s;
 #if net1
                             SetEnvironmentVariable("PATH", path);
 #else
-                            Environment.SetEnvironmentVariable("PATH", path);
+                        Environment.SetEnvironmentVariable("PATH", path);
 #endif
-                            //it is possible that there are fully compiled/cached and up to date script but no host compiled yet
-                            string host = ScriptLauncherBuilder.GetLauncherName(assemblyFileName);
-                            bool surrogateHostMissing = (options.useSurrogateHostingProcess &&
-                                (!File.Exists(host) || !CSSUtils.HaveSameTimestamp(host, assemblyFileName)));
+                        //it is possible that there are fully compiled/cached and up to date script but no host compiled yet
+                        string host = ScriptLauncherBuilder.GetLauncherName(assemblyFileName);
+                        bool surrogateHostMissing = (options.useSurrogateHostingProcess &&
+                                                    (!File.Exists(host) || !CSSUtils.HaveSameTimestamp(host, assemblyFileName)));
 
 
-                            //compile
-                            if (options.buildExecutable || !options.useCompiled || (options.useCompiled && assemblyFileName == null) || options.forceCompile || surrogateHostMissing)
+                        // --- COMPILE ---
+                        if (options.buildExecutable || !options.useCompiled || (options.useCompiled && assemblyFileName == null) || options.forceCompile || surrogateHostMissing)
+                        {
+                            // Wait for other COMPILATION to complete(if any)
+
+                            // infinite is not good here as it may block forever but continuing while the file is still locked will
+                            // throw a nice informative exception
+                            switch (options.concurrencyControl)
                             {
-                                //infinite is not good here as it may block forever but continuing while the file is still locked will
-                                //throw a nice informative exception
-                                bool lockedByCompiler = !Utils.Wait(compilingFileLock, 3000);
-                                bool lockedByHost = !Utils.Wait(executingFileLock, 3000);
+                                case ConcurrencyControl.Standard: /*we already acquired compiler lock*/ break;
+                                case ConcurrencyControl.HighResolution: lockedByCompiler = !compilingFileLock.Wait(3000); break;
+                            }
+
+                            //no need to act on lockedByCompiler/lockedByHost as Compile(...) will throw the exception
+
+                            if (!options.inMemoryAsm && !Utils.IsLinux())
+                            {
+                                // wait for other EXECUTION to complete (if any)
+                                bool lockedByHost = !executingFileLock.Wait(1000);
 
                                 if (!lockedByHost)
                                 {
@@ -801,160 +891,147 @@ namespace csscript
                                     //but the assemblyFileName file itself may still be locked by the IO because it's host process may be just exiting
                                     Utils.WaitForFileIdle(assemblyFileName, 1000);
                                 }
-
-                                //no need to act on lockedByCompiler/lockedByHost as Compile(...) will throw the exception
-
-                                try
-                                {
-                                    CSSUtils.VerbosePrint("Compiling script...", options);
-                                    CSSUtils.VerbosePrint("", options);
-
-                                    TimeSpan initializationTime = Profiler.Stopwatch.Elapsed;
-                                    Profiler.Stopwatch.Reset();
-                                    Profiler.Stopwatch.Start();
-
-                                    assemblyFileName = Compile(options.scriptFileName);
-
-                                    //Debug.WriteLine("Asm is compiled");
-
-                                    if (Profiler.Stopwatch.IsRunning)
-                                    {
-                                        Profiler.Stopwatch.Stop();
-                                        TimeSpan compilationTime = Profiler.Stopwatch.Elapsed;
-                                        CSSUtils.VerbosePrint("Initialization time: " + initializationTime.TotalMilliseconds + " msec", options);
-                                        CSSUtils.VerbosePrint("Compilation time:    " + compilationTime.TotalMilliseconds + " msec", options);
-                                        CSSUtils.VerbosePrint("> ----------------", options);
-                                        CSSUtils.VerbosePrint("", options);
-                                    }
-                                }
-                                catch
-                                {
-                                    if (!CSSUtils.IsRuntimeErrorReportingSupressed)
-                                    {
-                                        print("Error: Specified file could not be compiled.\n");
-                                        if (NuGet.newPackageWasInstalled)
-                                        {
-                                            print("> -----\nA new NuGet package has been installed. If some of it's components are not found you may need to restart the script again.\n> -----\n");
-                                        }
-                                    }
-                                    throw;
-                                }
-                                finally
-                                {
-                                    Utils.ReleaseFileLock(validatingFileLock);
-                                    Utils.ReleaseFileLock(compilingFileLock);
-                                    compilingFileUnlocked = true;
-                                }
                             }
-                            else
+
+                            try
                             {
-                                Profiler.Stopwatch.Stop();
-                                CSSUtils.VerbosePrint("  Loading script from cache...", options);
+                                CSSUtils.VerbosePrint("Compiling script...", options);
                                 CSSUtils.VerbosePrint("", options);
-                                CSSUtils.VerbosePrint("  Cache file: \n       " + assemblyFileName, options);
-                                CSSUtils.VerbosePrint("> ----------------", options);
-                                CSSUtils.VerbosePrint("Initialization time: " + Profiler.Stopwatch.Elapsed.TotalMilliseconds + " msec", options);
-                                CSSUtils.VerbosePrint("> ----------------", options);
+
+                                TimeSpan initializationTime = Profiler.Stopwatch.Elapsed;
+                                Profiler.Stopwatch.Reset();
+                                Profiler.Stopwatch.Start();
+
+                                assemblyFileName = Compile(options.scriptFileName);
+
+                                if (Profiler.Stopwatch.IsRunning)
+                                {
+                                    Profiler.Stopwatch.Stop();
+                                    TimeSpan compilationTime = Profiler.Stopwatch.Elapsed;
+                                    CSSUtils.VerbosePrint("Initialization time: " + initializationTime.TotalMilliseconds + " msec", options);
+                                    CSSUtils.VerbosePrint("Compilation time:    " + compilationTime.TotalMilliseconds + " msec", options);
+                                    CSSUtils.VerbosePrint("> ----------------", options);
+                                    CSSUtils.VerbosePrint("", options);
+                                }
+                            }
+                            catch
+                            {
+                                if (!CSSUtils.IsRuntimeErrorReportingSupressed)
+                                {
+                                    print("Error: Specified file could not be compiled.\n");
+                                    if (NuGet.newPackageWasInstalled)
+                                    {
+                                        print("> -----\nA new NuGet package has been installed. If some of it's components are not found you may need to restart the script again.\n> -----\n");
+                                    }
+                                }
+                                throw;
+                            }
+                            finally
+                            {
+                                //release as soon as possible
+                                validatingFileLock.Release();
+                                compilingFileLock.Release();
+                            }
+                        }
+                        else
+                        {
+                            Profiler.Stopwatch.Stop();
+                            CSSUtils.VerbosePrint("  Loading script from cache...", options);
+                            CSSUtils.VerbosePrint("", options);
+                            CSSUtils.VerbosePrint("  Cache file: \n       " + assemblyFileName, options);
+                            CSSUtils.VerbosePrint("> ----------------", options);
+                            CSSUtils.VerbosePrint("Initialization time: " + Profiler.Stopwatch.Elapsed.TotalMilliseconds + " msec", options);
+                            CSSUtils.VerbosePrint("> ----------------", options);
+                        }
+
+                        // --- EXECUTE ---
+                        if (!options.supressExecution)
+                        {
+                            try
+                            {
+                                if (options.useSurrogateHostingProcess)
+                                {
+                                    throw new SurrogateHostProcessRequiredException(assemblyFileName, scriptArgs, options.startDebugger);
+                                }
+
+                                if (options.startDebugger)
+                                {
+                                    SaveDebuggingMetadata(options.scriptFileName);
+
+                                    System.Diagnostics.Debugger.Launch();
+                                    if (System.Diagnostics.Debugger.IsAttached)
+                                    {
+                                        System.Diagnostics.Debugger.Break();
+                                    }
+                                }
+
+
+                                if (options.useCompiled || options.cleanupShellCommand != "")
+                                {
+                                    AssemblyResolver.CacheProbingResults = true; //it is reasonable safe to do the aggressive probing as we are executing only a single script (standalone execution not a script hosting model)
+
+                                    //despite the name of the class the execution (assembly loading) will be in the current domain
+                                    //I am just reusing some functionality of the RemoteExecutor class.
+
+                                    RemoteExecutor executor = new RemoteExecutor(options.searchDirs);
+                                    executor.ExecuteAssembly(assemblyFileName, scriptArgs, executingFileLock);
+                                }
+                                else
+                                {
+                                    //Load and execute assembly in a different domain to make it possible to unload assembly before clean up
+                                    AssemblyExecutor executor = new AssemblyExecutor(assemblyFileName, "AsmExecution");
+                                    executor.Execute(scriptArgs);
+                                }
+                            }
+                            catch (SurrogateHostProcessRequiredException)
+                            {
+                                throw;
+                            }
+                            catch
+                            {
+                                if (!CSSUtils.IsRuntimeErrorReportingSupressed)
+                                    print("Error: Specified file could not be executed.\n");
+                                throw;
                             }
 
-                            //execute
-                            if (!options.supressExecution)
+                            //cleanup
+                            if (File.Exists(assemblyFileName) && !options.useCompiled && options.cleanupShellCommand == "")
+                            {
+                                Utils.ClearFile(assemblyFileName);
+                            }
+
+                            if (options.cleanupShellCommand != "")
                             {
                                 try
                                 {
-                                    if (options.useSurrogateHostingProcess)
-                                    {
-                                        throw new SurrogateHostProcessRequiredException(assemblyFileName, scriptArgs, options.startDebugger);
-                                    }
+                                    string counterFile = Path.Combine(GetScriptTempDir(), "counter.txt");
+                                    int prevRuns = 0;
 
-                                    if (options.startDebugger)
-                                    {
-                                        SaveDebuggingMetadata(options.scriptFileName);
-
-                                        System.Diagnostics.Debugger.Launch();
-                                        if (System.Diagnostics.Debugger.IsAttached)
+                                    if (File.Exists(counterFile))
+                                        using (StreamReader sr = new StreamReader(counterFile))
                                         {
-                                            System.Diagnostics.Debugger.Break();
+                                            prevRuns = int.Parse(sr.ReadToEnd());
                                         }
-                                    }
 
-
-                                    if (options.useCompiled || options.cleanupShellCommand != "")
+                                    if (prevRuns > options.doCleanupAfterNumberOfRuns)
                                     {
-                                        AssemblyResolver.CacheProbingResults = true; //it is reasonable safe to do the aggressive probing as we are executing only a single script (standalone execution not a script hosting model)
-
-                                        //despite the name of the class the execution (assembly loading) will be in the current domain
-                                        //I am just reusing some functionality of the RemoteExecutor class.
-
-                                        RemoteExecutor executor = new RemoteExecutor(options.searchDirs);
-                                        executor.ExecuteAssembly(assemblyFileName, scriptArgs, executingFileLock);
+                                        prevRuns = 1;
+                                        string[] cmd = options.ExtractShellCommand(options.cleanupShellCommand);
+                                        if (cmd.Length > 1)
+                                            Process.Start(cmd[0], cmd[1]);
+                                        else
+                                            Process.Start(cmd[0]);
                                     }
                                     else
-                                    {
-                                        //Load and execute assembly in a different domain to make it possible to unload assembly before clean up
-                                        AssemblyExecutor executor = new AssemblyExecutor(assemblyFileName, "AsmExecution");
-                                        executor.Execute(scriptArgs);
-                                    }
-                                }
-                                catch (SurrogateHostProcessRequiredException)
-                                {
-                                    throw;
-                                }
-                                catch
-                                {
-                                    if (!CSSUtils.IsRuntimeErrorReportingSupressed)
-                                        print("Error: Specified file could not be executed.\n");
-                                    throw;
-                                }
+                                        prevRuns++;
 
-                                //cleanup
-                                if (File.Exists(assemblyFileName) && !options.useCompiled && options.cleanupShellCommand == "")
-                                {
-                                    Utils.ClearFile(assemblyFileName);
+                                    using (StreamWriter sw = new StreamWriter(counterFile))
+                                        sw.Write(prevRuns);
                                 }
-
-                                //Debug.Assert(false);
-                                if (options.cleanupShellCommand != "")
-                                {
-                                    try
-                                    {
-                                        string counterFile = Path.Combine(GetScriptTempDir(), "counter.txt");
-                                        int prevRuns = 0;
-
-                                        if (File.Exists(counterFile))
-                                            using (StreamReader sr = new StreamReader(counterFile))
-                                            {
-                                                prevRuns = int.Parse(sr.ReadToEnd());
-                                            }
-
-                                        if (prevRuns > options.doCleanupAfterNumberOfRuns)
-                                        {
-                                            prevRuns = 1;
-                                            string[] cmd = options.ExtractShellCommand(options.cleanupShellCommand);
-                                            if (cmd.Length > 1)
-                                                Process.Start(cmd[0], cmd[1]);
-                                            else
-                                                Process.Start(cmd[0]);
-                                        }
-                                        else
-                                            prevRuns++;
-
-                                        using (StreamWriter sw = new StreamWriter(counterFile))
-                                            sw.Write(prevRuns);
-                                    }
-                                    catch { }
-                                }
+                                catch { }
                             }
                         }
-                        finally
-                        {
-                            //strictly speaking releasing isn't needed as the 'using' block ensures the mutex is released
-                            //though some .NET versions/implementations may not do this.
-
-                            if (!compilingFileUnlocked) //avoid throwing unnecessary exception
-                                Utils.ReleaseFileLock(compilingFileLock);
-                            Utils.ReleaseFileLock(executingFileLock);
-                        }
+                    }
                 }
             }
             catch (Exception e)
@@ -1093,7 +1170,7 @@ namespace csscript
 
             string asmFileName = options.forceOutputAssembly;
 
-            if (asmFileName == null)
+            if (asmFileName == null || asmFileName == "")
                 asmFileName = options.hideTemp != Settings.HideOptions.DoNotHide ? Path.Combine(CSExecutor.ScriptCacheDir, Path.GetFileName(scripFileName) + ".compiled") : scripFileName + ".c";
 
             if (File.Exists(asmFileName) && File.Exists(scripFileName))

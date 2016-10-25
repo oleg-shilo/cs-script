@@ -100,6 +100,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Mono.CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Mono.Posix.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -146,6 +150,12 @@
       <Link>GACHelper.cs</Link>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="..\HelpProvider.cs">
+      <Link>HelpProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\NuGet.cs">
+      <Link>NuGet.cs</Link>
+    </Compile>
     <Compile Include="..\Precompiler.cs">
       <Link>Precompiler.cs</Link>
     </Compile>
@@ -154,6 +164,12 @@
     </Compile>
     <Compile Include="..\Settings.cs">
       <Link>Settings.cs</Link>
+    </Compile>
+    <Compile Include="..\SystemWideLock.cs">
+      <Link>SystemWideLock.cs</Link>
+    </Compile>
+    <Compile Include="..\Unix.FileMutex.cs">
+      <Link>Unix.FileMutex.cs</Link>
     </Compile>
     <Compile Include="..\Utils.cs">
       <Link>Utils.cs</Link>

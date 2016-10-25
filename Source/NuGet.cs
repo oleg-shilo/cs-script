@@ -1,17 +1,11 @@
 using System;
-using System.Linq;
+#if !net1
 using System.Collections.Generic;
+using System.Linq;
+#endif
 using System.IO;
 using System.Reflection;
-using System.Text;
-using CSScriptLibrary;
-using System.Runtime.InteropServices;
-using System.CodeDom.Compiler;
-using Microsoft.CSharp;
-using System.Globalization;
 using System.Threading;
-using System.Collections;
-using System.Text.RegularExpressions;
 using System.Diagnostics;
 
 namespace csscript

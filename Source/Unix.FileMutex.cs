@@ -4,9 +4,7 @@
 using System;
 using Mono.Unix.Native;
 using System.IO;
-using System.Linq;
 using System.Threading;
-using Mono.Unix;
 
 //http://man7.org/linux/man-pages/man2/fcntl.2.html
 //https://gist.github.com/mrvaldes/6196035
@@ -15,70 +13,84 @@ namespace Mono.Unix
 {
     internal class FileMutex
     {
-        static string lockRoot = Path.Combine(Path.GetTempPath(), "cs-script", "locks");
+        static string lockRoot = Path.Combine(Path.Combine(Path.GetTempPath(), "cs-script"), "locks");
 
+        string LockRoot
+        {
+            get
+            {
+                if (!Directory.Exists(lockRoot))
+                    Directory.CreateDirectory(lockRoot);
+                return lockRoot;
+            }
+        }
+
+        string fileName;
         int handle;
         Flock wl;
 
-        static FileMutex()
+        public FileMutex(string name)
         {
-            if (!Directory.Exists(lockRoot))
-                Directory.CreateDirectory(lockRoot);
+            fileName = Path.Combine(LockRoot, name.GetHashCode().ToString());
         }
 
-        public FileMutex(string name, bool initiallyOwned = false)
+        public FileMutex(string fileName, string context)
         {
-            string filName = Path.Combine(lockRoot, name.GetHashCode().ToString());
-            handle = Syscall.open(filName, OpenFlags.O_CREAT | OpenFlags.O_RDWR, FilePermissions.DEFFILEMODE);
+            if(context == null)
+                this.fileName = fileName;
+            else
+                this.fileName = fileName+"."+context+".lock";
+        }
+
+        void Open()
+        {
+            handle = Syscall.open(fileName, OpenFlags.O_CREAT | OpenFlags.O_RDWR, FilePermissions.DEFFILEMODE);
 
             wl.l_len = 0;
             wl.l_pid = Syscall.getpid();
             wl.l_start = 0;
             wl.l_type = LockType.F_UNLCK;
             wl.l_whence = SeekFlags.SEEK_SET;
-
-            if (initiallyOwned)
-                Wait();
         }
 
-        public bool Wait(int millisecondsTimeout = -1)
+        public bool Wait(int millisecondsTimeout)
         {
             lock (typeof(FileMutex))
             {
-                if (handle > 0)
+                if (handle == 0)
+                    Open();
+
+                bool result = false;
+
+                ThreadStart placeLock = delegate()
                 {
-                    bool result = false;
+                    // a write (exclusive) lock
+                    wl.l_type = LockType.F_WRLCK;
+                    int res = Syscall.fcntl(handle, FcntlCommand.F_SETLKW, ref wl);
 
-                    ThreadStart placeLock = () =>
-                    {
-                        // a write (exclusive) lock
-                        wl.l_type = LockType.F_WRLCK;
-                        int res = Syscall.fcntl(handle, FcntlCommand.F_SETLKW, ref wl);
+                    if (res == 0 && Syscall.GetLastError() != Errno.EAGAIN)
+                        result = true;
+                };
 
-                        if (res == 0 && Syscall.GetLastError() != Errno.EAGAIN)
-                            result = true;
-                    };
-
-                    if (millisecondsTimeout == -1)
-                    {
-                        // Console.WriteLine("waiting in the calling thread");
-                        placeLock();
-                    }
-                    else
-                    {
-                        // Console.WriteLine("waiting in the separate thread");
-                        var t = new Thread(placeLock) { IsBackground = true };
-                        t.Start();
-                        if (!t.Join(millisecondsTimeout))
-                        {
-                            //timeout
-                            t.Abort();
-                        }
-                    }
-
-                    return result;
+                if (millisecondsTimeout == -1)
+                {
+                    // Console.WriteLine("waiting in the calling thread");
+                    placeLock();
                 }
-                return false;
+                else
+                {
+                    // Console.WriteLine("waiting in the separate thread");
+                    Thread t = new Thread(placeLock);
+                    t.IsBackground = true;
+                    t.Start();
+                    if (!t.Join(millisecondsTimeout))
+                    {
+                        //timeout
+                        t.Abort();
+                    }
+                }
+
+                return result;
             }
         }
 
@@ -102,7 +114,7 @@ namespace Mono.Unix
         {
             string file = @"/home/user/Desktop/krok/lock2";
 
-            var mutex = new FileMutex(file);
+            FileMutex mutex = new FileMutex(file);
             Console.WriteLine("Trying to obtain exclusive lock...");
 
             mutex.Wait(1000 * 5);

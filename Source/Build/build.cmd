@@ -27,9 +27,10 @@ copy ..\CSScriptLibrary\sgKey.snk sgKey.snk
 
 if exist build.log del build.log
 
-@set common_msbuild_params=/nologo /t:Rebuild /verbosity:quiet /noconsolelogger /fl /flp:logfile=..\Build\build.log;verbosity=quiet;append=true
+@set common_msbuild_params=/nologo /t:Rebuild /verbosity:quiet /noconsolelogger /fl /flp:logfile=..\Build\build.log;verbosity=quiet;append=true 
 @set common_4_params=/noconfig /nostdlib+ /r:"%net4_asms%\System.Design.dll" /r:"%net4_asms%\System.Drawing.dll" /r:"%net4_asms%\mscorlib.dll"  
-@set common_source_files=..\GACHelper.cs ..\fileparser.cs ..\Precompiler.cs ..\csscript.cs ..\csparser.cs ..\AssemblyResolver.cs ..\AssemblyExecutor.cs  ..\Exceptions.cs ..\ExecuteOptions.cs ..\ScriptLauncherBuilder.cs ..\Settings.cs ..\Utils.cs 
+@set common_ref_files=/r:..\Mono.Posix.dll 
+@set common_source_files=..\GACHelper.cs ..\fileparser.cs ..\Precompiler.cs ..\csscript.cs ..\csparser.cs ..\AssemblyResolver.cs ..\AssemblyExecutor.cs  ..\Exceptions.cs ..\ExecuteOptions.cs ..\ScriptLauncherBuilder.cs ..\Settings.cs ..\Utils.cs ..\SystemWideLock.cs ..\Unix.FileMutex.cs ..\HelpProvider.cs ..\NuGet.cs 
 
 REM ECHO Building...
 
@@ -54,38 +55,38 @@ rem .NET v1.1-4.0 ----------------------------------------------------
 
 ECHO Building cscs.v3.5.exe: 
 ECHO Building cscs.v3.5.exe: >> build.log
-%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:cscs.v3.5.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll /r:System.Core.dll >> build.log
+%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:cscs.v3.5.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll /r:System.Core.dll %common_ref_files% >> build.log
 ECHO ------------ >> build.log
 
 ECHO Building csws.v3.5.exe:
 ECHO Building csws.v3.5.exe: >> build.log
-%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:csws.v3.5.exe /t:winexe %common_source_files% ..\cswscript\CSExecutorClient.cs ..\cswscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Core.dll /r:System.Windows.Forms.dll >> build.log
+%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:csws.v3.5.exe /t:winexe %common_source_files% ..\cswscript\CSExecutionClient.cs ..\cswscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Core.dll /r:System.Windows.Forms.dll %common_ref_files% >> build.log
 ECHO ------------ >> build.log
 
 ECHO Building cscs.exe (v1.1):
 ECHO Building cscs.exe (v1.1): >> build.log
-%windir%\Microsoft.NET\Framework\v2.0.50727\csc /nologo /nowarn:169,618,1699 /define:net1 /o /out:cscs.v1.1.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll >> build.log
+%windir%\Microsoft.NET\Framework\v2.0.50727\csc /nologo /nowarn:169,618,1699 /define:net1 /o /out:cscs.v1.1.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> build.log
 ECHO ------------ >> build.log
 
 ECHO Building csws.exe (v1.1):
 ECHO Building csws.exe (v1.1): >> build.log
-%windir%\Microsoft.NET\Framework\v2.0.50727\csc /nologo /nowarn:169,618,1699 /define:net1 /o /out:csws.v1.1.exe /t:winexe %common_source_files% ..\cswscript\CSExecutorClient.cs ..\cswscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll >> build.log
+%windir%\Microsoft.NET\Framework\v2.0.50727\csc /nologo /nowarn:169,618,1699 /define:net1 /o /out:csws.v1.1.exe /t:winexe %common_source_files% ..\cswscript\CSExecutionClient.cs ..\cswscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> build.log
 ECHO ------------ >> build.log
 
 cd ..\CSScriptLibrary
 ECHO Building CSScriptLibrary.v1.1.dll: 
 ECHO Building CSScriptLibrary.v1.1.dll: >> ..\Build\build.log
-%windir%\Microsoft.NET\Framework\v2.0.50727\csc /nologo /nowarn:169,618,1699 /define:net1 /o /doc:..\Build\temp\temp\CSScriptLibrary.v1.1.xml /out:..\Build\temp\temp\CSScriptLibrary.v1.1.dll /t:library %common_source_files% CSScriptLib.cs crc32.cs AsmHelper.cs Properties\AssemblyInfo.cs  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll >> ..\Build\build.log
+%windir%\Microsoft.NET\Framework\v2.0.50727\csc /nologo /nowarn:169,618,1699 /define:net1 /o /doc:..\Build\temp\temp\CSScriptLibrary.v1.1.xml /out:..\Build\temp\temp\CSScriptLibrary.v1.1.dll /t:library %common_source_files% CSScriptLib.cs crc32.cs AsmHelper.cs Properties\AssemblyInfo.cs  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> ..\Build\build.log
 ECHO ------------ >> ..\Build\build.log
 
 ECHO Building CSScriptLibrary.v3.5.dll: 
 ECHO Building CSScriptLibrary.v3.5.dll: >> ..\Build\build.log
-%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,1699,618 /define:net35 /o /doc:..\Build\temp\temp\CSScriptLibrary.v3.5.xml /out:..\Build\temp\temp\CSScriptLibrary.v3.5.dll /t:library %common_source_files% CSScriptLib.cs AsmHelper.cs ObjectCaster.cs Properties\AssemblyInfo.cs crc32.cs /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll >> ..\Build\build.log
+%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,1699,618 /define:net35 /o /doc:..\Build\temp\temp\CSScriptLibrary.v3.5.xml /out:..\Build\temp\temp\CSScriptLibrary.v3.5.dll /t:library %common_source_files% CSScriptLib.cs AsmHelper.cs ObjectCaster.cs Properties\AssemblyInfo.cs crc32.cs /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> ..\Build\build.log
 ECHO ------------ >> ..\Build\build.log
 
 ECHO Building CSScriptLibrary.v3.5.dll (renamed): 
 ECHO Building CSScriptLibrary.v3.5.dll (renamed): >> ..\Build\build.log
-%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,1699,618 /define:net35 /o /doc:CSScriptLibrary.xml /out:..\Build\temp\temp\CSScriptLibrary.dll /t:library %common_source_files% CSScriptLib.cs AsmHelper.cs ObjectCaster.cs Properties\AssemblyInfo.cs crc32.cs /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll >> ..\Build\build.log
+%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,1699,618 /define:net35 /o /doc:CSScriptLibrary.xml /out:..\Build\temp\temp\CSScriptLibrary.dll /t:library %common_source_files% CSScriptLib.cs AsmHelper.cs ObjectCaster.cs Properties\AssemblyInfo.cs crc32.cs /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> ..\Build\build.log
 ECHO ------------ >> ..\Build\build.log
 
 rem .NET v4.0 -------------------------------------------------------------------------------------

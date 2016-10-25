@@ -169,7 +169,7 @@ namespace csscript
             set { injectScriptAssemblyAttribute = value; }
         }
 
-        string defaultArguments = CSSUtils.Args.Join("c","sconfig","co:" + CSSUtils.Args.DefaultPrefix + "warn:0");
+        string defaultArguments = CSSUtils.Args.Join("c", "sconfig", "co:" + CSSUtils.Args.DefaultPrefix + "warn:0");
         //string defaultArguments = CSSUtils.Args.DefaultPrefix + "c " + CSSUtils.Args.DefaultPrefix + "sconfig " + CSSUtils.Args.DefaultPrefix + "co:" + CSSUtils.Args.DefaultPrefix + "warn:0";
 
         ///// <summary>
@@ -282,7 +282,7 @@ namespace csscript
             }
             else
             {
-                if(Utils.IsNet45Plus())
+                if (Utils.IsNet45Plus())
                     return "System.Core; System.Linq;";
                 else
                     return "System.Core;";
@@ -473,6 +473,23 @@ namespace csscript
 
         bool inMemoryAsm = false;
 
+        [Browsable(false)]
+        public ConcurrencyControl ConcurrencyControl
+        {
+            get
+            {
+                if (concurrencyControl == ConcurrencyControl.HighResolution && Utils.IsLinux())
+                    concurrencyControl = ConcurrencyControl.Standard;
+                return concurrencyControl;
+            }
+            set
+            {
+                concurrencyControl = value;
+            }
+        }
+
+        ConcurrencyControl concurrencyControl = ConcurrencyControl.Standard;
+
         /// <summary>
         /// Saves CS-Script application settings to a file (.dat).
         /// </summary>
@@ -537,14 +554,14 @@ namespace csscript
                     doc.Load(fileName);
                     XmlNode data = doc.FirstChild;
                     settings.defaultArguments = data.SelectSingleNode("defaultArguments").InnerText;
-                    settings.defaultApartmentState = (ApartmentState)Enum.Parse(typeof(ApartmentState), data.SelectSingleNode("defaultApartmentState").InnerText, false);
+                    settings.defaultApartmentState = (ApartmentState) Enum.Parse(typeof(ApartmentState), data.SelectSingleNode("defaultApartmentState").InnerText, false);
                     settings.reportDetailedErrorInfo = data.SelectSingleNode("reportDetailedErrorInfo").InnerText.ToLower() == "true";
                     settings.UseAlternativeCompiler = data.SelectSingleNode("useAlternativeCompiler").InnerText;
                     settings.UsePostProcessor = data.SelectSingleNode("usePostProcessor").InnerText;
                     settings.SearchDirs = data.SelectSingleNode("searchDirs").InnerText;
                     settings.cleanupShellCommand = data.SelectSingleNode("cleanupShellCommand").InnerText;
                     settings.doCleanupAfterNumberOfRuns = uint.Parse(data.SelectSingleNode("doCleanupAfterNumberOfRuns").InnerText);
-                    settings.hideOptions = (HideOptions)Enum.Parse(typeof(HideOptions), data.SelectSingleNode("hideOptions").InnerText, true);
+                    settings.hideOptions = (HideOptions) Enum.Parse(typeof(HideOptions), data.SelectSingleNode("hideOptions").InnerText, true);
                     settings.hideCompilerWarnings = data.SelectSingleNode("hideCompilerWarnings").InnerText.ToLower() == "true";
                     settings.inMemoryAsm = data.SelectSingleNode("inMemoryAsm").InnerText.ToLower() == "true";
                     settings.TargetFramework = data.SelectSingleNode("TragetFramework").InnerText;
