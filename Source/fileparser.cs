@@ -340,8 +340,8 @@ namespace CSScriptLibrary
         /// Also fixes file name if user did not provide extension for script file (assuming .cs extension)
         /// </para>
         /// </summary>
-        internal static ResolveSourceFileHandler ResolveFileAlgorithm = ResolveFileDefault;
         internal static ResolveSourceFileAlgorithm ResolveFilesAlgorithm = ResolveFilesDefault;
+        //internal static ResolveSourceFileHandler ResolveFileAlgorithm = ResolveFileDefault;
 
         /// <summary>
         /// Searches for script file by given script name. Search order:
@@ -349,26 +349,19 @@ namespace CSScriptLibrary
         /// 2. extraDirs (usually %CSSCRIPT_DIR%\Lib and ExtraLibDirectory)
         /// 3. PATH
         /// Also fixes file name if user did not provide extension for script file (assuming .cs extension)
-        /// <para>If the default implementation isn't suitable then you can set <c>FileParser.ResolveFileAlgorithm</c> 
+        /// <para>If the default implementation isn't suitable then you can set <c>FileParser.ResolveFilesAlgorithm</c> 
         /// to the alternative implementation of the probing algorithm.</para>
         /// </summary>
         public static string ResolveFile(string file, string[] extraDirs, bool throwOnError)
         {
-            return ResolveFileAlgorithm(file, extraDirs, throwOnError);
+            string[] files = ResolveFilesAlgorithm(file, extraDirs, throwOnError);
+            return files.Length > 0 ? files[0] : null;
         }
 
         internal static string[] ResolveFiles(string file, string[] extraDirs, bool throwOnError)
         {
             return ResolveFilesAlgorithm(file, extraDirs, throwOnError);
         }
-
-        //static string ResolveFileTest(string file, string[] extraDirs, bool throwOnError)
-        //{
-        //    string result = ResolveFileDefault(file, extraDirs, throwOnError);
-        //    if (result.EndsWith("WorkScript.cs"))
-        //        result = Path.Combine(Path.GetDirectoryName(result), Path.GetFileNameWithoutExtension(result) + "_1.cs");
-        //    return result;
-        //}
 
         internal static string[] ResolveFilesDefault(string file, string[] extraDirs, bool throwOnError)
         {
@@ -392,65 +385,65 @@ namespace CSScriptLibrary
             return retval;
         }
 
-        internal static string ResolveFileDefault(string file, string[] extraDirs, bool throwOnError)
-        {
-            string retval = _ResolveFile(file, extraDirs, "");
-            if (retval == "")
-                retval = _ResolveFile(file, extraDirs, ".cs");
-            if (retval == "")
-                retval = _ResolveFile(file, extraDirs, ".csl"); //script link file
+        //internal static string ResolveFileDefault(string file, string[] extraDirs, bool throwOnError)
+        //{
+        //    string retval = _ResolveFile(file, extraDirs, "");
+        //    if (retval == "")
+        //        retval = _ResolveFile(file, extraDirs, ".cs");
+        //    if (retval == "")
+        //        retval = _ResolveFile(file, extraDirs, ".csl"); //script link file
 
-            if (retval == "")
-            {
-                if (throwOnError)
-                    throw new FileNotFoundException(string.Format("Could not find file \"{0}\"", file));
+        //    if (retval == "")
+        //    {
+        //        if (throwOnError)
+        //            throw new FileNotFoundException(string.Format("Could not find file \"{0}\"", file));
 
-                retval = file;
-                if (!retval.EndsWith(".cs"))
-                    retval += ".cs";
-            }
+        //        retval = file;
+        //        if (!retval.EndsWith(".cs"))
+        //            retval += ".cs";
+        //    }
 
-            return retval;
-        }
+        //    return retval;
+        //}
 
-        static string _ResolveFile(string file, string[] extraDirs, string extension)
-        {
-            string fileName = file;
-            //current directory
-            if (Path.GetExtension(fileName) == "")
-                fileName += extension;
+        //static string _ResolveFile(string file, string[] extraDirs, string extension)
+        //{
+        //    string fileName = file;
+        //    //current directory
+        //    if (Path.GetExtension(fileName) == "")
+        //        fileName += extension;
 
-            if (File.Exists(fileName))
-            {
-                return Path.GetFullPath(fileName);
-            }
+        //    if (File.Exists(fileName))
+        //    {
+        //        return Path.GetFullPath(fileName);
+        //    }
 
-            //arbitrary directories
-            if (extraDirs != null)
-            {
-                foreach (string extraDir in extraDirs)
-                {
-                    string dir = extraDir;
-                    if (File.Exists(Path.Combine(dir, fileName)))
-                    {
-                        return Path.GetFullPath(Path.Combine(dir, fileName));
-                    }
-                }
-            }
+        //    //arbitrary directories
+        //    if (extraDirs != null)
+        //    {
+        //        foreach (string extraDir in extraDirs)
+        //        {
+        //            string dir = extraDir;
+        //            if (File.Exists(Path.Combine(dir, fileName)))
+        //            {
+        //                return Path.GetFullPath(Path.Combine(dir, fileName));
+        //            }
+        //        }
+        //    }
 
-            //PATH
-            string[] pathDirs = Environment.GetEnvironmentVariable("PATH").Replace("\"", "").Split(';');
-            foreach (string pathDir in pathDirs)
-            {
-                string dir = pathDir;
-                if (File.Exists(Path.Combine(dir, fileName)))
-                {
-                    return Path.GetFullPath(Path.Combine(dir, fileName));
-                }
-            }
+        //    //PATH
+        //    string[] pathDirs = Environment.GetEnvironmentVariable("PATH").Replace("\"", "").Split(';');
+        //    foreach (string pathDir in pathDirs)
+        //    {
+        //        string dir = pathDir;
+        //        if (File.Exists(Path.Combine(dir, fileName)))
+        //        {
+        //            return Path.GetFullPath(Path.Combine(dir, fileName));
+        //        }
+        //    }
 
-            return "";
-        }
+        //    return "";
+        //}
 
         static string[] LocateFiles(string filePath)
         {
@@ -463,7 +456,7 @@ namespace CSScriptLibrary
 #else
                 List<string> result = new List<string>();
 #endif
-                if(Directory.Exists(dir))
+                if (Directory.Exists(dir))
                     foreach (string item in Directory.GetFiles(dir, name))
                         result.Add(Path.GetFullPath(item));
 
@@ -892,7 +885,7 @@ namespace CSScriptLibrary
                     dirs.Add(Path.Combine(Path.GetDirectoryName(mainFile.fileName), dir));
             }
 
-            this.SearchDirs = Utils.RemovePathDuplicates(dirs.ToArray());  
+            this.SearchDirs = Utils.RemovePathDuplicates(dirs.ToArray());
 #endif
 
             //process imported files if any

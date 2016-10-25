@@ -2080,10 +2080,10 @@ namespace CSScriptLibrary
         /// <para>If the default implementation isn't suitable then you can set <c>CSScript.ResolveSourceAlgorithm</c> 
         /// to the alternative implementation of the probing algorithm.</para>
         /// </summary>
-        public static ResolveSourceFileHandler ResolveSourceAlgorithm
+        public static ResolveSourceFileAlgorithm ResolveSourceAlgorithm
         {
-            get { return FileParser.ResolveFileAlgorithm; }
-            set { FileParser.ResolveFileAlgorithm = value; }
+            get { return FileParser.ResolveFilesAlgorithm; }
+            set { FileParser.ResolveFilesAlgorithm = value; }
         }
 
         /// <summary>
