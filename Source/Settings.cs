@@ -479,7 +479,7 @@ namespace csscript
             set { inMemoryAsm = value; }
         }
 
-        bool inMemoryAsm = false;
+        bool inMemoryAsm = true;
 
         /// <summary>
         /// Gets or sets the concurrency control model.
@@ -525,6 +525,7 @@ namespace csscript
                 doc.DocumentElement.AppendChild(doc.CreateElement("hideOptions")).AppendChild(doc.CreateTextNode(hideOptions.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("hideCompilerWarnings")).AppendChild(doc.CreateTextNode(HideCompilerWarnings.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("inMemoryAsm")).AppendChild(doc.CreateTextNode(InMemoryAssembly.ToString()));
+                doc.DocumentElement.AppendChild(doc.CreateElement("ConcurrencyControl")).AppendChild(doc.CreateTextNode(ConcurrencyControl.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("TragetFramework")).AppendChild(doc.CreateTextNode(TargetFramework));
                 doc.DocumentElement.AppendChild(doc.CreateElement("ConsoleEncoding")).AppendChild(doc.CreateTextNode(ConsoleEncoding));
                 doc.DocumentElement.AppendChild(doc.CreateElement("defaultRefAssemblies")).AppendChild(doc.CreateTextNode(DefaultRefAssemblies));
@@ -576,6 +577,7 @@ namespace csscript
                     settings.hideOptions = (HideOptions) Enum.Parse(typeof(HideOptions), data.SelectSingleNode("hideOptions").InnerText, true);
                     settings.hideCompilerWarnings = data.SelectSingleNode("hideCompilerWarnings").InnerText.ToLower() == "true";
                     settings.inMemoryAsm = data.SelectSingleNode("inMemoryAsm").InnerText.ToLower() == "true";
+                    settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), data.SelectSingleNode("ConcurrencyControl").InnerText, false);
                     settings.TargetFramework = data.SelectSingleNode("TragetFramework").InnerText;
                     settings.defaultRefAssemblies = data.SelectSingleNode("defaultRefAssemblies").InnerText;
                     settings.useSurrogatepHostingProcess = data.SelectSingleNode("useSurrogatepHostingProcess").InnerText.ToLower() == "true";

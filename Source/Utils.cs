@@ -451,11 +451,12 @@ namespace csscript
 
         internal static string GetScriptedCodeAttributeInjectionCode(string scriptFileName)
         {
-            //using (Mutex fileLock = Utils.FileLock_(scriptFileName, "GetScriptedCodeAttributeInjectionCode"))
+            using (SystemWideLock fileLock = new SystemWideLock(scriptFileName, "attr"))
             {
                 //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will 
                 //throw a nice informative exception.
-                //fileLock.WaitOne(1000, false);
+                if (!Utils.IsLinux())
+                    fileLock.Wait(1000);
 
                 string code = string.Format("[assembly: System.Reflection.AssemblyDescriptionAttribute(@\"{0}\")]", scriptFileName);
 
