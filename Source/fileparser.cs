@@ -385,66 +385,6 @@ namespace CSScriptLibrary
             return retval;
         }
 
-        //internal static string ResolveFileDefault(string file, string[] extraDirs, bool throwOnError)
-        //{
-        //    string retval = _ResolveFile(file, extraDirs, "");
-        //    if (retval == "")
-        //        retval = _ResolveFile(file, extraDirs, ".cs");
-        //    if (retval == "")
-        //        retval = _ResolveFile(file, extraDirs, ".csl"); //script link file
-
-        //    if (retval == "")
-        //    {
-        //        if (throwOnError)
-        //            throw new FileNotFoundException(string.Format("Could not find file \"{0}\"", file));
-
-        //        retval = file;
-        //        if (!retval.EndsWith(".cs"))
-        //            retval += ".cs";
-        //    }
-
-        //    return retval;
-        //}
-
-        //static string _ResolveFile(string file, string[] extraDirs, string extension)
-        //{
-        //    string fileName = file;
-        //    //current directory
-        //    if (Path.GetExtension(fileName) == "")
-        //        fileName += extension;
-
-        //    if (File.Exists(fileName))
-        //    {
-        //        return Path.GetFullPath(fileName);
-        //    }
-
-        //    //arbitrary directories
-        //    if (extraDirs != null)
-        //    {
-        //        foreach (string extraDir in extraDirs)
-        //        {
-        //            string dir = extraDir;
-        //            if (File.Exists(Path.Combine(dir, fileName)))
-        //            {
-        //                return Path.GetFullPath(Path.Combine(dir, fileName));
-        //            }
-        //        }
-        //    }
-
-        //    //PATH
-        //    string[] pathDirs = Environment.GetEnvironmentVariable("PATH").Replace("\"", "").Split(';');
-        //    foreach (string pathDir in pathDirs)
-        //    {
-        //        string dir = pathDir;
-        //        if (File.Exists(Path.Combine(dir, fileName)))
-        //        {
-        //            return Path.GetFullPath(Path.Combine(dir, fileName));
-        //        }
-        //    }
-
-        //    return "";
-        //}
-
         static string[] LocateFiles(string filePath)
         {
             try

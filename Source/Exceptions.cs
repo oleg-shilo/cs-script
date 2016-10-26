@@ -116,7 +116,11 @@ namespace csscript
         }
 
         int errorCount;
-        
+
+        /// <summary>
+        /// Gets or sets the error count associated with the last script compilation.
+        /// </summary>
+        /// <value>The error count.</value>
         public int ErrorCount
         {
             get { return errorCount; }

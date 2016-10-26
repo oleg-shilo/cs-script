@@ -4,6 +4,34 @@
         <name>cscscript</name>
     </assembly>
     <members>
+        <member name="T:csscript.ConcurrencyControl">
+            <summary>
+            Indicates synchronization model used to for controlling concurrency when the same script file is executed by multiple processes. 
+            </summary>
+        </member>
+        <member name="F:csscript.ConcurrencyControl.Standard">
+            <summary>
+            Simple model. The script engine doesn't start the timestamp validation and the script compilation until another engine 
+            validating finishes its job. 
+            <para>
+            Note: the compilation may be skipped if caching is enabled and the validation reviles that the previous compilation (cache) 
+            is still up to date. </para> 
+            <para>    
+            Due to the limited choices with the system wide named synchronization objects on Linux <c>Standard</c> is the only available 
+            synchronization model on Linux. And it is just happens to be a good default choice for Windows as well.</para>        
+            </summary>
+        </member>
+        <member name="F:csscript.ConcurrencyControl.HighResolution">
+            <summary>
+            A legacy synchronization model available on Windows only. While it can be beneficial in the intense concurrent "border line" scenarios,
+            its practical value very limited. 
+            </summary>
+        </member>
+        <member name="F:csscript.ConcurrencyControl.None">
+            <summary>
+            No concurrency control is done by the script engine. All synchronization is the responsibility of the hosting environment.
+            </summary>
+        </member>
         <member name="T:csscript.ExecuteOptions">
             <summary>
             Application specific runtime settings
@@ -137,6 +165,15 @@
             Default command-line arguments. For example if "/dbg" is specified all scripts will be compiled in debug mode
             regardless if the user specified "/dbg" when a particular script is launched.
             </summary>
+        </member>
+        <member name="P:csscript.Settings.InjectScriptAssemblyAttribute">
+            <summary>
+            Gets or sets a value indicating whether script assembly attribute should be injected. The AssemblyDecription attribute 
+            contains the original location of the script file the assembly being compiled from./
+            </summary>
+            <value>
+            <c>true</c> if the attribute should be injected; otherwise, <c>false</c>.
+            </value>
         </member>
         <member name="P:csscript.Settings.OpenEndDirectiveSyntax">
             <summary>
@@ -272,6 +309,12 @@
             false - script assembly will be loaded as a file. It is an equivalent of Assembly.LoadFrom(string assemblyFile).
             true - script assembly will be loaded as a file. It is an equivalent of Assembly.Load(byte[] rawAssembly)
             </summary>
+        </member>
+        <member name="P:csscript.Settings.ConcurrencyControl">
+            <summary>
+            Gets or sets the concurrency control model.
+            </summary>
+            <value>The concurrency control.</value>
         </member>
         <member name="M:csscript.Settings.Save(System.String)">
             <summary>
@@ -631,6 +674,8 @@
         <member name="T:csscript.ResolveSourceFileHandler">
             <summary>
             Delegate implementing source file probing algorithm.
+            <para>The method is deprecated because it only allows returning a single file. While in reality it can be many. 
+            For example the file and its auto-generated derivatives (e.g. *.g.cs). </para>
             </summary>
             <param name="file">The file.</param>
             <param name="searchDirs">The extra dirs.</param>
@@ -820,6 +865,12 @@
             Initializes a new instance of the <see cref="T:csscript.CompilerException"/> class.
             </summary>
             <param name="message">The message.</param>
+        </member>
+        <member name="P:csscript.CompilerException.ErrorCount">
+            <summary>
+            Gets or sets the error count associated with the last script compilation.
+            </summary>
+            <value>The error count.</value>
         </member>
         <member name="M:csscript.CompilerException.Create(System.CodeDom.Compiler.CompilerErrorCollection,System.Boolean)">
             <summary>

@@ -162,6 +162,14 @@ namespace csscript
         }
 
         bool injectScriptAssemblyAttribute = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether script assembly attribute should be injected. The AssemblyDecription attribute 
+        /// contains the original location of the script file the assembly being compiled from./
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the attribute should be injected; otherwise, <c>false</c>.
+        /// </value>
         [Browsable(false)]
         public bool InjectScriptAssemblyAttribute
         {
@@ -473,6 +481,10 @@ namespace csscript
 
         bool inMemoryAsm = false;
 
+        /// <summary>
+        /// Gets or sets the concurrency control model.
+        /// </summary>
+        /// <value>The concurrency control.</value>
         [Browsable(false)]
         public ConcurrencyControl ConcurrencyControl
         {

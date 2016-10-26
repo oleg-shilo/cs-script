@@ -57,12 +57,35 @@ using Microsoft.CSharp;
 
 namespace csscript
 {
+    /// <summary>
+    /// Indicates synchronization model used to for controlling concurrency when the same script file is executed by multiple processes. 
+    /// </summary>
     public enum ConcurrencyControl
     {
+        /// <summary>
+        /// Simple model. The script engine doesn't start the timestamp validation and the script compilation until another engine 
+        /// validating finishes its job. 
+        /// <para>
+        /// Note: the compilation may be skipped if caching is enabled and the validation reviles that the previous compilation (cache) 
+        /// is still up to date. </para> 
+        /// <para>    
+        /// Due to the limited choices with the system wide named synchronization objects on Linux <c>Standard</c> is the only available 
+        /// synchronization model on Linux. And it is just happens to be a good default choice for Windows as well.</para>        
+        /// </summary>
         Standard,
+
+        /// <summary>
+        /// A legacy synchronization model available on Windows only. While it can be beneficial in the intense concurrent "border line" scenarios,
+        /// its practical value very limited. 
+        /// </summary>
         HighResolution,
+
+        /// <summary>
+        /// No concurrency control is done by the script engine. All synchronization is the responsibility of the hosting environment.
+        /// </summary>
         None
     }
+
     /// <summary>
     /// Application specific runtime settings
     /// </summary>

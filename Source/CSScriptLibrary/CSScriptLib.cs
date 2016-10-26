@@ -362,6 +362,11 @@ namespace CSScriptLibrary
             return assembly.Evidence.GetHostEvidence<StrongName>();
         }
 
+        /// <summary>
+        /// Gets the original location of the script that the assemble been compiled from.
+        /// </summary>
+        /// <param name="assembly">The assembly.</param>
+        /// <returns></returns>
         public static string GetOriginalLocation(this Assembly assembly)
         {
             string location = null;
