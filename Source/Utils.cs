@@ -784,6 +784,11 @@ namespace csscript
                             executor.ShowPrecompilerSample();
                         }
                     }
+                    else if (Args.ParseValuedArg(arg, "cache", out argValue)) // -precompiler:file1,file2
+                    {
+                        options.processFile = false;
+                        executor.DoCacheOperations(argValue);
+                    }
                     else if (Args.ParseValuedArg(arg, "noconfig", out argValue) && !options.supressExecution) // -noconfig:<file>
                     {
                         options.noConfig = true;
@@ -1695,4 +1700,113 @@ namespace csscript
 
     #endregion MetaDataItems...
 
+    internal class Cache
+    {
+        static string cacheRootDir = Path.Combine(CSExecutor.GetScriptTempDir(), "cache");
+
+        static void deleteFile(string path)
+        {
+            try
+            {
+                File.SetAttributes(path, FileAttributes.Normal); //to remove possible read-only
+                File.Delete(path);
+            }
+            catch { }
+        }
+
+        static void deleteDir(string path)
+        {
+            try
+            {
+                foreach (string file in Directory.GetFiles(path))
+                    deleteFile(file);
+                Directory.Delete(path);
+            }
+            catch { }
+        }
+
+        enum Op
+        {
+            List,
+            Trim,
+            Clear,
+        }
+
+        static public string List() { return Cache.Do(Op.List); }
+        static public string Trim() { return Cache.Do(Op.Trim); }
+        static public string Clear() { return Cache.Do(Op.Clear); }
+
+        static string Do(Op operation)
+        {
+            StringBuilder result = new StringBuilder();
+            if (operation == Op.List)
+                result.AppendLine("Listing cache items:");
+            else if (operation == Op.Trim)
+                result.AppendLine("Purging abandoned cache items:");
+            else if (operation == Op.Clear)
+                result.AppendLine("Clearing all cache items:");
+
+            foreach (var cacheDir in Directory.GetDirectories(cacheRootDir))
+            {
+                string infoFile = Path.Combine(cacheDir, "css_info.txt");
+
+                string cachName = Path.GetFileName(cacheDir);
+
+                if (!File.Exists(infoFile))
+                {
+                    result.AppendLine(cachName + ":\tUNKNOWN");
+                    if (operation == Op.Trim || operation == Op.Clear)
+                        deleteDir(cacheDir);
+                }
+                else
+                {
+                    string sourceDir = File.ReadAllLines(infoFile).Last();
+
+                    if (operation == Op.List)
+                    {
+                        result.AppendLine(cachName + ":\t" + sourceDir);
+                    }
+                    else if (operation == Op.Clear)
+                    {
+                        result.AppendLine(cachName + ":\t" + sourceDir);
+                        deleteDir(cacheDir);
+                    }
+                    else if (operation == Op.Trim)
+                    {
+                        if (!Directory.Exists(sourceDir))
+                        {
+                            result.AppendLine(cachName + ":\t" + sourceDir);
+                            deleteDir(cacheDir);
+                        }
+                        else
+                        {
+                            // "path\script.cs.compiled"
+                            foreach (string file in Directory.GetFiles(cacheDir, "*.compiled"))
+                            {
+                                var name = Path.GetFileNameWithoutExtension(file);//script.cs
+
+                                var baseName = Path.GetFileNameWithoutExtension(name);//script
+
+                                var scriptFile = Path.Combine(sourceDir, name);
+
+                                if (!File.Exists(scriptFile))
+                                {
+                                    result.AppendLine(cachName + ":\t" + scriptFile);
+                                    foreach (string cacheFile in Directory.GetFiles(cacheDir, baseName + ".*"))
+                                        deleteFile(cacheFile);
+
+                                    string[] leftOvers = Directory.GetFiles(cacheDir);
+
+                                    if (leftOvers.Length == 0 || (leftOvers.Length == 1 && leftOvers[0].EndsWith("css_info.txt")))
+                                        deleteDir(cacheDir);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result.ToString();
+        }
+    }
 }

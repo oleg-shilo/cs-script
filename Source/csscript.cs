@@ -100,6 +100,8 @@ namespace csscript
     {
         void ShowHelp();
 
+        void DoCacheOperations(string command);
+
         void ShowVersion();
 
         void ShowPrecompilerSample();
@@ -740,13 +742,13 @@ namespace csscript
 
                     // Execution consist of multiple stages and some of them need to be atomic and need to be synchronized system wide. 
                     // Note: synchronization (concurrency control) may only be required for execution of a given script by two or more competing
-                    // processes. If one process executes script_a.cs and another one executes script_b.cs then trhere is no need for any synchronization 
+                    // processes. If one process executes script_a.cs and another one executes script_b.cs then there is no need for any synchronization 
                     // as the script files are different and their executions do not collide with each other.
 
                     // ---
                     // VALIDATION
                     // First, script should be validated: assessed for having valid already compiled up to date assembly. Validation is done 
-                    // by checking if the compiled assembly available at alls and then comparing timestamps of the assembly and the script file.
+                    // by checking if the compiled assembly available at all and then comparing timestamps of the assembly and the script file.
                     // After all on checks are done all script dependencies (imports and ref assemblies) are also validated. Dependency validation is
                     // also timestamp based. For the script the dependencies are identified by parsing the script and for the assembly by extracting the 
                     // dependencies metadata injected into assembly during the last compilation by the script engine.
@@ -1853,7 +1855,9 @@ namespace csscript
             {
                 tempDir = Path.Combine(Path.GetTempPath(), "CSSCRIPT");
                 if (!Directory.Exists(tempDir))
+                {
                     Directory.CreateDirectory(tempDir);
+                }
             }
             return tempDir;
         }
@@ -1880,14 +1884,35 @@ namespace csscript
 
             string cacheDir;
             string directoryPath = Path.GetDirectoryName(Path.GetFullPath(file));
-
+            string dirHash;
             if (!Utils.IsLinux())
-                directoryPath = directoryPath.ToLower();//Win is not case-sensitive
+            {
+                //Win is not case-sensitive so ensure, both lower and capital case path yield the same hash
+                dirHash = CSSUtils.GetHashCodeEx(directoryPath.ToLower()).ToString();
+            }
+            else
+            {
+                dirHash = CSSUtils.GetHashCodeEx(directoryPath).ToString();
+            }
 
-            cacheDir = Path.Combine(commonCacheDir, CSSUtils.GetHashCodeEx(directoryPath).ToString());
+            cacheDir = Path.Combine(commonCacheDir, dirHash);
 
             if (!Directory.Exists(cacheDir))
                 Directory.CreateDirectory(cacheDir);
+
+            string infoFile = Path.Combine(cacheDir, "css_info.txt");
+            if (!File.Exists(infoFile))
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(infoFile))
+                        sw.Write(Environment.Version.ToString() + "\n" + directoryPath + "\n");
+                }
+                catch
+                {
+                    //there can be many reasons for the failure (e.g. file is already locked by another writer), 
+                    //which in most of the cases does not constitute the error but rather a runtime condition 
+                }
+
 
             return cacheDir;
         }
@@ -1910,16 +1935,6 @@ namespace csscript
         static public void SetScriptCacheDir(string scriptFile)
         {
             string newCacheDir = GetCacheDirectory(scriptFile); //this will also create the directory if it does not exist
-
-            string infoFile = Path.Combine(newCacheDir, "css_info.txt");
-
-            try
-            {
-                using (StreamWriter sw = new StreamWriter(infoFile))
-                    sw.Write(Environment.Version.ToString() + "\n" + Path.GetDirectoryName(Path.GetFullPath(scriptFile)) + "\n");
-            }
-            catch { } //there can be many reasons for the failure (e.g. file is already locked by another writer), which in most of the cases does not constitute the error but rather a runtime condition 
-
             cacheDir = newCacheDir;
         }
 
@@ -1947,6 +1962,25 @@ namespace csscript
         public void ShowPrecompilerSample()
         {
             print(HelpProvider.BuildPrecompilerSampleCode());
+        }
+
+        /// <summary>
+        /// Performs the cache operations and shows the operation output.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        public void DoCacheOperations(string command)
+        {
+            if (print != null)
+            {
+                if (command == "ls")
+                    print(Cache.List());
+                else if (command == "trim")
+                    print(Cache.Trim());
+                else if (command == "clear")
+                    print(Cache.Clear());
+                else 
+                    print("Unknown cache command. Should be 'ls', 'trim' or 'clear'");
+            }
         }
 
         /// <summary>

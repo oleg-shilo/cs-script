@@ -833,6 +833,12 @@
             Show sample precompiler C# script file.
             </summary>
         </member>
+        <member name="M:csscript.CSExecutor.DoCacheOperations(System.String)">
+            <summary>
+            Performs the cache operations and shows the operation output.
+            </summary>
+            <param name="command">The command.</param>
+        </member>
         <member name="M:csscript.CSExecutor.CreateDefaultConfigFile">
             <summary>
             Creates the default config file in the CurrentDirectory.
