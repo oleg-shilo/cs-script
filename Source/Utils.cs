@@ -1702,7 +1702,7 @@ namespace csscript
 
     internal class Cache
     {
-        static string cacheRootDir = Path.Combine(CSExecutor.GetScriptTempDir(), "cache");
+        static string cacheRootDir = Path.Combine(CSExecutor.GetScriptTempDir(), "Cache");
 
         static void deleteFile(string path)
         {
@@ -1739,6 +1739,7 @@ namespace csscript
         static string Do(Op operation)
         {
             StringBuilder result = new StringBuilder();
+            result.AppendLine("Cache root: "+cacheRootDir);
             if (operation == Op.List)
                 result.AppendLine("Listing cache items:");
             else if (operation == Op.Trim)
@@ -1746,67 +1747,75 @@ namespace csscript
             else if (operation == Op.Clear)
                 result.AppendLine("Clearing all cache items:");
 
-            foreach (var cacheDir in Directory.GetDirectories(cacheRootDir))
-            {
-                string infoFile = Path.Combine(cacheDir, "css_info.txt");
+            result.AppendLine("");
 
-                string cachName = Path.GetFileName(cacheDir);
-
-                if (!File.Exists(infoFile))
+            if (Directory.Exists(cacheRootDir))
+                foreach (string cacheDir in Directory.GetDirectories(cacheRootDir))
                 {
-                    result.AppendLine(cachName + ":\tUNKNOWN");
-                    if (operation == Op.Trim || operation == Op.Clear)
-                        deleteDir(cacheDir);
-                }
-                else
-                {
-                    string sourceDir = File.ReadAllLines(infoFile).Last();
+                    string infoFile = Path.Combine(cacheDir, "css_info.txt");
 
-                    if (operation == Op.List)
+                    string cachName = Path.GetFileName(cacheDir);
+
+                    if (!File.Exists(infoFile))
                     {
-                        result.AppendLine(cachName + ":\t" + sourceDir);
+                        result.AppendLine(cachName + ":\tUNKNOWN");
+                        if (operation == Op.Trim || operation == Op.Clear)
+                            deleteDir(cacheDir);
                     }
-                    else if (operation == Op.Clear)
+                    else
                     {
-                        result.AppendLine(cachName + ":\t" + sourceDir);
-                        deleteDir(cacheDir);
-                    }
-                    else if (operation == Op.Trim)
-                    {
-                        if (!Directory.Exists(sourceDir))
+#if net1
+                    string[] lines = File.ReadAllLines(infoFile);
+                    string sourceDir = lines[lines.Length-1];
+#else
+                        string sourceDir = File.ReadAllLines(infoFile).Last();
+#endif
+
+                        if (operation == Op.List)
+                        {
+                            result.AppendLine(cachName + ":\t" + sourceDir);
+                        }
+                        else if (operation == Op.Clear)
                         {
                             result.AppendLine(cachName + ":\t" + sourceDir);
                             deleteDir(cacheDir);
                         }
-                        else
+                        else if (operation == Op.Trim)
                         {
-                            // "path\script.cs.compiled"
-                            foreach (string file in Directory.GetFiles(cacheDir, "*.compiled"))
+                            if (!Directory.Exists(sourceDir))
                             {
-                                var name = Path.GetFileNameWithoutExtension(file);//script.cs
-
-                                var baseName = Path.GetFileNameWithoutExtension(name);//script
-
-                                var scriptFile = Path.Combine(sourceDir, name);
-
-                                if (!File.Exists(scriptFile))
+                                result.AppendLine(cachName + ":\t" + sourceDir);
+                                deleteDir(cacheDir);
+                            }
+                            else
+                            {
+                                // "path\script.cs.compiled"
+                                foreach (string file in Directory.GetFiles(cacheDir, "*.compiled"))
                                 {
-                                    result.AppendLine(cachName + ":\t" + scriptFile);
-                                    foreach (string cacheFile in Directory.GetFiles(cacheDir, baseName + ".*"))
-                                        deleteFile(cacheFile);
+                                    string name = Path.GetFileNameWithoutExtension(file);//script.cs
 
-                                    string[] leftOvers = Directory.GetFiles(cacheDir);
+                                    string baseName = Path.GetFileNameWithoutExtension(name);//script
 
-                                    if (leftOvers.Length == 0 || (leftOvers.Length == 1 && leftOvers[0].EndsWith("css_info.txt")))
-                                        deleteDir(cacheDir);
+                                    string scriptFile = Path.Combine(sourceDir, name);
+
+                                    if (!File.Exists(scriptFile))
+                                    {
+                                        result.AppendLine(cachName + ":\t" + scriptFile);
+                                        foreach (string cacheFile in Directory.GetFiles(cacheDir, baseName + ".*"))
+                                            deleteFile(cacheFile);
+
+                                        string[] leftOvers = Directory.GetFiles(cacheDir);
+
+                                        if (leftOvers.Length == 0 || (leftOvers.Length == 1 && leftOvers[0].EndsWith("css_info.txt")))
+                                            deleteDir(cacheDir);
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            return result.ToString();
+            return result.ToString().TrimEnd()+Environment.NewLine;
         }
     }
 }

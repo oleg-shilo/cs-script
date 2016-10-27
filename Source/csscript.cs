@@ -1979,7 +1979,8 @@ namespace csscript
                 else if (command == "clear")
                     print(Cache.Clear());
                 else 
-                    print("Unknown cache command. Should be 'ls', 'trim' or 'clear'");
+                    print("Unknown cache command."+Environment.NewLine
+                        + "Expected: 'cache:ls', 'cache:trim' or 'cache:clear'"+Environment.NewLine);
             }
         }
 

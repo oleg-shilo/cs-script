@@ -23,6 +23,11 @@ namespace csscript
             builder.Append(" {0}ca    - Compile script file into assembly (cache file .compiled) without execution.\n");
             builder.Append(" {0}cd    - Compile script file into assembly (.dll) without execution.\n\n");
             builder.Append(" {0}check - Check script fro errors without execution.\n\n");
+            builder.Append(" {0}cache[:<ls|triem|clear>]\n");
+            builder.Append("          - Performs script cache operations.\n");
+            builder.Append("            ls    - lists all cache items.\n");
+            builder.Append("            trim  - removes all abandoned cache items.\n");
+            builder.Append("            clear - removes all cache items.\n\n");
             builder.Append(" {0}co:<options>\n");
             builder.Append("       - Pass compiler options directly to the language compiler\n");
             builder.Append("       (e.g.  {0}co:/d:TRACE pass /d:TRACE option to C# compiler\n");
