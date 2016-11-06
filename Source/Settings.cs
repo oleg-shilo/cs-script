@@ -154,7 +154,7 @@ namespace csscript
         /// Default command-line arguments. For example if "/dbg" is specified all scripts will be compiled in debug mode
         /// regardless if the user specified "/dbg" when a particular script is launched.
         /// </summary>
-        [Category("RuntimeSettings"), Description("Default command-line arguments (e.g./dbg) for all scripts.")]
+        [Category("RuntimeSettings"), Description("Default command-line arguments (e.g.-dbg) for all scripts.")]
         public string DefaultArguments
         {
             get { return defaultArguments; }
@@ -318,7 +318,7 @@ namespace csscript
             set { searchDirs = value; }
         }
 
-        string searchDirs = "%CSSCRIPT_DIR%" + Path.DirectorySeparatorChar + "Lib;%CSSCRIPT_INC%;";
+        string searchDirs = "%CSSCRIPT_DIR%" + Path.DirectorySeparatorChar + "lib;%CSSCRIPT_INC%;";
 
         /// <summary>
         /// Add search directory to the search (probing) path Settings.SearchDirs.

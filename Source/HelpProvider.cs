@@ -130,7 +130,8 @@ namespace csscript
                 builder.Append("\n");
                 builder.Append("This directive is used to inject one script into another at compile time. Thus code from one script can be exercised in another one.\n");
                 builder.Append("'Rename' clause can appear in the directive multiple times.\n");
-                builder.Append("------------------------------------\n");
+                builder.Append("====================================\n");
+                builder.Append("\n");
                 builder.Append("//css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];\n");
                 builder.Append("\n");
                 builder.Append("Downloads/Installs the NuGet package. It also automatically references the downloaded package assemblies.\n");

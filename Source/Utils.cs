@@ -621,11 +621,12 @@ namespace csscript
                 foreach (string arg in args)
                 {
                     sb.Append(" ");
-                    sb.Append(CSSUtils.Args.DefaultPrefix);
+                    sb.Append("-");
                     sb.Append(arg);
                 }
                 return sb.ToString().Trim();
             }
+
             static internal string DefaultPrefix
             {
                 get

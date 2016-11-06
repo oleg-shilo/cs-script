@@ -374,7 +374,7 @@ namespace CSScriptLibrary
             if (retval.Length == 0)
             {
                 if (throwOnError)
-                    throw new FileNotFoundException(string.Format("Could not find file \"{0}\"", file));
+                    throw new FileNotFoundException(string.Format("Could not find file \"{0}\".\nEnsure it is in one of the CS-Script search/probing directories.", file));
 
                 if (!file.EndsWith(".cs"))
                     retval = new string[] { file + ".cs" };

@@ -566,7 +566,7 @@ namespace csscript
 
                     if (!CSSUtils.IsRuntimeErrorReportingSupressed)
                     {
-                        if (options.reportDetailedErrorInfo)
+                        if (options.reportDetailedErrorInfo && !(ex is FileNotFoundException))
                             print(ex.ToString());
                         else
                             print(ex.Message); //Mono friendly
@@ -732,8 +732,17 @@ namespace csscript
                         for (int i = 0; i < scriptArgs.Length; i++)
                             CSSUtils.VerbosePrint("    " + i + " - " + scriptArgs[i], options);
                         CSSUtils.VerbosePrint("  SearchDirectories: ", options);
-                        for (int i = 0; i < options.searchDirs.Length; i++)
-                            CSSUtils.VerbosePrint("    " + i + " - " + options.searchDirs[i], options);
+
+                        {
+                            int offset = 0;
+                            if (Path.GetFullPath(options.searchDirs[0]) != Environment.CurrentDirectory)
+                            {
+                                CSSUtils.VerbosePrint("    0 - " + Environment.CurrentDirectory, options);
+                                offset++;
+                            }
+                            for (int i = 0; i < options.searchDirs.Length; i++)
+                                CSSUtils.VerbosePrint("    " + (i + offset) + " - " + options.searchDirs[i], options);
+                        }
                         CSSUtils.VerbosePrint("> ----------------", options);
                         CSSUtils.VerbosePrint("", options);
                     }
@@ -1978,9 +1987,9 @@ namespace csscript
                     print(Cache.Trim());
                 else if (command == "clear")
                     print(Cache.Clear());
-                else 
-                    print("Unknown cache command."+Environment.NewLine
-                        + "Expected: 'cache:ls', 'cache:trim' or 'cache:clear'"+Environment.NewLine);
+                else
+                    print("Unknown cache command." + Environment.NewLine
+                        + "Expected: 'cache:ls', 'cache:trim' or 'cache:clear'" + Environment.NewLine);
             }
         }
 
