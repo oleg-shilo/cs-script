@@ -729,51 +729,51 @@ namespace csscript
 
                 if (Args.IsArg(arg))
                 {
-                    if (Args.Same(arg, "nl")) // -nl
+                    if (Args.Same(arg, AppArgs.nl)) // -nl
                     {
                         options.noLogo = true;
                     }
-                    else if (Args.ParseValuedArg(arg, "out", out argValue)) // -out:
+                    else if (Args.ParseValuedArg(arg, AppArgs.@out, out argValue)) // -out:
                     {
                         if (argValue != null)
                             options.forceOutputAssembly = Environment.ExpandEnvironmentVariables(argValue);
                     }
-                    else if (Args.ParseValuedArg(arg, "c", out argValue) && !options.supressExecution) // -c:<value>
+                    else if (Args.ParseValuedArg(arg, AppArgs.c, out argValue) && !options.supressExecution) // -c:<value>
                     {
                         if (argValue == "1" || argValue == null)
                             options.useCompiled = true;
                         else if (argValue == "0")
                             options.useCompiled = false;
                     }
-                    else if (Args.ParseValuedArg(arg, "inmem", out argValue) && !options.supressExecution) // -inmem:<value>
+                    else if (Args.ParseValuedArg(arg, AppArgs.inmem, out argValue) && !options.supressExecution) // -inmem:<value>
                     {
                         if (argValue == "1" || argValue == null)
                             options.inMemoryAsm = true;
                         else if (argValue == "0")
                             options.inMemoryAsm = false;
                     }
-                    else if (Args.ParseValuedArg(arg, "sconfig", out argValue)) // -sconfig:file
+                    else if (Args.ParseValuedArg(arg, AppArgs.sconfig, out argValue)) // -sconfig:file
                     {
                         options.useScriptConfig = true;
                         if (argValue != null)
                             options.customConfigFileName = argValue;
                     }
-                    else if (Args.ParseValuedArg(arg, "provider", out argValue)) // -provider:file
+                    else if (Args.ParseValuedArg(arg, AppArgs.provider, out argValue)) // -provider:file
                     {
                         if (argValue != null)
                             options.altCompiler = Environment.ExpandEnvironmentVariables(argValue);
                     }
-                    else if (Args.Same(arg, "verbose"))
+                    else if (Args.Same(arg, AppArgs.verbose))
                     {
                         options.verbose = true;
                     }
-                    else if (Args.ParseValuedArg(arg, "dir", out argValue)) // -dir:path1,path2
+                    else if (Args.ParseValuedArg(arg, AppArgs.dir, out argValue)) // -dir:path1,path2
                     {
                         if (argValue != null)
                             foreach (string dir in argValue.Split(','))
                                 options.AddSearchDir(dir.Trim());
                     }
-                    else if (Args.ParseValuedArg(arg, "precompiler", "pc", out argValue)) // -precompiler:file1,file2
+                    else if (Args.ParseValuedArg(arg, AppArgs.precompiler, AppArgs.pc, out argValue)) // -precompiler:file1,file2
                     {
                         if (argValue != null)
                         {
@@ -785,12 +785,12 @@ namespace csscript
                             executor.ShowPrecompilerSample();
                         }
                     }
-                    else if (Args.ParseValuedArg(arg, "cache", out argValue)) // -precompiler:file1,file2
+                    else if (Args.ParseValuedArg(arg, AppArgs.cache, out argValue)) // -precompiler:file1,file2
                     {
                         options.processFile = false;
                         executor.DoCacheOperations(argValue);
                     }
-                    else if (Args.ParseValuedArg(arg, "noconfig", out argValue) && !options.supressExecution) // -noconfig:<file>
+                    else if (Args.ParseValuedArg(arg, AppArgs.noconfig, out argValue) && !options.supressExecution) // -noconfig:<file>
                     {
                         options.noConfig = true;
                         if (argValue != null)
@@ -802,30 +802,30 @@ namespace csscript
                             else
                                 options.altConfig = argValue;
                     }
-                    else if (Args.Same(arg, "autoclass", "ac")) // -autoclass -ac
+                    else if (Args.Same(arg, AppArgs.autoclass, AppArgs.ac)) // -autoclass -ac
                     {
                         options.autoClass = true;
                     }
-                    else if (Args.Same(arg, "nathash"))
+                    else if (Args.Same(arg, AppArgs.nathash))
                     {
                         //-nathash //native hashing; by default it is deterministic but slower custom string hashing algorithm
                         //it is a hidden option for the cases when faster hashing is desired
                         options.customHashing = false;
                     }
-                    else if (Args.Same(arg, "check")) // -check
+                    else if (Args.Same(arg, AppArgs.check)) // -check
                     {
                         options.useCompiled = false;
                         options.forceCompile = true;
                         options.supressExecution = true;
                         options.syntaxCheck = true;
                     }
-                    else if (Args.Same(arg, "ca")) // -ca
+                    else if (Args.Same(arg, AppArgs.ca)) // -ca
                     {
                         options.useCompiled = true;
                         options.forceCompile = true;
                         options.supressExecution = true;
                     }
-                    else if (Args.ParseValuedArg(arg, "co", out argValue)) // -co:<value>
+                    else if (Args.ParseValuedArg(arg, AppArgs.co, out argValue)) // -co:<value>
                     {
                         if (argValue != null)
                         {
@@ -834,26 +834,26 @@ namespace csscript
                                 options.compilerOptions += " " + argValue;
                         }
                     }
-                    else if (Args.Same(arg, "cd")) // -cd
+                    else if (Args.Same(arg, AppArgs.cd)) // -cd
                     {
                         options.supressExecution = true;
                         options.DLLExtension = true;
                     }
-                    else if (Args.Same(arg, "dbg", "d")) // -dbg -d
+                    else if (Args.Same(arg, AppArgs.dbg, AppArgs.d)) // -dbg -d
                     {
                         options.DBG = true;
                     }
-                    else if (Args.Same(arg, "l"))
+                    else if (Args.Same(arg, AppArgs.l))
                     {
                         options.local = true;
                     }
-                    else if (Args.Same(arg, "ver", "v")) // -ver -v
+                    else if (Args.Same(arg, AppArgs.ver, AppArgs.v)) // -ver -v
                     {
                         executor.ShowVersion();
                         options.processFile = false;
                         options.versionOnly = true;
                     }
-                    else if (Args.ParseValuedArg(arg, "r", out argValue)) // -r:file1,file2
+                    else if (Args.ParseValuedArg(arg, AppArgs.r, out argValue)) // -r:file1,file2
                     {
                         if (argValue != null)
                         {
@@ -861,20 +861,20 @@ namespace csscript
                             options.refAssemblies = assemblies;
                         }
                     }
-                    else if (Args.Same(arg, "e", "ew")) // -e -ew
+                    else if (Args.Same(arg, AppArgs.e, AppArgs.ew)) // -e -ew
                     {
                         options.buildExecutable = true;
                         options.supressExecution = true;
-                        if (Args.Same(arg, "ew")) // -ew
+                        if (Args.Same(arg, AppArgs.ew)) // -ew
                             options.buildWinExecutable = true;
                     }
-                    else if (Args.Same(arg, "?", "help")) // -? -help
+                    else if (Args.Same(arg, AppArgs.question, AppArgs.help)) // -? -help
                     {
                         executor.ShowHelp();
                         options.processFile = false;
                         break;
                     }
-                    else if (Args.Same(arg, "s")) // -s
+                    else if (Args.Same(arg, AppArgs.s)) // -s
                     {
                         executor.ShowSample();
                         options.processFile = false;
