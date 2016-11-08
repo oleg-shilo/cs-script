@@ -45,6 +45,7 @@ using System.Collections;
 #else
 
 using System.Collections.Generic;
+using System.Linq;
 
 #endif
 
@@ -1048,6 +1049,82 @@ namespace CSScriptLibrary
                 list.Add(item);
         }
 
+#endif
+#if !net1
+        /// <summary>
+        /// Agregates the references from the script and its imported scripts. It is a logical equivalent od CSExecutor.AggregateReferencedAssemblies
+        /// but optimized for later .NET versions (e.g LINQ) and completely docoupled. Thus it has no dependencies on internal state 
+        /// (e.g. settings, options.shareHostAssemblies).
+        /// <para>It is the method to call for generating list of ref asms as part of the project info.</para>
+        /// 
+        /// </summary>
+        /// <param name="searchDirs">The search dirs.</param>
+        /// <param name="defaultRefAsms">The default ref asms.</param>
+        /// <param name="defaultNamespacess">The default namespacess.</param>
+        /// <returns></returns>
+        public List<string> AgregateReferences(IEnumerable<string> searchDirs, IEnumerable<string> defaultRefAsms, IEnumerable<string> defaultNamespacess)
+        {
+            var probingDirs = searchDirs.ToArray();
+             
+            var refPkAsms = this.ResolvePackages(true); //suppressDownloading 
+
+            var refCodeAsms = this.ReferencedAssemblies
+                                  .SelectMany(asm => AssemblyResolver.FindAssembly(asm.Replace("\"", ""), probingDirs));
+
+            var refAsms = refPkAsms.Union(refPkAsms)
+                                   .Union(refCodeAsms)
+                                   .Union(defaultRefAsms.SelectMany(name => AssemblyResolver.FindAssembly(name, probingDirs)))
+                                   .Distinct()
+                                   .ToArray();
+
+
+            //some assemblies are referenced from code and some will need to be resolved from the namespaces
+            bool disableNamespaceResolving = (this.IgnoreNamespaces.Count() == 1 && this.IgnoreNamespaces[0] == "*");
+
+            if (!disableNamespaceResolving)
+            {
+                var asmNames = refAsms.Select(x => Path.GetFileNameWithoutExtension(x).ToUpper()).ToArray();
+
+                var refNsAsms = this.ReferencedNamespaces
+                                      .Union(defaultNamespacess)
+                                      .Where(name => !string.IsNullOrEmpty(name))
+                                      .Where(name => !this.IgnoreNamespaces.Contains(name))
+                                      .Where(name => !asmNames.Contains(name.ToUpper()))
+                                      .Distinct()
+                                      .SelectMany(name =>
+                                      {
+                                          var asms = AssemblyResolver.FindAssembly(name, probingDirs);
+                                          return asms;
+                                      })
+                                      .ToArray();
+
+                refAsms = refAsms.Union(refNsAsms).ToArray();
+            }
+
+
+            refAsms = FilterDuplicatedAssembliesByFileName(refAsms);
+            return refAsms.ToList();
+        }
+
+        static string[] FilterDuplicatedAssembliesByFileName(string[] assemblies)
+        {
+            var uniqueAsms = new List<string>();
+            var asmNames = new List<string>();
+            foreach (var item in assemblies)
+            {
+                try
+                {
+                    string name = Path.GetFileNameWithoutExtension(item);
+                    if (!asmNames.Contains(name))
+                    {
+                        uniqueAsms.Add(item);
+                        asmNames.Add(name);
+                    }
+                }
+                catch { }
+            }
+            return uniqueAsms.ToArray();
+        }
 #endif
     }
 }
