@@ -98,7 +98,9 @@ namespace csscript
 
     internal interface IScriptExecutor
     {
-        void ShowHelp();
+        void ShowHelpFor(string arg);
+
+        void ShowHelp(string helpType);
 
         void DoCacheOperations(string command);
 
@@ -539,7 +541,7 @@ namespace csscript
                 }
                 else
                 {
-                    ShowHelp();
+                    ShowHelpFor(null);
                 }
             }
             catch (Surrogate86ProcessRequiredException)
@@ -1952,9 +1954,17 @@ namespace csscript
         /// <summary>
         /// Prints Help info.
         /// </summary>
-        public void ShowHelp()
+        public void ShowHelpFor(string arg)
         {
-            print(HelpProvider.BuildCommandInterfaceHelp());
+            print(HelpProvider.BuildCommandInterfaceHelp(arg));
+        }
+       
+        /// <summary>
+        /// Prints CS-Script specific C# syntax help info.
+        /// </summary>
+        public void ShowHelp(string helpType)
+        {
+            print(HelpProvider.ShowHelp(helpType));
         }
 
         /// <summary>

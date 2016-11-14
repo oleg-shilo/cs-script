@@ -309,11 +309,6 @@ namespace csscript
         {
             get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\n"; }
         }
-
-        //#pragma warning disable 414
-        //public static string appParams = "[/nl]:";
-        //#pragma warning restore 414
-        public static string appParamsHelp = "nl   - No logo mode: No banner will be shown/printed at execution time.\n";
     }
 
     class HostConsole

@@ -721,6 +721,9 @@ namespace csscript
             for (int i = 0; i < args.Length; i++)
             {
                 string arg = args[i];
+                string nextArg = null;
+                if ((i+1) < args.Length)
+                    nextArg = args[i + 1];
 
                 if (arg[0] != '-' && File.Exists(arg))
                     return i; //on Linux '/' may indicate dir but not command
@@ -870,7 +873,19 @@ namespace csscript
                     }
                     else if (Args.Same(arg, AppArgs.question, AppArgs.help)) // -? -help
                     {
-                        executor.ShowHelp();
+                        executor.ShowHelpFor(nextArg);
+                        options.processFile = false;
+                        break;
+                    }
+                    else if (Args.Same(arg, AppArgs.syntax)) // -syntax
+                    {
+                        executor.ShowHelp(AppArgs.syntax);
+                        options.processFile = false;
+                        break;
+                    }
+                    else if (Args.Same(arg, AppArgs.cmd, AppArgs.commands)) // -cmd -commands
+                    {
+                        executor.ShowHelp(AppArgs.commands);
                         options.processFile = false;
                         break;
                     }
