@@ -425,7 +425,7 @@ namespace csscript
 
 
                         StringBuilder builder = new StringBuilder();
-                        foreach (var key in map.Keys)
+                        foreach (string key in map.Keys)
                         {
                             string arg = map[key].Trim();
                             arg = String.Format("{0,-" + longestArg + "}", arg);
