@@ -45,6 +45,7 @@ namespace csscript
 
         static public Dictionary<string, ArgInfo> switch1Help = new Dictionary<string, ArgInfo>();
         static public Dictionary<string, ArgInfo> switch2Help = new Dictionary<string, ArgInfo>();
+        static public Dictionary<string, ArgInfo> miscHelp = new Dictionary<string, ArgInfo>();
 
         internal class ArgInfo
         {
@@ -62,15 +63,19 @@ namespace csscript
                 this.argSpec = argSpec;
                 this.description = description;
             }
+            public string ArgSpec { get { return argSpec; } }
             public string Description { get { return description; } }
             public string FullDoc
             {
                 get
                 {
-                    string offset = "      ";
-                    return argSpec + "\n" +
-                           offset + description + "\n" +
-                           offset + doc.Replace("\n", "\n" + offset);
+                    string offset = "    ";
+                    string result = argSpec + "\n" +
+                           offset + description;
+                    if(doc != "")
+                        result += "\n" + offset + doc.Replace("\n", "\n" + offset);
+
+                    return result;
                 }
             }
         }
@@ -133,8 +138,8 @@ namespace csscript
                                                    "Can be beneficial for fine concurrency control as it allows changing \n" +
                                                    "and executing the scripts that are already loaded (being executed). This mode is incompatible \n" +
                                                    "with the scripting scenarios that require scriptassembly to be file based (e.g. advanced Reflection).\n" +
-                                                   "    -inmem:1|inmem   disable caching (which might be enabled globally;\n" +
-                                                   "    -inmem:0         disable caching (which might be enabled globally;");
+                                                   "    -inmem:1   enable caching (which might be disabled globally;\n" +
+                                                   "    -inmem:0   disable caching (which might be enabled globally;");
             switch2Help[verbose] = new ArgInfo("-verbose",
                                                    "Prints runtime information during the script execution.",
                                                    "(applicable for console clients only)");
@@ -175,18 +180,21 @@ namespace csscript
                                                    "Location of alternative code provider assembly.",
                                                    "If set it forces script engine to use an alternative code compiler.\n" +
                                                    "(see \"Alternative compilers\" chapter in the documentation)");
-            switch2Help["file"] = new ArgInfo("file",
-                                                   "Specifies name of a script file to be run.");
-            switch2Help["params"] = new ArgInfo("params",
-                                                   "Specifies optional parameters for a script file to be run.");
-            switch2Help["//x"] = new ArgInfo("//x",
-                                                   "Launch debugger just before starting the script.");
-
             switch2Help[syntax] = new ArgInfo("-syntax",
                                                   "Prints documentation for CS-Script specific C# syntax.");
             switch2Help[commands] =
             switch2Help[cmd] = new ArgInfo("-commands|-cmd",
                                                   "Prints list of supporeted commands (arguments).");
+
+            miscHelp["file"] = new ArgInfo("file",
+                                                   "Specifies name of a script file to be run.");
+            miscHelp["params"] = new ArgInfo("params",
+                                                   "Specifies optional parameters for a script file to be run.");
+            miscHelp["//x"] = new ArgInfo("//x",
+                                                   "Launch debugger just before starting the script.");
+
+
+            #region SyntaxHelp
 
             syntaxHelp = "**************************************\n" +
                                        "Script specific syntax\n" +
@@ -366,6 +374,7 @@ namespace csscript
                                        "   }\n" +
                                        " }\n" +
                                        "\n"; ;
+            #endregion
         }
     }
 
@@ -453,12 +462,35 @@ namespace csscript
             builder.Append(AppInfo.appLogo);
             builder.Append("\nUsage: " + AppInfo.appName + " <switch 1> <switch 2> <file> [params] [//x]\n");
             builder.Append("\n");
-            builder.Append("<switch 1>\n");
+            builder.Append("<switch 1>\n\n");
+
+            //cannot use Linq as it can be incompatible target
+            List<string> printed = new List<string>();
+
             foreach (AppArgs.ArgInfo info in AppArgs.switch1Help.Values)
-                builder.Append(info.FullDoc);
-            builder.Append("<switch 2>\n");
+            {
+                if (printed.Contains(info.ArgSpec))
+                    continue;
+                builder.Append(info.FullDoc+"\n\n");
+                printed.Add(info.ArgSpec);
+            }
+            builder.Append("---------\n");
+            builder.Append("<switch 2>\n\n");
             foreach (AppArgs.ArgInfo info in AppArgs.switch2Help.Values)
-                builder.Append(info.FullDoc);
+            {
+                if (printed.Contains(info.ArgSpec))
+                    continue;
+                builder.Append(info.FullDoc + "\n\n");
+                printed.Add(info.ArgSpec);
+            }
+            builder.Append("---------\n");
+            foreach (AppArgs.ArgInfo info in AppArgs.miscHelp.Values)
+            {
+                if (printed.Contains(info.ArgSpec))
+                    continue;
+                builder.Append(info.FullDoc + "\n\n");
+                printed.Add(info.ArgSpec);
+            }
             builder.Append("\n");
             builder.Append("\n");
             builder.Append(AppArgs.syntaxHelp);
