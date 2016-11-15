@@ -722,7 +722,7 @@ namespace csscript
             {
                 string arg = args[i];
                 string nextArg = null;
-                if ((i+1) < args.Length)
+                if ((i + 1) < args.Length)
                     nextArg = args[i + 1];
 
                 if (arg[0] != '-' && File.Exists(arg))
@@ -773,8 +773,18 @@ namespace csscript
                     else if (Args.ParseValuedArg(arg, AppArgs.dir, out argValue)) // -dir:path1,path2
                     {
                         if (argValue != null)
-                            foreach (string dir in argValue.Split(','))
-                                options.AddSearchDir(dir.Trim());
+                        {
+                            if (argValue == "show" && nextArg == null)
+                            {
+                                options.processFile = false;
+                                executor.ShowHelp(AppArgs.dir, options);
+                            }
+                            else
+                            {
+                                foreach (string dir in argValue.Split(','))
+                                    options.AddSearchDir(dir.Trim());
+                            }
+                        }
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.precompiler, AppArgs.pc, out argValue)) // -precompiler:file1,file2
                     {
@@ -1755,7 +1765,7 @@ namespace csscript
         static string Do(Op operation)
         {
             StringBuilder result = new StringBuilder();
-            result.AppendLine("Cache root: "+cacheRootDir);
+            result.AppendLine("Cache root: " + cacheRootDir);
             if (operation == Op.List)
                 result.AppendLine("Listing cache items:");
             else if (operation == Op.Trim)
@@ -1831,7 +1841,7 @@ namespace csscript
                     }
                 }
 
-            return result.ToString().TrimEnd()+Environment.NewLine;
+            return result.ToString().TrimEnd() + Environment.NewLine;
         }
     }
 }

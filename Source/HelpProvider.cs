@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Text;
 
@@ -148,7 +149,8 @@ namespace csscript
                                                    "(e.g. " + AppInfo.appName + " -out:%temp%\\%pid%\\sample.dll sample.cs");
             switch2Help[sconfig] = new ArgInfo("-sconfig[:file]",
                                                    "Uses script config file or custom config file as a .NET app.config.",
-                                                   "This option might be useful for running scripts, which usually cannot be executed without configuration file (e.g. WCF, Remoting).\n\n" +
+                                                   "This option might be useful for running scripts, which usually cannot be executed without configuration \n" + 
+                                                   "file (e.g. WCF, Remoting).\n\n" +
                                                    "(e.g. if -sconfig is used the expected config file name is <script_name>.cs.config or <script_name>.exe.config\n" +
                                                    "if -sconfig:myApp.config is used the expected config file name is myApp.config)");
             switch2Help[r] = new ArgInfo("-r:<assembly 1>:<assembly N>",
@@ -157,7 +159,9 @@ namespace csscript
                                                    "(e.g. " + AppInfo.appName + " /r:myLib.dll myScript.cs).");
             switch2Help[dir] = new ArgInfo("-dir:<directory 1>,<directory N>",
                                                    "Adds path(s) to the assembly probing directory list.",
-                                                   "(e.g. " + AppInfo.appName + " /dir:C:\\MyLibraries myScript.cs).");
+                                                   "You can use a reserved word 'show' as a directory name to print the configured probing directories.\n"+
+                                                   "(e.g. " + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs\n"+
+                                                   " " + AppInfo.appName + " -dir:-show).");
             switch2Help[pc] =
             switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
                                                    "Specifies custom precompiler. This can be either script or assembly file.",
@@ -367,10 +371,25 @@ namespace csscript
 
     internal class HelpProvider
     {
-        public static string ShowHelp(string helpType)
+        public static string ShowHelp(string helpType, params object[] context)
         {
             switch (helpType)
             {
+                case AppArgs.dir:
+                    {
+                        ExecuteOptions options = (ExecuteOptions) context[0];
+                        Settings settings = CSExecutor.LoadSettings(options);
+
+                        StringBuilder builder = new StringBuilder();
+                        builder.Append(string.Format("{0}\n", Environment.CurrentDirectory));
+
+                        foreach (string dir in Environment.ExpandEnvironmentVariables(settings.SearchDirs).Split(",;".ToCharArray()))
+                            if (dir.Trim() != "")
+                                builder.Append(string.Format("{0}\n", dir));
+
+                        builder.Append(string.Format("{0}\n", Utils.GetAssemblyDirectoryName(typeof(HelpProvider).Assembly)));
+                        return builder.ToString();
+                    }
                 case AppArgs.syntax: return AppArgs.syntaxHelp;
                 case AppArgs.cmd:
                 case AppArgs.commands:

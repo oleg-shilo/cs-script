@@ -100,7 +100,7 @@ namespace csscript
     {
         void ShowHelpFor(string arg);
 
-        void ShowHelp(string helpType);
+        void ShowHelp(string helpTyp, params object[] context);
 
         void DoCacheOperations(string command);
 
@@ -131,15 +131,8 @@ namespace csscript
             set { rethrow = value; }
         }
 
-#if net1
-        Settings GetPersistedSettings(ArrayList appArgs)
-#else
-
-        Settings GetPersistedSettings(List<string> appArgs)
-#endif
-
+        internal static Settings LoadSettings(ExecuteOptions options)
         {
-            //read persistent settings from configuration file
             Settings settings = null;
 
             if (options.noConfig)
@@ -154,6 +147,18 @@ namespace csscript
                 if (!CSSUtils.IsDynamic(Assembly.GetExecutingAssembly()))
                     settings = Settings.Load(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml"));
             }
+            return settings;
+        }
+#if net1
+        Settings GetPersistedSettings(ArrayList appArgs)
+#else
+
+        Settings GetPersistedSettings(List<string> appArgs)
+#endif
+
+        {
+            //read persistent settings from configuration file
+            Settings settings = LoadSettings(options);
 
             if (settings != null)
             {
@@ -1958,13 +1963,13 @@ namespace csscript
         {
             print(HelpProvider.BuildCommandInterfaceHelp(arg));
         }
-       
+
         /// <summary>
         /// Prints CS-Script specific C# syntax help info.
         /// </summary>
-        public void ShowHelp(string helpType)
+        public void ShowHelp(string helpType, params object[] context)
         {
-            print(HelpProvider.ShowHelp(helpType));
+            print(HelpProvider.ShowHelp(helpType, context));
         }
 
         /// <summary>

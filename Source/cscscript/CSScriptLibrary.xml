@@ -823,7 +823,7 @@
             Prints Help info.
             </summary>
         </member>
-        <member name="M:csscript.CSExecutor.ShowHelp(System.String)">
+        <member name="M:csscript.CSExecutor.ShowHelp(System.String,System.Object[])">
             <summary>
             Prints CS-Script specific C# syntax help info.
             </summary>
