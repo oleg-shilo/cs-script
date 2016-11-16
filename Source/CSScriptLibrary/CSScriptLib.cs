@@ -2021,7 +2021,6 @@ namespace CSScriptLibrary
             }
             else
                 return Assembly.Load(data);
-            return null;
         }
 
         /// <summary>
