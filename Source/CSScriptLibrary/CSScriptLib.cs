@@ -1954,7 +1954,12 @@ namespace CSScriptLibrary
                             if (assemblyFile != null)
                             {
                                 if (!IsOutOfDateAlgorithm(scriptFile, assemblyFile))
-                                    retval = Assembly.LoadFrom(assemblyFile);
+                                {
+                                    if (ExecuteOptions.options.inMemoryAsm)
+                                        retval = LoadInMemory(assemblyFile, debugBuild);
+                                    else
+                                        retval = Assembly.LoadFrom(assemblyFile);
+                                }
                             }
                             else
                             {
@@ -1971,34 +1976,10 @@ namespace CSScriptLibrary
                                 CompilingHistory.Add(new FileInfo(scriptFile), exec.LastCompileResult);
 #endif
 
-                            if (!ExecuteOptions.options.inMemoryAsm)
-                            {
-                                retval = Assembly.LoadFrom(outputFile);
-                            }
+                            if (ExecuteOptions.options.inMemoryAsm)
+                                retval = LoadInMemory(outputFile, debugBuild);
                             else
-                            {
-                                //Load(byte[]) does not lock the assembly file as LoadFrom(filename) does
-                                byte[] data = new byte[0];
-                                using (FileStream fs = new FileStream(outputFile, FileMode.Open))
-                                {
-                                    data = new byte[fs.Length];
-                                    fs.Read(data, 0, data.Length);
-                                }
-
-                                string dbg = Path.ChangeExtension(outputFile, ".pdb");
-                                if (debugBuild && File.Exists(dbg))
-                                {
-                                    byte[] dbgData = new byte[0];
-                                    using (FileStream fsDbg = new FileStream(dbg, FileMode.Open))
-                                    {
-                                        dbgData = new byte[fsDbg.Length];
-                                        fsDbg.Read(dbgData, 0, dbgData.Length);
-                                    }
-                                    retval = Assembly.Load(data, dbgData);
-                                }
-                                else
-                                    retval = Assembly.Load(data);
-                            }
+                                retval = Assembly.LoadFrom(outputFile);
 
                             if (retval != null)
                                 scriptCache.Add(new LoadedScript(scriptFile, retval));
@@ -2015,6 +1996,32 @@ namespace CSScriptLibrary
                     }
                 }
             }
+        }
+
+        static Assembly LoadInMemory(string asmFile, bool debugBuild)
+        {
+            //Load(byte[]) does not lock the assembly file as LoadFrom(filename) does
+            byte[] data = new byte[0];
+            using (FileStream fs = new FileStream(asmFile, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+            }
+
+            string dbg = Path.ChangeExtension(asmFile, ".pdb");
+            if (debugBuild && File.Exists(dbg))
+            {
+                byte[] dbgData = new byte[0];
+                using (FileStream fsDbg = new FileStream(dbg, FileMode.Open))
+                {
+                    dbgData = new byte[fsDbg.Length];
+                    fsDbg.Read(dbgData, 0, dbgData.Length);
+                }
+                return Assembly.Load(data, dbgData);
+            }
+            else
+                return Assembly.Load(data);
+            return null;
         }
 
         /// <summary>
@@ -2248,6 +2255,9 @@ namespace CSScriptLibrary
 
             internal static bool ScriptAsmOutOfDateAdvanced(string scriptFileName, string assemblyFileName)
             {
+                if (assemblyFileName == "" || assemblyFileName == null)
+                    return true;
+
                 if (File.GetLastWriteTimeUtc(scriptFileName) != File.GetLastWriteTimeUtc(assemblyFileName))
                     return true;
 
