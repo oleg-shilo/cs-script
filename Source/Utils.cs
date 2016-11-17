@@ -117,6 +117,22 @@ namespace csscript
             return (string[]) retval.ToArray(typeof(string));
         }
 
+#if !net1
+        public static string[] RemovePathDuplicates(string[] list)
+        {
+            return list.Select(x=>Path.GetFullPath(x)).Distinct().ToArray();
+        }
+
+        public static string[] RemoveDuplicates(string[] list)
+        {
+            return list.Distinct().ToArray();
+        }
+
+        public static string[] RemoveEmptyStrings(string[] list)
+        {
+            return list.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+        }
+#else
         public static string[] RemovePathDuplicates(string[] list)
         {
             System.Collections.ArrayList retval = new System.Collections.ArrayList();
@@ -174,6 +190,7 @@ namespace csscript
 
             return (string[]) retval.ToArray(typeof(string));
         }
+#endif
 
         //to avoid throwing the exception
         public static string GetAssemblyDirectoryName(Assembly asm)
@@ -1404,7 +1421,7 @@ namespace csscript
         }
     }
 
-    #region MetaDataItems...
+#region MetaDataItems...
 
     /// <summary>
     /// The MetaDataItems class contains information about script dependencies (referenced local
@@ -1724,7 +1741,7 @@ namespace csscript
         }
     }
 
-    #endregion MetaDataItems...
+#endregion MetaDataItems...
 
     internal class Cache
     {
