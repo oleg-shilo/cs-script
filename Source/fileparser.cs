@@ -254,7 +254,7 @@ namespace CSScriptLibrary
             referencedScripts.Clear();
             referencedNamespaces.Clear();
             referencedResources.Clear();
-
+            
             this.parser = new CSharpParser(fileName, true, null, this.searchDirs);
 
             foreach (CSharpParser.ImportInfo info in parser.Imports)

@@ -426,7 +426,10 @@ namespace csscript
                 Init(script, "", directivesToSearch, probingDirs);
             else
                 using (StreamReader sr = new StreamReader(script))
-                    Init(sr.ReadToEnd(), script, directivesToSearch, probingDirs);
+                {
+                    string code = sr.ReadToEnd();
+                    Init(code, script, directivesToSearch, probingDirs);
+                }
         }
 
         /// <summary>
@@ -454,6 +457,14 @@ namespace csscript
         //{
         //    Init(code, file, directivesToSearch, null);
         //}
+
+        /// <summary>
+        /// Global flag to forcefuly supress any C# code analysys. This flag efectively disables 
+        /// all CS-Script assembly and script probing and most likely some other functionality.
+        /// <para>You may ever want to supress code analysys for profiling perposes or during performance tuning.</para>
+        /// </summary>
+        public static bool SupressCodeAnalysis = false;
+
         /// <summary>
         /// Parses the C# code.
         /// </summary>
@@ -468,6 +479,9 @@ namespace csscript
                 workingDir = Path.GetDirectoryName(file);
 
             this.code = code;
+
+            if (SupressCodeAnalysis)
+                return;
 
             //analyse comments and strings
             NoteCommentsAndStrings();
@@ -1310,23 +1324,6 @@ namespace csscript
         /// </remarks>
         /// </summary>
         public static char[] DirectiveDelimiters = new char[] { ';', '(', ')', '{', '}', ',' };
-
-        bool IsTokenOld(int startPos, int length)
-        {
-            if (code.Length < startPos + length)
-                return false;
-
-            int probeStart = (startPos != 0) ? startPos - 1 : 0;
-            int endPos = (code.Length == startPos + length) ? startPos + length : startPos + length + 1;
-
-            string original = code.Substring(startPos, length);
-            string probeStr = code.Substring(probeStart, endPos - probeStart);
-
-            probeStr = probeStr.Replace(";", "").Replace("(", "").Replace(")", "").Replace("{", "");
-            probeStr = probeStr.Trim();
-
-            return probeStr.Length == original.Length;
-        }
 
         void NoteCommentsAndStrings()
         {
