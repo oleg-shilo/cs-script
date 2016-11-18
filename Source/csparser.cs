@@ -427,7 +427,7 @@ namespace csscript
             else
                 using (StreamReader sr = new StreamReader(script))
                 {
-                    string code = sr.ReadToEnd();
+                    string code = sr.ReadToEnd(); 
                     Init(code, script, directivesToSearch, probingDirs);
                 }
         }
@@ -461,7 +461,7 @@ namespace csscript
         /// <summary>
         /// Global flag to forcefuly supress any C# code analysys. This flag efectively disables 
         /// all CS-Script assembly and script probing and most likely some other functionality.
-        /// <para>You may ever want to supress code analysys for profiling perposes or during performance tuning.</para>
+        /// <para>You may ever want to supress code analysys only for profiling perposes or during performance tuning.</para>
         /// </summary>
         public static bool SupressCodeAnalysis = false;
 
