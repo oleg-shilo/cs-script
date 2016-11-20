@@ -80,7 +80,54 @@ public class EvalAsyncExtensions
         var test = await CSScript.CodeDomEvaluator
                                  .CreateDelegateAsync(
                                           @"//css_co /unsafe
-                                            unsafe public float UnsafeFunction(IntPtr data)
+                                            unsafe float UnsafeFunction(IntPtr data)
+                                            {
+                                                return (float)data + 5f;
+                                            }");
+        var data = (IntPtr)10;
+        var result = test(data);
+        Assert.Equal(15f, result);
+    }
+    
+    
+    [Fact]
+    public async void CreateUnsafeDelegateAsync2()
+    {
+        MonoEvaluator.CreateCompilerSettings = () => new Mono.CSharp.CompilerSettings { Unsafe = true };
+
+        var test = await CSScript.MonoEvaluator
+                                 .CreateDelegateAsync(
+                                          @"unsafe float UnsafeFunction(IntPtr data)
+                                            {
+                                                return (float)data + 5f;
+                                            }");
+        var data = (IntPtr)10;
+        var result = test(data);
+        Assert.Equal(15f, result);
+    }
+
+    [Fact]
+    public async void CreateUnsafeDelegateAsync2b()
+    {
+        //MonoEvaluator.CreateCompilerSettings = () => new Mono.CSharp.CompilerSettings { Unsafe = true };
+        var eval = CSScript.MonoEvaluator;
+        eval.CompilerSettings.Unsafe = true;
+        var test = await eval.CreateDelegateAsync(
+                                          @"unsafe float UnsafeFunction(IntPtr data)
+                                            {
+                                                return (float)data + 5f;
+                                            }");
+        var data = (IntPtr)10;
+        var result = test(data);
+        Assert.Equal(15f, result);
+    }
+
+    [Fact]
+    public async void CreateUnsafeDelegateAsync3()
+    {
+        var test = await CSScript.RoslynEvaluator
+                                 .CreateDelegateAsync(
+                                          @"unsafe float UnsafeFunction(IntPtr data)
                                             {
                                                 return (float)data + 5f;
                                             }");

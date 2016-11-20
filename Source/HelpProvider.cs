@@ -31,6 +31,7 @@ namespace csscript
         public const string l = "l";
         public const string inmem = "inmem";
         public const string ac = "ac";
+        public const string wait = "wait";
         public const string autoclass = "autoclass";
         public const string sconfig = "sconfig";
         public const string noconfig = "noconfig";
@@ -112,7 +113,13 @@ namespace csscript
                                                    "Prints content of sample script file",
                                                    "(e.g. " + AppInfo.appName + " /s > sample.cs).");
             switch1Help[ac] =
-            switch1Help[autoclass] = new ArgInfo("-ac|-autoclass",
+            switch1Help[autoclass] = new ArgInfo("-wait[:prompt]",
+                                                   "Waits for user input after the execution before exiting.",
+                                                   "If specified the execution will proceed with exit only after any STD input is received.\n"+
+                                                   "Applicable for console mode only.\n" +
+                                                   "prompt - if none specified 'Press any key to continue...' will be used\n");
+
+            switch1Help[wait] = new ArgInfo("-ac|-autoclass",
                                                    "Automatically generates 'entry point' class if the script doesn't define any.",
                                                    "\n" +
                                                    "    using System;\n" +

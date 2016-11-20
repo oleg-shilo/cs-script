@@ -315,7 +315,7 @@ namespace CSScriptLibrary
             // Weird I know...
             //
             //Fortunately the defaults are OK.
-            CompilerSettings = new CompilerSettings();
+            CompilerSettings = CreateCompilerSettings();
             service = new MCS.Evaluator(new CompilerContext(CompilerSettings, CompilingResult));
 
             if (referenceDomainAssemblies)
@@ -323,6 +323,8 @@ namespace CSScriptLibrary
 
             return this;
         }
+
+        public static Func<CompilerSettings> CreateCompilerSettings = () => new CompilerSettings();
 
         void SoftReset()
         {

@@ -820,6 +820,14 @@ namespace csscript
                         options.processFile = false;
                         executor.DoCacheOperations(argValue);
                     }
+                    else if (Args.ParseValuedArg(arg, AppArgs.wait, out argValue)) // -wait
+                    {
+                        if (argValue != null)
+                            executor.WaitForInputBeforeExit = argValue;
+                        else
+                            executor.WaitForInputBeforeExit = "Press any key to continue . . .";
+
+                    }
                     else if (Args.ParseValuedArg(arg, AppArgs.noconfig, out argValue) && !options.supressExecution) // -noconfig:<file>
                     {
                         options.noConfig = true;

@@ -1624,11 +1624,11 @@ namespace CSScriptLibrary
 
                             if (injectStatic)
                             {
-                                if (tokens[0] != "static" && tokens[1] != "static")
+                                if (tokens[0] != "static" && tokens[1] != "static" && tokens[2] != "static") //unsafe public static
                                     code.Append("   static\r\n");
                             }
 
-                            if (tokens[0] != "public" && tokens[1] != "public")
+                            if (tokens[0] != "public" && tokens[1] != "public" && tokens[2] != "public")
                                 code.Append("   public\r\n");
                         }
                     }

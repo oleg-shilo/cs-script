@@ -181,6 +181,12 @@ namespace csscript
                     }
 #endif
                 }
+
+                if (exec.WaitForInputBeforeExit != null)
+                {
+                    Console.WriteLine(exec.WaitForInputBeforeExit);
+                    Console.ReadKey();
+                }
             }
             finally
             {

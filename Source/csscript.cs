@@ -113,6 +113,8 @@ namespace csscript
         void ShowSample();
 
         ExecuteOptions GetOptions();
+
+        string WaitForInputBeforeExit { get; set; }
     }
 
     /// <summary>
@@ -129,6 +131,13 @@ namespace csscript
         {
             get { return rethrow; }
             set { rethrow = value; }
+        }
+
+        string waitForInputBeforeExit;
+        public string WaitForInputBeforeExit
+        {
+            get { return waitForInputBeforeExit; }
+            set { waitForInputBeforeExit = value; }
         }
 
         internal static Settings LoadSettings(ExecuteOptions options)
