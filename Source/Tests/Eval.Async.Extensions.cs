@@ -75,6 +75,21 @@ public class EvalAsyncExtensions
     }
 
     [Fact]
+    public async void CreateUnsafeDelegateAsync()
+    {
+        var test = await CSScript.CodeDomEvaluator
+                                 .CreateDelegateAsync(
+                                          @"//css_co /unsafe
+                                            unsafe public float UnsafeFunction(IntPtr data)
+                                            {
+                                                return (float)data + 5f;
+                                            }");
+        var data = (IntPtr)10;
+        var result = test(data);
+        Assert.Equal(15f, result);
+    }
+
+    [Fact]
     public async void CreateDelegateAsync()
     {
         string message = "success";
