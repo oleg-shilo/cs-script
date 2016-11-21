@@ -102,6 +102,46 @@
             The console encoding to be set for at the script initialization.
             </summary>
         </member>
+        <member name="T:csscript.Project">
+            <summary>
+            Class that holds all information about the execution context 
+            (probing directories and dependencies) of a script.
+            </summary>
+        </member>
+        <member name="F:csscript.Project.Script">
+            <summary>
+            Primary script that defines the project.
+            </summary>
+        </member>
+        <member name="F:csscript.Project.Files">
+            <summary>
+            List of all C# sources defined by the project. This 
+            includes the primary script itself and all other scripts files the imported/included
+            by the primary script.
+            </summary>
+        </member>
+        <member name="F:csscript.Project.Refs">
+            <summary>
+            List of assemblies the script of the project is referencing.
+            </summary>
+        </member>
+        <member name="F:csscript.Project.SearchDirs">
+            <summary>
+            List of search folders where CS-Script does probing for 
+            impirted/included scripts and assemblies.
+            </summary>
+        </member>
+        <member name="M:csscript.Project.GenerateProjectFor(System.String)">
+            <summary>
+            Generates the top level view project for a given script. 
+            <para>
+            Note this method uses the same algorithm as CS-Script executor but it deliberatelly doesn't
+            include cached directories and auto-generated files. This method is to be used by IDs and tools. 
+            </para>
+            </summary>
+            <param name="script">The script.</param>
+            <returns></returns>
+        </member>
         <member name="T:csscript.Settings">
             <summary>
             Settings is an class that holds CS-Script application settings.

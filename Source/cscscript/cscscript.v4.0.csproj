@@ -132,6 +132,9 @@
     <Compile Include="..\Precompiler.cs">
       <Link>Precompiler.cs</Link>
     </Compile>
+    <Compile Include="..\Project.cs">
+      <Link>Project.cs</Link>
+    </Compile>
     <Compile Include="..\ScriptLauncherBuilder.cs">
       <Link>ScriptLauncherBuilder.cs</Link>
     </Compile>

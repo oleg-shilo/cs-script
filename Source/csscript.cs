@@ -99,6 +99,7 @@ namespace csscript
     internal interface IScriptExecutor
     {
         void ShowHelpFor(string arg);
+        void ShowProjectFor(string arg);
 
         void ShowHelp(string helpTyp, params object[] context);
 
@@ -140,11 +141,27 @@ namespace csscript
             set { waitForInputBeforeExit = value; }
         }
 
+        internal static void HandleUserNoExecuteRequests(ExecuteOptions options)
+        {
+            if (AppArgs.proj == (options.nonExecuteOpRquest as string))
+            {
+                var project = Project.GenerateProjectFor(options.scriptFileName);
+                foreach (string file in project.Files)
+                    print("file:"+ file);
+
+                foreach (string file in project.Refs)
+                    print("ref:"+ file);
+
+                foreach (string file in project.SearchDirs)
+                    print("searcDir:"+ file);
+            }
+        }
+
         internal static Settings LoadSettings(ExecuteOptions options)
         {
             Settings settings = null;
 
-            if (options.noConfig)
+            if (options != null && options.noConfig)
             {
                 if (options.altConfig != "")
                     settings = Settings.Load(Path.GetFullPath(options.altConfig));
@@ -236,7 +253,14 @@ namespace csscript
                     int firstScriptArg = CSSUtils.ParseAppArgs(args, this);
 
                     if (!options.processFile)
-                        return; //no further processing is required (e.g. print help)
+                    {
+                        // No further processing is required. 
+                        // Some primitive request (e.g. print help) has been already dispatched
+                        // though some non-processing request cannot be done without using options
+                        // so let them to be handleed here.
+                        if (options.nonExecuteOpRquest == null)
+                            return;
+                    }
 
                     if (args.Length <= firstScriptArg)
                     {
@@ -487,6 +511,13 @@ namespace csscript
                     Environment.CurrentDirectory = originalCurrDir;
 
                     options.compilationContext = CSSUtils.GenerateCompilationContext(parser, options);
+
+                    if (options.nonExecuteOpRquest != null)
+                    {
+                        HandleUserNoExecuteRequests(options);
+                        if (!options.processFile)
+                            return;
+                    }
 
                     //Run main script
                     //We need to start the execution in a new thread as it is the only way
@@ -1526,6 +1557,10 @@ namespace csscript
         /// </summary>
         string Compile(string scriptFileName)
         {
+            // ********************************************************************************************
+            // * Extremely important to keep the project building algorithm in sync with ProjectBuilder.GenerateProjectFor
+            // ********************************************************************************************
+
             //System.Diagnostics.Debug.Assert(false);
             bool generateExe = options.buildExecutable;
             string scriptDir = Path.GetDirectoryName(scriptFileName);
@@ -2037,6 +2072,11 @@ namespace csscript
 
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool SetEnvironmentVariable(string lpName, string lpValue);
+
+        public void ShowProjectFor(string arg)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion Class methods...
     }

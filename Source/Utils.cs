@@ -47,6 +47,7 @@ using System.Threading;
 using System.Collections;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Xml;
 
 namespace csscript
 {
@@ -725,6 +726,18 @@ namespace csscript
             }
         }
 
+        static internal int FirstScriptArg(string[] args)
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
+                string arg = args[i];
+
+                if (arg[0] != '-' && File.Exists(arg))
+                    return i; //on Linux '/' may indicate dir but not command
+            }
+            return -1;
+        }
+
         /// <summary>
         /// Parses application (script engine) arguments.
         /// </summary>
@@ -815,7 +828,7 @@ namespace csscript
                             executor.ShowPrecompilerSample();
                         }
                     }
-                    else if (Args.ParseValuedArg(arg, AppArgs.cache, out argValue)) // -precompiler:file1,file2
+                    else if (Args.ParseValuedArg(arg, AppArgs.cache, out argValue)) // -cache[:<ls|trim|clear>]
                     {
                         options.processFile = false;
                         executor.DoCacheOperations(argValue);
@@ -856,6 +869,16 @@ namespace csscript
                         options.forceCompile = true;
                         options.supressExecution = true;
                         options.syntaxCheck = true;
+                    }
+                    else if (Args.ParseValuedArg(arg, AppArgs.proj, out argValue)) // -proj
+                    {
+                        // Requests for some no-dependency operations cn be handled here
+                        // e.g. ShowHelp
+                        // But others like ShowProject need to be provessed outside of this
+                        // arg parser (at the caller) as the whole list of parsed arguments 
+                        // may be required for handling request. 
+                        options.nonExecuteOpRquest = AppArgs.proj;
+                        options.processFile = false;
                     }
                     else if (Args.Same(arg, AppArgs.ca)) // -ca
                     {

@@ -132,6 +132,9 @@
       <Link>csparser.cs</Link>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="..\Project.cs">
+      <Link>Project.cs</Link>
+    </Compile>
     <Compile Include="..\csscript.cs">
       <Link>csscript.cs</Link>
       <SubType>Code</SubType>

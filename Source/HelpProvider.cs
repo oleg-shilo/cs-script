@@ -41,6 +41,7 @@ namespace csscript
         public const string pc = "pc";
         public const string precompiler = "precompiler";
         public const string cache = "cache";
+        public const string proj = "proj";
         public static string nathash = "nathash"; //instead of const make it static so this hidden option is not picked by autodocumentor
         static public string syntaxHelp = "";
 
@@ -99,7 +100,10 @@ namespace csscript
             switch1Help[cd] = new ArgInfo("-cd",
                                                   "Compiles script file into assembly (.dll) without execution.");
             switch1Help[check] = new ArgInfo("-check",
-                                                  "Checks script fro errors without execution.");
+                                                  "Checks script for errors without execution.");
+            switch1Help[proj] = new ArgInfo("-proj",
+                                                  "Shows script 'project info' - script and all its dependencies.");
+            
             switch1Help[cache] = new ArgInfo("-cache[:<ls|trim|clear>]",
                                                    "Performs script cache operations.",
                                                    " ls    - lists all cache items.\n" +

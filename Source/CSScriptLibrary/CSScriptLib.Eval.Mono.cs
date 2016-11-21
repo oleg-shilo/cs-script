@@ -324,6 +324,13 @@ namespace CSScriptLibrary
             return this;
         }
 
+        /// <summary>
+        /// The delegate for creating Mono compiler settings instance (<see cref="CompilerSettings"/>). The delegate
+        /// is a convenient way to specify global defaults for compiler settings. 
+        /// <example>
+        /// <code>MonoEvaluator.CreateCompilerSettings = () => new CompilerSettings {Unsafe = true };</code>
+        /// </example>
+        /// </summary>
         public static Func<CompilerSettings> CreateCompilerSettings = () => new CompilerSettings();
 
         void SoftReset()

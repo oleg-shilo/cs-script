@@ -146,6 +146,7 @@ namespace csscript
             clone.hideTemp = this.hideTemp;
             clone.autoClass = this.autoClass;
             clone.initContext = this.initContext;
+            clone.nonExecuteOpRquest = this.nonExecuteOpRquest;
             clone.customHashing = this.customHashing;
             clone.compilationContext = this.compilationContext;
             clone.useScriptConfig = this.useScriptConfig;
@@ -202,6 +203,7 @@ namespace csscript
             clone.customHashing = this.customHashing;
             clone.altConfig = this.altConfig;
             clone.hideTemp = this.hideTemp;
+            clone.nonExecuteOpRquest = this.nonExecuteOpRquest;
             clone.initContext = this.initContext;
             clone.scriptFileNamePrimary = this.scriptFileNamePrimary;
             clone.doCleanupAfterNumberOfRuns = this.doCleanupAfterNumberOfRuns;
@@ -214,6 +216,7 @@ namespace csscript
 
         public bool inMemoryAsm = false;
         public bool processFile = true;
+        public object nonExecuteOpRquest = null;
         public int compilationContext = 0;
         public string scriptFileName = "";
         public object initContext= null;
@@ -227,6 +230,7 @@ namespace csscript
         public bool forceCompile = false;
         public bool supressExecution = false;
         public bool syntaxCheck = false;
+        //public bool syntaxCheck = false;
         public bool DBG = false;
 #if net35
         public string TargetFramework = "v3.5";
