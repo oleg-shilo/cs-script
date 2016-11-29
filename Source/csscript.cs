@@ -1816,14 +1816,18 @@ namespace csscript
             {
                 CompilerException ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings);
                 if (options.syntaxCheck)
-                    Console.WriteLine("Compile: {0} error(s)\n{1}", ex.ErrorCount, ex.Message);
+                {
+                    Console.WriteLine("Compile: {0} error(s)\n{1}", ex.ErrorCount, ex.Message.Trim());
+                }
                 else
                     throw ex;
             }
             else
             {
                 if (options.syntaxCheck)
+                {
                     Console.WriteLine("Compile: OK");
+                }
 
                 if (options.verbose)
                 {
