@@ -26,7 +26,7 @@ namespace csscript
         public const string ew = "ew";
         public const string dir = "dir";
         public const string @out = "out";
-        public const string dbg = "debug";
+        public const string dbg = "dbg";
         public const string d = "d";
         public const string l = "l";
         public const string inmem = "inmem";
