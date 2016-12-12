@@ -137,7 +137,9 @@ public class CodeDom
     [Fact]
     public void LoadCodeAndAlignToInterface()
     {
+        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location 
         CSScript.GlobalSettings.InMemoryAssembly = false;
+
         var script = CSScript.LoadCode(@"public class Script
                                                 {
                                                     public int Sum(int a, int b)
@@ -188,7 +190,9 @@ public class CodeDom
     [Fact]
     public void LoadMethodAndAlignToInterface()
     {
+        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location 
         CSScript.GlobalSettings.InMemoryAssembly = false;
+
         var script = CSScript.LoadMethod(@"int Sum(int a, int b)
                                          {
                                              return a+b;
