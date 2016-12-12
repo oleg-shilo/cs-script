@@ -407,7 +407,7 @@ namespace csscript
                             if (dir.Trim() != "")
                                 builder.Append(string.Format("{0}\n", dir));
 
-                        builder.Append(string.Format("{0}\n", Utils.GetAssemblyDirectoryName(typeof(HelpProvider).Assembly)));
+                        builder.Append(string.Format("{0}\n", typeof(HelpProvider).Assembly.GetAssemblyDirectoryName()));
                         return builder.ToString();
                     }
                 case AppArgs.syntax: return AppArgs.syntaxHelp;

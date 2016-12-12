@@ -73,7 +73,7 @@ namespace csscript
             AppDomainSetup setup = new AppDomainSetup();
             setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             setup.PrivateBinPath = AppDomain.CurrentDomain.BaseDirectory;
-            setup.ApplicationName = Utils.GetAssemblyFileName(Assembly.GetExecutingAssembly());
+            setup.ApplicationName = Path.GetFileName(Assembly.GetExecutingAssembly().Location());
             setup.ShadowCopyFiles = "true";
             setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
@@ -90,7 +90,7 @@ namespace csscript
                 AppDomainSetup setup = new AppDomainSetup();
                 setup.ApplicationBase = Path.GetDirectoryName(assemblyFileName);
                 setup.PrivateBinPath = AppDomain.CurrentDomain.BaseDirectory;
-                setup.ApplicationName = Utils.GetAssemblyFileName(Assembly.GetExecutingAssembly());
+                setup.ApplicationName = Path.GetFileName(Assembly.GetExecutingAssembly().Location());
                 setup.ShadowCopyFiles = "true";
                 setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 

@@ -259,7 +259,7 @@ namespace CSScriptLibrary
 
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            var dirs = searchDirs.Concat(new string[] { Utils.GetAssemblyDirectoryName(Assembly.GetCallingAssembly()) })
+            var dirs = searchDirs.Concat(new string[] { Assembly.GetCallingAssembly().GetAssemblyDirectoryName() })
                                  .Concat(parser.ExtraSearchDirs)
                                  .Concat(globalProbingDirs)
                                  .Where(x => !string.IsNullOrEmpty(x))
@@ -494,7 +494,7 @@ namespace CSScriptLibrary
         public IEvaluator ReferenceAssembly(string assembly)
         {
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            globalProbingDirs.Add(Utils.GetAssemblyDirectoryName(Assembly.GetCallingAssembly()));
+            globalProbingDirs.Add(Assembly.GetCallingAssembly().GetAssemblyDirectoryName());
 
             var dirs = globalProbingDirs.Where(x=> !string.IsNullOrEmpty(x)).ToArray();
 
@@ -519,7 +519,7 @@ namespace CSScriptLibrary
         /// <returns>The instance of the <see cref="CSScriptLibrary.IEvaluator"/> to allow  fluent interface.</returns>
         public IEvaluator ReferenceAssembly(Assembly assembly)
         {
-            string location = Utils.GetAssemblyLocation(assembly);
+            string location = assembly.Location();
             if (Utils.IsNullOrWhiteSpace(location))
                 throw new ApplicationException(
                     "CodeDom compiling doesn't support referencing assemblies which are not loaded from the file location.");

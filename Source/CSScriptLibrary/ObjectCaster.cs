@@ -19,6 +19,7 @@
  */
 
 using System;
+using csscript;
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -229,8 +230,8 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
             CodeCompileUnit compileUnit = GenerateProxyClass(interfaceType, sourceType, injectNamespace);
             CodeDomProvider provider = CodeDomProvider.CreateProvider("CSharp");
 
-            try { compileUnit.ReferencedAssemblies.Add(csscript.Utils.GetAssemblyLocation(sourceType.Assembly)); } catch { }
-            try { compileUnit.ReferencedAssemblies.Add(csscript.Utils.GetAssemblyLocation(interfaceType.Assembly)); } catch { }
+            try { compileUnit.ReferencedAssemblies.Add(csscript.Utils.Location(sourceType.Assembly)); } catch { }
+            try { compileUnit.ReferencedAssemblies.Add(csscript.Utils.Location(interfaceType.Assembly)); } catch { }
 
             foreach (var asmFile in refAssemblies)
                 compileUnit.ReferencedAssemblies.Add(asmFile);

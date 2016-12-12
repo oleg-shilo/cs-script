@@ -123,7 +123,7 @@ public static class CSScriptLibraryExtensionMethods
 #endif
     {
         //AssemblyInstance should not resemble a path. Otherwise Mutex constructor will throw.
-        using (var mutex = new Mutex(false, "AssemblyInstance - " + Utils.GetAssemblyLocation(assembly).Replace("\\", "-")))
+        using (var mutex = new Mutex(false, "AssemblyInstance - " + assembly.Location().Replace("\\", "-")))
         {
             try
             {
@@ -1103,7 +1103,7 @@ namespace CSScriptLibrary
                 foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
                     try
                     {
-                        string location = Utils.GetAssemblyLocation(asm);
+                        string location = asm.Location();
                         if (location == "" || !File.Exists(location))
                             continue;
 
@@ -1383,7 +1383,7 @@ namespace CSScriptLibrary
             try
             {
                 if (!CSSUtils.IsDynamic(asm))
-                    workingDir = Utils.GetAssemblyDirectoryName(asm);
+                    workingDir = asm.GetAssemblyDirectoryName();
             }
             catch { }
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(ResolveEventHandler);

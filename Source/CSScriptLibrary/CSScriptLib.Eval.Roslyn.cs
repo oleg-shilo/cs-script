@@ -327,7 +327,7 @@ namespace CSScriptLibrary
 
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            var dirs = searchDirs.Concat(new string[] { Utils.GetAssemblyDirectoryName(Assembly.GetCallingAssembly()) })
+            var dirs = searchDirs.Concat(new string[] { Assembly.GetCallingAssembly().GetAssemblyDirectoryName() })
                                  .Concat(parser.ExtraSearchDirs)
                                  .Concat(globalProbingDirs)
                                  .ToArray();
@@ -596,7 +596,7 @@ namespace CSScriptLibrary
         public IEvaluator ReferenceAssembly(string assembly)
         {
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            globalProbingDirs.Add(Utils.GetAssemblyDirectoryName(Assembly.GetCallingAssembly()));
+            globalProbingDirs.Add(Assembly.GetCallingAssembly().GetAssemblyDirectoryName());
 
             var dirs = globalProbingDirs.ToArray();
 
@@ -620,12 +620,12 @@ namespace CSScriptLibrary
         public IEvaluator ReferenceAssembly(Assembly assembly)
         {
             //Microsoft.Net.Compilers.1.2.0 - beta
-            if (Utils.IsNullOrWhiteSpace(Utils.GetAssemblyLocation(assembly)))
+            if (Utils.IsNullOrWhiteSpace(assembly.Location()))
                 throw new ApplicationException(
                     "Current version of Microsoft.CodeAnalysis.Scripting.dll doesn't support referencing assemblies " +
                     "which are not loaded from the file location. You may want to use CS-Script MonoEvaluator (Mono.CSharp)");
 
-            if (!CompilerSettings.MetadataReferences.Cast<PortableExecutableReference>().Any(r => Utils.IsSamePath(r.FilePath, Utils.GetAssemblyLocation(assembly))))
+            if (!CompilerSettings.MetadataReferences.Cast<PortableExecutableReference>().Any(r => Utils.IsSamePath(r.FilePath, assembly.Location())))
                 //Future assembly aliases support:
                 //MetadataReference.CreateFromFile("asm.dll", new MetadataReferenceProperties().WithAliases(new[] { "lib_a", "external_lib_a" } })
                 CompilerSettings = CompilerSettings.AddReferences(assembly);

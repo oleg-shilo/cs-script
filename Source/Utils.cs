@@ -77,7 +77,7 @@ namespace csscript
         bool disposed = false;
     }
 
-    internal class Utils
+    internal static class Utils
     {
         //unfortunately LINQ is not available for .NET 1.1 compilations
         public static string[] Concat(string[] array1, string[] array2)
@@ -194,9 +194,9 @@ namespace csscript
 #endif
 
         //to avoid throwing the exception
-        public static string GetAssemblyDirectoryName(Assembly asm)
+        public static string GetAssemblyDirectoryName(this Assembly asm)
         {
-            string location = GetAssemblyLocation(asm);
+            string location = asm.Location();
             if (location == "")
                 return "";
             else
@@ -204,13 +204,7 @@ namespace csscript
         }
 
         //to avoid throwing the exception
-        public static string GetAssemblyFileName(Assembly asm)
-        {
-            return Path.GetFileName(GetAssemblyLocation(asm));
-        }
-
-        //to avoid throwing the exception
-        public static string GetAssemblyLocation(Assembly asm)
+        public static string Location(this Assembly asm)
         {
             if (CSSUtils.IsDynamic(asm))
             {
@@ -1226,7 +1220,7 @@ namespace csscript
         public static string[] GetAppDomainAssemblies()
         {
             return (from a in AppDomain.CurrentDomain.GetAssemblies()
-                    let location = Utils.GetAssemblyLocation(a)
+                    let location = a.Location()
                     where location != "" && !a.GlobalAssemblyCache
                     select location).ToArray();
         }

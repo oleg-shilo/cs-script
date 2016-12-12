@@ -369,7 +369,7 @@ namespace CSScriptLibrary
         /// <returns></returns>
         public static string GetOriginalLocation(this Assembly assembly)
         {
-            string location = Utils.GetAssemblyLocation(assembly);
+            string location = assembly.Location();
             if (location != null && location != "")
                 return location;
             return null;
@@ -1073,7 +1073,7 @@ namespace CSScriptLibrary
                 foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
                     try
                     {
-                        string location = Utils.GetAssemblyLocation(asm);
+                        string location = Utils.Location(asm);
                         if (location == "" || !File.Exists(location))
                             continue;
 
@@ -1509,7 +1509,7 @@ namespace CSScriptLibrary
 
             refAssemblies = AppDomain.CurrentDomain
                                      .GetAssemblies()
-                                     .Select(a => Utils.GetAssemblyLocation(a))
+                                     .Select(a => a.Location())
                                      .Where(a => a != "")
                                      .ToArray();
             return code;
@@ -1794,7 +1794,7 @@ namespace CSScriptLibrary
 
                     Assembly asm = Load(tempFile, assemblyFile, debugBuild, refAssemblies);
 
-                    string location = Utils.GetAssemblyLocation(asm);
+                    string location = asm.Location();
                     
                     if (CacheEnabled && !Utils.IsNullOrWhiteSpace(location))
                         if (dynamicScriptsAssemblies.ContainsKey(scriptTextCRC))
@@ -2137,7 +2137,7 @@ namespace CSScriptLibrary
 
             foreach (LoadedScript item in ScriptCache)
             {
-                string location = Utils.GetAssemblyLocation(item.asm);
+                string location = item.asm.Location();
                 if (item.script == path && !IsOutOfDateAlgorithm(path, location))
                     return location;
             }
@@ -2162,7 +2162,7 @@ namespace CSScriptLibrary
 
             foreach (LoadedScript item in ScriptCache)
             {
-                string location = Utils.GetAssemblyLocation(item.asm);
+                string location = item.asm.Location();
                 if (item.script == path && !IsOutOfDateAlgorithm(path, location))
                     return item.asm;
             }

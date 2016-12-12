@@ -130,7 +130,7 @@ namespace CSScriptLibrary
             public static RemoteLoadingContext NewFor(IEvaluator evaluator, string scriptCode)
             {
                 var asms = evaluator.GetReferencedAssemblies()
-                                    .Select(x => Utils.GetAssemblyLocation(x))
+                                    .Select(x => x.Location())
                                     .Where(x => !string.IsNullOrEmpty(x) );
 
                 return new RemoteLoadingContext
@@ -328,7 +328,7 @@ namespace CSScriptLibrary
         public static T LoadCodeRemotely<T>(this IEvaluator evaluator, string scriptCode, params string[] probingDirs) where T : class
         {
             var cx = RemoteLoadingContext.NewFor(evaluator, scriptCode);
-            var searchDirs = Utils.Concat(probingDirs, Path.GetDirectoryName(Utils.GetAssemblyLocation(typeof(T).Assembly)));
+            var searchDirs = Utils.Concat(probingDirs, Path.GetDirectoryName(typeof(T).Assembly.Location()));
 
             var remoteDomain = evaluator.GetRemoteDomain();
             if (remoteDomain == null)

@@ -319,7 +319,7 @@ namespace csscript
                                     dirs.Add(Path.GetFullPath(dir));
                     }
 
-                    dirs.Add(Utils.GetAssemblyDirectoryName(this.GetType().Assembly));
+                    dirs.Add(this.GetType().Assembly.GetAssemblyDirectoryName());
 #if net1
                     options.scriptFileName = FileParser.ResolveFile(options.scriptFileName, (string[])dirs.ToArray(typeof(string)));
 #else
@@ -661,7 +661,7 @@ namespace csscript
                         if (settings != null)
                             dirs.AddRange(Environment.ExpandEnvironmentVariables(settings.SearchDirs).Split(",;".ToCharArray()));
 
-                        dirs.Add(Utils.GetAssemblyDirectoryName(Assembly.GetExecutingAssembly()));
+                        dirs.Add(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName());
 
 #if net1
                         string[] searchDirs = (string[])dirs.ToArray(typeof(string));
@@ -1334,7 +1334,7 @@ namespace csscript
                         }
                         else
                         {
-                            probingDir = Path.GetFullPath(Utils.GetAssemblyDirectoryName(Assembly.GetExecutingAssembly()));
+                            probingDir = Path.GetFullPath(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName());
                             altCompilerFile = Path.Combine(probingDir, options.altCompiler);
                             if (File.Exists(altCompilerFile))
                             {
@@ -1351,7 +1351,7 @@ namespace csscript
                                 else
                                 {
                                     //in case of CSScriptLibrary.dll "this" is not defined in the main executable
-                                    probingDir = Path.GetFullPath(Utils.GetAssemblyDirectoryName(this.GetType().Assembly));
+                                    probingDir = Path.GetFullPath(this.GetType().Assembly.GetAssemblyDirectoryName());
                                     altCompilerFile = Path.Combine(probingDir, options.altCompiler);
                                     if (File.Exists(altCompilerFile))
                                     {
@@ -1431,7 +1431,7 @@ namespace csscript
                 {
                     try
                     {
-                        string location = Utils.GetAssemblyLocation(asm);
+                        string location = asm.Location();
                         
                         if (!File.Exists(location) || location.Contains("mscorlib"))
                             continue;
@@ -1577,7 +1577,7 @@ namespace csscript
             options.searchDirs = Utils.RemoveDuplicates(
                                  Utils.Concat(
                                         parser.SearchDirs, //parser.searchDirs may be updated as result of script parsing
-                                        Utils.GetAssemblyDirectoryName(Assembly.GetExecutingAssembly())));
+                                        Assembly.GetExecutingAssembly().GetAssemblyDirectoryName()));
 
             string[] filesToInject = new string[0];
 
