@@ -121,7 +121,7 @@ namespace csscript
 #if !net1
         public static string[] RemovePathDuplicates(string[] list)
         {
-            return list.Select(x=>Path.GetFullPath(x)).Distinct().ToArray();
+            return list.Select(x => Path.GetFullPath(x)).Distinct().ToArray();
         }
 
         public static string[] RemoveDuplicates(string[] list)
@@ -196,19 +196,32 @@ namespace csscript
         //to avoid throwing the exception
         public static string GetAssemblyDirectoryName(Assembly asm)
         {
-            if (CSSUtils.IsDynamic(asm))
+            string location = GetAssemblyLocation(asm);
+            if (location == "")
                 return "";
             else
-                return Path.GetDirectoryName(asm.Location);
+                return Path.GetDirectoryName(location);
         }
 
         //to avoid throwing the exception
         public static string GetAssemblyFileName(Assembly asm)
         {
+            return Path.GetFileName(GetAssemblyLocation(asm));
+        }
+
+        //to avoid throwing the exception
+        public static string GetAssemblyLocation(Assembly asm)
+        {
             if (CSSUtils.IsDynamic(asm))
-                return "";
+            {
+                string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
+                if (location == null)
+                    return "";
+                else
+                    return location ?? "";
+            }
             else
-                return Path.GetFileName(asm.Location);
+                return asm.Location;
         }
 
         public static string RemoveAssemblyExtension(string asmName)
@@ -1213,8 +1226,9 @@ namespace csscript
         public static string[] GetAppDomainAssemblies()
         {
             return (from a in AppDomain.CurrentDomain.GetAssemblies()
-                    where !CSSUtils.IsDynamic(a) && !a.GlobalAssemblyCache
-                    select a.Location).ToArray();
+                    let location = Utils.GetAssemblyLocation(a)
+                    where location != "" && !a.GlobalAssemblyCache
+                    select location).ToArray();
         }
 
 #endif
@@ -1452,7 +1466,7 @@ namespace csscript
         }
     }
 
-#region MetaDataItems...
+    #region MetaDataItems...
 
     /// <summary>
     /// The MetaDataItems class contains information about script dependencies (referenced local
@@ -1772,7 +1786,7 @@ namespace csscript
         }
     }
 
-#endregion MetaDataItems...
+    #endregion MetaDataItems...
 
     internal class Cache
     {

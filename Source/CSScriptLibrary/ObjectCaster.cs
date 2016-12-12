@@ -209,6 +209,8 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
                 _proxyCache[sourceType] = proxyType;
             }
 
+            var constructors = proxyType.GetConstructors();
+            //var proxyObj = constructors[0].Invoke(new object[] { o });
             return Activator.CreateInstance(proxyType, o) as T;
         }
 
@@ -227,8 +229,8 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
             CodeCompileUnit compileUnit = GenerateProxyClass(interfaceType, sourceType, injectNamespace);
             CodeDomProvider provider = CodeDomProvider.CreateProvider("CSharp");
 
-            try { compileUnit.ReferencedAssemblies.Add(sourceType.Assembly.Location); } catch { }
-            try { compileUnit.ReferencedAssemblies.Add(interfaceType.Assembly.Location); } catch { }
+            try { compileUnit.ReferencedAssemblies.Add(csscript.Utils.GetAssemblyLocation(sourceType.Assembly)); } catch { }
+            try { compileUnit.ReferencedAssemblies.Add(csscript.Utils.GetAssemblyLocation(interfaceType.Assembly)); } catch { }
 
             foreach (var asmFile in refAssemblies)
                 compileUnit.ReferencedAssemblies.Add(asmFile);

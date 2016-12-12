@@ -360,7 +360,7 @@ namespace csscript
                                        " 'location:<assm_hash>' - location of the compiled script assembly.\n" +
                                        "                          This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script code.\n" +
                                        "                          Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file.\n" +
-                                       "                          (e.g. var location = Environment.GetEnvironmentVariable(\"location:\" + Assembly.GetExecutingAssembly().GetHashCode();\n" +
+                                       "                          (e.g. var location = Environment.GetEnvironmentVariable(\"location:\" + Assembly.GetExecutingAssembly().GetHashCode());\n" +
                                        "------------------------------------\n" +
                                        "\n" +
                                        "Any directive has to be written as a single line in order to have no impact on compiling by CLI compliant compiler.\n" +

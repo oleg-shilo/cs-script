@@ -471,8 +471,13 @@ namespace csscript
         /// This setting can be useful when you need to prevent script assembly (compiled script) from locking by CLR during the execution.
         /// false - script assembly will be loaded as a file. It is an equivalent of Assembly.LoadFrom(string assemblyFile).
         /// true - script assembly will be loaded as a file. It is an equivalent of Assembly.Load(byte[] rawAssembly)
+        /// <para>Note: some undesired side effects can be triggered by having assemblies with <c>Assembly.Location</c> being empty. 
+        /// For example <c>Interface Alignment</c> any not work with such assemblies as it relies on CLR compiling services that 
+        /// typically require assembly <c>Location</c> member being populated with the valid path.</para>
         /// </summary>
-        [Category("RuntimeSettings"), Description("Indicates the script assembly is to be loaded by CLR as an in-memory byte stream instead of the file.")]
+        [Category("RuntimeSettings"), 
+         Description("Indicates the script assembly is to be loaded by CLR as an in-memory byte stream instead of the file. "+                      
+                      "Note this settings can affect the use cases requiring the loaded assemblies to have non empty Assembly.Location.")]
         public bool InMemoryAssembly
         {
             get { return inMemoryAsm; }

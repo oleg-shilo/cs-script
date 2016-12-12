@@ -101,6 +101,7 @@ namespace CSScriptLibrary
             public string code;
             public string[] refAsms;
             public bool debug;
+            public bool inMemoryAsm;
             public Type evaluatorType;
             public object scriptObj;
             public string error;
@@ -129,22 +130,15 @@ namespace CSScriptLibrary
             public static RemoteLoadingContext NewFor(IEvaluator evaluator, string scriptCode)
             {
                 var asms = evaluator.GetReferencedAssemblies()
-                                    .Select(x =>
-                                            {
-                                                try
-                                                {
-                                                    return x.Location;
-                                                }
-                                                catch { }
-                                                return null;
-                                            })
-                                    .Where(x => x != null);
+                                    .Select(x => Utils.GetAssemblyLocation(x))
+                                    .Where(x => !string.IsNullOrEmpty(x) );
 
                 return new RemoteLoadingContext
                 {
                     code = scriptCode,
                     refAsms = asms.ToArray(),
                     debug = evaluator.DebugBuild,
+                    inMemoryAsm = CSScript.GlobalSettings.InMemoryAssembly,
                     evaluatorType = evaluator.GetType()
                 };
             }
@@ -334,7 +328,7 @@ namespace CSScriptLibrary
         public static T LoadCodeRemotely<T>(this IEvaluator evaluator, string scriptCode, params string[] probingDirs) where T : class
         {
             var cx = RemoteLoadingContext.NewFor(evaluator, scriptCode);
-            var searchDirs = Utils.Concat(probingDirs, Path.GetDirectoryName(typeof(T).Assembly.Location));
+            var searchDirs = Utils.Concat(probingDirs, Path.GetDirectoryName(Utils.GetAssemblyLocation(typeof(T).Assembly)));
 
             var remoteDomain = evaluator.GetRemoteDomain();
             if (remoteDomain == null)
@@ -344,6 +338,8 @@ namespace CSScriptLibrary
             {
                 try
                 {
+                    CSScript.GlobalSettings.InMemoryAssembly = context.inMemoryAsm;
+
                     IEvaluator eval = RemoteLoadingContext.CreateEvaluator(context);
 
                     context.scriptObj = eval.CompileCode(context.code)
@@ -352,7 +348,7 @@ namespace CSScriptLibrary
                     bool implementsInterface = typeof(T).IsAssignableFrom(context.scriptObj.GetType());
 
                     if (!implementsInterface) //try to align to T
-                        context.scriptObj = context.scriptObj.AlignToInterface<T>();
+                        context.scriptObj = context.scriptObj.AlignToInterface<T>(context.scriptObj.GetType().Assembly.Location);
                 }
                 catch (Exception e)
                 {
@@ -425,6 +421,8 @@ namespace CSScriptLibrary
 
                     var script = eval.ReferenceAssemblyOf<CSScript>()
                                      .CompileCode(context.code);
+
+                    //var asm = script.GetType().Assembly.Location;
 
 #if net45
                     string agentTypeName = script.DefinedTypes.Where(t => t.Name == "RemoteAgent").First().FullName;

@@ -56,9 +56,9 @@ namespace csscript
                 Init(fileNname, domainName);
         }
 
-        void Init(string fileNname, string domainName)
+        void Init(string fileName, string domainName)
         {
-            //difference comparing to InitLagacy:
+            //difference comparing to InitLegacy:
             // CreateInstanceAndUnwrap instead of CreateInstanceFromAndUnwrap
             //
             // setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -68,7 +68,7 @@ namespace csscript
             // This is a low impact change as AssemblyExecutor is only used for cached vs. non-cached execution in stand alone 
             // hosting mode.
 
-            assemblyFileName = fileNname;
+            assemblyFileName = fileName;
 
             AppDomainSetup setup = new AppDomainSetup();
             setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

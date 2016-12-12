@@ -1431,13 +1431,12 @@ namespace csscript
                 {
                     try
                     {
-                        if (CSSUtils.IsDynamic(asm))
+                        string location = Utils.GetAssemblyLocation(asm);
+                        
+                        if (!File.Exists(location) || location.Contains("mscorlib"))
                             continue;
 
-                        if (!File.Exists(asm.Location) || asm.Location.Contains("mscorlib"))
-                            continue;
-
-                        requestedRefAsms.AddAssembly(asm.Location);
+                        requestedRefAsms.AddAssembly(location);
                     }
                     catch
                     {

@@ -191,6 +191,7 @@ public class CodeDomEval
     [Fact]
     public void LoadCodeTyped()
     {
+        CSScript.GlobalSettings.InMemoryAssembly = false;
         ICalc script = CSScript.CodeDomEvaluator
                                .LoadCode<ICalc>(@"using System;
                                                   public class Script
@@ -297,6 +298,7 @@ public class CodeDomEval
     [Fact]
     public void LoadMethodTyped()
     {
+        CSScript.GlobalSettings.InMemoryAssembly = false;
         ICalc script = CSScript.CodeDomEvaluator 
                                .LoadMethod<ICalc>(@"using System;
 

@@ -75,6 +75,7 @@ public class EvalRemoteExtensions
     [Fact]
     public void CreateDelegateRemotelyMono()
     {
+
         var sum = CSScript.MonoEvaluator
                           .CreateDelegateRemotely(@"int Sum(int a, int b)
                                                     {
@@ -133,7 +134,11 @@ public class EvalRemoteExtensions
     [Fact]
     public void LoadCodeRemotelyTyped()
     {
+        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location 
+        CSScript.GlobalSettings.InMemoryAssembly = false;
+
         //Mono and Roslyn file-less asms cannot be used to build duck-typed proxies
+
         var script = CSScript.CodeDomEvaluator
                              .LoadCodeRemotely<ICalc>(@"using System;
                                                         public class Calc : MarshalByRefObject

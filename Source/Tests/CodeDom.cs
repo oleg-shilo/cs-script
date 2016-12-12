@@ -137,6 +137,7 @@ public class CodeDom
     [Fact]
     public void LoadCodeAndAlignToInterface()
     {
+        CSScript.GlobalSettings.InMemoryAssembly = false;
         var script = CSScript.LoadCode(@"public class Script
                                                 {
                                                     public int Sum(int a, int b)
@@ -155,6 +156,7 @@ public class CodeDom
     [Fact]
     public void LoadDelegateAction()
     {
+        CSScript.CleanupDynamicSources();
         var Test = CSScript.LoadDelegate<Action<InputData>>(
                                         @"using Tests;
                                           void Test(InputData data)
@@ -182,23 +184,11 @@ public class CodeDom
         Assert.Equal(6, result);
     }
 
-    [Fact]
-    public void _LoadMethod()
-    {
-        dynamic script = CSScript.MonoEvaluator
-                                 .LoadMethod(@"int Product(int a, int b)
-                                                   {
-                                                       return a * b;
-                                                   }");
-
-        int result = script.Product(3, 2);
-
-        Assert.Equal(6, result);
-    }
 
     [Fact]
-    public void LoadMEthodAndAlignToInterface()
+    public void LoadMethodAndAlignToInterface()
     {
+        CSScript.GlobalSettings.InMemoryAssembly = false;
         var script = CSScript.LoadMethod(@"int Sum(int a, int b)
                                          {
                                              return a+b;

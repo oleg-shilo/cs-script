@@ -41,6 +41,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using csscript;
+using System.Diagnostics;
 
 // <summary>
 //<package id="Microsoft.Net.Compilers" version="1.2.0-beta-20151211-01" targetFramework="net45" developmentDependency="true" />
@@ -326,7 +327,7 @@ namespace CSScriptLibrary
 
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            var dirs = searchDirs.Concat(new string[] { Path.GetDirectoryName(Assembly.GetCallingAssembly().Location) })
+            var dirs = searchDirs.Concat(new string[] { Utils.GetAssemblyDirectoryName(Assembly.GetCallingAssembly()) })
                                  .Concat(parser.ExtraSearchDirs)
                                  .Concat(globalProbingDirs)
                                  .ToArray();
@@ -401,6 +402,7 @@ namespace CSScriptLibrary
         /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script.</returns>
         public T LoadCode<T>(string scriptText, params object[] args) where T : class
         {
+            //Debug.Assert(false);
             if (!DisableReferencingFromCode)
                 ReferenceAssembliesFromCode(scriptText);
 
@@ -412,6 +414,7 @@ namespace CSScriptLibrary
             var scriptObject = scriptAsm.CreateObject("*", args);
             Type scriptType = scriptObject.GetType();
 
+            this.ReferenceAssemblyOf<T>();
             string type = "";
             string proxyClass = scriptObject.BuildAlignToInterfaceCode<T>(out type, false);
             string parentClass = scriptType.FullName.Split('+').First(); //Submission#0+Script
@@ -593,7 +596,7 @@ namespace CSScriptLibrary
         public IEvaluator ReferenceAssembly(string assembly)
         {
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            globalProbingDirs.Add(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location));
+            globalProbingDirs.Add(Utils.GetAssemblyDirectoryName(Assembly.GetCallingAssembly()));
 
             var dirs = globalProbingDirs.ToArray();
 
@@ -617,12 +620,12 @@ namespace CSScriptLibrary
         public IEvaluator ReferenceAssembly(Assembly assembly)
         {
             //Microsoft.Net.Compilers.1.2.0 - beta
-            if (Utils.IsNullOrWhiteSpace(assembly.Location))
+            if (Utils.IsNullOrWhiteSpace(Utils.GetAssemblyLocation(assembly)))
                 throw new ApplicationException(
                     "Current version of Microsoft.CodeAnalysis.Scripting.dll doesn't support referencing assemblies " +
                     "which are not loaded from the file location. You may want to use CS-Script MonoEvaluator (Mono.CSharp)");
 
-            if (!CompilerSettings.MetadataReferences.Cast<PortableExecutableReference>().Any(r => Utils.IsSamePath(r.FilePath, assembly.Location)))
+            if (!CompilerSettings.MetadataReferences.Cast<PortableExecutableReference>().Any(r => Utils.IsSamePath(r.FilePath, Utils.GetAssemblyLocation(assembly))))
                 //Future assembly aliases support:
                 //MetadataReference.CreateFromFile("asm.dll", new MetadataReferenceProperties().WithAliases(new[] { "lib_a", "external_lib_a" } })
                 CompilerSettings = CompilerSettings.AddReferences(assembly);

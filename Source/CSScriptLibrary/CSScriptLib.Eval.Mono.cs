@@ -418,9 +418,9 @@ namespace CSScriptLibrary
         public IEvaluator ReferenceAssembly(string assembly)
         {
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            globalProbingDirs.Add(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location));
+            globalProbingDirs.Add(Utils.GetAssemblyDirectoryName(Assembly.GetCallingAssembly()));
 
-            var dirs = globalProbingDirs.ToArray();
+            var dirs = globalProbingDirs.Where(x=> !string.IsNullOrEmpty(x)).ToArray();
 
             string asmFile = AssemblyResolver.FindAssembly(assembly, dirs).FirstOrDefault();
             if (asmFile == null)
@@ -660,9 +660,9 @@ namespace CSScriptLibrary
             if (script is T)
                 return (T) script;
 
+            this.ReferenceAssemblyOf<T>();
             string type = "";
             string proxyClass = script.BuildAlignToInterfaceCode<T>(out type, true);
-
             CompileCode(proxyClass);
             var proxyType = GetCompiledType(type);
 
@@ -683,7 +683,7 @@ namespace CSScriptLibrary
 
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            var dirs = searchDirs.Concat(new string[] { Path.GetDirectoryName(Assembly.GetCallingAssembly().Location) })
+            var dirs = searchDirs.Concat(new string[] { Utils.GetAssemblyDirectoryName(Assembly.GetCallingAssembly()) })
                                  .Concat(parser.ExtraSearchDirs)
                                  .Concat(globalProbingDirs)
                                  .ToArray();
@@ -1034,6 +1034,7 @@ namespace CSScriptLibrary
 
         void HandleCompilingErrors(Action action)
         {
+            //Debug.Assert(false);
             CompilingResult.Reset();
 
             Assembly[] initialRefAsms = this.GetReferencedAssemblies();
