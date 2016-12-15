@@ -354,6 +354,7 @@ namespace csscript
                                        " 'pid' - host processId (e.g. Environment.GetEnvironmentVariable(\"pid\")\n" +
                                        " 'CSScriptRuntime' - script engine version\n" +
                                        " 'CSScriptRuntimeLocation' - script engine location\n" +
+                                       " 'CSSCRIPT_CONSOLE_ENCODING_OVERWRITE' - script engine output encoding if the one from the css_confix.xml needs to be overwritten.\n" +
                                        " 'css_nuget' - location of the NuGet packages scripts can load/reference\n" +
                                        " 'EntryScript' - location of the entry script\n" +
                                        " 'EntryScriptAssembly' - location of the compiled script assembly\n" +

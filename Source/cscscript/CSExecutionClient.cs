@@ -1,4 +1,4 @@
-#region Licence...
+﻿#region Licence...
 
 //-----------------------------------------------------------------------------
 // Date:	17/10/04	Time: 2:33p
@@ -249,19 +249,21 @@ namespace csscript
 
             ManualResetEvent outputThreadDone = new ManualResetEvent(false);
             ManualResetEvent errorOutputThreadDone = new ManualResetEvent(false);
+
             Action<StreamReader, Stream, ManualResetEvent> redirect = (src, dest, doneEvent) =>
             {
                 try
                 {
                     while (true)
                     {
-                        int nextChar = src.Read();
-                        if (nextChar == -1)
-                        {
+                        char[] buffer = new char[1000];
+                        int size = src.Read(buffer, 0, 1000);
+                        if (size == 0)
                             break;
-                        }
 
-                        dest.WriteByte((byte) nextChar);
+                        var data = new string(buffer, 0, size);
+                        var bytes = src.CurrentEncoding.GetBytes(data);
+                        dest.Write(bytes, 0, bytes.Length);
                         dest.Flush();
                     }
                 }
