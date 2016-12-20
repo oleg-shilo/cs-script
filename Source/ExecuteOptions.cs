@@ -129,6 +129,7 @@ namespace csscript
             clone.useSurrogateHostingProcess = this.useSurrogateHostingProcess;
             clone.altCompiler = this.altCompiler;
             clone.consoleEncoding= this.consoleEncoding;
+            clone.resolveAutogenFilesRefs = this.resolveAutogenFilesRefs;
             clone.preCompilers = this.preCompilers;
             clone.postProcessor = this.postProcessor;
             clone.compilerOptions = this.compilerOptions;
@@ -171,6 +172,7 @@ namespace csscript
             //clone.forceCompile = this.forceCompile;
             clone.supressExecution = this.supressExecution;
             clone.InjectScriptAssemblyAttribute = this.InjectScriptAssemblyAttribute;
+            clone.resolveAutogenFilesRefs = this.resolveAutogenFilesRefs;
             clone.DBG = this.DBG;
             clone.TargetFramework = this.TargetFramework;
             clone.verbose = this.verbose;
@@ -247,6 +249,7 @@ namespace csscript
         public bool shareHostRefAssemblies = false;
         public bool buildWinExecutable = false;
         public bool openEndDirectiveSyntax = true;
+        public bool resolveAutogenFilesRefs = true;
         public bool useSurrogateHostingProcess = false;
         public string altCompiler = "";
         public string consoleEncoding = "utf-8";

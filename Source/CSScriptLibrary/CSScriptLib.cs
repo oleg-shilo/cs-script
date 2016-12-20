@@ -1055,6 +1055,7 @@ namespace CSScriptLibrary
             options.compilerOptions = compilerOptions != null ? compilerOptions : "";
             options.apartmentState = settings.DefaultApartmentState;
             options.InjectScriptAssemblyAttribute = settings.InjectScriptAssemblyAttribute;
+            options.resolveAutogenFilesRefs = settings.ResolveAutogenFilesRefs;
             options.reportDetailedErrorInfo = settings.ReportDetailedErrorInfo;
             options.cleanupShellCommand = settings.CleanupShellCommand;
             options.customHashing = settings.CustomHashing;

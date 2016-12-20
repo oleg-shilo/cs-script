@@ -151,7 +151,7 @@ namespace csscript
 
             foreach (CompilerError err in retval.Errors)
                 if (!err.IsWarning)
-                    throw CompilerException.Create(retval.Errors, true);
+                    throw CompilerException.Create(retval.Errors, true, false);
 
             CSSUtils.SetTimestamp(compilerParams.OutputAssembly, scriptAssembly);
             return compilerParams.OutputAssembly;

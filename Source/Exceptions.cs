@@ -131,8 +131,10 @@ namespace csscript
         /// </summary>
         /// <param name="Errors">The compiler errors.</param>
         /// <param name="hideCompilerWarnings">if set to <c>true</c> hide compiler warnings.</param>
+        /// <param name="resolveAutogenFilesRefs">if set to <c>true</c> all references to the path of the derived auto-generated files 
+        /// (e.g. errors in the decorated classless scripts) will be replaced with the path of the original files (e.g. classless script itself).</param>
         /// <returns></returns>
-        public static CompilerException Create(CompilerErrorCollection Errors, bool hideCompilerWarnings)
+        public static CompilerException Create(CompilerErrorCollection Errors, bool hideCompilerWarnings, bool resolveAutogenFilesRefs)
         {
             StringBuilder compileErr = new StringBuilder();
 
@@ -146,10 +148,15 @@ namespace csscript
                 if (err.IsWarning && hideCompilerWarnings)
                     continue;
 
-                //compileErr.Append(err.ToString());
-                compileErr.Append(err.FileName);
+                string file = err.FileName;
+                int line = err.Line;
+
+                if (resolveAutogenFilesRefs)
+                    CSSUtils.NormaliseFileReference(ref file, ref line);
+
+                compileErr.Append(file);
                 compileErr.Append("(");
-                compileErr.Append(err.Line);
+                compileErr.Append(line);
                 compileErr.Append(",");
                 compileErr.Append(err.Column);
                 compileErr.Append("): ");

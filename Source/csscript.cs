@@ -252,12 +252,13 @@ namespace csscript
 
                     int firstScriptArg = CSSUtils.ParseAppArgs(args, this);
 
+                    options.resolveAutogenFilesRefs = settings.ResolveAutogenFilesRefs;
                     if (!options.processFile)
                     {
                         // No further processing is required. 
                         // Some primitive request (e.g. print help) has been already dispatched
                         // though some non-processing request cannot be done without using options
-                        // so let them to be handleed here.
+                        // so let them to be handled here.
                         if (options.nonExecuteOpRquest == null)
                             return;
                     }
@@ -1813,7 +1814,7 @@ namespace csscript
 
             if (results.Errors.HasErrors)
             {
-                CompilerException ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings);
+                CompilerException ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings, options.resolveAutogenFilesRefs);
                 if (options.syntaxCheck)
                 {
                     Console.WriteLine("Compile: {0} error(s)\n{1}", ex.ErrorCount, ex.Message.Trim());
@@ -1832,7 +1833,13 @@ namespace csscript
                 {
                     Console.WriteLine("  Compiler Output: ", options);
                     foreach (CompilerError err in results.Errors)
-                        Console.WriteLine("  {0}({1},{2}):{3} {4} {5}", err.FileName, err.Line, err.Column, (err.IsWarning ? "warning" : "error"), err.ErrorNumber, err.ErrorText);
+                    {
+                        string file = err.FileName;
+                        int line = err.Line;
+                        if (options.resolveAutogenFilesRefs)
+                            CSSUtils.NormaliseFileReference(ref file, ref line);
+                        Console.WriteLine("  {0}({1},{2}):{3} {4} {5}", file, line, err.Column, (err.IsWarning ? "warning" : "error"), err.ErrorNumber, err.ErrorText);
+                    }
                     Console.WriteLine("> ----------------", options);
                 }
 

@@ -177,6 +177,24 @@ namespace csscript
             set { injectScriptAssemblyAttribute = value; }
         }
 
+        bool resolveAutogenFilesRefs = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether references to the auto-generated files should be resolved.
+        /// <para>
+        /// If this flag is set the all references in the compile errors text to the path of the derived auto-generated files 
+        /// (e.g. errors in the decorated classless scripts) will be replaced with the path of the original file(s) (e.g. classless script itself).
+        /// </para> 
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if preferences needs to be resolved; otherwise, <c>false</c>.
+        /// </value>
+        public bool ResolveAutogenFilesRefs
+        {
+            get { return resolveAutogenFilesRefs; }
+            set { resolveAutogenFilesRefs = value; }
+        }
+
         string defaultArguments = CSSUtils.Args.Join("c", "sconfig", "co:" + CSSUtils.Args.DefaultPrefix + "warn:0");
         //string defaultArguments = CSSUtils.Args.DefaultPrefix + "c " + CSSUtils.Args.DefaultPrefix + "sconfig " + CSSUtils.Args.DefaultPrefix + "co:" + CSSUtils.Args.DefaultPrefix + "warn:0";
 
