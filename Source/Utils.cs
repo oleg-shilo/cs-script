@@ -540,11 +540,17 @@ namespace csscript
         public static void SetTimestamp(string fileDest, string fileSrc)
         {
             FileInfo info1 = new FileInfo(fileSrc);
-
             FileInfo info2 = new FileInfo(fileDest);
 
-            info2.LastWriteTime = info1.LastWriteTime;
-            info2.LastWriteTimeUtc = info1.LastWriteTimeUtc;
+            try
+            {
+                info2.LastWriteTime = info1.LastWriteTime;
+                info2.LastWriteTimeUtc = info1.LastWriteTimeUtc;
+            }
+            catch
+            {
+                //On Linux it may fail for no obvious reason
+            }
         }
 
         public delegate void ShowDocumentHandler();
@@ -1463,7 +1469,7 @@ namespace csscript
         {
             try
             {
-                if (file.EndsWith(".g.csx") || file.EndsWith(".g.cs") && file.Contains(@"CSSCRIPT\Cache"))
+                if (file.EndsWith(".g.csx") || file.EndsWith(".g.cs") && file.Contains(Path.Combine("CSSCRIPT", "Cache")))
                 {
                     //it is an auto-generated file so try to find the original source file (logical file)
                     string dir = Path.GetDirectoryName(file);

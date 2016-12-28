@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -74,7 +75,7 @@ namespace csscript
                     string offset = "    ";
                     string result = argSpec + "\n" +
                            offset + description;
-                    if(doc != "")
+                    if (doc != "")
                         result += "\n" + offset + doc.Replace("\n", "\n" + offset);
 
                     return result;
@@ -103,7 +104,7 @@ namespace csscript
                                                   "Checks script for errors without execution.");
             switch1Help[proj] = new ArgInfo("-proj",
                                                   "Shows script 'project info' - script and all its dependencies.");
-            
+
             switch1Help[cache] = new ArgInfo("-cache[:<ls|trim|clear>]",
                                                    "Performs script cache operations.",
                                                    " ls    - lists all cache items.\n" +
@@ -119,7 +120,7 @@ namespace csscript
             switch1Help[ac] =
             switch1Help[autoclass] = new ArgInfo("-wait[:prompt]",
                                                    "Waits for user input after the execution before exiting.",
-                                                   "If specified the execution will proceed with exit only after any STD input is received.\n"+
+                                                   "If specified the execution will proceed with exit only after any STD input is received.\n" +
                                                    "Applicable for console mode only.\n" +
                                                    "prompt - if none specified 'Press any key to continue...' will be used\n");
 
@@ -165,7 +166,7 @@ namespace csscript
                                                    "(e.g. " + AppInfo.appName + " -out:%temp%\\%pid%\\sample.dll sample.cs");
             switch2Help[sconfig] = new ArgInfo("-sconfig[:file]",
                                                    "Uses script config file or custom config file as a .NET app.config.",
-                                                   "This option might be useful for running scripts, which usually cannot be executed without configuration \n" + 
+                                                   "This option might be useful for running scripts, which usually cannot be executed without configuration \n" +
                                                    "file (e.g. WCF, Remoting).\n\n" +
                                                    "(e.g. if -sconfig is used the expected config file name is <script_name>.cs.config or <script_name>.exe.config\n" +
                                                    "if -sconfig:myApp.config is used the expected config file name is myApp.config)");
@@ -175,8 +176,8 @@ namespace csscript
                                                    "(e.g. " + AppInfo.appName + " /r:myLib.dll myScript.cs).");
             switch2Help[dir] = new ArgInfo("-dir:<directory 1>,<directory N>",
                                                    "Adds path(s) to the assembly probing directory list.",
-                                                   "You can use a reserved word 'show' as a directory name to print the configured probing directories.\n"+
-                                                   "(e.g. " + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs\n"+
+                                                   "You can use a reserved word 'show' as a directory name to print the configured probing directories.\n" +
+                                                   "(e.g. " + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs\n" +
                                                    " " + AppInfo.appName + " -dir:-show).");
             switch2Help[pc] =
             switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
@@ -341,15 +342,7 @@ namespace csscript
                                        "These directives are used to execute secondary pre- and post-action scripts.\n" +
                                        "If $this (or $this.name) is specified as arg0..N it will be replaced at execution time with the main script full name (or file name only).\n" +
                                        "------------------------------------\n" +
-                                       "//css_host [/version:<CLR_Version>] [/platform:<CPU>]\n" +
-                                       "\n" +
-                                       "CLR_Version - version of CLR the script should be execute on (e.g. //css_host /version:v3.5)\n" +
-                                       "CPU - indicates which platforms the script should be run on: x86, Itanium, x64, or anycpu.\n" +
-                                       "Sample: //css_host /version:v2.0 /platform:x86;" +
-                                       "\n" +
-                                       "These directive is used to execute script from a surrogate host process. The script engine application (cscs.exe or csws.exe) launches the script\n" +
-                                       "execution as a separate process of the specified CLR version and CPU architecture.\n" +
-                                       "------------------------------------\n" +
+                                       "{$css_host}" +
                                        "Note the script engine always sets the following environment variables:\n" +
                                        " 'pid' - host processId (e.g. Environment.GetEnvironmentVariable(\"pid\")\n" +
                                        " 'CSScriptRuntime' - script engine version\n" +
@@ -385,7 +378,23 @@ namespace csscript
                                        "      }\n" +
                                        "   }\n" +
                                        " }\n" +
-                                       "\n"; ;
+                                       "\n";
+
+            if (!Utils.IsLinux())
+                syntaxHelp = syntaxHelp.Replace("{$css_host}",
+                                                "//css_host [-version:<CLR_Version>] [-platform:<CPU>]\n" +
+                                                "\n" +
+                                                "CLR_Version - version of CLR the script should be execute on (e.g. //css_host /version:v3.5)\n" +
+                                                "CPU - indicates which platforms the script should be run on: x86, Itanium, x64, or anycpu.\n" +
+                                                "Sample: //css_host /version:v2.0 /platform:x86;" +
+                                                "\nNote this directive only supported on Windows due to the fact that on Linux the x86/x64 hosting implemented via runtime launcher 'mono'." +
+                                                "\n" +
+                                                "These directive is used to execute script from a surrogate host process. The script engine application (cscs.exe or csws.exe) launches the script\n" +
+                                                "execution as a separate process of the specified CLR version and CPU architecture.\n" +
+                                                "------------------------------------\n");
+            else
+                syntaxHelp = syntaxHelp.Replace("{$css_host}", "");
+
             #endregion
         }
     }
@@ -483,7 +492,7 @@ namespace csscript
             {
                 if (printed.Contains(info.ArgSpec))
                     continue;
-                builder.Append(info.FullDoc+"\n\n");
+                builder.Append(info.FullDoc + "\n\n");
                 printed.Add(info.ArgSpec);
             }
             builder.Append("---------\n");
@@ -570,15 +579,53 @@ namespace csscript
         public static string BuildVersionInfo()
         {
             StringBuilder builder = new StringBuilder();
+
+            var dotNetVer = GetDotNetVersion.Get45PlusFromRegistry();
+
             builder.Append(AppInfo.appLogo.TrimEnd() + " www.csscript.net\n");
             builder.Append("\n");
-            builder.Append("   CLR:            " + Environment.Version + "\n");
+            builder.Append("   CLR:            " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : "") + "\n");
             builder.Append("   System:         " + Environment.OSVersion + "\n");
 #if net4
             builder.Append("   Architecture:   " + (Environment.Is64BitProcess ? "x64" : "x86") + "\n");
 #endif
             builder.Append("   Home dir:       " + (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") ?? "<not integrated>") + "\n");
             return builder.ToString();
+        }
+
+        public class GetDotNetVersion
+        {
+            public static string Get45PlusFromRegistry()
+            {
+                var subkey = @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\";
+                using (var ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(subkey))
+                {
+                    if (ndpKey != null && ndpKey.GetValue("Release") != null)
+                        return CheckFor45PlusVersion((int) ndpKey.GetValue("Release"));
+                    else
+                        return null;
+                }
+            }
+
+            // Checking the version using >= will enable forward compatibility.
+            static string CheckFor45PlusVersion(int releaseKey)
+            {
+                if (releaseKey >= 394802)
+                    return "4.6.2 or later";
+                if (releaseKey >= 394254)
+                    return "4.6.1";
+                if (releaseKey >= 393295)
+                    return "4.6";
+                if ((releaseKey >= 379893))
+                    return "4.5.2";
+                if ((releaseKey >= 378675))
+                    return "4.5.1";
+                if ((releaseKey >= 378389))
+                    return "4.5";
+                // This code should never execute. A non-null release key should mean
+                // that 4.5 or later is installed.
+                return "No 4.5 or later version detected";
+            }
         }
     }
 
