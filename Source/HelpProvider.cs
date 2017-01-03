@@ -597,6 +597,7 @@ namespace csscript
         {
             public static string Get45PlusFromRegistry()
             {
+#if net4
                 var subkey = @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\";
                 using (var ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(subkey))
                 {
@@ -605,6 +606,9 @@ namespace csscript
                     else
                         return null;
                 }
+#else
+                    return null;
+#endif
             }
 
             // Checking the version using >= will enable forward compatibility.

@@ -54,9 +54,9 @@ namespace csscript
         /// </summary>
         /// <param name="script">The script.</param>
         /// <returns></returns>
-        static public Project GenerateProjectFor(string script)
+        static public Project GenerateProjectFor(string script, bool local = false)
         {
-            return ProjectBuilder.GenerateProjectFor(script);
+            return ProjectBuilder.GenerateProjectFor(script, local);
         }
     }
 
@@ -69,7 +69,7 @@ namespace csscript
         static public string DefaultNamespaces;
 
 
-        static public Project GenerateProjectFor(string script)
+        static public Project GenerateProjectFor(string script, bool local = false)
         {
             // ********************************************************************************************
             // * Extremely important to keep the project building algorithm in sync with CSExecutor.Compile
@@ -77,7 +77,8 @@ namespace csscript
             var project = new Project { Script = script };
 
             var searchDirs = new List<string>();
-            searchDirs.Add(Environment.CurrentDirectory);
+            if (!local)
+                searchDirs.Add(Environment.CurrentDirectory);
             searchDirs.Add(Path.GetDirectoryName(script));
 
             var globalConfig = GetGlobalConfigItems();

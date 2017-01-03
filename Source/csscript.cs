@@ -145,7 +145,7 @@ namespace csscript
         {
             if (AppArgs.proj == (options.nonExecuteOpRquest as string))
             {
-                var project = Project.GenerateProjectFor(options.scriptFileName);
+                var project = Project.GenerateProjectFor(options.scriptFileName, options.local);
                 foreach (string file in project.Files)
                     print("file:"+ file);
 

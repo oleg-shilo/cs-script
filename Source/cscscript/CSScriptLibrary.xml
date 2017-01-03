@@ -131,7 +131,7 @@
             impirted/included scripts and assemblies.
             </summary>
         </member>
-        <member name="M:csscript.Project.GenerateProjectFor(System.String)">
+        <member name="M:csscript.Project.GenerateProjectFor(System.String,System.Boolean)">
             <summary>
             Generates the top level view project for a given script. 
             <para>
