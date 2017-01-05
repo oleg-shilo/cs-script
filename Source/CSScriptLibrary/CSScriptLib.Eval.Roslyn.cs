@@ -183,7 +183,7 @@ namespace CSScriptLibrary
         {
             CSharpScript.EvaluateAsync("1 + 2"); //this will loaded all required assemblies
         }
-
+        static bool prefereEval = true;
         /// <summary>
         /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s). 
         /// </summary>
@@ -210,16 +210,24 @@ namespace CSScriptLibrary
             if (!DisableReferencingFromCode)
                 ReferenceAssembliesFromCode(scriptText);
 
-            var asmName = CSharpScript.Create(scriptText, CompilerSettings)
-                                      .RunAsync()
-                                      .Result
-                                      .Script
-                                      .GetCompilation()
-                                      .AssemblyName;
+            if (prefereEval)
+            {
+                var get_asm_code = @" class EntryPoint{}; return typeof(EntryPoint).Assembly;";
+                return CSharpScript.EvaluateAsync<Assembly>(scriptText + get_asm_code, CompilerSettings).Result;
+            }
+            else
+            {
+                var asmName = CSharpScript.Create(scriptText, CompilerSettings)
+                                          .RunAsync()
+                                          .Result
+                                          .Script
+                                          .GetCompilation()
+                                          .AssemblyName;
 
-            Assembly result = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(asmName, StringComparison.OrdinalIgnoreCase));
+                Assembly result = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(asmName, StringComparison.OrdinalIgnoreCase));
 
-            return result;
+                return result;
+            }
         }
 
         /// <summary>

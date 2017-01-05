@@ -128,14 +128,14 @@
         <member name="F:csscript.Project.SearchDirs">
             <summary>
             List of search folders where CS-Script does probing for 
-            impirted/included scripts and assemblies.
+            imported/included scripts and assemblies.
             </summary>
         </member>
-        <member name="M:csscript.Project.GenerateProjectFor(System.String,System.Boolean)">
+        <member name="M:csscript.Project.GenerateProjectFor(System.String)">
             <summary>
             Generates the top level view project for a given script. 
             <para>
-            Note this method uses the same algorithm as CS-Script executor but it deliberatelly doesn't
+            Note this method uses the same algorithm as CS-Script executor but it deliberately doesn't
             include cached directories and auto-generated files. This method is to be used by IDs and tools. 
             </para>
             </summary>

@@ -36,10 +36,10 @@ namespace Mono.Unix
 
         public FileMutex(string fileName, string context)
         {
-            if(context == null)
+            if (context == null)
                 this.fileName = fileName;
             else
-                this.fileName = fileName+"."+context+".lock";
+                this.fileName = fileName + "." + context + ".lock";
         }
 
         void Open()
@@ -62,7 +62,7 @@ namespace Mono.Unix
 
                 bool result = false;
 
-                ThreadStart placeLock = delegate()
+                ThreadStart placeLock = delegate ()
                 {
                     // a write (exclusive) lock
                     wl.l_type = LockType.F_WRLCK;

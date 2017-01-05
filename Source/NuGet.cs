@@ -17,6 +17,7 @@ namespace csscript
         {
             get { return Directory.Exists(NuGetCache) ? NuGetCache : "<not found>"; }
         }
+
         static public string NuGetExeView
         {
             get { return File.Exists(NuGetExe) ? NuGetExe : "<not found>"; }

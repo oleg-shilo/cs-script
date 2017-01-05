@@ -582,7 +582,7 @@ namespace csscript
         {
             //System.Diagnostics.Debug.Assert(false);
             Settings settings = new Settings();
-            if (File.Exists(fileName))
+            if (fileName != null && File.Exists(fileName))
             {
                 try
                 {

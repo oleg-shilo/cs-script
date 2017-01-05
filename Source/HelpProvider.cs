@@ -475,8 +475,10 @@ namespace csscript
             {
                 if (AppArgs.switch1Help.ContainsKey(arg))
                     return AppArgs.switch1Help[arg].FullDoc;
-                if (AppArgs.switch2Help.ContainsKey(arg))
+                else if (AppArgs.switch2Help.ContainsKey(arg))
                     return AppArgs.switch2Help[arg].FullDoc;
+                else
+                    return "Invalid 'cmd' argument. Use '"+ AppInfo.appName + " -cmd' for the list of valid commands.\n"+ AppArgs.switch1Help[AppArgs.help].FullDoc;
             }
 
             StringBuilder builder = new StringBuilder();

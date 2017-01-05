@@ -41,22 +41,22 @@ namespace csscript
 
         /// <summary>
         /// List of search folders where CS-Script does probing for 
-        /// impirted/included scripts and assemblies.
+        /// imported/included scripts and assemblies.
         /// </summary>
         public string[] SearchDirs;
 
         /// <summary>
         /// Generates the top level view project for a given script. 
         /// <para>
-        /// Note this method uses the same algorithm as CS-Script executor but it deliberatelly doesn't
+        /// Note this method uses the same algorithm as CS-Script executor but it deliberately doesn't
         /// include cached directories and auto-generated files. This method is to be used by IDs and tools. 
         /// </para>
         /// </summary>
         /// <param name="script">The script.</param>
         /// <returns></returns>
-        static public Project GenerateProjectFor(string script, bool local = false)
+        static public Project GenerateProjectFor(string script)
         {
-            return ProjectBuilder.GenerateProjectFor(script, local);
+            return ProjectBuilder.GenerateProjectFor(script);
         }
     }
 
@@ -68,17 +68,15 @@ namespace csscript
         static public string DefaultRefAsms;
         static public string DefaultNamespaces;
 
-
-        static public Project GenerateProjectFor(string script, bool local = false)
+        static public Project GenerateProjectFor(string script)
         {
+            //Debug.Assert(false);
             // ********************************************************************************************
             // * Extremely important to keep the project building algorithm in sync with CSExecutor.Compile
             // ********************************************************************************************
             var project = new Project { Script = script };
 
             var searchDirs = new List<string>();
-            if (!local)
-                searchDirs.Add(Environment.CurrentDirectory);
             searchDirs.Add(Path.GetDirectoryName(script));
 
             var globalConfig = GetGlobalConfigItems();
@@ -115,7 +113,7 @@ namespace csscript
             //}
 
             project.Files = sources.Distinct().ToArray();
-            project.Refs = parser.AgregateReferences(searchDirs, defaultRefAsms, defaultNamespaces).ToArray();
+            project.Refs = parser.AgregateReferences(probingDirs, defaultRefAsms, defaultNamespaces).ToArray();
             project.SearchDirs = probingDirs;
             return project;
         }
