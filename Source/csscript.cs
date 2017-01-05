@@ -1624,6 +1624,7 @@ namespace csscript
             AddReferencedAssemblies(compilerParams, scriptFileName, parser);
 
             //add resources referenced from code
+
             foreach (string resFile in parser.ReferencedResources)
             {
                 string file = null;
@@ -1636,6 +1637,9 @@ namespace csscript
 
                 if (file == null)
                     file = resFile;
+
+                if (file.EndsWith(".resx", StringComparison.OrdinalIgnoreCase))
+                    file = CSSUtils.CompileResource(file);
 
                 Utils.AddCompilerOptions(compilerParams, "\"/res:" + file + "\""); //e.g. /res:C:\\Scripting.Form1.resources";
             }

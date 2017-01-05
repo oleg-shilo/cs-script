@@ -405,6 +405,11 @@
             Adds compiler options to the CompilerParameters in a manner that it does separate every option by the space character
             </summary>
         </member>
+        <member name="M:csscript.CSSUtils.CompileResource(System.String)">
+            <summary>
+            Compiles ResX file into .resources 
+            </summary>
+        </member>
         <member name="M:csscript.CSSUtils.ParseAppArgs(System.String[],csscript.IScriptExecutor)">
             <summary>
             Parses application (script engine) arguments.

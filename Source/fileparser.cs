@@ -562,15 +562,6 @@ namespace CSScriptLibrary
         {
             get
             {
-#if net1
-                ArrayList retval = new ArrayList();
-                foreach (FileParser file in fileParsers)
-                {
-                    if (file.Imported)
-                        retval.Add(file.fileName);
-                }
-                return (string[])retval.ToArray(typeof(string));
-#else
                 List<string> retval = new List<string>();
                 foreach (FileParser file in fileParsers)
                 {
@@ -578,21 +569,15 @@ namespace CSScriptLibrary
                         retval.Add(file.fileName);
                 }
                 return retval.ToArray();
-#endif
             }
         }
-
 
         /// <summary>
         /// Collection of resource files referenced from code
         /// </summary>
         public string[] ReferencedResources
         {
-#if net1
-            get { return (string[])referencedResources.ToArray(typeof(string)); }
-#else
             get { return referencedResources.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -600,11 +585,7 @@ namespace CSScriptLibrary
         /// </summary>
         public string[] CompilerOptions
         {
-#if net1
-            get { return (string[])compilerOptions.ToArray(typeof(string)); }
-#else
             get { return compilerOptions.ToArray(); }
-#endif
         }
         /// <summary>
         /// Precompilers specified in the primary script file.

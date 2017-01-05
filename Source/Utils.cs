@@ -553,15 +553,58 @@ namespace csscript
             }
         }
 
+        /// <summary>
+        /// Compiles ResX file into .resources 
+        /// </summary>
+        public static string CompileResource(string file)
+        {
+            var resgen_exe = "ResGen.exe";
+            var input = file;
+            var output = Path.ChangeExtension(file, ".resources");
+
+            string css_dir_res_gen = Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\lib\tools\resgen.exe");
+            if (File.Exists(css_dir_res_gen))
+                resgen_exe = css_dir_res_gen;
+
+            var error = new StringBuilder();
+
+            try
+            {
+                var proc = new Process();
+                proc.StartInfo.FileName = resgen_exe;
+                proc.StartInfo.Arguments = "\"" + input + "\" \"" + output + "\"";
+                proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.RedirectStandardOutput = true;
+                proc.StartInfo.RedirectStandardError = true;
+                proc.StartInfo.CreateNoWindow = true;
+                proc.StartInfo.WorkingDirectory = Path.GetDirectoryName(input);
+                proc.Start();
+
+                string line = null;
+                while (null != (line = proc.StandardError.ReadLine()))
+                    error.AppendLine(line);
+
+                proc.WaitForExit();
+            }
+            catch (Exception e)
+            {
+                if (!File.Exists(css_dir_res_gen))
+                    throw new ApplicationException("Cannot invoke "+ resgen_exe + ": " + e.Message+
+                                                   "\nEnsure resgen.exe is in the %CSSCRIPT_DIR%\\lib\\tools or its location is in the system PATH");
+            }
+
+            if (error.Length > 0)
+                throw new ApplicationException("Cannot compile resources: " + error);
+
+            return output;
+        }
+
         public delegate void ShowDocumentHandler();
 
         static public string[] GetDirectories(string workingDir, string rootDir)
         {
             if (!Path.IsPathRooted(rootDir))
                 rootDir = Path.Combine(workingDir, rootDir); //cannot use Path.GetFullPath as it crashes if '*' or '?' are present
-#if net1
-            return new string [] { rootDir };
-#else
 
             List<string> result = new List<string>();
 
@@ -601,7 +644,6 @@ namespace csscript
                 result.Add(rootDir);
 
             return result.ToArray();
-#endif
         }
 
         //Credit to MDbg team: https://github.com/SymbolSource/Microsoft.Samples.Debugging/blob/master/src/debugger/mdbg/mdbgCommands.cs
