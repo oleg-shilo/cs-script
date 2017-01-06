@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")] 
 
 [assembly: AssemblyProduct("C# Script engine")]
-[assembly: AssemblyCopyright("(C) 2004-2016 Oleg Shilo")] 
+[assembly: AssemblyCopyright("(C) 2004-2017 Oleg Shilo")] 
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -9,7 +9,7 @@
 // Written by Oleg Shilo (oshilo@gmail.com)
 //----------------------------------------------
 // The MIT License (MIT)
-// Copyright (c) 2016 Oleg Shilo
+// Copyright (c) 2017 Oleg Shilo
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -1032,12 +1032,10 @@ namespace csscript
             contextData["NewIncludes"] = context.NewIncludes;
             contextData["SearchDirs"] = context.SearchDirs;
             contextData["ConsoleEncoding"] = options.consoleEncoding;
+            contextData["CompilerOptions"] = options.compilerOptions;
 
-#if net1
-            System.Collections.Hashtable precompilers = CSSUtils.LoadPrecompilers(options);
-#else
             Dictionary<string, List<object>> precompilers = CSSUtils.LoadPrecompilers(options);
-#endif
+
             if (precompilers.Count != 0)
             {
                 for (int i = 0; i < filesToCompile.Length; i++)

@@ -16,7 +16,7 @@
 // Written by Oleg Shilo (oshilo@gmail.com)
 //----------------------------------------------
 // The MIT License (MIT)
-// Copyright (c) 2016 Oleg Shilo
+// Copyright (c) 2017 Oleg Shilo
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 // and associated documentation files (the "Software"), to deal in the Software without restriction, 
