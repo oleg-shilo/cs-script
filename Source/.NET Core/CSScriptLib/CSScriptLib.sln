@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{28B71453-90FA-48A7-8539-5A7805FC57A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{931E155B-9F45-4E16-9DD7-06195895D778}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CSScriptLib", "src\CSScriptLib\CSScriptLib.xproj", "{7CEA89C9-E906-4852-BA40-16BE33BCC2D1}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CSScriptLib.Client", "src\CSScriptLib.Client\CSScriptLib.Client.xproj", "{CF94C31D-0DA0-4FDB-BF43-14CAECBD4824}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7CEA89C9-E906-4852-BA40-16BE33BCC2D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CEA89C9-E906-4852-BA40-16BE33BCC2D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CEA89C9-E906-4852-BA40-16BE33BCC2D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CEA89C9-E906-4852-BA40-16BE33BCC2D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF94C31D-0DA0-4FDB-BF43-14CAECBD4824}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF94C31D-0DA0-4FDB-BF43-14CAECBD4824}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF94C31D-0DA0-4FDB-BF43-14CAECBD4824}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF94C31D-0DA0-4FDB-BF43-14CAECBD4824}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7CEA89C9-E906-4852-BA40-16BE33BCC2D1} = {28B71453-90FA-48A7-8539-5A7805FC57A6}
+		{CF94C31D-0DA0-4FDB-BF43-14CAECBD4824} = {28B71453-90FA-48A7-8539-5A7805FC57A6}
+	EndGlobalSection
+EndGlobal
