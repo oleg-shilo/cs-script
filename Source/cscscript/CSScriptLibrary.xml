@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>cscscript</name>
+        <name>cscs</name>
     </assembly>
     <members>
         <member name="T:csscript.ConcurrencyControl">
@@ -1069,7 +1069,6 @@
         <member name="P:cscscript.Resources.dbg">
              <summary>
                Looks up a localized string similar to using System;
-            using System.Linq;
             using System.Collections;
             using System.IO;
             using System.Reflection;
@@ -1078,24 +1077,24 @@
             {
                 public static bool publicOnly = false;
                 public static bool propsOnly = false;
+                public static int depth = 1;
             
                 int level = 0;
-                int depth = 1;
                 string indent = &quot;  &quot;;
             
                 TextWriter writer = Console.Out;
             
-                public static void print(object o, int depth = 1)
+                public static void print(object o)
                 {
                     new dbg().WriteObject(o);
                 }
             
-                dbg(int depth = 2)
+                string Indent
                 {
-                    this.depth = depth;
+                    get { return new string(&apos;0&apos;, level).Replace(&quot;0&quot;, indent); }
                 }
             
-                string Indent [rest of string was truncated]&quot;;.
+                [rest of string was truncated]&quot;;.
              </summary>
         </member>
         <member name="T:CSScriptLibrary.AssemblyResolver">

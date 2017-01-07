@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Collections;
 using System.IO;
 using System.Reflection;
@@ -8,21 +7,16 @@ class dbg
 {
     public static bool publicOnly = false;
     public static bool propsOnly = false;
+    public static int depth = 1;
 
     int level = 0;
-    int depth = 1;
     string indent = "  ";
 
     TextWriter writer = Console.Out;
 
-    public static void print(object o, int depth = 1)
+    public static void print(object o)
     {
         new dbg().WriteObject(o);
-    }
-
-    dbg(int depth = 2)
-    {
-        this.depth = depth;
     }
 
     string Indent
@@ -90,9 +84,6 @@ class dbg
             {
                 writer.Write(Indent);
                 writer.Write("." + m.Name);
-                if (m.Name == "m_syncRoot")
-                {
-                }
                 writer.Write(" = ");
                 object value = GetMemberValue(obj, m);
 
@@ -161,12 +152,12 @@ class dbg
 
         if (!publicOnly)
             private_members = obj.GetType()
-                                              .GetMembers(BindingFlags.NonPublic | BindingFlags.Instance)
-                                              .Where(relevant_types)
-                                              .OrderBy(x => x.Name)
-                                              .OrderBy(x => char.IsLower(x.Name[0]))
-                                              .OrderBy(x => x.Name.StartsWith("_"))
-                                              .ToArray();
+                                      .GetMembers(BindingFlags.NonPublic | BindingFlags.Instance)
+                                      .Where(relevant_types)
+                                      .OrderBy(x => x.Name)
+                                      .OrderBy(x => char.IsLower(x.Name[0]))
+                                      .OrderBy(x => x.Name.StartsWith("_"))
+                                      .ToArray();
 
         var items = members.Concat(private_members);
         return items.ToArray();

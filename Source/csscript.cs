@@ -147,13 +147,13 @@ namespace csscript
             {
                 var project = Project.GenerateProjectFor(options.scriptFileName);
                 foreach (string file in project.Files)
-                    print("file:"+ file);
+                    print("file:" + file);
 
                 foreach (string file in project.Refs)
-                    print("ref:"+ file);
+                    print("ref:" + file);
 
                 foreach (string file in project.SearchDirs)
-                    print("searcDir:"+ file);
+                    print("searcDir:" + file);
             }
         }
 
@@ -269,7 +269,6 @@ namespace csscript
                         print("No script file was specified.");
                         return; //no script, no script arguments
                     }
-
 
                     //process original command-line arguments
                     if (options.scriptFileName == "")
@@ -1302,7 +1301,12 @@ namespace csscript
                 //script may be loaded from in-memory string/code
                 bool isRealScriptFile = !scriptFileName.Contains(@"CSSCRIPT\dynamic");
                 if (isRealScriptFile)
-                    filesToInject = Utils.Concat(filesToInject, CSSUtils.GetScriptedCodeAttributeInjectionCode(scriptFileName));
+                {
+                    filesToInject = filesToInject.Concat(new[] {
+                                                  CSSUtils.GetScriptedCodeAttributeInjectionCode(scriptFileName),
+                                                  CSSUtils.GetScriptedCodeDbgInjectionCode(scriptFileName) })
+                                                  .ToArray();
+                }
             }
 
             if (options.altCompiler == "")
@@ -1433,7 +1437,7 @@ namespace csscript
                     try
                     {
                         string location = asm.Location();
-                        
+
                         if (!File.Exists(location) || location.Contains("mscorlib"))
                             continue;
 

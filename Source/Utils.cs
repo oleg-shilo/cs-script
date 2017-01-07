@@ -474,6 +474,29 @@ namespace csscript
                 Console.WriteLine(message);
         }
 
+        public static string DbgInjectionCode = "";
+
+        internal static string GetScriptedCodeDbgInjectionCode(string scriptFileName)
+        {
+            string dbg_injection_version = DbgInjectionCode.GetHashCode().ToString();
+
+            using (SystemWideLock fileLock = new SystemWideLock("CS-Script.dbg.injection", dbg_injection_version))
+            {
+                //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will 
+                //throw a nice informative exception.
+                if (!Utils.IsLinux())
+                    fileLock.Wait(1000);
+
+                var cache_dir = Path.Combine(CSExecutor.GetScriptTempDir(), "Cache");
+                var dbg_file = Path.Combine(cache_dir, "dbg.inject."+ dbg_injection_version + ".cs");
+
+                if (!File.Exists(dbg_file))
+                    File.WriteAllText(dbg_file, DbgInjectionCode);
+
+                return dbg_file;
+            }
+        }
+
         internal static string GetScriptedCodeAttributeInjectionCode(string scriptFileName)
         {
             using (SystemWideLock fileLock = new SystemWideLock(scriptFileName, "attr"))

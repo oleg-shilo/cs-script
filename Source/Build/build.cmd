@@ -36,6 +36,12 @@ REM ECHO Building...
 
 rem CS-Script utils  ----------------------------------------------------
 
+rem ECHO Building csscript resources: 
+rem ECHO Building csscript resources: >> ..\Build\build.log
+rem "resgen.exe" ..\cscscript\Resources.resx  >> build.log
+rem move ..\cscscript\Resources.resources ..\cscscript\cscscript.Resources.resources  
+rem ECHO ------------ >> build.log
+
 ECHO Building css_config.exe: 
 ECHO Building css_config.exe: >> ..\Build\build.log
 "%net4_tools%\csc.exe" /nologo %common_4_params% /unsafe- /nowarn:1701,1702 /o /out:css_config.exe /win32manifest:..\ChooseDefaultProgram\app.manifest /win32icon:..\Logo\css_logo.ico /resource:..\css_config\SplashScreen.resources /target:winexe ..\css_config\AssemblyInfo.cs ..\css_config\css_config.cs ..\css_config\Program.cs ..\css_config\SplashForm.cs ..\css_config\VistaSecurity.cs /r:"%net4_asms%\System.dll" /r:"%net4_asms%\System.Drawing.dll" /r:"%net4_asms%\System.Core.dll" /r:"%net4_asms%\System.Data.dll" /r:"%net4_asms%\System.XML.dll" /r:"%net4_asms%\System.Windows.Forms.dll" >> build.log
@@ -56,6 +62,7 @@ rem .NET v1.1-4.0 ----------------------------------------------------
 ECHO Building cscs.v3.5.exe: 
 ECHO Building cscs.v3.5.exe: >> build.log
 %windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:cscs.v3.5.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll /r:System.Core.dll %common_ref_files% >> build.log
+rem %windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:cscs.v3.5.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Resources.Designer.cs ..\cscscript\Properties\AssemblyInfo.cs /resource:..\cscscript\cscscript.Resources.resources /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll /r:System.Core.dll %common_ref_files% >> build.log
 ECHO ------------ >> build.log
 
 ECHO Building csws.v3.5.exe:
@@ -92,7 +99,7 @@ ECHO ------------ >> ..\Build\build.log
 rem .NET v4.0 -------------------------------------------------------------------------------------
 
 ECHO Building CSScript TargetFramework: v4.0: 
-ECHO Building CSScriptLibrary.v4.0: >> ..\Build\build.log
+ECHO Building CSScript.v4.0: >> ..\Build\build.log
 "%net4_tools%\msbuild.exe" ..\CSScriptLibrary\CSScriptLibrary.v4.0.sln /p:configuration=Release /p:platform="Any CPU" %common_msbuild_params%
 ECHO ------------ >> ..\Build\build.log
 
