@@ -589,7 +589,7 @@ namespace csscript
             var input = file;
             var output = Path.ChangeExtension(file, ".resources");
 
-            string css_dir_res_gen = Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\lib\tools\resgen.exe");
+            string css_dir_res_gen = Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\lib\resgen.exe");
             if (File.Exists(css_dir_res_gen))
                 resgen_exe = css_dir_res_gen;
 
