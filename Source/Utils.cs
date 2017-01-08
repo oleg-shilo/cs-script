@@ -30,12 +30,8 @@
 using System;
 using System.IO;
 using System.Reflection;
-#if !net1
-
 using System.Collections.Generic;
 using System.Linq;
-
-#endif
 
 using System.Text;
 using CSScriptLibrary;
@@ -488,10 +484,18 @@ namespace csscript
                     fileLock.Wait(1000);
 
                 var cache_dir = Path.Combine(CSExecutor.GetScriptTempDir(), "Cache");
-                var dbg_file = Path.Combine(cache_dir, "dbg.inject."+ dbg_injection_version + ".cs");
+                var dbg_file = Path.Combine(cache_dir, "dbg.inject." + dbg_injection_version + ".cs");
 
                 if (!File.Exists(dbg_file))
                     File.WriteAllText(dbg_file, DbgInjectionCode);
+
+                foreach (var item in Directory.GetFiles(cache_dir, "dbg.inject.*.cs"))
+                    if (item != dbg_file)
+                        try
+                        {
+                            File.Delete(item);
+                        }
+                        catch { }
 
                 return dbg_file;
             }
@@ -612,7 +616,7 @@ namespace csscript
             catch (Exception e)
             {
                 if (!File.Exists(css_dir_res_gen))
-                    throw new ApplicationException("Cannot invoke "+ resgen_exe + ": " + e.Message+
+                    throw new ApplicationException("Cannot invoke " + resgen_exe + ": " + e.Message +
                                                    "\nEnsure resgen.exe is in the %CSSCRIPT_DIR%\\lib\\tools or its location is in the system PATH");
             }
 

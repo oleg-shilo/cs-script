@@ -17,13 +17,20 @@
     <OutputPath>Build\</OutputPath>
     <HtmlHelpName>CSScriptLibrary</HtmlHelpName>
     <Language>en-US</Language>
- <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter</MissingTags>
+    <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter</MissingTags>
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</VisibleItems>
     <HtmlHelp1xCompilerPath>C:\Program Files (x86)\HTML Help Workshop\</HtmlHelp1xCompilerPath>
-       <DocumentationSources>
+    <DocumentationSources>
       <DocumentationSource sourceFile="Build\CSScriptLibrary.dll" xmlns="" />
       <DocumentationSource sourceFile="Build\CSScriptLibrary.xml" xmlns="" />
     </DocumentationSources>
+    <NamespaceSummaries>
+      <NamespaceSummaryItem name="(global)" isDocumented="False" />
+<NamespaceSummaryItem name="csscript" isDocumented="True">CS-Script Class Library Assembly</NamespaceSummaryItem>
+<NamespaceSummaryItem name="CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils" isDocumented="False">CS-Script Class Library Assembly</NamespaceSummaryItem>
+<NamespaceSummaryItem name="CSScriptLibrary" isDocumented="True">CS-Script Class Library Assembly</NamespaceSummaryItem></NamespaceSummaries>
+    <ProjectSummary>
+    </ProjectSummary>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->

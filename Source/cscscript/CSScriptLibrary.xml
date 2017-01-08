@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>cscs</name>
+        <name>cscscript</name>
     </assembly>
     <members>
         <member name="T:csscript.ConcurrencyControl">
