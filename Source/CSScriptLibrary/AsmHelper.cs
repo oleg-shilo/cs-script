@@ -904,24 +904,25 @@ namespace CSScriptLibrary
         /// Creates an instance of AsmHelper for working with assembly dynamically loaded to non-current AppDomain.
         /// This method initializes instance and creates new ('remote') AppDomain with 'domainName' name. New AppDomain is automatically unloaded as result of "disposable" behaviour of AsmHelper.
         /// </summary>
-        /// <param name="asmFile">File name of the assembly to be loaded.</param>
+        /// <param name="asmPath">The fully qualified path of the assembly file to load.</param>
         /// <param name="domainName">Name of the domain to be created.</param>
         /// <param name="deleteOnExit">'true' if assembly file should be deleted when new AppDomain is unloaded; otherwise, 'false'.</param>
-        public AsmHelper(string asmFile, string domainName, bool deleteOnExit)
+        public AsmHelper(string asmPath, string domainName, bool deleteOnExit)
         {
             this.deleteOnExit = deleteOnExit;
             AppDomainSetup setup = new AppDomainSetup();
-            setup.ApplicationBase = Path.GetDirectoryName(asmFile);
+            setup.ApplicationBase = Path.GetDirectoryName(asmPath);
             setup.PrivateBinPath = AppDomain.CurrentDomain.BaseDirectory;
 
             //setup.ConfigurationFile = AppDomain.CurrentDomain.?? AppDomain does not allow easy access to the config file name
             setup.ApplicationName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
             setup.ShadowCopyFiles = "true";
-            setup.ShadowCopyDirectories = Path.GetDirectoryName(asmFile);
+            setup.ShadowCopyDirectories = Path.GetDirectoryName(asmPath);
             remoteAppDomain = AppDomain.CreateDomain(domainName != null ? domainName : "", null, setup);
 
+            //Assembly.LoadFile
             AsmRemoteBrowser asmBrowser = (AsmRemoteBrowser)remoteAppDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(AsmRemoteBrowser).ToString());
-            asmBrowser.AsmFile = asmFile;
+            asmBrowser.AsmFile = asmPath;
             asmBrowser.CustomHashing = ExecuteOptions.options.customHashing;
             this.asmBrowser = (IAsmBrowser)asmBrowser;
 

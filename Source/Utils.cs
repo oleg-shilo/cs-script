@@ -590,7 +590,10 @@ namespace csscript
             var output = Path.ChangeExtension(file, ".resources");
 
             string css_dir_res_gen = Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\lib\resgen.exe");
-            if (File.Exists(css_dir_res_gen))
+            string user_res_gen = Environment.GetEnvironmentVariable("CSS_RESGEN");
+            if (File.Exists(user_res_gen))
+                resgen_exe = user_res_gen;
+            else if (File.Exists(css_dir_res_gen))
                 resgen_exe = css_dir_res_gen;
 
             var error = new StringBuilder();
@@ -616,8 +619,11 @@ namespace csscript
             catch (Exception e)
             {
                 if (!File.Exists(css_dir_res_gen))
-                    throw new ApplicationException("Cannot invoke " + resgen_exe + ": " + e.Message +
-                                                   "\nEnsure resgen.exe is in the %CSSCRIPT_DIR%\\lib\\tools or its location is in the system PATH");
+                        throw new ApplicationException("Cannot invoke " + resgen_exe + ": " + e.Message +
+                                                       "\nEnsure resgen.exe is in the %CSSCRIPT_DIR%\\lib or "+
+                                                       "its location is in the system PATH. Alternatively you "+
+                                                       "can specify the direct location of resgen.exe via "+
+                                                       "CSS_RESGEN environment variable.");
             }
 
             if (error.Length > 0)
