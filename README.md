@@ -1,5 +1,5 @@
 <img align="right" src="https://raw.githubusercontent.com/oleg-shilo/cs-script/master/Source/wiki/images/css_logo_codeplex_256x256_2.png" alt="" style="float:right">
-# CS-Script - v3.19.0
+# CS-Script - v3.20.0
 
 <sub>_The project has been migrated to GitHub from CodePlex: [CS-Script](http://csscriptsource.codeplex.com/)._</sub> 
 
@@ -12,6 +12,40 @@ _**For the all CS-Script details go to the project [Documentation Wiki](https://
 <hr/>
 
 The following is a simple code sample just to give you the idea about the product:
+
+_**Stand alone execution (shell scripting)**_
+Updating media file tags. Note, the script is using optional classless layout.
+
+_`mp4\_retag.cs`_
+
+```C#
+//css_nuget taglib
+using System;
+using System.IO;
+
+string source = @"\\media-server\tv_shows\Get Smart%\Season1";
+
+void main()
+{
+    foreach (string file in Directory.GetFiles(source, "*.mp4"))
+    {
+        string episode_name = Path.GetFileNameWithoutExtension(file);
+
+        var mp4 = TagLib.File.Create(file);
+        mp4.Tag.Title = episode_name;
+        mp4.Save();
+
+        Console.WriteLine(episode_name);
+    }
+}
+```
+Execute script in cmd-promtt:
+```
+C:\Temp>cscs mp4_retag.cs
+```
+
+
+_**Hosting script engine**_
 
 ```C#
 dynamic script = CSScript.LoadCode(

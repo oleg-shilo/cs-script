@@ -315,7 +315,7 @@ namespace csscript
 
         public static string appLogo
         {
-            get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\nCopyright (C) 2004-2016 Oleg Shilo.\n"; }
+            get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\nCopyright (C) 2004-2017 Oleg Shilo.\n"; }
         }
 
         public static string appLogoShort
