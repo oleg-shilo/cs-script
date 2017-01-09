@@ -16,7 +16,7 @@ The following is a simple code sample just to give you the idea about the produc
 _**Stand alone execution (shell scripting)**_
 Updating media file tags. Note, the script is using optional classless layout.
 
-_`mp4\_retag.cs`_
+Script file: _`mp4_retag.cs`_
 
 ```C#
 //css_nuget taglib
