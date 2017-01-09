@@ -13,10 +13,12 @@ _**For the all CS-Script details go to the project [Documentation Wiki](https://
 
 The following is a simple code sample just to give you the idea about the product:
 
-_**Stand alone execution (shell scripting)**_
-Updating media file tags. Note, the script is using optional classless layout.
+_**Executing script from shell**_
 
-Script file: _`mp4_retag.cs`_
+Updating media file tags. 
+Note, the script is using optional classless layout.
+
+_Script file: `mp4_retag.cs`_
 
 ```C#
 //css_nuget taglib
@@ -39,7 +41,7 @@ void main()
     }
 }
 ```
-Execute script in cmd-promtt:
+Execute script file directly in cmd-promt without building an executable assembly:
 ```
 C:\Temp>cscs mp4_retag.cs
 ```
