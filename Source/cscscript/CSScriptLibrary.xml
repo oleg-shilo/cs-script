@@ -405,7 +405,7 @@
             Adds compiler options to the CompilerParameters in a manner that it does separate every option by the space character
             </summary>
         </member>
-        <member name="M:csscript.CSSUtils.CompileResource(System.String)">
+        <member name="M:csscript.CSSUtils.CompileResource(System.String,System.String)">
             <summary>
             Compiles ResX file into .resources 
             </summary>

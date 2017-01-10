@@ -305,14 +305,20 @@ namespace csscript
                                        "    //css_dir packages\\**\n" +
 #endif
                                        "------------------------------------\n" +
-                                       "//css_resource <file>;\n" +
+                                       "//css_resource <file>[, <out_file>];\n" +
                                        "\n" +
                                        "Alias - //css_res\n" +
                                        "\n" +
-                                       "file - name of the resource file (.resources) to be used with the script.\n" +
+                                       "file     - name of the compiled resource file (.resources) to be used with the script. Alternatively it can be \n" +
+                                       "           the name of the XML resource file (.resx) that will be compiled on-fly.\n" +
+                                       "out_file - optional name of the compiled resource file (.resources) to be generated form the .resx input.\n" +
+                                       "           If not supplied then the compiled file will have the same name as the input file but the file extension '.resx' \n"+
+                                       "           changed to '.resources'.\n" +
                                        "\n" +
                                        "This directive is used to reference resource file for script.\n" +
                                        " Example: //css_res Scripting.Form1.resources;\n" +
+                                       "          //css_res Resources1.resx;\n" +
+                                       "          //css_res Form1.resx, Scripting.Form1.resources;\n" +
                                        "------------------------------------\n" +
                                        "//css_co <options>;\n" +
                                        "\n" +
@@ -347,14 +353,18 @@ namespace csscript
                                        " 'pid' - host processId (e.g. Environment.GetEnvironmentVariable(\"pid\")\n" +
                                        " 'CSScriptRuntime' - script engine version\n" +
                                        " 'CSScriptRuntimeLocation' - script engine location\n" +
-                                       " 'CSSCRIPT_CONSOLE_ENCODING_OVERWRITE' - script engine output encoding if the one from the css_confix.xml needs to be overwritten.\n" +
-                                       " 'css_nuget' - location of the NuGet packages scripts can load/reference\n" +
                                        " 'EntryScript' - location of the entry script\n" +
                                        " 'EntryScriptAssembly' - location of the compiled script assembly\n" +
                                        " 'location:<assm_hash>' - location of the compiled script assembly.\n" +
                                        "                          This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script code.\n" +
                                        "                          Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file.\n" +
                                        "                          (e.g. var location = Environment.GetEnvironmentVariable(\"location:\" + Assembly.GetExecutingAssembly().GetHashCode());\n" +
+                                       "\n" +
+                                       "The following is the optional set of environment variables that the script engine uses to improve the user experience:\n" +
+                                       " 'CSS_NUGET' - location of the NuGet packages scripts can load/reference\n" +
+                                       " 'CSSCRIPT_DIR' - script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is during the CS-Script installation.\n" +
+                                       " 'CSSCRIPT_CONSOLE_ENCODING_OVERWRITE' - script engine output encoding if the one from the css_confix.xml needs to be overwritten.\n" +
+                                       " 'CSSCRIPT_INC' - a system wide include directory for the all frequently used user scripts.\n" +
                                        "------------------------------------\n" +
                                        "\n" +
                                        "Any directive has to be written as a single line in order to have no impact on compiling by CLI compliant compiler.\n" +

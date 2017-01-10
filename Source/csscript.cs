@@ -1629,8 +1629,14 @@ namespace csscript
 
             //add resources referenced from code
 
-            foreach (string resFile in parser.ReferencedResources)
+            foreach (string item in parser.ReferencedResources)
             {
+                string[] tokens = item.Split(',').Select(x => x.Trim()).ToArray();
+                string resFile = tokens.First();
+
+                if (tokens.Count() > 2)
+                    throw new Exception("The specified referenced resources are in unexpected format: \"" +item+"\"");
+
                 string file = null;
                 foreach (string dir in options.searchDirs)
                 {
@@ -1643,8 +1649,13 @@ namespace csscript
                     file = resFile;
 
                 if (file.EndsWith(".resx", StringComparison.OrdinalIgnoreCase))
-                    file = CSSUtils.CompileResource(file);
+                {
+                    string out_name = null;
+                    if (tokens.Count() > 1)
+                        out_name = tokens.LastOrDefault();
 
+                    file = CSSUtils.CompileResource(file, out_name);
+                }
                 Utils.AddCompilerOptions(compilerParams, "\"/res:" + file + "\""); //e.g. /res:C:\\Scripting.Form1.resources";
             }
 

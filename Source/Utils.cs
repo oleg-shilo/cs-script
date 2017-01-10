@@ -583,7 +583,7 @@ namespace csscript
         /// <summary>
         /// Compiles ResX file into .resources 
         /// </summary>
-        public static string CompileResource(string file)
+        public static string CompileResource(string file, string out_name)
         {
             var resgen_exe = "ResGen";
             if (Utils.IsLinux())
@@ -591,6 +591,8 @@ namespace csscript
 
             var input = file;
             var output = Path.ChangeExtension(file, ".resources");
+            if(out_name != null)
+                output = Path.Combine(Path.GetDirectoryName(file), out_name);
 
             string css_dir_res_gen = Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\lib\resgen.exe");
             string user_res_gen = Environment.GetEnvironmentVariable("CSS_RESGEN");
