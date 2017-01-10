@@ -61,14 +61,16 @@ rem .NET v1.1-4.0 ----------------------------------------------------
 
 ECHO Building cscs.v3.5.exe: 
 ECHO Building cscs.v3.5.exe: >> build.log
-%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:cscs.v3.5.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll /r:System.Core.dll %common_ref_files% >> build.log
+%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:cscs.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll /r:System.Core.dll %common_ref_files% >> build.log
 rem %windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:cscs.v3.5.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Resources.Designer.cs ..\cscscript\Properties\AssemblyInfo.cs /resource:..\cscscript\cscscript.Resources.resources /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll /r:System.Core.dll %common_ref_files% >> build.log
 ECHO ------------ >> build.log
+move cscs.exe cscs.v3.5.exe
 
 ECHO Building csws.v3.5.exe:
 ECHO Building csws.v3.5.exe: >> build.log
-%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:csws.v3.5.exe /t:winexe %common_source_files% ..\cswscript\CSExecutionClient.cs ..\cswscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Core.dll /r:System.Windows.Forms.dll %common_ref_files% >> build.log
+%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:csws.exe /t:winexe %common_source_files% ..\cswscript\CSExecutionClient.cs ..\cswscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Core.dll /r:System.Windows.Forms.dll %common_ref_files% >> build.log
 ECHO ------------ >> build.log
+move csws.exe csws.v3.5.exe
 
 REM ECHO Building cscs.exe (v1.1):
 REM ECHO Building cscs.exe (v1.1): >> build.log
@@ -88,13 +90,14 @@ REM ECHO ------------ >> ..\Build\build.log
 
 ECHO Building CSScriptLibrary.v3.5.dll: 
 ECHO Building CSScriptLibrary.v3.5.dll: >> ..\Build\build.log
-%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,1699,618 /define:net35 /o /doc:..\Build\temp\temp\CSScriptLibrary.v3.5.xml /out:..\Build\temp\temp\CSScriptLibrary.v3.5.dll /t:library %common_source_files% CSScriptLib.cs AsmHelper.cs ObjectCaster.cs Properties\AssemblyInfo.cs crc32.cs /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> ..\Build\build.log
+%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,1699,618 /define:net35 /o /doc:..\Build\temp\temp\CSScriptLibrary.v3.5.xml /out:..\Build\temp\temp\CSScriptLibrary.dll /t:library %common_source_files% CSScriptLib.cs AsmHelper.cs ObjectCaster.cs Properties\AssemblyInfo.cs crc32.cs /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> ..\Build\build.log
 ECHO ------------ >> ..\Build\build.log
+move ..\Build\temp\temp\CSScriptLibrary.dll ..\Build\temp\temp\CSScriptLibrary.v3.5.dll
 
-ECHO Building CSScriptLibrary.v3.5.dll (renamed): 
-ECHO Building CSScriptLibrary.v3.5.dll (renamed): >> ..\Build\build.log
-%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,1699,618 /define:net35 /o /doc:CSScriptLibrary.xml /out:..\Build\temp\temp\CSScriptLibrary.dll /t:library %common_source_files% CSScriptLib.cs AsmHelper.cs ObjectCaster.cs Properties\AssemblyInfo.cs crc32.cs /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> ..\Build\build.log
-ECHO ------------ >> ..\Build\build.log
+rem ECHO Building CSScriptLibrary.v3.5.dll (renamed): 
+rem ECHO Building CSScriptLibrary.v3.5.dll (renamed): >> ..\Build\build.log
+rem %windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,1699,618 /define:net35 /o /doc:CSScriptLibrary.xml /out:..\Build\temp\temp\CSScriptLibrary.dll /t:library %common_source_files% CSScriptLib.cs AsmHelper.cs ObjectCaster.cs Properties\AssemblyInfo.cs crc32.cs /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> ..\Build\build.log
+rem ECHO ------------ >> ..\Build\build.log
 
 rem .NET v4.0 -------------------------------------------------------------------------------------
 
