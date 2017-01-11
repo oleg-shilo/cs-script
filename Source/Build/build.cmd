@@ -1,4 +1,5 @@
 echo off
+rem Many builds are commented out as they are no longer included into distro. But they are kept to allow anyone to build them if required.
 @set oldPATH=%PATH%;
 @set PATH=%windir%\Microsoft.NET\Framework\v1.1.4322;%PATH%;
 @set net4_tools=C:\Program Files (x86)\MSBuild\12.0\Bin
@@ -219,13 +220,13 @@ ECHO Building CSSCodeProvider.v3.5.dll: >> ..\Build\build.log
 move ..\Build\temp\temp\CSSCodeProvider.v3.5.dll CSSCodeProvider.v3.5.dll
 ECHO ------------ >> ..\Build\build.log
 
-ECHO Building CSScript.Tasks.dll: >> ..\Build\build.log
-"%net4_tools%\csc.exe" /nologo /nowarn:618,162 /debug+ /debug:full /o /out:..\Build\temp\temp\CSScript.Tasks.dll /t:library ..\NAnt.CSScript\CSScript.Tasks.cs ..\NAnt.CSScript\AssemblyInfo.cs /r:System.dll /r:CSScriptLibrary.dll /r:System.Core.dll /r:System.Xml.dll /r:E:\Galos\BuildTools\nant\bin\NAnt.Core.dll >> build.log
-move ..\Build\temp\temp\CSScript.Tasks.dll CSScript.Tasks.dll
-copy CSScript.Tasks.dll "%local_dev%\Lib\CSScript.Tasks.dll"
-copy CSScript.Tasks.dll "%local_dev%\Samples\NAnt\CSScript.Tasks.dll"
-copy CSScriptLibrary.dll "%local_dev%\Samples\NAnt\CSScriptLibrary.dll"
-ECHO ------------ >> ..\Build\build.log
+rem ECHO Building CSScript.Tasks.dll: >> ..\Build\build.log
+rem "%net4_tools%\csc.exe" /nologo /nowarn:618,162 /debug+ /debug:full /o /out:..\Build\temp\temp\CSScript.Tasks.dll /t:library ..\NAnt.CSScript\CSScript.Tasks.cs ..\NAnt.CSScript\AssemblyInfo.cs /r:System.dll /r:CSScriptLibrary.dll /r:System.Core.dll /r:System.Xml.dll /r:E:\Galos\BuildTools\nant\bin\NAnt.Core.dll >> build.log
+rem move ..\Build\temp\temp\CSScript.Tasks.dll CSScript.Tasks.dll
+rem copy CSScript.Tasks.dll "%local_dev%\Lib\CSScript.Tasks.dll"
+rem copy CSScript.Tasks.dll "%local_dev%\Samples\NAnt\CSScript.Tasks.dll"
+rem copy CSScriptLibrary.dll "%local_dev%\Samples\NAnt\CSScriptLibrary.dll"
+rem ECHO ------------ >> ..\Build\build.log
 
 ECHO Building CSSCodeProvider.dll: >> ..\Build\build.log
 "%net4_tools%\csc.exe" /nologo /nowarn:618 /o  /out:..\Build\temp\temp\CSSCodeProvider.dll /t:library ..\CSSCodeProvider.v4.0\CSSCodeProvider.cs ..\CSSCodeProvider.v4.0\ccscompiler.cs ..\CSSCodeProvider.v4.0\AssemblyInfo.cs ..\CSSCodeProvider.v4.0\cppcompiler.cs ..\CSSCodeProvider.v4.0\xamlcompiler.cs /r:System.dll /r:Microsoft.JScript.dll /r:System.Windows.Forms.dll >> build.log
