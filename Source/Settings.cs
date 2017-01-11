@@ -493,8 +493,8 @@ namespace csscript
         /// For example <c>Interface Alignment</c> any not work with such assemblies as it relies on CLR compiling services that 
         /// typically require assembly <c>Location</c> member being populated with the valid path.</para>
         /// </summary>
-        [Category("RuntimeSettings"), 
-         Description("Indicates the script assembly is to be loaded by CLR as an in-memory byte stream instead of the file. "+                      
+        [Category("RuntimeSettings"),
+         Description("Indicates the script assembly is to be loaded by CLR as an in-memory byte stream instead of the file. " +
                       "Note this settings can affect the use cases requiring the loaded assemblies to have non empty Assembly.Location.")]
         public bool InMemoryAssembly
         {
@@ -537,27 +537,56 @@ namespace csscript
             {
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml("<CSSConfig/>");
-                doc.DocumentElement.AppendChild(doc.CreateElement("defaultArguments")).AppendChild(doc.CreateTextNode(DefaultArguments));
-                doc.DocumentElement.AppendChild(doc.CreateElement("defaultApartmentState")).AppendChild(doc.CreateTextNode(DefaultApartmentState.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("reportDetailedErrorInfo")).AppendChild(doc.CreateTextNode(ReportDetailedErrorInfo.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("useAlternativeCompiler")).AppendChild(doc.CreateTextNode(UseAlternativeCompiler));
-                doc.DocumentElement.AppendChild(doc.CreateElement("usePostProcessor")).AppendChild(doc.CreateTextNode(UsePostProcessor));
-                doc.DocumentElement.AppendChild(doc.CreateElement("searchDirs")).AppendChild(doc.CreateTextNode(SearchDirs));
-                doc.DocumentElement.AppendChild(doc.CreateElement("cleanupShellCommand")).AppendChild(doc.CreateTextNode(CleanupShellCommand));
-                doc.DocumentElement.AppendChild(doc.CreateElement("doCleanupAfterNumberOfRuns")).AppendChild(doc.CreateTextNode(DoCleanupAfterNumberOfRuns.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("hideOptions")).AppendChild(doc.CreateTextNode(hideOptions.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("hideCompilerWarnings")).AppendChild(doc.CreateTextNode(HideCompilerWarnings.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("inMemoryAsm")).AppendChild(doc.CreateTextNode(InMemoryAssembly.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("ConcurrencyControl")).AppendChild(doc.CreateTextNode(ConcurrencyControl.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("TragetFramework")).AppendChild(doc.CreateTextNode(TargetFramework));
-                doc.DocumentElement.AppendChild(doc.CreateElement("ConsoleEncoding")).AppendChild(doc.CreateTextNode(ConsoleEncoding));
-                doc.DocumentElement.AppendChild(doc.CreateElement("defaultRefAssemblies")).AppendChild(doc.CreateTextNode(DefaultRefAssemblies));
-                doc.DocumentElement.AppendChild(doc.CreateElement("useSurrogatepHostingProcess")).AppendChild(doc.CreateTextNode(useSurrogatepHostingProcess.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("openEndDirectiveSyntax")).AppendChild(doc.CreateTextNode(openEndDirectiveSyntax.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("Precompiler")).AppendChild(doc.CreateTextNode(Precompiler));
-                doc.DocumentElement.AppendChild(doc.CreateElement("CustomHashing")).AppendChild(doc.CreateTextNode(CustomHashing.ToString()));
 
-                doc.Save(fileName);
+                doc.DocumentElement.AppendChild(doc.CreateElement("defaultArguments")).AppendChild(doc.CreateTextNode(DefaultArguments));
+                doc.DocumentElement.AppendChild(doc.CreateElement("defaultRefAssemblies")).AppendChild(doc.CreateTextNode(DefaultRefAssemblies));
+                doc.DocumentElement.AppendChild(doc.CreateElement("searchDirs")).AppendChild(doc.CreateTextNode(SearchDirs));
+                doc.DocumentElement.AppendChild(doc.CreateElement("useAlternativeCompiler")).AppendChild(doc.CreateTextNode(UseAlternativeCompiler));
+                doc.DocumentElement.AppendChild(doc.CreateElement("ConsoleEncoding")).AppendChild(doc.CreateTextNode(ConsoleEncoding));
+                doc.DocumentElement.AppendChild(doc.CreateElement("inMemoryAsm")).AppendChild(doc.CreateTextNode(InMemoryAssembly.ToString()));
+                doc.DocumentElement.AppendChild(doc.CreateElement("hideCompilerWarnings")).AppendChild(doc.CreateTextNode(HideCompilerWarnings.ToString()));
+                doc.DocumentElement.AppendChild(doc.CreateElement("reportDetailedErrorInfo")).AppendChild(doc.CreateTextNode(ReportDetailedErrorInfo.ToString()));
+                doc.DocumentElement.AppendChild(doc.CreateElement("hideOptions")).AppendChild(doc.CreateTextNode(hideOptions.ToString()));
+
+                if (DefaultApartmentState != ApartmentState.STA)
+                    doc.DocumentElement.AppendChild(doc.CreateElement("defaultApartmentState")).AppendChild(doc.CreateTextNode(DefaultApartmentState.ToString()));
+
+                if (!string.IsNullOrEmpty(precompiler))
+                    doc.DocumentElement.AppendChild(doc.CreateElement("Precompiler")).AppendChild(doc.CreateTextNode(Precompiler));
+
+                if (!string.IsNullOrEmpty(UsePostProcessor))
+                    doc.DocumentElement.AppendChild(doc.CreateElement("usePostProcessor")).AppendChild(doc.CreateTextNode(UsePostProcessor));
+
+                if (!string.IsNullOrEmpty(CleanupShellCommand))
+                {
+                    doc.DocumentElement.AppendChild(doc.CreateElement("cleanupShellCommand")).AppendChild(doc.CreateTextNode(CleanupShellCommand));
+                    doc.DocumentElement.AppendChild(doc.CreateElement("doCleanupAfterNumberOfRuns")).AppendChild(doc.CreateTextNode(DoCleanupAfterNumberOfRuns.ToString()));
+                }
+
+                if (ConcurrencyControl != ConcurrencyControl.Standard)
+                    doc.DocumentElement.AppendChild(doc.CreateElement("ConcurrencyControl")).AppendChild(doc.CreateTextNode(ConcurrencyControl.ToString()));
+#if net35
+                if (TargetFramework != "v3.5")
+#else
+                if (TargetFramework != "v4.0")
+#endif
+                    doc.DocumentElement.AppendChild(doc.CreateElement("TragetFramework")).AppendChild(doc.CreateTextNode(TargetFramework));
+
+                if (useSurrogatepHostingProcess)
+                    doc.DocumentElement.AppendChild(doc.CreateElement("useSurrogatepHostingProcess")).AppendChild(doc.CreateTextNode(useSurrogatepHostingProcess.ToString()));
+
+                if (!openEndDirectiveSyntax)
+                    doc.DocumentElement.AppendChild(doc.CreateElement("openEndDirectiveSyntax")).AppendChild(doc.CreateTextNode(openEndDirectiveSyntax.ToString()));
+
+                if (!CustomHashing)
+                    doc.DocumentElement.AppendChild(doc.CreateElement("CustomHashing")).AppendChild(doc.CreateTextNode(CustomHashing.ToString()));
+
+                //very simplistic formatting
+                var xml = doc.InnerXml.Replace("><", ">\n  <")
+                                      .Replace(">\n  </", "></")
+                                      .Replace("></CSSConfig>", ">\n</CSSConfig>");
+
+                File.WriteAllText(fileName, xml);
             }
             catch { }
         }
@@ -589,25 +618,25 @@ namespace csscript
                     XmlDocument doc = new XmlDocument();
                     doc.Load(fileName);
                     XmlNode data = doc.FirstChild;
-                    settings.defaultArguments = data.SelectSingleNode("defaultArguments").InnerText;
-                    settings.defaultApartmentState = (ApartmentState) Enum.Parse(typeof(ApartmentState), data.SelectSingleNode("defaultApartmentState").InnerText, false);
-                    settings.reportDetailedErrorInfo = data.SelectSingleNode("reportDetailedErrorInfo").InnerText.ToLower() == "true";
-                    settings.UseAlternativeCompiler = data.SelectSingleNode("useAlternativeCompiler").InnerText;
-                    settings.UsePostProcessor = data.SelectSingleNode("usePostProcessor").InnerText;
-                    settings.SearchDirs = data.SelectSingleNode("searchDirs").InnerText;
-                    settings.cleanupShellCommand = data.SelectSingleNode("cleanupShellCommand").InnerText;
-                    settings.doCleanupAfterNumberOfRuns = uint.Parse(data.SelectSingleNode("doCleanupAfterNumberOfRuns").InnerText);
-                    settings.hideOptions = (HideOptions) Enum.Parse(typeof(HideOptions), data.SelectSingleNode("hideOptions").InnerText, true);
-                    settings.hideCompilerWarnings = data.SelectSingleNode("hideCompilerWarnings").InnerText.ToLower() == "true";
-                    settings.inMemoryAsm = data.SelectSingleNode("inMemoryAsm").InnerText.ToLower() == "true";
-                    settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), data.SelectSingleNode("ConcurrencyControl").InnerText, false);
-                    settings.TargetFramework = data.SelectSingleNode("TragetFramework").InnerText;
-                    settings.defaultRefAssemblies = data.SelectSingleNode("defaultRefAssemblies").InnerText;
-                    settings.useSurrogatepHostingProcess = data.SelectSingleNode("useSurrogatepHostingProcess").InnerText.ToLower() == "true";
-                    settings.OpenEndDirectiveSyntax = data.SelectSingleNode("openEndDirectiveSyntax").InnerText.ToLower() == "true";
-                    settings.Precompiler = data.SelectSingleNode("Precompiler").InnerText;
-                    settings.CustomHashing = data.SelectSingleNode("CustomHashing").InnerText.ToLower() == "true";
-                    settings.ConsoleEncoding = data.SelectSingleNode("ConsoleEncoding").InnerText;
+                    try { settings.defaultArguments = data.SelectSingleNode("defaultArguments").InnerText; } catch { }
+                    try { settings.defaultApartmentState = (ApartmentState) Enum.Parse(typeof(ApartmentState), data.SelectSingleNode("defaultApartmentState").InnerText, false); } catch { }
+                    try { settings.reportDetailedErrorInfo = data.SelectSingleNode("reportDetailedErrorInfo").InnerText.ToLower() == "true"; } catch { }
+                    try { settings.UseAlternativeCompiler = data.SelectSingleNode("useAlternativeCompiler").InnerText; } catch { }
+                    try { settings.UsePostProcessor = data.SelectSingleNode("usePostProcessor").InnerText; } catch { }
+                    try { settings.SearchDirs = data.SelectSingleNode("searchDirs").InnerText; } catch { }
+                    try { settings.cleanupShellCommand = data.SelectSingleNode("cleanupShellCommand").InnerText; } catch { }
+                    try { settings.doCleanupAfterNumberOfRuns = uint.Parse(data.SelectSingleNode("doCleanupAfterNumberOfRuns").InnerText); } catch { }
+                    try { settings.hideOptions = (HideOptions) Enum.Parse(typeof(HideOptions), data.SelectSingleNode("hideOptions").InnerText, true); } catch { }
+                    try { settings.hideCompilerWarnings = data.SelectSingleNode("hideCompilerWarnings").InnerText.ToLower() == "true"; } catch { }
+                    try { settings.inMemoryAsm = data.SelectSingleNode("inMemoryAsm").InnerText.ToLower() == "true"; } catch { }
+                    try { settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), data.SelectSingleNode("ConcurrencyControl").InnerText, false); } catch { }
+                    try { settings.TargetFramework = data.SelectSingleNode("TragetFramework").InnerText; } catch { }
+                    try { settings.defaultRefAssemblies = data.SelectSingleNode("defaultRefAssemblies").InnerText; } catch { }
+                    try { settings.useSurrogatepHostingProcess = data.SelectSingleNode("useSurrogatepHostingProcess").InnerText.ToLower() == "true"; } catch { }
+                    try { settings.OpenEndDirectiveSyntax = data.SelectSingleNode("openEndDirectiveSyntax").InnerText.ToLower() == "true"; } catch { }
+                    try { settings.Precompiler = data.SelectSingleNode("Precompiler").InnerText; } catch { }
+                    try { settings.CustomHashing = data.SelectSingleNode("CustomHashing").InnerText.ToLower() == "true"; } catch { }
+                    try { settings.ConsoleEncoding = data.SelectSingleNode("ConsoleEncoding").InnerText; } catch { }
                 }
                 catch
                 {
