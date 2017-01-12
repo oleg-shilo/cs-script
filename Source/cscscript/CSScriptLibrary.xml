@@ -916,6 +916,11 @@
             Creates the default config file in the CurrentDirectory.
             </summary>
         </member>
+        <member name="M:csscript.CSExecutor.PrintDefaultConfig">
+            <summary>
+            Prints the config file default content.
+            </summary>
+        </member>
         <member name="M:csscript.CSExecutor.ShowVersion">
             <summary>
             Show CS-Script version information.
