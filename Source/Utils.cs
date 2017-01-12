@@ -911,7 +911,7 @@ namespace csscript
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.precompiler, AppArgs.pc, out argValue)) // -precompiler:file1,file2
                     {
-                        if (argValue != null)
+                        if (argValue != null && argValue != "print")
                         {
                             options.preCompilers = argValue;
                         }
@@ -941,6 +941,11 @@ namespace csscript
                             if (argValue == "out")
                             {
                                 executor.CreateDefaultConfigFile();
+                                options.processFile = false;
+                            }
+                            else if (argValue == "print")
+                            {
+                                executor.PrintDefaultConfig();
                                 options.processFile = false;
                             }
                             else

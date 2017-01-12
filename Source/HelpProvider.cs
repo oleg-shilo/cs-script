@@ -157,9 +157,12 @@ namespace csscript
                                                    "(applicable for console clients only)");
             switch2Help[noconfig] = new ArgInfo("-noconfig[:<file>]",
                                                    "Do not use default CS-Script config file or use alternative one.",
-                                                   "Value \"out\" of the <file> is reserved for creating the config file (css_config.xml) with the default settings.\n" +
+                                                   "Value \"out\" of the <file> is reserved for creating the config file (css_config.xml) "+
+                                                   "with the default settings in the current directory.\n" +
+                                                   "Value \"print\" of the <file> is reserved for printing the default config file content.\n" +
                                                    "(e.g. " + AppInfo.appName + " -noconfig sample.cs\n" +
-                                                   AppInfo.appName + " -noconfig:c:\\cs-script\\css_VB.dat sample.vb)");
+                                                   AppInfo.appName + " -noconfig:print > css_VB.xml\n"+ 
+                                                   AppInfo.appName + " -noconfig:c:\\cs-script\\css_VB.xml sample.vb)");
             switch2Help[@out] = new ArgInfo("-out[:<file>]",
                                                    "Forces the script to be compiled into a specific location.",
                                                    "Used only for very fine hosting tuning.\n" +
@@ -183,7 +186,8 @@ namespace csscript
             switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
                                                    "Specifies custom precompiler. This can be either script or assembly file.",
                                                    "Alias - pc[:<file 1>,<file N>]\n" +
-                                                   "If no file(s) specified prints the code template for the custom precompiler.\n" +
+                                                   "If no file(s) specified prints the code template for the custom precompiler. The spacial value 'print' has \n"+
+                                                   "the same effect (e.g. "+ AppInfo.appName + " -pc:print).\n" +
                                                    "There is a special reserved word '" + CSSUtils.noDefaultPrecompilerSwitch + "' to be used as a file name.\n" +
                                                    "It instructs script engine to prevent loading any built-in precompilers \n" +
                                                    "like the one for removing shebang before the execution.\n" +
@@ -572,6 +576,17 @@ namespace csscript
             builder.Append("{" + Environment.NewLine);
             builder.Append("    public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)" + Environment.NewLine);
             builder.Append("    {" + Environment.NewLine);
+            builder.Append("        //The context Hashtable items are:" + Environment.NewLine);
+            builder.Append("        //- out context:" + Environment.NewLine);
+            builder.Append("        //    NewDependencies" + Environment.NewLine);
+            builder.Append("        //    NewSearchDirs" + Environment.NewLine);
+            builder.Append("        //    NewReferences" + Environment.NewLine);
+            builder.Append("        //    NewIncludes" + Environment.NewLine);
+            builder.Append("        //- in context:" + Environment.NewLine);
+            builder.Append("        //    SearchDirs" + Environment.NewLine);
+            builder.Append("        //    ConsoleEncoding" + Environment.NewLine);
+            builder.Append("        //    CompilerOptions" + Environment.NewLine);
+            builder.Append(Environment.NewLine);
             builder.Append("        //if new assemblies are to be referenced add them (see 'Precompilers' in the documentation)" + Environment.NewLine);
             builder.Append("        //var newReferences = (List<string>)context[\"NewReferences\"];" + Environment.NewLine);
             builder.Append("        //newReferences.Add(\"System.Xml.dll\");" + Environment.NewLine);

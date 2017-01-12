@@ -110,6 +110,8 @@ namespace csscript
         void ShowPrecompilerSample();
 
         void CreateDefaultConfigFile();
+        void PrintSimplePrecompiler();
+        void PrintDefaultConfig();
 
         void ShowSample();
 
@@ -2089,6 +2091,23 @@ namespace csscript
             string file = Path.GetFullPath("css_config.xml");
             new Settings().Save(file);
             print("The default config file has been created: " + file);
+        }
+
+        public void PrintSimplePrecompiler()
+        {
+
+        }
+
+        /// <summary>
+        /// Prints the config file default content.
+        /// </summary>
+        public void PrintDefaultConfig()
+        {
+            string file = Path.GetTempFileName();
+            new Settings().Save(file);
+            string config = File.ReadAllText(file);
+            File.Delete(file);
+            print(config);
         }
 
         /// <summary>
