@@ -585,9 +585,7 @@ namespace csscript
         /// </summary>
         public static string CompileResource(string file, string out_name)
         {
-            var resgen_exe = "ResGen";
-            if (Utils.IsLinux())
-                resgen_exe += ".exe";
+            var resgen_exe = "ResGen.exe";
 
             var input = file;
             var output = Path.ChangeExtension(file, ".resources");

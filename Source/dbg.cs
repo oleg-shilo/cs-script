@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 class dbg
 {
@@ -15,9 +16,26 @@ class dbg
 
     TextWriter writer = Console.Out;
 
-    public static void print(object o)
+    public static void print(object @object)
     {
-        new dbg().WriteObject(o);
+        new dbg().WriteObject(@object);
+    }
+
+    public static void printf(string format, params object[] args)
+    {
+        print(string.Format(format, args)); 
+    }
+
+    public static void print(params object[] args)
+    {
+        var sb = new StringBuilder();
+        foreach (var o in args)
+        {
+            if (sb.Length > 0)
+                sb.Append(" ");
+            sb.Append((o ?? "{null}").ToString());
+        }
+        new dbg().writer.WriteLine(sb.ToString());
     }
 
     string Indent
@@ -34,13 +52,18 @@ class dbg
         }
         return "{" + obj + "}";
     }
-    bool isPrimitive(object obj) { return (obj == null || obj is ValueType || obj is string); }
+
+    static bool isPrimitive(object obj) { return (obj == null || obj.GetType().IsPrimitive || obj is decimal || obj is string); }
 
     void WriteObject(object obj)
     {
         var enumerableElement = obj as IEnumerable;
         level++;
-        if (enumerableElement != null)
+        if (isPrimitive(obj))
+        {
+            writer.WriteLine(obj); 
+        }
+        else if (enumerableElement != null)
         {
             writer.WriteLine(DisplayName(enumerableElement));
             if (false)
