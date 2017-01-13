@@ -1796,7 +1796,7 @@ namespace CSScriptLibrary
                     Assembly asm = Load(tempFile, assemblyFile, debugBuild, refAssemblies);
 
                     string location = asm.Location();
-                    
+
                     if (CacheEnabled && !Utils.IsNullOrWhiteSpace(location))
                         if (dynamicScriptsAssemblies.ContainsKey(scriptTextCRC))
                             dynamicScriptsAssemblies[scriptTextCRC] = location;

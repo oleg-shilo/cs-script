@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-class dbg
+partial class dbg
 {
-    public static bool publicOnly = false;
+    public static bool publicOnly = true;
     public static bool propsOnly = false;
     public static int depth = 1;
 

@@ -200,6 +200,7 @@ namespace csscript
                 options.reportDetailedErrorInfo = settings.ReportDetailedErrorInfo;
                 options.openEndDirectiveSyntax = settings.OpenEndDirectiveSyntax;
                 options.consoleEncoding = settings.ConsoleEncoding;
+                options.decorateAutoClassAsCS6 = settings.AutoClass_DecorateAsCS6;
                 options.cleanupShellCommand = settings.ExpandCleanupShellCommand();
                 options.doCleanupAfterNumberOfRuns = settings.DoCleanupAfterNumberOfRuns;
                 options.inMemoryAsm = settings.InMemoryAssembly;
@@ -1297,18 +1298,22 @@ namespace csscript
             ICodeCompiler compiler;
 
 
-            if (options.InjectScriptAssemblyAttribute &&
-                (options.altCompiler == "" || scriptFileName.EndsWith(".cs"))) //injection code syntax is C# compatible
+            if (options.altCompiler == "" || scriptFileName.EndsWith(".cs")) //injection code syntax is C# compatible
             {
-                //script may be loaded from in-memory string/code
-                bool isRealScriptFile = !scriptFileName.Contains(@"CSSCRIPT\dynamic");
-                if (isRealScriptFile)
+                if (options.InjectScriptAssemblyAttribute)
                 {
-                    filesToInject = filesToInject.Concat(new[] {
-                                                  CSSUtils.GetScriptedCodeAttributeInjectionCode(scriptFileName),
+                    //script may be loaded from in-memory string/code
+                    bool isRealScriptFile = !scriptFileName.Contains(@"CSSCRIPT\dynamic");
+                    if (isRealScriptFile)
+                    {
+                        filesToInject = filesToInject.Concat(new[] { CSSUtils.GetScriptedCodeAttributeInjectionCode(scriptFileName) })
+                                                     .ToArray();
+                    }
+                }
+
+                filesToInject = filesToInject.Concat(new[] {
                                                   CSSUtils.GetScriptedCodeDbgInjectionCode(scriptFileName) })
                                                   .ToArray();
-                }
             }
 
             if (options.altCompiler == "")
@@ -1637,7 +1642,7 @@ namespace csscript
                 string resFile = tokens.First();
 
                 if (tokens.Count() > 2)
-                    throw new Exception("The specified referenced resources are in unexpected format: \"" +item+"\"");
+                    throw new Exception("The specified referenced resources are in unexpected format: \"" + item + "\"");
 
                 string file = null;
                 foreach (string dir in options.searchDirs)
@@ -2036,7 +2041,8 @@ namespace csscript
         /// </summary>
         public void ShowHelpFor(string arg)
         {
-            print(HelpProvider.BuildCommandInterfaceHelp(arg));
+            if (print != null)
+                print(HelpProvider.BuildCommandInterfaceHelp(arg));
         }
 
         /// <summary>
@@ -2044,7 +2050,8 @@ namespace csscript
         /// </summary>
         public void ShowHelp(string helpType, params object[] context)
         {
-            print(HelpProvider.ShowHelp(helpType, context));
+            if (print != null)
+                print(HelpProvider.ShowHelp(helpType, context));
         }
 
         /// <summary>
@@ -2052,7 +2059,8 @@ namespace csscript
         /// </summary>
         public void ShowSample()
         {
-            print(HelpProvider.BuildSampleCode());
+            if (print != null)
+                print(HelpProvider.BuildSampleCode());
         }
 
         /// <summary>
@@ -2060,7 +2068,8 @@ namespace csscript
         /// </summary>
         public void ShowPrecompilerSample()
         {
-            print(HelpProvider.BuildPrecompilerSampleCode());
+            if (print != null)
+                print(HelpProvider.BuildPrecompilerSampleCode());
         }
 
         /// <summary>
@@ -2107,7 +2116,8 @@ namespace csscript
             new Settings().Save(file);
             string config = File.ReadAllText(file);
             File.Delete(file);
-            print(config);
+            if(print != null)
+                print(config);
         }
 
         /// <summary>

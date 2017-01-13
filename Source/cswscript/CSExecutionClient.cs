@@ -105,6 +105,7 @@ namespace csscript
                     return;
                 }
             }
+
             try
             {
                 AppInfo.appName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);

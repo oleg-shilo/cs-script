@@ -470,7 +470,16 @@ namespace csscript
                 Console.WriteLine(message);
         }
 
-        public static string DbgInjectionCode = "";
+        public static string DbgInjectionCode = DbgInjectionCodeInterface;
+        internal static string DbgInjectionCodeInterface = @"partial class dbg
+{
+    public static bool publicOnly = false;
+    public static bool propsOnly = false;
+    public static int depth = 1;
+    public static void print(object @object){}
+    public static void printf(string format, params object[] args){}
+    public static void print(params object[] args){}
+}";
 
         internal static string GetScriptedCodeDbgInjectionCode(string scriptFileName)
         {
@@ -1171,6 +1180,7 @@ namespace csscript
 
             if (options.autoClass)
             {
+                AutoclassPrecompiler.decorateAutoClassAsCS6 = options.decorateAutoClassAsCS6;
                 if (retval.ContainsKey(Assembly.GetExecutingAssembly().Location))
                     retval[Assembly.GetExecutingAssembly().Location].Add(new AutoclassPrecompiler());
                 else

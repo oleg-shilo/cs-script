@@ -127,7 +127,7 @@ namespace csscript
         {
             int injectionPos;
             int injectionLength;
-            string retval = AutoclassGenerator.Process(code, out injectionPos, out injectionLength);
+            string retval = Process(code, out injectionPos, out injectionLength);
             if (position > injectionPos)
                 position += injectionLength;
             return retval;
@@ -146,6 +146,8 @@ namespace csscript
         //    return Path.GetFileNameWithoutExtension(text).Replace("_", ""); //double '_' are not allowed for class names
         //}
 
+        internal static bool decorateAutoClassAsCS6 = false;
+
         public static bool Compile(ref string content, string scriptFile, bool IsPrimaryScript, Hashtable context)
         {
             if (!IsPrimaryScript)
@@ -153,7 +155,7 @@ namespace csscript
 
             int injectionPos;
             int injectionLength;
-            content = AutoclassPrecompiler.Process(content, out injectionPos, out injectionLength, (string)context["ConsoleEncoding"]);
+            content = Process(content, out injectionPos, out injectionLength, (string) context["ConsoleEncoding"]);
             return true;
         }
 
@@ -163,13 +165,15 @@ namespace csscript
             injectionPos = -1;
             injectionLength = 0;
 
-            StringBuilder code = new StringBuilder(4096);
+            var code = new StringBuilder(4096);
             //code.Append("//Auto-generated file" + Environment.NewLine); //cannot use AppendLine as it is not available in StringBuilder v1.1
             //code.Append("using System;\r\n");
 
             bool headerProcessed = false;
+            int bracket_count = 0;
+
             string line;
-            using (StringReader sr = new StringReader(content))
+            using (var sr = new StringReader(content))
             {
                 bool autoCodeInjected = false;
 
@@ -182,6 +186,8 @@ namespace csscript
 
                             injectionPos = code.Length;
                             string tempText = "public class ScriptClass { public ";
+                            if (decorateAutoClassAsCS6)
+                                code.Append("using static dbg; ");
                             code.Append(tempText);
                             injectionLength += tempText.Length;
                             entryPointInjectionPos = code.Length;
@@ -190,6 +196,9 @@ namespace csscript
                     if (!autoCodeInjected && entryPointInjectionPos != -1 && !Utils.IsNullOrWhiteSpace(line))
                     {
                         string text = line.TrimStart();
+
+                        bracket_count += text.Split('{').Length - 1;
+                        bracket_count -= text.Split('}').Length - 1;
 
                         if (!text.StartsWith("//"))
                         {
@@ -209,6 +218,9 @@ namespace csscript
 
                                     string entryPointDefinition = "static int Main(string[] args) { ";
 
+                                    if (decorateAutoClassAsCS6)
+                                        entryPointDefinition = "using static dbg; " + entryPointDefinition;
+
                                     if (string.Compare(consoleEncoding, Settings.DefaultEncodingName, true) != 0)
                                         entryPointDefinition += "try { Console.OutputEncoding = System.Text.Encoding.GetEncoding(\"" + consoleEncoding + "\"); } catch {} ";
 
@@ -227,11 +239,20 @@ namespace csscript
                                 }
                                 else if (match.Value.Contains("Main")) //assembly entry point "static Main"
                                 {
-                                    if (!match.Value.Contains("static"))
+                                    if (!text.Contains("static"))
                                     {
                                         string tempText = "static ";
+
                                         injectionLength += tempText.Length;
-                                        code.Insert(entryPointInjectionPos, tempText);
+                                        bool allow_member_declarations_before_entry_point = true;
+                                        if (allow_member_declarations_before_entry_point)
+                                            code.Append(tempText);
+                                        else
+                                            code.Insert(entryPointInjectionPos, tempText);
+                                    }
+                                    else if (bracket_count > 0) //not classless but a complete class with static Main
+                                    {
+                                        return content;
                                     }
                                 }
                                 autoCodeInjected = true;
@@ -245,7 +266,8 @@ namespace csscript
             }
             code.Append("} ///CS-Script auto-class generation" + Environment.NewLine);
 
-            return code.ToString();
+            var result = code.ToString();
+            return result;
         }
     }
 }

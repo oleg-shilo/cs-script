@@ -128,7 +128,7 @@ namespace csscript
             clone.buildWinExecutable = this.buildWinExecutable;
             clone.useSurrogateHostingProcess = this.useSurrogateHostingProcess;
             clone.altCompiler = this.altCompiler;
-            clone.consoleEncoding= this.consoleEncoding;
+            clone.consoleEncoding = this.consoleEncoding;
             clone.resolveAutogenFilesRefs = this.resolveAutogenFilesRefs;
             clone.preCompilers = this.preCompilers;
             clone.postProcessor = this.postProcessor;
@@ -146,6 +146,7 @@ namespace csscript
             clone.defaultRefAssemblies = this.defaultRefAssemblies;
             clone.hideTemp = this.hideTemp;
             clone.autoClass = this.autoClass;
+            clone.decorateAutoClassAsCS6 = this.decorateAutoClassAsCS6;
             clone.initContext = this.initContext;
             clone.nonExecuteOpRquest = this.nonExecuteOpRquest;
             clone.customHashing = this.customHashing;
@@ -202,6 +203,7 @@ namespace csscript
             //clone.suppressExternalHosting = this.suppressExternalHosting;
             clone.compilationContext = this.compilationContext;
             clone.autoClass = this.autoClass;
+            clone.decorateAutoClassAsCS6 = this.decorateAutoClassAsCS6;
             clone.customHashing = this.customHashing;
             clone.altConfig = this.altConfig;
             clone.hideTemp = this.hideTemp;
@@ -221,7 +223,7 @@ namespace csscript
         public object nonExecuteOpRquest = null;
         public int compilationContext = 0;
         public string scriptFileName = "";
-        public object initContext= null;
+        public object initContext = null;
         public string scriptFileNamePrimary = null;
         public bool noLogo = false;
         public bool useCompiled = false;
@@ -253,6 +255,7 @@ namespace csscript
         public bool useSurrogateHostingProcess = false;
         public string altCompiler = "";
         public string consoleEncoding = "utf-8";
+        public bool decorateAutoClassAsCS6 = false;
         public string preCompilers = "";
         public string defaultRefAssemblies = "";
         public string postProcessor = "";

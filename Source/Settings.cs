@@ -467,8 +467,33 @@ namespace csscript
             get { return optimisticConcurrencyModel; }
             set { optimisticConcurrencyModel = value; }
         }
-
         bool optimisticConcurrencyModel = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether auto-class decoration should allow C# 6 specific syntax. 
+        /// If it does the statement "using static dbg;" will be injected at the start of the auto-class definition thus the 
+        /// entry script may invoke static methods for object inspection with <c>dbg</c> class without specifying the 
+        /// class name (e.g. "print(DateTime.Now);"). 
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if decorate auto-class as C# 6; otherwise, <c>false</c>.
+        /// </value>
+        [Browsable(false)]
+        public bool AutoClass_DecorateAsCS6
+        {
+            get { return autoClass_DecorateAsCS6; }
+            set { autoClass_DecorateAsCS6 = value; }
+        }
+        bool autoClass_DecorateAsCS6 = false;
+
+        [Browsable(false)]
+        internal bool AutoClass_DecorateAlways
+        {
+            get { return autoClass_DecorateAlways; }
+            set { autoClass_DecorateAlways = value; }
+        }
+        bool autoClass_DecorateAlways = false;
+
 
         /// <summary>
         /// Boolean flag that indicates if compiler warnings should be included in script compilation output.
@@ -547,6 +572,9 @@ namespace csscript
                 doc.DocumentElement.AppendChild(doc.CreateElement("hideCompilerWarnings")).AppendChild(doc.CreateTextNode(HideCompilerWarnings.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("reportDetailedErrorInfo")).AppendChild(doc.CreateTextNode(ReportDetailedErrorInfo.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("hideOptions")).AppendChild(doc.CreateTextNode(hideOptions.ToString()));
+                doc.DocumentElement.AppendChild(doc.CreateElement("autoclass.decorateAsCS6")).AppendChild(doc.CreateTextNode(autoClass_DecorateAsCS6.ToString()));
+                doc.DocumentElement.AppendChild(doc.CreateElement("autoclass.decorateAlways")).AppendChild(doc.CreateTextNode(autoClass_DecorateAlways.ToString()));
+
 
                 if (DefaultApartmentState != ApartmentState.STA)
                     doc.DocumentElement.AppendChild(doc.CreateElement("defaultApartmentState")).AppendChild(doc.CreateTextNode(DefaultApartmentState.ToString()));
@@ -581,14 +609,29 @@ namespace csscript
                 if (!CustomHashing)
                     doc.DocumentElement.AppendChild(doc.CreateElement("CustomHashing")).AppendChild(doc.CreateTextNode(CustomHashing.ToString()));
 
+                //note node.ParentNode.InsertAfter(doc.CreateComment("") injects int node inner text and it is not what we want
                 //very simplistic formatting
                 var xml = doc.InnerXml.Replace("><", ">\n  <")
                                       .Replace(">\n  </", "></")
                                       .Replace("></CSSConfig>", ">\n</CSSConfig>");
 
+                xml = CommentElement(xml, "ConsoleEncoding", "if 'default' then 'utf-8' is used");
+                xml = CommentElement(xml, "autoclass.decorateAsCS6", "if 'true' auto-class decoration should allow C# 6\n       " +
+                                                                     "specific syntax (e.g. injecting 'using static dbg;')");
+                xml = CommentElement(xml, "autoclass.decorateAlways", "if 'true' decorate classless scripts unconditionally;\n       " +
+                                                                      "otherwise only if no top level class detected");
+                xml = CommentElement(xml, "useAlternativeCompiler", "Non default script compiler. For example\n       " +
+                                                                    "C# 6 (Roslyn): '%CSSCRIPT_DIR%!lib!CSSCodeProvider.v4.6.dll'".Replace('!', Path.DirectorySeparatorChar));
+
                 File.WriteAllText(fileName, xml);
+
             }
             catch { }
+        }
+
+        static string CommentElement(string xml, string name, string comment)
+        {
+            return xml.Replace("<" + name + ">", "<!-- " + comment + " -->\n  <" + name + ">");
         }
 
         /// <summary>
@@ -627,6 +670,8 @@ namespace csscript
                     try { settings.cleanupShellCommand = data.SelectSingleNode("cleanupShellCommand").InnerText; } catch { }
                     try { settings.doCleanupAfterNumberOfRuns = uint.Parse(data.SelectSingleNode("doCleanupAfterNumberOfRuns").InnerText); } catch { }
                     try { settings.hideOptions = (HideOptions) Enum.Parse(typeof(HideOptions), data.SelectSingleNode("hideOptions").InnerText, true); } catch { }
+                    try { settings.autoClass_DecorateAsCS6 = data.SelectSingleNode("autoclass.decorateAsCS6").InnerText.ToLower() == "true"; } catch { }
+                    try { settings.autoClass_DecorateAlways = data.SelectSingleNode("autoclass.decorateAlways").InnerText.ToLower() == "true"; } catch { }
                     try { settings.hideCompilerWarnings = data.SelectSingleNode("hideCompilerWarnings").InnerText.ToLower() == "true"; } catch { }
                     try { settings.inMemoryAsm = data.SelectSingleNode("inMemoryAsm").InnerText.ToLower() == "true"; } catch { }
                     try { settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), data.SelectSingleNode("ConcurrencyControl").InnerText, false); } catch { }
