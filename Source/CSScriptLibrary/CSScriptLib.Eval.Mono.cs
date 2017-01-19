@@ -49,7 +49,7 @@ namespace CSScriptLibrary
     /// <summary>
     /// Type of the build (compile) configuration
     /// </summary>
-    [Obsolete("Use boolean IEvaluator.DebugBuild instead")]
+    [Obsolete("Use boolean IEvaluator.DebugBuild instead", true)]
     public enum BuildConfiguration
     {
         /// <summary>
@@ -194,28 +194,28 @@ namespace CSScriptLibrary
             }
         }
 
-        BuildConfiguration configuration;
+        //BuildConfiguration configuration;
 
         /// <summary>
         /// Gets or sets the build configuration.
         /// </summary>
         /// <value>The configuration value.</value>
-        [Obsolete("Use IEvaluator.DebugBuild instead")]
-        public BuildConfiguration Configuration
-        {
-            get
-            {
-                return configuration;
-            }
+        //[Obsolete("Use IEvaluator.DebugBuild instead", true)]
+        //public BuildConfiguration Configuration
+        //{
+        //    get
+        //    {
+        //        return configuration;
+        //    }
 
-            set
-            {
-                configuration = value;
-                IsDebugSymbolDefined = (value == BuildConfiguration.Debug);
-                IsTraceSymbolDefined = (value == BuildConfiguration.Debug);
-                CompilerSettings.GenerateDebugInfo = (value == BuildConfiguration.Debug);
-            }
-        }
+        //    set
+        //    {
+        //        configuration = value;
+        //        IsDebugSymbolDefined = (value == BuildConfiguration.Debug);
+        //        IsTraceSymbolDefined = (value == BuildConfiguration.Debug);
+        //        CompilerSettings.GenerateDebugInfo = (value == BuildConfiguration.Debug);
+        //    }
+        //}
 
         bool debugBuild;
 

@@ -749,17 +749,6 @@
             </remarks>
             </summary>
         </member>
-        <member name="T:csscript.ResolveSourceFileHandler">
-            <summary>
-            Delegate implementing source file probing algorithm.
-            <para>The method is deprecated because it only allows returning a single file. While in reality it can be many. 
-            For example the file and its auto-generated derivatives (e.g. *.g.cs). </para>
-            </summary>
-            <param name="file">The file.</param>
-            <param name="searchDirs">The extra dirs.</param>
-            <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
-            <returns></returns>
-        </member>
         <member name="T:csscript.ResolveSourceFileAlgorithm">
             <summary>
             Delegate implementing source file probing algorithm.

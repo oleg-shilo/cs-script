@@ -65,18 +65,6 @@ namespace csscript
 {
     /// <summary>
     /// Delegate implementing source file probing algorithm.
-    /// <para>The method is deprecated because it only allows returning a single file. While in reality it can be many. 
-    /// For example the file and its auto-generated derivatives (e.g. *.g.cs). </para>
-    /// </summary>
-    /// <param name="file">The file.</param>
-    /// <param name="searchDirs">The extra dirs.</param>
-    /// <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
-    /// <returns></returns>
-    [Obsolete("This type is obsolete. Use ResolveSourceFileAlgorithm instead.", true)]
-    public delegate string ResolveSourceFileHandler(string file, string[] searchDirs, bool throwOnError);
-
-    /// <summary>
-    /// Delegate implementing source file probing algorithm.
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="searchDirs">The extra dirs.</param>
