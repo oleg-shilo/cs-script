@@ -114,7 +114,86 @@ namespace csscript
         /// <returns></returns>
         static public string Process(string code, out int injectionPos, out int injectionLength)
         {
-            return AutoclassPrecompiler.Process(code, out injectionPos, out injectionLength, ConsoleEncoding);
+            int injectedLine;
+            return AutoclassPrecompiler.Process(code, out injectionPos, out injectionLength, out injectedLine, ConsoleEncoding);
+        }
+
+        //Returns 0-based line and column of the position in the text
+        static int[] GetLineCol(string text, int pos)
+        {
+            int line = -1;
+            int col = -1;
+            using (var sr = new StringReader(text.Substring(0, pos)))
+            {
+                string line_str;
+                while ((line_str = sr.ReadLine()) != null)
+                {
+                    line++;
+                    col = line_str.Length;
+                }
+                if (line == -1) line = 0;
+                if (col == -1) col = 0;
+            }
+
+            return new[] { line, col };
+        }
+        //Returns text position of 0-based line and column pair
+        static int GetPos(string text, int line, int col)
+        {
+            bool isInLine = false;
+            int lineCount = -1;
+            int colCount = -1;
+
+            string line_s = null;
+            var lines = new List<string>();
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                var isNewLineStart = (i == 0);
+
+                if (text[i] != '\n' && text[i] != '\r')
+                {
+                    if (!isInLine)
+                    {
+                        colCount = 0;
+                        lineCount++;
+
+                        if (line_s != null)
+                            lines.Add(line_s);
+                        line_s = "";
+                    }
+                    isInLine = true;
+
+                    if (lineCount == line && colCount == col)
+                        return i;
+
+                    colCount++;
+
+                    line_s += text[i];
+                }
+                else
+                {
+                    if (!isInLine)
+                    {
+                        if (i > 0 && text[i] == '\n')
+                        {
+                            if (text[i-1] == '\n') // /n[/n]
+                                lineCount++;
+
+                        }
+                        if (i > 0 && text[i] == '\r')
+                        {
+                            if (text[i-1] == '\r')  // /r[/r]
+                                lineCount++;
+                            else if (text[i-1] == '\n') // /r/n/[/r]/n
+                                lineCount++;
+                        }
+                    }
+
+                    isInLine = false;
+                }
+            }
+            return -1;
         }
 
         /// <summary>
@@ -127,9 +206,19 @@ namespace csscript
         {
             int injectionPos;
             int injectionLength;
-            string retval = Process(code, out injectionPos, out injectionLength);
-            if (position > injectionPos)
-                position += injectionLength;
+            int injectedLine;
+
+            int[] line_col = GetLineCol(code, position);
+            int originalLine = line_col[0];
+            int originalCol = line_col[1];
+            string retval = AutoclassPrecompiler.Process(code, out injectionPos, out injectionLength, out injectedLine, ConsoleEncoding);
+
+            if (injectedLine != -1 && injectedLine <= originalLine)
+            {
+                position = GetPos(retval, originalLine + 1, originalCol);
+            }
+            //if (position > injectionPos)
+            //    position += injectionLength;
             return retval;
         }
 
@@ -155,15 +244,19 @@ namespace csscript
 
             int injectionPos;
             int injectionLength;
-            content = Process(content, out injectionPos, out injectionLength, (string) context["ConsoleEncoding"]);
+            int injectedLine;
+            content = Process(content, out injectionPos, out injectionLength, out injectedLine, (string) context["ConsoleEncoding"]);
             return true;
         }
 
-        internal static string Process(string content, out int injectionPos, out int injectionLength, string consoleEncoding)
+        internal static string Process(string content, out int injectionPos, out int injectionLength, out int injectedLine, string consoleEncoding)
         {
             int entryPointInjectionPos = -1;
             injectionPos = -1;
             injectionLength = 0;
+            injectedLine = -1;
+
+            //we will be effectively normalizing the line ends but the input file may no be 
 
             var code = new StringBuilder(4096);
             //code.Append("//Auto-generated file" + Environment.NewLine); //cannot use AppendLine as it is not available in StringBuilder v1.1
@@ -176,7 +269,7 @@ namespace csscript
             using (var sr = new StringReader(content))
             {
                 bool autoCodeInjected = false;
-
+                int lineCount = 0;
                 while ((line = sr.ReadLine()) != null)
                 {
                     if (!headerProcessed && !line.TrimStart().StartsWith("using ")) //not using...; statement of the file header
@@ -189,8 +282,10 @@ namespace csscript
                             if (decorateAutoClassAsCS6)
                                 code.Append("using static dbg; ");
                             code.Append(tempText);
+
                             injectionLength += tempText.Length;
                             entryPointInjectionPos = code.Length;
+                            injectedLine = lineCount;
                         }
 
                     if (!autoCodeInjected && entryPointInjectionPos != -1 && !Utils.IsNullOrWhiteSpace(line))
@@ -217,9 +312,6 @@ namespace csscript
                                     string actualArgs = (noargs ? "" : "args");
 
                                     string entryPointDefinition = "static int Main(string[] args) { ";
-
-                                    if (decorateAutoClassAsCS6)
-                                        entryPointDefinition = "using static dbg; " + entryPointDefinition;
 
                                     if (string.Compare(consoleEncoding, Settings.DefaultEncodingName, true) != 0)
                                         entryPointDefinition += "try { Console.OutputEncoding = System.Text.Encoding.GetEncoding(\"" + consoleEncoding + "\"); } catch {} ";
@@ -262,6 +354,7 @@ namespace csscript
                     }
                     code.Append(line);
                     code.Append(Environment.NewLine);
+                    lineCount++;
                 }
             }
             code.Append("} ///CS-Script auto-class generation" + Environment.NewLine);
