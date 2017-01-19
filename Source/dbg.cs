@@ -4,38 +4,52 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 partial class dbg
 {
     public static bool publicOnly = true;
     public static bool propsOnly = false;
+    public static int max_items = 25;
     public static int depth = 1;
-
-    int level = 0;
-    string indent = "  ";
-
-    TextWriter writer = Console.Out;
-
-    public static void print(object @object)
-    {
-        new dbg().WriteObject(@object);
-    }
 
     public static void printf(string format, params object[] args)
     {
-        print(string.Format(format, args)); 
+        print(string.Format(format, args));
     }
 
-    public static void print(params object[] args)
+    public static void print(object @object, params object[] args)
     {
-        var sb = new StringBuilder();
-        foreach (var o in args)
+        if (args.Length == 0)
         {
-            if (sb.Length > 0)
-                sb.Append(" ");
-            sb.Append((o ?? "{null}").ToString());
+            new dbg().WriteObject(@object);
         }
-        new dbg().writer.WriteLine(sb.ToString());
+        else
+        {
+            var sb = new StringBuilder();
+            foreach (var o in new[] { @object }.Concat(args))
+            {
+                if (sb.Length > 0)
+                    sb.Append(" ");
+                sb.Append((o ?? "{null}").ToString());
+            }
+            new dbg().writeLine(sb.ToString());
+        }
+    }
+    //===============================
+    int level = 0;
+    string indent = "  ";
+
+    void write(object @object = null)
+    {
+        if (@object != null)
+            Console.Out.Write(@object.ToString().ReplaceClrAliaces());
+    }
+
+    void writeLine(object @object = null)
+    {
+        write(@object);
+        Console.Out.WriteLine();
     }
 
     string Indent
@@ -48,9 +62,18 @@ partial class dbg
         if (obj is Array)
         {
             var arr = obj as Array;
-            return "{" + obj + "} - " + arr.Length + " item" + (arr.Length == 1 ? "" : "s");
+            return "{" + obj + "} - Length: " + arr.Length + " item" + (arr.Length == 1 ? "" : "s");
         }
-        return "{" + obj + "}";
+        else if (obj is IList)
+        {
+            var arr = obj as IList;
+            return "{IList} - Count: " + arr.Count;
+        }
+        else
+        {
+            var count = obj.Cast<object>().Count();
+            return "{IEnumerable} - " + count + " item" + (count == 1 ? "" : "s");
+        }
     }
 
     static bool isPrimitive(object obj) { return (obj == null || obj.GetType().IsPrimitive || obj is decimal || obj is string); }
@@ -61,60 +84,47 @@ partial class dbg
         level++;
         if (isPrimitive(obj))
         {
-            writer.WriteLine(obj); 
+            writeLine(obj);
         }
         else if (enumerableElement != null)
         {
-            writer.WriteLine(DisplayName(enumerableElement));
-            if (false)
+            writeLine(DisplayName(enumerableElement));
+
+            int index = 0;
+            foreach (object item in enumerableElement)
             {
-                foreach (object item in enumerableElement)
+                write(Indent);
+                if (index > max_items) //need to have some limit
                 {
-                    if (item is IEnumerable && !(item is string))
-                    {
-                        writer.Write(Indent);
-                        writer.Write("...");
-                        writer.WriteLine();
-                        if (level < depth)
-                        {
-                            level++;
-                            WriteObject(item);
-                            level--;
-                        }
-                    }
-                    else
-                    {
-                        WriteObject(item);
-                    }
+                    writeLine("... truncated ...");
+                    break;
                 }
-            }
-            else
-            {
-                //temp
-                //if (enumerableElement is Array)
-                //{
-                //    var arr = enumerableElement as Array;
-                //    writer.Write(Indent);
-                //    WriteValue("" + arr.Length + " items(s)");
-                //    writer.WriteLine();
-                //}
+                write("[" + (index++) + "]: ");
+                if (level < (depth + 1))
+                {
+                    level++;
+                    WriteValue(item);
+                    // WriteObject(item);
+                    level--;
+                }
+                writeLine("");
             }
         }
         else
         {
-            writer.WriteLine("{" + obj + "}");
+            writeLine("{" + obj + "}");
 
             foreach (MemberInfo m in GetMembers(obj))
             {
-                writer.Write(Indent);
-                writer.Write("." + m.Name);
-                writer.Write(" = ");
+                write(Indent);
+                write("." + m.Name);
+                write(" = ");
                 object value = GetMemberValue(obj, m);
 
                 if (isPrimitive(value) || (level >= depth))
                 {
                     WriteValue(value);
-                    writer.WriteLine();
+                    writeLine("");
                 }
                 else
                     WriteObject(value);
@@ -146,17 +156,15 @@ partial class dbg
     void WriteValue(object o)
     {
         if (o == null)
-            writer.Write("{null}");
+            write("{null}");
         else if (o is DateTime)
-            writer.Write("{" + o + "}");
+            write("{" + o + "}");
         else if (o is ValueType)
-            writer.Write(o);
+            write(o);
         else if (o is string)
-            writer.Write("\"" + o + "\"");
-        //else if (o is IEnumerable)
-        //    writer.Write("...");
+            write("\"" + o + "\"");
         else
-            writer.Write("{" + o + "}");
+            write("{" + o.ToString().TrimStart('{').TrimEnd('}') + "}");
     }
 
     MemberInfo[] GetMembers(object obj)
@@ -185,5 +193,51 @@ partial class dbg
 
         var items = members.Concat(private_members);
         return items.ToArray();
+    }
+}
+
+static class Extension
+{
+    static public string ReplaceWholeWord(this string text, string pattern, string replacement)
+    {
+        return Regex.Replace(text, @"\b(" + pattern + @")\b", replacement);
+    }
+
+    static public string ReplaceClrAliaces(this string text, bool hideSystemNamespace = false)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+        else
+        {
+            var retval = text.ReplaceWholeWord("System.Object", "object")
+                             .ReplaceWholeWord("System.Boolean", "bool")
+                             .ReplaceWholeWord("System.Byte", "byte")
+                             .ReplaceWholeWord("System.SByte", "sbyte")
+                             .ReplaceWholeWord("System.Char", "char")
+                             .ReplaceWholeWord("System.Decimal", "decimal")
+                             .ReplaceWholeWord("System.Double", "double")
+                             .ReplaceWholeWord("System.Single", "float")
+                             .ReplaceWholeWord("System.Int32", "int")
+                             .ReplaceWholeWord("System.UInt32", "uint")
+                             .ReplaceWholeWord("System.Int64", "long")
+                             .ReplaceWholeWord("System.UInt64", "ulong")
+                             .ReplaceWholeWord("System.Object", "object")
+                             .ReplaceWholeWord("System.Int16", "short")
+                             .ReplaceWholeWord("System.UInt16", "ushort")
+                             .ReplaceWholeWord("System.String", "string")
+                             .ReplaceWholeWord("System.Void", "void")
+                             .ReplaceWholeWord("Void", "void");
+            if (hideSystemNamespace && retval.StartsWith("System."))
+            {
+                string typeName = retval.Substring("System.".Length);
+                if (!typeName.Contains('.')) // it is not a complex namespace
+                    retval = typeName;
+            }
+
+            return retval.Replace("`1", "<T>")
+                         .Replace("`2", "<T, T1>")
+                         .Replace("`3", "<T, T1, T2>")
+                         .Replace("`4", "<T, T1, T2, T3>");
+        }
     }
 }
