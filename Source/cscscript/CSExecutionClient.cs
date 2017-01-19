@@ -334,7 +334,7 @@ namespace csscript
             {
                 if (originalEncoding != null)
                     Console.OutputEncoding = originalEncoding;
-                
+
                 //collect abandoned temp files
                 if (Environment.GetEnvironmentVariable("CSScript_Suspend_Housekeeping") == null)
                     Utils.CleanUnusedTmpFiles(CSExecutor.GetScriptTempDir(), "*????????-????-????-????-????????????.dll", false);
