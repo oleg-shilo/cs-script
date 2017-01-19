@@ -283,15 +283,9 @@ namespace csscript
 
                             if (int.TryParse(pidValue, out pid))
                             {
-                                try
-                                {
-                                    if (Process.GetProcessById(pid) != null)
-                                        continue; //still running
-                                }
-                                catch
-                                {
-                                    //GetProcessById will throw if pid is not running and Utils.FileDelete handles all unexpected
-                                }
+                                //Didn't use GetProcessById as it throws if pid is not running
+                                if (Process.GetProcesses().Any(p => p.Id == pid))
+                                    continue; //still running
                             }
                         }
                     }
@@ -473,12 +467,12 @@ namespace csscript
         public static string DbgInjectionCode = DbgInjectionCodeInterface;
         internal static string DbgInjectionCodeInterface = @"partial class dbg
 {
-    public static bool publicOnly = false;
+    public static bool publicOnly = true;
     public static bool propsOnly = false;
+    public static int max_items = 25;
     public static int depth = 1;
-    public static void print(object @object){}
-    public static void printf(string format, params object[] args){}
-    public static void print(params object[] args){}
+    public static void printf(string format, params object[] args) { }
+    public static void print(object @object, params object[] args) { }
 }";
 
         internal static string GetScriptedCodeDbgInjectionCode(string scriptFileName)
@@ -598,7 +592,7 @@ namespace csscript
 
             var input = file;
             var output = Path.ChangeExtension(file, ".resources");
-            if(out_name != null)
+            if (out_name != null)
                 output = Path.Combine(Path.GetDirectoryName(file), out_name);
 
             string css_dir_res_gen = Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\lib\resgen.exe");
@@ -631,11 +625,11 @@ namespace csscript
             catch (Exception e)
             {
                 if (!File.Exists(css_dir_res_gen))
-                        throw new ApplicationException("Cannot invoke " + resgen_exe + ": " + e.Message +
-                                                       "\nEnsure resgen.exe is in the %CSSCRIPT_DIR%\\lib or "+
-                                                       "its location is in the system PATH. Alternatively you "+
-                                                       "can specify the direct location of resgen.exe via "+
-                                                       "CSS_RESGEN environment variable.");
+                    throw new ApplicationException("Cannot invoke " + resgen_exe + ": " + e.Message +
+                                                   "\nEnsure resgen.exe is in the %CSSCRIPT_DIR%\\lib or " +
+                                                   "its location is in the system PATH. Alternatively you " +
+                                                   "can specify the direct location of resgen.exe via " +
+                                                   "CSS_RESGEN environment variable.");
             }
 
             if (error.Length > 0)
