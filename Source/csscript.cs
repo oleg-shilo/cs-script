@@ -1857,11 +1857,11 @@ namespace csscript
                     Console.WriteLine("> ----------------", options);
                 }
 
+                string pdbFileName = Path.Combine(Path.GetDirectoryName(assemblyFileName), Path.GetFileNameWithoutExtension(assemblyFileName) + ".pdb");
                 if (!options.DBG) //.pdb and imported files might be needed for the debugger
                 {
                     parser.DeleteImportedFiles();
-                    string pdbFile = Path.Combine(Path.GetDirectoryName(assemblyFileName), Path.GetFileNameWithoutExtension(assemblyFileName) + ".pdb");
-                    Utils.FileDelete(pdbFile);
+                    Utils.FileDelete(pdbFileName);
                 }
 
                 if (options.useCompiled)
@@ -1888,10 +1888,15 @@ namespace csscript
 
                     FileInfo scriptFile = new FileInfo(scriptFileName);
                     FileInfo asmFile = new FileInfo(assemblyFileName);
+                    FileInfo pdbFile = new FileInfo(pdbFileName);
 
-                    if (scriptFile != null && asmFile != null)
+                    if (scriptFile.Exists && asmFile.Exists)
                     {
                         asmFile.LastWriteTimeUtc = scriptFile.LastWriteTimeUtc;
+                        if (options.DBG && pdbFile.Exists)
+                            pdbFile.LastWriteTimeUtc = scriptFile.LastWriteTimeUtc;
+
+
                     }
                 }
             }
@@ -2104,7 +2109,7 @@ namespace csscript
             new Settings().Save(file);
             string config = File.ReadAllText(file);
             File.Delete(file);
-            if(print != null)
+            if (print != null)
                 print(config);
         }
 
