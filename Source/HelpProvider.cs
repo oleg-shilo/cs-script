@@ -133,18 +133,18 @@ namespace csscript
                                                    "    void Main()\n" +
                                                    "    {\n" +
                                                    "        Console.WriteLine(\"Hello World!\";\n" +
-                                                   "    }\n"+
-                                                   "\n"+
+                                                   "    }\n" +
+                                                   "\n" +
                                                    "Using an alternative 'instance entry point' is even more convenient (and reliable).\n" +
                                                    "The acceptable 'instance entry point' signatures are:\n" +
-                                                   "\n"+
+                                                   "\n" +
                                                    "  void main()\n" +
                                                    "  void main(string[] args)\n" +
                                                    "  int main()\n" +
-                                                   "  int main(string[] args)\n"+
-                                                   "\n"+
+                                                   "  int main(string[] args)\n" +
+                                                   "\n" +
                                                    "Note, having any active code above entry point is acceptable though it complicates \n" +
-                                                   "the troubleshooting if such a code contains errors.\n"+
+                                                   "the troubleshooting if such a code contains errors.\n" +
                                                    "(see http://www.csscript.net/help/AutoClass.html)");
             switch2Help[nl] = new ArgInfo("-nl",
                                                    "No logo mode: No banner will be shown/printed at execution time.",
@@ -170,11 +170,11 @@ namespace csscript
                                                    "(applicable for console clients only)");
             switch2Help[noconfig] = new ArgInfo("-noconfig[:<file>]",
                                                    "Do not use default CS-Script config file or use alternative one.",
-                                                   "Value \"out\" of the <file> is reserved for creating the config file (css_config.xml) "+
+                                                   "Value \"out\" of the <file> is reserved for creating the config file (css_config.xml) " +
                                                    "with the default settings in the current directory.\n" +
                                                    "Value \"print\" of the <file> is reserved for printing the default config file content.\n" +
                                                    "(e.g. " + AppInfo.appName + " -noconfig sample.cs\n" +
-                                                   AppInfo.appName + " -noconfig:print > css_VB.xml\n"+ 
+                                                   AppInfo.appName + " -noconfig:print > css_VB.xml\n" +
                                                    AppInfo.appName + " -noconfig:c:\\cs-script\\css_VB.xml sample.vb)");
             switch2Help[@out] = new ArgInfo("-out[:<file>]",
                                                    "Forces the script to be compiled into a specific location.",
@@ -199,8 +199,8 @@ namespace csscript
             switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
                                                    "Specifies custom precompiler. This can be either script or assembly file.",
                                                    "Alias - pc[:<file 1>,<file N>]\n" +
-                                                   "If no file(s) specified prints the code template for the custom precompiler. The spacial value 'print' has \n"+
-                                                   "the same effect (e.g. "+ AppInfo.appName + " -pc:print).\n" +
+                                                   "If no file(s) specified prints the code template for the custom precompiler. The spacial value 'print' has \n" +
+                                                   "the same effect (e.g. " + AppInfo.appName + " -pc:print).\n" +
                                                    "There is a special reserved word '" + CSSUtils.noDefaultPrecompilerSwitch + "' to be used as a file name.\n" +
                                                    "It instructs script engine to prevent loading any built-in precompilers \n" +
                                                    "like the one for removing shebang before the execution.\n" +
@@ -308,7 +308,7 @@ namespace csscript
                          "Alias - //css_pc\n" +
                          "file - name of the script or assembly file implementing precompiler.\n" +
                          "\n" +
-                         "This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time just \n"+
+                         "This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time just \n" +
                          "before compiling it. Precompilers are typically used to alter the script coder before the execution. Thus CS-Script uses \n" +
                          "built-in precompiler to decorate classless scripts executed with -autoclass switch.\n" +
                          "(see http://www.csscript.net/help/precompilers.html\n" +
@@ -333,7 +333,7 @@ namespace csscript
                          "file     - name of the compiled resource file (.resources) to be used with the script. Alternatively it can be \n" +
                          "           the name of the XML resource file (.resx) that will be compiled on-fly.\n" +
                          "out_file - optional name of the compiled resource file (.resources) to be generated form the .resx input.\n" +
-                         "           If not supplied then the compiled file will have the same name as the input file but the file extension '.resx' \n"+
+                         "           If not supplied then the compiled file will have the same name as the input file but the file extension '.resx' \n" +
                          "           changed to '.resources'.\n" +
                          "\n" +
                          "This directive is used to reference resource file for script.\n" +
@@ -386,9 +386,9 @@ namespace csscript
                          " 'CSSCRIPT_CONSOLE_ENCODING_OVERWRITE' - script engine output encoding if the one from the css_confix.xml needs to be overwritten.\n" +
                          " 'CSSCRIPT_INC' - a system wide include directory for the all frequently used user scripts.\n" +
                          "------------------------------------\n" +
-                         "During the script execution CS-Script always injects a little object inspector class 'dbg'.\n"+
+                         "During the script execution CS-Script always injects a little object inspector class 'dbg'.\n" +
                          "This class contains static printing methods that mimic Python's 'print()'. It is particularly useful for object inspection in the absence of a proper debugger.\n" +
-                         "Examples:\n"+
+                         "Examples:\n" +
                          "    dbg.print(\"Now:\", DateTime.Now)        - prints concatenated objects.\n" +
                          "    dbg.print(DateTime.Now)                - prints object and values of its properties.\n" +
                          "    dbg.printf(\"Now: {0}\", DateTime.Now)   - formats and prints object and values of its fields and properties.\n" +
@@ -538,7 +538,7 @@ namespace csscript
                 else if (AppArgs.switch2Help.ContainsKey(arg))
                     return AppArgs.switch2Help[arg].FullDoc;
                 else
-                    return "Invalid 'cmd' argument. Use '"+ AppInfo.appName + " -cmd' for the list of valid commands.\n"+ AppArgs.switch1Help[AppArgs.help].FullDoc;
+                    return "Invalid 'cmd' argument. Use '" + AppInfo.appName + " -cmd' for the list of valid commands.\n" + AppArgs.switch1Help[AppArgs.help].FullDoc;
             }
 
             StringBuilder builder = new StringBuilder();
@@ -653,7 +653,11 @@ namespace csscript
         {
             StringBuilder builder = new StringBuilder();
 
-            var dotNetVer = GetDotNetVersion.Get45PlusFromRegistry();
+            string dotNetVer = null;
+
+            if (!Utils.IsLinux())
+                dotNetVer = GetDotNetVersion.Get45PlusFromRegistry();
+
 
             builder.Append(AppInfo.appLogo.TrimEnd() + " www.csscript.net\n");
             builder.Append("\n");
