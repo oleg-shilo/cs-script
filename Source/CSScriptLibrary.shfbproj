@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <!-- The configuration and platform will be used to determine which assemblies to include from solution and
@@ -26,11 +26,22 @@
     </DocumentationSources>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" />
-<NamespaceSummaryItem name="csscript" isDocumented="True">CS-Script Class Library Assembly</NamespaceSummaryItem>
-<NamespaceSummaryItem name="CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils" isDocumented="False">CS-Script Class Library Assembly</NamespaceSummaryItem>
-<NamespaceSummaryItem name="CSScriptLibrary" isDocumented="True">CS-Script Class Library Assembly</NamespaceSummaryItem></NamespaceSummaries>
+      <NamespaceSummaryItem name="csscript" isDocumented="True">CS-Script Class Library Assembly</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils" isDocumented="False">CS-Script Class Library Assembly</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="CSScriptLibrary" isDocumented="True">CS-Script Class Library Assembly</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <ProjectSummary>
     </ProjectSummary>
+    <MaximumGroupParts>2</MaximumGroupParts>
+    <NamespaceGrouping>False</NamespaceGrouping>
+    <SyntaxFilters>C#, Visual Basic, F#</SyntaxFilters>
+    <SdkLinkTarget>Blank</SdkLinkTarget>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
+    <PresentationStyle>VS2013</PresentationStyle>
+    <Preliminary>False</Preliminary>
+    <NamingMethod>Guid</NamingMethod>
+    <HelpTitle>A Sandcastle Documented Class Library</HelpTitle>
+    <ContentPlacement>AboveNamespaces</ContentPlacement>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->
@@ -65,6 +76,9 @@
     </Reference>
     <Reference Include="Mono.CSharp">
       <HintPath>Mono.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Posix">
+      <HintPath>Mono.Posix.dll</HintPath>
     </Reference>
     <Reference Include="System.Collections.Immutable">
       <HintPath>Roslyn.Scripting\System.Collections.Immutable.dll</HintPath>
