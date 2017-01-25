@@ -477,6 +477,9 @@ namespace csscript
 
         internal static string GetScriptedCodeDbgInjectionCode(string scriptFileName)
         {
+            if (DbgInjectionCode == null)
+                return null;
+
             string dbg_injection_version = DbgInjectionCode.GetHashCode().ToString();
 
             using (SystemWideLock fileLock = new SystemWideLock("CS-Script.dbg.injection", dbg_injection_version))

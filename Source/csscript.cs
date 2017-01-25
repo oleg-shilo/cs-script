@@ -1257,9 +1257,10 @@ namespace csscript
                     }
                 }
 
-                filesToInject = filesToInject.Concat(new[] {
-                                                  CSSUtils.GetScriptedCodeDbgInjectionCode(scriptFileName) })
-                                                  .ToArray();
+                var dbgInjectionFile = CSSUtils.GetScriptedCodeDbgInjectionCode(scriptFileName);
+                if(dbgInjectionFile != null)
+                    filesToInject = filesToInject.Concat(new[] { dbgInjectionFile })
+                                                 .ToArray();
             }
 
             if (options.altCompiler == "")
