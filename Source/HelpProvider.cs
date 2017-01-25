@@ -120,7 +120,7 @@ namespace csscript
                                                    "(e.g. " + AppInfo.appName + " /s > sample.cs).");
             switch1Help[wait] = new ArgInfo("-wait[:prompt]",
                                                    "Waits for user input after the execution before exiting.",
-                                                   "If specified the execution will proceed with exit only after any STD input is received.\n" +
+                                                   "If specified the execution will proceed with exit only after any stdinput is received.\n" +
                                                    "Applicable for console mode only.\n" +
                                                    "prompt - if none specified 'Press any key to continue...' will be used\n");
 
@@ -666,7 +666,24 @@ namespace csscript
 #if net4
             builder.Append("   Architecture:   " + (Environment.Is64BitProcess ? "x64" : "x86") + "\n");
 #endif
-            builder.Append("   Home dir:       " + (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") ?? "<not integrated>") + "\n");
+            builder.Append("   Install dir:    " + (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") ?? "<not integrated>") + "\n");
+
+            var asm_path = Assembly.GetExecutingAssembly().Location;
+            builder.Append("   Location:       " + asm_path + "\n");
+            builder.Append("   Compiler:       ");
+            var compiler = "<default>";
+            if (!string.IsNullOrEmpty(asm_path))
+            {
+                //System.Diagnostics.Debug.Assert(false);
+                var alt_compiler = Settings.Load(Path.Combine(Path.GetDirectoryName(asm_path), "css_config.xml"), false).ExpandUseAlternativeCompiler();
+                if (!string.IsNullOrEmpty(alt_compiler))
+                    compiler = alt_compiler;
+            }
+            builder.Append(compiler + "\n");
+            builder.Append("   NuGet manager:  " + NuGet.NuGetExe + "\n");
+            builder.Append("   NuGet cache:    " + NuGet.NuGetCacheView + "\n");
+
+            //builder.Append("   Engine:         " + Assembly.GetExecutingAssembly().Location + "\n");
             return builder.ToString();
         }
 

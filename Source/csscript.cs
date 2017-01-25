@@ -233,11 +233,8 @@ namespace csscript
                     //Here we need to separate application arguments from script ones.
                     //Script engine arguments are always followed by script arguments
                     //[appArgs][scriptFile][scriptArgs][//x]
-#if net1
-                    ArrayList appArgs = new ArrayList();
-#else
                     List<string> appArgs = new List<string>();
-#endif
+
                     //The following will also update corresponding "options" members from "settings" data
                     Settings settings = GetPersistedSettings(appArgs);
 
@@ -278,11 +275,8 @@ namespace csscript
                         else
                             appArgs.Add(args[i]);
                     }
-#if net1
-                    scriptArgs = (string[])appArgs.ToArray(typeof(string));
-#else
+
                     scriptArgs = appArgs.ToArray();
-#endif
 
                     //searchDirs[0] is the script file directory. Set it only after
                     //the script file resolved because it can be:
@@ -290,11 +284,7 @@ namespace csscript
                     //	"%CSSCRIPT_DIR%\lib
                     //	settings.SearchDirs
                     //  CacheDir
-#if net1
-                    ArrayList dirs = new ArrayList();
-#else
                     List<string> dirs = new List<string>();
-#endif
 
                     using (IDisposable currDir = new CurrentDirGuard())
                     {
@@ -362,22 +352,7 @@ namespace csscript
                     {
                         if (parser.ThreadingModel != ApartmentState.Unknown)
                             options.apartmentState = parser.ThreadingModel;
-#if net1
 
-                        ArrayList preScripts = new ArrayList(parser.CmdScripts);
-                        foreach (CSharpParser.ImportInfo info in parser.Imports)
-                        {
-                            try
-                            {
-                                string file = FileParser.ResolveFile(info.file, options.searchDirs);
-                                if (file.IndexOf(".g.cs") == -1) //non auto-generated file
-                                    preScripts.AddRange(new CSharpParser(file, true, options.searchDirs).CmdScripts);
-                            }
-                            catch { } //some files may not be generated yet
-                        }
-
-                        cmdScripts = (CSharpParser.CmdScriptInfo[])preScripts.ToArray(typeof(CSharpParser.CmdScriptInfo));
-#else
                         List<string> newSearchDirs = new List<string>(options.searchDirs);
 
                         using (IDisposable currDir = new CurrentDirGuard())
@@ -430,7 +405,7 @@ namespace csscript
                         }
 
                         cmdScripts = preScripts.ToArray();
-#endif
+
                         if (primaryScript == null)//this is a primary script
                         {
                             int firstEmbeddedScriptArg = CSSUtils.ParseAppArgs(parser.Args, this);
@@ -439,11 +414,7 @@ namespace csscript
                                 for (int i = firstEmbeddedScriptArg; i < parser.Args.Length; i++)
                                     appArgs.Add(parser.Args[i]);
                             }
-#if net1
-                            scriptArgs = (string[])appArgs.ToArray(typeof(string));
-#else
                             scriptArgs = appArgs.ToArray();
-#endif
                         }
                     }
 
@@ -458,6 +429,9 @@ namespace csscript
                     foreach (CSharpParser.CmdScriptInfo info in cmdScripts)
                         if (info.preScript)
                         {
+                            if (info.args.Any(x => x.ToLower() == "elevate" && options.syntaxCheck))
+                                continue; //do not interrupt syntax checking with the elevation
+
                             Environment.CurrentDirectory = originalCurrDir;
                             info.args[1] = FileParser.ResolveFile(info.args[1], originalOptions.searchDirs);
 
@@ -465,32 +439,19 @@ namespace csscript
 
                             if (originalOptions.DBG)
                             {
-#if net1
-                                ArrayList newArgs = new ArrayList();
-                                newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "dbg");
-                                info.args = (string[])newArgs.ToArray(typeof(string));
-#else
                                 List<string> newArgs = new List<string>();
                                 newArgs.AddRange(info.args);
                                 newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "dbg");
                                 info.args = newArgs.ToArray();
-#endif
                             }
                             if (originalOptions.verbose)
                             {
-#if net1
-                                ArrayList newArgs = new ArrayList();
-                                newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "verbose");
-                                info.args = (string[])newArgs.ToArray(typeof(string));
-#else
                                 List<string> newArgs = new List<string>();
                                 newArgs.AddRange(info.args);
                                 newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "verbose");
                                 info.args = newArgs.ToArray();
-#endif
                             }
+
                             if (info.abortOnError)
                                 exec.Execute(info.args, printDelg, originalOptions.scriptFileName);
                             else
@@ -742,47 +703,44 @@ namespace csscript
                     if (Environment.GetEnvironmentVariable("EntryScript") == null)
                         Environment.SetEnvironmentVariable("EntryScript", Path.GetFullPath(options.scriptFileName));
 
+                    if (options.verbose)
                     {
-                        CSSUtils.VerbosePrint("> ----------------", options);
-                        CSSUtils.VerbosePrint("  TragetFramework: " + options.TargetFramework, options);
-                        CSSUtils.VerbosePrint("  Provider: " + options.altCompiler, options);
+                        Console.WriteLine("> ----------------");
+                        Console.WriteLine("  TragetFramework: " + options.TargetFramework);
+                        Console.WriteLine("  Provider: " + options.altCompiler);
                         try
                         {
-                            CSSUtils.VerbosePrint("  Engine: " + Assembly.GetExecutingAssembly().Location, options);
+                            Console.WriteLine("  Engine: " + Assembly.GetExecutingAssembly().Location);
                         }
                         catch { }
 
                         try
                         {
-                            CSSUtils.VerbosePrint(string.Format("  Console Encoding: {0} ({1}) - {2}", Console.OutputEncoding.WebName, Console.OutputEncoding.EncodingName, (Utils.IsDefaultConsoleEncoding ? "system default" : "set by engine")), options);
+                            Console.WriteLine(string.Format("  Console Encoding: {0} ({1}) - {2}", Console.OutputEncoding.WebName, Console.OutputEncoding.EncodingName, (Utils.IsDefaultConsoleEncoding ? "system default" : "set by engine")));
                         }
-                        catch { } //will fail for windows app
+                        catch { } //will fail for windows app but pass for console apps
 
-                        CSSUtils.VerbosePrint("  CurrentDirectory: " + Environment.CurrentDirectory, options);
-
-                        if (!Utils.IsLinux() && options.verbose)
-                        {
-                            CSSUtils.VerbosePrint("  NuGet manager: " + NuGet.NuGetExeView, options);
-                            CSSUtils.VerbosePrint("  NuGet cache: " + NuGet.NuGetCacheView, options);
-                        }
-                        CSSUtils.VerbosePrint("  Executing: " + Path.GetFullPath(options.scriptFileName), options);
-                        CSSUtils.VerbosePrint("  Script arguments: ", options);
+                        Console.WriteLine("  CurrentDirectory: " + Environment.CurrentDirectory);
+                        Console.WriteLine("  NuGet manager: " + NuGet.NuGetExeView);
+                        Console.WriteLine("  NuGet cache: " + NuGet.NuGetCacheView);
+                        Console.WriteLine("  Executing: " + Path.GetFullPath(options.scriptFileName));
+                        Console.WriteLine("  Script arguments: ");
                         for (int i = 0; i < scriptArgs.Length; i++)
-                            CSSUtils.VerbosePrint("    " + i + " - " + scriptArgs[i], options);
-                        CSSUtils.VerbosePrint("  SearchDirectories: ", options);
+                            Console.WriteLine("    " + i + " - " + scriptArgs[i]);
 
+                        Console.WriteLine("  SearchDirectories: ");
                         {
                             int offset = 0;
                             if (Path.GetFullPath(options.searchDirs[0]) != Environment.CurrentDirectory)
                             {
-                                CSSUtils.VerbosePrint("    0 - " + Environment.CurrentDirectory, options);
+                                Console.WriteLine("    0 - " + Environment.CurrentDirectory);
                                 offset++;
                             }
                             for (int i = 0; i < options.searchDirs.Length; i++)
-                                CSSUtils.VerbosePrint("    " + (i + offset) + " - " + options.searchDirs[i], options);
+                                Console.WriteLine("    " + (i + offset) + " - " + options.searchDirs[i], options);
                         }
-                        CSSUtils.VerbosePrint("> ----------------", options);
-                        CSSUtils.VerbosePrint("", options);
+                        Console.WriteLine("> ----------------");
+                        Console.WriteLine("");
                     }
 
                     // The following long comment is also reflected on Wiki
@@ -1367,10 +1325,6 @@ namespace csscript
                     }
                     Type[] types = asm.GetModules()[0].FindTypes(Module.FilterTypeName, "CSSCodeProvider");
 
-#if net1
-                    MethodInfo method = types[0].GetMethod("CreateCompiler");
-                    compiler = (ICodeCompiler)method.Invoke(null, new object[] { scriptFileName });  //the script file name may influence what compiler will be created (e.g. *.vb vs. *.cs)
-#else
                     MethodInfo method = types[0].GetMethod("CreateCompilerVersion");
                     if (method != null)
                     {
@@ -1381,7 +1335,6 @@ namespace csscript
                         method = types[0].GetMethod("CreateCompiler");
                         compiler = (ICodeCompiler) method.Invoke(null, new object[] { scriptFileName });  //the script file name may influence what compiler will be created (e.g. *.vb vs. *.cs)
                     }
-#endif
                 }
                 catch (Exception ex)
                 {

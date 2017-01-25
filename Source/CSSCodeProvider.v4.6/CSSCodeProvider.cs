@@ -60,6 +60,7 @@ public class CSSCodeProvider
 
         return ExistingFile(dir, file) ??
                ExistingFile(dir, "bin", file) ??
+               ExistingFile(dir, "roslyn", file) ??
                ExistingFile(dir, "bin", "roslyn", file);
     }
 

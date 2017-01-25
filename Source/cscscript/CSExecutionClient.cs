@@ -60,6 +60,9 @@ namespace csscript
         /// </summary>
         static void Main(string[] rawArgs)
         {
+            for (int i = 0; i < rawArgs.Length; i++)
+                rawArgs[i] = Environment.ExpandEnvironmentVariables(rawArgs[i]);
+
             main(rawArgs);
         }
 

@@ -1606,11 +1606,13 @@ namespace CSScriptLibrary
 
                             if (injectStatic)
                             {
-                                if (tokens[0] != "static" && tokens[1] != "static" && tokens[2] != "static") //unsafe public static
+                                //if (tokens[0] != "static" && tokens[1] != "static" && tokens[2] != "static") //unsafe public static
+                                if (!tokens.Contains("static")) //unsafe public static
                                     code.Append("   static\r\n");
                             }
 
-                            if (tokens[0] != "public" && tokens[1] != "public" && tokens[2] != "public")
+                            //if (tokens[0] != "public" && tokens[1] != "public" && tokens[2] != "public")
+                            if (!tokens.Contains("public"))
                                 code.Append("   public\r\n");
                         }
                     }
@@ -1766,11 +1768,7 @@ namespace CSScriptLibrary
                     if (dynamicScriptsAssemblies.ContainsKey(scriptTextCRC))
                         try
                         {
-#if !net1
                             return Assembly.LoadFrom(dynamicScriptsAssemblies[scriptTextCRC]);
-#else
-                        return Assembly.LoadFrom(dynamicScriptsAssemblies[scriptTextCRC].ToString());
-#endif
                         }
                         catch
                         {

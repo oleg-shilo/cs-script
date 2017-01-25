@@ -53,6 +53,9 @@ namespace csscript
         static void Main(string[] rawArgs)
         {
             //Debug.Assert();
+            for (int i = 0; i < rawArgs.Length; i++)
+                rawArgs[i] = Environment.ExpandEnvironmentVariables(rawArgs[i]);
+
             string[] args = rawArgs;
 
             //work around of nasty Win7x64 problem.

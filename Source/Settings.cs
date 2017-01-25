@@ -487,6 +487,7 @@ namespace csscript
         bool autoClass_DecorateAsCS6 = false;
 
         [Browsable(false)]
+        //Not in use yet
         internal bool AutoClass_DecorateAlways
         {
             get { return autoClass_DecorateAlways; }
@@ -563,18 +564,22 @@ namespace csscript
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml("<CSSConfig/>");
 
+                //write the all most important elements and less important ones only if they have non-default values.
                 doc.DocumentElement.AppendChild(doc.CreateElement("defaultArguments")).AppendChild(doc.CreateTextNode(DefaultArguments));
                 doc.DocumentElement.AppendChild(doc.CreateElement("defaultRefAssemblies")).AppendChild(doc.CreateTextNode(DefaultRefAssemblies));
                 doc.DocumentElement.AppendChild(doc.CreateElement("searchDirs")).AppendChild(doc.CreateTextNode(SearchDirs));
                 doc.DocumentElement.AppendChild(doc.CreateElement("useAlternativeCompiler")).AppendChild(doc.CreateTextNode(UseAlternativeCompiler));
                 doc.DocumentElement.AppendChild(doc.CreateElement("ConsoleEncoding")).AppendChild(doc.CreateTextNode(ConsoleEncoding));
+                doc.DocumentElement.AppendChild(doc.CreateElement("autoclass.decorateAsCS6")).AppendChild(doc.CreateTextNode(autoClass_DecorateAsCS6.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("inMemoryAsm")).AppendChild(doc.CreateTextNode(InMemoryAssembly.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("hideCompilerWarnings")).AppendChild(doc.CreateTextNode(HideCompilerWarnings.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("reportDetailedErrorInfo")).AppendChild(doc.CreateTextNode(ReportDetailedErrorInfo.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("hideOptions")).AppendChild(doc.CreateTextNode(hideOptions.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("autoclass.decorateAsCS6")).AppendChild(doc.CreateTextNode(autoClass_DecorateAsCS6.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement("autoclass.decorateAlways")).AppendChild(doc.CreateTextNode(autoClass_DecorateAlways.ToString()));
 
+                if (hideOptions != HideOptions.HideMostFiles)
+                    doc.DocumentElement.AppendChild(doc.CreateElement("hideOptions")).AppendChild(doc.CreateTextNode(hideOptions.ToString()));
+
+                if (!autoClass_DecorateAlways)
+                    doc.DocumentElement.AppendChild(doc.CreateElement("autoclass.decorateAlways")).AppendChild(doc.CreateTextNode(autoClass_DecorateAlways.ToString()));
 
                 if (DefaultApartmentState != ApartmentState.STA)
                     doc.DocumentElement.AppendChild(doc.CreateElement("defaultApartmentState")).AppendChild(doc.CreateTextNode(DefaultApartmentState.ToString()));
@@ -616,12 +621,9 @@ namespace csscript
                                       .Replace("></CSSConfig>", ">\n</CSSConfig>");
 
                 xml = CommentElement(xml, "ConsoleEncoding", "if 'default' then 'utf-8' is used");
-                xml = CommentElement(xml, "autoclass.decorateAsCS6", "if 'true' auto-class decoration should allow C# 6\n       " +
-                                                                     "specific syntax (e.g. injecting 'using static dbg;')");
-                xml = CommentElement(xml, "autoclass.decorateAlways", "if 'true' decorate classless scripts unconditionally;\n       " +
-                                                                      "otherwise only if no top level class detected");
-                xml = CommentElement(xml, "useAlternativeCompiler", "Non default script compiler. For example\n       " +
-                                                                    "C# 6 (Roslyn): '%CSSCRIPT_DIR%!lib!CSSCodeProvider.v4.6.dll'".Replace('!', Path.DirectorySeparatorChar));
+                xml = CommentElement(xml, "autoclass.decorateAsCS6", "if 'true' auto-class decoration will inject C# 6 specific syntax expressions (e.g. 'using static dbg;')");
+                xml = CommentElement(xml, "autoclass.decorateAlways", "if 'true' decorate classless scripts unconditionally; otherwise only if no top level class detected");
+                xml = CommentElement(xml, "useAlternativeCompiler", "Custom script compiler. For example C# 6 (Roslyn): '%CSSCRIPT_DIR%!lib!CSSCodeProvider.v4.6.dll'".Replace('!', Path.DirectorySeparatorChar));
 
                 File.WriteAllText(fileName, xml);
 

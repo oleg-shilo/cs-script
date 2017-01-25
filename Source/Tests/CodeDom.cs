@@ -111,6 +111,7 @@ public class CodeDom
             var sw = new Stopwatch();
 
 
+                CSScript.LoadFiles(files);
             sw.Restart();
             //Caching is effectively disabled because LoadFiles creates every time a new "umbrella script" file.
             for (int i = 0; i < repeats; i++)
@@ -133,7 +134,6 @@ public class CodeDom
             //Caching is enabled. Caching scope is process as it is a string in the process memory.
             //Caching criteria is a code string hash.
             sw.Restart();
-            CSScript.CacheEnabled = true;
             for (int i = 0; i < repeats; i++)
             {
                 CSScript.CreateFunc<int>(@"int Sqr(int a)

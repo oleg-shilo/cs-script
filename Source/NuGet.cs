@@ -30,8 +30,13 @@ namespace csscript
             {
                 if (nuGetCache == null)
                 {
+                    var folder = Environment.SpecialFolder.CommonApplicationData;
+                    if (Utils.IsLinux())
+                        folder = Environment.SpecialFolder.ApplicationData;
+
                     nuGetCache = Environment.GetEnvironmentVariable("css_nuget") ??
-                                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "CS-Script" + Path.DirectorySeparatorChar + "nuget");
+                                 Path.Combine(Environment.GetFolderPath(folder), "CS-Script" + Path.DirectorySeparatorChar + "nuget");
+
 
                     if (!Directory.Exists(nuGetCache))
                         Directory.CreateDirectory(nuGetCache);
@@ -41,7 +46,7 @@ namespace csscript
         }
 
         static string nuGetExe = null;
-        static string NuGetExe
+        internal static string NuGetExe
         {
             get
             {
@@ -56,17 +61,43 @@ namespace csscript
                         nuGetExe = Path.Combine(libDir, "nuget.exe");
                         if (!File.Exists(nuGetExe))
                         {
-                            try
-                            {
-                                Console.WriteLine("Warning: Cannot find 'nuget.exe'. Ensure it is in the application directory or in the %CSSCRIPT_DIR%/lib");
-                            }
-                            catch { }
-                            nuGetExe = null;
+                            nuGetExe = GetSystemWideNugetApp();
+                            if (nuGetExe == null)
+                                try
+                                {
+                                    Console.WriteLine("Warning: Cannot find 'nuget.exe'. Ensure it is in the application directory or in the %CSSCRIPT_DIR%/lib");
+                                }
+                                catch { }
                         }
                     }
+
                 }
                 return nuGetExe;
             }
+        }
+
+        static string GetSystemWideNugetApp()
+        {
+            try
+            {
+                if (Environment.GetEnvironmentVariable("NUGET_INCOMPATIBLE_HOST") == null)
+                {
+                    var candidates = Environment.GetEnvironmentVariable("PATH")
+                                                .Split(Utils.IsLinux() ? ':' : ';')
+                                                .SelectMany(dir => new[] 
+                                                                    {
+                                                                        Path.Combine(dir, "nuget"),
+                                                                        Path.Combine(dir, "nuget.exe")
+                                                                    });
+
+                    foreach (string file in candidates)
+                        if (File.Exists(file))
+                            return file;
+                }
+                return "nuget";
+            }
+            catch { }
+            return null;
         }
 
         static bool IsPackageDownloaded(string packageDir, string packageVersion)
@@ -89,108 +120,112 @@ namespace csscript
 
         static public string[] Resolve(string[] packages, bool supressDownloading, string script)
         {
-#if net1
-            return new string[0];
-        }
-#else
-            if (!Utils.IsLinux())
+            List<string> assemblies = new List<string>();
+
+            bool promptPrinted = false;
+            foreach (string item in packages)
             {
-                List<string> assemblies = new List<string>();
+                // //css_nuget -noref -ng:"-IncludePrerelease –version 1.0beta" cs-script
+                // //css_nuget -noref -ver:"4.1.0-alpha1" -ng:"-Pre" NLog
 
-                bool promptPrinted = false;
-                foreach (string item in packages)
+                string package = item;
+                string nugetArgs = "";
+                string packageVersion = "";
+
+                bool supressReferencing = item.StartsWith("-noref");
+                if (supressReferencing)
+                    package = item.Replace("-noref", "").Trim();
+
+                bool forceDownloading = item.StartsWith("-force");
+                uint forceTimeout = 0;
+
+                if (forceDownloading)
                 {
-                    // //css_nuget -noref -ng:"-IncludePrerelease –version 1.0beta" cs-script
-                    // //css_nuget -noref -ver:"4.1.0-alpha1" -ng:"-Pre" NLog
-
-                    string package = item;
-                    string nugetArgs = "";
-                    string packageVersion = "";
-
-                    bool supressReferencing = item.StartsWith("-noref");
-                    if (supressReferencing)
-                        package = item.Replace("-noref", "").Trim();
-
-                    bool forceDownloading = item.StartsWith("-force");
-                    uint forceTimeout = 0;
-
-                    if (forceDownloading)
+                    if (item.StartsWith("-force:")) //'-force:<seconds>'
                     {
-                        if (item.StartsWith("-force:")) //'-force:<seconds>'
+                        var pos = item.IndexOf(" ");
+                        if (pos != -1)
                         {
-                            var pos = item.IndexOf(" ");
-                            if (pos != -1)
-                            {
-                                var forceStatement = item.Substring(0, pos);
-                                package = item.Replace(forceStatement, "").Trim();
+                            var forceStatement = item.Substring(0, pos);
+                            package = item.Replace(forceStatement, "").Trim();
 
-                                string timeout = forceStatement.Replace("-force:", "");
-                                forceTimeout = 0;
-                                uint.TryParse(timeout, out forceTimeout);
-                            }
-                            else
-                            {
-                                //the syntax is wrong; let it fail
-                            }
+                            string timeout = forceStatement.Replace("-force:", "");
+                            forceTimeout = 0;
+                            uint.TryParse(timeout, out forceTimeout);
                         }
                         else
                         {
-                            package = item.Replace("-force", "").Trim();
+                            //the syntax is wrong; let it fail
                         }
-                    }
-
-                    if (package.StartsWith("-ver:"))
-                    {
-                        package = package.Replace("-ver:", "");
-                        int argEnd = package.IndexOf(" ");
-
-                        if (package.StartsWith("\""))
-                        {
-                            package = package.Substring(1, package.Length - 1);
-                            argEnd = package.IndexOf("\"");
-                        }
-                        if (argEnd != -1)
-                        {
-                            packageVersion = package.Substring(0, argEnd).Trim();
-
-                            if (package[argEnd] == '"')
-                                package = package.Substring(argEnd + 1).Trim();
-                            else
-                                package = package.Substring(argEnd).Trim();
-                        }
-                    }
-
-                    int nameStart = package.LastIndexOf(" ");
-                    if (nameStart != -1)
-                    {
-                        if (package.StartsWith("-ng:"))
-                        {
-                            nugetArgs = package.Substring(0, nameStart).Replace("-ng:", "").Trim();
-                            if (nugetArgs.StartsWith("\"") && nugetArgs.EndsWith("\""))
-                                nugetArgs = nugetArgs.Substring(1, nugetArgs.Length - 2);
-                        }
-                        package = package.Substring(nameStart).Trim();
-                    }
-
-                    string packageDir = Path.Combine(NuGetCache, package);
-
-                    if (Directory.Exists(packageDir) && forceDownloading)
-                    {
-                        var age = DateTime.Now.ToUniversalTime() - Directory.GetLastWriteTimeUtc(packageDir);
-                        if (age.TotalSeconds < forceTimeout)
-                            forceDownloading = false;
-                    }
-
-
-                    if (supressDownloading)
-                    {
-                        //it is OK if the package is not downloaded (e.g. N++ intellisense)
-                        if (!supressReferencing && IsPackageDownloaded(packageDir, packageVersion))
-                            assemblies.AddRange(GetPackageLibDlls(package, packageVersion));
                     }
                     else
                     {
-                        if (forceDownloading || !IsPackageDownloaded(packageDir, packageVersion))
+                        package = item.Replace("-force", "").Trim();
+                    }
+                }
+
+                if (package.StartsWith("-ver:"))
+                {
+                    package = package.Replace("-ver:", "");
+                    int argEnd = package.IndexOf(" ");
+
+                    if (package.StartsWith("\""))
+                    {
+                        package = package.Substring(1, package.Length - 1);
+                        argEnd = package.IndexOf("\"");
+                    }
+                    if (argEnd != -1)
+                    {
+                        packageVersion = package.Substring(0, argEnd).Trim();
+
+                        if (package[argEnd] == '"')
+                            package = package.Substring(argEnd + 1).Trim();
+                        else
+                            package = package.Substring(argEnd).Trim();
+                    }
+                }
+
+                int nameStart = package.LastIndexOf(" ");
+                if (nameStart != -1)
+                {
+                    if (package.StartsWith("-ng:"))
+                    {
+                        nugetArgs = package.Substring(0, nameStart).Replace("-ng:", "").Trim();
+                        if (nugetArgs.StartsWith("\"") && nugetArgs.EndsWith("\""))
+                            nugetArgs = nugetArgs.Substring(1, nugetArgs.Length - 2);
+                    }
+                    package = package.Substring(nameStart).Trim();
+                }
+
+                string packageDir = Path.Combine(NuGetCache, package);
+
+                if (Directory.Exists(packageDir) && forceDownloading)
+                {
+                    var age = DateTime.Now.ToUniversalTime() - Directory.GetLastWriteTimeUtc(packageDir);
+                    if (age.TotalSeconds < forceTimeout)
+                        forceDownloading = false;
+                }
+
+
+                if (supressDownloading)
+                {
+                    //it is OK if the package is not downloaded (e.g. N++ intellisense)
+                    if (!supressReferencing && IsPackageDownloaded(packageDir, packageVersion))
+                        assemblies.AddRange(GetPackageLibDlls(package, packageVersion));
+                }
+                else
+                {
+                    if (forceDownloading || !IsPackageDownloaded(packageDir, packageVersion))
+                    {
+                        bool abort_downloading = Environment.GetEnvironmentVariable("NUGET_INCOMPATIBLE_HOST") != null;
+
+                        if (abort_downloading)
+                        {
+                            Console.WriteLine("Warning: Resolving (installing) NuGet package has been aborted due to the incompatibility of the CS-Script host with the nuget stdout redirection.\n" +
+                                              "Run the script from the terminal (e.g. Ctrl+F5 in ST3) at least once to resolve all missing NuGet packages.");
+                            Console.WriteLine();
+                        }
+                        else
                         {
                             if (!promptPrinted)
                                 Console.WriteLine("NuGet> Processing NuGet packages...");
@@ -203,6 +238,7 @@ namespace csscript
                                     nugetArgs = "-version \"" + packageVersion + "\" " + nugetArgs;
                                 var sw = new Stopwatch();
                                 sw.Start();
+
                                 Run(NuGetExe, "install " + package + " " + nugetArgs + " -OutputDirectory " + packageDir);
                                 newPackageWasInstalled = true;
                                 sw.Stop();
@@ -215,18 +251,17 @@ namespace csscript
                             }
                             catch { }
                         }
-
-                        if (!IsPackageDownloaded(packageDir, packageVersion))
-                            throw new ApplicationException("Cannot process NuGet package '" + package + "'");
-
-                        if (!supressReferencing)
-                            assemblies.AddRange(GetPackageLibDlls(package, packageVersion));
                     }
-                }
 
-                return Utils.RemovePathDuplicates(assemblies.ToArray());
+                    if (!IsPackageDownloaded(packageDir, packageVersion))
+                        throw new ApplicationException("Cannot process NuGet package '" + package + "'");
+
+                    if (!supressReferencing)
+                        assemblies.AddRange(GetPackageLibDlls(package, packageVersion));
+                }
             }
-            return new string[0];
+
+            return Utils.RemovePathDuplicates(assemblies.ToArray());
         }
 
         static string GetPackageName(string path)
@@ -392,7 +427,7 @@ namespace csscript
 
         static Thread StartMonitor(StreamReader stream)
         {
-            Thread retval = new Thread(x =>
+            var retval = new Thread(x =>
             {
                 try
                 {
@@ -410,26 +445,33 @@ namespace csscript
 
         static void Run(string exe, string args)
         {
-            using (Process p = new Process())
+            //http://stackoverflow.com/questions/38118548/how-to-install-nuget-from-command-line-on-linux
+            //on linux native "nuget" app doesn't play nice with std.out redirected
+
+            if (Utils.IsLinux())
             {
-                p.StartInfo.FileName = exe;
-                p.StartInfo.Arguments = args;
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.RedirectStandardOutput = true;
-                p.StartInfo.RedirectStandardError = true;
-                p.StartInfo.CreateNoWindow = true;
-                p.Start();
-
-                var error = StartMonitor(p.StandardError);
-                var output = StartMonitor(p.StandardOutput);
-
-                p.WaitForExit();
-
-                error.Abort();
-                output.Abort();
+                Process.Start(exe, args).WaitForExit();
             }
+            else
+                using (var p = new Process())
+                {
+                    p.StartInfo.FileName = exe;
+                    p.StartInfo.Arguments = args;
+                    p.StartInfo.UseShellExecute = false;
+                    p.StartInfo.RedirectStandardOutput = true;
+                    p.StartInfo.RedirectStandardError = true;
+                    p.StartInfo.CreateNoWindow = true;
+                    p.Start();
+
+                    var error = StartMonitor(p.StandardError);
+                    var output = StartMonitor(p.StandardOutput);
+
+                    p.WaitForExit();
+
+                    error.Abort();
+                    output.Abort();
+                }
         }
-#endif
     }
 
 }
