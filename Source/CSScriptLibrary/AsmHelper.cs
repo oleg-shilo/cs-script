@@ -1476,12 +1476,27 @@ namespace CSScriptLibrary
             }
         }
 
-        //executes instance method of underying assembly
+        //executes instance method of underlying assembly
         public object Invoke(object obj, string methodName, params object[] list)
         {
+            if (list == null)
+            {
+                list = new object[] { null };
+            }
+
             string[] names = methodName.Split(".".ToCharArray());
             if (names.Length < 2 && obj != null)
                 methodName = obj.GetType().FullName + "." + methodName;
+
+            if (list.Any(x => x == null))
+                throw new Exception("At least one of the invoke parameters is null. This makes impossible to "+
+                                    "match method signature by the parameter type. Consider using alternative invoking "+
+                                    "mechanisms like:\n"+
+                                    " AsmHelper.GetMethod()\n" +
+                                    " AsmHelper.GetStaticMethod()\n" +
+                                    " Assembly.GetStaticMethod()\n" +
+                                    " using type 'dynamic'\n" +
+                                    " using interfaces");
 
             MethodSignature methodID = new MethodSignature(methodName, list);
             MethodInfo method;
