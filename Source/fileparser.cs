@@ -172,6 +172,9 @@ namespace CSScriptLibrary
 
         public FileParser(string fileName, ParsingParams prams, bool process, bool imported, string[] searchDirs, bool throwOnError)
         {
+            if (searchDirs == null)
+                searchDirs = new string[0];
+
             FileParser._throwOnError = throwOnError;
             this.imported = imported;
             this.prams = prams;
@@ -740,15 +743,7 @@ namespace CSScriptLibrary
         void Init(string fileName, string[] searchDirs)
         {
             ScriptPath = fileName;
-#if net1
-            packages = new ArrayList();
-            referencedNamespaces = new ArrayList();
-            referencedAssemblies = new ArrayList();
-            referencedResources = new ArrayList();
-            ignoreNamespaces = new ArrayList();
-            compilerOptions = new ArrayList();
-            precompilers = new ArrayList();
-#else
+
             packages = new List<string>();
             referencedNamespaces = new List<string>();
             referencedAssemblies = new List<string>();
@@ -756,7 +751,7 @@ namespace CSScriptLibrary
             ignoreNamespaces = new List<string>();
             precompilers = new List<string>();
             compilerOptions = new List<string>();
-#endif
+
             //process main file
             FileParser mainFile = new FileParser(fileName, null, true, false, searchDirs, throwOnError);
             this.apartmentState = mainFile.ThreadingModel;
@@ -782,18 +777,6 @@ namespace CSScriptLibrary
             foreach (string opt in mainFile.CompilerOptions)
                 PushCompilerOptions(opt);
 
-#if net1
-            ArrayList dirs = new ArrayList();
-            dirs.Add(Path.GetDirectoryName(mainFile.fileName));//note: mainFile.fileName is warrantied to be a full name but fileName is not
-            if (searchDirs != null)
-                dirs.AddRange(searchDirs);
-            foreach (string dir in mainFile.ExtraSearchDirs)
-                if (Path.IsPathRooted(dir))
-                    dirs.Add(Path.GetFullPath(dir));
-                else
-                    dirs.Add(Path.Combine(Path.GetDirectoryName(mainFile.fileName), dir));
-            this.SearchDirs =  Utils.RemovePathDuplicates((string[])dirs.ToArray(typeof(string)));
-#else
             List<string> dirs = new List<string>();
             dirs.Add(Path.GetDirectoryName(mainFile.fileName));//note: mainFile.fileName is warrantied to be a full name but fileName is not
             if (searchDirs != null)
@@ -808,7 +791,6 @@ namespace CSScriptLibrary
             }
 
             this.SearchDirs = Utils.RemovePathDuplicates(dirs.ToArray());
-#endif
 
             //process imported files if any
             foreach (ScriptInfo fileInfo in mainFile.ReferencedScripts)
