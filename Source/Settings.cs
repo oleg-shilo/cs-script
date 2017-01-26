@@ -228,7 +228,8 @@ namespace csscript
         /// <summary>
         /// Encoding of he Console Output. Applicable for console applications script engine only.
         /// </summary>
-        [Category("RuntimeSettings"), Description("Console output encoding. Use 'default' value if you want to use system default encoding.")]
+        [Category("RuntimeSettings"), Description("Console output encoding. Use 'default' value if you want to use system default encoding. "+
+                                                  "Otherwise specify the name of the encoding (e.g. utf-8).")]
         [TypeConverter(typeof(EncodingConverter))]
         public string ConsoleEncoding
         {
@@ -620,7 +621,7 @@ namespace csscript
                                       .Replace(">\n  </", "></")
                                       .Replace("></CSSConfig>", ">\n</CSSConfig>");
 
-                xml = CommentElement(xml, "ConsoleEncoding", "if 'default' then 'utf-8' is used");
+                xml = CommentElement(xml, "ConsoleEncoding", "if 'default' then system default is used; otherwise specify the name of the encoding (e.g. utf-8)");
                 xml = CommentElement(xml, "autoclass.decorateAsCS6", "if 'true' auto-class decoration will inject C# 6 specific syntax expressions (e.g. 'using static dbg;')");
                 xml = CommentElement(xml, "autoclass.decorateAlways", "if 'true' decorate classless scripts unconditionally; otherwise only if no top level class detected");
                 xml = CommentElement(xml, "useAlternativeCompiler", "Custom script compiler. For example C# 6 (Roslyn): '%CSSCRIPT_DIR%!lib!CSSCodeProvider.v4.6.dll'".Replace('!', Path.DirectorySeparatorChar));

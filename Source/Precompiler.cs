@@ -279,8 +279,12 @@ namespace csscript
 
                             injectionPos = code.Length;
                             string tempText = "public class ScriptClass { public ";
+#if net4
+#if !InterfaceAssembly
                             if (decorateAutoClassAsCS6)
                                 code.Append("using static dbg; ");
+#endif
+#endif
                             code.Append(tempText);
 
                             injectionLength += tempText.Length;

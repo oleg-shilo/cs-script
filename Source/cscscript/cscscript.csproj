@@ -157,7 +157,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include="Resources\dbg.cs" />
     <Content Include="App.ico" />
     <Compile Include="..\AssemblyExecutor.cs">
       <Link>AssemblyExecutor.cs</Link>

@@ -132,9 +132,7 @@ namespace csscript
                 try
                 {
 #if net4
-#if !InterfaceAssembly
                     CSSUtils.DbgInjectionCode = cscscript.Resources.dbg;
-#endif
 #endif
                     AppInfo.appName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
                     exec.Execute(args, new PrintDelegate(Print), null);

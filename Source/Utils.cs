@@ -955,6 +955,27 @@ namespace csscript
                             else
                                 options.altConfig = argValue;
                     }
+                    else if (Args.ParseValuedArg(arg, AppArgs.config, out argValue) && !options.supressExecution) // -config:<file>
+                    {
+                        //-config:none
+                        //-config:create
+                        //-config:print
+                        //-config:get:name
+                        //-config:set:name:val;ue
+                        //if (argValue != null)
+                        //    if (argValue.StartsWith("get:") || argValue.StartsWith("set:"))
+                        //    {
+                        //        string expression = argValue.Substring(4);
+                        //        bool save = argValue.StartsWith("set:");
+                        //        executor.CurrenConfigDo(expression, save);
+                        //        options.processFile = false;
+                        //    }
+                        //    else if (argValue == "print")
+                        //    {
+                        //        executor.PrintCurrentConfig();
+                        //        options.processFile = false;
+                        //    }
+                    }
                     else if (Args.Same(arg, AppArgs.autoclass, AppArgs.ac)) // -autoclass -ac
                     {
                         options.autoClass = true;

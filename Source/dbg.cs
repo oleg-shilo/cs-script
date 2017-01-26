@@ -15,26 +15,35 @@ partial class dbg
 
     public static void printf(string format, params object[] args)
     {
-        print(string.Format(format, args));
+        try
+        {
+            print(string.Format(format, args));
+        }
+        catch { }
     }
+
 
     public static void print(object @object, params object[] args)
     {
-        if (args.Length == 0)
+        try
         {
-            new dbg().WriteObject(@object);
-        }
-        else
-        {
-            var sb = new StringBuilder();
-            foreach (var o in new[] { @object }.Concat(args))
+            if (args.Length == 0)
             {
-                if (sb.Length > 0)
-                    sb.Append(" ");
-                sb.Append((o ?? "{null}").ToString());
+                new dbg().WriteObject(@object);
             }
-            new dbg().writeLine(sb.ToString());
+            else
+            {
+                var sb = new StringBuilder();
+                foreach (var o in new[] { @object }.Concat(args))
+                {
+                    if (sb.Length > 0)
+                        sb.Append(" ");
+                    sb.Append((o ?? "{null}").ToString());
+                }
+                new dbg().writeLine(sb.ToString());
+            }
         }
+        catch { }
     }
     //===============================
     int level = 0;

@@ -36,6 +36,7 @@ namespace csscript
         public const string autoclass = "autoclass";
         public const string sconfig = "sconfig";
         public const string noconfig = "noconfig";
+        public const string config = "config";
         public const string commands = "commands";
         public const string cd = "cd";
         public const string provider = "provider";
@@ -123,7 +124,6 @@ namespace csscript
                                                    "If specified the execution will proceed with exit only after any stdinput is received.\n" +
                                                    "Applicable for console mode only.\n" +
                                                    "prompt - if none specified 'Press any key to continue...' will be used\n");
-
             switch1Help[ac] =
             switch1Help[autoclass] = new ArgInfo("-ac|-autoclass",
                                                    "Automatically generates 'static entry point' class if the script doesn't define any.",
@@ -138,10 +138,10 @@ namespace csscript
                                                    "Using an alternative 'instance entry point' is even more convenient (and reliable).\n" +
                                                    "The acceptable 'instance entry point' signatures are:\n" +
                                                    "\n" +
-                                                   "  void main()\n" +
-                                                   "  void main(string[] args)\n" +
-                                                   "  int main()\n" +
-                                                   "  int main(string[] args)\n" +
+                                                   "    void main()\n" +
+                                                   "    void main(string[] args)\n" +
+                                                   "    int main()\n" +
+                                                   "    int main(string[] args)\n" +
                                                    "\n" +
                                                    "Note, having any active code above entry point is acceptable though it complicates \n" +
                                                    "the troubleshooting if such a code contains errors.\n" +
@@ -386,13 +386,15 @@ namespace csscript
                          " 'CSSCRIPT_CONSOLE_ENCODING_OVERWRITE' - script engine output encoding if the one from the css_confix.xml needs to be overwritten.\n" +
                          " 'CSSCRIPT_INC' - a system wide include directory for the all frequently used user scripts.\n" +
                          "------------------------------------\n" +
+#if net4
                          "During the script execution CS-Script always injects a little object inspector class 'dbg'.\n" +
                          "This class contains static printing methods that mimic Python's 'print()'. It is particularly useful for object inspection in the absence of a proper debugger.\n" +
                          "Examples:\n" +
                          "    dbg.print(\"Now:\", DateTime.Now)        - prints concatenated objects.\n" +
-                         "    dbg.print(DateTime.Now)                - prints object and values of its properties.\n" +
+                         "    dbg.print(DateTime.Now)                  - prints object and values of its properties.\n" +
                          "    dbg.printf(\"Now: {0}\", DateTime.Now)   - formats and prints object and values of its fields and properties.\n" +
                          "------------------------------------\n" +
+#endif
                          "\n" +
                          "Any directive has to be written as a single line in order to have no impact on compiling by CLI compliant compiler.\n" +
                          "It also must be placed before any namespace or class declaration.\n" +
