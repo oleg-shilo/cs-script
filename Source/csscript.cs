@@ -1778,7 +1778,7 @@ namespace csscript
 
         void ProcessCompilingResult(CompilerResults results, CompilerParameters compilerParams, ScriptParser parser, string scriptFileName, string assemblyFileName, string[] additionalDependencies)
         {
-            LastCompileResult = new CompilingInfo() { Result = results, Input = compilerParams } ;
+            LastCompileResult = new CompilingInfo() { ScriptFile = scriptFileName, Result = results, Input = compilerParams } ;
 
             if (results.Errors.HasErrors)
             {

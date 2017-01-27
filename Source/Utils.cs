@@ -75,6 +75,7 @@ namespace csscript
 
     public class CompilingInfo
     {
+        public string ScriptFile;
         public CompilerResults Result;
         public CompilerParameters Input;
     }

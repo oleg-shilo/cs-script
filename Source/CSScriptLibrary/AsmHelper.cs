@@ -607,7 +607,7 @@ namespace CSScriptLibrary
         /// </summary>
         /// <typeparam name="T">Interface definition to align with.</typeparam>
         /// <param name="obj">The object to be aligned with the interface.</param>
-        /// <param name="refAssemblies">The string array containing file nemes to the additional dependency
+        /// <param name="refAssemblies">The string array containing file names to the additional dependency
         /// assemblies the interface depends in. </param>
         /// <returns>Interface object.</returns>
         public T AlignToInterface<T>(object obj, params string[] refAssemblies) where T : class
