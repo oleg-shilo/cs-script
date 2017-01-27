@@ -73,6 +73,12 @@ namespace csscript
         bool disposed = false;
     }
 
+    public class CompilingInfo
+    {
+        public CompilerResults Result;
+        public CompilerParameters Input;
+    }
+
     internal static class Utils
     {
         //unfortunately LINQ is not available for .NET 1.1 compilations

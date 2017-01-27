@@ -1778,7 +1778,7 @@ namespace csscript
 
         void ProcessCompilingResult(CompilerResults results, CompilerParameters compilerParams, ScriptParser parser, string scriptFileName, string assemblyFileName, string[] additionalDependencies)
         {
-            LastCompileResult = results;
+            LastCompileResult = new CompilingInfo() { Result = results, Input = compilerParams } ;
 
             if (results.Errors.HasErrors)
             {
@@ -1856,7 +1856,7 @@ namespace csscript
             }
         }
 
-        internal CompilerResults LastCompileResult;
+        internal CompilingInfo LastCompileResult;
 
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern uint GetTempFileName(string lpPathName, string lpPrefixString, uint uUnique, [Out] StringBuilder lpTempFileName);

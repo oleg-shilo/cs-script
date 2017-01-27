@@ -662,7 +662,7 @@ namespace CSScriptLibrary
         /// Collection of all compiling results. Every time the script is compiled the compiling result is added to this collection regardless of
         /// the success or failure of the actual compilation.
         /// </summary>
-        public static Dictionary<FileInfo, CompilerResults> CompilingHistory = new Dictionary<FileInfo, CompilerResults>();
+        public static Dictionary<FileInfo, CompilingInfo> CompilingHistory = new Dictionary<FileInfo, CompilingInfo>();
 
         static bool keepCompilingHistory = false;
 
@@ -1953,10 +1953,8 @@ namespace CSScriptLibrary
                         {
                             string outputFile = exec.Compile(scriptFile, assemblyFile, debugBuild);
 
-#if !net1
                             if (KeepCompilingHistory)
                                 CompilingHistory.Add(new FileInfo(scriptFile), exec.LastCompileResult);
-#endif
 
                             if (ExecuteOptions.options.inMemoryAsm)
                                 retval = LoadInMemory(outputFile, debugBuild);
