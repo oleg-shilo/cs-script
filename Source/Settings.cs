@@ -48,6 +48,7 @@ using System.Drawing.Design;
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Forms;
+using System.Reflection;
 
 namespace csscript
 {
@@ -553,9 +554,72 @@ namespace csscript
         ConcurrencyControl concurrencyControl = ConcurrencyControl.Standard;
 
         /// <summary>
-        /// Saves CS-Script application settings to a file (.dat).
+        /// Serializes instance of Settings.
         /// </summary>
-        /// <param name="fileName">File name of the .dat file</param>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            string file = Path.GetTempFileName();
+            try
+            {
+                Save(file);
+                return File.ReadAllText(file);
+            }
+            finally
+            {
+                File.Delete(file);
+            }
+        }
+
+        internal void Set(string name, string value)
+        {
+            PropertyInfo prop = typeof(Settings).GetProperty(name);
+
+            if (prop == null)
+            {
+                throw new CLIException("Invalid config property name '" + name + "'.");
+            }
+            else
+            {
+                value = value.Trim('"');
+
+                if (prop.PropertyType == typeof(string))
+                {
+                    prop.SetValue(this, value, new object[0]);
+                }
+                else  if (prop.PropertyType.IsEnum)
+                {
+                    object value_obj = Enum.Parse(prop.PropertyType, value, true);
+                    prop.SetValue(this, value_obj, new object[0]);
+                }
+                else  if (prop.PropertyType == typeof(bool))
+                {
+                    prop.SetValue(this, bool.Parse(value), new object[0]);
+                }
+            }
+        }
+
+        internal string Get(string name)
+        {
+            PropertyInfo prop = typeof(Settings).GetProperty(name);
+
+            if (prop == null)
+            {
+                throw new CLIException("Invalid config property name '" + name + "'.");
+            }
+            else
+            {
+                if (prop.PropertyType == typeof(string))
+                    return "\"" + prop.GetValue(this, new object[0]) + "\"";
+                else
+                    return ""+prop.GetValue(this, new object[0]);
+            }
+        }
+
+        /// <summary>
+        /// Saves CS-Script application settings to a file.
+        /// </summary>
+        /// <param name="fileName">File name of the settings file</param>
         public void Save(string fileName)
         {
             //It is very tempting to use XmlSerializer but it adds 200 ms to the
@@ -604,7 +668,7 @@ namespace csscript
 #else
                 if (TargetFramework != "v4.0")
 #endif
-                    doc.DocumentElement.AppendChild(doc.CreateElement("TragetFramework")).AppendChild(doc.CreateTextNode(TargetFramework));
+                    doc.DocumentElement.AppendChild(doc.CreateElement("TargetFramework")).AppendChild(doc.CreateTextNode(TargetFramework));
 
                 if (useSurrogatepHostingProcess)
                     doc.DocumentElement.AppendChild(doc.CreateElement("useSurrogatepHostingProcess")).AppendChild(doc.CreateTextNode(useSurrogatepHostingProcess.ToString()));
@@ -641,10 +705,28 @@ namespace csscript
         /// Loads CS-Script application settings from a file. Default settings object is returned if it cannot be loaded from the file.
         /// </summary>
         /// <param name="fileName">File name of the XML file</param>
-        /// <returns>Setting object deserilized from the XML file</returns>
+        /// <returns>Setting object deserialized from the XML file</returns>
         public static Settings Load(string fileName)
         {
             return Load(fileName, true);
+        }
+
+        /// <summary>
+        /// Loads CS-Script application settings from the default config file (css_config.xml in the cscs.exe/csws.exe folder).
+        /// </summary>
+        /// <param name="fileName">File name of the XML file</param>
+        /// <param name="createAlways">Create and return default settings object if it cannot be loaded from the file.</param>
+        /// <returns>Setting object deserialized from the XML file</returns>
+        public static Settings Load(bool createAlways)
+        {
+            var configFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml");
+            return Load(configFile, true);
+        }
+
+        internal void Save()
+        {
+            var configFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml");
+            Save(configFile);
         }
 
         /// <summary>
@@ -664,7 +746,8 @@ namespace csscript
                     XmlDocument doc = new XmlDocument();
                     doc.Load(fileName);
                     XmlNode data = doc.FirstChild;
-                    var node = data.SelectSingleNode("defaultArguments"); if (node != null) settings.defaultArguments = node.InnerText;
+                    XmlNode node;
+                    node = data.SelectSingleNode("defaultArguments"); if (node != null) settings.defaultArguments = node.InnerText;
                     node = data.SelectSingleNode("defaultApartmentState"); if (node != null) settings.defaultApartmentState = (ApartmentState) Enum.Parse(typeof(ApartmentState), node.InnerText, false);
                     node = data.SelectSingleNode("reportDetailedErrorInfo"); if (node != null) settings.reportDetailedErrorInfo = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("useAlternativeCompiler"); if (node != null) settings.UseAlternativeCompiler = node.InnerText;
@@ -678,34 +761,13 @@ namespace csscript
                     node = data.SelectSingleNode("hideCompilerWarnings"); if (node != null) settings.hideCompilerWarnings = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("inMemoryAsm"); if (node != null) settings.inMemoryAsm = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("ConcurrencyControl"); if (node != null) settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), node.InnerText, false);
-                    node = data.SelectSingleNode("TragetFramework"); if (node != null) settings.TargetFramework = node.InnerText;
+                    node = data.SelectSingleNode("TargetFramework"); if (node != null) settings.TargetFramework = node.InnerText;
                     node = data.SelectSingleNode("defaultRefAssemblies"); if (node != null) settings.defaultRefAssemblies = node.InnerText;
                     node = data.SelectSingleNode("useSurrogatepHostingProcess"); if (node != null) settings.useSurrogatepHostingProcess = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("openEndDirectiveSyntax"); if (node != null) settings.OpenEndDirectiveSyntax = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("Precompiler"); if (node != null) settings.Precompiler = node.InnerText;
                     node = data.SelectSingleNode("CustomHashing"); if (node != null) settings.CustomHashing = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("ConsoleEncoding"); if (node != null) settings.ConsoleEncoding = node.InnerText;
-                    //try { settings.defaultArguments = data.SelectSingleNode("defaultArguments").InnerText; } catch { }
-                    //try { settings.defaultApartmentState = (ApartmentState) Enum.Parse(typeof(ApartmentState), data.SelectSingleNode("defaultApartmentState").InnerText, false); } catch { }
-                    //try { settings.reportDetailedErrorInfo = data.SelectSingleNode("reportDetailedErrorInfo").InnerText.ToLower() == "true"; } catch { }
-                    //try { settings.UseAlternativeCompiler = data.SelectSingleNode("useAlternativeCompiler").InnerText; } catch { }
-                    //try { settings.UsePostProcessor = data.SelectSingleNode("usePostProcessor").InnerText; } catch { }
-                    //try { settings.SearchDirs = data.SelectSingleNode("searchDirs").InnerText; } catch { }
-                    //try { settings.cleanupShellCommand = data.SelectSingleNode("cleanupShellCommand").InnerText; } catch { }
-                    //try { settings.doCleanupAfterNumberOfRuns = uint.Parse(data.SelectSingleNode("doCleanupAfterNumberOfRuns").InnerText); } catch { }
-                    //try { settings.hideOptions = (HideOptions) Enum.Parse(typeof(HideOptions), data.SelectSingleNode("hideOptions").InnerText, true); } catch { }
-                    //try { settings.autoClass_DecorateAsCS6 = data.SelectSingleNode("autoclass.decorateAsCS6").InnerText.ToLower() == "true"; } catch { }
-                    //try { settings.autoClass_DecorateAlways = data.SelectSingleNode("autoclass.decorateAlways").InnerText.ToLower() == "true"; } catch { }
-                    //try { settings.hideCompilerWarnings = data.SelectSingleNode("hideCompilerWarnings").InnerText.ToLower() == "true"; } catch { }
-                    //try { settings.inMemoryAsm = data.SelectSingleNode("inMemoryAsm").InnerText.ToLower() == "true"; } catch { }
-                    //try { settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), data.SelectSingleNode("ConcurrencyControl").InnerText, false); } catch { }
-                    //try { settings.TargetFramework = data.SelectSingleNode("TragetFramework").InnerText; } catch { }
-                    //try { settings.defaultRefAssemblies = data.SelectSingleNode("defaultRefAssemblies").InnerText; } catch { }
-                    //try { settings.useSurrogatepHostingProcess = data.SelectSingleNode("useSurrogatepHostingProcess").InnerText.ToLower() == "true"; } catch { }
-                    //try { settings.OpenEndDirectiveSyntax = data.SelectSingleNode("openEndDirectiveSyntax").InnerText.ToLower() == "true"; } catch { }
-                    //try { settings.Precompiler = data.SelectSingleNode("Precompiler").InnerText; } catch { }
-                    //try { settings.CustomHashing = data.SelectSingleNode("CustomHashing").InnerText.ToLower() == "true"; } catch { }
-                    //try { settings.ConsoleEncoding = data.SelectSingleNode("ConsoleEncoding").InnerText; } catch { }
                 }
                 catch
                 {

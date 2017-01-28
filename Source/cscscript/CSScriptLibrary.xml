@@ -382,18 +382,32 @@
             </summary>
             <value>The concurrency control.</value>
         </member>
+        <member name="M:csscript.Settings.ToString">
+            <summary>
+            Serializes instance of Settings.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:csscript.Settings.Save(System.String)">
             <summary>
-            Saves CS-Script application settings to a file (.dat).
+            Saves CS-Script application settings to a file.
             </summary>
-            <param name="fileName">File name of the .dat file</param>
+            <param name="fileName">File name of the settings file</param>
         </member>
         <member name="M:csscript.Settings.Load(System.String)">
             <summary>
             Loads CS-Script application settings from a file. Default settings object is returned if it cannot be loaded from the file.
             </summary>
             <param name="fileName">File name of the XML file</param>
-            <returns>Setting object deserilized from the XML file</returns>
+            <returns>Setting object deserialized from the XML file</returns>
+        </member>
+        <member name="M:csscript.Settings.Load(System.Boolean)">
+            <summary>
+            Loads CS-Script application settings from the default config file (css_config.xml in the cscs.exe/csws.exe folder).
+            </summary>
+            <param name="fileName">File name of the XML file</param>
+            <param name="createAlways">Create and return default settings object if it cannot be loaded from the file.</param>
+            <returns>Setting object deserialized from the XML file</returns>
         </member>
         <member name="M:csscript.Settings.Load(System.String,System.Boolean)">
             <summary>
@@ -924,6 +938,11 @@
         <member name="M:csscript.CSExecutor.ShowVersion">
             <summary>
             Show CS-Script version information.
+            </summary>
+        </member>
+        <member name="T:csscript.CLIException">
+            <summary>
+            The exception that is thrown when a the script CLI error occurs.
             </summary>
         </member>
         <member name="T:csscript.CompilerException">

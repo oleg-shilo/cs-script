@@ -109,33 +109,35 @@ namespace csscript
                 }
                 catch { } //SetEnvironmentVariable will always throw an exception on Mono
 
+                CSExecutor.print = new PrintDelegate(Print);
+
                 CSExecutor exec = new CSExecutor();
-
-                if (AppDomain.CurrentDomain.FriendlyName != "ExecutionDomain") // AppDomain.IsDefaultAppDomain is more appropriate but it is not available in .NET 1.1
-                {
-                    string configFile = exec.GetCustomAppConfig(args);
-                    if (configFile != "")
-                    {
-                        AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
-                        setup.ConfigurationFile = configFile;
-
-                        AppDomain appDomain = AppDomain.CreateDomain("ExecutionDomain", null, setup);
-#if !net4
-                        appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, null, args);
-#else
-                        appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, args);
-#endif
-                        return;
-                    }
-                }
 
                 try
                 {
+                    if (AppDomain.CurrentDomain.FriendlyName != "ExecutionDomain") // AppDomain.IsDefaultAppDomain is more appropriate but it is not available in .NET 1.1
+                    {
+                        string configFile = exec.GetCustomAppConfig(args);
+                        if (configFile != "")
+                        {
+                            AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
+                            setup.ConfigurationFile = configFile;
+
+                            AppDomain appDomain = AppDomain.CreateDomain("ExecutionDomain", null, setup);
+#if !net4
+                        appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, null, args);
+#else
+                            appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, args);
+#endif
+                            return;
+                        }
+                    }
+
 #if net4
                     CSSUtils.DbgInjectionCode = cscscript.Resources.dbg;
 #endif
                     AppInfo.appName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-                    exec.Execute(args, new PrintDelegate(Print), null);
+                    exec.Execute(args, Print, null);
                 }
                 catch (Surrogate86ProcessRequiredException)
                 {
@@ -164,6 +166,14 @@ namespace csscript
                     }
                     catch { } //This will always throw an exception on Mono
 #endif
+                }
+                catch (CLIException e)
+                {
+                    if (!(e is CLIExitRequest))
+                    {
+                        Console.WriteLine(e.Message);
+                        Environment.ExitCode = e.ExitCode;
+                    }
                 }
                 catch (SurrogateHostProcessRequiredException e)
                 {

@@ -213,7 +213,7 @@ namespace csscript
                                                   "Prints documentation for CS-Script specific C# syntax.");
             switch2Help[commands] =
             switch2Help[cmd] = new ArgInfo("-commands|-cmd",
-                                                  "Prints list of supporeted commands (arguments).");
+                                                  "Prints list of supported commands (arguments).");
 
             miscHelp["file"] = new ArgInfo("file",
                                                    "Specifies name of a script file to be run.");

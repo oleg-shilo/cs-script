@@ -850,6 +850,10 @@ namespace csscript
         /// <returns>Index of the first script argument.</returns>
         static internal int ParseAppArgs(string[] args, IScriptExecutor executor)
         {
+            // NOTE: it is expected that arguments are passed multiple times during the session.
+            // E.g. first time from command line, second time for the DefaultArguments from the config file, that 
+            // has been specified from the command line args.
+
             ExecuteOptions options = executor.GetOptions();
             //Debug.Assert(false);
             for (int i = 0; i < args.Length; i++)
@@ -910,8 +914,8 @@ namespace csscript
                         {
                             if (argValue == "show" && nextArg == null)
                             {
-                                options.processFile = false;
                                 executor.ShowHelp(AppArgs.dir, options);
+                                CLIExitRequest.Throw();
                             }
                             else
                             {
@@ -928,14 +932,14 @@ namespace csscript
                         }
                         else
                         {
-                            options.processFile = false;
                             executor.ShowPrecompilerSample();
+                            CLIExitRequest.Throw();
                         }
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.cache, out argValue)) // -cache[:<ls|trim|clear>]
                     {
-                        options.processFile = false;
                         executor.DoCacheOperations(argValue);
+                        CLIExitRequest.Throw();
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.wait, out argValue)) // -wait
                     {
@@ -945,43 +949,51 @@ namespace csscript
                             executor.WaitForInputBeforeExit = "Press any key to continue . . .";
 
                     }
-                    else if (Args.ParseValuedArg(arg, AppArgs.noconfig, out argValue) && !options.supressExecution) // -noconfig:<file>
+                    else if (Args.ParseValuedArg(arg, AppArgs.noconfig, out argValue)) // -noconfig:<file>
                     {
                         options.noConfig = true;
                         if (argValue != null)
                             if (argValue == "out")
                             {
                                 executor.CreateDefaultConfigFile();
-                                options.processFile = false;
+                                CLIExitRequest.Throw();
                             }
                             else if (argValue == "print")
                             {
                                 executor.PrintDefaultConfig();
-                                options.processFile = false;
+                                CLIExitRequest.Throw();
                             }
                             else
                                 options.altConfig = argValue;
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.config, out argValue) && !options.supressExecution) // -config:<file>
                     {
-                        //-config:none
-                        //-config:create
-                        //-config:print
-                        //-config:get:name
-                        //-config:set:name:val;ue
-                        //if (argValue != null)
-                        //    if (argValue.StartsWith("get:") || argValue.StartsWith("set:"))
-                        //    {
-                        //        string expression = argValue.Substring(4);
-                        //        bool save = argValue.StartsWith("set:");
-                        //        executor.CurrenConfigDo(expression, save);
-                        //        options.processFile = false;
-                        //    }
-                        //    else if (argValue == "print")
-                        //    {
-                        //        executor.PrintCurrentConfig();
-                        //        options.processFile = false;
-                        //    }
+                        //-config:none             - ignore config file (use default settings)
+                        //-config:create           - create config file with default settings
+                        //-config:default          - print default settings
+                        //-config                  - print current config file content
+                        //-config:get:name         - print current config file value 
+                        //-config:set:name:value   - set current config file value 
+                        //-config:<file>           - use custom config file
+
+                        if (argValue == null || 
+                            argValue == "create" || 
+                            argValue == "default" || 
+                            argValue.StartsWith("get:") || 
+                            argValue.StartsWith("set:"))
+                        {
+                            executor.ProcessConfigCommand(argValue);
+                            CLIExitRequest.Throw();
+                        }
+                        if (argValue == "none")
+                        {
+                            options.noConfig = true;
+                        }
+                        else
+                        {
+                            options.noConfig = true;
+                            options.altConfig = argValue;
+                        }
                     }
                     else if (Args.Same(arg, AppArgs.autoclass, AppArgs.ac)) // -autoclass -ac
                     {
@@ -1041,8 +1053,7 @@ namespace csscript
                     else if (Args.Same(arg, AppArgs.ver, AppArgs.v)) // -ver -v
                     {
                         executor.ShowVersion();
-                        options.processFile = false;
-                        options.versionOnly = true;
+                        CLIExitRequest.Throw();
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.r, out argValue)) // -r:file1,file2
                     {
@@ -1062,26 +1073,22 @@ namespace csscript
                     else if (Args.Same(arg, AppArgs.question, AppArgs.help)) // -? -help
                     {
                         executor.ShowHelpFor(nextArg);
-                        options.processFile = false;
-                        break;
+                        CLIExitRequest.Throw();
                     }
                     else if (Args.Same(arg, AppArgs.syntax)) // -syntax
                     {
                         executor.ShowHelp(AppArgs.syntax);
-                        options.processFile = false;
-                        break;
+                        CLIExitRequest.Throw();
                     }
                     else if (Args.Same(arg, AppArgs.cmd, AppArgs.commands)) // -cmd -commands
                     {
                         executor.ShowHelp(AppArgs.commands);
-                        options.processFile = false;
-                        break;
+                        CLIExitRequest.Throw();
                     }
                     else if (Args.Same(arg, AppArgs.s)) // -s
                     {
                         executor.ShowSample();
-                        options.processFile = false;
-                        break;
+                        CLIExitRequest.Throw();
                     }
                 }
                 else

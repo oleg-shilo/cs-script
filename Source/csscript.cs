@@ -98,8 +98,9 @@ namespace csscript
         void ShowPrecompilerSample();
 
         void CreateDefaultConfigFile();
-        void PrintSimplePrecompiler();
         void PrintDefaultConfig();
+
+        void ProcessConfigCommand(string command);
 
         void ShowSample();
 
@@ -224,7 +225,7 @@ namespace csscript
         {
             try
             {
-                print = printDelg != null ? printDelg : new PrintDelegate(VoidPrint);
+                print = printDelg != null ? printDelg : VoidPrint;
 
                 if (args.Length > 0)
                 {
@@ -629,6 +630,10 @@ namespace csscript
                             return Path.ChangeExtension(script, ".exe.config");
                     }
                 }
+            }
+            catch (CLIException)
+            {
+                throw;
             }
             catch
             {
@@ -1127,7 +1132,7 @@ namespace csscript
         /// <summary>
         /// Callback to print application messages to appropriate output.
         /// </summary>
-        static PrintDelegate print;
+        internal static PrintDelegate print;
 
         /// <summary>
         /// Container for parsed command line arguments
@@ -1258,7 +1263,7 @@ namespace csscript
                 }
 
                 var dbgInjectionFile = CSSUtils.GetScriptedCodeDbgInjectionCode(scriptFileName);
-                if(dbgInjectionFile != null)
+                if (dbgInjectionFile != null)
                     filesToInject = filesToInject.Concat(new[] { dbgInjectionFile })
                                                  .ToArray();
             }
@@ -1778,7 +1783,7 @@ namespace csscript
 
         void ProcessCompilingResult(CompilerResults results, CompilerParameters compilerParams, ScriptParser parser, string scriptFileName, string assemblyFileName, string[] additionalDependencies)
         {
-            LastCompileResult = new CompilingInfo() { ScriptFile = scriptFileName, Result = results, Input = compilerParams } ;
+            LastCompileResult = new CompilingInfo() { ScriptFile = scriptFileName, Result = results, Input = compilerParams };
 
             if (results.Errors.HasErrors)
             {
@@ -2049,22 +2054,62 @@ namespace csscript
             print("The default config file has been created: " + file);
         }
 
-        public void PrintSimplePrecompiler()
-        {
-
-        }
-
         /// <summary>
         /// Prints the config file default content.
         /// </summary>
         public void PrintDefaultConfig()
         {
-            string file = Path.GetTempFileName();
-            new Settings().Save(file);
-            string config = File.ReadAllText(file);
-            File.Delete(file);
-            if (print != null)
-                print(config);
+            print(new Settings().ToString());
+        }
+
+        public void ProcessConfigCommand(string command)
+        {
+            //-config                  - print current config file content
+            //-config:create           - create config file with default settings
+            //-config:default          - print default settings
+            //-config:get:name         - print current config file value 
+            //-config:set:name=value   - set current config file value 
+            try
+            {
+                if (command == "create")
+                {
+                    CreateDefaultConfigFile();
+                }
+                else if (command == "default")
+                {
+                    print(new Settings().ToString());
+                }
+                else if (command == null)
+                {
+                    var currentConfig = Settings.Load(false) ?? new Settings();
+                    print(currentConfig.ToString());
+                }
+                else if (command.StartsWith("get:"))
+                {
+                    string name = command.Substring(4);
+                    var currentConfig = Settings.Load(false) ?? new Settings();
+                    print(name + " = " + currentConfig.Get(name));
+                }
+                else if (command.StartsWith("set:"))
+                {
+                    //set:DefaultArguments=-ac
+                    string[] tokens = command.Substring(4).Split(new char[] { '=' }, 2);
+                    if (tokens.Length != 2)
+                        throw new CLIException("Invalid set config property expression. Must be in name 'set:<name>=<value>' format.");
+
+                    string name = tokens[0];
+                    string value = tokens[1].Trim('"');
+
+                    var currentConfig = Settings.Load(false) ?? new Settings();
+                    currentConfig.Set(name, value);
+                    currentConfig.Save();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new CLIException(e.Message); //only a message, stack info for CLI is too verbose
+            }
+            throw new CLIExitRequest();
         }
 
         /// <summary>

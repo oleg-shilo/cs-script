@@ -83,6 +83,30 @@ namespace csscript
         }
     }
 
+    internal class CLIExitRequest : CLIException
+    {
+        static public void Throw()
+        {
+            throw new CLIExitRequest();
+        }
+    }
+
+    /// <summary>
+    /// The exception that is thrown when a the script CLI error occurs.
+    /// </summary>
+    public class CLIException : ApplicationException
+    {
+        public int ExitCode = -1;
+
+        public CLIException()
+        {
+        }
+
+        public CLIException(string message) : base(message)
+        {
+        }
+    }
+
     /// <summary>
     /// The exception that is thrown when a the script compiler error occurs.
     /// </summary>
