@@ -853,6 +853,7 @@ namespace csscript
             // NOTE: it is expected that arguments are passed multiple times during the session.
             // E.g. first time from command line, second time for the DefaultArguments from the config file, that 
             // has been specified from the command line args.
+            // CLIExitRequest.Throw() is an exception based mechanism for unconditional application exit. 
 
             ExecuteOptions options = executor.GetOptions();
             //Debug.Assert(false);
@@ -862,6 +863,12 @@ namespace csscript
                 string nextArg = null;
                 if ((i + 1) < args.Length)
                     nextArg = args[i + 1];
+
+                if (Args.IsArg(arg) && (nextArg == AppArgs.help || nextArg == AppArgs.question))
+                {
+                    executor.ShowHelpFor(arg.Substring(1)); //skip preffix
+                    CLIExitRequest.Throw();
+                }
 
                 if (arg[0] != '-' && File.Exists(arg))
                     return i; //on Linux '/' may indicate dir but not command

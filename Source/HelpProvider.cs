@@ -89,7 +89,14 @@ namespace csscript
             //http://www.csscript.net/help/Online/index.html
             switch1Help[help] =
             switch1Help[question] = new ArgInfo("-help|-? [command]",
-                                                    "Displays either generic or command specific help info.");
+                                                    "Displays either generic or command specific help info.",
+                                                    "Reversed order of parameters for the command specific help is also acceptable.\n" +
+                                                    "The all following argument combinations print the same help topic for 'cache' command:\n" +
+                                                    "   -help cache\n" +
+                                                    "   -? cache\n" +
+                                                    "   -cache help\n" +
+                                                    "   -cache ?");
+                                                    
             switch1Help[e] = new ArgInfo("-e",
                                                    "Compiles script into console application executable.");
             switch1Help[ew] = new ArgInfo("-ew",
@@ -169,13 +176,27 @@ namespace csscript
                                                    "Prints runtime information during the script execution.",
                                                    "(applicable for console clients only)");
             switch2Help[noconfig] = new ArgInfo("-noconfig[:<file>]",
-                                                   "Do not use default CS-Script config file or use alternative one.",
+                                                   "Do not use default CS-Script config file or use alternative one.\n"+
+                                                   "OBSOLETE: Use '-config', which is a preferred switch for all configuration operations",
                                                    "Value \"out\" of the <file> is reserved for creating the config file (css_config.xml) " +
                                                    "with the default settings in the current directory.\n" +
                                                    "Value \"print\" of the <file> is reserved for printing the default config file content.\n" +
                                                    "(e.g. " + AppInfo.appName + " -noconfig sample.cs\n" +
                                                    AppInfo.appName + " -noconfig:print > css_VB.xml\n" +
                                                    AppInfo.appName + " -noconfig:c:\\cs-script\\css_VB.xml sample.vb)");
+            switch2Help[config] = new ArgInfo("-config[:<option>]",
+                                                   "Performs various CS-Script config operations",
+                                                   "-config:none           - ignores config file (uses default settings)\n" +
+                                                   "-config:create         - creates config file with default settings\n" +
+                                                   "-config:default        - prints default settings\n" +
+                                                   "-config                - prints current config file content\n" +
+                                                   "-config:get:name       - prints current config file value\n" +
+                                                   "-config:set:name=value - sets current config file value\n" +
+                                                   "-config:<file>         - usees custom config file\n" +
+                                                   "(e.g. " + AppInfo.appName + " -config:none sample.cs\n" +
+                                                   AppInfo.appName + " -config:default > css_VB.xml\n" +
+                                                   AppInfo.appName + " -config:set:"+ inmem + "=true\n" +
+                                                   AppInfo.appName + " -config:c:\\cs-script\\css_VB.xml sample.vb)");
             switch2Help[@out] = new ArgInfo("-out[:<file>]",
                                                    "Forces the script to be compiled into a specific location.",
                                                    "Used only for very fine hosting tuning.\n" +
