@@ -94,7 +94,7 @@ namespace csscript
     /// <summary>
     /// The exception that is thrown when a the script CLI error occurs.
     /// </summary>
-    public class CLIException : ApplicationException
+    internal class CLIException : ApplicationException
     {
         public int ExitCode = -1;
 

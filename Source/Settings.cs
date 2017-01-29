@@ -714,7 +714,6 @@ namespace csscript
         /// <summary>
         /// Loads CS-Script application settings from the default config file (css_config.xml in the cscs.exe/csws.exe folder).
         /// </summary>
-        /// <param name="fileName">File name of the XML file</param>
         /// <param name="createAlways">Create and return default settings object if it cannot be loaded from the file.</param>
         /// <returns>Setting object deserialized from the XML file</returns>
         public static Settings Load(bool createAlways)

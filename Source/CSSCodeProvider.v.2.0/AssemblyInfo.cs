@@ -53,4 +53,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyKeyFile("")]
 [assembly: AssemblyKeyName("")]
 
-[assembly: AssemblyVersion("3.21.1.0")]
+[assembly: AssemblyVersion("3.22.0.0")]
