@@ -990,16 +990,18 @@ namespace csscript
                     {
                         //-config:none             - ignore config file (use default settings)
                         //-config:create           - create config file with default settings
-                        //-config:default          - print default settings
+                        //-config:default          - print default config file
                         //-config                  - print current config file content
+                        //-config:ls               - lists/prints current config values
                         //-config:get:name         - print current config file value 
                         //-config:set:name:value   - set current config file value 
                         //-config:<file>           - use custom config file
 
-                        if (argValue == null || 
-                            argValue == "create" || 
-                            argValue == "default" || 
-                            argValue.StartsWith("get:") || 
+                        if (argValue == null ||
+                            argValue == "create" ||
+                            argValue == "default" ||
+                            argValue == "ls" ||
+                            argValue.StartsWith("get:") ||
                             argValue.StartsWith("set:"))
                         {
                             executor.ProcessConfigCommand(argValue);
@@ -1015,9 +1017,14 @@ namespace csscript
                             options.altConfig = argValue;
                         }
                     }
-                    else if (Args.Same(arg, AppArgs.autoclass, AppArgs.ac)) // -autoclass -ac
+                    //else if (Args.Same(arg, AppArgs.autoclass, AppArgs.ac)) // -autoclass -ac
+                    else if (Args.ParseValuedArg(arg, AppArgs.autoclass, AppArgs.ac, out argValue)) // -autoclass -ac
                     {
-                        options.autoClass = true;
+                        //Args.ParseValuedArg(arg, AppArgs.config, out argValue)
+                        if (argValue == null || argValue == "1")
+                            options.autoClass = true;
+                        else
+                            options.autoClass = false;
                     }
                     else if (Args.Same(arg, AppArgs.nathash))
                     {

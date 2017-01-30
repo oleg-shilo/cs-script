@@ -96,7 +96,7 @@ namespace csscript
                                                     "   -? cache\n" +
                                                     "   -cache help\n" +
                                                     "   -cache ?");
-                                                    
+
             switch1Help[e] = new ArgInfo("-e",
                                                    "Compiles script into console application executable.");
             switch1Help[ew] = new ArgInfo("-ew",
@@ -132,7 +132,9 @@ namespace csscript
                                                    "Applicable for console mode only.\n" +
                                                    "prompt - if none specified 'Press any key to continue...' will be used\n");
             switch1Help[ac] =
-            switch1Help[autoclass] = new ArgInfo("-ac|-autoclass",
+            switch1Help[autoclass] = new ArgInfo("-ac|-autoclass[:<0|1>]",
+                                                   "   -ac:1|-c  enable auto-class decoration (which might be disabled globally);\n" +
+                                                   "   -ac:0     disable auto-class decoration (which might be enabled globally);\n" +
                                                    "Automatically generates 'static entry point' class if the script doesn't define any.",
                                                    "\n" +
                                                    "    using System;\n" +
@@ -170,13 +172,13 @@ namespace csscript
                                                    "Can be beneficial for fine concurrency control as it allows changing \n" +
                                                    "and executing the scripts that are already loaded (being executed). This mode is incompatible \n" +
                                                    "with the scripting scenarios that require scriptassembly to be file based (e.g. advanced Reflection).\n" +
-                                                   "    -inmem:1   enable caching (which might be disabled globally;\n" +
-                                                   "    -inmem:0   disable caching (which might be enabled globally;");
+                                                   "    -inmem:1   enable caching (which might be disabled globally);\n" +
+                                                   "    -inmem:0   disable caching (which might be enabled globally);");
             switch2Help[verbose] = new ArgInfo("-verbose",
                                                    "Prints runtime information during the script execution.",
                                                    "(applicable for console clients only)");
             switch2Help[noconfig] = new ArgInfo("-noconfig[:<file>]",
-                                                   "Do not use default CS-Script config file or use alternative one.\n"+
+                                                   "Do not use default CS-Script config file or use alternative one.\n" +
                                                    "OBSOLETE: Use '-config', which is a preferred switch for all configuration operations",
                                                    "Value \"out\" of the <file> is reserved for creating the config file (css_config.xml) " +
                                                    "with the default settings in the current directory.\n" +
@@ -188,14 +190,15 @@ namespace csscript
                                                    "Performs various CS-Script config operations",
                                                    "-config:none           - ignores config file (uses default settings)\n" +
                                                    "-config:create         - creates config file with default settings\n" +
-                                                   "-config:default        - prints default settings\n" +
+                                                   "-config:default        - prints default config file\n" +
                                                    "-config                - prints current config file content\n" +
-                                                   "-config:get:name       - prints current config file value\n" +
-                                                   "-config:set:name=value - sets current config file value\n" +
-                                                   "-config:<file>         - usees custom config file\n" +
+                                                   "-config:ls             - lists/prints current config values\n" +
+                                                   "-config:get:name       - prints current config value\n" +
+                                                   "-config:set:name=value - sets current config value\n" +
+                                                   "-config:<file>         - uses custom config file\n" +
                                                    "(e.g. " + AppInfo.appName + " -config:none sample.cs\n" +
                                                    AppInfo.appName + " -config:default > css_VB.xml\n" +
-                                                   AppInfo.appName + " -config:set:"+ inmem + "=true\n" +
+                                                   AppInfo.appName + " -config:set:" + inmem + "=true\n" +
                                                    AppInfo.appName + " -config:c:\\cs-script\\css_VB.xml sample.vb)");
             switch2Help[@out] = new ArgInfo("-out[:<file>]",
                                                    "Forces the script to be compiled into a specific location.",
@@ -406,6 +409,8 @@ namespace csscript
                          " 'CSSCRIPT_DIR' - script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is during the CS-Script installation.\n" +
                          " 'CSSCRIPT_CONSOLE_ENCODING_OVERWRITE' - script engine output encoding if the one from the css_confix.xml needs to be overwritten.\n" +
                          " 'CSSCRIPT_INC' - a system wide include directory for the all frequently used user scripts.\n" +
+                         "$(csscript_roslyn)" +
+
                          "------------------------------------\n" +
 #if net4
                          "During the script execution CS-Script always injects a little object inspector class 'dbg'.\n" +
@@ -474,9 +479,12 @@ namespace csscript
                                                 "\n" +
                                                 "These directive is used to execute script from a surrogate host process. The script engine application (cscs.exe or csws.exe) launches the script\n" +
                                                 "execution as a separate process of the specified CLR version and CPU architecture.\n" +
-                                                "------------------------------------\n");
+                                                "------------------------------------\n")
+                                       .Replace("$(csscript_roslyn)", "");
             else
-                syntaxHelp = syntaxHelp.Replace("{$css_host}", "");
+                syntaxHelp = syntaxHelp.Replace("{$css_host}", "")
+                                       .Replace("$(csscript_roslyn)", " 'CSSCRIPT_ROSLYN' - a shadow copy of Roslyn compiler files. \n" +
+                                                 "It's created during setup in order to avoid locking deployment directories because of the running Roslyn binaries.\n");
 
             #endregion
         }
@@ -684,16 +692,16 @@ namespace csscript
 
             builder.Append(AppInfo.appLogo.TrimEnd() + " www.csscript.net\n");
             builder.Append("\n");
-            builder.Append("   CLR:            " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : "") + "\n");
-            builder.Append("   System:         " + Environment.OSVersion + "\n");
+            builder.Append("   CLR:             " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : "") + "\n");
+            builder.Append("   System:          " + Environment.OSVersion + "\n");
 #if net4
-            builder.Append("   Architecture:   " + (Environment.Is64BitProcess ? "x64" : "x86") + "\n");
+            builder.Append("   Architecture:    " + (Environment.Is64BitProcess ? "x64" : "x86") + "\n");
 #endif
-            builder.Append("   Install dir:    " + (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") ?? "<not integrated>") + "\n");
+            builder.Append("   Install dir:     " + (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") ?? "<not integrated>") + "\n");
 
             var asm_path = Assembly.GetExecutingAssembly().Location;
-            builder.Append("   Location:       " + asm_path + "\n");
-            builder.Append("   Compiler:       ");
+            builder.Append("   Location:        " + asm_path + "\n");
+            builder.Append("   Compiler:        ");
             var compiler = "<default>";
             if (!string.IsNullOrEmpty(asm_path))
             {
@@ -703,8 +711,12 @@ namespace csscript
                     compiler = alt_compiler;
             }
             builder.Append(compiler + "\n");
-            builder.Append("   NuGet manager:  " + NuGet.NuGetExe + "\n");
-            builder.Append("   NuGet cache:    " + NuGet.NuGetCacheView + "\n");
+
+            if (!Utils.IsLinux())
+                builder.Append("   Roslyn services: " + (Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ?? "<none>") + "\n");
+
+            builder.Append("   NuGet manager:   " + NuGet.NuGetExe + "\n");
+            builder.Append("   NuGet cache:     " + NuGet.NuGetCacheView + "\n");
 
             //builder.Append("   Engine:         " + Assembly.GetExecutingAssembly().Location + "\n");
             return builder.ToString();

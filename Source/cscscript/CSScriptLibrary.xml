@@ -405,7 +405,6 @@
             <summary>
             Loads CS-Script application settings from the default config file (css_config.xml in the cscs.exe/csws.exe folder).
             </summary>
-            <param name="fileName">File name of the XML file</param>
             <param name="createAlways">Create and return default settings object if it cannot be loaded from the file.</param>
             <returns>Setting object deserialized from the XML file</returns>
         </member>
@@ -416,6 +415,27 @@
             <param name="fileName">File name of the XML file</param>
             <param name="createAlways">Create and return default settings object if it cannot be loaded from the file.</param>
             <returns>Setting object deserialized from the XML file</returns>
+        </member>
+        <member name="T:csscript.CompilingInfo">
+            <summary>
+            Class containing all information about script compilation context and the compilation result.
+            </summary>
+        </member>
+        <member name="F:csscript.CompilingInfo.ScriptFile">
+            <summary>
+            The script file that the <c>CompilingInfo</c> is associated with.
+            </summary>
+        </member>
+        <member name="F:csscript.CompilingInfo.Result">
+            <summary>
+            The script compilation result.
+            </summary>
+        </member>
+        <member name="F:csscript.CompilingInfo.Input">
+            <summary>
+            The compilation context object that contain all information about the script compilation input
+            (referenced assemblies, compiler symbols). 
+            </summary>
         </member>
         <member name="M:csscript.Utils.WaitForFileIdle(System.String,System.Int32)">
             <summary>

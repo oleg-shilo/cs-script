@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using System.Collections;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace csscript
 {
@@ -256,6 +257,7 @@ namespace csscript
             injectionLength = 0;
             injectedLine = -1;
 
+            //Debug.Assert(false);
             //we will be effectively normalizing the line ends but the input file may no be 
 
             var code = new StringBuilder(4096);

@@ -105,7 +105,7 @@ namespace csscript
 
                         AppDomain appDomain = AppDomain.CreateDomain("ExecutionDomain", null, setup);
 #if !net4
-                    appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, null, args);
+                        appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, null, args);
 #else
                         appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, args);
 #endif

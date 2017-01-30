@@ -48,17 +48,12 @@ public class CSSCodeProvider
             null;
     }
 
-
-    static string GetDefaultProviderPath()
-    {
-        return GetDefaultAssemblyPath("Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll");
-    }
-
     static string GetDefaultAssemblyPath(string file)
     {
         var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         return ExistingFile(dir, file) ??
+               ExistingFile(Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ??dir, file) ??
                ExistingFile(dir, "bin", file) ??
                ExistingFile(dir, "roslyn", file) ??
                ExistingFile(dir, "bin", "roslyn", file);

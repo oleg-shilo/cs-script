@@ -2059,12 +2059,13 @@ namespace csscript
         /// </summary>
         public void PrintDefaultConfig()
         {
-            print(new Settings().ToString());
+            print(new Settings().ToStringRaw());
         }
 
         public void ProcessConfigCommand(string command)
         {
             //-config                  - print current config file content
+            //-config:ls               - lists/print current settings value
             //-config:create           - create config file with default settings
             //-config:default          - print default settings
             //-config:get:name         - print current config file value 
@@ -2077,7 +2078,11 @@ namespace csscript
                 }
                 else if (command == "default")
                 {
-                    print(new Settings().ToString());
+                    print(new Settings().ToStringRaw());
+                }
+                else if (command == "ls")
+                {
+                    print(Settings.Load(false).ToString());
                 }
                 else if (command == null)
                 {
@@ -2088,19 +2093,19 @@ namespace csscript
                 {
                     string name = command.Substring(4);
                     var currentConfig = Settings.Load(false) ?? new Settings();
-                    print(name + " = " + currentConfig.Get(name));
+                    print(name + ": " + currentConfig.Get(name));
                 }
                 else if (command.StartsWith("set:"))
                 {
                     //set:DefaultArguments=-ac
-                    string[] tokens = command.Substring(4).Split(new char[] { '=' }, 2);
+                    string[] tokens = command.Substring(4).Split(new char[] { '=', ':' }, 2);
                     if (tokens.Length != 2)
                         throw new CLIException("Invalid set config property expression. Must be in name 'set:<name>=<value>' format.");
 
                     string name = tokens[0];
-                    string value = tokens[1].Trim('"');
+                    string value = tokens[1].Trim().Trim('"');
 
-                    var currentConfig = Settings.Load(false) ?? new Settings();
+                    var currentConfig = Settings.Load(true) ?? new Settings();
                     currentConfig.Set(name, value);
                     currentConfig.Save();
                 }

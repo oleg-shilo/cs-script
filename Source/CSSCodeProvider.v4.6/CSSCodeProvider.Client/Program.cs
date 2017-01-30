@@ -9,7 +9,7 @@ class Program
     static void Main(string[] args)
     {
         Load(); return;
-        testVb(); return;
+        //testVb(); return;
 
         string baseDir = @"E:\Galos\Projects\CS-Script.Npp\CSScript.Npp\src\CSScriptNpp\CSScriptNpp\Roslyn\";
         //baseDir = @"E:\Galos\Projects\CS-Script.Npp\gittest\csscriptnpp\bin\Plugins\CSScriptNpp\Roslyn\";
@@ -82,6 +82,24 @@ End Module");
         Console.WriteLine("done");
     }
     static void Load()
+    {
+        try
+        {
+            //var baseDir = @"C:\Program Files (x86)\Notepad++\plugins\CSScriptNpp\Roslyn\";
+            ////baseDir = @"E:\Galos\Projects\CS-Script.Npp\CSScript.Npp\src\CSScriptNpp\CSScriptNpp\Roslyn\";
+            //CSSCodeProvider.CompilerPath = baseDir + "csc.exe";
+            //CSSCodeProvider.ProviderPath = baseDir + "Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll";
+            CSSCodeProvider.CompilerServerTimeToLive = 600;
+            CSSCodeProvider.CompilerServerTimeToLive = 6;
+
+            ICodeCompiler compiler = CSSCodeProvider.CreateCompiler("");
+            var compilerParams = new CompilerParameters();
+            var result = compiler.CompileAssemblyFromFile(compilerParams, @"C:\Users\osh\Documents\C# Scripts\New Script64.cs");
+        }
+        catch { }
+        Console.WriteLine("done");
+    }
+    static void Load_old()
     {
         try
         {

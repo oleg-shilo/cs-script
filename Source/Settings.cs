@@ -49,6 +49,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
+using System.Linq;
 
 namespace csscript
 {
@@ -229,7 +230,7 @@ namespace csscript
         /// <summary>
         /// Encoding of he Console Output. Applicable for console applications script engine only.
         /// </summary>
-        [Category("RuntimeSettings"), Description("Console output encoding. Use 'default' value if you want to use system default encoding. "+
+        [Category("RuntimeSettings"), Description("Console output encoding. Use 'default' value if you want to use system default encoding. " +
                                                   "Otherwise specify the name of the encoding (e.g. utf-8).")]
         [TypeConverter(typeof(EncodingConverter))]
         public string ConsoleEncoding
@@ -559,6 +560,17 @@ namespace csscript
         /// <returns></returns>
         public override string ToString()
         {
+            var props = this.GetType()
+                            .GetProperties()
+                            .Where(p => p.CanRead && p.CanWrite)
+                            .Select(p => " " + p.Name + ": " + (p.PropertyType == typeof(string) ? "\"" + p.GetValue(this, dummy) + "\"" : p.GetValue(this, dummy)))
+                            .ToArray();
+
+            return string.Join("\n", props);
+        }
+
+        internal string ToStringRaw()
+        {
             string file = Path.GetTempFileName();
             try
             {
@@ -579,25 +591,30 @@ namespace csscript
             {
                 throw new CLIException("Invalid config property name '" + name + "'.");
             }
+            else if (string.IsNullOrEmpty(value))
+            {
+                throw new CLIException("Invalid config property value. It cannot be empty.");
+            }
             else
             {
                 value = value.Trim('"');
 
                 if (prop.PropertyType == typeof(string))
                 {
-                    prop.SetValue(this, value, new object[0]);
+                    prop.SetValue(this, value, dummy);
                 }
-                else  if (prop.PropertyType.IsEnum)
+                else if (prop.PropertyType.IsEnum)
                 {
                     object value_obj = Enum.Parse(prop.PropertyType, value, true);
-                    prop.SetValue(this, value_obj, new object[0]);
+                    prop.SetValue(this, value_obj, dummy);
                 }
-                else  if (prop.PropertyType == typeof(bool))
+                else if (prop.PropertyType == typeof(bool))
                 {
-                    prop.SetValue(this, bool.Parse(value), new object[0]);
+                    prop.SetValue(this, bool.Parse(value), dummy);
                 }
             }
         }
+        internal static object[] dummy = new object[0]; 
 
         internal string Get(string name)
         {
@@ -610,9 +627,9 @@ namespace csscript
             else
             {
                 if (prop.PropertyType == typeof(string))
-                    return "\"" + prop.GetValue(this, new object[0]) + "\"";
+                    return "\"" + prop.GetValue(this, dummy) + "\"";
                 else
-                    return ""+prop.GetValue(this, new object[0]);
+                    return "" + prop.GetValue(this, dummy);
             }
         }
 
@@ -634,7 +651,7 @@ namespace csscript
                 doc.DocumentElement.AppendChild(doc.CreateElement("defaultRefAssemblies")).AppendChild(doc.CreateTextNode(DefaultRefAssemblies));
                 doc.DocumentElement.AppendChild(doc.CreateElement("searchDirs")).AppendChild(doc.CreateTextNode(SearchDirs));
                 doc.DocumentElement.AppendChild(doc.CreateElement("useAlternativeCompiler")).AppendChild(doc.CreateTextNode(UseAlternativeCompiler));
-                doc.DocumentElement.AppendChild(doc.CreateElement("ConsoleEncoding")).AppendChild(doc.CreateTextNode(ConsoleEncoding));
+                doc.DocumentElement.AppendChild(doc.CreateElement("consoleEncoding")).AppendChild(doc.CreateTextNode(ConsoleEncoding));
                 doc.DocumentElement.AppendChild(doc.CreateElement("autoclass.decorateAsCS6")).AppendChild(doc.CreateTextNode(autoClass_DecorateAsCS6.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("inMemoryAsm")).AppendChild(doc.CreateTextNode(InMemoryAssembly.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("hideCompilerWarnings")).AppendChild(doc.CreateTextNode(HideCompilerWarnings.ToString()));
@@ -650,7 +667,7 @@ namespace csscript
                     doc.DocumentElement.AppendChild(doc.CreateElement("defaultApartmentState")).AppendChild(doc.CreateTextNode(DefaultApartmentState.ToString()));
 
                 if (!string.IsNullOrEmpty(precompiler))
-                    doc.DocumentElement.AppendChild(doc.CreateElement("Precompiler")).AppendChild(doc.CreateTextNode(Precompiler));
+                    doc.DocumentElement.AppendChild(doc.CreateElement("precompiler")).AppendChild(doc.CreateTextNode(Precompiler));
 
                 if (!string.IsNullOrEmpty(UsePostProcessor))
                     doc.DocumentElement.AppendChild(doc.CreateElement("usePostProcessor")).AppendChild(doc.CreateTextNode(UsePostProcessor));
@@ -662,13 +679,13 @@ namespace csscript
                 }
 
                 if (ConcurrencyControl != ConcurrencyControl.Standard)
-                    doc.DocumentElement.AppendChild(doc.CreateElement("ConcurrencyControl")).AppendChild(doc.CreateTextNode(ConcurrencyControl.ToString()));
+                    doc.DocumentElement.AppendChild(doc.CreateElement("concurrencyControl")).AppendChild(doc.CreateTextNode(ConcurrencyControl.ToString()));
 #if net35
                 if (TargetFramework != "v3.5")
 #else
                 if (TargetFramework != "v4.0")
 #endif
-                    doc.DocumentElement.AppendChild(doc.CreateElement("TargetFramework")).AppendChild(doc.CreateTextNode(TargetFramework));
+                    doc.DocumentElement.AppendChild(doc.CreateElement("targetFramework")).AppendChild(doc.CreateTextNode(TargetFramework));
 
                 if (useSurrogatepHostingProcess)
                     doc.DocumentElement.AppendChild(doc.CreateElement("useSurrogatepHostingProcess")).AppendChild(doc.CreateTextNode(useSurrogatepHostingProcess.ToString()));
@@ -677,7 +694,7 @@ namespace csscript
                     doc.DocumentElement.AppendChild(doc.CreateElement("openEndDirectiveSyntax")).AppendChild(doc.CreateTextNode(openEndDirectiveSyntax.ToString()));
 
                 if (!CustomHashing)
-                    doc.DocumentElement.AppendChild(doc.CreateElement("CustomHashing")).AppendChild(doc.CreateTextNode(CustomHashing.ToString()));
+                    doc.DocumentElement.AppendChild(doc.CreateElement("customHashing")).AppendChild(doc.CreateTextNode(CustomHashing.ToString()));
 
                 //note node.ParentNode.InsertAfter(doc.CreateComment("") injects int node inner text and it is not what we want
                 //very simplistic formatting
@@ -685,7 +702,7 @@ namespace csscript
                                       .Replace(">\n  </", "></")
                                       .Replace("></CSSConfig>", ">\n</CSSConfig>");
 
-                xml = CommentElement(xml, "ConsoleEncoding", "if 'default' then system default is used; otherwise specify the name of the encoding (e.g. utf-8)");
+                xml = CommentElement(xml, "consoleEncoding", "if 'default' then system default is used; otherwise specify the name of the encoding (e.g. utf-8)");
                 xml = CommentElement(xml, "autoclass.decorateAsCS6", "if 'true' auto-class decoration will inject C# 6 specific syntax expressions (e.g. 'using static dbg;')");
                 xml = CommentElement(xml, "autoclass.decorateAlways", "if 'true' decorate classless scripts unconditionally; otherwise only if no top level class detected");
                 xml = CommentElement(xml, "useAlternativeCompiler", "Custom script compiler. For example C# 6 (Roslyn): '%CSSCRIPT_DIR%!lib!CSSCodeProvider.v4.6.dll'".Replace('!', Path.DirectorySeparatorChar));
@@ -759,14 +776,20 @@ namespace csscript
                     node = data.SelectSingleNode("autoclass.decorateAlways"); if (node != null) settings.autoClass_DecorateAlways = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("hideCompilerWarnings"); if (node != null) settings.hideCompilerWarnings = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("inMemoryAsm"); if (node != null) settings.inMemoryAsm = node.InnerText.ToLower() == "true";
-                    node = data.SelectSingleNode("ConcurrencyControl"); if (node != null) settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), node.InnerText, false);
+                    node = data.SelectSingleNode("concurrencyControl"); if (node != null) settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), node.InnerText, false);
                     node = data.SelectSingleNode("TargetFramework"); if (node != null) settings.TargetFramework = node.InnerText;
                     node = data.SelectSingleNode("defaultRefAssemblies"); if (node != null) settings.defaultRefAssemblies = node.InnerText;
                     node = data.SelectSingleNode("useSurrogatepHostingProcess"); if (node != null) settings.useSurrogatepHostingProcess = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("openEndDirectiveSyntax"); if (node != null) settings.OpenEndDirectiveSyntax = node.InnerText.ToLower() == "true";
+                    node = data.SelectSingleNode("precompiler"); if (node != null) settings.Precompiler = node.InnerText;
+                    node = data.SelectSingleNode("customHashing"); if (node != null) settings.CustomHashing = node.InnerText.ToLower() == "true";
+                    node = data.SelectSingleNode("consoleEncoding"); if (node != null) settings.ConsoleEncoding = node.InnerText;
+
+                    //Read old Camel-case naming as well to accommodate older versions
                     node = data.SelectSingleNode("Precompiler"); if (node != null) settings.Precompiler = node.InnerText;
                     node = data.SelectSingleNode("CustomHashing"); if (node != null) settings.CustomHashing = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("ConsoleEncoding"); if (node != null) settings.ConsoleEncoding = node.InnerText;
+                    node = data.SelectSingleNode("ConcurrencyControl"); if (node != null) settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), node.InnerText, false);
                 }
                 catch
                 {

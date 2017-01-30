@@ -3,7 +3,7 @@
 //css_dir %CS-S_DEV_ROOT%\lib
 //css_ref System.Core;
 //css_pre images($this)
-//css_res images.resources;	
+//css_res images.resources; 
 //css_import debugVS8.0.cs;
 //css_import debugVS9.0.cs;
 //css_import debug#D;
@@ -32,7 +32,7 @@ namespace Config
 {
     public class ConfigForm : Form
     {
-        private CSScriptInstaller installer; 
+        private CSScriptInstaller installer;
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
@@ -122,8 +122,8 @@ namespace Config
             if (installer.restrictedMode)
             {
                 //MessageBox.Show("Your user account dos not allow changing the system configuration.\n" +
-                //	"Some functionality of the configuration console will be disabled.",
-                //	"CS-Script Configuration", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                //  "Some functionality of the configuration console will be disabled.",
+                //  "CS-Script Configuration", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 this.Text += " (Restricted mode)";
                 deactivateBtn.Enabled =
                 comboBox1.Enabled =
@@ -249,8 +249,8 @@ namespace Config
             // 
             // tabControl1
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
@@ -277,7 +277,7 @@ namespace Config
             // 
             // doubleClickAction
             // 
-            this.doubleClickAction.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.doubleClickAction.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.doubleClickAction.FormattingEnabled = true;
             this.doubleClickAction.Location = new System.Drawing.Point(10, 318);
@@ -302,8 +302,8 @@ namespace Config
             // 
             // groupBox4
             // 
-            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox4.Controls.Add(this.tabControl2);
             this.groupBox4.Location = new System.Drawing.Point(3, 97);
@@ -335,8 +335,8 @@ namespace Config
             // 
             // checkedListBox1
             // 
-            this.checkedListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.checkedListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.checkedListBox1.CausesValidation = false;
             this.checkedListBox1.CheckOnClick = true;
@@ -407,7 +407,7 @@ namespace Config
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.iconPictureBox);
             this.groupBox1.Controls.Add(this.changeIconButton);
@@ -479,8 +479,8 @@ namespace Config
             // 
             // textBox1
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox1.Location = new System.Drawing.Point(95, 18);
             this.textBox1.Name = "textBox1";
@@ -499,8 +499,8 @@ namespace Config
             // 
             // comboBox1
             // 
-            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox1.Location = new System.Drawing.Point(112, 45);
             this.comboBox1.Name = "comboBox1";
@@ -552,8 +552,8 @@ namespace Config
             // 
             // propertyGrid1
             // 
-            this.propertyGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.propertyGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.propertyGrid1.LineColor = System.Drawing.SystemColors.ScrollBar;
             this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
@@ -792,19 +792,18 @@ namespace Config
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
-
         }
 
         static void InitEnvVars()
         {
-            #if DEBUG
+#if DEBUG
             if (Environment.GetEnvironmentVariable("CSScriptDevPC") == "TRUE" && Environment.GetEnvironmentVariable("CSScriptRuntime") == null) //we are under visual studio
             {
                 Environment.SetEnvironmentVariable("CSScriptRuntime", "2.8.0.0");
                 Environment.SetEnvironmentVariable("CSScriptRuntimeLocation", @"E:\cs-script\cscs.exe");
             }
 
-            #endif
+#endif
             if (Environment.GetEnvironmentVariable("CSScriptRuntime") == null)
             {
                 string version = Assembly.LoadFrom(GetCSSLibPath()).GetName().Version.ToString();
@@ -819,6 +818,7 @@ namespace Config
             if (args.Name.StartsWith("CSScriptLibrary"))
             {
                 string cssLib = GetCSSLibPath();
+
                 try
                 {
                     if (cssLib != null)
@@ -844,6 +844,7 @@ namespace Config
             }
 
             string cssLib = Path.Combine(cssRootDir, @"Lib\CSScriptLibrary.dll");
+
             try
             {
                 return cssLib;
@@ -862,7 +863,7 @@ namespace Config
         [STAThread]
         static public void Main(string[] args)
         {
-            //Debug.Assert(false);
+            // Debug.Assert(false);
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(ResolveAsm);
             main(args);
         }
@@ -899,6 +900,7 @@ namespace Config
                     bool noGUI = false;
                     bool quiet = false;
                     bool update = true;
+
                     foreach (string arg in args)
                         if (arg.ToLower() == "/nogui" || arg.ToLower() == "/ng")
                             noGUI = true;
@@ -1040,6 +1042,7 @@ namespace Config
         private void linkLabel7_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string file = Path.Combine(CSScriptInstaller.GetEnvironmentVariable("CSSCRIPT_DIR"), @"Docs\Help\CSScript.chm");
+
             if (File.Exists(file))
                 TryToStartProcess(file);
             else
@@ -1051,6 +1054,7 @@ namespace Config
         private void linkLabel6_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string file = Path.Combine(CSScriptInstaller.GetEnvironmentVariable("CSSCRIPT_DIR"), @"Docs\Help\CSScriptLibrary.chm");
+
             if (File.Exists(file))
                 TryToStartProcess(file);
             else
@@ -1067,6 +1071,7 @@ namespace Config
                 if (button3.Enabled && !ignoreDirtyOnClose) //there are some unsaved changes
                 {
                     DialogResult response = MessageBox.Show("The configuration has changed.\nDo you want to save the changes?", "CS-Script Configuration", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+
                     if (response == DialogResult.Yes)
                         ApplyButton_Click(null, null);
 
@@ -1155,6 +1160,7 @@ namespace Config
                 string file = parts[0];
 
                 int index = 0;
+
                 if (parts.Length > 1)
                     int.TryParse(parts[1], out index);
 
@@ -1231,6 +1237,7 @@ namespace Config
             doubleClickAction.Items.Add(doubleClickSysDefaultAction);
 
             string nppPath = CSScriptInstaller.GetNotepadPP();
+
             if (nppPath != null)
             {
                 doubleClickAction.Items.Insert(0, "\"" + nppPath + "\" \"%1\"");
@@ -1252,9 +1259,11 @@ namespace Config
         private void integrateVS_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string homeDir = CSScriptInstaller.GetEnvironmentVariable("CSSCRIPT_DIR");
+
             if (homeDir != null)
             {
                 string vsIntegrationScript = Path.Combine(homeDir, @"Lib\VSIntegration.cs");
+
                 if (File.Exists(vsIntegrationScript))
                 {
                     try
@@ -1278,6 +1287,7 @@ namespace Config
         private void manageSearchDirs_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string homeDir = CSScriptInstaller.GetEnvironmentVariable("CSSCRIPT_DIR");
+
             if (homeDir != null)
             {
                 try
@@ -1306,6 +1316,7 @@ namespace Config
         void ConfigureShellExtensions()
         {
             string homeDir = CSScriptInstaller.GetEnvironmentVariable("CSSCRIPT_DIR");
+
             if (homeDir != null)
             {
                 try
@@ -1343,6 +1354,7 @@ namespace Config
             if (doubleClickAction.SelectedItem != null)
             {
                 string action = null;
+
                 if (doubleClickAction.SelectedItem.ToString() == doubleClickRunAction)
                 {
                     string homeDir = CSScriptInstaller.GetEnvironmentVariable("CSSCRIPT_DIR");
@@ -1351,6 +1363,7 @@ namespace Config
                 else if (doubleClickAction.SelectedItem.ToString() == doubleClickSysDefaultAction)
                 {
                     string originalType = CSScriptInstaller.GetKeyValue(".cs", "pre_css_default") as string;
+
                     if (originalType != null && originalType != "")
                     {
                         try
@@ -1387,9 +1400,9 @@ namespace Config
                 {
                     doubleClickAction.SelectedItem = null;
 
-                    new Thread(delegate() //without this trick combobox does not update its text
+                    new Thread(delegate () //without this trick combobox does not update its text
                     {
-                        Invoke((MethodInvoker)delegate()
+                        Invoke((MethodInvoker)delegate ()
                         {
                             doubleClickAction.Text = action;
                         });
@@ -1441,7 +1454,6 @@ namespace Config
                 Process.Start("http://csscriptnpp.codeplex.com/");
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
-
         }
     }
 
@@ -1502,6 +1514,7 @@ namespace Config
                 if (regKey != null)
                 {
                     object val = regKey.GetValue("");
+
                     if (val is string)
                         return val.ToString() == "CsScript";
                 }
@@ -1556,6 +1569,7 @@ namespace Config
         static bool IsShellCmdEnabled(string name, string command)
         {
             RegistryKey regKey = Registry.ClassesRoot.OpenSubKey(@"CsScript\shell\" + name + @"\command");
+
             if (regKey != null && regKey.GetValue("") != null && regKey.GetValue("").ToString() == command)
                 return true;
             else
@@ -1573,8 +1587,6 @@ namespace Config
                 return retval;
             }
         }
-
-
 
         static string ChooseDefaultProgramApp
         {
@@ -1600,6 +1612,29 @@ namespace Config
             //Environment.SetEnvironmentVariable(@"%CSSCRIPT_SHELLEX_DIR%", comShellEtxDir);
         }
 
+        internal static void EnsureRoslynShadowCopy()
+        {
+            if (!File.Exists(RoslynShadowDir))
+            {
+                Directory.CreateDirectory(RoslynShadowDir); //Directory.GetDirectories needs it to exist
+                foreach (Process p in Process.GetProcessesByName("VBCSCompiler"))
+                    try
+                    {
+                        p.Kill(); //unlock potentially locked folder
+                    }
+                    catch { }
+
+                foreach (string roslyn_version_dir in Directory.GetDirectories(Path.GetDirectoryName(RoslynShadowDir)))
+                    try
+                    {
+                        Directory.Delete(roslyn_version_dir); //try to delete old versions
+                    }
+                    catch { }
+
+                CopyAllFiles(RoslynDistroDir, RoslynShadowDir);
+            }
+        }
+
         static void CopyAllFiles(string srcRootDir, string destRootDir)
         {
             foreach (string srcFile in Directory.GetFiles(srcRootDir, "*", SearchOption.AllDirectories))
@@ -1607,6 +1642,7 @@ namespace Config
                 string rlativePath = srcFile.Substring(srcRootDir.Length + 1); //+1 to cut off dir delimiter
                 string destFile = Path.Combine(destRootDir, rlativePath);
                 string destDir = Path.GetDirectoryName(destFile);
+
                 if (!Directory.Exists(destDir))
                     Directory.CreateDirectory(destDir);
 
@@ -1631,6 +1667,29 @@ namespace Config
                     return Path.Combine(GetEnvironmentVariable("CSSCRIPT_DIR"), @"Lib\ShellExtensions\Template\CS-Script");
                 else
                     return "";
+            }
+        }
+
+        static string RoslynDistroDir
+        {
+            get
+            {
+                if (GetEnvironmentVariable("CSSCRIPT_DIR") != null)
+                    return Path.Combine(GetEnvironmentVariable("CSSCRIPT_DIR"), @"Lib\Bin\Roslyn");
+                else
+                    return "";
+            }
+        }
+
+        static string RoslynShadowDir
+        {
+            get
+            {
+                var commonAppDir = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+
+                string retval = Path.Combine(commonAppDir, "CS-Script\\Roslyn\\" + Environment.GetEnvironmentVariable("CSScriptRuntime"));
+
+                return retval;
             }
         }
 
@@ -1683,6 +1742,7 @@ namespace Config
                     "Thus CS-Script context menu and double-click action settings may not work.\r\n\r\n" +
                     "If this happens you can always check repair the settings by pressing the \"Repair\" button.\r\n\r\n" +
                     "\r\nYou can also check the \"Use for all file extensions\" check box to force CS-Script 'Advanced Shell Extension' activation for all file types.", "Warning");
+
                 if (!showAgain)
                     SetKeyValue("CsScript", "CheckShellExtensionsCompatibility", "false");
             }
@@ -1755,6 +1815,7 @@ namespace Config
                     EnsureComShellExtensionPlacement();
 
                     DialogResult response = DialogResult.Yes;
+
                     if (!silent)
                     {
                         response = MessageBox.Show(form,
@@ -1785,6 +1846,7 @@ namespace Config
                 else
                 {
                     DialogResult response = DialogResult.Yes;
+
                     if (!silent)
                     {
                         response = MessageBox.Show("You are about to uninstall/deactivate additional Advanced Shell Extentions.\n" +
@@ -1827,12 +1889,14 @@ namespace Config
         public static string GetExecutingEngineDir()
         {
             var retval = Path.GetDirectoryName(Environment.GetEnvironmentVariable("CSScriptRuntimeLocation"));
+
             if (retval == null)
             {
                 //Then it is a standalone configuration console and the CS-S Runtime location is the 
                 //the first parent directory with the cscs.exe/csws.exe files
 
                 string parent = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
                 while (parent != null && Directory.Exists(parent))
                 {
                     if (Directory.GetFiles(parent, "cscs.exe").Length != 0)
@@ -1914,6 +1978,7 @@ namespace Config
                 Install(true);
 
                 string editor = GetNotepadPP();
+
                 if (editor != null)
                     doubleClickAction = "\"" + editor + "\" \"%1\""; //default value
                 else
@@ -1925,6 +1990,7 @@ namespace Config
             else if (string.Compare(GetExecutingEngineDir(), GetEnvironmentVariable("CSSCRIPT_DIR"), true) != 0 && !preventMigration)
             {
                 bool deadInstallationDetected = false;
+
                 try
                 {
                     if (!Directory.Exists(GetEnvironmentVariable("CSSCRIPT_DIR")))
@@ -1946,6 +2012,7 @@ namespace Config
                     if (!quiet) SplashScreen.ShowSplash("CS-Script", "Please wait while CS-Script is being configured...");
 
                     oldConfigFile = ConfigFile;
+
                     bool doShellExt = GetComShellExtRegisteredDll() != null;
                     UnInstall();
                     Install(doShellExt);
@@ -1995,6 +2062,7 @@ namespace Config
                     try
                     {
                         Version availableVer = GetHighestNetVersion();
+
                         if (File.Exists(Path.Combine(scHomeDir, @"Lib\CSSCodeProvider.dll"))
                             && availableVer.Major >= 3
                             && availableVer.Minor >= 5)
@@ -2027,10 +2095,10 @@ namespace Config
 
                 //reset some defaults
                 //if (settings.CleanupShellCommand == "" && File.Exists(Path.Combine(scHomeDir, @"Lib\clearTemp.cs")))
-                //	settings.CleanupShellCommand = "csws.exe clearTemp.cs";
+                //  settings.CleanupShellCommand = "csws.exe clearTemp.cs";
 
                 //if (settings.UseAlternativeCompiler == "" && File.Exists(Path.Combine(scHomeDir, @"Lib\CSSCodeProvider.dll")))
-                //	settings.UseAlternativeCompiler = Path.Combine(scHomeDir, @"Lib\CSSCodeProvider.dll");
+                //  settings.UseAlternativeCompiler = Path.Combine(scHomeDir, @"Lib\CSSCodeProvider.dll");
 
                 Update();
                 CSScriptInstaller.justInstalled = false;
@@ -2070,7 +2138,7 @@ namespace Config
         }
 
         static string localIncludesDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "CS-Script\\inc");
-        
+
         static void MergeLocalIncluds(string scHomeDir)
         {
             string cssIncludesDir = Path.Combine(scHomeDir, "inc");
@@ -2083,6 +2151,7 @@ namespace Config
                 foreach (string srcFile in Directory.GetFiles(cssIncludesDir))
                 {
                     string destFile = Path.Combine(localIncludesDir, Path.GetFileName(srcFile));
+
                     if (!File.Exists(destFile))
                         File.Copy(srcFile, destFile);
                 }
@@ -2092,6 +2161,7 @@ namespace Config
         public static string GetNotepadPP()
         {
             string nppPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Notepad++\notepad++.exe");
+
             if (File.Exists(nppPath))
             {
                 return nppPath;
@@ -2110,11 +2180,13 @@ namespace Config
         {
             string netDir = Path.GetDirectoryName(Path.GetDirectoryName("".GetType().Assembly.Location));
             Version retval = Environment.Version;
+
             foreach (string name in Directory.GetDirectories(netDir, "v*.*"))
             {
                 try
                 {
                     Version ver = new Version(new DirectoryInfo(name).Name.Replace("v", ""));
+
                     if (ver > retval)
                         retval = ver;
                 }
@@ -2127,6 +2199,7 @@ namespace Config
         private void GetCurrentConfig(ArrayList menus, ref string doubleClickAction)
         {
             string editor = GetNotepadPP();
+
             if (editor != null)
                 doubleClickAction = "\"" + editor + "\" \"%1\"";
             else
@@ -2151,6 +2224,7 @@ namespace Config
             //populate contextMenu list
             ContextMenuInfo newDocument;
             RegistryKey regKey = Registry.ClassesRoot.OpenSubKey(@".cs\ShellNew");
+
             if (regKey != null && regKey.GetValue("FileName") != null)
                 newDocument = new ContextMenuInfo("New", "\t\t\t- Creates new C# script file", "", true, true);
             else
@@ -2170,6 +2244,7 @@ namespace Config
             using (RegistryKey key = Registry.ClassesRoot.OpenSubKey(@"CsScript\shell\Open\command"))
             {
                 string valueName = "";
+
                 if (IsWin8OrHigher)
                     valueName = "App";
 
@@ -2219,6 +2294,7 @@ namespace Config
             static bool IsShellCmdEnabled(string name, string command)
             {
                 RegistryKey regKey = Registry.ClassesRoot.OpenSubKey(@"CsScript\shell\" + name + @"\command");
+
                 if (regKey != null && regKey.GetValue("") != null && regKey.GetValue("").ToString() == command)
                     return true;
                 else
@@ -2261,9 +2337,10 @@ namespace Config
 
         public void Install(bool installShellExtension)
         {
-            //System.Diagnostics.Debug.Assert(false);
+            // System.Diagnostics.Debug.Assert(false);
 
             string path = "";
+
             using (RegistryKey envVars = Registry.LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment", true))
             {
                 envVars.SetValue("CSSCRIPT_DIR", GetExecutingEngineDir());
@@ -2272,6 +2349,7 @@ namespace Config
                 string includes = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "CS-Script", "inc");
                 envVars.SetValue("css_nuget", nuGetCache);
                 envVars.SetValue("CSSCRIPT_INC", includes);
+                envVars.SetValue("CSSCRIPT_ROSLYN", RoslynShadowDir);
 
                 if (installShellExtension)
                 {
@@ -2283,7 +2361,7 @@ namespace Config
                     envVars.DeleteValue("CSSCRIPT_SHELLEX_DIR", false);
                     Environment.SetEnvironmentVariable("CSSCRIPT_SHELLEX_DIR", null);
                 }
-                                
+
                 Environment.SetEnvironmentVariable("CSSCRIPT_DIR", GetExecutingEngineDir()); //for current process too
                 path = RegGetValueExp(HKEY_LOCAL_MACHINE, @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment", "Path");
             }
@@ -2300,6 +2378,8 @@ namespace Config
             {
                 CSScriptInstaller.InstallComShellExt(true, null, true);
             }
+
+            EnsureRoslynShadowCopy();
         }
 
         //static bool IsShellExtensionInstalled()
@@ -2315,19 +2395,21 @@ namespace Config
             if (oldHomeDir != null)
             {
                 string dll = CSScriptInstaller.GetComShellExtRegisteredDll();
+
                 if (dll != null && File.Exists(dll))
                     CSScriptInstaller.InstallComShellExt(false, null, true);
             }
 
             string path = "";
+
             using (RegistryKey envVars = Registry.LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment", true))
             {
                 path = RegGetValueExp(HKEY_LOCAL_MACHINE, @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment", "Path");
                 envVars.DeleteValue("CSSCRIPT_INC", false);
+                envVars.DeleteValue("CSSCRIPT_ROSLYN", false);
                 envVars.DeleteValue("CSSCRIPT_DIR", false);
                 envVars.DeleteValue("CSSCRIPT_SHELLEX_DIR", false);
                 envVars.DeleteValue("css_nuget", false);
-                envVars.DeleteValue("CSSCRIPT_INC", false);
                 Environment.SetEnvironmentVariable("CSSCRIPT_SHELLEX_DIR", null);
             }
 
@@ -2385,6 +2467,7 @@ namespace Config
 
             StringBuilder sb = new StringBuilder();
             string line = null;
+
             while (null != (line = myProcess.StandardOutput.ReadLine()))
             {
                 sb.Append(line + "\n");
@@ -2455,6 +2538,7 @@ namespace Config
             for (int i = 1; i < ContextMenus.Length; i++)
             {
                 ContextMenuInfo info = ContextMenus[i];
+
                 if (info.dirty)
                 {
                     if (info.Enabled)
@@ -2500,6 +2584,7 @@ namespace Config
         private RegistryKey GetKey(string name, bool writable)
         {
             RegistryKey key = Registry.ClassesRoot.OpenSubKey(name, writable);
+
             if (key == null)
             {
                 Registry.ClassesRoot.CreateSubKey(name);
@@ -2532,6 +2617,7 @@ namespace Config
         private void CopyKeyValue(string keyName, string srcValueName, string destValueName)
         {
             object value = GetKeyValue(keyName, srcValueName);
+
             if (value != null)
                 SetKeyValue(keyName, destValueName, value);
         }
@@ -2564,6 +2650,7 @@ namespace Config
         static void DeleteKey(string name)
         {
             RegistryKey key = Registry.ClassesRoot.OpenSubKey(name);
+
             if (key != null)
             {
                 key.Close();
@@ -2582,6 +2669,7 @@ namespace Config
                         "\t\t<supportedRuntime version=\"v2.0.50215\" />\r\n" +
                     "\t</startup>\r\n" +
                 "</configuration>";
+
             using (StreamWriter sw = new StreamWriter(filename))
                 sw.WriteLine(configText);
         }
@@ -2592,10 +2680,10 @@ namespace Config
             //<?xml version="1.0" encoding="utf-8"?>
             //<configuration>
             //  <startup>
-            //	<supportedRuntime version="v2.0.50727" css_target="true" />
-            //	<supportedRuntime version="v2.0.50727" />
-            //	<supportedRuntime version="v1.1.4322" />
-            //	<supportedRuntime version="v2.0.50215" />
+            //  <supportedRuntime version="v2.0.50727" css_target="true" />
+            //  <supportedRuntime version="v2.0.50727" />
+            //  <supportedRuntime version="v1.1.4322" />
+            //  <supportedRuntime version="v2.0.50215" />
             //  </startup>
             //</configuration>
 
@@ -2704,6 +2792,7 @@ namespace Config
         static private string AddToPath(string dir, string path)
         {
             string[] pathDirs = path.Split(';');
+
             if (!new ArrayList(pathDirs).Contains(dir))
                 return dir + ";" + path;
             else
@@ -2713,9 +2802,11 @@ namespace Config
         static private string RemoveFromPath(string dir, string path)
         {
             string[] pathDirs = path.Split(';');
+
             if (new ArrayList(pathDirs).Contains(dir))
             {
                 string pathVal = "";
+
                 foreach (string pathDir in pathDirs)
                 {
                     if (pathDir != "" && pathDir.ToUpper() != dir.ToUpper())
@@ -2754,6 +2845,7 @@ namespace Config
             //this method is required in order to rtreive REG_EXPAND_SZ registry value
             const int KEY_READ = 0x00000001;
             int hkey = 0;
+
             try
             {
                 if (0 == RegOpenKeyEx(key, subKey, 0, KEY_READ, out hkey))
@@ -2761,6 +2853,7 @@ namespace Config
                     StringBuilder sb = new StringBuilder(1024 * 10);
                     int lpcbData = sb.Capacity;
                     uint lpType;
+
                     if (0 == RegQueryValueEx(hkey, valName, 0, out lpType, sb, ref lpcbData))
                         return sb.ToString();
                 }
@@ -2782,6 +2875,7 @@ namespace Config
             const int KEY_READ = 0x00000001;
             int lResult = 0;
             int hkey = 0;
+
             try
             {
                 lResult = RegOpenKeyEx(key, subKey, 0, KEY_WRITE | KEY_READ,
@@ -2815,15 +2909,18 @@ namespace Config
             //use reflection in order to overcome any incompatibility between different versions of the csscript.Settings
             string srcCSSAssembly = Path.Combine(installDir, @"Lib\CSScriptLibrary.dll");
             string srcCondigDat = Path.Combine(installDir, "css_config.xml");
+
             if (!File.Exists(srcCondigDat))
                 Path.ChangeExtension(srcCondigDat, ".dat"); //older (non-xml based) version of the CS-Script Config file
             try
             {
                 MethodInfo Load = GetMethod(Assembly.LoadFrom(srcCSSAssembly), "csscript.Settings.Load", new Type[] { typeof(string) }, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod);
+
                 if (Load != null)
                 {
                     object srcSettings = Load.Invoke(null, new object[] { srcCondigDat });
                     MethodInfo srcGet = null;
+
                     foreach (MemberInfo srcPropSet in destSettings.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty))
                     {
                         //property name: get_<propName> / set_<propName>
@@ -2872,6 +2969,7 @@ namespace Config
             textBox1.Text = parts[0];
 
             int index = 0;
+
             if (parts.Length > 1)
             {
                 int.TryParse(parts[1], out index);
@@ -3097,6 +3195,7 @@ namespace Config
             }
 
             int index;
+
             if (!int.TryParse(textBox2.Text, out index))
             {
                 MessageBox.Show("The specified index value is invalid does not exist");
