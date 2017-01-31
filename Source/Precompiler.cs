@@ -144,6 +144,7 @@ namespace csscript
             bool isInLine = false;
             int lineCount = -1;
             int colCount = -1;
+            int lastNonWhiteCharPos = -1;
 
             string line_s = null;
             var lines = new List<string>();
@@ -158,6 +159,8 @@ namespace csscript
                     {
                         colCount = 0;
                         lineCount++;
+                        if (lineCount > line)
+                            return lastNonWhiteCharPos+1; //end of the line
 
                         if (line_s != null)
                             lines.Add(line_s);
@@ -171,6 +174,7 @@ namespace csscript
                     colCount++;
 
                     line_s += text[i];
+                    lastNonWhiteCharPos = i;
                 }
                 else
                 {
@@ -218,8 +222,6 @@ namespace csscript
             {
                 position = GetPos(retval, originalLine + 1, originalCol);
             }
-            //if (position > injectionPos)
-            //    position += injectionLength;
             return retval;
         }
 
@@ -350,6 +352,9 @@ namespace csscript
                                     }
                                     else if (bracket_count > 0) //not classless but a complete class with static Main
                                     {
+                                        injectionPos = -1;
+                                        injectionLength = 0;
+                                        injectedLine = -1;
                                         return content;
                                     }
                                 }
