@@ -34,6 +34,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using CSScriptLibrary;
 using System.Threading;
@@ -78,7 +79,7 @@ namespace csscript
             setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
             appDomain = AppDomain.CreateDomain(domainName, null, setup);
-            remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
+            remoteExecutor = (RemoteExecutor) appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
             remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
         }
 
@@ -95,7 +96,7 @@ namespace csscript
                 setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
                 appDomain = AppDomain.CreateDomain(domainName, null, setup);
-                remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
+                remoteExecutor = (RemoteExecutor) appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
                 remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
                 return true;
             }
@@ -223,36 +224,27 @@ namespace csscript
 
         public void InvokeStaticMain(Assembly compiledAssembly, string[] scriptArgs)
         {
-            MethodInfo method = null;
+            var bf = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Static;
 
-            foreach (Module m in compiledAssembly.GetModules())
-            {
-                foreach (Type t in m.GetTypes())
-                {
-                    BindingFlags bf = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Static;
+            MethodInfo[] methods = compiledAssembly.GetModules()
+                                                   .SelectMany(m => m.GetTypes())
+                                                   .SelectMany(t => t.GetMembers(bf)
+                                                   .OfType<MethodInfo>())
+                                                   .Where(x => x.Name == "Main" && x.IsStatic)
+                                                   .ToArray();
 
-                    foreach (MemberInfo mi in t.GetMembers(bf))
-                    {
-                        if (mi.Name == "Main")
-                        {
-                            method = t.GetMethod(mi.Name, bf);
-                        }
-                        if (method != null)
-                            break;
-                    }
-                    if (method != null)
-                        break;
-                }
-                if (method != null)
-                    break;
-            }
-            if (method != null)
+
+            if (methods.Any())
             {
-                //System.Diagnostics.Debug.Assert(false);
+                if (methods.Count() > 1)
+                    throw new ApplicationException("Multiple entry points are defined in the script.");
+
+                var method = methods.First();
+
                 object retval = null;
 
                 if (method.GetParameters().Length != 0)
-                    retval = method.Invoke(new object(), new object[] { (Object)scriptArgs });
+                    retval = method.Invoke(new object(), new object[] { (Object) scriptArgs });
                 else
                     retval = method.Invoke(new object(), null);
 

@@ -160,7 +160,7 @@ namespace csscript
                         colCount = 0;
                         lineCount++;
                         if (lineCount > line)
-                            return lastNonWhiteCharPos+1; //end of the line
+                            return lastNonWhiteCharPos + 1; //end of the line
 
                         if (line_s != null)
                             lines.Add(line_s);
@@ -182,15 +182,15 @@ namespace csscript
                     {
                         if (i > 0 && text[i] == '\n')
                         {
-                            if (text[i-1] == '\n') // /n[/n]
+                            if (text[i - 1] == '\n') // /n[/n]
                                 lineCount++;
 
                         }
                         if (i > 0 && text[i] == '\r')
                         {
-                            if (text[i-1] == '\r')  // /r[/r]
+                            if (text[i - 1] == '\r')  // /r[/r]
                                 lineCount++;
-                            else if (text[i-1] == '\n') // /r/n/[/r]/n
+                            else if (text[i - 1] == '\n') // /r/n/[/r]/n
                                 lineCount++;
                         }
                     }
@@ -336,6 +336,7 @@ namespace csscript
 
                                     injectionLength += entryPointDefinition.Length;
                                     code.Insert(entryPointInjectionPos, entryPointDefinition);
+
                                 }
                                 else if (match.Value.Contains("Main")) //assembly entry point "static Main"
                                 {
