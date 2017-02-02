@@ -419,7 +419,7 @@ namespace csscript
             set { customHashing = value; }
         }
 
-        HideOptions hideOptions = HideOptions.HideMostFiles;
+        HideOptions hideOptions = HideOptions.HideAll;
         ///// <summary>
         ///// The value, which indicates which version of CLR compiler should be used to compile script.
         ///// For example CLR 2.0 can use the following compiler versions:

@@ -1410,6 +1410,20 @@ namespace csscript
                     }
                 }
 
+            Action<string> addByAsmName = asmName =>
+            {
+                string[] files = AssemblyResolver.FindAssembly(asmName, options.searchDirs);
+                if (files.Any())
+                {
+                    foreach (string asm in files)
+                        requestedRefAsms.AddAssembly(NormalizeGacAssemblyPath(asm));
+                }
+                else
+                {
+                    requestedRefAsms.AddAssembly(asmName);
+                }
+            };
+
             //add assemblies referenced from command line
             string[] cmdLineAsms = options.refAssemblies;
             if (!options.useSurrogateHostingProcess)
@@ -1417,22 +1431,12 @@ namespace csscript
                 string[] defaultAsms = options.defaultRefAssemblies.Replace(" ", "").Split(";,".ToCharArray());
 
                 foreach (string asmName in Utils.Concat(defaultAsms, cmdLineAsms))
-                {
-                    if (asmName == "")
-                        continue;
-
-                    string[] files = AssemblyResolver.FindAssembly(asmName, options.searchDirs);
-                    if (files.Length > 0)
-                    {
-                        foreach (string asm in files)
-                            requestedRefAsms.AddAssembly(NormalizeGacAssemblyPath(asm));
-                    }
-                    else
-                    {
-                        requestedRefAsms.AddAssembly(asmName);
-                    }
-                }
+                    if (asmName != "")
+                        addByAsmName(asmName);
             }
+
+            if (options.enableDbgPrint)
+                addByAsmName("System.Linq.dll");
 
             AssemblyResolver.ignoreFileName = Path.GetFileNameWithoutExtension(parser.ScriptPath) + ".dll";
 
@@ -1475,7 +1479,7 @@ namespace csscript
                 //add local and global assemblies (if found) that have the same assembly name as a namespace
                 foreach (string nmSpace in parser.ReferencedNamespaces)
                 {
-                    bool ignore = false; //user may nominate namespaces to be excluded fro namespace-to-asm resolving
+                    bool ignore = false; //user may nominate namespaces to be excluded from namespace-to-asm resolving
                     foreach (string ignoreNamespace in parser.IgnoreNamespaces)
                         if (ignoreNamespace == nmSpace)
                             ignore = true;

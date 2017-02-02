@@ -212,8 +212,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>"E:\Galos\Projects\CS-Script\GitHub\cs-script\Source\prebuild.exe"</PreBuildEvent>
     <PostBuildEvent>echo off
 
 if "%25CS-S_DEV_ROOT%25" == "" go exit
