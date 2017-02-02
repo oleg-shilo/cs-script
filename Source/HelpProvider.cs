@@ -617,24 +617,23 @@ namespace csscript
             StringBuilder builder = new StringBuilder();
             if (Utils.IsLinux())
             {
-                builder.Append("#!<cscs.exe path> " + CSSUtils.Args.DefaultPrefix + "nl " + Environment.NewLine);
-                builder.Append("//css_ref System.Windows.Forms;" + Environment.NewLine);
+                builder.AppendLine("#!<cscs.exe path> " + CSSUtils.Args.DefaultPrefix + "nl ");
+                builder.AppendLine("//css_ref System.Windows.Forms;");
             }
 
-            builder.Append("using System;" + Environment.NewLine);
-            builder.Append("using System.Windows.Forms;" + Environment.NewLine);
-            builder.Append(Environment.NewLine);
-            builder.Append("class Script" + Environment.NewLine);
-            builder.Append("{" + Environment.NewLine);
+            builder.AppendLine("using System;");
+            builder.AppendLine("using System.Windows.Forms;");
+            builder.AppendLine();
+            builder.AppendLine("class Script");
+            builder.AppendLine("{");
             if (!Utils.IsLinux())
                 builder.Append("    [STAThread]" + Environment.NewLine);
-            builder.AppendLine("    static public void Main(string[] args)" + Environment.NewLine);
+            builder.AppendLine("    static public void Main(string[] args)");
             builder.AppendLine("    {");
             builder.AppendLine("        for (int i = 0; i < args.Length; i++)");
             builder.AppendLine("            Console.WriteLine(args[i]);");
             builder.AppendLine("");
             builder.AppendLine("        MessageBox.Show(\"Just a test!\");");
-            builder.AppendLine("");
             builder.AppendLine("    }");
             builder.AppendLine("}");
 

@@ -639,6 +639,11 @@ namespace csscript
         /// <param name="fileName">File name of the settings file</param>
         public void Save(string fileName)
         {
+            Save(fileName, false);
+        }
+
+        internal void Save(string fileName, bool throwOnError)
+        {
             //It is very tempting to use XmlSerializer but it adds 200 ms to the
             //application startup time. Whereas current startup delay for cscs.exe is just a 100 ms.
             try
@@ -710,7 +715,11 @@ namespace csscript
                 File.WriteAllText(fileName, xml);
 
             }
-            catch { }
+            catch 
+            {
+                if (throwOnError)
+                    throw;
+            }
         }
 
         static string CommentElement(string xml, string name, string comment)
@@ -742,7 +751,7 @@ namespace csscript
         internal void Save()
         {
             var configFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml");
-            Save(configFile);
+            Save(configFile, true);
         }
 
         /// <summary>
