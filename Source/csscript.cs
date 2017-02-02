@@ -2064,8 +2064,9 @@ namespace csscript
 
         public void ProcessConfigCommand(string command)
         {
-            //-config                  - print current config file content
-            //-config:ls               - lists/print current settings value
+            //-config                  - lists/print current settings value
+            //-config:raw              - print current config file content
+            //-config:ls               - lists/print current settings value (same as simple -config)
             //-config:create           - create config file with default settings
             //-config:default          - print default settings
             //-config:get:name         - print current config file value 
@@ -2080,14 +2081,14 @@ namespace csscript
                 {
                     print(new Settings().ToStringRaw());
                 }
-                else if (command == "ls")
+                else if (command == "ls" || command == null)
                 {
                     print(Settings.Load(false).ToString());
                 }
-                else if (command == null)
+                else if (command == "raw" || command == "xml")
                 {
                     var currentConfig = Settings.Load(false) ?? new Settings();
-                    print(currentConfig.ToString());
+                    print(currentConfig.ToStringRaw());
                 }
                 else if (command.StartsWith("get:"))
                 {

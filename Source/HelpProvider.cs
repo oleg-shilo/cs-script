@@ -191,8 +191,8 @@ namespace csscript
                                                    "-config:none           - ignores config file (uses default settings)\n" +
                                                    "-config:create         - creates config file with default settings\n" +
                                                    "-config:default        - prints default config file\n" +
-                                                   "-config                - prints current config file content\n" +
-                                                   "-config:ls             - lists/prints current config values\n" +
+                                                   "-config:<raw|xml>      - prints current config file content\n" +
+                                                   "-config[:ls]           - lists/prints current config values\n" +
                                                    "-config:get:name       - prints current config value\n" +
                                                    "-config:set:name=value - sets current config value\n" +
                                                    "-config:<file>         - uses custom config file\n" +

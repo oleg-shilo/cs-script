@@ -991,8 +991,10 @@ namespace csscript
                         //-config:none             - ignore config file (use default settings)
                         //-config:create           - create config file with default settings
                         //-config:default          - print default config file
-                        //-config                  - print current config file content
+                        //-config:raw              - print current config file content
+                        //-config:xml              - print current config file content
                         //-config:ls               - lists/prints current config values
+                        //-config                  - lists/prints current config values
                         //-config:get:name         - print current config file value 
                         //-config:set:name:value   - set current config file value 
                         //-config:<file>           - use custom config file
@@ -1001,6 +1003,8 @@ namespace csscript
                             argValue == "create" ||
                             argValue == "default" ||
                             argValue == "ls" ||
+                            argValue == "raw" ||
+                            argValue == "xml" ||
                             argValue.StartsWith("get:") ||
                             argValue.StartsWith("set:"))
                         {
