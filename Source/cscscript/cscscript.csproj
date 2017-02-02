@@ -122,6 +122,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\dbg.res.cs">
+      <Link>dbg.res.cs</Link>
+    </Compile>
     <Compile Include="..\ExecuteOptions.cs">
       <Link>ExecuteOptions.cs</Link>
     </Compile>
@@ -151,11 +154,6 @@
     </Compile>
     <Compile Include="..\Utils.cs">
       <Link>Utils.cs</Link>
-    </Compile>
-    <Compile Include="Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Content Include="App.ico" />
     <Compile Include="..\AssemblyExecutor.cs">
@@ -211,13 +209,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

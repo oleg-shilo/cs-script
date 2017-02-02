@@ -60,14 +60,14 @@ namespace csscript
         /// </summary>
         static void Main(string[] rawArgs)
         {
-            for (int i = 0; i < rawArgs.Length; i++)
-                rawArgs[i] = Environment.ExpandEnvironmentVariables(rawArgs[i]);
-
             main(rawArgs);
         }
 
         static void main(string[] rawArgs)
         {
+            for (int i = 0; i < rawArgs.Length; i++)
+                rawArgs[i] = Environment.ExpandEnvironmentVariables(rawArgs[i]);
+
             HostConsole.OnStart();
             try
             {
@@ -125,7 +125,7 @@ namespace csscript
 
                             AppDomain appDomain = AppDomain.CreateDomain("ExecutionDomain", null, setup);
 #if !net4
-                        appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, null, args);
+                            appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, null, args);
 #else
                             appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, args);
 #endif
@@ -134,7 +134,8 @@ namespace csscript
                     }
 
 #if net4
-                    CSSUtils.DbgInjectionCode = cscscript.Resources.dbg;
+                    //CSSUtils.DbgInjectionCode = cscscript.Resources.dbg;
+                    CSSUtils.DbgInjectionCode = embedded_strings.dbg_source;
 #endif
                     AppInfo.appName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
                     exec.Execute(args, Print, null);

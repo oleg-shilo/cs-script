@@ -113,7 +113,8 @@ namespace csscript
                     }
                 }
 #if net4
-                CSSUtils.DbgInjectionCode = cswscript.Resources.dbg;
+                //CSSUtils.DbgInjectionCode = cswscript.Resources.dbg;
+                CSSUtils.DbgInjectionCode = embedded_strings.dbg_source;
 #endif
                 AppInfo.appName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
                 exec.Execute(args, Print, null);
