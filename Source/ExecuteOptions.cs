@@ -147,6 +147,7 @@ namespace csscript
             clone.hideTemp = this.hideTemp;
             clone.autoClass = this.autoClass;
             clone.decorateAutoClassAsCS6 = this.decorateAutoClassAsCS6;
+            clone.enableDbgPrint = this.enableDbgPrint;
             clone.initContext = this.initContext;
             clone.nonExecuteOpRquest = this.nonExecuteOpRquest;
             clone.customHashing = this.customHashing;
@@ -204,6 +205,7 @@ namespace csscript
             clone.compilationContext = this.compilationContext;
             clone.autoClass = this.autoClass;
             clone.decorateAutoClassAsCS6 = this.decorateAutoClassAsCS6;
+            clone.enableDbgPrint = this.enableDbgPrint;
             clone.customHashing = this.customHashing;
             clone.altConfig = this.altConfig;
             clone.hideTemp = this.hideTemp;
@@ -256,6 +258,7 @@ namespace csscript
         public string altCompiler = "";
         public string consoleEncoding = "utf-8";
         public bool decorateAutoClassAsCS6 = false;
+        public bool enableDbgPrint = true;
         public string preCompilers = "";
         public string defaultRefAssemblies = "";
         public string postProcessor = "";

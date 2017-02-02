@@ -215,6 +215,14 @@
             <c>true</c> if the attribute should be injected; otherwise, <c>false</c>.
             </value>
         </member>
+        <member name="P:csscript.Settings.EnableDbgPrint">
+            <summary>
+            Gets or sets a value indicating whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now)).
+            </summary>
+            <value>
+              <c>true</c> if print methods are enabled; otherwise, <c>false</c>.
+            </value>
+        </member>
         <member name="P:csscript.Settings.ResolveAutogenFilesRefs">
             <summary>
             Gets or sets a value indicating whether references to the auto-generated files should be resolved.

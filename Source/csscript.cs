@@ -190,6 +190,7 @@ namespace csscript
                 options.openEndDirectiveSyntax = settings.OpenEndDirectiveSyntax;
                 options.consoleEncoding = settings.ConsoleEncoding;
                 options.decorateAutoClassAsCS6 = settings.AutoClass_DecorateAsCS6;
+                options.enableDbgPrint = settings.EnableDbgPrint;
                 options.cleanupShellCommand = settings.ExpandCleanupShellCommand();
                 options.doCleanupAfterNumberOfRuns = settings.DoCleanupAfterNumberOfRuns;
                 options.inMemoryAsm = settings.InMemoryAssembly;
@@ -1262,10 +1263,13 @@ namespace csscript
                     }
                 }
 
-                var dbgInjectionFile = CSSUtils.GetScriptedCodeDbgInjectionCode(scriptFileName);
-                if (dbgInjectionFile != null)
-                    filesToInject = filesToInject.Concat(new[] { dbgInjectionFile })
-                                                 .ToArray();
+                if (options.enableDbgPrint)
+                {
+                    var dbgInjectionFile = CSSUtils.GetScriptedCodeDbgInjectionCode(scriptFileName);
+                    if (dbgInjectionFile != null)
+                        filesToInject = filesToInject.Concat(new[] { dbgInjectionFile })
+                                                     .ToArray();
+                }
             }
 
             if (options.altCompiler == "")

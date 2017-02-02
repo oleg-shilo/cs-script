@@ -182,6 +182,20 @@ namespace csscript
         bool resolveAutogenFilesRefs = true;
 
         /// <summary>
+        /// Gets or sets a value indicating whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now)).
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if print methods are enabled; otherwise, <c>false</c>.
+        /// </value>
+        [Browsable(false)]
+        public bool EnableDbgPrint
+        {
+            get { return enableDbgPrint; }
+            set { enableDbgPrint = value; }
+        }
+        bool enableDbgPrint = true;
+
+        /// <summary>
         /// Gets or sets a value indicating whether references to the auto-generated files should be resolved.
         /// <para>
         /// If this flag is set the all references in the compile errors text to the path of the derived auto-generated files 
@@ -489,8 +503,8 @@ namespace csscript
         }
         bool autoClass_DecorateAsCS6 = false;
 
+        //Not used yet.
         [Browsable(false)]
-        //Not in use yet
         internal bool AutoClass_DecorateAlways
         {
             get { return autoClass_DecorateAlways; }
@@ -614,7 +628,7 @@ namespace csscript
                 }
             }
         }
-        internal static object[] dummy = new object[0]; 
+        internal static object[] dummy = new object[0];
 
         internal string Get(string name)
         {
@@ -661,12 +675,14 @@ namespace csscript
                 doc.DocumentElement.AppendChild(doc.CreateElement("inMemoryAsm")).AppendChild(doc.CreateTextNode(InMemoryAssembly.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("hideCompilerWarnings")).AppendChild(doc.CreateTextNode(HideCompilerWarnings.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("reportDetailedErrorInfo")).AppendChild(doc.CreateTextNode(ReportDetailedErrorInfo.ToString()));
+                doc.DocumentElement.AppendChild(doc.CreateElement("enableDbgPrint")).AppendChild(doc.CreateTextNode(enableDbgPrint.ToString()));
 
-                if (hideOptions != HideOptions.HideMostFiles)
+                if (hideOptions != HideOptions.HideAll)
                     doc.DocumentElement.AppendChild(doc.CreateElement("hideOptions")).AppendChild(doc.CreateTextNode(hideOptions.ToString()));
 
-                if (!autoClass_DecorateAlways)
+                if (autoClass_DecorateAlways)
                     doc.DocumentElement.AppendChild(doc.CreateElement("autoclass.decorateAlways")).AppendChild(doc.CreateTextNode(autoClass_DecorateAlways.ToString()));
+
 
                 if (DefaultApartmentState != ApartmentState.STA)
                     doc.DocumentElement.AppendChild(doc.CreateElement("defaultApartmentState")).AppendChild(doc.CreateTextNode(DefaultApartmentState.ToString()));
@@ -709,13 +725,14 @@ namespace csscript
 
                 xml = CommentElement(xml, "consoleEncoding", "if 'default' then system default is used; otherwise specify the name of the encoding (e.g. 'utf-8')");
                 xml = CommentElement(xml, "autoclass.decorateAsCS6", "if 'true' auto-class decoration will inject C# 6 specific syntax expressions (e.g. 'using static dbg;')");
-                xml = CommentElement(xml, "autoclass.decorateAlways", "if 'true' decorate classless scripts unconditionally; otherwise only if a top level class-less 'main' detected");
+                xml = CommentElement(xml, "autoclass.decorateAlways", "if 'true' decorate classless scripts unconditionally; otherwise only if a top level class-less 'main' detected. Not used yet.");
                 xml = CommentElement(xml, "useAlternativeCompiler", "Custom script compiler. For example C# 6 (Roslyn): '%CSSCRIPT_DIR%!lib!CSSCodeProvider.v4.6.dll'".Replace('!', Path.DirectorySeparatorChar));
+                xml = CommentElement(xml, "enableDbgPrint", "Gets or sets a value indicating whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now))");
 
                 File.WriteAllText(fileName, xml);
 
             }
-            catch 
+            catch
             {
                 if (throwOnError)
                     throw;
@@ -782,6 +799,7 @@ namespace csscript
                     node = data.SelectSingleNode("doCleanupAfterNumberOfRuns"); if (node != null) settings.doCleanupAfterNumberOfRuns = uint.Parse(node.InnerText);
                     node = data.SelectSingleNode("hideOptions"); if (node != null) settings.hideOptions = (HideOptions) Enum.Parse(typeof(HideOptions), node.InnerText, true);
                     node = data.SelectSingleNode("autoclass.decorateAsCS6"); if (node != null) settings.autoClass_DecorateAsCS6 = node.InnerText.ToLower() == "true";
+                    node = data.SelectSingleNode("enableDbgPrint"); if (node != null) settings.enableDbgPrint = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("autoclass.decorateAlways"); if (node != null) settings.autoClass_DecorateAlways = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("hideCompilerWarnings"); if (node != null) settings.hideCompilerWarnings = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("inMemoryAsm"); if (node != null) settings.inMemoryAsm = node.InnerText.ToLower() == "true";
