@@ -120,6 +120,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\dbg.res.cs">
+      <Link>dbg.res.cs</Link>
+    </Compile>
     <Compile Include="..\ExecuteOptions.cs">
       <Link>ExecuteOptions.cs</Link>
     </Compile>

@@ -1,5 +1,6 @@
 echo off
 rem Many builds are commented out as they are no longer included into distro. But they are kept to allow anyone to build them if required.
+@set BATCH_BUILD=true
 @set oldPATH=%PATH%;
 @set PATH=%windir%\Microsoft.NET\Framework\v1.1.4322;%PATH%;
 @set net4_tools=C:\Program Files (x86)\MSBuild\12.0\Bin

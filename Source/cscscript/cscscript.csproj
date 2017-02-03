@@ -212,11 +212,13 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)prebuild.exe"
-</PreBuildEvent>
+    <PreBuildEvent>if "%25BATCH_BUILD%25" == "true" goto exit
+"$(SolutionDir)prebuild.exe"
+
+:exit</PreBuildEvent>
     <PostBuildEvent>echo off
 
-if "%25CS-S_DEV_ROOT%25" == "" go exit
+if "%25CS-S_DEV_ROOT%25" == "" goto exit
 echo ------------------------------
 echo Updating local deployment folder "%25CS-S_DEV_ROOT%25"
 copy "$(TargetPath)" "%25CS-S_DEV_ROOT%25\cscs.exe"

@@ -121,6 +121,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\dbg.res.cs">
+      <Link>dbg.res.cs</Link>
+    </Compile>
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -207,7 +210,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-   <ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
