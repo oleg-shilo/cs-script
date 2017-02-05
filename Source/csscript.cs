@@ -1436,7 +1436,10 @@ namespace csscript
             }
 
             if (options.enableDbgPrint)
+            {
                 addByAsmName("System.Linq.dll");
+                addByAsmName("System.Core.dll");
+            }
 
             AssemblyResolver.ignoreFileName = Path.GetFileNameWithoutExtension(parser.ScriptPath) + ".dll";
 
