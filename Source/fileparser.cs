@@ -1015,7 +1015,7 @@ namespace CSScriptLibrary
 #endif
 #if !net1
         /// <summary>
-        /// Agregates the references from the script and its imported scripts. It is a logical equivalent od CSExecutor.AggregateReferencedAssemblies
+        /// Aggregates the references from the script and its imported scripts. It is a logical equivalent od CSExecutor.AggregateReferencedAssemblies
         /// but optimized for later .NET versions (e.g LINQ) and completely docoupled. Thus it has no dependencies on internal state 
         /// (e.g. settings, options.shareHostAssemblies).
         /// <para>It is the method to call for generating list of ref asms as part of the project info.</para>

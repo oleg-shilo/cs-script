@@ -161,6 +161,7 @@ namespace CSScriptNativeApi
 
                     var settings = new Settings();
                     //settings = null; // set to null to foll back to defaults 
+
                     dynamic script = CSScript.LoadWithConfig(file, null, false, settings, "/define:TEST")
                                              .CreateObject("*");
 

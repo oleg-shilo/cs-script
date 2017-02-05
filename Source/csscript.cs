@@ -1437,8 +1437,8 @@ namespace csscript
 
             if (options.enableDbgPrint)
             {
-                addByAsmName("System.Linq.dll");
-                addByAsmName("System.Core.dll");
+                addByAsmName("System.Linq"); // Implementation of System.Linq namespace 
+                addByAsmName("System.Core"); //dependency of System.Linq namespace assembly
             }
 
             AssemblyResolver.ignoreFileName = Path.GetFileNameWithoutExtension(parser.ScriptPath) + ".dll";
@@ -1673,11 +1673,13 @@ namespace csscript
             CompilerResults results;
             if (generateExe)
             {
+                var exeCompatibleIjections = filesToInject.Where(x => !x.EndsWith(".attr.g.cs")).ToArray();
+                filesToCompile = Utils.Concat(filesToCompile, exeCompatibleIjections);
                 results = CompileAssembly(compiler, compilerParams, filesToCompile);
             }
             else
             {
-                if (filesToInject.Length != 0)
+                if (filesToInject.Any())
                 {
                     filesToCompile = Utils.Concat(filesToCompile, filesToInject);
                 }
