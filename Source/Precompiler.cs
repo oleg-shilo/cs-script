@@ -27,19 +27,19 @@ namespace csscript
         //public bool IsPrimaryScript = true;
         /// <summary>
         /// Collection of the referenced assemblies to be added to the process script referenced assemblies.
-        /// <para>You may want to add new items to the referenced assemblies because of the precompilation logic (e.g. some code using assemblies not referenced by the primary script 
+        /// <para>You may want to add new items to the referenced assemblies because of the precompilation logic (e.g. some code using assemblies not referenced by the primary script
         /// is injected in the script).</para>
         /// </summary>
         public List<string> NewReferences = new List<string>();
         /// <summary>
-        /// Collection of the new dependency items (files). 
-        /// <para>Dependency files are checked before the script execution in order to understand if the script should be recompiled or it can be loaded from 
-        /// the cache. If any of the dependency files is changed since the last script execution the script engine will recompile the script. In the simple execution 
+        /// Collection of the new dependency items (files).
+        /// <para>Dependency files are checked before the script execution in order to understand if the script should be recompiled or it can be loaded from
+        /// the cache. If any of the dependency files is changed since the last script execution the script engine will recompile the script. In the simple execution
         /// scenarios the script file is a dependency file.</para>
         /// </summary>
         public List<string> NewDependencies = new List<string>();
         /// <summary>
-        /// Collection of the new 'include' items (dependency source files). 
+        /// Collection of the new 'include' items (dependency source files).
         /// </summary>
         public List<string> NewIncludes = new List<string>();
         /// <summary>
@@ -68,7 +68,7 @@ namespace csscript
     /////              code = "//" + code; //comment the Linux hashbang line to keep C# compiler happy
     /////              return true;
     /////         }
-    /////              
+    /////
     /////         return false;
     /////     }
     ///// }
@@ -218,9 +218,12 @@ namespace csscript
             int originalCol = line_col[1];
             string retval = AutoclassPrecompiler.Process(code, out injectionPos, out injectionLength, out injectedLine, ConsoleEncoding);
 
-            if (injectedLine != -1 && injectedLine <= originalLine)
+            if (injectionPos != -1)
             {
-                position = GetPos(retval, originalLine + 1, originalCol);
+                if (injectedLine != -1 && injectedLine <= originalLine)
+                    position = GetPos(retval, originalLine + 1, originalCol);
+                else
+                    position = GetPos(retval, originalLine, originalCol);
             }
             return retval;
         }
@@ -260,7 +263,7 @@ namespace csscript
             injectedLine = -1;
 
             //Debug.Assert(false);
-            //we will be effectively normalizing the line ends but the input file may no be 
+            //we will be effectively normalizing the line ends but the input file may no be
 
             var code = new StringBuilder(4096);
             //code.Append("//Auto-generated file" + Environment.NewLine); //cannot use AppendLine as it is not available in StringBuilder v1.1
@@ -293,7 +296,7 @@ namespace csscript
 
                             injectionLength += tempText.Length;
                             entryPointInjectionPos = code.Length;
-                            injectedLine = lineCount;
+                            //injectedLine = lineCount;
                         }
 
                     if (!autoCodeInjected && entryPointInjectionPos != -1 && !Utils.IsNullOrWhiteSpace(line))
@@ -334,6 +337,7 @@ namespace csscript
                                     }
                                     entryPointDefinition += "} ///CS-Script auto-class generation" + Environment.NewLine;
 
+                                    injectedLine = lineCount;
                                     injectionLength += entryPointDefinition.Length;
                                     code.Insert(entryPointInjectionPos, entryPointDefinition);
 
