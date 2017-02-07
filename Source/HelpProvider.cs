@@ -172,8 +172,8 @@ namespace csscript
                                                    "Can be beneficial for fine concurrency control as it allows changing \n" +
                                                    "and executing the scripts that are already loaded (being executed). This mode is incompatible \n" +
                                                    "with the scripting scenarios that require scriptassembly to be file based (e.g. advanced Reflection).\n" +
-                                                   "    -inmem:1   enable caching (which might be disabled globally);\n" +
-                                                   "    -inmem:0   disable caching (which might be enabled globally);");
+                                                   "   -inmem:1   enable caching (which might be disabled globally);\n" +
+                                                   "   -inmem:0   disable caching (which might be enabled globally);");
             switch2Help[verbose] = new ArgInfo("-verbose",
                                                    "Prints runtime information during the script execution.",
                                                    "(applicable for console clients only)");
