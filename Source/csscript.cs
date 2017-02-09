@@ -245,7 +245,7 @@ namespace csscript
                     options.resolveAutogenFilesRefs = settings.ResolveAutogenFilesRefs;
                     if (!options.processFile)
                     {
-                        // No further processing is required. 
+                        // No further processing is required.
                         // Some primitive request (e.g. print help) has been already dispatched
                         // though some non-processing request cannot be done without using options
                         // so let them to be handled here.
@@ -540,7 +540,8 @@ namespace csscript
                 }
                 else
                 {
-                    ShowHelpFor(null);
+                    //ShowHelpFor(null);
+                    ShowVersion();
                 }
             }
             catch (Surrogate86ProcessRequiredException)
@@ -680,7 +681,7 @@ namespace csscript
                                IntPtr.Zero);
             //if (hr != 0)
             //    System.Windows.Forms.MessageBox.Show("CoInitializeSecurity failed. [" + hr + "]", "CS-Script COM Initialization");
-            //else 
+            //else
             //    System.Windows.Forms.MessageBox.Show("CoInitializeSecurity succeeded.", "CS-Script COM Initialization");
         }
 
@@ -751,63 +752,63 @@ namespace csscript
 
                     // The following long comment is also reflected on Wiki
 
-                    // Execution consist of multiple stages and some of them need to be atomic and need to be synchronized system wide. 
+                    // Execution consist of multiple stages and some of them need to be atomic and need to be synchronized system wide.
                     // Note: synchronization (concurrency control) may only be required for execution of a given script by two or more competing
-                    // processes. If one process executes script_a.cs and another one executes script_b.cs then there is no need for any synchronization 
+                    // processes. If one process executes script_a.cs and another one executes script_b.cs then there is no need for any synchronization
                     // as the script files are different and their executions do not collide with each other.
 
                     // ---
                     // VALIDATION
-                    // First, script should be validated: assessed for having valid already compiled up to date assembly. Validation is done 
+                    // First, script should be validated: assessed for having valid already compiled up to date assembly. Validation is done
                     // by checking if the compiled assembly available at all and then comparing timestamps of the assembly and the script file.
                     // After all on checks are done all script dependencies (imports and ref assemblies) are also validated. Dependency validation is
-                    // also timestamp based. For the script the dependencies are identified by parsing the script and for the assembly by extracting the 
+                    // also timestamp based. For the script the dependencies are identified by parsing the script and for the assembly by extracting the
                     // dependencies metadata injected into assembly during the last compilation by the script engine.
-                    // The whole validation stage is atomic and it's synchronized system wide via SystemWideLock validatingFileLock. 
-                    // SystemWideLock is a decorated Mutex-like system wide synchronization object: Mutex on Windows and file-lock on Linux. 
+                    // The whole validation stage is atomic and it's synchronized system wide via SystemWideLock validatingFileLock.
+                    // SystemWideLock is a decorated Mutex-like system wide synchronization object: Mutex on Windows and file-lock on Linux.
                     // This stage is very fast as there is no heavy lifting to be done just comparing timestamps.
                     // Timeout is infinite as there is very little chance for the stage to hang.
                     // ---
                     // COMPILATION
-                    // Next, if assembly is valid (the script hasn't been changed since last compilation) the it is loaded for further execution without recompilation. 
-                    // Otherwise it is compiled again. Compilation stage is also atomic, so concurrent compilations (if happen) do not try to build the assembly potentially 
-                    // in the same location with the same name (e.g. caching). The whole validation stage is atomic and it's also synchronized system wide via SystemWideLock 
-                    // 'compilingFileLock'. 
-                    // This stage is potentially heavy. Some compilers, while being relatively fast may introduce significant startup overhead (like Roslyn). 
+                    // Next, if assembly is valid (the script hasn't been changed since last compilation) the it is loaded for further execution without recompilation.
+                    // Otherwise it is compiled again. Compilation stage is also atomic, so concurrent compilations (if happen) do not try to build the assembly potentially
+                    // in the same location with the same name (e.g. caching). The whole validation stage is atomic and it's also synchronized system wide via SystemWideLock
+                    // 'compilingFileLock'.
+                    // This stage is potentially heavy. Some compilers, while being relatively fast may introduce significant startup overhead (like Roslyn).
                     // That is why caching is a preferred execution approach.
                     // Timeout is fixed as there is a chance that the third party compiler can hang.
                     // ---
                     // EXECUTION
-                    // Next, the script assembly needs to be loaded/executed.This stage is extremely heavy as the execution may take infinite time depending on business logic. 
+                    // Next, the script assembly needs to be loaded/executed.This stage is extremely heavy as the execution may take infinite time depending on business logic.
                     // When the assembly file is loaded it is locked by CLR and none can delete/recreate it. Meaning that if any one is to recompile the assembly then this
-                    // cannot be done until the execution is completed and CLR releases the assembly file. System wide synchronization doesn't make much sense in this case 
-                    // as open end waiting is not practical at all. Thus it's more practical to let the compiler throw an informative locking (access denied) exception. 
+                    // cannot be done until the execution is completed and CLR releases the assembly file. System wide synchronization doesn't make much sense in this case
+                    // as open end waiting is not practical at all. Thus it's more practical to let the compiler throw an informative locking (access denied) exception.
                     //
-                    // Note: if the assembly is loaded as in-memory file copy (options.inMemoryAsm) then the assembly locking is completely eliminated. This is in fact an extremely 
-                    // attractive execution model as it eliminates any problems associated with the assembly looking during the execution. The only reason why it's not activated by 
-                    // default is contradicts the traditional .NET loading model when the assembly loaded as a file. 
+                    // Note: if the assembly is loaded as in-memory file copy (options.inMemoryAsm) then the assembly locking is completely eliminated. This is in fact an extremely
+                    // attractive execution model as it eliminates any problems associated with the assembly looking during the execution. The only reason why it's not activated by
+                    // default is contradicts the traditional .NET loading model when the assembly loaded as a file.
                     //
-                    // While execution stage cannot benefit from synchronization it is still using executingFileLock synchronization object. Though the objective is not to wait 
-                    // when file lock is detected but rather to detect unlocking and start compiling with a little delay. Reason for this is that (on Windows at least) CLR holds 
-                    // the file lock a little bit longer event after the assembly execution is finished. It is completely undocumented CLR behaver, that is hard to catch and reproduce. 
-                    // It has bee confirmed by the users that this work around helps in the intense concurrent "border line" scenarios. Though there is no warranty it will be still 
+                    // While execution stage cannot benefit from synchronization it is still using executingFileLock synchronization object. Though the objective is not to wait
+                    // when file lock is detected but rather to detect unlocking and start compiling with a little delay. Reason for this is that (on Windows at least) CLR holds
+                    // the file lock a little bit longer event after the assembly execution is finished. It is completely undocumented CLR behaver, that is hard to catch and reproduce.
+                    // It has bee confirmed by the users that this work around helps in the intense concurrent "border line" scenarios. Though there is no warranty it will be still
                     // valid with any future releases of CLR. There ware no reports about this behaver on Linux.
                     // ---
-                    // Synchronizing the stages via the lock object that is based on the assembly file name seems like the natural and best option. However the actual assembly name 
-                    // (unless caching is active) is only determined during the compilation, which needs to be synchronized (chicken egg problem). Thus script file is a more practical 
+                    // Synchronizing the stages via the lock object that is based on the assembly file name seems like the natural and best option. However the actual assembly name
+                    // (unless caching is active) is only determined during the compilation, which needs to be synchronized (chicken egg problem). Thus script file is a more practical
                     // (and more conservative) approach for basing synchronization objects identity. Though if the need arises the assembly-based approach can be attempted.
                     // ------------------------------------------------------
                     // The concurrency model described above was an unconditional behaver until v3.16
                     // Since v3.16 concurrency model can be chosen based on the user preferences:
-                    // * ConcurrencyControl.HighResolution 
+                    // * ConcurrencyControl.HighResolution
                     //      The model described above.
                     //
-                    // * ConcurrencyControl.Standard 
+                    // * ConcurrencyControl.Standard
                     //      Due to the limited choices with the system wide named synchronization objects on Linux both Validation and Compilations stages are treated as a single stage,
-                    //      controlled by a single synch object compilingFileLock. 
+                    //      controlled by a single synch object compilingFileLock.
                     //      This happens to be a good default choice for Windows as well.
                     //
-                    // * ConcurrencyControl.None 
+                    // * ConcurrencyControl.None
                     //      All synchronization is the responsibility of the hosting environment.
 
                     using (SystemWideLock validatingFileLock = new SystemWideLock(options.scriptFileName, "v"))
@@ -854,13 +855,13 @@ namespace csscript
                         if (assemblyFileName != null)
                         {
                             //OK, there is a compiled script file and it is current.
-                            //Validating stage is over as we are not going to recompile the script 
+                            //Validating stage is over as we are not going to recompile the script
                             //Release the lock immediately so other instances can do their validation if waiting.
                             validatingFileLock.Release();
                         }
                         else
                         {
-                            //do not release validation lock as we will need to compile the script and any pending validations 
+                            //do not release validation lock as we will need to compile the script and any pending validations
                             //will need to wait until we finish.
                         }
 
@@ -902,7 +903,7 @@ namespace csscript
 
                                 if (!lockedByHost)
                                 {
-                                    //!lockedByHost means that if there is a host executing the assemblyFileName script it has finished the execution 
+                                    //!lockedByHost means that if there is a host executing the assemblyFileName script it has finished the execution
                                     //but the assemblyFileName file itself may still be locked by the IO because it's host process may be just exiting
                                     Utils.WaitForFileIdle(assemblyFileName, 1000);
                                 }
@@ -1437,7 +1438,7 @@ namespace csscript
 
             if (options.enableDbgPrint)
             {
-                addByAsmName("System.Linq"); // Implementation of System.Linq namespace 
+                addByAsmName("System.Linq"); // Implementation of System.Linq namespace
                 addByAsmName("System.Core"); //dependency of System.Linq namespace assembly
             }
 
@@ -1796,7 +1797,7 @@ namespace csscript
 
         void ProcessCompilingResult(CompilerResults results, CompilerParameters compilerParams, ScriptParser parser, string scriptFileName, string assemblyFileName, string[] additionalDependencies)
         {
-            LastCompileResult = new CompilingInfo() { ScriptFile = scriptFileName, Result = results, Input = compilerParams };
+            LastCompileResult = new CompilingInfo() { ScriptFile = scriptFileName, ParsingContext = parser.GetContext(), Result = results, Input = compilerParams };
 
             if (results.Errors.HasErrors)
             {
@@ -1970,8 +1971,8 @@ namespace csscript
                 }
                 catch
                 {
-                    //there can be many reasons for the failure (e.g. file is already locked by another writer), 
-                    //which in most of the cases does not constitute the error but rather a runtime condition 
+                    //there can be many reasons for the failure (e.g. file is already locked by another writer),
+                    //which in most of the cases does not constitute the error but rather a runtime condition
                 }
 
 
@@ -2082,8 +2083,8 @@ namespace csscript
             //-config:ls               - lists/print current settings value (same as simple -config)
             //-config:create           - create config file with default settings
             //-config:default          - print default settings
-            //-config:get:name         - print current config file value 
-            //-config:set:name=value   - set current config file value 
+            //-config:get:name         - print current config file value
+            //-config:set:name=value   - set current config file value
             try
             {
                 if (command == "create")

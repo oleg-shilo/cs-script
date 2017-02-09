@@ -14,20 +14,20 @@
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2017 Oleg Shilo
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all copies or substantial 
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
 // portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
@@ -110,11 +110,39 @@ namespace CSScriptLibrary
         }
     }
 
-    class SimpleAsmProbing
+
+    public class SimpleAsmProbing : IDisposable
     {
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            Uninit();
+        }
+
+        ~SimpleAsmProbing()
+        {
+            Dispose(false);
+        }
+
+        public SimpleAsmProbing() { }
+        public static SimpleAsmProbing For(params string[] probingDirs)
+        {
+            return new SimpleAsmProbing(probingDirs);
+        }
+
+        public SimpleAsmProbing(params string[] probingDirs)
+        {
+            Init(probingDirs);
+        }
+
         static bool initialized = false;
         static string[] probingDirs = new string[0];
-        internal void Init(params string[] probingDirs)
+
+        public void Init(params string[] probingDirs)
         {
             SimpleAsmProbing.probingDirs = probingDirs;
             if (!initialized)
@@ -124,7 +152,7 @@ namespace CSScriptLibrary
             }
         }
 
-        internal void Uninit()
+        public void Uninit()
         {
             if (initialized)
             {
@@ -283,7 +311,7 @@ namespace CSScriptLibrary
         /// <returns>Reference to the <see cref="System.AppDomain"/>. It is the same object, which is passed as the <paramref name="domain"/>.</returns>
         public static AppDomain Execute<T>(this AppDomain domain, Action<T> action, T context, params string[] probingDirs)
         {
-            //also possible to serialize lambda and execute it in remote AppDomain (yest it is dangerous) 
+            //also possible to serialize lambda and execute it in remote AppDomain (yest it is dangerous)
             //look at MetaLinq\ExpressionBuilder
             var remote = (RemoteExecutor) domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(RemoteExecutor).ToString());
             remote.InitProbing(probingDirs);
@@ -565,7 +593,7 @@ namespace CSScriptLibrary
         /// </summary>
         /// <param name="parser">The parser.</param>
         /// <param name="searchDirs">Extra search/probing directories.</param>
-        /// <param name="defaultRefAssemblies">The default reference assemblies. It is a semicolon separated assembly names string 
+        /// <param name="defaultRefAssemblies">The default reference assemblies. It is a semicolon separated assembly names string
         /// (e.g. "System.Core; System.Linq;").</param>
         /// <returns></returns>
         public static string[] AggregateReferencedAssemblies(ScriptParser parser, string[] searchDirs, string defaultRefAssemblies)
@@ -950,13 +978,13 @@ namespace CSScriptLibrary
 
         /// <summary>
         /// Creates the compiler lock object (<see cref="System.Threading.Mutex"/>). The Mutex object is now initially owned.
-        /// <para>This object is to be used for the access synchronization to the compiled script file and it can be useful for the 
+        /// <para>This object is to be used for the access synchronization to the compiled script file and it can be useful for the
         /// tasks like cache purging or explicit script recompilation.</para>
-        /// <para>The optimisticConcurrencyModel has the same meaning as <see cref="csscript.Settings.OptimisticConcurrencyModel"/>. 
+        /// <para>The optimisticConcurrencyModel has the same meaning as <see cref="csscript.Settings.OptimisticConcurrencyModel"/>.
         /// And it is to be used to control the concurrency scope.</para>
         /// </summary>
         /// <param name="compiledScriptFile">The script file.</param>
-        /// <param name="optimisticConcurrencyModel">if set to <c>true</c> the operation is thread-safe within the current process. 
+        /// <param name="optimisticConcurrencyModel">if set to <c>true</c> the operation is thread-safe within the current process.
         /// Otherwise the operation is thread-safe system wide..</param>
         /// <returns></returns>
 #if !net4
@@ -988,7 +1016,7 @@ namespace CSScriptLibrary
                     try
                     {
                         int start = Environment.TickCount;
-                        //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will 
+                        //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
                         //throw a nice informative exception.
                         fileLock.WaitOne(5000, false); //let other thread/process (if any) to finish loading/compiling the same file; 5 seconds should be enough, if you need more use more sophisticated synchronization
 
@@ -1027,15 +1055,12 @@ namespace CSScriptLibrary
                                     return path;
                             }
                         }
-#if !net1
+
                         string retval = exec.Compile(scriptFile, assemblyFile, debugBuild);
                         if (KeepCompilingHistory)
                             CompilingHistory.Add(new FileInfo(scriptFile), exec.LastCompileResult);
 
                         return retval;
-#else
-                        return exec.Compile(scriptFile, assemblyFile, debugBuild);
-#endif
                     }
                     finally
                     {
@@ -1111,7 +1136,7 @@ namespace CSScriptLibrary
 
         /// <summary>
         /// Surrounds the method implementation code into a class and compiles it code into assembly with CSExecutor and loads it in current AppDomain.
-        /// The most convenient way of using dynamic methods is to declare them as static methods. In this case they can be invoked with wild card character 
+        /// The most convenient way of using dynamic methods is to declare them as static methods. In this case they can be invoked with wild card character
         /// as a class name (e.g. asmHelper.Invoke("*.SayHello")). Otherwise you will need to instantiate class "DyamicClass.Script" in order to call dynamic method.
         ///
         /// You can have multiple methods implementations in the single methodCode. Also you can specify namespaces at the beginning of the code:
@@ -1275,9 +1300,9 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Stop any running instances of the compiler server if any. 
+        /// Stop any running instances of the compiler server if any.
         /// <para>
-        /// Stopping is needed in order to prevent any problems with copying/moving CS-Script binary files (e.g. Roslyn compilers). 
+        /// Stopping is needed in order to prevent any problems with copying/moving CS-Script binary files (e.g. Roslyn compilers).
         /// Servers restart automatically on any attempt to compile any C#/VB.NET code by any client (e.g. Visual Studio, MSBuild, CS-Script).
         /// </para>
         /// </summary>
@@ -1315,7 +1340,7 @@ namespace CSScriptLibrary
                 return LoadCode(code, null, false).GetStaticMethod<T>();
             }
         }
-#endif 
+#endif
         static string evalNamespaces;
 
         /// <summary>
@@ -1633,7 +1658,7 @@ namespace CSScriptLibrary
         /// <para>This method is a logical equivalent of the corresponding <c>LoadCode</c> method except the code is
         /// not specified as a call argument but read from the file instead.</para>
         /// <para>It is recommended to use LoadFrom method instead as it is more straight forward and arguably faster.
-        /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or 
+        /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or
         /// if the original location of the source file some how is incompatible with the actual C# compiler.</para>
         /// </summary>
         /// <param name="scriptFile">The script file.</param>
@@ -1679,7 +1704,7 @@ namespace CSScriptLibrary
         /// <para>This method is a logical equivalent of the corresponding <c>LoadCode</c> method except the code is
         /// not specified as a call argument but read from the file instead.</para>
         /// <para>It is recommended to use LoadFrom method instead as it is more straight forward and arguably faster.
-        /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or 
+        /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or
         /// if the original location of the source file some how is incompatible with the actual C# compiler.</para>
         /// </summary>
         /// <param name="scriptFile">The script file.</param>
@@ -1700,7 +1725,7 @@ namespace CSScriptLibrary
         /// <para>This method is a logical equivalent of the corresponding <c>LoadCode</c> method except the code is
         /// not specified as a call argument but read from the file instead.</para>
         /// <para>It is recommended to use LoadFrom method instead as it is more straight forward and arguably faster.
-        /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or 
+        /// Use LoadCodeFrom only if you indeed want to disassociate your script code from the script file or
         /// if the original location of the source file some how is incompatible with the actual C# compiler.</para>
         /// <param name="scriptFile">The script file.</param>
         /// <param name="tempFileExtension">The file extension of the temporary file to hold script code during compilation. This parameter may be
@@ -1783,7 +1808,7 @@ namespace CSScriptLibrary
                 try
                 {
                     Mutex fileLock = new Mutex(false, tempFile.Replace(Path.DirectorySeparatorChar, '|').ToLower());
-                    fileLock.WaitOne(1); //do not release mutex. The file may be needed to be to locked until the 
+                    fileLock.WaitOne(1); //do not release mutex. The file may be needed to be to locked until the
                     //host process exits (e.g. debugging). Thus the mutex will be released by OS when the process is terminated
 
                     using (StreamWriter sw = new StreamWriter(tempFile))
@@ -1849,11 +1874,11 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Cleans up all abandoned dynamic C# sources (temp files) generated by LodCode*() API methods. You don't need to use this 
+        /// Cleans up all abandoned dynamic C# sources (temp files) generated by LodCode*() API methods. You don't need to use this
         /// method as it is scheduled for execution at the end of the application.
         /// <para>
-        /// However automatic cleanup may fail under certain circumstances as it is scheduled by the 
-        /// AppDomain.CurrentDomain.ProcessExit event, which is not guaranteed to be always executed. 
+        /// However automatic cleanup may fail under certain circumstances as it is scheduled by the
+        /// AppDomain.CurrentDomain.ProcessExit event, which is not guaranteed to be always executed.
         /// In such cases or if you want to clear the directory prior the execution you can call <c>CSScript.CleanupDynamicSources()</c> explicitly.
         /// </para>
         /// </summary>
@@ -1904,7 +1929,7 @@ namespace CSScriptLibrary
                     try
                     {
                         int start = Environment.TickCount;
-                        //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will 
+                        //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
                         //throw a nice informative exception.
                         fileLock.WaitOne(5000, false); //let other thread/process (if any) to finish loading/compiling the same file; 2 seconds should be enough, if you need more use more sophisticated synchronization
 
@@ -2079,7 +2104,7 @@ namespace CSScriptLibrary
         /// 3. PATH
         /// Also fixes file name if user did not provide extension for script file (assuming .cs extension)
         /// </para>
-        /// <para>If the default implementation isn't suitable then you can set <c>CSScript.ResolveSourceAlgorithm</c> 
+        /// <para>If the default implementation isn't suitable then you can set <c>CSScript.ResolveSourceAlgorithm</c>
         /// to the alternative implementation of the probing algorithm.</para>
         /// </summary>
         public static ResolveSourceFileAlgorithm ResolveSourceAlgorithm
@@ -2091,7 +2116,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Resolves namespace/assembly(file) name into array of assembly locations (local and GAC ones).
         /// </summary>
-        /// <para>If the default implementation isn't suitable then you can set <c>CSScript.ResolveAssemblyAlgorithm</c> 
+        /// <para>If the default implementation isn't suitable then you can set <c>CSScript.ResolveAssemblyAlgorithm</c>
         /// to the alternative implementation of the probing algorithm.</para>
         /// <returns>collection of assembly file names where namespace is implemented</returns>
         public static ResolveAssemblyHandler ResolveAssemblyAlgorithm

@@ -17,20 +17,20 @@
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2017 Oleg Shilo
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all copies or substantial 
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
 // portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
@@ -40,14 +40,8 @@ using System;
 using System.IO;
 using System.Text;
 
-#if net1
-using System.Collections;
-#else
-
 using System.Collections.Generic;
 using System.Linq;
-
-#endif
 
 using csscript;
 
@@ -63,20 +57,12 @@ namespace CSScriptLibrary
 
         public ParsingParams()
         {
-#if net1
-            renameNamespaceMap = new ArrayList();
-#else
             renameNamespaceMap = new List<string[]>();
-#endif
         }
 
         public string[][] RenameNamespaceMap
         {
-#if net1
-            get { return (string[][])renameNamespaceMap.ToArray(typeof(string[])); }
-#else
             get { return renameNamespaceMap.ToArray(); }
-#endif
         }
 
         public void AddRenameNamespaceMap(string[][] names)
@@ -121,11 +107,7 @@ namespace CSScriptLibrary
 
         #endregion Public interface...
 
-#if net1
-        ArrayList renameNamespaceMap;
-#else
         List<string[]> renameNamespaceMap;
-#endif
     }
 
     /// <summary>
@@ -243,11 +225,7 @@ namespace CSScriptLibrary
 
         public ScriptInfo[] ReferencedScripts
         {
-#if net1
-            get { return (ScriptInfo[])referencedScripts.ToArray(typeof(ScriptInfo)); }
-#else
             get { return referencedScripts.ToArray(); }
-#endif
         }
 
         public void ProcessFile()
@@ -257,7 +235,7 @@ namespace CSScriptLibrary
             referencedScripts.Clear();
             referencedNamespaces.Clear();
             referencedResources.Clear();
-            
+
             this.parser = new CSharpParser(fileName, true, null, this.searchDirs);
 
             foreach (CSharpParser.ImportInfo info in parser.Imports)
@@ -304,19 +282,12 @@ namespace CSScriptLibrary
             }
         }
 
-#if net1
-        ArrayList referencedScripts = new ArrayList();
-        ArrayList referencedNamespaces = new ArrayList();
-        ArrayList referencedAssemblies = new ArrayList();
-        ArrayList packages = new ArrayList();
-        ArrayList referencedResources = new ArrayList();
-#else
         List<ScriptInfo> referencedScripts = new List<ScriptInfo>();
         List<string> referencedNamespaces = new List<string>();
         List<string> referencedAssemblies = new List<string>();
         List<string> packages = new List<string>();
         List<string> referencedResources = new List<string>();
-#endif
+
         string[] searchDirs;
         bool imported = false;
 
@@ -353,7 +324,7 @@ namespace CSScriptLibrary
         /// 2. extraDirs (usually %CSSCRIPT_DIR%\Lib and ExtraLibDirectory)
         /// 3. PATH
         /// Also fixes file name if user did not provide extension for script file (assuming .cs extension)
-        /// <para>If the default implementation isn't suitable then you can set <c>FileParser.ResolveFilesAlgorithm</c> 
+        /// <para>If the default implementation isn't suitable then you can set <c>FileParser.ResolveFilesAlgorithm</c>
         /// to the alternative implementation of the probing algorithm.</para>
         /// </summary>
         public static string ResolveFile(string file, string[] extraDirs, bool throwOnError)
@@ -395,21 +366,14 @@ namespace CSScriptLibrary
             {
                 string dir = Path.GetDirectoryName(filePath);
                 string name = Path.GetFileName(filePath);
-#if net1
-                ArrayList result = new ArrayList();
-#else
+
                 List<string> result = new List<string>();
-#endif
+
                 if (Directory.Exists(dir))
                     foreach (string item in Directory.GetFiles(dir, name))
                         result.Add(Path.GetFullPath(item));
 
-#if net1
-                return (string[])result.ToArray(typeof(string));
-#else
                 return result.ToArray();
-#endif
-
             }
             catch { }
             return new string[0];
@@ -476,32 +440,6 @@ namespace CSScriptLibrary
     /// Implementation of the IComparer for sorting operations of collections of FileParser instances
     /// </summary>
     ///
-#if net1
-    class FileParserComparer : IComparer
-    {
-        public int Compare(object x, object y)
-        {
-            if (x == null && y == null)
-                return 0;
-
-            int retval = x == null ? -1 : (y == null ? 1 : 0);
-
-            if (retval == 0)
-            {
-                FileParser xParser = (FileParser)x;
-                FileParser yParser = (FileParser)y;
-                retval = string.Compare(xParser.fileName, yParser.fileName, true);
-                if (retval == 0)
-                {
-                    retval = ParsingParams.Compare(xParser.prams, yParser.prams);
-                }
-            }
-
-            return retval;
-        }
-    }
-#else
-
     class FileParserComparer : IComparer<FileParser>
     {
         public int Compare(FileParser x, FileParser y)
@@ -524,13 +462,40 @@ namespace CSScriptLibrary
         }
     }
 
-#endif
+    public class ScriptParsingContext
+    {
+        public string[] Packages;
+        public string[] ReferencedResources;
+        public string[] ReferencedAssemblies;
+        public string[] ReferencedNamespaces;
+        public string[] IgnoreNamespaces;
+        public string[] CompilerOptions;
+        public string[] SearchDirs;
+        public string[] Precompilers;
+        public string[] FilesToCompile;
+    }
 
     /// <summary>
     /// Class that manages parsing the main and all imported (if any) C# Script files
     /// </summary>
     public class ScriptParser
     {
+        public ScriptParsingContext GetContext()
+        {
+            return new ScriptParsingContext
+            {
+                Packages = this.Packages,
+                ReferencedResources = this.ReferencedResources,
+                ReferencedAssemblies = this.ReferencedAssemblies,
+                ReferencedNamespaces = this.ReferencedNamespaces,
+                IgnoreNamespaces = this.IgnoreNamespaces,
+                SearchDirs = this.SearchDirs,
+                CompilerOptions = this.CompilerOptions,
+                Precompilers = this.Precompilers,
+                FilesToCompile = this.FilesToCompile,
+            };
+        }
+
         bool throwOnError = true;
         /// <summary>
         /// ApartmentState of a script during the execution (default: ApartmentState.Unknown)
@@ -544,22 +509,15 @@ namespace CSScriptLibrary
         {
             get
             {
-#if net1
-                ArrayList retval = new ArrayList();
-                foreach (FileParser file in fileParsers)
-                    retval.Add(file.FileToCompile);
-                return (string[])retval.ToArray(typeof(string));
-#else
                 List<string> retval = new List<string>();
                 foreach (FileParser file in fileParsers)
                     retval.Add(file.FileToCompile);
                 return retval.ToArray();
-#endif
             }
         }
 
         /// <summary>
-        /// Collection of the imported files (dependant scripts)
+        /// Collection of the imported files (dependent scripts)
         /// </summary>
         public string[] ImportedFiles
         {
@@ -595,11 +553,7 @@ namespace CSScriptLibrary
         /// </summary>
         public string[] Precompilers
         {
-#if net1
-            get { return (string[])precompilers.ToArray(typeof(string)); }
-#else
             get { return precompilers.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -607,11 +561,7 @@ namespace CSScriptLibrary
         /// </summary>
         public string[] ReferencedNamespaces
         {
-#if net1
-            get { return (string[])referencedNamespaces.ToArray(typeof(string)); }
-#else
             get { return referencedNamespaces.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -619,11 +569,7 @@ namespace CSScriptLibrary
         /// </summary>
         public string[] IgnoreNamespaces
         {
-#if net1
-            get { return (string[])ignoreNamespaces.ToArray(typeof(string)); }
-#else
             get { return ignoreNamespaces.ToArray(); }
-#endif
         }
 
 #if !net4
@@ -645,7 +591,7 @@ namespace CSScriptLibrary
         /// <para>CS-Script will also analyze the installed package structure in try to reference compatible assemblies
         /// from the package.</para>
         /// </summary>
-        /// <param name="suppressDownloading">if set to <c>true</c> suppresses downloading the NuGet package. 
+        /// <param name="suppressDownloading">if set to <c>true</c> suppresses downloading the NuGet package.
         /// Suppressing can be useful for the quick 'referencing' assessment.</param>
         /// <returns>Collection of the referenced assembly files.</returns>
         public string[] ResolvePackages(bool suppressDownloading)
@@ -656,7 +602,7 @@ namespace CSScriptLibrary
         /// <para>CS-Script will also analyze the installed package structure in try to reference compatible assemblies
         /// from the package.</para>
         /// </summary>
-        /// <param name="suppressDownloading">if set to <c>true</c> suppresses downloading the NuGet package. 
+        /// <param name="suppressDownloading">if set to <c>true</c> suppresses downloading the NuGet package.
         /// Suppressing can be useful for the quick 'referencing' assessment.</param>
         /// <returns>Collection of the referenced assembly files.</returns>
         public string[] ResolvePackages(bool suppressDownloading = false)
@@ -670,22 +616,14 @@ namespace CSScriptLibrary
         /// </summary>
         public string[] Packages
         {
-#if net1
-            get { return (string[])packages.ToArray(typeof(string)); }
-#else
             get { return packages.ToArray(); }
-#endif
         }
         /// <summary>
         /// Collection of referenced assemblies. All assemblies are referenced either from command-line, code or resolved from referenced namespaces.
         /// </summary>
         public string[] ReferencedAssemblies
         {
-#if net1
-            get { return (string[])referencedAssemblies.ToArray(typeof(string)); }
-#else
             get { return referencedAssemblies.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -834,15 +772,7 @@ namespace CSScriptLibrary
 
                     foreach (string file in importedFile.IgnoreNamespaces)
                         PushIgnoreNamespace(file);
-#if net1
-                    ArrayList dirs = new ArrayList(this.SearchDirs);
-                    foreach (string dir in importedFile.ExtraSearchDirs)
-                        if (Path.IsPathRooted(dir))
-                            dirs.Add(Path.GetFullPath(dir));
-                        else
-                            dirs.Add(Path.Combine(Path.GetDirectoryName(importedFile.fileName), dir));
-                    this.SearchDirs = (string[])dirs.ToArray(typeof(string));
-#else
+
                     List<string> dirs = new List<string>(this.SearchDirs);
                     foreach (string dir in importedFile.ExtraSearchDirs)
                         if (Path.IsPathRooted(dir))
@@ -850,7 +780,6 @@ namespace CSScriptLibrary
                         else
                             dirs.Add(Path.Combine(Path.GetDirectoryName(importedFile.fileName), dir));
                     this.SearchDirs = dirs.ToArray();
-#endif
                 }
                 else
                 {
@@ -861,11 +790,7 @@ namespace CSScriptLibrary
             }
         }
 
-#if net1
-        ArrayList fileParsers = new ArrayList();
-#else
         List<FileParser> fileParsers = new List<FileParser>();
-#endif
 
         /// <summary>
         /// Saves all imported scripts int temporary location.
@@ -874,11 +799,8 @@ namespace CSScriptLibrary
         public string[] SaveImportedScripts()
         {
             string workingDir = Path.GetDirectoryName(((FileParser) fileParsers[0]).fileName);
-#if net1
-            ArrayList retval = new ArrayList();
-#else
             List<string> retval = new List<string>();
-#endif
+
             foreach (FileParser file in fileParsers)
             {
                 if (file.Imported)
@@ -889,11 +811,7 @@ namespace CSScriptLibrary
                         retval.Add(file.fileName);
                 }
             }
-#if net1
-            return (string[])retval.ToArray(typeof(string));
-#else
             return retval.ToArray();
-#endif
         }
 
         /// <summary>
@@ -915,15 +833,6 @@ namespace CSScriptLibrary
             }
         }
 
-#if net1
-        ArrayList referencedNamespaces;
-        ArrayList ignoreNamespaces;
-        ArrayList compilerOptions;
-        ArrayList referencedResources;
-        ArrayList precompilers;
-        ArrayList referencedAssemblies;
-        ArrayList packages;
-#else
         List<string> referencedNamespaces;
         List<string> ignoreNamespaces;
         List<string> referencedResources;
@@ -931,16 +840,13 @@ namespace CSScriptLibrary
         List<string> precompilers;
         List<string> referencedAssemblies;
         List<string> packages;
-#endif
+
         /// <summary>
         /// CS-Script SearchDirectories specified in the parsed script or its dependent scripts.
         /// </summary>
         public string[] SearchDirs;
-#if net1
-        void PushItem(ArrayList collection, string item)
-#else
+
         void PushItem(List<string> collection, string item)
-#endif
         {
             if (collection.Count > 1)
                 collection.Sort();
@@ -983,21 +889,6 @@ namespace CSScriptLibrary
             AddIfNotThere(compilerOptions, option);
         }
 
-#if net1
-        class StringComparer : System.Collections.IComparer
-        {
-            public int Compare(object x, object y)
-            {
-                return string.Compare(x as string, y as string, true);
-            }
-        }
-        void AddIfNotThere(System.Collections.ArrayList arr, string item)
-        {
-            if (arr.BinarySearch(item, new StringComparer()) < 0)
-                arr.Add(item);
-        }
-#else
-
         class StringComparer : IComparer<string>
         {
             public int Compare(string x, string y)
@@ -1012,14 +903,12 @@ namespace CSScriptLibrary
                 list.Add(item);
         }
 
-#endif
-#if !net1
         /// <summary>
         /// Aggregates the references from the script and its imported scripts. It is a logical equivalent od CSExecutor.AggregateReferencedAssemblies
-        /// but optimized for later .NET versions (e.g LINQ) and completely docoupled. Thus it has no dependencies on internal state 
+        /// but optimized for later .NET versions (e.g LINQ) and completely decoupled. Thus it has no dependencies on internal state
         /// (e.g. settings, options.shareHostAssemblies).
         /// <para>It is the method to call for generating list of ref asms as part of the project info.</para>
-        /// 
+        ///
         /// </summary>
         /// <param name="searchDirs">The search dirs.</param>
         /// <param name="defaultRefAsms">The default ref asms.</param>
@@ -1028,8 +917,8 @@ namespace CSScriptLibrary
         public List<string> AgregateReferences(IEnumerable<string> searchDirs, IEnumerable<string> defaultRefAsms, IEnumerable<string> defaultNamespacess)
         {
             var probingDirs = searchDirs.ToArray();
-             
-            var refPkAsms = this.ResolvePackages(true); //suppressDownloading 
+
+            var refPkAsms = this.ResolvePackages(true); //suppressDownloading
 
             var refCodeAsms = this.ReferencedAssemblies
                                   .SelectMany(asm => AssemblyResolver.FindAssembly(asm.Replace("\"", ""), probingDirs));
@@ -1088,6 +977,5 @@ namespace CSScriptLibrary
             }
             return uniqueAsms.ToArray();
         }
-#endif
     }
 }

@@ -20,20 +20,20 @@
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2017 Oleg Shilo
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all copies or substantial 
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
 // portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
@@ -237,7 +237,7 @@ namespace csscript
                     ArrayList result = new ArrayList();
                     foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
                     {
-                        parts[0] = file; //substitute the file path pattern with the actual path 
+                        parts[0] = file; //substitute the file path pattern with the actual path
                         result.Add(new ImportInfo(parts));
                     }
                     return (ImportInfo[])result.ToArray(typeof(ImportInfo));
@@ -250,7 +250,7 @@ namespace csscript
 
                     foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
                     {
-                        parts[0] = file; //substitute the file path pattern with the actual path 
+                        parts[0] = file; //substitute the file path pattern with the actual path
                         result.Add(new ImportInfo(parts));
                     }
 
@@ -359,9 +359,9 @@ namespace csscript
                 {
                     try
                     {
-                        //NuGet.NuGetCacheView will attempt to initialize (create) the cache directory and it is a problem if 
+                        //NuGet.NuGetCacheView will attempt to initialize (create) the cache directory and it is a problem if
                         //it happens that user has no rights to do so.
-                        //Ignore the error and it will be reported when get.exe will try to download the package(s) into 
+                        //Ignore the error and it will be reported when get.exe will try to download the package(s) into
                         //this cache directory.
                         Environment.SetEnvironmentVariable("css_nuget", NuGet.NuGetCacheView);
                     }
@@ -393,6 +393,11 @@ namespace csscript
         {
             InitEnvironment();
             Construct(script, isFile, null, null);
+        }
+
+        public static CSharpParser LoadFile(string script)
+        {
+            return new CSharpParser(script, true);
         }
 
         /// <summary>
@@ -427,7 +432,7 @@ namespace csscript
             else
                 using (StreamReader sr = new StreamReader(script))
                 {
-                    string code = sr.ReadToEnd(); 
+                    string code = sr.ReadToEnd();
                     Init(code, script, directivesToSearch, probingDirs);
                 }
         }
@@ -459,7 +464,7 @@ namespace csscript
         //}
 
         /// <summary>
-        /// Global flag to forcefuly supress any C# code analysys. This flag efectively disables 
+        /// Global flag to forcefuly supress any C# code analysys. This flag efectively disables
         /// all CS-Script assembly and script probing and most likely some other functionality.
         /// <para>You may ever want to supress code analysys only for profiling perposes or during performance tuning.</para>
         /// </summary>
@@ -1281,12 +1286,12 @@ namespace csscript
 
         /// <summary>
         /// Escapes the CS-Script directive (e.g. //css_*) delimiters.
-        /// <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character. 
-        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters. 
+        /// <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
         /// The correct syntax would be as follows '//css_include script((today)).cs;'</para>
         /// <remarks>The delimiters characters are ';,(){}'.
         /// <para>However you should check <see cref="csscript.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
-        /// </para> 
+        /// </para>
         /// </remarks>
         /// </summary>
         /// <param name="text">The text to be processed.</param>
@@ -1300,12 +1305,12 @@ namespace csscript
 
         /// <summary>
         /// Unescapes the CS-Script directive (e.g. //css_*) delimiters.
-        /// <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character. 
-        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters. 
+        /// <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
         /// The correct syntax would be as follows '//css_include script((today)).cs;'</para>
         /// <remarks>The delimiters characters are ';,(){}'.
         /// <para>However you should check <see cref="csscript.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
-        /// </para> 
+        /// </para>
         /// </remarks>
         /// </summary>
         /// <param name="text">The text to be processed.</param>
@@ -1318,9 +1323,9 @@ namespace csscript
         }
 
         /// <summary>
-        /// The //css_* directive delimiters. 
-        /// <remarks>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character. 
-        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters. 
+        /// The //css_* directive delimiters.
+        /// <remarks>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
         /// The correct syntax would be as follows '//css_include script((today)).cs;'
         /// </remarks>
         /// </summary>

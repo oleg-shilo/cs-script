@@ -10,20 +10,20 @@
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2017 Oleg Shilo
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all copies or substantial 
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
 // portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 #endregion Licence...
@@ -82,13 +82,19 @@ namespace csscript
         /// The script file that the <c>CompilingInfo</c> is associated with.
         /// </summary>
         public string ScriptFile;
+
+        /// <summary>
+        /// The script parsing context containing the all CS-Script specific compilation/parsing info (e.g. probing directories,
+        /// NuGet packages, compiled sources).
+        /// </summary>
+        public ScriptParsingContext ParsingContext;
         /// <summary>
         /// The script compilation result.
         /// </summary>
         public CompilerResults Result;
         /// <summary>
         /// The compilation context object that contain all information about the script compilation input
-        /// (referenced assemblies, compiler symbols). 
+        /// (referenced assemblies, compiler symbols).
         /// </summary>
         public CompilerParameters Input;
     }
@@ -387,7 +393,7 @@ namespace csscript
 
         public static void FileDelete(string path, bool rethrow)
         {
-            //There are the reports about 
+            //There are the reports about
             //anti viruses preventing file deletion
             //See 18 Feb message in this thread https://groups.google.com/forum/#!topic/cs-script/5Tn32RXBmRE
 
@@ -504,7 +510,7 @@ namespace csscript
 
             using (SystemWideLock fileLock = new SystemWideLock("CS-Script.dbg.injection", dbg_injection_version))
             {
-                //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will 
+                //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
                 //throw a nice informative exception.
                 if (!Utils.IsLinux())
                     fileLock.Wait(1000);
@@ -531,7 +537,7 @@ namespace csscript
         {
             using (SystemWideLock fileLock = new SystemWideLock(scriptFileName, "attr"))
             {
-                //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will 
+                //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
                 //throw a nice informative exception.
                 if (!Utils.IsLinux())
                     fileLock.Wait(1000);
@@ -607,7 +613,7 @@ namespace csscript
         }
 
         /// <summary>
-        /// Compiles ResX file into .resources 
+        /// Compiles ResX file into .resources
         /// </summary>
         public static string CompileResource(string file, string out_name)
         {
@@ -864,9 +870,9 @@ namespace csscript
         static internal int ParseAppArgs(string[] args, IScriptExecutor executor)
         {
             // NOTE: it is expected that arguments are passed multiple times during the session.
-            // E.g. first time from command line, second time for the DefaultArguments from the config file, that 
+            // E.g. first time from command line, second time for the DefaultArguments from the config file, that
             // has been specified from the command line args.
-            // CLIExitRequest.Throw() is an exception based mechanism for unconditional application exit. 
+            // CLIExitRequest.Throw() is an exception based mechanism for unconditional application exit.
 
             ExecuteOptions options = executor.GetOptions();
             //Debug.Assert(false);
@@ -995,8 +1001,8 @@ namespace csscript
                         //-config:xml              - print current config file content
                         //-config:ls               - lists/prints current config values
                         //-config                  - lists/prints current config values
-                        //-config:get:name         - print current config file value 
-                        //-config:set:name:value   - set current config file value 
+                        //-config:get:name         - print current config file value
+                        //-config:set:name:value   - set current config file value
                         //-config:<file>           - use custom config file
 
                         if (argValue == null ||
@@ -1048,8 +1054,8 @@ namespace csscript
                         // Requests for some no-dependency operations cn be handled here
                         // e.g. ShowHelp
                         // But others like ShowProject need to be provessed outside of this
-                        // arg parser (at the caller) as the whole list of parsed arguments 
-                        // may be required for handling request. 
+                        // arg parser (at the caller) as the whole list of parsed arguments
+                        // may be required for handling request.
                         options.nonExecuteOpRquest = AppArgs.proj;
                         options.processFile = false;
                     }
@@ -1403,7 +1409,7 @@ namespace csscript
                 {
                     //let other thread/process (if any) to finish loading/compiling the same file; 3 seconds should be enough
                     //if not we will just fail to compile as precompilerAsm will still be locked.
-                    //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will 
+                    //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
                     //throw a nice informative exception.
                     fileLock.WaitOne(3000, false);
 
@@ -1502,8 +1508,8 @@ namespace csscript
             //during the cached execution ~5 times only
             //and for hosted scenarios it is twice less
 
-            //The following profiling demonstrates that in the worst case scenario hashing would 
-            //only add ~2 microseconds to the execution time  
+            //The following profiling demonstrates that in the worst case scenario hashing would
+            //only add ~2 microseconds to the execution time
 
             //Native executions cost (milliseconds)=> 100000: 7; 10 : 0.0007
             //Custom Safe executions cost (milliseconds)=> 100000: 40; 10: 0.004
@@ -1520,7 +1526,7 @@ namespace csscript
             }
         }
 
-        //needed to have reliable HASH as x64 and x32 have different algorithms; This leads to the inability of script clients calculate cache directory correctly  
+        //needed to have reliable HASH as x64 and x32 have different algorithms; This leads to the inability of script clients calculate cache directory correctly
         static int GetHashCode32(string s)
         {
             char[] chars = s.ToCharArray();

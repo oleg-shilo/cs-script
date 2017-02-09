@@ -47,21 +47,21 @@
         <member name="F:csscript.PrecompilationContext.NewReferences">
             <summary>
             Collection of the referenced assemblies to be added to the process script referenced assemblies.
-            <para>You may want to add new items to the referenced assemblies because of the precompilation logic (e.g. some code using assemblies not referenced by the primary script 
+            <para>You may want to add new items to the referenced assemblies because of the precompilation logic (e.g. some code using assemblies not referenced by the primary script
             is injected in the script).</para>
             </summary>
         </member>
         <member name="F:csscript.PrecompilationContext.NewDependencies">
             <summary>
-            Collection of the new dependency items (files). 
-            <para>Dependency files are checked before the script execution in order to understand if the script should be recompiled or it can be loaded from 
-            the cache. If any of the dependency files is changed since the last script execution the script engine will recompile the script. In the simple execution 
+            Collection of the new dependency items (files).
+            <para>Dependency files are checked before the script execution in order to understand if the script should be recompiled or it can be loaded from
+            the cache. If any of the dependency files is changed since the last script execution the script engine will recompile the script. In the simple execution
             scenarios the script file is a dependency file.</para>
             </summary>
         </member>
         <member name="F:csscript.PrecompilationContext.NewIncludes">
             <summary>
-            Collection of the new 'include' items (dependency source files). 
+            Collection of the new 'include' items (dependency source files).
             </summary>
         </member>
         <member name="F:csscript.PrecompilationContext.NewSearchDirs">
@@ -434,6 +434,12 @@
             The script file that the <c>CompilingInfo</c> is associated with.
             </summary>
         </member>
+        <member name="F:csscript.CompilingInfo.ParsingContext">
+            <summary>
+            The script parsing context containing the all CS-Script specific compilation/parsing info (e.g. probing directories,
+            NuGet packages, compiled sources).
+            </summary>
+        </member>
         <member name="F:csscript.CompilingInfo.Result">
             <summary>
             The script compilation result.
@@ -442,7 +448,7 @@
         <member name="F:csscript.CompilingInfo.Input">
             <summary>
             The compilation context object that contain all information about the script compilation input
-            (referenced assemblies, compiler symbols). 
+            (referenced assemblies, compiler symbols).
             </summary>
         </member>
         <member name="M:csscript.Utils.WaitForFileIdle(System.String,System.Int32)">
@@ -460,7 +466,7 @@
         </member>
         <member name="M:csscript.CSSUtils.CompileResource(System.String,System.String)">
             <summary>
-            Compiles ResX file into .resources 
+            Compiles ResX file into .resources
             </summary>
         </member>
         <member name="M:csscript.CSSUtils.ParseAppArgs(System.String[],csscript.IScriptExecutor)">
@@ -643,7 +649,7 @@
         </member>
         <member name="F:csscript.CSharpParser.SupressCodeAnalysis">
             <summary>
-            Global flag to forcefuly supress any C# code analysys. This flag efectively disables 
+            Global flag to forcefuly supress any C# code analysys. This flag efectively disables
             all CS-Script assembly and script probing and most likely some other functionality.
             <para>You may ever want to supress code analysys only for profiling perposes or during performance tuning.</para>
             </summary>
@@ -757,12 +763,12 @@
         <member name="M:csscript.CSharpParser.EscapeDirectiveDelimiters(System.String)">
             <summary>
             Escapes the CS-Script directive (e.g. //css_*) delimiters.
-            <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character. 
-            For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters. 
+            <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+            For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
             The correct syntax would be as follows '//css_include script((today)).cs;'</para>
             <remarks>The delimiters characters are ';,(){}'.
             <para>However you should check <see cref="F:csscript.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
-            </para> 
+            </para>
             </remarks>
             </summary>
             <param name="text">The text to be processed.</param>
@@ -771,12 +777,12 @@
         <member name="M:csscript.CSharpParser.UnescapeDirectiveDelimiters(System.String)">
             <summary>
             Unescapes the CS-Script directive (e.g. //css_*) delimiters.
-            <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character. 
-            For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters. 
+            <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+            For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
             The correct syntax would be as follows '//css_include script((today)).cs;'</para>
             <remarks>The delimiters characters are ';,(){}'.
             <para>However you should check <see cref="F:csscript.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
-            </para> 
+            </para>
             </remarks>
             </summary>
             <param name="text">The text to be processed.</param>
@@ -784,9 +790,9 @@
         </member>
         <member name="F:csscript.CSharpParser.DirectiveDelimiters">
             <summary>
-            The //css_* directive delimiters. 
-            <remarks>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character. 
-            For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters. 
+            The //css_* directive delimiters.
+            <remarks>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+            For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
             The correct syntax would be as follows '//css_include script((today)).cs;'
             </remarks>
             </summary>
@@ -1228,7 +1234,7 @@
             2. extraDirs (usually %CSSCRIPT_DIR%\Lib and ExtraLibDirectory)
             3. PATH
             Also fixes file name if user did not provide extension for script file (assuming .cs extension)
-            <para>If the default implementation isn't suitable then you can set <c>FileParser.ResolveFilesAlgorithm</c> 
+            <para>If the default implementation isn't suitable then you can set <c>FileParser.ResolveFilesAlgorithm</c>
             to the alternative implementation of the probing algorithm.</para>
             </summary>
         </member>
@@ -1258,7 +1264,7 @@
         </member>
         <member name="P:CSScriptLibrary.ScriptParser.ImportedFiles">
             <summary>
-            Collection of the imported files (dependant scripts)
+            Collection of the imported files (dependent scripts)
             </summary>
         </member>
         <member name="P:CSScriptLibrary.ScriptParser.ReferencedResources">
@@ -1293,7 +1299,7 @@
             <para>CS-Script will also analyze the installed package structure in try to reference compatible assemblies
             from the package.</para>
             </summary>
-            <param name="suppressDownloading">if set to <c>true</c> suppresses downloading the NuGet package. 
+            <param name="suppressDownloading">if set to <c>true</c> suppresses downloading the NuGet package.
             Suppressing can be useful for the quick 'referencing' assessment.</param>
             <returns>Collection of the referenced assembly files.</returns>
         </member>
@@ -1357,17 +1363,17 @@
             </summary>
         </member>
         <member name="M:CSScriptLibrary.ScriptParser.AgregateReferences(System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String})">
-            <summary>
-            Aggregates the references from the script and its imported scripts. It is a logical equivalent od CSExecutor.AggregateReferencedAssemblies
-            but optimized for later .NET versions (e.g LINQ) and completely docoupled. Thus it has no dependencies on internal state 
-            (e.g. settings, options.shareHostAssemblies).
-            <para>It is the method to call for generating list of ref asms as part of the project info.</para>
+             <summary>
+             Aggregates the references from the script and its imported scripts. It is a logical equivalent od CSExecutor.AggregateReferencedAssemblies
+             but optimized for later .NET versions (e.g LINQ) and completely decoupled. Thus it has no dependencies on internal state
+             (e.g. settings, options.shareHostAssemblies).
+             <para>It is the method to call for generating list of ref asms as part of the project info.</para>
             
-            </summary>
-            <param name="searchDirs">The search dirs.</param>
-            <param name="defaultRefAsms">The default ref asms.</param>
-            <param name="defaultNamespacess">The default namespacess.</param>
-            <returns></returns>
+             </summary>
+             <param name="searchDirs">The search dirs.</param>
+             <param name="defaultRefAsms">The default ref asms.</param>
+             <param name="defaultNamespacess">The default namespacess.</param>
+             <returns></returns>
         </member>
     </members>
 </doc>
