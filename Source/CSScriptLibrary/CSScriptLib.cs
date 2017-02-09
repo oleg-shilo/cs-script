@@ -692,6 +692,9 @@ namespace CSScriptLibrary
         /// </summary>
         public static Dictionary<FileInfo, CompilingInfo> CompilingHistory = new Dictionary<FileInfo, CompilingInfo>();
 
+
+        public static CompilingInfo LastCompilingResult = null;
+
         static bool keepCompilingHistory = false;
 
         /// <summary>
@@ -1057,6 +1060,8 @@ namespace CSScriptLibrary
                         }
 
                         string retval = exec.Compile(scriptFile, assemblyFile, debugBuild);
+
+                        LastCompilingResult = exec.LastCompileResult;
                         if (KeepCompilingHistory)
                             CompilingHistory.Add(new FileInfo(scriptFile), exec.LastCompileResult);
 
@@ -1977,6 +1982,8 @@ namespace CSScriptLibrary
                         if (retval == null)
                         {
                             string outputFile = exec.Compile(scriptFile, assemblyFile, debugBuild);
+
+                            LastCompilingResult = exec.LastCompileResult;
 
                             if (KeepCompilingHistory)
                                 CompilingHistory.Add(new FileInfo(scriptFile), exec.LastCompileResult);
