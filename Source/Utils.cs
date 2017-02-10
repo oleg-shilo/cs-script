@@ -934,6 +934,13 @@ namespace csscript
                     {
                         options.verbose = true;
                     }
+                    //else if (Args.Same(arg, AppArgs.preload)) // -preload
+                    //else if (Args.Same(arg, "-preload")) // -preload
+                    //{
+                    //    options.useCompiled = false;
+                    //    //CSScript.PreloadCompiler
+                    //    //CLIExitRequest.Throw();
+                    //}
                     else if (Args.ParseValuedArg(arg, AppArgs.dir, out argValue)) // -dir:path1,path2
                     {
                         if (argValue != null)

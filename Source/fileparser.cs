@@ -473,6 +473,7 @@ namespace CSScriptLibrary
         public string[] SearchDirs;
         public string[] Precompilers;
         public string[] FilesToCompile;
+        public DateTime Timestamp = DateTime.Now;
     }
 
     /// <summary>

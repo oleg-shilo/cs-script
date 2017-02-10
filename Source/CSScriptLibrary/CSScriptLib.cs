@@ -902,7 +902,7 @@ namespace CSScriptLibrary
         /// <param name="scriptFile">The path to the script file to be compiled.</param>
         /// <param name="refAssemblies">The string array containing file names to the additional assemblies referenced by the script. </param>
         /// <returns>Compiled assembly file name.</returns>
-        [Obsolete("This method is renamed to better align with Mono and Roslyn based CS-Script evaluators. Use CompileFile instead.", true)]
+        [Obsolete("This method has been renamed to better align with Mono and Roslyn based CS-Script evaluators. Use CompileFile instead.", true)]
         static public string Compile(string scriptFile, params string[] refAssemblies)
         {
             return CompileFile(scriptFile, refAssemblies);
@@ -1755,6 +1755,29 @@ namespace CSScriptLibrary
         {
             return LoadCode(scriptText, null, false, refAssemblies);
         }
+
+        static public void PreloadCompiler()
+        {
+            var script = Path.GetTempFileName();
+            try
+            {
+                File.WriteAllText(script, "using System;");
+                CSScript.CompileFile(script);
+            }
+            catch { }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(script))
+                        File.Delete(script);
+                }
+                catch {  }
+            }
+
+        }
+
+
 
         /// <summary>
         /// Compiles script code into assembly with CSExecutor and loads it in current AppDomain.
