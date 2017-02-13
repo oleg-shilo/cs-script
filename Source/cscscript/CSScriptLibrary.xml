@@ -625,6 +625,13 @@
             <param name="script">C# script (code or file).</param>
             <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
         </member>
+        <member name="M:csscript.CSharpParser.LoadFile(System.String)">
+            <summary>
+            Loads and parces the file the file.
+            </summary>
+            <param name="script">The script.</param>
+            <returns>Parser contining parsing result.</returns>
+        </member>
         <member name="M:csscript.CSharpParser.#ctor(System.String,System.Boolean,System.String[])">
             <summary>
             Creates an instance of CSharpParser.
@@ -1247,10 +1254,71 @@
              </summary>
             
         </member>
+        <member name="T:CSScriptLibrary.ScriptParsingResult">
+            <summary>
+            Information about the script parsing result.
+            </summary>
+        </member>
+        <member name="F:CSScriptLibrary.ScriptParsingResult.Packages">
+            <summary>
+            The packages referenced from the script with `//css_nuget` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLibrary.ScriptParsingResult.ReferencedResources">
+            <summary>
+            The referenced resources referenced from the script with `//css_res` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLibrary.ScriptParsingResult.ReferencedAssemblies">
+            <summary>
+            The referenced assemblies referenced from the script with `//css_ref` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLibrary.ScriptParsingResult.ReferencedNamespaces">
+            <summary>
+            The namespaces imported with C# `using` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLibrary.ScriptParsingResult.IgnoreNamespaces">
+            <summary>
+            The namespaces that are marked as "to ignore" with `//css_ignore_namespace` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLibrary.ScriptParsingResult.CompilerOptions">
+            <summary>
+            The compiler options sepcified with `//css_co` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLibrary.ScriptParsingResult.SearchDirs">
+            <summary>
+            The directories specified with `//css_dir` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLibrary.ScriptParsingResult.Precompilers">
+            <summary>
+            The precompilers specified with `//css_pc` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLibrary.ScriptParsingResult.FilesToCompile">
+            <summary>
+            All files that need to be compiled as part of the script execution.
+            </summary>
+        </member>
+        <member name="F:CSScriptLibrary.ScriptParsingResult.Timestamp">
+            <summary>
+            The time of parsing.
+            </summary>
+        </member>
         <member name="T:CSScriptLibrary.ScriptParser">
             <summary>
             Class that manages parsing the main and all imported (if any) C# Script files
             </summary>
+        </member>
+        <member name="M:CSScriptLibrary.ScriptParser.GetContext">
+            <summary>
+            Gets the script parcing context. This object is efectively a parsing result.
+            </summary>
+            <returns></returns>
         </member>
         <member name="F:CSScriptLibrary.ScriptParser.apartmentState">
             <summary>

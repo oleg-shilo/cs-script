@@ -395,6 +395,11 @@ namespace csscript
             Construct(script, isFile, null, null);
         }
 
+        /// <summary>
+        /// Loads and parces the file the file.
+        /// </summary>
+        /// <param name="script">The script.</param>
+        /// <returns>Parser contining parsing result.</returns>
         public static CSharpParser LoadFile(string script)
         {
             return new CSharpParser(script, true);

@@ -66,6 +66,13 @@ namespace csscript
 
         static void main(string[] rawArgs)
         {
+            if (rawArgs.Contains("-preload"))
+            {
+                PreloadCompiler();
+                Console.WriteLine("Compiler is loaded...");
+                return;
+            }
+
             for (int i = 0; i < rawArgs.Length; i++)
                 rawArgs[i] = Environment.ExpandEnvironmentVariables(rawArgs[i]);
 
@@ -246,7 +253,49 @@ namespace csscript
             return sb.ToString();
         }
 
+        static void PreloadCompiler()
+        {
+            var script = Path.GetTempFileName();
+            var dll = Path.ChangeExtension(script, ".dll");
+            try
+            {
+                try { File.WriteAllText(script, @"using System;
+                                                  class Script
+                                                  {
+                                                      static public void Main(string[] args)
+                                                      {
+                                                      }
+                                                  }"); }
+                catch { }
 
+                var new_args = "-cd \"" + script + "\"";
+
+                bool debug = false;
+                if (!debug)
+                {
+                    var process = new Process();
+                    process.StartInfo.FileName = Assembly.GetExecutingAssembly().Location;
+                    process.StartInfo.Arguments = new_args;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.CreateNoWindow = true;
+
+                    process.Start();
+                    process.WaitForExit();
+                }
+                else
+                {
+                    new_args = "-wait " + new_args;
+                    Process.Start(Assembly.GetExecutingAssembly().Location, new_args).WaitForExit();
+                }
+            }
+            finally
+            {
+                try { if (File.Exists(script)) File.Delete(script); }
+                catch { }
+                try { if (File.Exists(dll)) File.Delete(dll); }
+                catch { }
+            }
+        }
 
 #if net4
         static void RunConsoleApp(string app, string args)
@@ -399,6 +448,5 @@ namespace csscript
             else
                 return name;
         }
-
     }
 }

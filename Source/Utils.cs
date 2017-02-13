@@ -87,7 +87,7 @@ namespace csscript
         /// The script parsing context containing the all CS-Script specific compilation/parsing info (e.g. probing directories,
         /// NuGet packages, compiled sources).
         /// </summary>
-        public ScriptParsingContext ParsingContext;
+        public ScriptParsingResult ParsingContext;
         /// <summary>
         /// The script compilation result.
         /// </summary>

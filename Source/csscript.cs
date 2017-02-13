@@ -1258,13 +1258,9 @@ namespace csscript
         ICodeCompiler LoadDefaultCompiler()
         {
 #pragma warning disable 618
-#if net1
-                return new CSharpCodeProvider().CreateCompiler();
-#else
             IDictionary<string, string> providerOptions = new Dictionary<string, string>();
             providerOptions["CompilerVersion"] = options.TargetFramework;
             return new CSharpCodeProvider(providerOptions).CreateCompiler();
-#endif
 #pragma warning restore 618
         }
 

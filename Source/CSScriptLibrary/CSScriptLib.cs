@@ -110,30 +110,69 @@ namespace CSScriptLibrary
         }
     }
 
-
+    /// <summary>
+    /// Class for automated assembly probing. It implments extremely simple ('optimistic')
+    /// probing algorithm. At runtime it attempts to resolve the assemblies via AppDomain.Assembly resolve
+    /// event by looking up the assembly files in the user dfined list of probing direcctories.
+    /// The algorithm relies on the simple relationship between assembluy name and assembly file name:
+    ///  &lt;assembly file&gt; = &lt;asm name&gt; + ".dll"
+    /// </summary>
+    ///<example>The following is an example of automated assembly probing.
+    ///<code>
+    /// using (SimpleAsmProbing.For(@"E:\Dev\Libs", @"E:\Dev\Packages"))
+    /// {
+    ///     dynamic script = CSScript.Load(script_file)
+    ///                              .CreateObject("Script");
+    ///     script.Print();
+    /// }
+    /// </code>
+    /// </example>
+    /// <seealso cref="System.IDisposable" />
     public class SimpleAsmProbing : IDisposable
     {
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             Uninit();
         }
 
+        /// <summary>
+        /// Finalizes an instance of the <see cref="SimpleAsmProbing"/> class.
+        /// </summary>
         ~SimpleAsmProbing()
         {
             Dispose(false);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SimpleAsmProbing"/> class.
+        /// </summary>
         public SimpleAsmProbing() { }
+        /// <summary>
+        /// Creates and initializes a new instance of the <see cref="SimpleAsmProbing"/> class.
+        /// </summary>
+        /// <param name="probingDirs">The probing dirs.</param>
+        /// <returns></returns>
         public static SimpleAsmProbing For(params string[] probingDirs)
         {
             return new SimpleAsmProbing(probingDirs);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SimpleAsmProbing"/> class.
+        /// </summary>
+        /// <param name="probingDirs">The probing dirs.</param>
         public SimpleAsmProbing(params string[] probingDirs)
         {
             Init(probingDirs);
@@ -142,6 +181,10 @@ namespace CSScriptLibrary
         static bool initialized = false;
         static string[] probingDirs = new string[0];
 
+        /// <summary>
+        /// Sets probing dirs and subscribes to the <see cref="System.AppDomain.AssemblyResolve"/> event.
+        /// </summary>
+        /// <param name="probingDirs">The probing dirs.</param>
         public void Init(params string[] probingDirs)
         {
             SimpleAsmProbing.probingDirs = probingDirs;
@@ -152,6 +195,9 @@ namespace CSScriptLibrary
             }
         }
 
+        /// <summary>
+        /// Unsubscribes to the <see cref="System.AppDomain.AssemblyResolve"/> event.
+        /// </summary>
         public void Uninit()
         {
             if (initialized)
@@ -693,6 +739,9 @@ namespace CSScriptLibrary
         public static Dictionary<FileInfo, CompilingInfo> CompilingHistory = new Dictionary<FileInfo, CompilingInfo>();
 
 
+        /// <summary>
+        /// The last script compilation result.
+        /// </summary>
         public static CompilingInfo LastCompilingResult = null;
 
         static bool keepCompilingHistory = false;
@@ -1755,29 +1804,6 @@ namespace CSScriptLibrary
         {
             return LoadCode(scriptText, null, false, refAssemblies);
         }
-
-        static public void PreloadCompiler()
-        {
-            var script = Path.GetTempFileName();
-            try
-            {
-                File.WriteAllText(script, "using System;");
-                CSScript.CompileFile(script);
-            }
-            catch { }
-            finally
-            {
-                try
-                {
-                    if (File.Exists(script))
-                        File.Delete(script);
-                }
-                catch {  }
-            }
-
-        }
-
-
 
         /// <summary>
         /// Compiles script code into assembly with CSExecutor and loads it in current AppDomain.
