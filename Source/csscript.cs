@@ -34,23 +34,9 @@
 
 using System;
 using System.IO;
-
-#if !net1
-
 using System.Linq;
-
-#endif
-
 using System.Reflection;
-
-#if net1
-using System.Collections;
-#else
-
 using System.Collections.Generic;
-
-#endif
-
 using System.Text;
 using CSScriptLibrary;
 using System.Runtime.InteropServices;
@@ -166,13 +152,8 @@ namespace csscript
             }
             return settings;
         }
-#if net1
-        Settings GetPersistedSettings(ArrayList appArgs)
-#else
 
         Settings GetPersistedSettings(List<string> appArgs)
-#endif
-
         {
             //read persistent settings from configuration file
             Settings settings = LoadSettings(options);
@@ -219,38 +200,10 @@ namespace csscript
             return settings;
         }
 
-        static void SilentPrint(string msg)
-        {
-        }
-
-        void TriggerLoadingCompiler(string[] args)
-        {
-            string dummy = Path.GetTempFileName();
-            try
-            {
-                File.WriteAllText(dummy, "using System; syntax error");
-                ExecuteImpl(args.Concat(new[] { dummy }).ToArray(), SilentPrint, dummy);
-            }
-            catch { }
-            finally
-            {
-                try { if (File.Exists(dummy)) File.Delete(dummy); }
-                catch { }
-            }
-        }
-
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         public void Execute(string[] args, PrintDelegate printDelg, string primaryScript)
-        {
-            if (args.Any(a => a == "-preload")) //unadvertised CLI arg to be used by IDEs
-                TriggerLoadingCompiler(args);
-            else
-                ExecuteImpl(args, printDelg, primaryScript);
-        }
-
-        void ExecuteImpl(string[] args, PrintDelegate printDelg, string primaryScript)
         {
             try
             {
@@ -338,6 +291,9 @@ namespace csscript
                         options.scriptFileNamePrimary = primaryScript;
                     else
                         options.scriptFileNamePrimary = options.scriptFileName;
+
+                    if (Environment.GetEnvironmentVariable("EntryScript") == null)
+                        Environment.SetEnvironmentVariable("EntryScript", Path.GetFullPath(options.scriptFileNamePrimary));
 
                     if (CSExecutor.ScriptCacheDir == "")
                         CSExecutor.SetScriptCacheDir(options.scriptFileName);
@@ -499,11 +455,7 @@ namespace csscript
                     //We need to start the execution in a new thread as it is the only way
                     //to set desired ApartmentState under .NET 2.0
                     Thread newThread = new Thread(new ThreadStart(this.ExecuteImpl));
-#if net1
-                    newThread.ApartmentState = options.apartmentState;
-#else
                     newThread.SetApartmentState(options.apartmentState);
-#endif
                     newThread.Start();
                     newThread.Join();
                     if (lastException != null)
@@ -523,33 +475,19 @@ namespace csscript
 
                             if (originalOptions.DBG)
                             {
-#if net1
-                                ArrayList newArgs = new ArrayList();
-                                newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "dbg");
-                                info.args = (string[])newArgs.ToArray(typeof(string));
-#else
 
                                 List<string> newArgs = new List<string>();
                                 newArgs.AddRange(info.args);
                                 newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "dbg");
                                 info.args = newArgs.ToArray();
-#endif
                             }
+
                             if (originalOptions.verbose)
                             {
-#if net1
-                                ArrayList newArgs = new ArrayList();
-                                newArgs.AddRange(info.args);
-                                newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "verbose");
-                                info.args = (string[])newArgs.ToArray(typeof(string));
-#else
-
                                 List<string> newArgs = new List<string>();
                                 newArgs.AddRange(info.args);
                                 newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "verbose");
                                 info.args = newArgs.ToArray();
-#endif
                             }
                             if (info.abortOnError)
                             {
@@ -562,7 +500,6 @@ namespace csscript
                 }
                 else
                 {
-                    //ShowHelpFor(null);
                     ShowVersion();
                 }
             }
@@ -626,11 +563,7 @@ namespace csscript
                             return "";
 
                         string script = args[firstScriptArg];
-#if net1
-                        ArrayList dirs = new ArrayList();
-#else
                         List<string> dirs = new List<string>();
-#endif
                         string libDir = Environment.ExpandEnvironmentVariables("%CSSCRIPT_DIR%" + Path.DirectorySeparatorChar + "lib");
                         if (!libDir.StartsWith("%"))
                             dirs.Add(libDir);
@@ -640,11 +573,7 @@ namespace csscript
 
                         dirs.Add(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName());
 
-#if net1
-                        string[] searchDirs = (string[])dirs.ToArray(typeof(string));
-#else
                         string[] searchDirs = dirs.ToArray();
-#endif
                         script = FileParser.ResolveFile(script, searchDirs);
                         if (options.customConfigFileName != "")
                             return Path.Combine(Path.GetDirectoryName(script), options.customConfigFileName);
@@ -728,9 +657,6 @@ namespace csscript
                     {
                         Console.WriteLine(AppInfo.appLogo);
                     }
-
-                    if (Environment.GetEnvironmentVariable("EntryScript") == null)
-                        Environment.SetEnvironmentVariable("EntryScript", Path.GetFullPath(options.scriptFileName));
 
                     if (options.verbose)
                     {
@@ -892,11 +818,9 @@ namespace csscript
                         string path = Environment.GetEnvironmentVariable("PATH");
                         foreach (string s in options.searchDirs)
                             path += ";" + s;
-#if net1
-                            SetEnvironmentVariable("PATH", path);
-#else
+
                         Environment.SetEnvironmentVariable("PATH", path);
-#endif
+
                         //it is possible that there are fully compiled/cached and up to date script but no host compiled yet
                         string host = ScriptLauncherBuilder.GetLauncherName(assemblyFileName);
                         bool surrogateHostMissing = (options.useSurrogateHostingProcess &&
@@ -1098,7 +1022,6 @@ namespace csscript
 
         static void SaveDebuggingMetadata(string scriptFile)
         {
-#if !net1
             var dir = Path.Combine(GetScriptTempDir(), "DbgAttach");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
@@ -1124,7 +1047,6 @@ namespace csscript
                     catch { }
                 }
             }
-#endif
         }
 
         /// <summary>
@@ -1403,11 +1325,7 @@ namespace csscript
         {
             UniqueAssemblyLocations requestedRefAsms = new UniqueAssemblyLocations();
 
-#if net1
-            ArrayList refAssemblies = new ArrayList();
-#else
             List<string> refAssemblies = new List<string>();
-#endif
             if (options.shareHostRefAssemblies)
                 foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
                 {
@@ -2165,7 +2083,6 @@ namespace csscript
         {
             throw new NotImplementedException();
         }
-
         #endregion Class methods...
     }
 }
