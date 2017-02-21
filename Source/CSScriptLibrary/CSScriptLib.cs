@@ -1138,6 +1138,7 @@ namespace CSScriptLibrary
             options.reportDetailedErrorInfo = settings.ReportDetailedErrorInfo;
             options.cleanupShellCommand = settings.CleanupShellCommand;
             options.customHashing = settings.CustomHashing;
+            options.enableDbgPrint = settings.EnableDbgPrint;
             options.inMemoryAsm = settings.InMemoryAssembly;
             options.hideCompilerWarnings = settings.HideCompilerWarnings;
             options.TargetFramework = settings.TargetFramework;

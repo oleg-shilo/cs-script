@@ -1190,7 +1190,6 @@ namespace csscript
         {
             ICodeCompiler compiler;
 
-
             if (options.altCompiler == "" || scriptFileName.EndsWith(".cs")) //injection code syntax is C# compatible
             {
                 if (options.InjectScriptAssemblyAttribute)
@@ -1374,8 +1373,15 @@ namespace csscript
 
             if (options.enableDbgPrint)
             {
-                addByAsmName("System.Linq"); // Implementation of System.Linq namespace
-                addByAsmName("System.Core"); //dependency of System.Linq namespace assembly
+                if (Utils.IsNet40Plus())
+                {
+                    addByAsmName("System.Linq"); // Implementation of System.Linq namespace
+                    addByAsmName("System.Core"); // dependency of System.Linq namespace assembly
+                }
+                else
+                {
+                    addByAsmName("System.Core"); // The whole System.Linq namespace assembly
+                }
             }
 
             AssemblyResolver.ignoreFileName = Path.GetFileNameWithoutExtension(parser.ScriptPath) + ".dll";
