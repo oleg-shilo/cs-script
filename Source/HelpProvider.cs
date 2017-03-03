@@ -689,7 +689,7 @@ namespace csscript
                 dotNetVer = GetDotNetVersion.Get45PlusFromRegistry();
 
 
-            builder.Append(AppInfo.appLogo.TrimEnd() + " www.csscript.net\n");
+            builder.Append(AppInfo.appLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script)\n");
             builder.Append("\n");
             builder.Append("   CLR:             " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : "") + "\n");
             builder.Append("   System:          " + Environment.OSVersion + "\n");

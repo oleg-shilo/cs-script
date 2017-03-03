@@ -2153,6 +2153,17 @@ namespace CSScriptLibrary
         public static bool CacheEnabled = true;
 
         /// <summary>
+        /// Ignores the system wide configuration for CS-Script (e.g. default referenced assemblies, alternative compiler).
+        /// </summary>
+        /// <returns>Folder where the current system wide configuration file (css_config.xml) is located.</returns>
+        public static string IgnoreSystemWideConfig()
+        {
+            var config_path = Environment.GetEnvironmentVariable("CSSCRIPT_DIR");
+                Environment.SetEnvironmentVariable("CSSCRIPT_DIR", null);
+            return config_path;
+        }
+
+        /// <summary>
         /// The resolve source file algorithm.
         /// <para>
         /// The default algorithm searches for script file by given script name. Search order:

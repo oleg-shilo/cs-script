@@ -1256,7 +1256,7 @@ namespace csscript
 
             if (options.autoClass)
             {
-                AutoclassPrecompiler.decorateAutoClassAsCS6 = options.decorateAutoClassAsCS6;
+                AutoclassPrecompiler.decorateAutoClassAsCS6 = (options.decorateAutoClassAsCS6 && options.enableDbgPrint);
                 if (retval.ContainsKey(Assembly.GetExecutingAssembly().Location))
                     retval[Assembly.GetExecutingAssembly().Location].Add(new AutoclassPrecompiler());
                 else

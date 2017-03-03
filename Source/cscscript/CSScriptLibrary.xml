@@ -104,7 +104,7 @@
         </member>
         <member name="T:csscript.Project">
             <summary>
-            Class that holds all information about the execution context 
+            Class that holds all information about the execution context
             (probing directories and dependencies) of a script.
             </summary>
         </member>
@@ -115,7 +115,7 @@
         </member>
         <member name="F:csscript.Project.Files">
             <summary>
-            List of all C# sources defined by the project. This 
+            List of all C# sources defined by the project. This
             includes the primary script itself and all other scripts files the imported/included
             by the primary script.
             </summary>
@@ -127,16 +127,16 @@
         </member>
         <member name="F:csscript.Project.SearchDirs">
             <summary>
-            List of search folders where CS-Script does probing for 
+            List of search folders where CS-Script does probing for
             imported/included scripts and assemblies.
             </summary>
         </member>
         <member name="M:csscript.Project.GenerateProjectFor(System.String)">
             <summary>
-            Generates the top level view project for a given script. 
+            Generates the top level view project for a given script.
             <para>
             Note this method uses the same algorithm as CS-Script executor but it deliberately doesn't
-            include cached directories and auto-generated files. This method is to be used by IDs and tools. 
+            include cached directories and auto-generated files. This method is to be used by IDs and tools.
             </para>
             </summary>
             <param name="script">The script.</param>

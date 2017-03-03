@@ -18,7 +18,7 @@ using System.Xml;
 namespace csscript
 {
     /// <summary>
-    /// Class that holds all information about the execution context 
+    /// Class that holds all information about the execution context
     /// (probing directories and dependencies) of a script.
     /// </summary>
     public class Project
@@ -28,28 +28,28 @@ namespace csscript
         /// </summary>
         public string Script;
         /// <summary>
-        /// List of all C# sources defined by the project. This 
+        /// List of all C# sources defined by the project. This
         /// includes the primary script itself and all other scripts files the imported/included
         /// by the primary script.
         /// </summary>
         public string[] Files;
-                     
+
         /// <summary>
         /// List of assemblies the script of the project is referencing.
         /// </summary>
         public string[] Refs;
 
         /// <summary>
-        /// List of search folders where CS-Script does probing for 
+        /// List of search folders where CS-Script does probing for
         /// imported/included scripts and assemblies.
         /// </summary>
         public string[] SearchDirs;
 
         /// <summary>
-        /// Generates the top level view project for a given script. 
+        /// Generates the top level view project for a given script.
         /// <para>
         /// Note this method uses the same algorithm as CS-Script executor but it deliberately doesn't
-        /// include cached directories and auto-generated files. This method is to be used by IDs and tools. 
+        /// include cached directories and auto-generated files. This method is to be used by IDs and tools.
         /// </para>
         /// </summary>
         /// <param name="script">The script.</param>
@@ -139,7 +139,7 @@ namespace csscript
                 items.dirs.AddRange(splitPathItems(DefaultSearchDirs ?? ""));
                 items.asms.AddRange(splitPathItems(DefaultRefAsms ?? ""));
                 items.namespaces.AddRange(splitPathItems(DefaultNamespaces ?? ""));
-                
+
                 var configFile = GetCSSConfig();
                 var settings = Settings.Load(configFile);
 
