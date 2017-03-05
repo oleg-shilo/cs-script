@@ -11,15 +11,15 @@ using System.Runtime.InteropServices;
 #else
 [assembly: AssemblyDescription("C# Script engine Console executable")]
 #endif
-[assembly: AssemblyConfiguration("")] 
+[assembly: AssemblyConfiguration("")]
 
 [assembly: AssemblyProduct("C# Script engine")]
-[assembly: AssemblyCopyright("(C) 2004-2017 Oleg Shilo")] 
+[assembly: AssemblyCopyright("(C) 2004-2017 Oleg Shilo")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 #if dev
-[assembly: InternalsVisibleTo("Tests")] 
+[assembly: InternalsVisibleTo("Tests")]
 #endif
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from
@@ -36,5 +36,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("3.24.1.0")]
-[assembly: AssemblyFileVersion("3.24.1.0")]
+[assembly: AssemblyVersion("3.24.2.0")]
+[assembly: AssemblyFileVersion("3.24.2.0")]

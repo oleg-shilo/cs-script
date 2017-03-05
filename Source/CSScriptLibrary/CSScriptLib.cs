@@ -677,7 +677,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether setting 'location:&lt;assm_hash7gt;' environment variable is enabled.
+        /// Gets or sets a value indicating whether setting 'location:&lt;assm_hash&gt;' environment variable is enabled.
         /// <para>
         /// This variable is useful for finding the compiled assembly file from the inside of the script code.
         /// Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file.
