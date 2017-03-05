@@ -676,6 +676,27 @@ namespace CSScriptLibrary
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether setting 'location:&lt;assm_hash7gt;' environment variable is enabled.
+        /// <para>
+        /// This variable is useful for finding the compiled assembly file from the inside of the script code.
+        /// Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file.
+        /// </para>
+        /// <code>
+        /// // called from the script code
+        /// var asm_hash = Assembly.GetExecutingAssembly().GetHashCode();
+        /// var script_location = Environment.GetEnvironmentVariable(\"location:\" + asm_hash);
+        /// </code>
+        /// <para>
+        /// Enabling script reflection can lead to exhausting the capacity of the process environment variables dictionary.
+        /// That is why this feature is disabled by default.
+        /// </para>
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if script location reflection is enabled otherwise, <c>false</c>.
+        /// </value>
+        static public bool EnableScriptLocationReflection { get; set; }
+
         static bool assemblyResolvingEnabled = true; //default value will be set from the static constructor to ensure the property setter execution
 
         /// <summary>
@@ -2046,7 +2067,7 @@ namespace CSScriptLibrary
                             if (retval != null)
                                 scriptCache.Add(new LoadedScript(scriptFile, retval));
 
-                            RemoteExecutor.SetScriptReflection(retval, outputFile);
+                            RemoteExecutor.SetScriptReflection(retval, outputFile, CSScript.EnableScriptLocationReflection);
                         }
                         return retval;
                     }
@@ -2159,7 +2180,7 @@ namespace CSScriptLibrary
         public static string IgnoreSystemWideConfig()
         {
             var config_path = Environment.GetEnvironmentVariable("CSSCRIPT_DIR");
-                Environment.SetEnvironmentVariable("CSSCRIPT_DIR", null);
+            Environment.SetEnvironmentVariable("CSSCRIPT_DIR", null);
             return config_path;
         }
 

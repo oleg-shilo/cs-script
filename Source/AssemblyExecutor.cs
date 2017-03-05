@@ -13,20 +13,20 @@
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2017 Oleg Shilo
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all copies or substantial 
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
 // portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
@@ -63,10 +63,10 @@ namespace csscript
             // CreateInstanceAndUnwrap instead of CreateInstanceFromAndUnwrap
             //
             // setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            // instead of setup.ApplicationBase = Path.GetDirectoryName(assemblyFileName); 
+            // instead of setup.ApplicationBase = Path.GetDirectoryName(assemblyFileName);
             //
-            // In 2016 just discovered that InitLegacy doesn't longer work. May be because some changes in .NET versions...  
-            // This is a low impact change as AssemblyExecutor is only used for cached vs. non-cached execution in stand alone 
+            // In 2016 just discovered that InitLegacy doesn't longer work. May be because some changes in .NET versions...
+            // This is a low impact change as AssemblyExecutor is only used for cached vs. non-cached execution in stand alone
             // hosting mode.
 
             assemblyFileName = fileName;
@@ -203,14 +203,20 @@ namespace csscript
                 asmLock.Release();
             }
 
-            SetScriptReflection(assembly, Path.GetFullPath(filename));
+#if InterfaceAssembly
+            SetScriptReflection(assembly, Path.GetFullPath(filename), CSScript.EnableScriptLocationReflection);
+#else
+            SetScriptReflection(assembly, Path.GetFullPath(filename), true);
+#endif
+
 
             InvokeStaticMain(assembly, args);
         }
 
-        internal static void SetScriptReflection(Assembly assembly, string location)
+        internal static void SetScriptReflection(Assembly assembly, string location, bool setScriptLocationReflection)
         {
-            Environment.SetEnvironmentVariable("location:" + assembly.GetHashCode(), location);
+            if (setScriptLocationReflection)
+                Environment.SetEnvironmentVariable("location:" + assembly.GetHashCode(), location);
 
             string source = null;
             //Note assembly can contain only single AssemblyDescriptionAttribute

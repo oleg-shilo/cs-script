@@ -403,6 +403,8 @@ namespace csscript
                          "                          This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script code.\n" +
                          "                          Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file.\n" +
                          "                          (e.g. var location = Environment.GetEnvironmentVariable(\"location:\" + Assembly.GetExecutingAssembly().GetHashCode());\n" +
+                         "                          Note that by default setting of 'location:<assm_hash>' is disabled. You can enable it by calling \n" +
+                         "                          'CSScript.EnableScriptLocationReflection = true'.\n" +
                          "\n" +
                          "The following is the optional set of environment variables that the script engine uses to improve the user experience:\n" +
                          " 'CSS_NUGET' - location of the NuGet packages scripts can load/reference\n" +
