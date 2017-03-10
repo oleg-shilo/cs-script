@@ -2302,7 +2302,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Compiled script probing handler. Analyses the script file and the compiled script (script assembly)
         /// and determines if the script assembly is out of data and needs to be recompiled.
-        /// <para>The default implementation is <see cref="CSScriptLibrary.CSScript.CachProbing.Simplified"/>.</para>
+        /// <para>The default implementation is <see cref="CSScriptLibrary.CSScript.CachProbing.Advanced"/>.</para>
         /// <para>You can always supply your custom algorithm. For example <p>
         /// <c>CSScript.IsOutOfDateAlgorithm = (s, a) => true;</c></p>
         /// fill force CS-Script to recompile the script every time it is loaded.</para>

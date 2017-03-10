@@ -187,8 +187,8 @@ namespace CSScriptLibrary
         ///                                               return a+b;
         ///                                           }
         ///                                       }");
-        ///                                          
-        /// dynamic script =  asm.CreateObject("*"); 
+        ///
+        /// dynamic script =  asm.CreateObject("*");
         /// var result = script.Sum(7, 3);
         /// </code>
         /// </example>
