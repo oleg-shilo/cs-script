@@ -1129,13 +1129,16 @@ namespace CSScriptLibrary
                             }
                         }
 
-                        string retval = exec.Compile(scriptFile, assemblyFile, debugBuild);
-
-                        LastCompilingResult = exec.LastCompileResult;
-                        if (KeepCompilingHistory)
-                            CompilingHistory.Add(new FileInfo(scriptFile), exec.LastCompileResult);
-
-                        return retval;
+                        try
+                        {
+                            return exec.Compile(scriptFile, assemblyFile, debugBuild);
+                        }
+                        finally
+                        {
+                            LastCompilingResult = exec.LastCompileResult;
+                            if (KeepCompilingHistory)
+                                CompilingHistory.Add(new FileInfo(scriptFile), exec.LastCompileResult);
+                        }
                     }
                     finally
                     {
