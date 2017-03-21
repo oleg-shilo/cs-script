@@ -75,7 +75,7 @@ namespace csscript
             setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             setup.PrivateBinPath = AppDomain.CurrentDomain.BaseDirectory;
             setup.ApplicationName = Path.GetFileName(Assembly.GetExecutingAssembly().Location());
-            setup.ShadowCopyFiles = "true";
+            setup.ShadowCopyFiles = Environment.GetEnvironmentVariable("AppDomainSetup.ShadowCopyFiles")??"true";
             setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
             appDomain = AppDomain.CreateDomain(domainName, null, setup);
@@ -92,7 +92,7 @@ namespace csscript
                 setup.ApplicationBase = Path.GetDirectoryName(assemblyFileName);
                 setup.PrivateBinPath = AppDomain.CurrentDomain.BaseDirectory;
                 setup.ApplicationName = Path.GetFileName(Assembly.GetExecutingAssembly().Location());
-                setup.ShadowCopyFiles = "true";
+                setup.ShadowCopyFiles = Environment.GetEnvironmentVariable("AppDomainSetup.ShadowCopyFiles") ?? "true";
                 setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
                 appDomain = AppDomain.CreateDomain(domainName, null, setup);

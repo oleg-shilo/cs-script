@@ -469,7 +469,7 @@ namespace CSScriptLibrary
             AppDomainSetup setup = new AppDomainSetup();
             setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             setup.PrivateBinPath = AppDomain.CurrentDomain.BaseDirectory;
-            setup.ShadowCopyFiles = "true";
+            setup.ShadowCopyFiles = Environment.GetEnvironmentVariable("AppDomainSetup.ShadowCopyFiles") ?? "true";
             setup.ShadowCopyDirectories = setup.ApplicationBase;
 
             if (permissions != null)

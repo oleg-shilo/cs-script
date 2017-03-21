@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 
+
 class Program
 {
     static void Main(string[] args)
@@ -96,7 +97,10 @@ End Module");
             var compilerParams = new CompilerParameters();
             var result = compiler.CompileAssemblyFromFile(compilerParams, @"C:\Users\osh\Documents\C# Scripts\New Script64.cs");
         }
-        catch { }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
         Console.WriteLine("done");
     }
     static void Load_old()
