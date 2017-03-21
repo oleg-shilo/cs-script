@@ -372,7 +372,7 @@ namespace csscript
     /// </summary>
     class AppInfo
     {
-        public static string appName = "cscscript";
+        public static string appName = Assembly.GetExecutingAssembly().GetName().Name;
         public static bool appConsole = true;
 
         public static string appLogo
