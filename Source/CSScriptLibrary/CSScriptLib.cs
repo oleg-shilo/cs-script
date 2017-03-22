@@ -58,6 +58,22 @@ using System.Security.Policy;
 
 namespace CSScriptLibrary
 {
+    public enum HostingConcurrencyControl
+    {
+        /// <summary>
+        /// Any call to CSScript.Compile within a given process is synchronized
+        /// </summary>
+        ProcessScope,
+        /// <summary>
+        /// Any call to CSScript.Compile a specific script within a given process is synchronized
+        /// </summary>
+        ScriptProcessScope,
+        /// <summary>
+        /// Any call to CSScript.Compile a specific script is synchronized system wide
+        /// </summary>
+        ScriptSystemScope,
+    }
+
 #if !net1
 
     /// <summary>
@@ -321,7 +337,7 @@ namespace CSScriptLibrary
         /// <returns>Reference to the <see cref="System.AppDomain"/>. It is the same object, which is passed as the <paramref name="domain"/>.</returns>
         public static AppDomain Execute(this AppDomain domain, Action action, params string[] probingDirs)
         {
-            var remote = (RemoteExecutor) domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(RemoteExecutor).ToString());
+            var remote = (RemoteExecutor)domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(RemoteExecutor).ToString());
             remote.InitProbing(probingDirs);
             remote.Execute(action);
             remote.UninitProbing();
@@ -359,7 +375,7 @@ namespace CSScriptLibrary
         {
             //also possible to serialize lambda and execute it in remote AppDomain (yest it is dangerous)
             //look at MetaLinq\ExpressionBuilder
-            var remote = (RemoteExecutor) domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(RemoteExecutor).ToString());
+            var remote = (RemoteExecutor)domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(RemoteExecutor).ToString());
             remote.InitProbing(probingDirs);
             remote.Execute(action, context);
             remote.UninitProbing();
@@ -751,7 +767,6 @@ namespace CSScriptLibrary
         /// </summary>
         public static Settings GlobalSettings = Settings.Load(Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\css_config.xml"));
 
-#if !net1
 
         /// <summary>
         /// Collection of all compiling results. Every time the script is compiled the compiling result is added to this collection regardless of
@@ -759,9 +774,31 @@ namespace CSScriptLibrary
         /// </summary>
         public static Dictionary<FileInfo, CompilingInfo> CompilingHistory = new Dictionary<FileInfo, CompilingInfo>();
 
+        /// <summary>
+        /// The hosting concurrency control.
+        /// <list type="bullet">
+        /// <item ><description> 
+        /// <para><c>ProcessScope</c></para>
+        /// Mutex name is a derived from the hosting process id.
+        /// Two calls to compile any script will be synchronized if the calls are made from the same host process.
+        /// </description></item>
+        /// <item ><description> 
+        /// <para><c>ScriptProcessScope</c></para>
+        /// Mutex name is a derived from the combination of the script path and hosting process id.
+        /// Two calls to compile the same script file will be synchronized but only if the calls are made from the same host process.
+        /// </description></item>
+        /// <item ><description> 
+        /// <para><c>ScriptSystemScope</c></para>
+        /// Mutex name is a derived from the script path.
+        /// Two calls to compile the same script file will be synchronized system wide.
+        /// </description></item>
+        /// </list>
+        /// </summary>
+        static public HostingConcurrencyControl HostingConcurrencyControl = HostingConcurrencyControl.ScriptSystemScope;
 
         /// <summary>
-        /// The last script compilation result.
+        /// The last script compilation result. Note, invoking CSScript.Compile/CSScript.Load may not trigger the actual compilation if script caching is 
+        /// engaged. Thus the <c>LastCompilingResult</c> value can be null.  
         /// </summary>
         public static CompilingInfo LastCompilingResult = null;
 
@@ -778,8 +815,6 @@ namespace CSScriptLibrary
             get { return keepCompilingHistory; }
             set { keepCompilingHistory = value; }
         }
-
-#endif
 
         /// <summary>
         /// Invokes global (static) CSExecutor (C# script engine)
@@ -1032,12 +1067,7 @@ namespace CSScriptLibrary
             return cssConfigFile != null ? cssConfigFile : Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml");
         }
 
-        static string GetCompilerLockName(string script, Settings scriptSettings)
-        {
-            return GetCompilerLockName(script, scriptSettings.OptimisticConcurrencyModel);
-        }
-
-        static string GetCompilerLockName(string script, bool optimisticConcurrencyModel)
+        static string GetCompilerLockName_old(string script, bool optimisticConcurrencyModel)
         {
             if (optimisticConcurrencyModel)
             {
@@ -1046,6 +1076,33 @@ namespace CSScriptLibrary
             else
             {
                 return string.Format("{0}.{1}", Process.GetCurrentProcess().Id, CSSUtils.GetHashCodeEx(script));
+            }
+        }
+
+        static string GetCompilerLockName(string script)
+        {
+            var scriptPath = Path.GetFullPath(script);
+
+            if (!Utils.IsLinux())
+                scriptPath = scriptPath.ToLower();
+
+            switch (HostingConcurrencyControl)
+            {
+                // Mutex name is a derived from the hosting process id.
+                // Two calls to compile any script will be synchronized if the calls are made from the same host process.
+                case HostingConcurrencyControl.ProcessScope:
+                    return "cs-script." + Process.GetCurrentProcess().Id;
+
+                // Mutex name is a derived from the combination of the script path and hosting process id.
+                // Two calls to compile the same script file will be synchronized but only if the calls are made from the same host process.
+                case HostingConcurrencyControl.ScriptProcessScope:
+                    return string.Format("cs-script.{0}.{1}", Process.GetCurrentProcess().Id, CSSUtils.GetHashCodeEx(scriptPath));
+
+                // Mutex name is a derived from the script path.
+                // Two calls to compile the same script file will be synchronized system wide.
+                case HostingConcurrencyControl.ScriptSystemScope:
+                default:
+                    return "cs-script." + CSSUtils.GetHashCodeEx(scriptPath);
             }
         }
 
@@ -1058,17 +1115,28 @@ namespace CSScriptLibrary
         /// </summary>
         /// <param name="compiledScriptFile">The script file.</param>
         /// <param name="optimisticConcurrencyModel">if set to <c>true</c> the operation is thread-safe within the current process.
-        /// Otherwise the operation is thread-safe system wide..</param>
+        /// Otherwise the operation is thread-safe system wide.</param>
         /// <returns></returns>
-#if !net4
+        [Obsolete("This method is no longer supported use CreateCompilerLock(string compiledScriptFile) instead, which offers more comprehensive concurrency control.")]
         static public Mutex CreateCompilerLock(string compiledScriptFile, bool optimisticConcurrencyModel)
-#else
-        static public Mutex CreateCompilerLock(string compiledScriptFile, bool optimisticConcurrencyModel = false)
-#endif
         {
-            return new Mutex(false, GetCompilerLockName(compiledScriptFile, optimisticConcurrencyModel));
+            return new Mutex(false, GetCompilerLockName(compiledScriptFile));
         }
 
+        /// <summary>
+        /// Creates the compiler lock object (<see cref="System.Threading.Mutex"/>). The Mutex object is now initially owned.
+        /// <para>This object is to be used for the access synchronization to the compiled script file and it can be useful for the
+        /// tasks like cache purging or explicit script recompilation.</para>
+        /// <para>The concurrency/lock scope is controlled by <see cref="CSScriptLibrary.CSScript.Ho"/>.
+        /// And it is to be used to control the concurrency scope.</para>
+        /// </summary>
+        /// <param name="compiledScriptFile">The script file.</param>
+        /// Otherwise the operation is thread-safe system wide.</param>
+        /// <returns></returns>
+        static public Mutex CreateCompilerLock(string compiledScriptFile)
+        {
+            return new Mutex(false, GetCompilerLockName(compiledScriptFile));
+        }
         /// <summary>
         /// Compiles script file into assembly with CSExecutor. Uses script engine settings object and compiler specific options.
         /// </summary>
@@ -1083,7 +1151,7 @@ namespace CSScriptLibrary
         {
             lock (typeof(CSScript))
             {
-                using (Mutex fileLock = new Mutex(false, GetCompilerLockName(assemblyFile, scriptSettings)))
+                using (Mutex fileLock = new Mutex(false, GetCompilerLockName(assemblyFile??scriptFile)))
                 {
                     ExecuteOptions oldOptions = CSExecutor.options;
                     try
@@ -1202,11 +1270,11 @@ namespace CSScriptLibrary
 
             if (scriptFile != "")
             {
-                scriptFile = FileParser.ResolveFile(scriptFile, (string[]) dirs.ToArray(typeof(string))); //to handle the case when the script file is specified by file name only
+                scriptFile = FileParser.ResolveFile(scriptFile, (string[])dirs.ToArray(typeof(string))); //to handle the case when the script file is specified by file name only
                 dirs.Add(Path.GetDirectoryName(scriptFile));
             }
 
-            options.searchDirs = RemovePathDuplicates((string[]) dirs.ToArray(typeof(string)));
+            options.searchDirs = RemovePathDuplicates((string[])dirs.ToArray(typeof(string)));
 
             options.scriptFileName = scriptFile;
 
@@ -1569,7 +1637,7 @@ namespace CSScriptLibrary
             if (lastArg == null || !(lastArg is string))
                 throw new Exception("You did not specify the code to 'Eval'");
 
-            string methodCode = ((string) lastArg).Trim();
+            string methodCode = ((string)lastArg).Trim();
 
             string methodName = methodCode.Split(new char[] { '(', ' ' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
 
@@ -2001,7 +2069,7 @@ namespace CSScriptLibrary
         {
             lock (typeof(CSScript))
             {
-                using (Mutex fileLock = new Mutex(false, GetCompilerLockName(assemblyFile, CSScript.GlobalSettings)))
+                using (Mutex fileLock = new Mutex(false, GetCompilerLockName(assemblyFile??scriptFile)))
                 {
                     ExecuteOptions oldOptions = CSExecutor.options;
 

@@ -486,6 +486,14 @@ namespace csscript
         }
         bool optimisticConcurrencyModel = true;
 
+
+        [Browsable(false)]
+        public bool ConcurrencyModel
+        {
+            get { return optimisticConcurrencyModel; }
+            set { optimisticConcurrencyModel = value; }
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether auto-class decoration should allow C# 6 specific syntax. 
         /// If it does the statement "using static dbg;" will be injected at the start of the auto-class definition thus the 

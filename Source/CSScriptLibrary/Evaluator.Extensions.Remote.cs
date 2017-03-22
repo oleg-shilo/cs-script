@@ -29,8 +29,9 @@ namespace CSScriptLibrary
     public static class AttachedProperies
     {
 #pragma warning disable 1591 // Missing XML comment for publicly visible type or member
-        public static ConditionalWeakTable<object, Dictionary<string, object>> ObjectCache = new ConditionalWeakTable<object, Dictionary<string, object>>();
 #pragma warning restore 1591 // Missing XML comment for publicly visible type or member
+
+        public static ConditionalWeakTable<object, Dictionary<string, object>> ObjectCache = new ConditionalWeakTable<object, Dictionary<string, object>>();
 
         /// <summary>
         /// Sets the named value to the object.

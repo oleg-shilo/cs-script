@@ -57,7 +57,7 @@ public class EvalRemoteExtensions
         // MSTest (or xUnit) loads the test assembly from its build directory but places and loads the
         // dependencies into individual temporary folders (one asm per folder). What a "brilliant" idea!!!
         //
-        // MSText does explicit asm resolving, what helps for MonoEval. However Roslyn resolving
+        // MSTest does explicit asm resolving, what helps for MonoEval. However Roslyn resolving
         // has to be based on name-only algorithm (a version checking) as it has wired dependencies on
         // portable asms. Thus we need to set up special asm probing (extra argument) for Roslyn case.
 

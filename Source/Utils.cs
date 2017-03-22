@@ -444,7 +444,9 @@ namespace csscript
 
         public static bool IsLinux()
         {
-            return (Environment.OSVersion.Platform == PlatformID.Unix);
+            // Note it is not about OS being exactly Linux but rather about OS having Linux type of file system. 
+            // For example path being case sensitive
+            return (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
         }
 
         public static bool ContainsPath(string path, string subPath)
