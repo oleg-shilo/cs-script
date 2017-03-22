@@ -58,6 +58,9 @@ using System.Security.Policy;
 
 namespace CSScriptLibrary
 {
+    /// <summary>
+    /// Enum for controlling concurrency in script hosting scenarios
+    /// </summary>
     public enum HostingConcurrencyControl
     {
         /// <summary>
@@ -1127,11 +1130,10 @@ namespace CSScriptLibrary
         /// Creates the compiler lock object (<see cref="System.Threading.Mutex"/>). The Mutex object is now initially owned.
         /// <para>This object is to be used for the access synchronization to the compiled script file and it can be useful for the
         /// tasks like cache purging or explicit script recompilation.</para>
-        /// <para>The concurrency/lock scope is controlled by <see cref="CSScriptLibrary.CSScript.Ho"/>.
+        /// <para>The concurrency/lock scope is controlled by <see cref="CSScriptLibrary.CSScript.HostingConcurrencyControl"/>.
         /// And it is to be used to control the concurrency scope.</para>
         /// </summary>
         /// <param name="compiledScriptFile">The script file.</param>
-        /// Otherwise the operation is thread-safe system wide.</param>
         /// <returns></returns>
         static public Mutex CreateCompilerLock(string compiledScriptFile)
         {
@@ -1149,10 +1151,30 @@ namespace CSScriptLibrary
         /// <returns>Compiled assembly file name.</returns>
         static public string CompileWithConfig(string scriptFile, string assemblyFile, bool debugBuild, Settings scriptSettings, string compilerOptions, params string[] refAssemblies)
         {
+            CompilingInfo compilingInfo;
+            return CompileWithConfig(scriptFile, assemblyFile, debugBuild, scriptSettings, compilerOptions, out compilingInfo, refAssemblies);
+        }
+
+        /// <summary>
+        /// Compiles script file into assembly with CSExecutor. Uses script engine settings object and compiler specific options.
+        /// </summary>
+        /// <param name="scriptFile">The path to the script file to be compiled.</param>
+        /// <param name="assemblyFile">The path of the compiled assembly to be created. If set to null a temporary file name will be used.</param>
+        /// <param name="debugBuild">'true' if debug information should be included in assembly; otherwise, 'false'.</param>
+        /// <param name="scriptSettings">The script engine Settings object.</param>
+        /// <param name="compilerOptions">The string value to be passed directly to the language compiler.</param>
+        /// <param name="compilingInfo">The compiling information. Populated with the compilation context.</param>
+        /// <param name="refAssemblies">The string array containing file names to the additional assemblies referenced by the script.</param>
+        /// <returns>
+        /// Compiled assembly file name.
+        /// </returns>
+        static public string CompileWithConfig(string scriptFile, string assemblyFile, bool debugBuild, Settings scriptSettings, string compilerOptions, out CompilingInfo compilingInfo, params string[] refAssemblies)
+        {
             lock (typeof(CSScript))
             {
-                using (Mutex fileLock = new Mutex(false, GetCompilerLockName(assemblyFile??scriptFile)))
+                using (Mutex fileLock = new Mutex(false, GetCompilerLockName(assemblyFile ?? scriptFile)))
                 {
+                    compilingInfo = null;
                     ExecuteOptions oldOptions = CSExecutor.options;
                     try
                     {
@@ -1203,7 +1225,7 @@ namespace CSScriptLibrary
                         }
                         finally
                         {
-                            LastCompilingResult = exec.LastCompileResult;
+                            compilingInfo = LastCompilingResult = exec.LastCompileResult;
                             if (KeepCompilingHistory)
                                 CompilingHistory.Add(new FileInfo(scriptFile), exec.LastCompileResult);
                         }
