@@ -351,6 +351,13 @@ namespace csscript
             return GetSinglePackageLibDirs(package, version, null);
         }
 
+        /// <summary>
+        /// Gets the single package library dirs.
+        /// </summary>
+        /// <param name="package">The package.</param>
+        /// <param name="version">The version.</param>
+        /// <param name="rootDir">The root dir.</param>
+        /// <returns></returns>
         static public string[] GetSinglePackageLibDirs(string package, string version, string rootDir)
         {
             List<string> result = new List<string>();
@@ -380,22 +387,30 @@ namespace csscript
 
             if (libVersions.Length != 0)
             {
+                Func<string, string, bool> compatibleWith = (x, y) =>
+                {
+                    return x.StartsWith(y, StringComparison.OrdinalIgnoreCase) || x.IndexOf(y, StringComparison.OrdinalIgnoreCase) != -1;
+                };
+
                 if (Utils.IsNet45Plus())
-                    compatibleVersion = libVersions.FirstOrDefault(x => Path.GetFileName(x).StartsWith("net45", StringComparison.OrdinalIgnoreCase));
+                    compatibleVersion = libVersions.FirstOrDefault(x => compatibleWith(Path.GetFileName(x), "net45"));
 
                 if (compatibleVersion == null && Utils.IsNet40Plus())
-                    compatibleVersion = libVersions.FirstOrDefault(x => Path.GetFileName(x).StartsWith("net40", StringComparison.OrdinalIgnoreCase));
+                    compatibleVersion = libVersions.FirstOrDefault(x => compatibleWith(Path.GetFileName(x), "net40"));
 
                 if (compatibleVersion == null && Utils.IsNet20Plus())
                 {
-                    compatibleVersion = libVersions.FirstOrDefault(x => Path.GetFileName(x).StartsWith("net35", StringComparison.OrdinalIgnoreCase));
+                    compatibleVersion = libVersions.FirstOrDefault(x => compatibleWith(Path.GetFileName(x), "net35"));
 
                     if (compatibleVersion == null)
-                        compatibleVersion = libVersions.FirstOrDefault(x => Path.GetFileName(x).StartsWith("net30", StringComparison.OrdinalIgnoreCase));
+                        compatibleVersion = libVersions.FirstOrDefault(x => compatibleWith(Path.GetFileName(x), "net30"));
 
                     if (compatibleVersion == null)
-                        compatibleVersion = libVersions.FirstOrDefault(x => Path.GetFileName(x).StartsWith("net20", StringComparison.OrdinalIgnoreCase));
+                        compatibleVersion = libVersions.FirstOrDefault(x => compatibleWith(Path.GetFileName(x), "net20"));
                 }
+
+                if (compatibleVersion == null)
+                    compatibleVersion = libVersions.FirstOrDefault(x => compatibleWith(Path.GetFileName(x), "netstandard"));
 
                 if (compatibleVersion != null)
                     result.Add(compatibleVersion);

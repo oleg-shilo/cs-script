@@ -210,7 +210,7 @@ namespace csscript
                                                    "file (e.g. WCF, Remoting).\n\n" +
                                                    "(e.g. if -sconfig is used the expected config file name is <script_name>.cs.config or <script_name>.exe.config\n" +
                                                    "if -sconfig:myApp.config is used the expected config file name is myApp.config)");
-            switch2Help[r] = new ArgInfo("-r:<assembly 1>:<assembly N>",
+            switch2Help[r] = new ArgInfo("-r:<assembly 1>,<assembly N>",
                                                    "Uses explicitly referenced assembly.", "It is required only for " +
                                                    "rare cases when namespace cannot be resolved into assembly.\n" +
                                                    "(e.g. " + AppInfo.appName + " /r:myLib.dll myScript.cs).");
