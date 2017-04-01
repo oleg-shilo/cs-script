@@ -1364,7 +1364,7 @@ namespace csscript
             string[] cmdLineAsms = options.refAssemblies;
             if (!options.useSurrogateHostingProcess)
             {
-                string[] defaultAsms = options.defaultRefAssemblies.Replace(" ", "").Split(";,".ToCharArray());
+                string[] defaultAsms = options.defaultRefAssemblies.Split(";,".ToCharArray()).Select(x=>x.Trim()).ToArray();
 
                 foreach (string asmName in Utils.Concat(defaultAsms, cmdLineAsms))
                     if (asmName != "")

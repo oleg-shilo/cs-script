@@ -255,11 +255,7 @@ namespace CSScriptLibrary
 
         static string[] DefaultFindAssemblyAlgorithm(string name, string[] searchDirs)
         {
-#if net1
-            ArrayList retval = new ArrayList();
-#else
             List<string> retval = new List<string>();
-#endif
 
             if (!IsLegalPathToken(name))
             {

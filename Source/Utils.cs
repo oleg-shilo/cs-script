@@ -242,11 +242,7 @@ namespace csscript
 
         public static string RemoveAssemblyExtension(string asmName)
         {
-#if net1
-            if (asmName.ToLower().EndsWith(".dll") || asmName.ToLower().EndsWith(".exe"))
-#else
             if (asmName.EndsWith(".dll", StringComparison.CurrentCultureIgnoreCase) || asmName.EndsWith(".exe", StringComparison.CurrentCultureIgnoreCase))
-#endif
                 return asmName.Substring(0, asmName.Length - 4);
             else
                 return asmName;
@@ -1438,11 +1434,8 @@ namespace csscript
                     compilerParams.GenerateExecutable = false;
                     compilerParams.GenerateInMemory = false;
                     compilerParams.OutputAssembly = precompilerAsm;
-#if net1
-                    ArrayList refAssemblies = new ArrayList();
-#else
+
                     List<string> refAssemblies = new List<string>();
-#endif
 
                     //add local and global assemblies (if found) that have the same assembly name as a namespace
                     foreach (string nmSpace in parser.ReferencedNamespaces)

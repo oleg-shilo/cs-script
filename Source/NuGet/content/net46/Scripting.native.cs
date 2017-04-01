@@ -1,5 +1,9 @@
 using CSScriptLibrary;
 using System;
+using System.Linq;
+using System.IO;
+using csscript;
+using System.CodeDom.Compiler;
 
 // Read in more details about all aspects of CS-Script hosting in applications 
 // here: http://www.csscript.net/help/Script_hosting_guideline_.html
@@ -44,7 +48,7 @@ namespace CSScriptNativeApi
             //CodeDomSamples.DebugTest(); //uncomment if want to fire an assertion during the script execution
         }
 
-        class CodeDomSamples
+        public class CodeDomSamples
         {
             public static void LoadMethod_Instance()
             {
@@ -120,13 +124,30 @@ namespace CSScriptNativeApi
                 int r = Sqr(3);
             }
 
+            public static void LoadCode()
+            {
+                // LoadCode compiles code and returns instance of a first class 
+                // in the compiled assembly  
+
+                dynamic script = CSScript.LoadCode(@"using System;
+                                                     public class Script
+                                                     {
+                                                         public int Sum(int a, int b)
+                                                         {
+                                                             return a+b;
+                                                         }
+                                                     }")
+                                         .CreateObject("*");
+
+                int result = script.Sum(1, 2);
+            }
+
             public static void LoadCodeWithConfig()
             {
                 // LoadCode compiles code and returns instance of a first class 
                 // in the compiled assembly  
 
                 string file = Path.GetTempFileName();
-
                 try
                 {
                     File.WriteAllText(file, @"using System;
@@ -153,31 +174,13 @@ namespace CSScriptNativeApi
                 }
             }
 
-            public static void LoadCode()
-            {
-                // LoadCode compiles code and returns instance of a first class 
-                // in the compiled assembly  
-
-                dynamic script = CSScript.LoadCode(@"using System;
-                                                     public class Script
-                                                     {
-                                                         public int Sum(int a, int b)
-                                                         {
-                                                             return a+b;
-                                                         }
-                                                     }")
-                                         .CreateObject("*");
-
-                int result = script.Sum(1, 2);
-            }
-
             public static void LoadCode_WithInterface(HostApp host)
             {
                 // 1 - LoadCode compiles code and returns instance of a first class in the compiled assembly. 
                 // 2 - The script class implements host app interface so the returned object can be type casted into it.
                 // 3 - In this sample host object is passed into script routine.
 
-                var calc = (ICalc)CSScript.LoadCode(@"using CSScriptNativeApi;
+                var calc = (ICalc) CSScript.LoadCode(@"using CSScriptNativeApi;
                                                       public class Script : ICalc
                                                       { 
                                                           public int Sum(int a, int b)
@@ -202,11 +205,11 @@ namespace CSScriptNativeApi
                 // 3 - In this sample host object is passed into script routine.
 
                 //This use-case uses Interface Alignment and this requires all assemblies involved to have 
-                //non -empty Assembly.Location 
+                //non-empty Assembly.Location 
                 CSScript.GlobalSettings.InMemoryAssembly = false;
 
                 ICalc calc = CSScript.LoadCode(@"using CSScriptNativeApi;
-                                                 public class Script : ICalc
+                                                 public class Script  
                                                  { 
                                                      public int Sum(int a, int b)
                                                      {
@@ -239,7 +242,7 @@ namespace CSScriptNativeApi
                 //   to prevent that. See LifetimeManagement.cs sample for details.  
 
                 //This use-case uses Interface Alignment and this requires all assemblies involved to have 
-                //non -empty Assembly.Location 
+                //non-empty Assembly.Location 
                 CSScript.GlobalSettings.InMemoryAssembly = false;
 
                 var code = @"using System;
@@ -294,5 +297,58 @@ namespace CSScriptNativeApi
         HostApp Host { get; set; }
 
         int Sum(int a, int b);
+    }
+
+    public class Samples
+    {
+        static public void CompilingHistory()
+        {
+            string script = Path.GetTempFileName();
+            string scriptAsm = script + ".dll";
+            CSScript.KeepCompilingHistory = true;
+
+            try
+            {
+                File.WriteAllText(script, @"using System;
+                                            using System.Windows.Forms;
+                                            public class Script
+                                            {
+                                                public int Sum(int a, int b)
+                                                {
+                                                    return a+b;
+                                                }
+                                            }");
+
+
+
+                CSScript.CompileFile(script, scriptAsm, false, null);
+
+                CompilingInfo info = CSScript.CompilingHistory
+                                             .Values
+                                             .FirstOrDefault(item => item.ScriptFile == script);
+                if (info != null)
+                {
+                    Console.WriteLine("Script: " + info.ScriptFile);
+
+                    Console.WriteLine("Referenced assemblies:");
+                    foreach (string asm in info.Input.ReferencedAssemblies)
+                        Console.WriteLine(asm);
+
+                    if (info.Result.Errors.HasErrors)
+                    {
+                        foreach (CompilerError err in info.Result.Errors)
+                            if (!err.IsWarning)
+                                Console.WriteLine("Error: " + err.ErrorText);
+                    }
+                }
+
+                CSScript.CompilingHistory.Clear();
+
+            }
+            finally
+            {
+                CSScript.KeepCompilingHistory = false;
+            }
+        }
     }
 }

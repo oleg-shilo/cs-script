@@ -88,6 +88,10 @@ namespace CSScriptEvaluatorExtensions
 
             public async void LoadCodeAsync()
             {
+                //This use-case uses Interface Alignment and this requires all assemblies involved to have 
+                //non-empty Assembly.Location 
+                CSScript.GlobalSettings.InMemoryAssembly = false;
+
                 ICalc calc = await CSScript.Evaluator
                                            .LoadCodeAsync<ICalc>(
                                                   @"using System;
@@ -158,15 +162,15 @@ namespace CSScriptEvaluatorExtensions
 
             public void CreateDelegateRemotely()
             {
-var sum = CSScript.Evaluator
-                    .CreateDelegateRemotely<int>(@"int Sum(int a, int b)
+                var sum = CSScript.Evaluator
+                                    .CreateDelegateRemotely<int>(@"int Sum(int a, int b)
                                                     {
                                                         return a+b;
                                                     }");
 
-Console.WriteLine("{0}: {1}", nameof(CreateDelegateRemotely), sum(15, 3));
+                Console.WriteLine("{0}: {1}", nameof(CreateDelegateRemotely), sum(15, 3));
 
-sum.UnloadOwnerDomain();
+                sum.UnloadOwnerDomain();
             }
 
             public void LoadCodeRemotely()
@@ -177,6 +181,11 @@ sum.UnloadOwnerDomain();
                 // duck-typed proxies and CodeDomEvaluator needs to be used explicitly.
                 // Note class Calc also inherits from MarshalByRefObject. This is required for all object that 
                 // are passed between AppDomain: they must inherit from MarshalByRefObject or be serializable.
+
+                //This use-case uses Interface Alignment and this requires all assemblies involved to have 
+                //non-empty Assembly.Location 
+                CSScript.GlobalSettings.InMemoryAssembly = false;
+
                 var script = CSScript.CodeDomEvaluator
                                      .LoadCodeRemotely<ICalc>(
                                                       @"using System;
@@ -232,20 +241,25 @@ sum.UnloadOwnerDomain();
                 // added automatically by CS-Script. The auto-generated class declaration also indicates 
                 // that the class implements ICalc interface. Meaning that it will trigger compile error
                 // if the set of methods in the script code doesn't implement all interface members.
-var script = CSScript.Evaluator
-                        .LoadMethodRemotely<IFullCalc>(
-                                        @"public int Sum(int a, int b)
-                                            {
-                                                return a+b;
-                                            }
-                                            public int Sub(int a, int b)
-                                            {
-                                                return a-b;
-                                            }");
 
-Console.WriteLine("{0}: {1}", nameof(LoadMethodRemotely), script.Sum(15, 3));
+                //This use-case uses Interface Alignment and this requires all assemblies involved to have 
+                //non-empty Assembly.Location 
+                CSScript.GlobalSettings.InMemoryAssembly = false;
 
-script.UnloadOwnerDomain();
+                var script = CSScript.Evaluator
+                                        .LoadMethodRemotely<IFullCalc>(
+                                                        @"public int Sum(int a, int b)
+                                                            {
+                                                                return a+b;
+                                                            }
+                                                            public int Sub(int a, int b)
+                                                            {
+                                                                return a-b;
+                                                            }");
+
+                Console.WriteLine("{0}: {1}", nameof(LoadMethodRemotely), script.Sum(15, 3));
+
+                script.UnloadOwnerDomain();
             }
 
             MethodDelegate sum;
@@ -275,6 +289,7 @@ script.UnloadOwnerDomain();
     public interface IFullCalc
     {
         int Sum(int a, int b);
+
         int Sub(int a, int b);
     }
 }

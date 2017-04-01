@@ -37,6 +37,15 @@
             Application specific runtime settings
             </summary>
         </member>
+        <member name="M:csscript.NuGet.GetSinglePackageLibDirs(System.String,System.String,System.String)">
+            <summary>
+            Gets the single package library dirs.
+            </summary>
+            <param name="package">The package.</param>
+            <param name="version">The version.</param>
+            <param name="rootDir">The root dir.</param>
+            <returns></returns>
+        </member>
         <member name="T:csscript.PrecompilationContext">
             <summary>
             This class is a container for information related to the script precompilation.
