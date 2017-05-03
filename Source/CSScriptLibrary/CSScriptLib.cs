@@ -67,10 +67,12 @@ namespace CSScriptLibrary
         /// Any call to CSScript.Compile within a given process is synchronized
         /// </summary>
         ProcessScope,
+
         /// <summary>
         /// Any call to CSScript.Compile a specific script within a given process is synchronized
         /// </summary>
         ScriptProcessScope,
+
         /// <summary>
         /// Any call to CSScript.Compile a specific script is synchronized system wide
         /// </summary>
@@ -178,6 +180,7 @@ namespace CSScriptLibrary
         /// Initializes a new instance of the <see cref="SimpleAsmProbing"/> class.
         /// </summary>
         public SimpleAsmProbing() { }
+
         /// <summary>
         /// Creates and initializes a new instance of the <see cref="SimpleAsmProbing"/> class.
         /// </summary>
@@ -467,6 +470,7 @@ namespace CSScriptLibrary
                 return location;
             return null;
         }
+
 #endif
 
         /// <summary>
@@ -479,6 +483,7 @@ namespace CSScriptLibrary
         /// <param name="fullyTrustedAssemblies">The fully trusted assemblies.</param>
         /// <returns>The newly created <see cref="System.AppDomain"/>.</returns>
 #if net4
+
         public static AppDomain Clone(this AppDomain domain, string name, PermissionSet permissions = null, params StrongName[] fullyTrustedAssemblies)
 #else
 
@@ -529,6 +534,7 @@ namespace CSScriptLibrary
 #if net1
         public static T With<T>(T obj, Action<T> action)
 #else
+
         public static T With<T>(this T obj, Action<T> action)
 #endif
         {
@@ -770,7 +776,6 @@ namespace CSScriptLibrary
         /// </summary>
         public static Settings GlobalSettings = Settings.Load(Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\css_config.xml"));
 
-
         /// <summary>
         /// Collection of all compiling results. Every time the script is compiled the compiling result is added to this collection regardless of
         /// the success or failure of the actual compilation.
@@ -780,17 +785,17 @@ namespace CSScriptLibrary
         /// <summary>
         /// The hosting concurrency control.
         /// <list type="bullet">
-        /// <item ><description> 
+        /// <item ><description>
         /// <para><c>ProcessScope</c></para>
         /// Mutex name is a derived from the hosting process id.
         /// Two calls to compile any script will be synchronized if the calls are made from the same host process.
         /// </description></item>
-        /// <item ><description> 
+        /// <item ><description>
         /// <para><c>ScriptProcessScope</c></para>
         /// Mutex name is a derived from the combination of the script path and hosting process id.
         /// Two calls to compile the same script file will be synchronized but only if the calls are made from the same host process.
         /// </description></item>
-        /// <item ><description> 
+        /// <item ><description>
         /// <para><c>ScriptSystemScope</c></para>
         /// Mutex name is a derived from the script path.
         /// Two calls to compile the same script file will be synchronized system wide.
@@ -800,8 +805,8 @@ namespace CSScriptLibrary
         static public HostingConcurrencyControl HostingConcurrencyControl = HostingConcurrencyControl.ScriptSystemScope;
 
         /// <summary>
-        /// The last script compilation result. Note, invoking CSScript.Compile/CSScript.Load may not trigger the actual compilation if script caching is 
-        /// engaged. Thus the <c>LastCompilingResult</c> value can be null.  
+        /// The last script compilation result. Note, invoking CSScript.Compile/CSScript.Load may not trigger the actual compilation if script caching is
+        /// engaged. Thus the <c>LastCompilingResult</c> value can be null.
         /// </summary>
         public static CompilingInfo LastCompilingResult = null;
 
@@ -1028,8 +1033,6 @@ namespace CSScriptLibrary
             return CompileFile(scriptFile, null, false, refAssemblies);
         }
 
-
-
         /// <summary>
         /// Compiles script file into assembly with CSExecutor. Uses specified config file to load script engine settings.
         /// </summary>
@@ -1139,6 +1142,7 @@ namespace CSScriptLibrary
         {
             return new Mutex(false, GetCompilerLockName(compiledScriptFile));
         }
+
         /// <summary>
         /// Compiles script file into assembly with CSExecutor. Uses script engine settings object and compiler specific options.
         /// </summary>
@@ -1256,6 +1260,7 @@ namespace CSScriptLibrary
             options.inMemoryAsm = settings.InMemoryAssembly;
             options.hideCompilerWarnings = settings.HideCompilerWarnings;
             options.TargetFramework = settings.TargetFramework;
+            options.defaultRefAssemblies = settings.ExpandDefaultRefAssemblies();
             options.doCleanupAfterNumberOfRuns = settings.DoCleanupAfterNumberOfRuns;
             options.useCompiled = CSScript.CacheEnabled;
             options.useSurrogateHostingProcess = false; //regardless of the input useSurrogateHostingProcess is not appropriate for teh hosting scenarios, so set it to 'false'
@@ -1367,6 +1372,7 @@ namespace CSScriptLibrary
         }
 
 #if !net1
+
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>Scripting.DynamicClass</c>), evaluates it and loads the class to the current AppDomain.
         /// <para>Returns instance of <see cref="CSScriptLibrary.MethodDelegate"/> for the first method in the auto-generated class.</para>
@@ -1419,6 +1425,7 @@ namespace CSScriptLibrary
                 return LoadMethod(methodCode, assemblyFile, debugBuild, refAssemblies).GetStaticMethod<T>();
             }
         }
+
 #endif
 
         /// <summary>
@@ -1444,6 +1451,7 @@ namespace CSScriptLibrary
         }
 
 #if !net1
+
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>Scripting.DynamicClass</c>), evaluates it and loads the class to the current AppDomain.
         /// <para>Returns instance of <see cref="CSScriptLibrary.MethodDelegate"/> for the first method in the auto-generated class.</para>
@@ -1509,6 +1517,7 @@ namespace CSScriptLibrary
                 return LoadCode(code, null, false).GetStaticMethod<T>();
             }
         }
+
 #endif
         static string evalNamespaces;
 
@@ -1534,6 +1543,7 @@ namespace CSScriptLibrary
         /// The <c>Eval</c> namespaces.
         /// </value>
 #if !net35 && !net1
+
         [Obsolete("This type member will be removed in the future releases. Please use CSScript.Evaluator instead.", true)]
 #endif
         public static string EvalNamespaces
@@ -1598,6 +1608,7 @@ namespace CSScriptLibrary
         /// <param name="methodCode">The method code.</param>
         /// <returns>Delegate with the "evaluated" routine. It can be invoked as any .NET delegate.</returns>
 #if !net35 && !net1
+
         [Obsolete("This type member will be removed in the future releases. Please use CSScript.Evaluator instead.", true)]
 #endif
         static public MethodDelegate BuildEval(string methodCode)
@@ -1647,6 +1658,7 @@ namespace CSScriptLibrary
         /// <param name="args">Collection of the method parameters followed by the method code.</param>
         /// <returns>The return value of the method being "evaluated"</returns>
 #if !net35 && !net1
+
         [Obsolete("This type member will be removed in the future releases. Please use CSScript.Evaluator instead.", true)]
 #endif
         static public object Eval(params object[] args)
@@ -1680,6 +1692,7 @@ namespace CSScriptLibrary
         }
 
 #if !net35 && !net1
+
         [Obsolete("This type member will be removed in the future releases. Please use CSScript.Evaluator instead.")]
 #endif
         static string GenerateEvalSourceCode(string methodCode, out string[] refAssemblies, bool injectClassDef)
@@ -1761,6 +1774,7 @@ namespace CSScriptLibrary
         }
 
 #if !net35 && !net1
+
         static internal string WrapMethodToAutoClass(string methodCode, bool injectStatic, bool injectNamespace, string inheritFrom = null)
 #else
         static internal string WrapMethodToAutoClass(string methodCode, bool injectStatic, bool injectNamespace, string inheritFrom)
@@ -1909,6 +1923,7 @@ namespace CSScriptLibrary
         {
             return LoadCode(File.ReadAllText(scriptFile), tempFileExtension, assemblyFile, debugBuild, refAssemblies);
         }
+
         /// <summary>
         /// Compiles script code into assembly with CSExecutor and loads it in current AppDomain.
         /// </summary>
@@ -2062,7 +2077,6 @@ namespace CSScriptLibrary
             }
         }
 
-
         /// <summary>
         /// Compiles script file into assembly with CSExecutor and loads it in current AppDomain
         /// </summary>
@@ -2091,7 +2105,7 @@ namespace CSScriptLibrary
         {
             lock (typeof(CSScript))
             {
-                using (Mutex fileLock = new Mutex(false, GetCompilerLockName(assemblyFile??scriptFile)))
+                using (Mutex fileLock = new Mutex(false, GetCompilerLockName(assemblyFile ?? scriptFile)))
                 {
                     ExecuteOptions oldOptions = CSExecutor.options;
 
@@ -2117,8 +2131,11 @@ namespace CSScriptLibrary
                             foreach (string file in refAssemblies)
                             {
                                 dir = Path.GetDirectoryName(file);
-                                CSExecutor.options.AddSearchDir(dir); //settings used by Compiler
-                                CSScript.GlobalSettings.AddSearchDir(dir); //settings used by AsmHelper
+                                if (!string.IsNullOrEmpty(dir))
+                                {
+                                    CSExecutor.options.AddSearchDir(dir); //settings used by Compiler
+                                    CSScript.GlobalSettings.AddSearchDir(dir); //settings used by AsmHelper
+                                }
                             }
                             CSExecutor.options.refAssemblies = refAssemblies;
                         }
@@ -2415,6 +2432,7 @@ namespace CSScriptLibrary
         /// will force CS-Script to recompile the script every time it is loaded.</para>
         /// </summary>
 #if !net35 && !net1
+
         [Obsolete("This type member will be removed in the future releases. Please use CSScript.Evaluator instead.")]
 #endif
         public static IsOutOfDateResolver IsOutOfDate
