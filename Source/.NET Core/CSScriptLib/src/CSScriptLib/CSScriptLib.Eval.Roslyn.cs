@@ -28,7 +28,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
-#endregion Licence...
+#endregion License...
 
 using System;
 using System.Collections.Generic;
@@ -37,6 +37,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+
 //using Microsoft.CodeAnalysis;
 //using Microsoft.CodeAnalysis.CSharp.Scripting;
 //using Microsoft.CodeAnalysis.Scripting;
@@ -56,10 +57,10 @@ using Microsoft.CodeAnalysis.Emit;
 // Roslyn limitations:
 // Script cannot have namespaces
 // File-less (in-memory assemblies) cannot be referenced
-// The compiled assembly is a file-less assembly so it cannot be referenced in other scripts in a normal way but only via Roslyn 
+// The compiled assembly is a file-less assembly so it cannot be referenced in other scripts in a normal way but only via Roslyn
 // All script types are nested classes !????
 // Compiling time is heavily affected by number of ref assemblies (Mono is not affected)
-// Everything (e.g. class code) is compiled as a nested class with the parent class name 
+// Everything (e.g. class code) is compiled as a nested class with the parent class name
 // "Submission#N" and the number-sign makes it extremely difficult to reference from other scripts
 // </summary>
 namespace CSScriptLibrary
@@ -74,7 +75,7 @@ namespace CSScriptLibrary
         /// </summary>
         /// <param name="code">The code.</param>
         /// <returns></returns>
-        public static Assembly Load(string code)
+        public static Assembly Load_obsolete(string code)
         {
             var asmName = CSharpScript.Create(code, ScriptOptions.Default)
                                       .RunAsync()
@@ -83,12 +84,10 @@ namespace CSScriptLibrary
                                       .GetCompilation()
                                       .AssemblyName;
 
-            throw new NotImplementedException(); 
+            throw new NotImplementedException();
             //return Assembly.Load(asmName);
             //return AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(asmName, StringComparison.OrdinalIgnoreCase));
         }
-
-
     }
 
     /// <summary>
@@ -121,17 +120,17 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Clones itself as <see cref="CSScriptLibrary.IEvaluator"/>. 
+        /// Clones itself as <see cref="CSScriptLibrary.IEvaluator"/>.
         /// <para>
-        /// This method returns a freshly initialized copy of the <see cref="CSScriptLibrary.IEvaluator"/>. 
+        /// This method returns a freshly initialized copy of the <see cref="CSScriptLibrary.IEvaluator"/>.
         /// The cloning 'depth' can be controlled by the <paramref name="copyRefAssemblies"/>.
         /// </para>
         /// <para>
-        /// This method is a convenient technique when multiple <see cref="CSScriptLibrary.IEvaluator"/> instances  
+        /// This method is a convenient technique when multiple <see cref="CSScriptLibrary.IEvaluator"/> instances
         /// are required (e.g. for concurrent script evaluation).
         /// </para>
         /// </summary>
-        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced assemblies from the parent <see cref="CSScriptLibrary.IEvaluator"/> 
+        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced assemblies from the parent <see cref="CSScriptLibrary.IEvaluator"/>
         /// will be referenced in the cloned copy.</param>
         /// <returns>The freshly initialized instance of the <see cref="CSScriptLibrary.IEvaluator"/>.</returns>
         public IEvaluator Clone(bool copyRefAssemblies = true)
@@ -160,9 +159,9 @@ namespace CSScriptLibrary
 
         /// <summary>
         /// Loads the assemblies implementing Roslyn compilers.
-        /// <para>Roslyn compilers are extremely heavy and loading the compiler assemblies for with the first 
-        /// evaluation call can take a significant time to complete (in some cases up to 4 seconds) while the consequent 
-        /// calls are very fast. 
+        /// <para>Roslyn compilers are extremely heavy and loading the compiler assemblies for with the first
+        /// evaluation call can take a significant time to complete (in some cases up to 4 seconds) while the consequent
+        /// calls are very fast.
         /// </para>
         /// <para>
         /// You may want to call this method to pre-load the compiler assembly your script evaluation performance.
@@ -174,7 +173,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s). 
+        /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s).
         /// </summary>
         /// <example>
         ///<code>
@@ -187,8 +186,8 @@ namespace CSScriptLibrary
         ///                                               return a+b;
         ///                                           }
         ///                                       }");
-        ///                                          
-        /// dynamic script =  asm.CreateObject("*"); 
+        ///
+        /// dynamic script =  asm.CreateObject("*");
         /// var result = script.Sum(7, 3);
         /// </code>
         /// </example>
@@ -202,16 +201,14 @@ namespace CSScriptLibrary
             //http://www.strathweb.com/2016/03/roslyn-scripting-on-coreclr-net-cli-and-dnx-and-in-memory-assemblies/
             //http://stackoverflow.com/questions/37526165/compiling-and-running-code-at-runtime-in-net-core-1-0
             //https://daveaglick.com/posts/compiler-platform-scripting
-
-            var hookCode = @" class EntryPoint{}; return typeof(EntryPoint).Assembly;";
-            return (Assembly) CSharpScript.EvaluateAsync(scriptText + hookCode).Result;
+            //var hookCode = @" class EntryPoint{}; return typeof(EntryPoint).Assembly;";
+            //return (Assembly)CSharpScript.EvaluateAsync(scriptText + hookCode).Result;
 
             var compilation = CSharpScript.Create(scriptText, CompilerSettings)
                                           .RunAsync()
                                           .Result
                                           .Script
                                           .GetCompilation();
-
 
             using (var ms = new MemoryStream())
             {
@@ -229,7 +226,6 @@ namespace CSScriptLibrary
                 }
                 else
                 {
-
                     ms.Seek(0, SeekOrigin.Begin);
 
 #if NET451
@@ -242,22 +238,22 @@ namespace CSScriptLibrary
                 }
             }
 
-                //var asmName = CSharpScript.Create(scriptText, CompilerSettings)
-                //                          .RunAsync()
-                //                          .Result
-                //                          .Script
-                //                          .GetCompilation()
-                //                          .AssemblyName;
+            //var asmName = CSharpScript.Create(scriptText, CompilerSettings)
+            //                          .RunAsync()
+            //                          .Result
+            //                          .Script
+            //                          .GetCompilation()
+            //                          .AssemblyName;
 
-                //var asms = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.FullName).ToArray();
-                //Assembly result = AssemblyLoader.LoadByName(asmName);
-                //return result;
+            //var asms = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.FullName).ToArray();
+            //Assembly result = AssemblyLoader.LoadByName(asmName);
+            //return result;
         }
 
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>) and evaluates it.
         /// <para>
-        /// This method is a logical equivalent of <see cref="CSScriptLibrary.IEvaluator.CompileCode"/> but is allows you to define 
+        /// This method is a logical equivalent of <see cref="CSScriptLibrary.IEvaluator.CompileCode"/> but is allows you to define
         /// your script class by specifying class method instead of whole class declaration.</para>
         /// </summary>
         /// <example>
@@ -267,8 +263,8 @@ namespace CSScriptLibrary
         ///                                              {
         ///                                               return a+b;
         ///                                           }")
-        ///                          .CreateObject("*"); 
-        ///                          
+        ///                          .CreateObject("*");
+        ///
         /// var result = script.Sum(7, 3);
         /// </code>
         /// </example>
@@ -279,6 +275,7 @@ namespace CSScriptLibrary
             string scriptText = CSScript.WrapMethodToAutoClass(code, false, false);
             return CompileCode(scriptText);
         }
+
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads the class to the current AppDomain.
         /// <para>Returns non-typed <see cref="CSScriptLibrary.MethodDelegate"/> for class-less style of invoking.</para>
@@ -298,9 +295,19 @@ namespace CSScriptLibrary
         /// <returns> The instance of a non-typed <see cref="CSScriptLibrary.MethodDelegate"/></returns>
         public MethodDelegate CreateDelegate(string code)
         {
-            throw new NotImplementedException();
-            //string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
-            //return CompileCode(scriptText).GetStaticMethod();
+            string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
+            var asm = CompileCode(scriptText);
+            var method = asm.GetTypes()
+                            .Where(x => x.GetName().EndsWith("DynamicClass"))
+                            .SelectMany(x => x.GetMethods())
+                            .FirstOrDefault();
+
+            object invoker(params object[] args)
+            {
+                return method.Invoke(null, args);
+            }
+
+            return invoker;
         }
 
         /// <summary>
@@ -323,13 +330,23 @@ namespace CSScriptLibrary
         /// <returns> The instance of a typed <see cref="CSScriptLibrary.MethodDelegate{T}"/></returns>
         public MethodDelegate<T> CreateDelegate<T>(string code)
         {
-            throw new NotImplementedException();
-            //string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
-            //return CompileCode(scriptText).GetStaticMethod<T>();
+            string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
+            var asm = CompileCode(scriptText);
+            var method = asm.GetTypes()
+                            .Where(x => x.GetName().EndsWith("DynamicClass"))
+                            .SelectMany(x => x.GetMethods())
+                            .FirstOrDefault();
+
+            T invoker(params object[] args)
+            {
+                return (T)method.Invoke(null, args);
+            }
+
+            return invoker;
         }
 
         /// <summary>
-        /// Returns set of referenced assemblies. 
+        /// Returns set of referenced assemblies.
         /// <para>
         /// Notre: the set of assemblies is cleared on Reset.
         /// </para>
@@ -337,7 +354,7 @@ namespace CSScriptLibrary
         /// <returns></returns>
         public Assembly[] GetReferencedAssemblies()
         {
-            //Note all ref assemblies are already loaded as the Evaluator interface is "align" to behave as Mono evaluator, 
+            //Note all ref assemblies are already loaded as the Evaluator interface is "align" to behave as Mono evaluator,
             //which only referenced already loaded assemblies but not file locations
             var assemblies = CompilerSettings.MetadataReferences
                                              .OfType<PortableExecutableReference>()
@@ -362,7 +379,7 @@ namespace CSScriptLibrary
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             var dirs = searchDirs
-                                    //zos
+                                 //zos
                                  //.Concat(new string[] { Assembly.GetCallingAssembly().GetAssemblyDirectoryName() })
                                  .Concat(parser.ExtraSearchDirs)
                                  .Concat(globalProbingDirs)
@@ -410,7 +427,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
         /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
-        /// <para><c>Note:</c> Because the interface alignment is a duck typing implementation the script class doesn't have to 
+        /// <para><c>Note:</c> Because the interface alignment is a duck typing implementation the script class doesn't have to
         /// inherit from <c>T</c>.</para>
         /// </summary>
         /// <example>The following is the simple example of the interface alignment:
@@ -468,7 +485,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads 
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads
         /// the class to the current AppDomain.
         /// <para>Returns instance of <c>T</c> delegate for the first method in the auto-generated class.</para>
         /// </summary>
@@ -480,7 +497,7 @@ namespace CSScriptLibrary
         ///                                     {
         ///                                         return a * b;
         ///                                     }");
-        ///                                
+        ///
         /// int result = Product(3, 2);
         /// </code>
         /// </example>
@@ -503,7 +520,7 @@ namespace CSScriptLibrary
         ///<code>
         /// dynamic script = CSScript.RoslynEvaluator
         ///                          .LoadFile("calc.cs");
-        ///                          
+        ///
         /// int result = script.Sum(1, 2);
         /// </code>
         /// </example>/// <param name="scriptFile">The C# script file.</param>
@@ -529,7 +546,7 @@ namespace CSScriptLibrary
         /// ....
         /// ICalc calc = CSScript.Evaluator
         ///                      .LoadFile&lt;ICalc&gt;("calc.cs");
-        ///                      
+        ///
         /// int result = calc.Sum(1, 2);
         /// </code>
         /// </example>
@@ -542,7 +559,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads 
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads
         /// the class to the current AppDomain.
         /// </summary>
         /// <example>The following is the simple example of the LoadMethod usage:
@@ -566,7 +583,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads 
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads
         /// the class to the current AppDomain.
         /// <para>
         /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
@@ -603,7 +620,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies 
+        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies
         /// that the script depend on (via '//css_...' and 'using ...' directives) should be referenced.
         /// </summary>
         /// <value></value>
@@ -611,7 +628,7 @@ namespace CSScriptLibrary
 
         /// <summary>
         /// References the assemblies from the script code.
-        /// <para>The method analyses and tries to resolve CS-Script directives (e.g. '//css_ref') and 'used' namespaces based on the 
+        /// <para>The method analyses and tries to resolve CS-Script directives (e.g. '//css_ref') and 'used' namespaces based on the
         /// optional search directories.</para>
         /// </summary>
         /// <param name="code">The script code.</param>
@@ -665,7 +682,8 @@ namespace CSScriptLibrary
                     "Current version of Microsoft.CodeAnalysis.Scripting.dll doesn't support referencing assemblies " +
                     "which are not loaded from the file location. You may want to use CS-Script MonoEvaluator (Mono.CSharp)");
 
-            if (!CompilerSettings.MetadataReferences.Cast<PortableExecutableReference>().Any(r => r.FilePath.IsSamePath(assembly.Location())))
+            if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>().Any(r => r.FilePath.IsSamePath(assembly.Location())))
+                //if (!CompilerSettings.MetadataReferences.Cast<UnresolvedMetadataReference>().Any(r => r.FilePath.IsSamePath(assembly.Location())))
                 //Future assembly aliases support:
                 //MetadataReference.CreateFromFile("asm.dll", new MetadataReferenceProperties().WithAliases(new[] { "lib_a", "external_lib_a" } })
                 CompilerSettings = CompilerSettings.AddReferences(assembly);
@@ -749,7 +767,7 @@ namespace CSScriptLibrary
 #if net35
         /// <summary>
         /// References the assemblies the are already loaded into the current <c>AppDomain</c>.
-        /// <para>This method is an equivalent of <see cref="CSScriptLibrary.IEvaluator.ReferenceDomainAssemblies"/> 
+        /// <para>This method is an equivalent of <see cref="CSScriptLibrary.IEvaluator.ReferenceDomainAssemblies"/>
         /// with the hard codded <c>DomainAssemblies.AllStaticNonGAC</c> input parameter.
         /// </para>
         /// </summary>
@@ -760,7 +778,6 @@ namespace CSScriptLibrary
         }
 #endif
 
-
         /// <summary>
         /// References the assemblies the are already loaded into the current <c>AppDomain</c>.
         /// </summary>
@@ -769,12 +786,13 @@ namespace CSScriptLibrary
 #if net35
         public IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies)
 #else
+
         public IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies = DomainAssemblies.AllStaticNonGAC)
 #endif
         {
             return this;
             throw new NotImplementedException();
-            
+
             //NOTE: It is important to avoid loading the runtime itself (mscorelib) as it
             //will break the code evaluation (compilation).
             //
@@ -805,9 +823,9 @@ namespace CSScriptLibrary
         /// Resets Evaluator.
         /// <para>
         /// Resetting means clearing all referenced assemblies, recreating evaluation infrastructure (e.g. compiler setting)
-        /// and reconnection to or recreation of the underlying compiling services. 
+        /// and reconnection to or recreation of the underlying compiling services.
         /// </para>
-        /// <para>Optionally the default current AppDomain assemblies can be referenced automatically with 
+        /// <para>Optionally the default current AppDomain assemblies can be referenced automatically with
         /// <paramref name="referenceDomainAssemblies"/>.</para>
         /// </summary>
         /// <param name="referenceDomainAssemblies">if set to <c>true</c> the default assemblies of the current AppDomain

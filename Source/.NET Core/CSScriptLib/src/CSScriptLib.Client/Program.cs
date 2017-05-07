@@ -14,22 +14,16 @@ namespace CSScriptLib.Client
         {
             //Test();return;
 
-            Assembly asm = CSScript.Evaluator
-                                   .CompileCode(@"using System;
-                                                  public class Script
-                                                  {
-                                                      public int Sum(int a, int b)
-                                                      {
-                                                          return a+b;
-                                                      }
-                                                  }");
-
-            dynamic script = asm.CreateObject("*");
-            var result = script.Sum(7, 3);
-            Console.WriteLine(result);
+            Test.CompileCode();
+            Test.CompileMethod();
+            Test.CompileCSharp_7();
+            Test.CompileDelegate();
+            Test.CompileDelegate1();
+            Test.LoadCode();
+            Test.LoadCode2();
         }
 
-        static void Test()
+        static void DoTest()
         {
             for (int i = 0; i < 100000; i++)
             {
@@ -43,8 +37,8 @@ namespace CSScriptLib.Client
                 //                 }";
 
                 //    CSharpScript.EvaluateAsync(
-                //        @"using System; 
-                //          var s = """+i+@"""; 
+                //        @"using System;
+                //          var s = """+i+@""";
                 //          Console.WriteLine(""Hello Roslyn.""+s);").Wait();
 
                 var code = @"using System;
@@ -59,7 +53,7 @@ namespace CSScriptLib.Client
                 //object result = CSharpScript.EvaluateAsync(code + @" class return new Script();").Result;
                 //typeof(< a type in that assembly>).GetTypeInfo().Assembly
 
-                var asm = (Assembly) CSharpScript.EvaluateAsync(code + @" class EntryPoint{}; return typeof(EntryPoint).Assembly;").Result;
+                var asm = (Assembly)CSharpScript.EvaluateAsync(code + @" class EntryPoint{}; return typeof(EntryPoint).Assembly;").Result;
 
                 dynamic script = asm.CreateObject("*");
                 var result = script.Sum(i, 1);

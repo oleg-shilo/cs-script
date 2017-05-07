@@ -77,6 +77,11 @@ public static class Extensions
         return t.GetTypeInfo().GetMethods();
     }
 
+    public static string GetName(this Type t)
+    {
+        return t.GetTypeInfo().Name;
+    }
+
     public static object CreateObject(this Assembly asm, string typeName, params object[] args)
     {
         return CreateInstance(asm, typeName, args);
