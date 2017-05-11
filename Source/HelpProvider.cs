@@ -56,19 +56,23 @@ namespace csscript
             string argSpec;
             string description;
             string doc = "";
+
             public ArgInfo(string argSpec, string description, string doc)
             {
                 this.argSpec = argSpec;
                 this.description = description;
                 this.doc = doc;
             }
+
             public ArgInfo(string argSpec, string description)
             {
                 this.argSpec = argSpec;
                 this.description = description;
             }
+
             public string ArgSpec { get { return argSpec; } }
             public string Description { get { return description; } }
+
             public string FullDoc
             {
                 get
@@ -133,9 +137,9 @@ namespace csscript
                                                    "prompt - if none specified 'Press any key to continue...' will be used\n");
             switch1Help[ac] =
             switch1Help[autoclass] = new ArgInfo("-ac|-autoclass[:<0|1>]",
-                                                   "   -ac:1|-c  enable auto-class decoration (which might be disabled globally);\n" +
-                                                   "   -ac:0     disable auto-class decoration (which might be enabled globally);\n" +
-                                                   "Automatically generates 'static entry point' class if the script doesn't define any.",
+                                                   "\n\t-ac:1  enables auto-class decoration (which might be disabled globally);\n" +
+                                                   "\t-ac:0  disables auto-class decoration (which might be enabled globally);\n" +
+                                                   "\tAutomatically generates 'static entry point' class if the script doesn't define any.",
                                                    "\n" +
                                                    "    using System;\n" +
                                                    "                 \n" +
@@ -179,7 +183,7 @@ namespace csscript
                                                    "(applicable for console clients only)");
             switch2Help[noconfig] = new ArgInfo("-noconfig[:<file>]",
                                                    "Do not use default CS-Script config file or use alternative one.\n" +
-                                                   "OBSOLETE: Use '-config', which is a preferred switch for all configuration operations",
+                                                   "\tOBSOLETE: Use '-config', which is a preferred switch for all configuration operations",
                                                    "Value \"out\" of the <file> is reserved for creating the config file (css_config.xml) " +
                                                    "with the default settings in the current directory.\n" +
                                                    "Value \"print\" of the <file> is reserved for printing the default config file content.\n" +
@@ -245,7 +249,6 @@ namespace csscript
                                                    "Specifies optional parameters for a script file to be run.");
             miscHelp["//x"] = new ArgInfo("//x",
                                                    "Launch debugger just before starting the script.");
-
 
             #region SyntaxHelp
 
@@ -488,7 +491,7 @@ namespace csscript
                                        .Replace("$(csscript_roslyn)", " 'CSSCRIPT_ROSLYN' - a shadow copy of Roslyn compiler files. \n" +
                                                  "It's created during setup in order to avoid locking deployment directories because of the running Roslyn binaries.\n");
 
-            #endregion
+            #endregion SyntaxHelp
         }
     }
 
@@ -500,7 +503,7 @@ namespace csscript
             {
                 case AppArgs.dir:
                     {
-                        ExecuteOptions options = (ExecuteOptions) context[0];
+                        ExecuteOptions options = (ExecuteOptions)context[0];
                         Settings settings = CSExecutor.LoadSettings(options);
 
                         StringBuilder builder = new StringBuilder();
@@ -523,7 +526,7 @@ namespace csscript
                         {
                             if (info.IsPublic && info.IsLiteral && info.IsStatic && info.FieldType == typeof(string))
                             {
-                                string arg = (string) info.GetValue(null);
+                                string arg = (string)info.GetValue(null);
                                 string description = "";
 
                                 if (AppArgs.switch1Help.ContainsKey(arg))
@@ -545,7 +548,6 @@ namespace csscript
                                 longestArg = Math.Max(map[description].Length, longestArg);
                             }
                         }
-
 
                         StringBuilder builder = new StringBuilder();
                         foreach (string key in map.Keys)
@@ -690,7 +692,6 @@ namespace csscript
             if (!Utils.IsLinux())
                 dotNetVer = GetDotNetVersion.Get45PlusFromRegistry();
 
-
             builder.Append(AppInfo.appLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script)\n");
             builder.Append("\n");
             builder.Append("   CLR:             " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : "") + "\n");
@@ -732,7 +733,7 @@ namespace csscript
                 using (var ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(subkey))
                 {
                     if (ndpKey != null && ndpKey.GetValue("Release") != null)
-                        return CheckFor45PlusVersion((int) ndpKey.GetValue("Release"));
+                        return CheckFor45PlusVersion((int)ndpKey.GetValue("Release"));
                     else
                         return null;
                 }
@@ -762,5 +763,4 @@ namespace csscript
             }
         }
     }
-
 }

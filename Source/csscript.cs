@@ -47,6 +47,7 @@ using System.CodeDom.Compiler;
 using System.Globalization;
 using System.Diagnostics;
 using Microsoft.CSharp;
+
 namespace csscript
 {
     /// <summary>
@@ -57,6 +58,7 @@ namespace csscript
     /// <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
     /// <returns></returns>
     public delegate string[] ResolveSourceFileAlgorithm(string file, string[] searchDirs, bool throwOnError);
+
     /// <summary>
     /// Delegate implementing assembly file probing algorithm.
     /// </summary>
@@ -73,6 +75,7 @@ namespace csscript
     internal interface IScriptExecutor
     {
         void ShowHelpFor(string arg);
+
         void ShowProjectFor(string arg);
 
         void ShowHelp(string helpTyp, params object[] context);
@@ -84,6 +87,7 @@ namespace csscript
         void ShowPrecompilerSample();
 
         void CreateDefaultConfigFile();
+
         void PrintDefaultConfig();
 
         void ProcessConfigCommand(string command);
@@ -112,6 +116,7 @@ namespace csscript
         }
 
         string waitForInputBeforeExit;
+
         public string WaitForInputBeforeExit
         {
             get { return waitForInputBeforeExit; }
@@ -400,7 +405,7 @@ namespace csscript
 
                     #endregion Parse command-line arguments...
 
-                    ExecuteOptions originalOptions = (ExecuteOptions) options.Clone(); //preserve master script options
+                    ExecuteOptions originalOptions = (ExecuteOptions)options.Clone(); //preserve master script options
                     string originalCurrDir = Environment.CurrentDirectory;
 
                     //run prescripts
@@ -475,7 +480,6 @@ namespace csscript
 
                             if (originalOptions.DBG)
                             {
-
                                 List<string> newArgs = new List<string>();
                                 newArgs.AddRange(info.args);
                                 newArgs.Insert(0, CSSUtils.Args.DefaultPrefix + "dbg");
@@ -826,7 +830,6 @@ namespace csscript
                         bool surrogateHostMissing = (options.useSurrogateHostingProcess &&
                                                     (!File.Exists(host) || !CSSUtils.HaveSameTimestamp(host, assemblyFileName)));
 
-
                         // --- COMPILE ---
                         if (options.buildExecutable || !options.useCompiled || (options.useCompiled && assemblyFileName == null) || options.forceCompile || surrogateHostMissing)
                         {
@@ -926,7 +929,6 @@ namespace csscript
                                         System.Diagnostics.Debugger.Break();
                                     }
                                 }
-
 
                                 if (options.useCompiled || options.cleanupShellCommand != "")
                                 {
@@ -1180,7 +1182,7 @@ namespace csscript
         ICodeCompiler LoadDefaultCompiler()
         {
 #pragma warning disable 618
-            IDictionary<string, string> providerOptions = new Dictionary<string, string>();
+            var providerOptions = new Dictionary<string, string>();
             providerOptions["CompilerVersion"] = options.TargetFramework;
             return new CSharpCodeProvider(providerOptions).CreateCompiler();
 #pragma warning restore 618
@@ -1278,12 +1280,12 @@ namespace csscript
                     MethodInfo method = types[0].GetMethod("CreateCompilerVersion");
                     if (method != null)
                     {
-                        compiler = (ICodeCompiler) method.Invoke(null, new object[] { scriptFileName, options.TargetFramework });  //the script file name may influence what compiler will be created (e.g. *.vb vs. *.cs)
+                        compiler = (ICodeCompiler)method.Invoke(null, new object[] { scriptFileName, options.TargetFramework });  //the script file name may influence what compiler will be created (e.g. *.vb vs. *.cs)
                     }
                     else
                     {
                         method = types[0].GetMethod("CreateCompiler");
-                        compiler = (ICodeCompiler) method.Invoke(null, new object[] { scriptFileName });  //the script file name may influence what compiler will be created (e.g. *.vb vs. *.cs)
+                        compiler = (ICodeCompiler)method.Invoke(null, new object[] { scriptFileName });  //the script file name may influence what compiler will be created (e.g. *.vb vs. *.cs)
                     }
                 }
                 catch (Exception ex)
@@ -1311,7 +1313,6 @@ namespace csscript
             }
             return compiler;
         }
-
 
         void AddReferencedAssemblies(CompilerParameters compilerParams, string scriptFileName, ScriptParser parser)
         {
@@ -1364,7 +1365,7 @@ namespace csscript
             string[] cmdLineAsms = options.refAssemblies;
             if (!options.useSurrogateHostingProcess)
             {
-                string[] defaultAsms = options.defaultRefAssemblies.Split(";,".ToCharArray()).Select(x=>x.Trim()).ToArray();
+                string[] defaultAsms = options.defaultRefAssemblies.Split(";,".ToCharArray()).Select(x => x.Trim()).ToArray();
 
                 foreach (string asmName in Utils.Concat(defaultAsms, cmdLineAsms))
                     if (asmName != "")
@@ -1373,7 +1374,7 @@ namespace csscript
 
             if (options.enableDbgPrint)
             {
-                if (Utils.IsNet40Plus() && !Utils.IsLinux())
+                if (Utils.IsNet40Plus() && !Utils.IsMono())
                 {
                     addByAsmName("System.Linq"); // Implementation of System.Linq namespace
                     addByAsmName("System.Core"); // dependency of System.Linq namespace assembly
@@ -1440,7 +1441,7 @@ namespace csscript
                 }
             }
 
-            return (string[]) requestedRefAsms;
+            return (string[])requestedRefAsms;
         }
 
         string NormalizeGacAssemblyPath(string asm)
@@ -1801,17 +1802,18 @@ namespace csscript
                         depInfo.StampFile(assemblyFileName);
                     }
 
-                    FileInfo scriptFile = new FileInfo(scriptFileName);
-                    FileInfo asmFile = new FileInfo(assemblyFileName);
-                    FileInfo pdbFile = new FileInfo(pdbFileName);
-
-                    if (scriptFile.Exists && asmFile.Exists)
+                    if (!Settings.suppressTimestamping)
                     {
-                        asmFile.LastWriteTimeUtc = scriptFile.LastWriteTimeUtc;
-                        if (options.DBG && pdbFile.Exists)
-                            pdbFile.LastWriteTimeUtc = scriptFile.LastWriteTimeUtc;
+                        FileInfo scriptFile = new FileInfo(scriptFileName);
+                        FileInfo asmFile = new FileInfo(assemblyFileName);
+                        FileInfo pdbFile = new FileInfo(pdbFileName);
 
-
+                        if (scriptFile.Exists && asmFile.Exists)
+                        {
+                            asmFile.LastWriteTimeUtc = scriptFile.LastWriteTimeUtc;
+                            if (options.DBG && pdbFile.Exists)
+                                pdbFile.LastWriteTimeUtc = scriptFile.LastWriteTimeUtc;
+                        }
                     }
                 }
             }
@@ -1916,7 +1918,6 @@ namespace csscript
                     //there can be many reasons for the failure (e.g. file is already locked by another writer),
                     //which in most of the cases does not constitute the error but rather a runtime condition
                 }
-
 
             return cacheDir;
         }
@@ -2089,6 +2090,7 @@ namespace csscript
         {
             throw new NotImplementedException();
         }
+
         #endregion Class methods...
     }
 }

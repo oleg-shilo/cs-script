@@ -1,4 +1,5 @@
 #region Licence...
+
 //-----------------------------------------------------------------------------
 // Date:	25/10/10
 // Module:	Utils.cs
@@ -26,7 +27,9 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
+
 #endregion Licence...
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -88,10 +91,12 @@ namespace csscript
         /// NuGet packages, compiled sources).
         /// </summary>
         public ScriptParsingResult ParsingContext;
+
         /// <summary>
         /// The script compilation result.
         /// </summary>
         public CompilerResults Result;
+
         /// <summary>
         /// The compilation context object that contain all information about the script compilation input
         /// (referenced assemblies, compiler symbols).
@@ -137,13 +142,14 @@ namespace csscript
                     retval.Add(item1);
             }
 
-            return (string[]) retval.ToArray(typeof(string));
+            return (string[])retval.ToArray(typeof(string));
         }
 
 #if !net1
+
         public static string[] RemovePathDuplicates(string[] list)
         {
-            return list.Select(x => Path.GetFullPath(x)).Distinct().ToArray();
+            return list.Where(x => !string.IsNullOrEmpty(x)).Select(x => Path.GetFullPath(x)).Distinct().ToArray();
         }
 
         public static string[] RemoveDuplicates(string[] list)
@@ -155,6 +161,7 @@ namespace csscript
         {
             return list.Where(x => !string.IsNullOrEmpty(x)).ToArray();
         }
+
 #else
         public static string[] RemovePathDuplicates(string[] list)
         {
@@ -347,9 +354,14 @@ namespace csscript
         //}
 
         public delegate string ProcessNewEncodingHandler(string requestedEncoding);
+
         public static ProcessNewEncodingHandler ProcessNewEncoding = DefaultProcessNewEncoding;
         public static bool IsDefaultConsoleEncoding = true;
-        static string DefaultProcessNewEncoding(string requestedEncoding) { return requestedEncoding; }
+
+        static string DefaultProcessNewEncoding(string requestedEncoding)
+        {
+            return requestedEncoding;
+        }
 
         /// <summary>
         /// Waits for file idle.
@@ -440,9 +452,14 @@ namespace csscript
 
         public static bool IsLinux()
         {
-            // Note it is not about OS being exactly Linux but rather about OS having Linux type of file system. 
+            // Note it is not about OS being exactly Linux but rather about OS having Linux type of file system.
             // For example path being case sensitive
             return (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
+        }
+
+        public static bool IsMono()
+        {
+            return Type.GetType("Mono.Runtime") != null;
         }
 
         public static bool ContainsPath(string path, string subPath)
@@ -489,6 +506,7 @@ namespace csscript
         }
 
         public static string DbgInjectionCode = DbgInjectionCodeInterface;
+
         internal static string DbgInjectionCodeInterface = @"partial class dbg
 {
     public static bool publicOnly = true;
@@ -735,12 +753,15 @@ namespace csscript
                     case ' ':
                         sb.Append('\\').Append(c);
                         break;
+
                     case '*':
                         sb.Append(".*");
                         break;
+
                     case '?':
                         sb.Append(".");
                         break;
+
                     default:
                         sb.Append(c);
                         break;
@@ -978,7 +999,6 @@ namespace csscript
                             executor.WaitForInputBeforeExit = argValue;
                         else
                             executor.WaitForInputBeforeExit = "Press any key to continue . . .";
-
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.noconfig, out argValue)) // -noconfig:<file>
                     {
@@ -1188,7 +1208,7 @@ namespace csscript
 
                             MethodInfo method = precompiler.GetType().GetMethod("Compile");
 
-                            CompileMethod compile = (CompileMethod) Delegate.CreateDelegate(typeof(CompileMethod), method);
+                            CompileMethod compile = (CompileMethod)Delegate.CreateDelegate(typeof(CompileMethod), method);
 
                             bool result = compile(ref content,
                                                   filesToCompile[i],
@@ -1388,6 +1408,7 @@ namespace csscript
         }
 
 #if !net1
+
         public static string[] GetAppDomainAssemblies()
         {
             return (from a in AppDomain.CurrentDomain.GetAssemblies()
@@ -1397,6 +1418,7 @@ namespace csscript
         }
 
 #endif
+
         public static bool IsDynamic(Assembly asm)
         {
             //http://bloggingabout.net/blogs/vagif/archive/2010/07/02/net-4-0-and-notsupportedexception-complaining-about-dynamic-assemblies.aspx
@@ -1857,11 +1879,11 @@ namespace csscript
                     {
                         char[] data = this.ToString().ToCharArray();
                         w.Write(data);
-                        w.Write((Int32) data.Length);
-                        w.Write((Int32) (CSExecutor.options.DBG ? 1 : 0));
-                        w.Write((Int32) (CSExecutor.options.compilationContext));
-                        w.Write((Int32) CSSUtils.GetHashCodeEx(Environment.Version.ToString()));
-                        w.Write((Int32) stampID);
+                        w.Write((Int32)data.Length);
+                        w.Write((Int32)(CSExecutor.options.DBG ? 1 : 0));
+                        w.Write((Int32)(CSExecutor.options.compilationContext));
+                        w.Write((Int32)CSSUtils.GetHashCodeEx(Environment.Version.ToString()));
+                        w.Write((Int32)stampID);
                     }
                 }
             }
@@ -1965,7 +1987,7 @@ namespace csscript
         }
 
         int stampID = CSSUtils.GetHashCodeEx(Assembly.GetExecutingAssembly().FullName.Split(",".ToCharArray())[1]);
-        int intSize = Marshal.SizeOf((Int32) 0);
+        int intSize = Marshal.SizeOf((Int32)0);
 
         //#pragma warning disable 414
         //int executionFlag = Marshal.SizeOf((Int32)0);
@@ -2016,9 +2038,20 @@ namespace csscript
             Clear,
         }
 
-        static public string List() { return Cache.Do(Op.List); }
-        static public string Trim() { return Cache.Do(Op.Trim); }
-        static public string Clear() { return Cache.Do(Op.Clear); }
+        static public string List()
+        {
+            return Cache.Do(Op.List);
+        }
+
+        static public string Trim()
+        {
+            return Cache.Do(Op.Trim);
+        }
+
+        static public string Clear()
+        {
+            return Cache.Do(Op.Clear);
+        }
 
         static string Do(Op operation)
         {

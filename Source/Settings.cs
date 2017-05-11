@@ -13,20 +13,20 @@
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2017 Oleg Shilo
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all copies or substantial 
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
 // portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
@@ -35,6 +35,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+
 #if net1
 using System.Collections;
 #else
@@ -166,7 +167,7 @@ namespace csscript
         bool injectScriptAssemblyAttribute = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether script assembly attribute should be injected. The AssemblyDecription attribute 
+        /// Gets or sets a value indicating whether script assembly attribute should be injected. The AssemblyDecription attribute
         /// contains the original location of the script file the assembly being compiled from./
         /// </summary>
         /// <value>
@@ -193,14 +194,15 @@ namespace csscript
             get { return enableDbgPrint; }
             set { enableDbgPrint = value; }
         }
+
         bool enableDbgPrint = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether references to the auto-generated files should be resolved.
         /// <para>
-        /// If this flag is set the all references in the compile errors text to the path of the derived auto-generated files 
+        /// If this flag is set the all references in the compile errors text to the path of the derived auto-generated files
         /// (e.g. errors in the decorated classless scripts) will be replaced with the path of the original file(s) (e.g. classless script itself).
-        /// </para> 
+        /// </para>
         /// </summary>
         /// <value>
         /// <c>true</c> if preferences needs to be resolved; otherwise, <c>false</c>.
@@ -239,8 +241,8 @@ namespace csscript
             set { openEndDirectiveSyntax = value; }
         }
 
-
         string consoleEncoding = DefaultEncodingName;
+
         /// <summary>
         /// Encoding of he Console Output. Applicable for console applications script engine only.
         /// </summary>
@@ -252,12 +254,42 @@ namespace csscript
             get { return consoleEncoding; }
             set
             {
-                //consider: https://social.msdn.microsoft.com/Forums/vstudio/en-US/e448b241-e250-4dcb-8ecd-361e00920dde/consoleoutputencoding-breaks-batch-files?forum=netfxbcl 
+                //consider: https://social.msdn.microsoft.com/Forums/vstudio/en-US/e448b241-e250-4dcb-8ecd-361e00920dde/consoleoutputencoding-breaks-batch-files?forum=netfxbcl
                 if (consoleEncoding != value)
                 {
                     consoleEncoding = Utils.ProcessNewEncoding(value);
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to suppress timestamping the compiled script assembly.
+        /// <para>
+        /// It is an experimental setting that is supposed to be used only in very specific cases when CLR
+        /// shadow copying misbehaves due to the legitimate changes of the assembly timestamp.
+        /// </para>
+        /// <para>
+        /// Triggered by
+        /// issue #61: https://github.com/oleg-shilo/cs-script/issues/61
+        /// </para>
+        /// <para>
+        /// Note, setting this property to <c>true</c> effectively disables any script caching.
+        /// </para>
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if to suppress timestamping; otherwise, <c>false</c>.
+        /// </value>
+        [Browsable(false)]
+        public bool SuppressTimestamping
+        {
+            get { return suppressTimestamping; }
+            set { suppressTimestamping = value; }
+        }
+
+        static internal bool suppressTimestamping
+        {
+            get { return Environment.GetEnvironmentVariable("CSS_SUPPRESS_TIMESTAMPING") == true.ToString(); }
+            set { Environment.SetEnvironmentVariable("CSS_SUPPRESS_TIMESTAMPING", value.ToString()); }
         }
 
         internal const string DefaultEncodingName = "default";
@@ -315,11 +347,10 @@ namespace csscript
 
         string defaultRefAssemblies;
 
-
         string InitDefaultRefAssemblies()
         {
 #if net4
-            if (Utils.IsLinux())
+            if (Utils.IsMono())
             {
                 return "System;System.Core;";
             }
@@ -329,7 +360,6 @@ namespace csscript
                     return "System.Core; System.Linq;";
                 else
                     return "System.Core;";
-
             }
 #else
             return "";
@@ -399,9 +429,9 @@ namespace csscript
         /// <summary>
         /// Gets or sets a value indicating whether custom string hashing algorithm should be used.
         /// <para>
-        /// String hashing is used by the script engine for allocating temporary and cached paths. 
-        /// However default string hashing is platform dependent (x32 vs. x64) what makes impossible 
-        /// truly deterministic string hashing. This in turns complicates the integration of the 
+        /// String hashing is used by the script engine for allocating temporary and cached paths.
+        /// However default string hashing is platform dependent (x32 vs. x64) what makes impossible
+        /// truly deterministic string hashing. This in turns complicates the integration of the
         /// CS-Script infrastructure with the third-party applications (e.g. Notepad++ CS-Script plugin).
         /// </para>
         /// <para>
@@ -445,10 +475,12 @@ namespace csscript
             /// Do not hide auto-generated files.
             /// </summary>
             DoNotHide,
+
             /// <summary>
             /// Hide the most of the auto-generated (cache and "imported") files.
             /// </summary>
             HideMostFiles,
+
             /// <summary>
             /// Hide all auto-generated files including the files generated by pre/post scripts.
             /// </summary>
@@ -484,13 +516,14 @@ namespace csscript
             get { return optimisticConcurrencyModel; }
             set { optimisticConcurrencyModel = value; }
         }
+
         bool optimisticConcurrencyModel = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether auto-class decoration should allow C# 6 specific syntax. 
-        /// If it does the statement "using static dbg;" will be injected at the start of the auto-class definition thus the 
-        /// entry script may invoke static methods for object inspection with <c>dbg</c> class without specifying the 
-        /// class name (e.g. "print(DateTime.Now);"). 
+        /// Gets or sets a value indicating whether auto-class decoration should allow C# 6 specific syntax.
+        /// If it does the statement "using static dbg;" will be injected at the start of the auto-class definition thus the
+        /// entry script may invoke static methods for object inspection with <c>dbg</c> class without specifying the
+        /// class name (e.g. "print(DateTime.Now);").
         /// </summary>
         /// <value>
         /// <c>true</c> if decorate auto-class as C# 6; otherwise, <c>false</c>.
@@ -501,6 +534,7 @@ namespace csscript
             get { return autoClass_DecorateAsCS6; }
             set { autoClass_DecorateAsCS6 = value; }
         }
+
         bool autoClass_DecorateAsCS6 = false;
 
         //Not used yet.
@@ -510,8 +544,8 @@ namespace csscript
             get { return autoClass_DecorateAlways; }
             set { autoClass_DecorateAlways = value; }
         }
-        bool autoClass_DecorateAlways = false;
 
+        bool autoClass_DecorateAlways = false;
 
         /// <summary>
         /// Boolean flag that indicates if compiler warnings should be included in script compilation output.
@@ -532,8 +566,8 @@ namespace csscript
         /// This setting can be useful when you need to prevent script assembly (compiled script) from locking by CLR during the execution.
         /// false - script assembly will be loaded as a file. It is an equivalent of Assembly.LoadFrom(string assemblyFile).
         /// true - script assembly will be loaded as a file. It is an equivalent of Assembly.Load(byte[] rawAssembly)
-        /// <para>Note: some undesired side effects can be triggered by having assemblies with <c>Assembly.Location</c> being empty. 
-        /// For example <c>Interface Alignment</c> any not work with such assemblies as it relies on CLR compiling services that 
+        /// <para>Note: some undesired side effects can be triggered by having assemblies with <c>Assembly.Location</c> being empty.
+        /// For example <c>Interface Alignment</c> any not work with such assemblies as it relies on CLR compiling services that
         /// typically require assembly <c>Location</c> member being populated with the valid path.</para>
         /// </summary>
         [Category("RuntimeSettings"),
@@ -556,7 +590,7 @@ namespace csscript
         {
             get
             {
-                if (concurrencyControl == ConcurrencyControl.HighResolution && Utils.IsLinux())
+                if (concurrencyControl == ConcurrencyControl.HighResolution && Utils.IsMono())
                     concurrencyControl = ConcurrencyControl.Standard;
                 return concurrencyControl;
             }
@@ -577,6 +611,7 @@ namespace csscript
             var props = this.GetType()
                             .GetProperties()
                             .Where(p => p.CanRead && p.CanWrite)
+                            .Where(p => p.Name != "SuppressTimestamping")
                             .Select(p => " " + p.Name + ": " + (p.PropertyType == typeof(string) ? "\"" + p.GetValue(this, dummy) + "\"" : p.GetValue(this, dummy)))
                             .ToArray();
 
@@ -628,6 +663,7 @@ namespace csscript
                 }
             }
         }
+
         internal static object[] dummy = new object[0];
 
         internal string Get(string name)
@@ -683,7 +719,6 @@ namespace csscript
                 if (autoClass_DecorateAlways)
                     doc.DocumentElement.AppendChild(doc.CreateElement("autoclass.decorateAlways")).AppendChild(doc.CreateTextNode(autoClass_DecorateAlways.ToString()));
 
-
                 if (DefaultApartmentState != ApartmentState.STA)
                     doc.DocumentElement.AppendChild(doc.CreateElement("defaultApartmentState")).AppendChild(doc.CreateTextNode(DefaultApartmentState.ToString()));
 
@@ -730,7 +765,6 @@ namespace csscript
                 xml = CommentElement(xml, "enableDbgPrint", "Gets or sets a value indicating whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now))");
 
                 File.WriteAllText(fileName, xml);
-
             }
             catch
             {
@@ -790,20 +824,20 @@ namespace csscript
                     XmlNode data = doc.FirstChild;
                     XmlNode node;
                     node = data.SelectSingleNode("defaultArguments"); if (node != null) settings.defaultArguments = node.InnerText;
-                    node = data.SelectSingleNode("defaultApartmentState"); if (node != null) settings.defaultApartmentState = (ApartmentState) Enum.Parse(typeof(ApartmentState), node.InnerText, false);
+                    node = data.SelectSingleNode("defaultApartmentState"); if (node != null) settings.defaultApartmentState = (ApartmentState)Enum.Parse(typeof(ApartmentState), node.InnerText, false);
                     node = data.SelectSingleNode("reportDetailedErrorInfo"); if (node != null) settings.reportDetailedErrorInfo = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("useAlternativeCompiler"); if (node != null) settings.UseAlternativeCompiler = node.InnerText;
                     node = data.SelectSingleNode("usePostProcessor"); if (node != null) settings.UsePostProcessor = node.InnerText;
                     node = data.SelectSingleNode("searchDirs"); if (node != null) settings.SearchDirs = node.InnerText;
                     node = data.SelectSingleNode("cleanupShellCommand"); if (node != null) settings.cleanupShellCommand = node.InnerText;
                     node = data.SelectSingleNode("doCleanupAfterNumberOfRuns"); if (node != null) settings.doCleanupAfterNumberOfRuns = uint.Parse(node.InnerText);
-                    node = data.SelectSingleNode("hideOptions"); if (node != null) settings.hideOptions = (HideOptions) Enum.Parse(typeof(HideOptions), node.InnerText, true);
+                    node = data.SelectSingleNode("hideOptions"); if (node != null) settings.hideOptions = (HideOptions)Enum.Parse(typeof(HideOptions), node.InnerText, true);
                     node = data.SelectSingleNode("autoclass.decorateAsCS6"); if (node != null) settings.autoClass_DecorateAsCS6 = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("enableDbgPrint"); if (node != null) settings.enableDbgPrint = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("autoclass.decorateAlways"); if (node != null) settings.autoClass_DecorateAlways = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("hideCompilerWarnings"); if (node != null) settings.hideCompilerWarnings = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("inMemoryAsm"); if (node != null) settings.inMemoryAsm = node.InnerText.ToLower() == "true";
-                    node = data.SelectSingleNode("concurrencyControl"); if (node != null) settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), node.InnerText, false);
+                    node = data.SelectSingleNode("concurrencyControl"); if (node != null) settings.concurrencyControl = (ConcurrencyControl)Enum.Parse(typeof(ConcurrencyControl), node.InnerText, false);
                     node = data.SelectSingleNode("TargetFramework"); if (node != null) settings.TargetFramework = node.InnerText;
                     node = data.SelectSingleNode("defaultRefAssemblies"); if (node != null) settings.defaultRefAssemblies = node.InnerText;
                     node = data.SelectSingleNode("useSurrogatepHostingProcess"); if (node != null) settings.useSurrogatepHostingProcess = node.InnerText.ToLower() == "true";
@@ -816,7 +850,7 @@ namespace csscript
                     node = data.SelectSingleNode("Precompiler"); if (node != null) settings.Precompiler = node.InnerText;
                     node = data.SelectSingleNode("CustomHashing"); if (node != null) settings.CustomHashing = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("ConsoleEncoding"); if (node != null) settings.ConsoleEncoding = node.InnerText;
-                    node = data.SelectSingleNode("ConcurrencyControl"); if (node != null) settings.concurrencyControl = (ConcurrencyControl) Enum.Parse(typeof(ConcurrencyControl), node.InnerText, false);
+                    node = data.SelectSingleNode("ConcurrencyControl"); if (node != null) settings.concurrencyControl = (ConcurrencyControl)Enum.Parse(typeof(ConcurrencyControl), node.InnerText, false);
                 }
                 catch
                 {
@@ -863,5 +897,4 @@ namespace csscript
             return value;
         }
     }
-
 }

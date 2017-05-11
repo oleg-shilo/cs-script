@@ -13,20 +13,20 @@
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2017 Oleg Shilo
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all copies or substantial 
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
 // portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
@@ -49,34 +49,34 @@ using CSScriptLibrary;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.CodeDom.Compiler;
+
 //using System.Windows.Forms;
 using System.Globalization;
 using System.Diagnostics;
 using Microsoft.CSharp;
 
-
 namespace csscript
 {
     /// <summary>
-    /// Indicates synchronization model used to for controlling concurrency when the same script file is executed by multiple processes. 
+    /// Indicates synchronization model used to for controlling concurrency when the same script file is executed by multiple processes.
     /// </summary>
     public enum ConcurrencyControl
     {
         /// <summary>
-        /// Simple model. The script engine doesn't start the timestamp validation and the script compilation until another engine 
-        /// validating finishes its job. 
+        /// Simple model. The script engine doesn't start the timestamp validation and the script compilation until another engine
+        /// validating finishes its job.
         /// <para>
-        /// Note: the compilation may be skipped if caching is enabled and the validation reviles that the previous compilation (cache) 
-        /// is still up to date. </para> 
-        /// <para>    
-        /// Due to the limited choices with the system wide named synchronization objects on Linux <c>Standard</c> is the only available 
-        /// synchronization model on Linux. And it is just happens to be a good default choice for Windows as well.</para>        
+        /// Note: the compilation may be skipped if caching is enabled and the validation reviles that the previous compilation (cache)
+        /// is still up to date. </para>
+        /// <para>
+        /// Due to the limited choices with the system wide named synchronization objects on Linux <c>Standard</c> is the only available
+        /// synchronization model on Linux. And it is just happens to be a good default choice for Windows as well.</para>
         /// </summary>
         Standard,
 
         /// <summary>
         /// A legacy synchronization model available on Windows only. While it can be beneficial in the intense concurrent "border line" scenarios,
-        /// its practical value very limited. 
+        /// its practical value very limited.
         /// </summary>
         HighResolution,
 
@@ -105,6 +105,7 @@ namespace csscript
             clone.scriptFileName = this.scriptFileName;
             clone.noLogo = this.noLogo;
             clone.useCompiled = this.useCompiled;
+            clone.supressTimestampAltering = this.supressTimestampAltering;
             clone.useSmartCaching = this.useSmartCaching;
             clone.DLLExtension = this.DLLExtension;
             clone.forceCompile = this.forceCompile;
@@ -232,12 +233,15 @@ namespace csscript
         public bool useScriptConfig = false;
         public string customConfigFileName = "";
         public bool useSmartCaching = true; //hardcoded true but can be set from config file in the future
+        public bool supressTimestampAltering = false; //hardcoded true but can be set from config file in the future
         public bool DLLExtension = false;
         public bool forceCompile = false;
         public bool supressExecution = false;
         public bool syntaxCheck = false;
+
         //public bool syntaxCheck = false;
         public bool DBG = false;
+
 #if net35
         public string TargetFramework = "v3.5";
 #else
@@ -269,8 +273,10 @@ namespace csscript
         public string forceOutputAssembly = "";
         public string cleanupShellCommand = "";
         public bool noConfig = false;
+
         //public bool suppressExternalHosting = true;
         public bool customHashing = true;
+
         public bool autoClass = false;
         public bool versionOnly = false;
         public string compilerOptions = "";
@@ -308,5 +314,4 @@ namespace csscript
                 return new string[] { command.Substring(0, pos).Replace("\"", ""), command.Substring(pos + 1).Trim() };
         }
     }
-
 }

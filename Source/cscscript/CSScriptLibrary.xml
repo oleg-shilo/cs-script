@@ -6,25 +6,25 @@
     <members>
         <member name="T:csscript.ConcurrencyControl">
             <summary>
-            Indicates synchronization model used to for controlling concurrency when the same script file is executed by multiple processes. 
+            Indicates synchronization model used to for controlling concurrency when the same script file is executed by multiple processes.
             </summary>
         </member>
         <member name="F:csscript.ConcurrencyControl.Standard">
             <summary>
-            Simple model. The script engine doesn't start the timestamp validation and the script compilation until another engine 
-            validating finishes its job. 
+            Simple model. The script engine doesn't start the timestamp validation and the script compilation until another engine
+            validating finishes its job.
             <para>
-            Note: the compilation may be skipped if caching is enabled and the validation reviles that the previous compilation (cache) 
-            is still up to date. </para> 
-            <para>    
-            Due to the limited choices with the system wide named synchronization objects on Linux <c>Standard</c> is the only available 
-            synchronization model on Linux. And it is just happens to be a good default choice for Windows as well.</para>        
+            Note: the compilation may be skipped if caching is enabled and the validation reviles that the previous compilation (cache)
+            is still up to date. </para>
+            <para>
+            Due to the limited choices with the system wide named synchronization objects on Linux <c>Standard</c> is the only available
+            synchronization model on Linux. And it is just happens to be a good default choice for Windows as well.</para>
             </summary>
         </member>
         <member name="F:csscript.ConcurrencyControl.HighResolution">
             <summary>
             A legacy synchronization model available on Windows only. While it can be beneficial in the intense concurrent "border line" scenarios,
-            its practical value very limited. 
+            its practical value very limited.
             </summary>
         </member>
         <member name="F:csscript.ConcurrencyControl.None">
@@ -217,7 +217,7 @@
         </member>
         <member name="P:csscript.Settings.InjectScriptAssemblyAttribute">
             <summary>
-            Gets or sets a value indicating whether script assembly attribute should be injected. The AssemblyDecription attribute 
+            Gets or sets a value indicating whether script assembly attribute should be injected. The AssemblyDecription attribute
             contains the original location of the script file the assembly being compiled from./
             </summary>
             <value>
@@ -236,9 +236,9 @@
             <summary>
             Gets or sets a value indicating whether references to the auto-generated files should be resolved.
             <para>
-            If this flag is set the all references in the compile errors text to the path of the derived auto-generated files 
+            If this flag is set the all references in the compile errors text to the path of the derived auto-generated files
             (e.g. errors in the decorated classless scripts) will be replaced with the path of the original file(s) (e.g. classless script itself).
-            </para> 
+            </para>
             </summary>
             <value>
             <c>true</c> if preferences needs to be resolved; otherwise, <c>false</c>.
@@ -311,9 +311,9 @@
             <summary>
             Gets or sets a value indicating whether custom string hashing algorithm should be used.
             <para>
-            String hashing is used by the script engine for allocating temporary and cached paths. 
-            However default string hashing is platform dependent (x32 vs. x64) what makes impossible 
-            truly deterministic string hashing. This in turns complicates the integration of the 
+            String hashing is used by the script engine for allocating temporary and cached paths.
+            However default string hashing is platform dependent (x32 vs. x64) what makes impossible
+            truly deterministic string hashing. This in turns complicates the integration of the
             CS-Script infrastructure with the third-party applications (e.g. Notepad++ CS-Script plugin).
             </para>
             <para>
@@ -366,10 +366,10 @@
         </member>
         <member name="P:csscript.Settings.AutoClass_DecorateAsCS6">
             <summary>
-            Gets or sets a value indicating whether auto-class decoration should allow C# 6 specific syntax. 
-            If it does the statement "using static dbg;" will be injected at the start of the auto-class definition thus the 
-            entry script may invoke static methods for object inspection with <c>dbg</c> class without specifying the 
-            class name (e.g. "print(DateTime.Now);"). 
+            Gets or sets a value indicating whether auto-class decoration should allow C# 6 specific syntax.
+            If it does the statement "using static dbg;" will be injected at the start of the auto-class definition thus the
+            entry script may invoke static methods for object inspection with <c>dbg</c> class without specifying the
+            class name (e.g. "print(DateTime.Now);").
             </summary>
             <value>
             <c>true</c> if decorate auto-class as C# 6; otherwise, <c>false</c>.
@@ -388,8 +388,8 @@
             This setting can be useful when you need to prevent script assembly (compiled script) from locking by CLR during the execution.
             false - script assembly will be loaded as a file. It is an equivalent of Assembly.LoadFrom(string assemblyFile).
             true - script assembly will be loaded as a file. It is an equivalent of Assembly.Load(byte[] rawAssembly)
-            <para>Note: some undesired side effects can be triggered by having assemblies with <c>Assembly.Location</c> being empty. 
-            For example <c>Interface Alignment</c> any not work with such assemblies as it relies on CLR compiling services that 
+            <para>Note: some undesired side effects can be triggered by having assemblies with <c>Assembly.Location</c> being empty.
+            For example <c>Interface Alignment</c> any not work with such assemblies as it relies on CLR compiling services that
             typically require assembly <c>Location</c> member being populated with the valid path.</para>
             </summary>
         </member>
