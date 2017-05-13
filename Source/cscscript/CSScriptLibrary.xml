@@ -254,6 +254,25 @@
             Encoding of he Console Output. Applicable for console applications script engine only.
             </summary>
         </member>
+        <member name="P:csscript.Settings.SuppressTimestamping">
+            <summary>
+            Gets or sets a value indicating whether to suppress timestamping the compiled script assembly.
+            <para>
+            It is an experimental setting that is supposed to be used only in very specific cases when CLR
+            shadow copying misbehaves due to the legitimate changes of the assembly timestamp.
+            </para>
+            <para>
+            Triggered by
+            issue #61: https://github.com/oleg-shilo/cs-script/issues/61
+            </para>
+            <para>
+            Note, setting this property to <c>true</c> effectively disables any script caching.
+            </para>
+            </summary>
+            <value>
+              <c>true</c> if to suppress timestamping; otherwise, <c>false</c>.
+            </value>
+        </member>
         <member name="P:csscript.Settings.TargetFramework">
             <summary>
             Specifies the .NET Framework version that the script is compiled against. This option can have the following values:

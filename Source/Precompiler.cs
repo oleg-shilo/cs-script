@@ -31,6 +31,7 @@ namespace csscript
         /// is injected in the script).</para>
         /// </summary>
         public List<string> NewReferences = new List<string>();
+
         /// <summary>
         /// Collection of the new dependency items (files).
         /// <para>Dependency files are checked before the script execution in order to understand if the script should be recompiled or it can be loaded from
@@ -38,15 +39,18 @@ namespace csscript
         /// scenarios the script file is a dependency file.</para>
         /// </summary>
         public List<string> NewDependencies = new List<string>();
+
         /// <summary>
         /// Collection of the new 'include' items (dependency source files).
         /// </summary>
         public List<string> NewIncludes = new List<string>();
+
         /// <summary>
         /// Collection of the assembly and script probing directories to be added to the process search directories.
         /// <para>You may want to add new items to the process search directories because of the precompilation logic.</para>
         /// </summary>
         public List<string> NewSearchDirs = new List<string>();
+
         /// <summary>
         /// Collection of the process assembly and script probing directories.
         /// </summary>
@@ -138,6 +142,7 @@ namespace csscript
 
             return new[] { line, col };
         }
+
         //Returns text position of 0-based line and column pair
         static int GetPos(string text, int line, int col)
         {
@@ -184,7 +189,6 @@ namespace csscript
                         {
                             if (text[i - 1] == '\n') // /n[/n]
                                 lineCount++;
-
                         }
                         if (i > 0 && text[i] == '\r')
                         {
@@ -251,7 +255,7 @@ namespace csscript
             int injectionPos;
             int injectionLength;
             int injectedLine;
-            content = Process(content, out injectionPos, out injectionLength, out injectedLine, (string) context["ConsoleEncoding"]);
+            content = Process(content, out injectionPos, out injectionLength, out injectedLine, (string)context["ConsoleEncoding"]);
             return true;
         }
 
@@ -266,11 +270,15 @@ namespace csscript
             //we will be effectively normalizing the line ends but the input file may no be
 
             var code = new StringBuilder(4096);
+            var footer = new StringBuilder();
             //code.Append("//Auto-generated file" + Environment.NewLine); //cannot use AppendLine as it is not available in StringBuilder v1.1
             //code.Append("using System;\r\n");
 
+            //css_ac_end
             bool headerProcessed = false;
             int bracket_count = 0;
+
+            bool stopDecoratingDetected = false;
 
             string line;
             using (var sr = new StringReader(content))
@@ -279,6 +287,15 @@ namespace csscript
                 int lineCount = 0;
                 while ((line = sr.ReadLine()) != null)
                 {
+                    if (!stopDecoratingDetected && line.Trim() == "//css_ac_end")
+                        stopDecoratingDetected = true;
+
+                    if (stopDecoratingDetected)
+                    {
+                        footer.AppendLine(line);
+                        continue;
+                    }
+
                     if (!headerProcessed && !line.TrimStart().StartsWith("using ")) //not using...; statement of the file header
                         if (!line.StartsWith("//") && line.Trim() != "") //not comments or empty line
                         {
@@ -340,7 +357,6 @@ namespace csscript
                                     injectedLine = lineCount;
                                     injectionLength += entryPointDefinition.Length;
                                     code.Insert(entryPointInjectionPos, entryPointDefinition);
-
                                 }
                                 else if (match.Value.Contains("Main")) //assembly entry point "static Main"
                                 {
@@ -375,7 +391,7 @@ namespace csscript
             }
             code.Append("} ///CS-Script auto-class generation" + Environment.NewLine);
 
-            var result = code.ToString();
+            var result = code.ToString() + footer.ToString();
             return result;
         }
     }
