@@ -145,8 +145,6 @@ namespace csscript
             return (string[])retval.ToArray(typeof(string));
         }
 
-#if !net1
-
         public static string[] RemovePathDuplicates(string[] list)
         {
             return list.Where(x => !string.IsNullOrEmpty(x)).Select(x => Path.GetFullPath(x)).Distinct().ToArray();
@@ -161,66 +159,6 @@ namespace csscript
         {
             return list.Where(x => !string.IsNullOrEmpty(x)).ToArray();
         }
-
-#else
-        public static string[] RemovePathDuplicates(string[] list)
-        {
-            System.Collections.ArrayList retval = new System.Collections.ArrayList();
-
-            foreach (string item in list)
-            {
-                string path = item.Trim();
-
-                if (path == "")
-                    continue;
-
-                path = Path.GetFullPath(path);
-
-                bool found = false;
-
-                foreach (string pathItem in retval)
-                    if (Utils.IsSamePath(pathItem, path))
-                    {
-                        found = true;
-                        break;
-                    }
-
-                if (!found)
-                    retval.Add(path);
-            }
-
-            return (string[]) retval.ToArray(typeof(string));
-        }
-
-        public static string[] RemoveDuplicates(string[] list)
-        {
-            System.Collections.ArrayList retval = new System.Collections.ArrayList();
-
-            foreach (string item in list)
-            {
-                if (item.Trim() != "")
-                {
-                    if (!retval.Contains(item))
-                        retval.Add(item);
-                }
-            }
-
-            return (string[]) retval.ToArray(typeof(string));
-        }
-
-        public static string[] RemoveEmptyStrings(string[] list)
-        {
-            System.Collections.ArrayList retval = new System.Collections.ArrayList();
-
-            foreach (string item in list)
-            {
-                if (item.Trim() != "")
-                    retval.Add(item);
-            }
-
-            return (string[]) retval.ToArray(typeof(string));
-        }
-#endif
 
         //to avoid throwing the exception
         public static string GetAssemblyDirectoryName(this Assembly asm)
@@ -1190,11 +1128,7 @@ namespace csscript
 
                     foreach (string precompilerFile in precompilers.Keys)
                     {
-#if net1
-                        foreach (object precompiler in precompilers[precompilerFile] as ArrayList)
-#else
                         foreach (object precompiler in precompilers[precompilerFile])
-#endif
                         {
                             if (options.verbose && i == 0)
                             {
@@ -1240,31 +1174,6 @@ namespace csscript
 
         internal const string noDefaultPrecompilerSwitch = "nodefault";
 
-#if net1
-        public static System.Collections.Hashtable LoadPrecompilers(ExecuteOptions options)
-        {
-            System.Collections.Hashtable retval = new System.Collections.Hashtable();
-            if (!options.preCompilers.StartsWith(noDefaultPrecompilerSwitch)) //no defaults
-            {
-                ArrayList compilers = new ArrayList();
-                compilers.Add(new DefaultPrecompiler());
-                retval.Add(Assembly.GetExecutingAssembly().Location, compilers);
-            }
-
-            if (options.autoClass)
-            {
-                if (retval.ContainsKey(Assembly.GetExecutingAssembly().Location))
-                    (retval[Assembly.GetExecutingAssembly().Location] as ArrayList).Add(new AutoclassPrecompiler());
-                else
-                {
-                    ArrayList compilers = new ArrayList();
-                    compilers.Add(new AutoclassPrecompiler());
-                    retval.Add(Assembly.GetExecutingAssembly().Location, compilers);
-                }
-            }
-
-#else
-
         internal static Dictionary<string, List<object>> LoadPrecompilers(ExecuteOptions options)
         {
             Dictionary<string, List<object>> retval = new Dictionary<string, List<object>>();
@@ -1280,8 +1189,6 @@ namespace csscript
                 else
                     retval.Add(Assembly.GetExecutingAssembly().Location, new List<object>() { new AutoclassPrecompiler() });
             }
-
-#endif
 
             foreach (string precompiler in Utils.RemoveDuplicates((options.preCompilers).Split(new char[] { ',' })))
             {
@@ -1300,8 +1207,6 @@ namespace csscript
                         asm = Assembly.LoadFrom(sourceFile);
                     else
                         asm = CompilePrecompilerScript(sourceFile, options.searchDirs);
-
-                    //string typeName = typeof(IPrecompiler).Name;
 
                     object precompilerObj = null;
 
@@ -1966,11 +1871,7 @@ namespace csscript
         bool IsGACAssembly(string file)
         {
             string s = file.ToLower();
-#if net1
-            return s.IndexOf("microsoft.net\\framework") != -1 || s.IndexOf("microsoft.net/framework") != -1 || s.IndexOf("gac_msil") != -1 || s.IndexOf("gac_64") != -1 || s.IndexOf("gac_32") != -1;
-#else
             return s.Contains("microsoft.net\\framework") || s.Contains("microsoft.net/framework") || s.Contains("gac_msil") || s.Contains("gac_64") || s.Contains("gac_32");
-#endif
         }
     }
 
@@ -2051,12 +1952,7 @@ namespace csscript
                     }
                     else
                     {
-#if net1
-                    string[] lines = File.ReadAllLines(infoFile);
-                    string sourceDir = lines[lines.Length-1];
-#else
                         string sourceDir = File.ReadAllLines(infoFile).Last();
-#endif
 
                         if (operation == Op.List)
                         {
