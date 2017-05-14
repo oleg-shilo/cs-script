@@ -17,8 +17,8 @@ public class EvalAsyncExtensions
     public async void LoadDelegateAsync()
     {
         var product = await CSScript.Evaluator
-                                    .LoadDelegateAsync<Func<int, int, int>>(
-                                          @"int Product(int a, int b)
+                                .LoadDelegateAsync<Func<int, int, int>>(
+                                      @"int Product(int a, int b)
                                             {
                                                 return a * b;
                                             }");
@@ -30,7 +30,7 @@ public class EvalAsyncExtensions
     public async void LoadMethodAsync()
     {
         dynamic script = await CSScript.Evaluator
-                                       .LoadMethodAsync(@"public int Sum(int a, int b)
+                                   .LoadMethodAsync(@"public int Sum(int a, int b)
                                             {
                                                 return a + b;
                                             }
@@ -88,8 +88,7 @@ public class EvalAsyncExtensions
         var result = test(data);
         Assert.Equal(15f, result);
     }
-    
-    
+
     [Fact]
     public async void CreateUnsafeDelegateAsync2()
     {
@@ -194,4 +193,3 @@ public class EvalAsyncExtensions
         Assert.Equal(18, calc.Sum(15, 3));
     }
 }
-

@@ -1137,12 +1137,21 @@ namespace csscript
 
             if (File.Exists(asmFileName) && File.Exists(scripFileName))
             {
-                FileInfo scriptFile = new FileInfo(scripFileName);
-                FileInfo asmFile = new FileInfo(asmFileName);
+                var scriptFile = new FileInfo(scripFileName);
+                var asmFile = new FileInfo(asmFileName);
 
-                if (asmFile.LastWriteTime == scriptFile.LastWriteTime &&
-                    asmFile.LastWriteTimeUtc == scriptFile.LastWriteTimeUtc)
+                if (Settings.legacyTimestampCahing)
                 {
+                    if (asmFile.LastWriteTime == scriptFile.LastWriteTime &&
+                        asmFile.LastWriteTimeUtc == scriptFile.LastWriteTimeUtc)
+                    {
+                        retval = asmFileName;
+                    }
+                }
+                else
+                {
+                    // the actual timestamps of the script and all its dependencies will be conducted later
+                    // by analyzing the assembly script metadata
                     retval = asmFileName;
                 }
             }
@@ -1782,11 +1791,16 @@ namespace csscript
 
                 if (options.useCompiled)
                 {
+                    var scriptFile = new FileInfo(scriptFileName);
+
                     if (options.useSmartCaching)
                     {
-                        MetaDataItems depInfo = new MetaDataItems();
+                        var depInfo = new MetaDataItems();
 
                         string[] searchDirs = Utils.RemovePathDuplicates(options.searchDirs);
+
+                        //add entry script info
+                        depInfo.AddItem(scriptFileName, scriptFile.LastWriteTimeUtc, false);
 
                         //save imported scripts info
                         depInfo.AddItems(parser.ImportedFiles, false, searchDirs);
@@ -1802,11 +1816,10 @@ namespace csscript
                         depInfo.StampFile(assemblyFileName);
                     }
 
-                    if (!Settings.suppressTimestamping)
+                    if (Settings.legacyTimestampCahing)
                     {
-                        FileInfo scriptFile = new FileInfo(scriptFileName);
-                        FileInfo asmFile = new FileInfo(assemblyFileName);
-                        FileInfo pdbFile = new FileInfo(pdbFileName);
+                        var asmFile = new FileInfo(assemblyFileName);
+                        var pdbFile = new FileInfo(pdbFileName);
 
                         if (scriptFile.Exists && asmFile.Exists)
                         {

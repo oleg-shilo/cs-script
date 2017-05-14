@@ -298,6 +298,7 @@ namespace csscript
         }
 
 #if net4
+
         static void RunConsoleApp(string app, string args)
         {
             Process process = new Process();
@@ -351,7 +352,7 @@ namespace csscript
                 while (true)
                 {
                     int nextChar = Console.Read();
-                    process.StandardInput.Write((char) nextChar);
+                    process.StandardInput.Write((char)nextChar);
                     process.StandardInput.Flush();
                 }
             });

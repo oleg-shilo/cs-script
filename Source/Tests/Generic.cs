@@ -1,4 +1,5 @@
 ﻿extern alias css;
+
 using csscript = css::csscript;
 using CSSUtils = css::csscript.CSSUtils;
 using CSharpParser = css::csscript.CSharpParser;
@@ -11,6 +12,8 @@ public class GenericTest
     [Fact]
     public void Test_PathSimpleExpression()
     {
+        Assert.True(System.IO.Directory.Exists(@"C:\ProgramData\CS-Script\nuget\ServiceStack.Interfaces"));
+
         var dirs = CSSUtils.GetDirectories("", @"C:\ProgramData\CS-Script\nuget\ServiceStack.Interfaces\ServiceStack.Interfaces.*");
         Assert.Equal(3, dirs.Length);
 

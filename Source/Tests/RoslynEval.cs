@@ -9,6 +9,16 @@ using Xunit;
 //https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples#expr
 public class RoslynEval
 {
+    static SimpleAsmProbing probing = null;
+
+    public RoslynEval()
+    {
+        if (probing == null)
+        {
+            probing = SimpleAsmProbing.For(".", @"..\..\..\Roslyn.Scripting");
+        }
+    }
+
     static string classCode = @"public class ScriptedClass
                                     {
                                         public string HelloWorld {get;set;}
@@ -17,6 +27,7 @@ public class RoslynEval
                                             HelloWorld = ""Hello Roslyn!"";
                                         }
                                     }";
+
     [Fact]
     public void CompileCode()
     {
@@ -224,12 +235,12 @@ public class RoslynEval
     {
         ICalc script = CSScript.RoslynEvaluator
                                .LoadMethod<ICalc>(@"using System;
-                                                  
+
                                                     public int Sum(int a, int b)
                                                     {
                                                         return sumImpl(a,b);
                                                     }
-                                                  
+
                                                     int sumImpl(int a, int b)
                                                     {
                                                         return a+b;

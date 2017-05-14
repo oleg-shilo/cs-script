@@ -167,6 +167,7 @@ namespace csscript
         {
             ExecuteOptions clone = new ExecuteOptions();
             clone.processFile = this.processFile;
+            //some props will be further set by the caller
             //clone.scriptFileName = this.scriptFileName;
             //clone.noLogo = this.noLogo;
             //clone.useCompiled = this.useCompiled;
@@ -231,9 +232,9 @@ namespace csscript
         public bool noLogo = false;
         public bool useCompiled = false;
         public bool useScriptConfig = false;
-        public string customConfigFileName = "";
         public bool useSmartCaching = true; //hardcoded true but can be set from config file in the future
         public bool supressTimestampAltering = false; //hardcoded true but can be set from config file in the future
+        public string customConfigFileName = "";
         public bool DLLExtension = false;
         public bool forceCompile = false;
         public bool supressExecution = false;

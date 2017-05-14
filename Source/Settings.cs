@@ -263,33 +263,39 @@ namespace csscript
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to suppress timestamping the compiled script assembly.
+        /// Gets or sets a value indicating whether to enforce timestamping the compiled script assembly.
         /// <para>
-        /// It is an experimental setting that is supposed to be used only in very specific cases when CLR
-        /// shadow copying misbehaves due to the legitimate changes of the assembly timestamp.
+        /// Some reports indicated that changing assembly timestamp can affect CLR caching (shadow copying)
+        /// due to some unknown/undocumented CLR feature(s).
         /// </para>
         /// <para>
-        /// Triggered by
-        /// issue #61: https://github.com/oleg-shilo/cs-script/issues/61
+        /// Thus script caching algorithm has been changed to avoid using the compiled assembly
+        /// LastModifiedTime file-attribute for storing the script timestamp. Currently caching alogithm
+        /// uses injected matadata instead.
         /// </para>
         /// <para>
-        /// Note, setting this property to <c>true</c> effectively disables any script caching.
+        /// If for whatever reason the old behaver is preferred you can always enable it by either setting
+        /// <see cref="Settings.LegacyTimestampCahing"/> to <c>true</c> or by setting CSS_LEGACY_TIMESTAMP_CAHING
+        /// environment variable to <c>"true"</c>.
+        /// </para>
+        /// <para>
+        /// Triggered by issue #61: https://github.com/oleg-shilo/cs-script/issues/61
         /// </para>
         /// </summary>
         /// <value>
         ///   <c>true</c> if to suppress timestamping; otherwise, <c>false</c>.
         /// </value>
         [Browsable(false)]
-        public bool SuppressTimestamping
+        public bool LegacyTimestampCahing
         {
-            get { return suppressTimestamping; }
-            set { suppressTimestamping = value; }
+            get { return legacyTimestampCahing; }
+            set { legacyTimestampCahing = value; }
         }
 
-        static internal bool suppressTimestamping
+        static internal bool legacyTimestampCahing
         {
-            get { return Environment.GetEnvironmentVariable("CSS_SUPPRESS_TIMESTAMPING") == true.ToString(); }
-            set { Environment.SetEnvironmentVariable("CSS_SUPPRESS_TIMESTAMPING", value.ToString()); }
+            get { return Environment.GetEnvironmentVariable("CSS_LEGACY_TIMESTAMP_CAHING") == true.ToString(); }
+            set { Environment.SetEnvironmentVariable("CSS_LEGACY_TIMESTAMP_CAHING", value.ToString()); }
         }
 
         internal const string DefaultEncodingName = "default";

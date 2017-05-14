@@ -1194,7 +1194,6 @@ namespace CSScriptLibrary
 
                         InitExecuteOptions(CSExecutor.options, scriptSettings, compilerOptions, ref scriptFile);
                         CSExecutor.options.DBG = debugBuild;
-                        ExecuteOptions.options.useSmartCaching = CacheEnabled;
 
                         if (refAssemblies != null && refAssemblies.Length != 0)
                         {
@@ -1263,6 +1262,7 @@ namespace CSScriptLibrary
             options.defaultRefAssemblies = settings.ExpandDefaultRefAssemblies();
             options.doCleanupAfterNumberOfRuns = settings.DoCleanupAfterNumberOfRuns;
             options.useCompiled = CSScript.CacheEnabled;
+            options.useSmartCaching = CSScript.CacheEnabled;
             options.useSurrogateHostingProcess = false; //regardless of the input useSurrogateHostingProcess is not appropriate for teh hosting scenarios, so set it to 'false'
 
             ArrayList dirs = new ArrayList();
@@ -1977,7 +1977,15 @@ namespace CSScriptLibrary
                     if (dynamicScriptsAssemblies.ContainsKey(scriptTextCRC))
                         try
                         {
-                            return Assembly.LoadFrom(dynamicScriptsAssemblies[scriptTextCRC]);
+                            var location = dynamicScriptsAssemblies[scriptTextCRC];
+                            if (location.StartsWith("inmem:"))
+                            {
+                                string name = location.Substring("inmem:".Length);
+                                return AppDomain.CurrentDomain.GetAssemblies().
+                                       SingleOrDefault(assembly => assembly.FullName == name);
+                            }
+                            else
+                                return Assembly.LoadFrom(location);
                         }
                         catch
                         {
@@ -2004,12 +2012,22 @@ namespace CSScriptLibrary
 
                     string location = asm.Location();
 
-                    if (CacheEnabled && !Utils.IsNullOrWhiteSpace(location))
-                        if (dynamicScriptsAssemblies.ContainsKey(scriptTextCRC))
-                            dynamicScriptsAssemblies[scriptTextCRC] = location;
-                        else
-                            dynamicScriptsAssemblies.Add(scriptTextCRC, location);
+                    if (CacheEnabled)
+                    {
+                        if (String.IsNullOrEmpty(location))
+                        {
+                            if (Environment.GetEnvironmentVariable("CSS_DISABLE_INMEM_ASM_CACHING") != "true")
+                                location = "inmem:" + asm.FullName;
+                        }
 
+                        if (!string.IsNullOrEmpty(location))
+                        {
+                            if (dynamicScriptsAssemblies.ContainsKey(scriptTextCRC))
+                                dynamicScriptsAssemblies[scriptTextCRC] = location;
+                            else
+                                dynamicScriptsAssemblies.Add(scriptTextCRC, location);
+                        }
+                    }
                     return asm;
                 }
                 finally
@@ -2123,7 +2141,6 @@ namespace CSScriptLibrary
 
                         InitExecuteOptions(CSExecutor.options, scriptSettings, compilerOptions, ref scriptFile);
                         CSExecutor.options.DBG = debugBuild;
-                        ExecuteOptions.options.useSmartCaching = CacheEnabled;
 
                         if (refAssemblies != null && refAssemblies.Length != 0)
                         {
@@ -2467,8 +2484,9 @@ namespace CSScriptLibrary
                 if (assemblyFileName == "" || assemblyFileName == null)
                     return true;
 
-                if (File.GetLastWriteTimeUtc(scriptFileName) != File.GetLastWriteTimeUtc(assemblyFileName))
-                    return true;
+                if (Settings.legacyTimestampCahing)
+                    if (File.GetLastWriteTimeUtc(scriptFileName) != File.GetLastWriteTimeUtc(assemblyFileName))
+                        return true;
 
                 return MetaDataItems.IsOutOfDate(scriptFileName, assemblyFileName);
             }

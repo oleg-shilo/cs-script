@@ -1322,18 +1322,8 @@ namespace csscript
                         }
                     }
 
-#if net1
-                    if (precompilerObj != null)
-                        {
-                            ArrayList compilers = new ArrayList();
-                            compilers.Add(precompilerObj);
-                            retval.Add(sourceFile, compilers);
-                        }
-
-#else
                     if (precompilerObj != null)
                         retval.Add(sourceFile, new List<object>() { precompilerObj });
-#endif
                 }
             }
 
@@ -1372,21 +1362,14 @@ namespace csscript
 
         internal static string[] CollectPrecompillers(CSharpParser parser, ExecuteOptions options)
         {
-#if net1
-            ArrayList allPrecompillers = new ArrayList();
-#else
             List<string> allPrecompillers = new List<string>();
-#endif
+
             allPrecompillers.AddRange(options.preCompilers.Split(','));
 
             foreach (string item in parser.Precompilers)
                 allPrecompillers.AddRange(item.Split(','));
 
-#if net1
-            return Utils.RemoveDuplicates((string[])allPrecompillers.ToArray(typeof(string)));
-#else
             return Utils.RemoveDuplicates(allPrecompillers.ToArray());
-#endif
         }
 
         internal static int GenerateCompilationContext(CSharpParser parser, ExecuteOptions options)
@@ -1407,8 +1390,6 @@ namespace csscript
             return CSSUtils.GetHashCodeEx(sb.ToString());
         }
 
-#if !net1
-
         public static string[] GetAppDomainAssemblies()
         {
             return (from a in AppDomain.CurrentDomain.GetAssemblies()
@@ -1416,8 +1397,6 @@ namespace csscript
                     where location != "" && !a.GlobalAssemblyCache
                     select location).ToArray();
         }
-
-#endif
 
         public static bool IsDynamic(Assembly asm)
         {
@@ -1486,11 +1465,7 @@ namespace csscript
                         }
 
                     ////////////////////////////////////////
-#if net1
-                foreach (string asm in Utils.RemovePathDuplicates((string[])refAssemblies.ToArray(typeof(string))))
-#else
                     foreach (string asm in Utils.RemovePathDuplicates(refAssemblies.ToArray()))
-#endif
                     {
                         compilerParams.ReferencedAssemblies.Add(asm);
                     }
@@ -1722,15 +1697,11 @@ namespace csscript
             public bool assembly;
         }
 
-#if net1
-        public ArrayList items = new ArrayList();
-#else
         public List<MetaDataItem> items = new List<MetaDataItem>();
-#endif
 
         static public bool IsOutOfDate(string script, string assembly)
         {
-            MetaDataItems depInfo = new MetaDataItems();
+            var depInfo = new MetaDataItems();
 
             if (depInfo.ReadFileStamp(assembly))
             {
@@ -1782,11 +1753,8 @@ namespace csscript
 
         public string[] AddItems(string[] files, bool isAssembly, string[] searchDirs)
         {
-#if net1
-            ArrayList newProbingDirs = new ArrayList();
-#else
             List<string> newProbingDirs = new List<string>();
-#endif
+
             if (isAssembly)
             {
                 foreach (string asmFile in files)
@@ -1852,11 +1820,7 @@ namespace csscript
                         AddItem(file, File.GetLastWriteTimeUtc(file), false);
                 }
             }
-#if net1
-            return (string[])newProbingDirs.ToArray(typeof(string));
-#else
             return newProbingDirs.ToArray();
-#endif
         }
 
         public void AddItem(string file, DateTime date, bool assembly)
@@ -1883,6 +1847,7 @@ namespace csscript
                         w.Write((Int32)(CSExecutor.options.DBG ? 1 : 0));
                         w.Write((Int32)(CSExecutor.options.compilationContext));
                         w.Write((Int32)CSSUtils.GetHashCodeEx(Environment.Version.ToString()));
+
                         w.Write((Int32)stampID);
                     }
                 }
@@ -1895,6 +1860,25 @@ namespace csscript
             return true;
         }
 
+        static int ReadIntBackwards(BinaryReader r, ref int offset)
+        {
+            var fs = (FileStream)r.BaseStream;
+            offset += intSize;
+            fs.Seek(-offset, SeekOrigin.End);
+            return r.ReadInt32();
+        }
+
+        static long ReadLongBackwards(BinaryReader r, ref int offset)
+        {
+            var fs = (FileStream)r.BaseStream;
+            offset += longSize;
+            fs.Seek(-offset, SeekOrigin.End);
+            return r.ReadInt64();
+        }
+
+        static int intSize = Marshal.SizeOf((Int32)0);
+        static int longSize = Marshal.SizeOf((Int64)0);
+
         public bool ReadFileStamp(string file)
         {
             try
@@ -1903,42 +1887,29 @@ namespace csscript
                 {
                     using (BinaryReader r = new BinaryReader(fs))
                     {
-                        fs.Seek(-intSize, SeekOrigin.End);
-                        int stamp = r.ReadInt32();
+                        int offset = 0;
+                        int stamp = ReadIntBackwards(r, ref offset);
 
                         if (stamp == stampID)
                         {
-                            fs.Seek(-(intSize * 2), SeekOrigin.End);
-                            if (r.ReadInt32() != CSSUtils.GetHashCodeEx(Environment.Version.ToString()))
-                            {
-                                //Console.WriteLine("Environment.Version");
+                            int value = ReadIntBackwards(r, ref offset);
+                            if (value != CSSUtils.GetHashCodeEx(Environment.Version.ToString()))
                                 return false;
-                            }
 
-                            fs.Seek(-(intSize * 3), SeekOrigin.End);
-
-                            //int yyy = r.ReadInt32();
-                            //if (yyy != CSExecutor.options.compilationContext)
-                            if (r.ReadInt32() != CSExecutor.options.compilationContext)
-                            {
-                                //Console.WriteLine("CSExecutor.options.compilationContext");
+                            value = ReadIntBackwards(r, ref offset);
+                            if (value != CSExecutor.options.compilationContext)
                                 return false;
-                            }
 
-                            fs.Seek(-(intSize * 4), SeekOrigin.End);
-                            if (r.ReadInt32() != (CSExecutor.options.DBG ? 1 : 0))
-                            {
-                                //Console.WriteLine("CSExecutor.options.DBG");
+                            value = ReadIntBackwards(r, ref offset);
+                            if (value != (CSExecutor.options.DBG ? 1 : 0))
                                 return false;
-                            }
 
-                            fs.Seek(-(intSize * 5), SeekOrigin.End);
-                            int dataSize = r.ReadInt32();
-
+                            int dataSize = ReadIntBackwards(r, ref offset);
                             if (dataSize != 0)
                             {
-                                fs.Seek(-(intSize * 5 + dataSize), SeekOrigin.End);
-                                return this.Parse(new string(r.ReadChars(dataSize)));
+                                fs.Seek(-(offset + dataSize), SeekOrigin.End);
+                                var result = this.Parse(new string(r.ReadChars(dataSize)));
+                                return result;
                             }
                             else
                                 return true;
@@ -1987,7 +1958,6 @@ namespace csscript
         }
 
         int stampID = CSSUtils.GetHashCodeEx(Assembly.GetExecutingAssembly().FullName.Split(",".ToCharArray())[1]);
-        int intSize = Marshal.SizeOf((Int32)0);
 
         //#pragma warning disable 414
         //int executionFlag = Marshal.SizeOf((Int32)0);
