@@ -12,8 +12,6 @@ namespace CSScriptLib.Client
     {
         public static void Main(string[] args)
         {
-            //Test();return;
-
             Test.CompileCode();
             Test.CompileMethod();
             Test.CompileCSharp_7();
@@ -21,48 +19,6 @@ namespace CSScriptLib.Client
             Test.CompileDelegate1();
             Test.LoadCode();
             Test.LoadCode2();
-        }
-
-        static void DoTest()
-        {
-            for (int i = 0; i < 100000; i++)
-            {
-                //    var code = @"using System;
-                //                 public class Script
-                //                 {
-                //                     public int Sum(int a, int b)
-                //                     {
-                //                         return a+b;
-                //                     }
-                //                 }";
-
-                //    CSharpScript.EvaluateAsync(
-                //        @"using System;
-                //          var s = """+i+@""";
-                //          Console.WriteLine(""Hello Roslyn.""+s);").Wait();
-
-                var code = @"using System;
-                         public class Script
-                         {
-                             public int Sum(int a, int b)
-                             {
-                                 return a+b;
-                             }
-                         }";
-
-                //object result = CSharpScript.EvaluateAsync(code + @" class return new Script();").Result;
-                //typeof(< a type in that assembly>).GetTypeInfo().Assembly
-
-                var asm = (Assembly)CSharpScript.EvaluateAsync(code + @" class EntryPoint{}; return typeof(EntryPoint).Assembly;").Result;
-
-                dynamic script = asm.CreateObject("*");
-                var result = script.Sum(i, 1);
-                Console.WriteLine(result);
-            }
-
-            //object result = CSharpScript.EvaluateAsync("1+5").Result;
-            //Console.WriteLine(result);
-            //asms = AppDomain.CurrentDomain.GetAssemblies();
         }
     }
 }
