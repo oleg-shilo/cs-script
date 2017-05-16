@@ -17,7 +17,6 @@ namespace CSScriptLib.Client
     {
         static public void CompileCode()
         {
-            AppDomain.CurrentDomain
             Assembly asm = CSScript.Evaluator
                                    .CompileCode(@"using System;
                                                   public class Script
