@@ -275,7 +275,7 @@ namespace csscript
         /// </para>
         /// <para>
         /// If for whatever reason the old behaver is preferred you can always enable it by either setting
-        /// <see cref="Settings.LegacyTimestampCahing"/> to <c>true</c> or by setting CSS_LEGACY_TIMESTAMP_CAHING
+        /// <see cref="Settings.LegacyTimestampCaching"/> to <c>true</c> or by setting CSS_LEGACY_TIMESTAMP_CAHING
         /// environment variable to <c>"true"</c>.
         /// </para>
         /// <para>
@@ -286,7 +286,7 @@ namespace csscript
         ///   <c>true</c> if to suppress timestamping; otherwise, <c>false</c>.
         /// </value>
         [Browsable(false)]
-        public bool LegacyTimestampCahing
+        public bool LegacyTimestampCaching
         {
             get { return legacyTimestampCahing; }
             set { legacyTimestampCahing = value; }
@@ -294,8 +294,8 @@ namespace csscript
 
         static internal bool legacyTimestampCahing
         {
-            get { return Environment.GetEnvironmentVariable("CSS_LEGACY_TIMESTAMP_CAHING") == true.ToString(); }
-            set { Environment.SetEnvironmentVariable("CSS_LEGACY_TIMESTAMP_CAHING", value.ToString()); }
+            get { return Environment.GetEnvironmentVariable("CSS_LEGACY_TIMESTAMP_CACHING") == true.ToString(); }
+            set { Environment.SetEnvironmentVariable("CSS_LEGACY_TIMESTAMP_CACHING", value.ToString()); }
         }
 
         internal const string DefaultEncodingName = "default";
