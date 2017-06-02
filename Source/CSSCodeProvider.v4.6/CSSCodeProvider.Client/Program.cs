@@ -4,7 +4,6 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 
-
 class Program
 {
     static void Main(string[] args)
@@ -24,7 +23,6 @@ class Program
         baseDir = @"C:\Program Files (x86)\Notepad++\plugins\CSScriptNpp\Roslyn\";
         CSSCodeProvider.CompilerPath = baseDir + "csc.exe";
         CSSCodeProvider.ProviderPath = baseDir + "Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll";
-
 
         CSSCodeProvider.CompilerServerTimeToLive = 60;
         Environment.SetEnvironmentVariable("CSS_CompilerDefaultSyntax", "vb");
@@ -59,14 +57,12 @@ class Program
             CSSCodeProvider.CompilerServerTimeToLive = 600;
             CSSCodeProvider.CompilerServerTimeToLive = 6;
 
-
             ICodeCompiler compiler = CSSCodeProvider.CreateCompiler("code.vb");
             var compilerParams = new CompilerParameters();
             //var file = @"E:\cs-script\samples\Hello.vb";
             //compilerParams.ReferencedAssemblies.Add(@"System.Net.Http.Formatting.dll");
             //compilerParams.ReferencedAssemblies.Add(@"System.dll");
             //var result = compiler.CompileAssemblyFromFile(compilerParams, file);
-
 
             var result = compiler.CompileAssemblyFromSource(compilerParams, @"
 Imports System
@@ -82,6 +78,7 @@ End Module");
         catch { }
         Console.WriteLine("done");
     }
+
     static void Load()
     {
         try
@@ -90,12 +87,15 @@ End Module");
             ////baseDir = @"E:\Galos\Projects\CS-Script.Npp\CSScript.Npp\src\CSScriptNpp\CSScriptNpp\Roslyn\";
             //CSSCodeProvider.CompilerPath = baseDir + "csc.exe";
             //CSSCodeProvider.ProviderPath = baseDir + "Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll";
-            CSSCodeProvider.CompilerServerTimeToLive = 600;
-            CSSCodeProvider.CompilerServerTimeToLive = 6;
+            //CSSCodeProvider.CompilerServerTimeToLive = 600;
+            //CSSCodeProvider.CompilerServerTimeToLive = 6;
 
             ICodeCompiler compiler = CSSCodeProvider.CreateCompiler("");
             var compilerParams = new CompilerParameters();
+            compilerParams.ReferencedAssemblies.Add("System.Core");
             var result = compiler.CompileAssemblyFromFile(compilerParams, @"C:\Users\osh\Documents\C# Scripts\New Script64.cs");
+            foreach (CompilerError err in result.Errors)
+                Console.WriteLine(err.ToString());
         }
         catch (Exception e)
         {
@@ -103,6 +103,7 @@ End Module");
         }
         Console.WriteLine("done");
     }
+
     static void Load_old()
     {
         try
@@ -121,5 +122,4 @@ End Module");
         catch { }
         Console.WriteLine("done");
     }
-
 }

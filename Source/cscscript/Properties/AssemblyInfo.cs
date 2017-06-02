@@ -12,12 +12,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("C# Script engine Console executable")]
 #endif
 [assembly: AssemblyConfiguration("")]
-
 [assembly: AssemblyProduct("C# Script engine")]
 [assembly: AssemblyCopyright("(C) 2004-2017 Oleg Shilo")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-
 #if dev
 [assembly: InternalsVisibleTo("Tests")]
 #endif
@@ -36,5 +34,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("3.25.3.0")]
-[assembly: AssemblyFileVersion("3.25.3.0")]
+[assembly: AssemblyVersion("3.25.3.1")]
+[assembly: AssemblyFileVersion("3.25.3.1")]

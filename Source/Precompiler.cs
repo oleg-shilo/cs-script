@@ -246,6 +246,7 @@ namespace csscript
         //}
 
         internal static bool decorateAutoClassAsCS6 = false;
+        internal static bool injectBreakPoint = false;
 
         public static bool Compile(ref string content, string scriptFile, bool IsPrimaryScript, Hashtable context)
         {
@@ -256,7 +257,7 @@ namespace csscript
             int injectionLength;
             int injectedLine;
             content = Process(content, out injectionPos, out injectionLength, out injectedLine, (string)context["ConsoleEncoding"]);
-            return true;
+            return injectionLength > 0;
         }
 
         internal static string Process(string content, out int injectionPos, out int injectionLength, out int injectedLine, string consoleEncoding)
@@ -279,6 +280,7 @@ namespace csscript
             int bracket_count = 0;
 
             bool stopDecoratingDetected = false;
+            int insertBreakpointAtLine = -1;
 
             string line;
             using (var sr = new StringReader(content))
@@ -344,6 +346,9 @@ namespace csscript
                                     if (string.Compare(consoleEncoding, Settings.DefaultEncodingName, true) != 0)
                                         entryPointDefinition += "try { Console.OutputEncoding = System.Text.Encoding.GetEncoding(\"" + consoleEncoding + "\"); } catch {} ";
 
+                                    if (injectBreakPoint)
+                                        entryPointDefinition += "System.Diagnostics.Debugger.Break(); ";
+
                                     if (noReturn)
                                     {
                                         entryPointDefinition += "new ScriptClass().main(" + actualArgs + "); return 0;";
@@ -365,11 +370,14 @@ namespace csscript
                                         string tempText = "static ";
 
                                         injectionLength += tempText.Length;
-                                        bool allow_member_declarations_before_entry_point = true;
+
+                                        bool allow_member_declarations_before_entry_point = true; //testing
                                         if (allow_member_declarations_before_entry_point)
                                             code.Append(tempText);
                                         else
                                             code.Insert(entryPointInjectionPos, tempText);
+
+                                        insertBreakpointAtLine = lineCount + 1;
                                     }
                                     else if (bracket_count > 0) //not classless but a complete class with static Main
                                     {
@@ -385,6 +393,12 @@ namespace csscript
                         }
                     }
                     code.Append(line);
+
+                    if (insertBreakpointAtLine == lineCount)
+                    {
+                        insertBreakpointAtLine = -1;
+                        code.Append("System.Diagnostics.Debugger.Break();");
+                    }
                     code.Append(Environment.NewLine);
                     lineCount++;
                 }

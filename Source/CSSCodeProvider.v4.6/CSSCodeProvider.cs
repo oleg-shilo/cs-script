@@ -53,13 +53,14 @@ public class CSSCodeProvider
         var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         return ExistingFile(dir, file) ??
-               ExistingFile(Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ??dir, file) ??
+               ExistingFile(Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ?? dir, file) ??
                ExistingFile(dir, "bin", file) ??
                ExistingFile(dir, "roslyn", file) ??
                ExistingFile(dir, "bin", "roslyn", file);
     }
 
     static bool inited = false;
+
     static void Init()
     {
         if (!inited)
@@ -99,6 +100,8 @@ public class CSSCodeProvider
         return CreateCompilerImpl(sourceFile);
     }
 
+#pragma warning disable 618
+
     static ICodeCompiler CreateCompilerImpl(string sourceFile)
     {
         string compilerDefaultSyntax = Environment.GetEnvironmentVariable("CSS_CompilerDefaultSyntax") ?? ".cs";
@@ -111,12 +114,25 @@ public class CSSCodeProvider
             isVB = compilerDefaultSyntax.IsOneOf_IgnoreCase(".vb", "VB", "VB.NET");
 
         if (isVB)
-            return new VBCodeProvider().SetCompilerSettings(CompilerPath, CompilerServerTimeToLive)
-                                       .CreateCompiler();
+        {
+            var provider = new VBCodeProvider();
+            provider.SetCompilerPath(CompilerPath);
+            if (CompilerServerTimeToLive.HasValue)
+                provider.SetCompilerServerTimeToLive(CompilerServerTimeToLive.Value);
+
+            return provider.CreateCompiler();
+        }
         else
-            return new CSharpCodeProvider().SetCompilerSettings(CompilerPath, CompilerServerTimeToLive)
-                                           .CreateCompiler();
+        {
+            var provider = new CSharpCodeProvider();
+            provider.SetCompilerPath(CompilerPath);
+            if (CompilerServerTimeToLive.HasValue)
+                provider.SetCompilerServerTimeToLive(CompilerServerTimeToLive.Value);
+            return provider.CreateCompiler();
+        }
     }
+
+#pragma warning restore 618
 }
 
 static class RoslynExtensions
@@ -139,12 +155,12 @@ static class RoslynExtensions
 
     internal static VBCodeProvider SetCompilerSettings(this VBCodeProvider provider, string compilerFullPath, int? compilerServerTimeToLive = null)
     {
-        return (VBCodeProvider) SetCompilerSettingsImpl(provider, compilerFullPath, compilerServerTimeToLive);
+        return (VBCodeProvider)SetCompilerSettingsImpl(provider, compilerFullPath, compilerServerTimeToLive);
     }
 
     internal static CSharpCodeProvider SetCompilerSettings(this CSharpCodeProvider provider, string compilerFullPath, int? compilerServerTimeToLive = null)
     {
-        return (CSharpCodeProvider) SetCompilerSettingsImpl(provider, compilerFullPath, compilerServerTimeToLive);
+        return (CSharpCodeProvider)SetCompilerSettingsImpl(provider, compilerFullPath, compilerServerTimeToLive);
     }
 
     static object SetCompilerSettingsImpl(object provider, string compilerFullPath, int? compilerServerTimeToLive = null)

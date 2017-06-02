@@ -254,7 +254,7 @@
             Encoding of he Console Output. Applicable for console applications script engine only.
             </summary>
         </member>
-        <member name="P:csscript.Settings.LegacyTimestampCahing">
+        <member name="P:csscript.Settings.LegacyTimestampCaching">
             <summary>
             Gets or sets a value indicating whether to enforce timestamping the compiled script assembly.
             <para>
@@ -268,7 +268,7 @@
             </para>
             <para>
             If for whatever reason the old behaver is preferred you can always enable it by either setting
-            <see cref="P:csscript.Settings.LegacyTimestampCahing"/> to <c>true</c> or by setting CSS_LEGACY_TIMESTAMP_CAHING
+            <see cref="P:csscript.Settings.LegacyTimestampCaching"/> to <c>true</c> or by setting CSS_LEGACY_TIMESTAMP_CAHING
             environment variable to <c>"true"</c>.
             </para>
             <para>
@@ -1197,7 +1197,7 @@
             </summary>
             <param name="name">'namespace'/assembly(file) name</param>
             <param name="searchDirs">Assembly search directories</param>
-            <para>If the default implementation isn't suitable then you can set <c>CSScript.FindAssemblyAlgorithm</c> 
+            <para>If the default implementation isn't suitable then you can set <c>CSScript.FindAssemblyAlgorithm</c>
             to the alternative implementation of the probing algorithm.</para>
             <returns>collection of assembly file names where namespace is implemented</returns>
         </member>

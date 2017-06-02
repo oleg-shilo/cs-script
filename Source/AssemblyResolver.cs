@@ -12,20 +12,20 @@
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2017 Oleg Shilo
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all copies or substantial 
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
 // portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
@@ -33,15 +33,7 @@
 
 using System;
 using System.Reflection;
-
-#if net1
-using System.Collections;
-#else
-
 using System.Collections.Generic;
-
-#endif
-
 using System.IO;
 using csscript;
 
@@ -125,6 +117,7 @@ namespace CSScriptLibrary
         //}
 
 #if net4
+
         static Assembly LoadAssemblyFrom(string assemblyName, string asmFile, bool throwException = false)
 #else
         static Assembly LoadAssemblyFrom(string assemblyName, string asmFile, bool throwException)
@@ -149,7 +142,6 @@ namespace CSScriptLibrary
             return null;
         }
 
-
         /// <summary>
         /// Resolves assembly name to assembly file. Loads assembly file to the current AppDomain.
         /// </summary>
@@ -158,6 +150,7 @@ namespace CSScriptLibrary
         /// <param name="throwExceptions">if set to <c>true</c> [throw exceptions].</param>
         /// <returns>loaded assembly</returns>
 #if net4
+
         static public Assembly ResolveAssembly(string assemblyName, string dir, bool throwExceptions = false)
 #else
         static public Assembly ResolveAssembly(string assemblyName, string dir, bool throwExceptions)
@@ -245,7 +238,7 @@ namespace CSScriptLibrary
         /// </summary>
         /// <param name="name">'namespace'/assembly(file) name</param>
         /// <param name="searchDirs">Assembly search directories</param>
-        /// <para>If the default implementation isn't suitable then you can set <c>CSScript.FindAssemblyAlgorithm</c> 
+        /// <para>If the default implementation isn't suitable then you can set <c>CSScript.FindAssemblyAlgorithm</c>
         /// to the alternative implementation of the probing algorithm.</para>
         /// <returns>collection of assembly file names where namespace is implemented</returns>
         static public string[] FindAssembly(string name, string[] searchDirs)
@@ -271,10 +264,11 @@ namespace CSScriptLibrary
                 if (retval.Count == 0)
                 {
                     string nameSpace = Utils.RemoveAssemblyExtension(name);
-                    foreach (string asmGACLocation in FindGlobalAssembly(nameSpace))
-                    {
-                        retval.Add(asmGACLocation);
-                    }
+                    if (Utils.IsMono())  //to allow VSCode references by asm name
+                        retval.Add(name);
+                    else
+                        foreach (string asmGACLocation in FindGlobalAssembly(nameSpace))
+                            retval.Add(asmGACLocation);
                 }
             }
             else
@@ -284,7 +278,7 @@ namespace CSScriptLibrary
                     if (Path.IsPathRooted(name) && File.Exists(name)) //note relative path will return IsLegalPathToken(name)==true
                         retval.Add(name);
                 }
-                catch { } //does not matter why... 
+                catch { } //does not matter why...
             }
 #if net1
             return (string[])retval.ToArray(typeof(string));
@@ -335,11 +329,8 @@ namespace CSScriptLibrary
         /// <returns>collection of assembly file names where namespace is implemented</returns>
         public static string[] FindGlobalAssembly(String namespaceStr)
         {
-#if net1
-            ArrayList retval = new ArrayList();
-#else
-            List<string> retval = new List<string>();
-#endif
+            var retval = new List<string>();
+
             try
             {
                 AssemblyEnum asmEnum = new csscript.AssemblyEnum(namespaceStr);

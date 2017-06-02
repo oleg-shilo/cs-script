@@ -1257,6 +1257,7 @@ namespace CSScriptLibrary
             options.customHashing = settings.CustomHashing;
             options.enableDbgPrint = settings.EnableDbgPrint;
             options.inMemoryAsm = settings.InMemoryAssembly;
+            //options.DLLExtension = settings.DLLExtension;
             options.hideCompilerWarnings = settings.HideCompilerWarnings;
             options.TargetFramework = settings.TargetFramework;
             options.defaultRefAssemblies = settings.ExpandDefaultRefAssemblies();
@@ -2218,7 +2219,7 @@ namespace CSScriptLibrary
                 fs.Read(data, 0, data.Length);
             }
 
-            string dbg = Path.ChangeExtension(asmFile, ".pdb");
+            string dbg = Utils.DbgFileOf(asmFile);
             if (debugBuild && File.Exists(dbg))
             {
                 byte[] dbgData = new byte[0];
@@ -2484,7 +2485,7 @@ namespace CSScriptLibrary
                 if (assemblyFileName == "" || assemblyFileName == null)
                     return true;
 
-                if (Settings.legacyTimestampCahing)
+                if (Settings.legacyTimestampCaching)
                     if (File.GetLastWriteTimeUtc(scriptFileName) != File.GetLastWriteTimeUtc(assemblyFileName))
                         return true;
 

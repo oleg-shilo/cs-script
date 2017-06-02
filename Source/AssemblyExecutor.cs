@@ -75,11 +75,11 @@ namespace csscript
             setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             setup.PrivateBinPath = AppDomain.CurrentDomain.BaseDirectory;
             setup.ApplicationName = Path.GetFileName(Assembly.GetExecutingAssembly().Location());
-            setup.ShadowCopyFiles = Environment.GetEnvironmentVariable("AppDomainSetup.ShadowCopyFiles")??"true";
+            setup.ShadowCopyFiles = Environment.GetEnvironmentVariable("AppDomainSetup.ShadowCopyFiles") ?? "true";
             setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
             appDomain = AppDomain.CreateDomain(domainName, null, setup);
-            remoteExecutor = (RemoteExecutor) appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
+            remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
             remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
         }
 
@@ -96,7 +96,7 @@ namespace csscript
                 setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
                 appDomain = AppDomain.CreateDomain(domainName, null, setup);
-                remoteExecutor = (RemoteExecutor) appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
+                remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
                 remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
                 return true;
             }
@@ -187,7 +187,7 @@ namespace csscript
                 {
                     byte[] data = new byte[fs.Length];
                     fs.Read(data, 0, data.Length);
-                    string dbg = Path.ChangeExtension(filename, ".pdb");
+                    string dbg = Utils.DbgFileOf(filename);
 
                     if (ExecuteOptions.options.DBG && File.Exists(dbg))
                         using (FileStream fsDbg = new FileStream(dbg, FileMode.Open))
@@ -208,7 +208,6 @@ namespace csscript
 #else
             SetScriptReflection(assembly, Path.GetFullPath(filename), true);
 #endif
-
 
             InvokeStaticMain(assembly, args);
         }
@@ -239,7 +238,6 @@ namespace csscript
                                                    .Where(x => x.Name == "Main" && x.IsStatic)
                                                    .ToArray();
 
-
             if (methods.Any())
             {
                 if (methods.Count() > 1)
@@ -250,7 +248,7 @@ namespace csscript
                 object retval = null;
 
                 if (method.GetParameters().Length != 0)
-                    retval = method.Invoke(new object(), new object[] { (Object) scriptArgs });
+                    retval = method.Invoke(new object(), new object[] { (Object)scriptArgs });
                 else
                     retval = method.Invoke(new object(), null);
 

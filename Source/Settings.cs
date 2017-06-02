@@ -288,11 +288,11 @@ namespace csscript
         [Browsable(false)]
         public bool LegacyTimestampCaching
         {
-            get { return legacyTimestampCahing; }
-            set { legacyTimestampCahing = value; }
+            get { return legacyTimestampCaching; }
+            set { legacyTimestampCaching = value; }
         }
 
-        static internal bool legacyTimestampCahing
+        static internal bool legacyTimestampCaching
         {
             get { return Environment.GetEnvironmentVariable("CSS_LEGACY_TIMESTAMP_CACHING") == true.ToString(); }
             set { Environment.SetEnvironmentVariable("CSS_LEGACY_TIMESTAMP_CACHING", value.ToString()); }

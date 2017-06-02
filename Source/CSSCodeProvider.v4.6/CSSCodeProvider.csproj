@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -13,7 +13,7 @@
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <PublishUrl>publish\</PublishUrl>
@@ -56,9 +56,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
-      <HintPath>bin\roslyn\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <SpecificVersion>False</SpecificVersion>
@@ -89,27 +89,36 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="bin\roslyn\csc.exe">
+    <None Include="..\..\..\..\..\..\..\cs-script\lib\Bin\roslyn\Microsoft.CodeAnalysis.CSharp.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>bin\roslyn\Microsoft.CodeAnalysis.CSharp.dll</Link>
     </None>
-    <None Include="bin\roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll">
+    <None Include="..\..\..\..\..\..\..\cs-script\lib\Bin\roslyn\Microsoft.CodeAnalysis.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>bin\roslyn\Microsoft.CodeAnalysis.dll</Link>
     </None>
-    <None Include="bin\roslyn\Microsoft.CodeAnalysis.CSharp.dll">
+    <None Include="..\..\..\..\..\..\..\cs-script\lib\Bin\roslyn\System.Collections.Immutable.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>bin\roslyn\System.Collections.Immutable.dll</Link>
     </None>
-    <None Include="bin\roslyn\Microsoft.CodeAnalysis.dll">
+    <None Include="..\..\..\..\..\..\..\cs-script\lib\Bin\roslyn\System.Reflection.Metadata.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>bin\roslyn\System.Reflection.Metadata.dll</Link>
     </None>
-    <None Include="bin\roslyn\System.Collections.Immutable.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="bin\roslyn\System.Reflection.Metadata.dll">
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\..\..\cs-script\lib\Bin\roslyn\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll">
+      <Link>bin\roslyn\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="bin\roslyn\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll">
+    <None Include="..\..\..\..\..\..\..\cs-script\lib\Bin\Roslyn\csc.exe">
+      <Link>bin\roslyn\csc.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\..\..\..\..\cs-script\lib\Bin\Roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll">
+      <Link>bin\roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

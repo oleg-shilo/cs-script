@@ -1140,7 +1140,7 @@ namespace csscript
                 var scriptFile = new FileInfo(scripFileName);
                 var asmFile = new FileInfo(asmFileName);
 
-                if (Settings.legacyTimestampCahing)
+                if (Settings.legacyTimestampCaching)
                 {
                     if (asmFile.LastWriteTime == scriptFile.LastWriteTime &&
                         asmFile.LastWriteTimeUtc == scriptFile.LastWriteTimeUtc)
@@ -1362,11 +1362,11 @@ namespace csscript
                 if (files.Any())
                 {
                     foreach (string asm in files)
-                        requestedRefAsms.AddAssembly(NormalizeGacAssemblyPath(asm));
+                        requestedRefAsms.AddAssembly(NormalizeGacAssemblyPath(asm).EnsureAsmExtension());
                 }
                 else
                 {
-                    requestedRefAsms.AddAssembly(asmName);
+                    requestedRefAsms.AddAssembly(asmName.EnsureAsmExtension());
                 }
             };
 
@@ -1584,15 +1584,22 @@ namespace csscript
             else
             {
                 if (generateExe)
+                {
                     assemblyFileName = Path.Combine(scriptDir, Path.GetFileNameWithoutExtension(scriptFileName) + ".exe");
+                }
                 else if (options.useCompiled || options.DLLExtension)
                 {
+                    var cachedAsmExtension = ".compiled";
+
+                    if (options.DBG && Utils.IsMono())
+                        cachedAsmExtension = ".dll"; // mono cannot locate the symbols file (*.mbd) unless the assembly file is a .dll one
+
                     if (options.DLLExtension)
                         assemblyFileName = Path.Combine(scriptDir, Path.GetFileNameWithoutExtension(scriptFileName) + ".dll");
                     else if (options.hideTemp != Settings.HideOptions.DoNotHide)
-                        assemblyFileName = Path.Combine(CSExecutor.ScriptCacheDir, Path.GetFileName(scriptFileName) + ".compiled");
+                        assemblyFileName = Path.Combine(CSExecutor.ScriptCacheDir, Path.GetFileName(scriptFileName) + cachedAsmExtension);
                     else
-                        assemblyFileName = scriptFileName + ".compiled";
+                        assemblyFileName = scriptFileName + cachedAsmExtension;
                 }
                 else
                 {
@@ -1611,7 +1618,8 @@ namespace csscript
 
             Utils.FileDelete(assemblyFileName, true);
 
-            string dbgSymbols = Path.ChangeExtension(assemblyFileName, ".pdb");
+            string dbgSymbols = Utils.DbgFileOf(assemblyFileName);
+
             if (options.DBG && File.Exists(dbgSymbols))
                 Utils.FileDelete(dbgSymbols);
 
@@ -1703,12 +1711,15 @@ namespace csscript
             if (options.syntaxCheck && File.Exists(compilerParams.OutputAssembly))
                 Utils.FileDelete(compilerParams.OutputAssembly, false);
 
+            //zos
+
             ProcessCompilingResult(results, compilerParams, parser, scriptFileName, assemblyFileName, additionalDependencies);
 
             if (options.useSurrogateHostingProcess)
             {
                 new ScriptLauncherBuilder().BuildSurrogateLauncher(assemblyFileName, options.TargetFramework, compilerParams, options.apartmentState, options.consoleEncoding);
             }
+
             return assemblyFileName;
         }
 
@@ -1782,7 +1793,7 @@ namespace csscript
                     Console.WriteLine("> ----------------", options);
                 }
 
-                string pdbFileName = Path.Combine(Path.GetDirectoryName(assemblyFileName), Path.GetFileNameWithoutExtension(assemblyFileName) + ".pdb");
+                string pdbFileName = Utils.DbgFileOf(assemblyFileName);
                 if (!options.DBG) //.pdb and imported files might be needed for the debugger
                 {
                     parser.DeleteImportedFiles();
@@ -1816,7 +1827,7 @@ namespace csscript
                         depInfo.StampFile(assemblyFileName);
                     }
 
-                    if (Settings.legacyTimestampCahing)
+                    if (Settings.legacyTimestampCaching)
                     {
                         var asmFile = new FileInfo(assemblyFileName);
                         var pdbFile = new FileInfo(pdbFileName);

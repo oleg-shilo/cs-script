@@ -170,6 +170,19 @@ namespace csscript
                 return Path.GetDirectoryName(location);
         }
 
+        // Mon doesn't like referencing assemblies without dll or exe extension
+        public static string EnsureAsmExtension(this string asmName)
+        {
+            if (Utils.IsMono())
+            {
+                if (!asmName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) &&
+                    !asmName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                    asmName = asmName + ".dll";
+            }
+
+            return asmName;
+        }
+
         //to avoid throwing the exception
         public static string Location(this Assembly asm)
         {
@@ -398,6 +411,14 @@ namespace csscript
         public static bool IsMono()
         {
             return Type.GetType("Mono.Runtime") != null;
+        }
+
+        public static string DbgFileOf(string assemblyFileName)
+        {
+            if (IsMono())
+                return assemblyFileName + ".mdb";
+            else
+                return Path.ChangeExtension(assemblyFileName, ".pdb");
         }
 
         public static bool ContainsPath(string path, string subPath)
@@ -994,10 +1015,22 @@ namespace csscript
                     else if (Args.ParseValuedArg(arg, AppArgs.autoclass, AppArgs.ac, out argValue)) // -autoclass -ac
                     {
                         //Args.ParseValuedArg(arg, AppArgs.config, out argValue)
-                        if (argValue == null || argValue == "1")
-                            options.autoClass = true;
-                        else
+                        if (argValue == "0")
+                        {
                             options.autoClass = false;
+                        }
+                        else
+                        {
+                            if (argValue == "1")
+                            {
+                                options.autoClass = true;
+                            }
+                            else if (argValue == "2")
+                            {
+                                options.autoClass = true;
+                                options.autoClass_InjectBreakPoint = true;
+                            }
+                        }
                     }
                     else if (Args.Same(arg, AppArgs.nathash))
                     {
@@ -1014,13 +1047,14 @@ namespace csscript
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.proj, out argValue)) // -proj
                     {
-                        // Requests for some no-dependency operations cn be handled here
+                        // Requests for some no-dependency operations can be handled here
                         // e.g. ShowHelp
-                        // But others like ShowProject need to be provessed outside of this
+                        // But others like ShowProject need to be processed outside of this
                         // arg parser (at the caller) as the whole list of parsed arguments
                         // may be required for handling request.
                         options.nonExecuteOpRquest = AppArgs.proj;
                         options.processFile = false;
+                        //options.forceOutputAssembly = ;
                     }
                     else if (Args.Same(arg, AppArgs.ca)) // -ca
                     {
@@ -1184,6 +1218,7 @@ namespace csscript
             if (options.autoClass)
             {
                 AutoclassPrecompiler.decorateAutoClassAsCS6 = (options.decorateAutoClassAsCS6 && options.enableDbgPrint);
+                AutoclassPrecompiler.injectBreakPoint = options.autoClass_InjectBreakPoint;
                 if (retval.ContainsKey(Assembly.GetExecutingAssembly().Location))
                     retval[Assembly.GetExecutingAssembly().Location].Add(new AutoclassPrecompiler());
                 else
