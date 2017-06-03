@@ -125,11 +125,17 @@ namespace csscript
 
         internal static void HandleUserNoExecuteRequests(ExecuteOptions options)
         {
-            if (AppArgs.proj == (options.nonExecuteOpRquest as string))
+            var request = (options.nonExecuteOpRquest as string);
+
+            if (request == AppArgs.proj || request == AppArgs.proj_dbg)
             {
                 var project = Project.GenerateProjectFor(options.scriptFileName);
+
                 foreach (string file in project.Files)
                     print("file:" + file);
+
+                if (request == AppArgs.proj_dbg && options.enableDbgPrint)
+                    print("file:" + CSSUtils.GetDbgInjectionInterfaceCode(null));
 
                 foreach (string file in project.Refs)
                     print("ref:" + file);

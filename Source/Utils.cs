@@ -466,7 +466,9 @@ namespace csscript
 
         public static string DbgInjectionCode = DbgInjectionCodeInterface;
 
-        internal static string DbgInjectionCodeInterface = @"partial class dbg
+        internal static string DbgInjectionCodeInterface = @"// Auto-generated file
+
+partial class dbg
 {
     public static bool publicOnly = true;
     public static bool propsOnly = false;
@@ -475,6 +477,18 @@ namespace csscript
     public static void printf(string format, params object[] args) { }
     public static void print(object @object, params object[] args) { }
 }";
+
+        internal static string GetDbgInjectionInterfaceCode(string scriptFileName)
+        {
+            var file = Path.Combine(CSExecutor.GetScriptTempDir(), "Cache", "dbg.cs");
+
+            try
+            {
+                File.WriteAllText(file, DbgInjectionCodeInterface);
+            }
+            catch { }
+            return file;
+        }
 
         internal static string GetScriptedCodeDbgInjectionCode(string scriptFileName)
         {
@@ -492,9 +506,12 @@ namespace csscript
 
                 var cache_dir = Path.Combine(CSExecutor.GetScriptTempDir(), "Cache");
                 var dbg_file = Path.Combine(cache_dir, "dbg.inject." + dbg_injection_version + ".cs");
+                var dbg_interface_file = Path.Combine(cache_dir, "dbg.cs");
 
                 if (!File.Exists(dbg_file))
                     File.WriteAllText(dbg_file, DbgInjectionCode);
+
+                GetDbgInjectionInterfaceCode(scriptFileName);
 
                 foreach (var item in Directory.GetFiles(cache_dir, "dbg.inject.*.cs"))
                     if (item != dbg_file)
@@ -1053,7 +1070,10 @@ namespace csscript
                         // arg parser (at the caller) as the whole list of parsed arguments
                         // may be required for handling request.
                         options.nonExecuteOpRquest = AppArgs.proj;
+                        if (argValue == "dbg")
+                            options.nonExecuteOpRquest = AppArgs.proj_dbg;
                         options.processFile = false;
+                        //options.processFile = false;
                         //options.forceOutputAssembly = ;
                     }
                     else if (Args.Same(arg, AppArgs.ca)) // -ca

@@ -44,7 +44,8 @@ namespace csscript
         public const string precompiler = "precompiler";
         public const string cache = "cache";
         public const string proj = "proj";
-        public static string nathash = "nathash"; //instead of const make it static so this hidden option is not picked by autodocumentor
+        internal const string proj_dbg = "proj:dbg";    // for internal use only
+        public static string nathash = "nathash";       // instead of const make it static so this hidden option is not picked by autodocumentor
         static public string syntaxHelp = "";
 
         static public Dictionary<string, ArgInfo> switch1Help = new Dictionary<string, ArgInfo>();
