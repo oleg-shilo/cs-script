@@ -264,7 +264,7 @@ namespace CSScriptLibrary
                 if (retval.Count == 0)
                 {
                     string nameSpace = Utils.RemoveAssemblyExtension(name);
-                    if (Utils.IsMono())  //to allow VSCode references by asm name
+                    if (Utils.IsMono)  //to allow VSCode references by asm name
                         retval.Add(name);
                     else
                         foreach (string asmGACLocation in FindGlobalAssembly(nameSpace))

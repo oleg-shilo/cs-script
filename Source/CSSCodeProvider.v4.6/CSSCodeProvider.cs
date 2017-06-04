@@ -94,7 +94,6 @@ public class CSSCodeProvider
 
     public static ICodeCompiler CreateCompiler(string sourceFile)
     {
-        //MessageBox.Show("retgertrew");
         //System.Diagnostics.Debug.Assert(false);
         Init();
         return CreateCompilerImpl(sourceFile);

@@ -356,7 +356,7 @@ namespace csscript
         string InitDefaultRefAssemblies()
         {
 #if net4
-            if (Utils.IsMono())
+            if (Utils.IsMono)
             {
                 return "System;System.Core;";
             }
@@ -596,7 +596,7 @@ namespace csscript
         {
             get
             {
-                if (concurrencyControl == ConcurrencyControl.HighResolution && Utils.IsMono())
+                if (concurrencyControl == ConcurrencyControl.HighResolution && Utils.IsMono)
                     concurrencyControl = ConcurrencyControl.Standard;
                 return concurrencyControl;
             }

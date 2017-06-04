@@ -173,7 +173,7 @@ namespace csscript
         // Mon doesn't like referencing assemblies without dll or exe extension
         public static string EnsureAsmExtension(this string asmName)
         {
-            if (Utils.IsMono())
+            if (Utils.IsMono)
             {
                 if (!asmName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) &&
                     !asmName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
@@ -408,14 +408,23 @@ namespace csscript
             return (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
         }
 
-        public static bool IsMono()
+        static bool isMono = (Type.GetType("Mono.Runtime") != null);
+
+        public static bool IsMono
         {
-            return Type.GetType("Mono.Runtime") != null;
+            get { return isMono; }
         }
 
         public static string DbgFileOf(string assemblyFileName)
         {
-            if (IsMono())
+            return DbgFileOf(assemblyFileName, IsMono);
+        }
+
+        internal static string DbgFileOf(string assemblyFileName, bool is_mono)
+        {
+            // .NET changes the asm extension to '.pdb'
+            // Mono adds '.mdb' to the asm file name
+            if (is_mono)
                 return assemblyFileName + ".mdb";
             else
                 return Path.ChangeExtension(assemblyFileName, ".pdb");

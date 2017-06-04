@@ -47,6 +47,7 @@ using System.CodeDom.Compiler;
 using System.Globalization;
 using System.Diagnostics;
 using Microsoft.CSharp;
+using System.Windows.Forms;
 
 namespace csscript
 {
@@ -1139,7 +1140,11 @@ namespace csscript
             string asmFileName = options.forceOutputAssembly;
 
             if (asmFileName == null || asmFileName == "")
-                asmFileName = options.hideTemp != Settings.HideOptions.DoNotHide ? Path.Combine(CSExecutor.ScriptCacheDir, Path.GetFileName(scripFileName) + ".compiled") : scripFileName + ".c";
+            {
+                var asmExtension = Utils.IsMono ? ".dll" : ".compiled";
+
+                asmFileName = options.hideTemp != Settings.HideOptions.DoNotHide ? Path.Combine(CSExecutor.ScriptCacheDir, Path.GetFileName(scripFileName) + asmExtension) : scripFileName + ".c";
+            }
 
             if (File.Exists(asmFileName) && File.Exists(scripFileName))
             {
@@ -1389,7 +1394,7 @@ namespace csscript
 
             if (options.enableDbgPrint)
             {
-                if (Utils.IsNet40Plus() && !Utils.IsMono())
+                if (Utils.IsNet40Plus() && !Utils.IsMono)
                 {
                     addByAsmName("System.Linq"); // Implementation of System.Linq namespace
                     addByAsmName("System.Core"); // dependency of System.Linq namespace assembly
@@ -1597,7 +1602,7 @@ namespace csscript
                 {
                     var cachedAsmExtension = ".compiled";
 
-                    if (options.DBG && Utils.IsMono())
+                    if (Utils.IsMono)
                         cachedAsmExtension = ".dll"; // mono cannot locate the symbols file (*.mbd) unless the assembly file is a .dll one
 
                     if (options.DLLExtension)
@@ -1626,8 +1631,9 @@ namespace csscript
 
             string dbgSymbols = Utils.DbgFileOf(assemblyFileName);
 
-            if (options.DBG && File.Exists(dbgSymbols))
-                Utils.FileDelete(dbgSymbols);
+            if (options.DBG)
+                if (File.Exists(dbgSymbols))
+                    Utils.FileDelete(dbgSymbols);
 
             compilerParams.OutputAssembly = assemblyFileName;
 
@@ -1799,11 +1805,52 @@ namespace csscript
                     Console.WriteLine("> ----------------", options);
                 }
 
-                string pdbFileName = Utils.DbgFileOf(assemblyFileName);
+                //if (Mono)
+
+                string symbFileName = Utils.DbgFileOf(assemblyFileName);
+                string pdbFileName = Utils.DbgFileOf(assemblyFileName, false);
+
                 if (!options.DBG) //.pdb and imported files might be needed for the debugger
                 {
                     parser.DeleteImportedFiles();
-                    Utils.FileDelete(pdbFileName);
+                    Utils.FileDelete(symbFileName);
+
+                    // Roslyn always generates pdb files, even under Mono 
+                    if (Utils.IsMono)
+                        Utils.FileDelete(pdbFileName);
+                }
+                else
+                {
+                    if (Utils.IsMono)
+                    {
+                        if (!File.Exists(symbFileName))
+                        {
+                            // Convert pdb into mdb
+                            try
+                            {
+                                var process = new Process();
+                                process.StartInfo.Arguments = "\"" + assemblyFileName + "\"";
+
+                                if (!Utils.IsLinux())
+                                {
+                                    // hide terminal window
+                                    process.StartInfo.FileName = @"pdb2mdb.bat";
+                                    process.StartInfo.UseShellExecute = false;
+                                    process.StartInfo.ErrorDialog = false;
+                                    process.StartInfo.CreateNoWindow = true;
+                                }
+                                else
+                                {
+                                    process.StartInfo.FileName = "pdb2mdb";
+                                }
+                                process.Start();
+                                process.WaitForExit();
+                            }
+                            catch { }
+
+                            Utils.FileDelete(pdbFileName);
+                        }
+                    }
                 }
 
                 if (options.useCompiled)
@@ -1836,7 +1883,7 @@ namespace csscript
                     if (Settings.legacyTimestampCaching)
                     {
                         var asmFile = new FileInfo(assemblyFileName);
-                        var pdbFile = new FileInfo(pdbFileName);
+                        var pdbFile = new FileInfo(symbFileName);
 
                         if (scriptFile.Exists && asmFile.Exists)
                         {
