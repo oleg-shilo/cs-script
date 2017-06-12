@@ -40,13 +40,14 @@ The following is the order of probing for _Roslyn_ location at runtime:
     - `./bin/csc.exe`
     - `./roslyn/csc.exe`
     - `./bin/roslyn/csc.exe`
+4. 
              
 ### _Roslyn Provider_ changes             
 Apart from fixing _Roslyn Provider_ shortcomings for C# CS-Script CodeProvider also does the same for VB.NET syntax. It also introduces some troubleshooting API improvements.
 
-* `CSSCodeProvider.CompilerPath` - location of `csc.exe`
+* `CSSCodeProvider.CompilerPath` - location of _csc.exe_
 * `CSSCodeProvider.CompilerServerTimeToLive` - Number of seconds with no activity before the Roslyn C# compiling server times out and closes.</br></br>
-* `VBCodeProvider.CompilerPath` - location of `vbc.exe`
+* `VBCodeProvider.CompilerPath` - location of _vbc.exe_
 * `VBCodeProvider.CompilerServerTimeToLive` - Number of seconds with no activity before the Roslyn C# compiling server times out and closes.</br></br>
 * `Environment.SetEnvironmentVariable("CSS_PROVIDER_TRACE", "true")` to print Roslyn probing outcome at runtime.  
 
@@ -56,7 +57,7 @@ Apart from fixing _Roslyn Provider_ shortcomings for C# CS-Script CodeProvider a
 __*Windows*__
 
 
-|Runtime| Roslyn Disro | Execution context | Compile time (sec) |Comments           |
+|Runtime| Roslyn Disro | Execution context | Compile time (sec) |           |
 |-------| -------------|-------------------| ------------------:|-------------------|
 | Mono  | Mono         | First run         |                3.5 |                   |
 | Mono  | Mono         | Consecutive runs  |                2.2 |                   |
@@ -70,7 +71,7 @@ __*Windows*__
 __*Linux*__
 
 
-|Runtime| Roslyn Disro | Execution context | Compile time (sec) |Comments           |
+|Runtime| Roslyn Disro | Execution context | Compile time (sec) |         |
 |-------| -------------|-------------------| ------------------:|-------------------|
 | Mono  | Mono         | First run         |                1.4 |                   |
 | Mono  | Mono         | Consecutive runs  |                0.8 |                   |

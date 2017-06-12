@@ -2,48 +2,24 @@
 using System.CodeDom.Compiler;
 using System.Configuration;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 class Program
 {
     static void Main(string[] args)
     {
-        Load(); return;
-        //testVb(); return;
+        //Environment.SetEnvironmentVariable("CSSCRIPT_ROSLYN", @"E:\cs-script\lib\Bin\Roslyn");
+        //Environment.SetEnvironmentVariable("CSSCRIPT_ROSLYN", @"C:\Program Files (x86)\Mono\lib\mono\4.5");
 
-        string baseDir = @"E:\Galos\Projects\CS-Script.Npp\CSScript.Npp\src\CSScriptNpp\CSScriptNpp\Roslyn\";
-        //baseDir = @"E:\Galos\Projects\CS-Script.Npp\gittest\csscriptnpp\bin\Plugins\CSScriptNpp\Roslyn\";
-        //baseDir = @"E:\cs-script\lib\Bin\Roslyn\";
-        baseDir = @"E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\bin\roslyn\"; //CS-S source v1.1.0
-        baseDir = @"E:\Galos\Projects\CS-Script.Npp\CSScript.Npp\src\CSScriptNpp\CSScriptNpp\Roslyn\";
+        // CSSCodeProvider.CompilerPath = @"C:\Program Files (x86)\Mono\lib\mono\4.5\csc.exe";
+        // CSSCodeProvider.CompilerPath = @"E:\cs-script\lib\Bin\Roslyn\csc.exe";
+        //CSSCodeProvider.CompilerPath = @"/home/user/Desktop/Untitled Folder/roslyn_original/csc.exe";
+        CSSCodeProvider.CompilerServerTimeToLive = 600;
 
-        //CSSCodeProvider.CompilerPath = @"E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\bin\roslyn\csc.exe";
-        //CSSCodeProvider.ProviderPath = @"E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\bin\roslyn\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll";
+        Environment.SetEnvironmentVariable("CSS_PROVIDER_TRACE", "true");
 
-        baseDir = @"C:\Program Files (x86)\Notepad++\plugins\CSScriptNpp\Roslyn\";
-        CSSCodeProvider.CompilerPath = baseDir + "csc.exe";
-        CSSCodeProvider.ProviderPath = baseDir + "Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll";
-
-        CSSCodeProvider.CompilerServerTimeToLive = 60;
-        Environment.SetEnvironmentVariable("CSS_CompilerDefaultSyntax", "vb");
-
-        ICodeCompiler compiler = CSSCodeProvider.CreateCompiler("");
-
-        var sw = new Stopwatch();
-        sw.Start();
-
-        var compilerParams = new CompilerParameters();
-
-        var file = @"E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\CSSCodeProvider.Client\Script.cs";
-        file = @"E:\cs-script\samples\Hello.vb";
-
-        compilerParams.GenerateExecutable = false;
-        compilerParams.GenerateInMemory = false;
-
-        var result = compiler.CompileAssemblyFromFile(compilerParams, file);
-        var failed = result.Errors.Count > 0;
-        sw.Stop();
-        Console.WriteLine((failed ? "failed - " : "OK - ") + sw.ElapsedMilliseconds);
+        Load();
     }
 
     static void testVb()
@@ -51,9 +27,7 @@ class Program
         try
         {
             var baseDir = @"C:\Program Files (x86)\Notepad++\plugins\CSScriptNpp\Roslyn\";
-            //baseDir = @"E:\Galos\Projects\CS-Script.Npp\CSScript.Npp\src\CSScriptNpp\CSScriptNpp\Roslyn\";
             CSSCodeProvider.CompilerPath = baseDir + "vbc.exe";
-            CSSCodeProvider.ProviderPath = baseDir + "Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll";
             CSSCodeProvider.CompilerServerTimeToLive = 600;
             CSSCodeProvider.CompilerServerTimeToLive = 6;
 
@@ -81,19 +55,31 @@ End Module");
 
     static void Load()
     {
+        var start = Stopwatch.StartNew();
         try
         {
-            //var baseDir = @"C:\Program Files (x86)\Notepad++\plugins\CSScriptNpp\Roslyn\";
-            ////baseDir = @"E:\Galos\Projects\CS-Script.Npp\CSScript.Npp\src\CSScriptNpp\CSScriptNpp\Roslyn\";
-            //CSSCodeProvider.CompilerPath = baseDir + "csc.exe";
-            //CSSCodeProvider.ProviderPath = baseDir + "Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll";
-            //CSSCodeProvider.CompilerServerTimeToLive = 600;
-            //CSSCodeProvider.CompilerServerTimeToLive = 6;
-
             ICodeCompiler compiler = CSSCodeProvider.CreateCompiler("");
             var compilerParams = new CompilerParameters();
-            compilerParams.ReferencedAssemblies.Add("System.Core");
-            var result = compiler.CompileAssemblyFromFile(compilerParams, @"C:\Users\osh\Documents\C# Scripts\New Script64.cs");
+            compilerParams.ReferencedAssemblies.Add("System.Core.dll");
+
+            var script = Path.GetFullPath("roslyn_test.cs");
+            if (!File.Exists(script))
+                File.WriteAllText(script, @"
+using System;
+class Program
+{
+    static void Main()
+    {
+        void print()
+        {
+            Console.WriteLine(""Hello C#7!"");
+        }
+
+        print();
+    }
+}".Trim());
+
+            var result = compiler.CompileAssemblyFromFile(compilerParams, script);
             foreach (CompilerError err in result.Errors)
                 Console.WriteLine(err.ToString());
         }
@@ -101,25 +87,6 @@ End Module");
         {
             Console.WriteLine(e);
         }
-        Console.WriteLine("done");
-    }
-
-    static void Load_old()
-    {
-        try
-        {
-            var baseDir = @"C:\Program Files (x86)\Notepad++\plugins\CSScriptNpp\Roslyn\";
-            //baseDir = @"E:\Galos\Projects\CS-Script.Npp\CSScript.Npp\src\CSScriptNpp\CSScriptNpp\Roslyn\";
-            CSSCodeProvider.CompilerPath = baseDir + "csc.exe";
-            CSSCodeProvider.ProviderPath = baseDir + "Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll";
-            CSSCodeProvider.CompilerServerTimeToLive = 600;
-            CSSCodeProvider.CompilerServerTimeToLive = 6;
-
-            ICodeCompiler compiler = CSSCodeProvider.CreateCompiler("");
-            var compilerParams = new CompilerParameters();
-            var result = compiler.CompileAssemblyFromFile(compilerParams, @"C:\Users\osh\Documents\C# Scripts\New Script64.cs");
-        }
-        catch { }
-        Console.WriteLine("done");
+        Console.WriteLine($"done ({start.Elapsed})");
     }
 }

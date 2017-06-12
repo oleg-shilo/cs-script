@@ -8,6 +8,7 @@ using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Collections.Generic;
+using CSScript;
 
 public class CSSCodeProvider
 {
@@ -21,12 +22,9 @@ public class CSSCodeProvider
 
     static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
     {
-        if (ProviderPath != null && File.Exists(ProviderPath))
-        {
-            string name = Path.GetFileNameWithoutExtension(ProviderPath);
-            if (args.Name.StartsWith(name))
-                return Assembly.LoadFrom(ProviderPath);
-        }
+        if (args.Name.StartsWith("Microsoft.CodeDom.Providers.DotNetCompilerPlatform"))
+            return Assembly.Load(Resources.Microsoft_CodeDom_Providers_DotNetCompilerPlatform);
+
         return null;
     }
 
@@ -36,8 +34,8 @@ public class CSSCodeProvider
     //The same needs to be done for server "keepalive" (https://roslyn.codeplex.com/wikipage?title=Building,%20Testing%20and%20Debugging)
 
     static public string CompilerPath = null;
-    static public string ProviderPath = null;
-    static public int? CompilerServerTimeToLive = null;
+
+    static public int? CompilerServerTimeToLive = 600;
 
     static string ExistingFile(string dir, params string[] paths)
     {
@@ -52,8 +50,8 @@ public class CSSCodeProvider
     {
         var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        return ExistingFile(dir, file) ??
-               ExistingFile(Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ?? dir, file) ??
+        return ExistingFile(Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ?? dir, file) ??
+               ExistingFile(dir, file) ??
                ExistingFile(dir, "bin", file) ??
                ExistingFile(dir, "roslyn", file) ??
                ExistingFile(dir, "bin", "roslyn", file);
@@ -61,20 +59,49 @@ public class CSSCodeProvider
 
     static bool inited = false;
 
+    static bool isMono = (Type.GetType("Mono.Runtime") != null);
+
+    static void InitMonoIntegration()
+    {
+        if (isMono)
+            try
+            {
+                if (GetDefaultAssemblyPath("csc.exe") == null &&
+                    Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") == null)
+                {
+                    // compiler is not at the expected location and the host app didn't try
+                    // to configure custom location via env. Thus let's try to find Mono-Roslyn
+                    var mono_dir = Path.GetDirectoryName(Type.GetType("Mono.Runtime").Assembly.Location);
+                    var csc_exe = Path.Combine(mono_dir, "csc.exe");
+
+                    if (File.Exists(csc_exe))
+                        Environment.SetEnvironmentVariable("CSSCRIPT_ROSLYN", mono_dir); // Roslyn compiler found
+                }
+            }
+            catch { }
+    }
+
     static void Init()
     {
+        // Debug.Assert(false);
         if (!inited)
         {
             inited = true;
+            InitMonoIntegration();
+
             CompilerPath = CompilerPath ??
-                           Environment.GetEnvironmentVariable("RoslynLocation") ??
                            GetDefaultAssemblyPath("csc.exe");
 
-            ProviderPath = ProviderPath ??
-                           Environment.GetEnvironmentVariable("CodeDomProviderLocation") ??
-                           GetDefaultAssemblyPath("Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll");
+            if ((Environment.GetEnvironmentVariable("CSS_PROVIDER_TRACE") ?? "").ToLower() == "true")
+                try
+                {
+                    var msg = $"{nameof(CSharpCodeProvider)}.{nameof(Init)}.CompilerPath: {CompilerPath}";
+                    Debug.WriteLine(msg);
+                    Console.WriteLine(msg);
+                }
+                catch { }
 
-            CompilerServerTimeToLive = DefaultCompilerServerTimeToLive();
+            CompilerServerTimeToLive = DefaultCompilerServerTimeToLive() ?? CompilerServerTimeToLive;
         }
     }
 
@@ -97,6 +124,16 @@ public class CSSCodeProvider
         //System.Diagnostics.Debug.Assert(false);
         Init();
         return CreateCompilerImpl(sourceFile);
+    }
+
+    public static Dictionary<string, string> GetCompilerInfo()
+    {
+        Init();
+
+        var info = new Dictionary<string, string>();
+        info.Add("Roslyn", CompilerPath ?? "<none>");
+
+        return info;
     }
 
 #pragma warning disable 618
@@ -132,6 +169,15 @@ public class CSSCodeProvider
     }
 
 #pragma warning restore 618
+}
+
+static class MonoExtensions
+{
+    // static public bool IsMono()
+    // {
+    //     static cType.GetType("Mono.Runtime")
+
+    // }
 }
 
 static class RoslynExtensions
