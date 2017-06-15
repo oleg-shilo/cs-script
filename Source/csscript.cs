@@ -176,6 +176,7 @@ namespace csscript
                 if (options.preCompilers == "") //it may be set from command-line args, which have higher precedence
                     options.preCompilers = settings.Precompiler;
                 options.altCompiler = settings.ExpandUseAlternativeCompiler();
+                options.roslynDir = Environment.ExpandEnvironmentVariables(settings.RoslynDir);
                 options.defaultRefAssemblies = settings.ExpandDefaultRefAssemblies();
                 options.postProcessor = settings.ExpandUsePostProcessor();
                 options.apartmentState = settings.DefaultApartmentState;
@@ -567,8 +568,7 @@ namespace csscript
                         }
                         else
                         {
-                            if (!string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location))
-                                settings = Settings.Load(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml"));
+                            settings = Settings.Load(Settings.DefaultConfigFile, true);
                         }
                         if (!options.useScriptConfig && (settings == null || settings.DefaultArguments.IndexOf(CSSUtils.Args.DefaultPrefix + "sconfig") == -1))
                             return "";
@@ -1166,6 +1166,7 @@ namespace csscript
                     retval = asmFileName;
                 }
             }
+
             return retval;
         }
 
@@ -1182,7 +1183,7 @@ namespace csscript
             {
                 string assemblyID = Path.GetFileName(location).ToUpperInvariant();
                 if (!locations.ContainsKey(assemblyID))
-                    locations[assemblyID] = location;
+                    locations[assemblyID] = location.EnsureAsmExtension();
             }
 
             public bool ContainsAssembly(string name)
@@ -1206,6 +1207,15 @@ namespace csscript
             providerOptions["CompilerVersion"] = options.TargetFramework;
             return new CSharpCodeProvider(providerOptions).CreateCompiler();
 #pragma warning restore 618
+        }
+
+        static string ExistingFile(string dir, params string[] paths)
+        {
+            var file = Path.Combine(new[] { dir }.Concat(paths).ToArray());
+            if (File.Exists(file))
+                return file;
+            return
+                null;
         }
 
         ICodeCompiler LoadCompiler(string scriptFileName, ref string[] filesToInject)
@@ -1242,59 +1252,10 @@ namespace csscript
             {
                 try
                 {
-                    Assembly asm = null;
-                    if (Path.IsPathRooted(options.altCompiler))
-                    {
-                        //absolute path
-                        if (File.Exists(options.altCompiler))
-                            asm = Assembly.LoadFrom(options.altCompiler);
-                    }
-                    else
-                    {
-                        //look in the following folders
-                        // 1. Script location
-                        // 2. Executable location
-                        // 3. Executable location + "Lib"
-                        // 4. CSScriptLibrary.dll location
-                        string probingDir = Path.GetDirectoryName(Path.GetFullPath(scriptFileName));
-                        string altCompilerFile = Path.Combine(probingDir, options.altCompiler);
-                        if (File.Exists(altCompilerFile))
-                        {
-                            asm = Assembly.LoadFrom(altCompilerFile);
-                        }
-                        else
-                        {
-                            probingDir = Path.GetFullPath(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName());
-                            altCompilerFile = Path.Combine(probingDir, options.altCompiler);
-                            if (File.Exists(altCompilerFile))
-                            {
-                                asm = Assembly.LoadFrom(altCompilerFile);
-                            }
-                            else
-                            {
-                                probingDir = Path.Combine(probingDir, "Lib");
-                                altCompilerFile = Path.Combine(probingDir, options.altCompiler);
-                                if (File.Exists(altCompilerFile))
-                                {
-                                    asm = Assembly.LoadFrom(altCompilerFile);
-                                }
-                                else
-                                {
-                                    //in case of CSScriptLibrary.dll "this" is not defined in the main executable
-                                    probingDir = Path.GetFullPath(this.GetType().Assembly.GetAssemblyDirectoryName());
-                                    altCompilerFile = Path.Combine(probingDir, options.altCompiler);
-                                    if (File.Exists(altCompilerFile))
-                                    {
-                                        asm = Assembly.LoadFrom(altCompilerFile);
-                                    }
-                                    else
-                                    {
-                                        throw new ApplicationException("Cannot find alternative compiler \"" + options.altCompiler + "\"");
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    var compilerAsmFile = LookupAltCompilerFile(options.altCompiler,
+                                                                Path.GetDirectoryName(Path.GetFullPath(scriptFileName)));
+
+                    var asm = Assembly.LoadFrom(compilerAsmFile);
                     Type[] types = asm.GetModules()[0].FindTypes(Module.FilterTypeName, "CSSCodeProvider");
 
                     MethodInfo method = types[0].GetMethod("CreateCompilerVersion");
@@ -1332,6 +1293,59 @@ namespace csscript
                 }
             }
             return compiler;
+        }
+
+        internal static string LookupAltCompilerFile(string altCompiler, string firstProbingDir = null)
+        {
+            if (Path.IsPathRooted(altCompiler))
+            {
+                //absolute path
+                if (File.Exists(altCompiler))
+                    return altCompiler;
+            }
+            else
+            {
+                //look in the following folders
+                // 1. Script location
+                // 2. Executable location
+                // 3. Executable location + "Lib"
+                // 4. CSScriptLibrary.dll location
+                string probingDir = firstProbingDir;
+                string altCompilerFile = probingDir != null ? Path.Combine(probingDir, altCompiler) : null;
+                if (altCompilerFile != null && File.Exists(altCompilerFile))
+                {
+                    return altCompilerFile;
+                }
+                else
+                {
+                    probingDir = Path.GetFullPath(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName());
+                    altCompilerFile = Path.Combine(probingDir, altCompiler);
+                    if (File.Exists(altCompilerFile))
+                    {
+                        return altCompilerFile;
+                    }
+                    else
+                    {
+                        probingDir = Path.Combine(probingDir, "Lib");
+                        altCompilerFile = Path.Combine(probingDir, altCompiler);
+                        if (File.Exists(altCompilerFile))
+                        {
+                            return altCompilerFile;
+                        }
+                        else
+                        {
+                            //in case of CSScriptLibrary.dll "this" is not defined in the main executable
+                            probingDir = Path.GetFullPath(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName());
+                            altCompilerFile = Path.Combine(probingDir, altCompiler);
+                            if (File.Exists(altCompilerFile))
+                            {
+                                return altCompilerFile;
+                            }
+                        }
+                    }
+                }
+            }
+            throw new ApplicationException("Cannot find alternative compiler \"" + altCompiler + "\"");
         }
 
         void AddReferencedAssemblies(CompilerParameters compilerParams, string scriptFileName, ScriptParser parser)
@@ -1373,11 +1387,11 @@ namespace csscript
                 if (files.Any())
                 {
                     foreach (string asm in files)
-                        requestedRefAsms.AddAssembly(NormalizeGacAssemblyPath(asm).EnsureAsmExtension());
+                        requestedRefAsms.AddAssembly(NormalizeGacAssemblyPath(asm));
                 }
                 else
                 {
-                    requestedRefAsms.AddAssembly(asmName.EnsureAsmExtension());
+                    requestedRefAsms.AddAssembly(asmName);
                 }
             };
 
@@ -1401,15 +1415,15 @@ namespace csscript
                 }
                 else
                 {
-                    addByAsmName("System.Core"); // The whole System.Linq namespace assembly
+                    addByAsmName("System.Core.dll"); // The whole System.Linq namespace assembly
                 }
             }
-
-            AssemblyResolver.ignoreFileName = Path.GetFileNameWithoutExtension(parser.ScriptPath) + ".dll";
 
             //add assemblies referenced from code
             foreach (string asmName in parser.ResolvePackages())
                 requestedRefAsms.AddAssembly(asmName);
+
+            AssemblyResolver.ignoreFileName = Path.GetFileNameWithoutExtension(parser.ScriptPath) + ".dll";
 
             //add assemblies referenced from code
             foreach (string asmName in parser.ReferencedAssemblies)
@@ -1420,7 +1434,9 @@ namespace csscript
                 {
                     //not-searchable assemblies
                     if (File.Exists(asm))
+                    {
                         requestedRefAsms.AddAssembly(NormalizeGacAssemblyPath(asm));
+                    }
                 }
                 else
                 {
@@ -1428,7 +1444,9 @@ namespace csscript
                     if (files.Length > 0)
                     {
                         foreach (string asmFile in files)
+                        {
                             requestedRefAsms.AddAssembly(NormalizeGacAssemblyPath(asmFile));
+                        }
                     }
                     else
                     {
@@ -1456,7 +1474,9 @@ namespace csscript
                         bool alreadyFound = requestedRefAsms.ContainsAssembly(nmSpace);
                         if (!alreadyFound)
                             foreach (string asm in AssemblyResolver.FindAssembly(nmSpace, options.searchDirs))
+                            {
                                 requestedRefAsms.AddAssembly(NormalizeGacAssemblyPath(asm));
+                            }
                     }
                 }
             }
@@ -1739,6 +1759,8 @@ namespace csscript
         {
             //var sw = new Stopwatch();
             //sw.Start();
+
+
             CompilerResults retval = compiler.CompileAssemblyFromFileBatch(compilerParams, filesToCompile);
             //sw.Stop();
             //Console.WriteLine(sw.ElapsedMilliseconds);
@@ -1815,7 +1837,7 @@ namespace csscript
                     parser.DeleteImportedFiles();
                     Utils.FileDelete(symbFileName);
 
-                    // Roslyn always generates pdb files, even under Mono 
+                    // Roslyn always generates pdb files, even under Mono
                     if (Utils.IsMono)
                         Utils.FileDelete(pdbFileName);
                 }

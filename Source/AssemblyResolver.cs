@@ -36,6 +36,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
 using csscript;
+using System.Linq;
 
 ////////////////////////////////////////////////////
 //
@@ -264,11 +265,8 @@ namespace CSScriptLibrary
                 if (retval.Count == 0)
                 {
                     string nameSpace = Utils.RemoveAssemblyExtension(name);
-                    if (Utils.IsMono)  //to allow VSCode references by asm name
-                        retval.Add(name);
-                    else
-                        foreach (string asmGACLocation in FindGlobalAssembly(nameSpace))
-                            retval.Add(asmGACLocation);
+                    foreach (string asmGACLocation in FindGlobalAssembly(nameSpace))
+                        retval.Add(asmGACLocation);
                 }
             }
             else
@@ -331,46 +329,47 @@ namespace CSScriptLibrary
         {
             var retval = new List<string>();
 
-            try
+            if (Utils.IsMono)
             {
-                AssemblyEnum asmEnum = new csscript.AssemblyEnum(namespaceStr);
-
-                string highestVersion = "";
-                string asmName = "";
-                do
+                if (Utils.MonoGAC.Contains(namespaceStr))
+                    retval.Add(namespaceStr);
+            }
+            else
+            {
+                try
                 {
-                    asmName = asmEnum.GetNextAssembly();
-                    if (string.Compare(asmName, highestVersion) > 0)
-                        highestVersion = asmName;
+                    AssemblyEnum asmEnum = new csscript.AssemblyEnum(namespaceStr);
 
-                    if (namespaceStr.Contains(", Version=")) //the assembly was specified by its full name
-                        break; //stop searching for the higher version
+                    string highestVersion = "";
+                    string asmName = "";
+                    do
+                    {
+                        asmName = asmEnum.GetNextAssembly();
+                        if (string.Compare(asmName, highestVersion) > 0)
+                            highestVersion = asmName;
+
+                        if (namespaceStr.Contains(", Version=")) //the assembly was specified by its full name
+                            break; //stop searching for the higher version
+                    }
+                    while (asmName != null);
+
+                    if (highestVersion != "")
+                    {
+                        string asmLocation = AssemblyCache.QueryAssemblyInfo(highestVersion);
+                        retval.Add(asmLocation);
+                    }
                 }
-                while (asmName != null);
-
-                if (highestVersion != "")
+                catch
                 {
-                    string asmLocation = AssemblyCache.QueryAssemblyInfo(highestVersion);
-                    retval.Add(asmLocation);
+                    //If exception is thrown it is very likely it is because where fusion.dll does not exist/unavailable/broken.
+                    //We might be running under the MONO run-time.
                 }
             }
-            catch
-            {
-                //If exception is thrown it is very likely it is because where fusion.dll does not exist/unavailable/broken.
-                //We might be running under the MONO run-time.
-            }
 
-#if net1
-            if (retval.Count == 0 && namespaceStr.ToLower().EndsWith(".dll"))
-                retval.Add(namespaceStr); //in case of if the namespaceStr is a dll name
-
-            return (string[])retval.ToArray(typeof(string));
-#else
             if (retval.Count == 0 && namespaceStr.EndsWith(".dll", StringComparison.CurrentCultureIgnoreCase))
                 retval.Add(namespaceStr); //in case of if the namespaceStr is a dll name
 
             return retval.ToArray();
-#endif
         }
 
         #endregion Class public methods...
@@ -387,11 +386,9 @@ namespace CSScriptLibrary
                     //non reflection base assembly inspection can be found here: http://ccimetadata.codeplex.com/
                     //also there are some indications that Reflector uses ILReader without reflection: http://blogs.msdn.com/haibo_luo/default.aspx?p=3
                     //Potential solutions: AsmReader in this file or Assembly.Load(byte[]);
-#if net1
-                    Assembly assembly = Assembly.LoadFrom(asmFileName);
-#else
+
                     Assembly assembly = Assembly.ReflectionOnlyLoadFrom(asmFileName);
-#endif
+
                     if (assembly != null)
                     {
                         foreach (Module m in assembly.GetModules())

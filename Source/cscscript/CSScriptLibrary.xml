@@ -186,6 +186,15 @@
             Location of alternative code provider assembly. If set it forces script engine to use an alternative code compiler.
             </summary>
         </member>
+        <member name="P:csscript.Settings.RoslynDir">
+            <summary>
+            Gets or sets the path to the Roslyn directory. This setting is used to redirect Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll to the
+            custom location of the Roslyn compilers (e.g. /usr/lib/mono/4.5).
+            </summary>
+            <value>
+            The Roslyn directory.
+            </value>
+        </member>
         <member name="M:csscript.Settings.ExpandUseAlternativeCompiler">
             <summary>
             Returns value of the UseAlternativeCompiler (with expanding environment variables).

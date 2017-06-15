@@ -1248,6 +1248,7 @@ namespace CSScriptLibrary
             Settings settings = (scriptSettings == null ? CSScript.GlobalSettings : scriptSettings);
 
             options.altCompiler = settings.ExpandUseAlternativeCompiler();
+            options.roslynDir = Environment.ExpandEnvironmentVariables(settings.RoslynDir);
             options.compilerOptions = compilerOptions != null ? compilerOptions : "";
             options.apartmentState = settings.DefaultApartmentState;
             options.InjectScriptAssemblyAttribute = settings.InjectScriptAssemblyAttribute;
@@ -1488,9 +1489,7 @@ namespace CSScriptLibrary
         {
             lock (LoadAutoCodeSynch)
             {
-                foreach (var p in Process.GetProcessesByName("VBCSCompiler"))
-                    try { p.Kill(); }
-                    catch { } //cannot analyse main module as it may not be accessible for x86 vs. x64 reasons
+                CSSUtils.StopVBCSCompilers();
             }
         }
 

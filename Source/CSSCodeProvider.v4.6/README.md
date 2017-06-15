@@ -40,7 +40,6 @@ The following is the order of probing for _Roslyn_ location at runtime:
     - `./bin/csc.exe`
     - `./roslyn/csc.exe`
     - `./bin/roslyn/csc.exe`
-4. 
              
 ### _Roslyn Provider_ changes             
 Apart from fixing _Roslyn Provider_ shortcomings for C# CS-Script CodeProvider also does the same for VB.NET syntax. It also introduces some troubleshooting API improvements.

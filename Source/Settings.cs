@@ -51,6 +51,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Linq;
+using System.Diagnostics;
 
 namespace csscript
 {
@@ -109,6 +110,19 @@ namespace csscript
         {
             get { return useAlternativeCompiler; }
             set { useAlternativeCompiler = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the path to the Roslyn directory. This setting is used to redirect Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll to the
+        /// custom location of the Roslyn compilers (e.g. /usr/lib/mono/4.5).
+        /// </summary>
+        /// <value>
+        /// The Roslyn directory.
+        /// </value>
+        public string RoslynDir
+        {
+            get { return Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ?? ""; }
+            set { Environment.SetEnvironmentVariable("CSSCRIPT_ROSLYN", value); }
         }
 
         /// <summary>
@@ -646,13 +660,9 @@ namespace csscript
             {
                 throw new CLIException("Invalid config property name '" + name + "'.");
             }
-            else if (string.IsNullOrEmpty(value))
-            {
-                throw new CLIException("Invalid config property value. It cannot be empty.");
-            }
             else
             {
-                value = value.Trim('"');
+                value = (value ?? "").Trim('"');
 
                 if (prop.PropertyType == typeof(string))
                 {
@@ -712,6 +722,7 @@ namespace csscript
                 doc.DocumentElement.AppendChild(doc.CreateElement("defaultRefAssemblies")).AppendChild(doc.CreateTextNode(DefaultRefAssemblies));
                 doc.DocumentElement.AppendChild(doc.CreateElement("searchDirs")).AppendChild(doc.CreateTextNode(SearchDirs));
                 doc.DocumentElement.AppendChild(doc.CreateElement("useAlternativeCompiler")).AppendChild(doc.CreateTextNode(UseAlternativeCompiler));
+                doc.DocumentElement.AppendChild(doc.CreateElement("roslynDir")).AppendChild(doc.CreateTextNode(RoslynDir));
                 doc.DocumentElement.AppendChild(doc.CreateElement("consoleEncoding")).AppendChild(doc.CreateTextNode(ConsoleEncoding));
                 doc.DocumentElement.AppendChild(doc.CreateElement("autoclass.decorateAsCS6")).AppendChild(doc.CreateTextNode(autoClass_DecorateAsCS6.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("inMemoryAsm")).AppendChild(doc.CreateTextNode(InMemoryAssembly.ToString()));
@@ -767,7 +778,8 @@ namespace csscript
                 xml = CommentElement(xml, "consoleEncoding", "if 'default' then system default is used; otherwise specify the name of the encoding (e.g. 'utf-8')");
                 xml = CommentElement(xml, "autoclass.decorateAsCS6", "if 'true' auto-class decoration will inject C# 6 specific syntax expressions (e.g. 'using static dbg;')");
                 xml = CommentElement(xml, "autoclass.decorateAlways", "if 'true' decorate classless scripts unconditionally; otherwise only if a top level class-less 'main' detected. Not used yet.");
-                xml = CommentElement(xml, "useAlternativeCompiler", "Custom script compiler. For example C# 6 (Roslyn): '%CSSCRIPT_DIR%!lib!CSSCodeProvider.v4.6.dll'".Replace('!', Path.DirectorySeparatorChar));
+                xml = CommentElement(xml, "useAlternativeCompiler", "Custom script compiler. For example C# 7 (Roslyn): '%CSSCRIPT_DIR%!lib!CSSRoslynProvider.dll'".Replace('!', Path.DirectorySeparatorChar));
+                xml = CommentElement(xml, "roslynDir", "Location of Roslyn compilers to be used by custom script compilers. For example C# 7 (Roslyn): /usr/lib/mono/4.5");
                 xml = CommentElement(xml, "enableDbgPrint", "Gets or sets a value indicating whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now))");
 
                 File.WriteAllText(fileName, xml);
@@ -794,6 +806,30 @@ namespace csscript
             return Load(fileName, true);
         }
 
+        public static string DefaultConfigFile
+        {
+            get
+            {
+                try
+                {
+                    string asm_path = Assembly.GetExecutingAssembly().Location;
+                    if (!string.IsNullOrEmpty(asm_path))
+                    {
+                        if (Utils.IsMono)
+                        {
+                            var monoFileName = Path.Combine(Path.GetDirectoryName(asm_path), "css_config.mono.xml");
+                            if (File.Exists(monoFileName))
+                                return monoFileName;
+                        }
+
+                        return Path.Combine(Path.GetDirectoryName(asm_path), "css_config.xml");
+                    }
+                }
+                catch { }
+                return null;
+            }
+        }
+
         /// <summary>
         /// Loads CS-Script application settings from the default config file (css_config.xml in the cscs.exe/csws.exe folder).
         /// </summary>
@@ -801,14 +837,12 @@ namespace csscript
         /// <returns>Setting object deserialized from the XML file</returns>
         public static Settings Load(bool createAlways)
         {
-            var configFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml");
-            return Load(configFile, true);
+            return Load(DefaultConfigFile, true);
         }
 
         internal void Save()
         {
-            var configFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml");
-            Save(configFile, true);
+            Save(DefaultConfigFile, true);
         }
 
         /// <summary>
@@ -833,6 +867,7 @@ namespace csscript
                     node = data.SelectSingleNode("defaultApartmentState"); if (node != null) settings.defaultApartmentState = (ApartmentState)Enum.Parse(typeof(ApartmentState), node.InnerText, false);
                     node = data.SelectSingleNode("reportDetailedErrorInfo"); if (node != null) settings.reportDetailedErrorInfo = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("useAlternativeCompiler"); if (node != null) settings.UseAlternativeCompiler = node.InnerText;
+                    node = data.SelectSingleNode("roslynDir"); if (node != null) settings.RoslynDir = node.InnerText;
                     node = data.SelectSingleNode("usePostProcessor"); if (node != null) settings.UsePostProcessor = node.InnerText;
                     node = data.SelectSingleNode("searchDirs"); if (node != null) settings.SearchDirs = node.InnerText;
                     node = data.SelectSingleNode("cleanupShellCommand"); if (node != null) settings.cleanupShellCommand = node.InnerText;
@@ -865,8 +900,8 @@ namespace csscript
                     else
                         settings.Save(fileName);
                 }
-
-                CSharpParser.OpenEndDirectiveSyntax = settings.OpenEndDirectiveSyntax;
+                if (settings != null)
+                    CSharpParser.OpenEndDirectiveSyntax = settings.OpenEndDirectiveSyntax;
             }
             return settings;
         }

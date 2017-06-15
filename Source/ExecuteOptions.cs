@@ -129,6 +129,7 @@ namespace csscript
             clone.buildWinExecutable = this.buildWinExecutable;
             clone.useSurrogateHostingProcess = this.useSurrogateHostingProcess;
             clone.altCompiler = this.altCompiler;
+            clone.roslynDir = this.roslynDir;
             clone.consoleEncoding = this.consoleEncoding;
             clone.resolveAutogenFilesRefs = this.resolveAutogenFilesRefs;
             clone.preCompilers = this.preCompilers;
@@ -192,6 +193,7 @@ namespace csscript
 #endif
             clone.buildWinExecutable = this.buildWinExecutable;
             clone.altCompiler = this.altCompiler;
+            clone.roslynDir = this.roslynDir;
             clone.preCompilers = this.preCompilers;
             clone.defaultRefAssemblies = this.defaultRefAssemblies;
             clone.postProcessor = this.postProcessor;
@@ -263,6 +265,7 @@ namespace csscript
         public bool resolveAutogenFilesRefs = true;
         public bool useSurrogateHostingProcess = false;
         public string altCompiler = "";
+        public string roslynDir = "";
         public string consoleEncoding = "utf-8";
         public bool decorateAutoClassAsCS6 = false;
         public bool enableDbgPrint = true;

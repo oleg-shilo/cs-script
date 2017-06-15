@@ -173,10 +173,10 @@ namespace csscript
         // Mon doesn't like referencing assemblies without dll or exe extension
         public static string EnsureAsmExtension(this string asmName)
         {
-            if (Utils.IsMono)
+            if (asmName != null && Utils.IsMono)
             {
                 if (!asmName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) &&
-                    !asmName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                    !asmName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
                     asmName = asmName + ".dll";
             }
 
@@ -415,6 +415,21 @@ namespace csscript
             get { return isMono; }
         }
 
+        public static string[] MonoGAC
+        {
+            get
+            {
+                try
+                {
+                    // C:\Program Files(x86)\Mono\lib\mono\gac
+                    var gacDir = Path.Combine(Path.GetDirectoryName(Type.GetType("Mono.Runtime").Assembly.Location), "..", "gac");
+                    return Directory.GetDirectories(gacDir).Select(x => Path.GetFileName(x)).ToArray();
+                }
+                catch { }
+                return new string[0];
+            }
+        }
+
         public static string DbgFileOf(string assemblyFileName)
         {
             return DbgFileOf(assemblyFileName, IsMono);
@@ -476,6 +491,20 @@ namespace csscript
         public static string DbgInjectionCode = DbgInjectionCodeInterface;
 
         internal static string DbgInjectionCodeInterface = @"// Auto-generated file
+
+public static class dbg_extensions
+{
+    static public T dump<T>(this T @object, params object[] args)
+    {
+        return @object.print(args);
+    }
+
+    static public T print<T>(this T @object, params object[] args)
+    {
+        dbg.print(@object, args);
+        return @object;
+    }
+}
 
 partial class dbg
 {
@@ -1024,6 +1053,7 @@ partial class dbg
                             argValue.StartsWith("get:") ||
                             argValue.StartsWith("set:"))
                         {
+                            // Debug.Assert(false);
                             executor.ProcessConfigCommand(argValue);
                             CLIExitRequest.Throw();
                         }
@@ -1116,6 +1146,11 @@ partial class dbg
                     else if (Args.Same(arg, AppArgs.ver, AppArgs.v)) // -ver -v
                     {
                         executor.ShowVersion();
+                        CLIExitRequest.Throw();
+                    }
+                    else if (Args.Same(arg, AppArgs.stop)) // -stop
+                    {
+                        StopVBCSCompilers();
                         CLIExitRequest.Throw();
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.r, out argValue)) // -r:file1,file2
@@ -1327,6 +1362,17 @@ partial class dbg
             }
 
             return retval;
+        }
+
+        internal static void StopVBCSCompilers()
+        {
+            try
+            {
+                foreach (var p in Process.GetProcessesByName("VBCSCompiler"))
+                    try { p.Kill(); }
+                    catch { } //cannot analyse main module as it may not be accessible for x86 vs. x64 reasons
+            }
+            catch { }
         }
 
         internal static string[] CollectPrecompillers(CSharpParser parser, ExecuteOptions options)

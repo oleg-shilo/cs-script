@@ -2,6 +2,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -37,6 +38,7 @@ namespace csscript
         public const string sconfig = "sconfig";
         public const string noconfig = "noconfig";
         public const string config = "config";
+        public const string stop = "stop";
         public const string commands = "commands";
         public const string cd = "cd";
         public const string provider = "provider";
@@ -137,9 +139,12 @@ namespace csscript
                                                    "Applicable for console mode only.\n" +
                                                    "prompt - if none specified 'Press any key to continue...' will be used\n");
             switch1Help[ac] =
-            switch1Help[autoclass] = new ArgInfo("-ac|-autoclass[:<0|1>]",
-                                                   "\n\t-ac:1  enables auto-class decoration (which might be disabled globally);\n" +
+            switch1Help[autoclass] = new ArgInfo("-ac|-autoclass[:<0|1|2>]",
+                                                   "\n" +
                                                    "\t-ac:0  disables auto-class decoration (which might be enabled globally);\n" +
+                                                   "\t-ac:1  enables auto-class decoration (which might be disabled globally);\n" +
+                                                   "\t-ac:2  same as '-ac:1' but also injects break point enables at the start of the\n" +
+                                                   "\t       user code (useful for IDEs);\n" +
                                                    "\tAutomatically generates 'static entry point' class if the script doesn't define any.",
                                                    "\n" +
                                                    "    using System;\n" +
@@ -182,6 +187,9 @@ namespace csscript
             switch2Help[verbose] = new ArgInfo("-verbose",
                                                    "Prints runtime information during the script execution.",
                                                    "(applicable for console clients only)");
+            switch2Help[stop] = new ArgInfo("-stop",
+                                                   "Stops all running instances of Roslyn sever (VBCSCompiler.exe).",
+                                                   "(applicable for .NET/Windows only)");
             switch2Help[noconfig] = new ArgInfo("-noconfig[:<file>]",
                                                    "Do not use default CS-Script config file or use alternative one.\n" +
                                                    "\tOBSOLETE: Use '-config', which is a preferred switch for all configuration operations",
@@ -704,19 +712,38 @@ namespace csscript
 
             var asm_path = Assembly.GetExecutingAssembly().Location;
             builder.Append("   Location:        " + asm_path + "\n");
+            builder.Append("   Config file:     " + (Settings.DefaultConfigFile ?? "<none>") + "\n");
             builder.Append("   Compiler:        ");
             var compiler = "<default>";
             if (!string.IsNullOrEmpty(asm_path))
             {
                 //System.Diagnostics.Debug.Assert(false);
-                var alt_compiler = Settings.Load(Path.Combine(Path.GetDirectoryName(asm_path), "css_config.xml"), false).ExpandUseAlternativeCompiler();
+                var alt_compiler = (Settings.Load(Path.Combine(Path.GetDirectoryName(asm_path), "css_config.xml"), false) ?? new Settings()).ExpandUseAlternativeCompiler();
                 if (!string.IsNullOrEmpty(alt_compiler))
-                    compiler = alt_compiler;
-            }
-            builder.Append(compiler + "\n");
+                {
+                    builder.Append(alt_compiler + "\n");
+                    try
+                    {
+                        var asm = Assembly.LoadFrom(CSExecutor.LookupAltCompilerFile(alt_compiler));
+                        Type[] types = asm.GetModules()[0].FindTypes(Module.FilterTypeName, "CSSCodeProvider");
 
-            if (!Utils.IsLinux())
-                builder.Append("   Roslyn services: " + (Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ?? "<none>") + "\n");
+                        MethodInfo method = types[0].GetMethod("GetCompilerInfo");
+                        if (method != null)
+                        {
+                            var info = (Dictionary<string, string>)method.Invoke(null, new object[0]);
+                            var maxLength = info.Keys.Max(x => x.Length);
+                            foreach (var key in info.Keys)
+                                builder.AppendLine("                    " + key + " - \n                        " + info[key]);
+                            // builder.AppendLine("                    " + key.PadRight(maxLength) + " - " + info[key]);
+                        }
+                    }
+                    catch { }
+                }
+                else
+                    builder.Append(compiler + "\n");
+            }
+            else
+                builder.Append(compiler + "\n");
 
             builder.Append("   NuGet manager:   " + NuGet.NuGetExe + "\n");
             builder.Append("   NuGet cache:     " + NuGet.NuGetCacheView + "\n");

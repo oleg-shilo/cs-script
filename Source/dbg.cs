@@ -6,6 +6,20 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
+public static class dbg_extensions
+{
+    static public T dump<T>(this T @object, params object[] args)
+    {
+        return @object.print(args);
+    }
+
+    static public T print<T>(this T @object, params object[] args)
+    {
+        dbg.print(@object, args);
+        return @object;
+    }
+}
+
 partial class dbg
 {
     public static bool publicOnly = true;
@@ -21,7 +35,6 @@ partial class dbg
         }
         catch { }
     }
-
 
     public static void print(object @object, params object[] args)
     {
@@ -45,8 +58,10 @@ partial class dbg
         }
         catch { }
     }
+
     //===============================
     int level = 0;
+
     string indent = "  ";
 
     void write(object @object = null)
@@ -85,7 +100,10 @@ partial class dbg
         }
     }
 
-    static bool isPrimitive(object obj) { return (obj == null || obj.GetType().IsPrimitive || obj is decimal || obj is string); }
+    static bool isPrimitive(object obj)
+    {
+        return (obj == null || obj.GetType().IsPrimitive || obj is decimal || obj is string);
+    }
 
     void WriteObject(object obj)
     {
