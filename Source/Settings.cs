@@ -806,6 +806,20 @@ namespace csscript
             return Load(fileName, true);
         }
 
+        internal static Settings LoadDefault()
+        {
+            return Load(DefaultConfigFile, true);
+        }
+
+        /// <summary>
+        /// Gets the default configuration file path. It is a "css_config.xml" file located in the same directory where the assembly
+        /// being executed is (e.g. cscs.exe).
+        /// <para>Note, when running under Mono the "css_config.mono.xml" file will have higher precedence than "css_config.xml".
+        /// This way you can have Mono specific settings without affecting the settings for non-Mono runtimes.</para>
+        /// </summary>
+        /// <value>
+        /// The default configuration file location. Returns null if the file is not found.
+        /// </value>
         public static string DefaultConfigFile
         {
             get

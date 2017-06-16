@@ -151,6 +151,13 @@
             <param name="script">The script.</param>
             <returns></returns>
         </member>
+        <member name="M:csscript.ProjectBuilder.GetCSSConfig">
+             <summary>
+             Gets the CSS configuration. Used by ST3 Syntaxer
+             </summary>
+             <returns></returns>cls
+            
+        </member>
         <member name="T:csscript.Settings">
             <summary>
             Settings is an class that holds CS-Script application settings.
@@ -451,6 +458,17 @@
             </summary>
             <param name="fileName">File name of the XML file</param>
             <returns>Setting object deserialized from the XML file</returns>
+        </member>
+        <member name="P:csscript.Settings.DefaultConfigFile">
+            <summary>
+            Gets the default configuration file path. It is a "css_config.xml" file located in the same directory where the assembly
+            being executed is (e.g. cscs.exe).
+            <para>Note, when running under Mono the "css_config.mono.xml" file will have higher precedence than "css_config.xml".
+            This way you can have Mono specific settings without affecting the settings for non-Mono runtimes.</para>
+            </summary>
+            <value>
+            The default configuration file location. Returns null if the file is not found.
+            </value>
         </member>
         <member name="M:csscript.Settings.Load(System.Boolean)">
             <summary>

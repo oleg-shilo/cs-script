@@ -160,7 +160,7 @@ namespace csscript
             else
             {
                 if (!CSSUtils.IsDynamic(Assembly.GetExecutingAssembly()))
-                    settings = Settings.Load(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml"));
+                    settings = Settings.LoadDefault();
             }
             return settings;
         }
@@ -1760,6 +1760,10 @@ namespace csscript
             //var sw = new Stopwatch();
             //sw.Start();
 
+            // Console.WriteLine("---------------------");
+            // Console.WriteLine(compilerParams.OutputAssembly);
+            // Console.WriteLine("---------------------");
+            // Environment.SetEnvironmentVariable("CSS_PROVIDER_TRACE", "true");
 
             CompilerResults retval = compiler.CompileAssemblyFromFileBatch(compilerParams, filesToCompile);
             //sw.Stop();

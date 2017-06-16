@@ -415,6 +415,29 @@ namespace csscript
             get { return isMono; }
         }
 
+        internal static void SetMonoRootDirEnvvar()
+        {
+            if (Environment.GetEnvironmentVariable("MONO") == null && isMono)
+                Environment.SetEnvironmentVariable("MONO", MonoRootDir);
+        }
+
+        public static string MonoRootDir
+        {
+            get
+            {
+                var runtime = Type.GetType("Mono.Runtime");
+                if (runtime != null)
+                    try
+                    {
+                        // C:\Program Files(x86)\Mono\lib\mono\4.5\*.dll
+                        // C:\Program Files(x86)\Mono\lib\mono
+                        return Path.GetDirectoryName(Path.GetDirectoryName(runtime.Assembly.Location));
+                    }
+                    catch { }
+                return null;
+            }
+        }
+
         public static string[] MonoGAC
         {
             get
@@ -422,7 +445,7 @@ namespace csscript
                 try
                 {
                     // C:\Program Files(x86)\Mono\lib\mono\gac
-                    var gacDir = Path.Combine(Path.GetDirectoryName(Type.GetType("Mono.Runtime").Assembly.Location), "..", "gac");
+                    var gacDir = Path.Combine(MonoRootDir, "gac");
                     return Directory.GetDirectories(gacDir).Select(x => Path.GetFileName(x)).ToArray();
                 }
                 catch { }

@@ -27,6 +27,7 @@ namespace csscript
         /// Primary script that defines the project.
         /// </summary>
         public string Script;
+
         /// <summary>
         /// List of all C# sources defined by the project. This
         /// includes the primary script itself and all other scripts files the imported/included
@@ -117,12 +118,12 @@ namespace csscript
             project.SearchDirs = probingDirs;
             return project;
         }
+
         public class ConfigItems
         {
             public List<string> dirs = new List<string>();
             public List<string> asms = new List<string>();
             public List<string> namespaces = new List<string>();
-
         }
 
         static public ConfigItems GetGlobalConfigItems()
@@ -135,12 +136,11 @@ namespace csscript
                                                                 .ToArray();
             try
             {
-
                 items.dirs.AddRange(splitPathItems(DefaultSearchDirs ?? ""));
                 items.asms.AddRange(splitPathItems(DefaultRefAsms ?? ""));
                 items.namespaces.AddRange(splitPathItems(DefaultNamespaces ?? ""));
 
-                var configFile = GetCSSConfig();
+                var configFile = Settings.DefaultConfigFile;
                 var settings = Settings.Load(configFile);
 
                 items.dirs.AddRange(splitPathItems(settings.SearchDirs));
@@ -156,26 +156,14 @@ namespace csscript
 
         public static Func<string> GetEngineExe = () => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "cscs.exe");
 
+        /// <summary>
+        /// Gets the CSS configuration. Used by ST3 Syntaxer
+        /// </summary>
+        /// <returns></returns>cls
+        ///
         static public string GetCSSConfig()
         {
-            try
-            {
-                string cscs_exe = GetEngineExe();
-                if (cscs_exe != null)
-                {
-                    var file = Path.Combine(Path.GetDirectoryName(cscs_exe), "css_config.xml");
-                    if (File.Exists(file))
-                        return file;
-                }
-            }
-            catch { }
-            return null;
-
-            //var csscriptDir = Environment.GetEnvironmentVariable("CSSCRIPT_DIR");
-            //if (csscriptDir != null)
-            //    return Environment.ExpandEnvironmentVariables("%CSSCRIPT_DIR%\\css_config.xml");
-            //else
-            //    return null;
+            return Settings.DefaultConfigFile;
         }
     }
 }

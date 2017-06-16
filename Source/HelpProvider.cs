@@ -407,10 +407,11 @@ namespace csscript
                          "{$css_host}" +
                          "Note the script engine always sets the following environment variables:\n" +
                          " 'pid' - host processId (e.g. Environment.GetEnvironmentVariable(\"pid\")\n" +
-                         " 'CSScriptRuntime' - script engine version\n" +
+                         " 'CSScriptRuntime'         - script engine version\n" +
                          " 'CSScriptRuntimeLocation' - script engine location\n" +
-                         " 'EntryScript' - location of the entry script\n" +
-                         " 'EntryScriptAssembly' - location of the compiled script assembly\n" +
+                         " 'cscs_exe_dir'            - script engine directory\n" +
+                         " 'EntryScript'          - location of the entry script\n" +
+                         " 'EntryScriptAssembly'  - location of the compiled script assembly\n" +
                          " 'location:<assm_hash>' - location of the compiled script assembly.\n" +
                          "                          This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script code.\n" +
                          "                          Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file.\n" +
@@ -718,7 +719,7 @@ namespace csscript
             if (!string.IsNullOrEmpty(asm_path))
             {
                 //System.Diagnostics.Debug.Assert(false);
-                var alt_compiler = (Settings.Load(Path.Combine(Path.GetDirectoryName(asm_path), "css_config.xml"), false) ?? new Settings()).ExpandUseAlternativeCompiler();
+                var alt_compiler = (Settings.Load(Settings.DefaultConfigFile, false) ?? new Settings()).ExpandUseAlternativeCompiler();
                 if (!string.IsNullOrEmpty(alt_compiler))
                 {
                     builder.Append(alt_compiler + "\n");
