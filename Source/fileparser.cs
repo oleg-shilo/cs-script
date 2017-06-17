@@ -193,6 +193,7 @@ namespace CSScriptLibrary
         {
             get { return parser.IgnoreNamespaces; }
         }
+
         public string[] Precompilers
         {
             get { return parser.Precompilers; }
@@ -316,6 +317,7 @@ namespace CSScriptLibrary
         /// </para>
         /// </summary>
         internal static ResolveSourceFileAlgorithm ResolveFilesAlgorithm = ResolveFilesDefault;
+
         //internal static ResolveSourceFileHandler ResolveFileAlgorithm = ResolveFileDefault;
 
         /// <summary>
@@ -391,7 +393,6 @@ namespace CSScriptLibrary
             if (files.Length > 0)
                 return files;
 
-
             //arbitrary directories
             if (extraDirs != null)
             {
@@ -401,7 +402,6 @@ namespace CSScriptLibrary
                     if (files.Length > 0)
                         return files;
                 }
-
             }
 
             //PATH
@@ -471,38 +471,47 @@ namespace CSScriptLibrary
         /// The packages referenced from the script with `//css_nuget` directive
         /// </summary>
         public string[] Packages;
+
         /// <summary>
         /// The referenced resources referenced from the script with `//css_res` directive
         /// </summary>
         public string[] ReferencedResources;
+
         /// <summary>
         /// The referenced assemblies referenced from the script with `//css_ref` directive
         /// </summary>
         public string[] ReferencedAssemblies;
+
         /// <summary>
         /// The namespaces imported with C# `using` directive
         /// </summary>
         public string[] ReferencedNamespaces;
+
         /// <summary>
         /// The namespaces that are marked as "to ignore" with `//css_ignore_namespace` directive
         /// </summary>
         public string[] IgnoreNamespaces;
+
         /// <summary>
         /// The compiler options sepcified with `//css_co` directive
         /// </summary>
         public string[] CompilerOptions;
+
         /// <summary>
         /// The directories specified with `//css_dir` directive
         /// </summary>
         public string[] SearchDirs;
+
         /// <summary>
         /// The precompilers specified with `//css_pc` directive
         /// </summary>
         public string[] Precompilers;
+
         /// <summary>
         /// All files that need to be compiled as part of the script execution.
         /// </summary>
         public string[] FilesToCompile;
+
         /// <summary>
         /// The time of parsing.
         /// </summary>
@@ -515,7 +524,7 @@ namespace CSScriptLibrary
     public class ScriptParser
     {
         /// <summary>
-        /// Gets the script parcing context. This object is efectively a parsing result.
+        /// Gets the script parsing context. This object is effectively a parsing result.
         /// </summary>
         /// <returns></returns>
         public ScriptParsingResult GetContext()
@@ -534,7 +543,24 @@ namespace CSScriptLibrary
             };
         }
 
+        /// <summary>
+        /// Processes the imported script. Processing involves lookup for 'static Main' and renaming it so it does not
+        /// interfere with the 'static Main' of the primary script. After renaming is done the new content is saved in the
+        /// CS-Script cache and the new file location is returned. The saved file can be used late as an "included script".
+        /// This technique can be from 'precompiler' scripts.
+        /// <para>If the script file does not require renaming (static Main is not present) the method returns the
+        /// original script file location.</para>
+        /// </summary>
+        /// <param name="scriptFile">The script file.</param>
+        /// <returns></returns>
+        public static string ProcessImportedScript(string scriptFile)
+        {
+            var parser = new FileParser(scriptFile, new ParsingParams(), true, true, new string[0], true);
+            return parser.FileToCompile;
+        }
+
         bool throwOnError = true;
+
         /// <summary>
         /// ApartmentState of a script during the execution (default: ApartmentState.Unknown)
         /// </summary>
@@ -586,6 +612,7 @@ namespace CSScriptLibrary
         {
             get { return compilerOptions.ToArray(); }
         }
+
         /// <summary>
         /// Precompilers specified in the primary script file.
         /// </summary>
@@ -634,6 +661,7 @@ namespace CSScriptLibrary
         /// <returns>Collection of the referenced assembly files.</returns>
         public string[] ResolvePackages(bool suppressDownloading)
 #else
+
         /// <summary>
         /// Resolves the NuGet packages into assemblies to be referenced by the script.
         /// <para>If the package was never installed/downloaded yet CS-Script runtime will try to download it.</para>
@@ -656,6 +684,7 @@ namespace CSScriptLibrary
         {
             get { return packages.ToArray(); }
         }
+
         /// <summary>
         /// Collection of referenced assemblies. All assemblies are referenced either from command-line, code or resolved from referenced namespaces.
         /// </summary>
@@ -709,6 +738,7 @@ namespace CSScriptLibrary
             get { return scriptPath; }
             set { scriptPath = value; }
         }
+
         string scriptPath;
 
         /// <summary>
@@ -836,7 +866,7 @@ namespace CSScriptLibrary
         /// <returns>Collection of the saved imported scrips file names</returns>
         public string[] SaveImportedScripts()
         {
-            string workingDir = Path.GetDirectoryName(((FileParser) fileParsers[0]).fileName);
+            string workingDir = Path.GetDirectoryName(((FileParser)fileParsers[0]).fileName);
             List<string> retval = new List<string>();
 
             foreach (FileParser file in fileParsers)
@@ -967,7 +997,6 @@ namespace CSScriptLibrary
                                    .Distinct()
                                    .ToArray();
 
-
             //some assemblies are referenced from code and some will need to be resolved from the namespaces
             bool disableNamespaceResolving = (this.IgnoreNamespaces.Count() == 1 && this.IgnoreNamespaces[0] == "*");
 
@@ -990,7 +1019,6 @@ namespace CSScriptLibrary
 
                 refAsms = refAsms.Union(refNsAsms).ToArray();
             }
-
 
             refAsms = FilterDuplicatedAssembliesByFileName(refAsms);
             return refAsms.ToList();

@@ -1501,7 +1501,11 @@ partial class dbg
                             else
                                 refAssemblies.Add(nameSpace + ".dll");
                         }
-
+                    try
+                    {
+                        compilerParams.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location);
+                    }
+                    catch { }
                     ////////////////////////////////////////
                     foreach (string asm in Utils.RemovePathDuplicates(refAssemblies.ToArray()))
                     {

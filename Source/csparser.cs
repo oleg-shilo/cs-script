@@ -58,6 +58,7 @@ using CSScriptLibrary;
 namespace csscript
 {
     #region CSharpParser...
+
     /// <summary>
     /// Very light parser for C# code. The main purpose of it is to be very fast and reliable.
     /// It only extracts code information relative to the CS-Script.
@@ -129,10 +130,12 @@ namespace csscript
             /// Script file and it's arguments.
             /// </summary>
             public string[] args;
+
             /// <summary>
             /// If set to 'true' the CmdScriptInfo describes the pre-script, otherwise it is for the post-script.
             /// </summary>
             public bool preScript;
+
             /// <summary>
             /// If set to 'true' parent script will be aborted on pre/post-script error, otherwise the error will be ignored.
             /// </summary>
@@ -161,6 +164,7 @@ namespace csscript
 
             static char[] tokenDelimiters = new char[] { '(', ')' };
             static char[] argDelimiters = new char[] { ',' };
+
             /// <summary>
             /// Initializes a new instance of the <see cref="InitInfo"/> class.
             /// </summary>
@@ -260,6 +264,7 @@ namespace csscript
                 else
                     return new ImportInfo[] { new ImportInfo(statement, parentScript) };
             }
+
             /// <summary>
             /// Creates an instance of ImportInfo.
             /// </summary>
@@ -321,10 +326,12 @@ namespace csscript
             /// The file to be imported.
             /// </summary>
             public string file;
+
             /// <summary>
             /// Renaming instructions (old_name vs. new_name)
             /// </summary>
             public string[][] renaming;
+
             /// <summary>
             /// If set to 'true' "static...Main" in the imported script is not renamed.
             /// </summary>
@@ -340,7 +347,9 @@ namespace csscript
 #endif
 
         #region Public interface
+
 #if DEBUG
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CSharpParser"/> class.
         /// </summary>
@@ -348,8 +357,10 @@ namespace csscript
         {
             InitEnvironment();
         }
+
 #endif
         static bool NeedInitEnvironment = true;
+
         static void InitEnvironment()
         {
             if (NeedInitEnvironment)
@@ -569,7 +580,7 @@ namespace csscript
             foreach (string statement in GetRawStatements("//css_co", endCodePos))
                 compilerOptions.Add(Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim());
 
-            if(!Utils.IsLinux())
+            if (!Utils.IsLinux())
                 foreach (string statement in GetRawStatements("//css_host", endCodePos))
                     hostOptions.Add(Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim());
 
@@ -615,15 +626,9 @@ namespace csscript
             {
                 foreach (string directive in directivesToSearch)
                 {
-#if net1
-                    this.CustomDirectives[directive] = new ArrayList();
-                    foreach (string statement in GetRawStatements(directive, endCodePos))
-                        (this.CustomDirectives[directive] as ArrayList).Add(statement.Trim());
-#else
                     this.CustomDirectives[directive] = new List<string>();
                     foreach (string statement in GetRawStatements(directive, endCodePos))
                         (this.CustomDirectives[directive] as List<string>).Add(statement.Trim());
-#endif
                 }
             }
         }
@@ -642,21 +647,6 @@ namespace csscript
             public string newValue;
         }
 
-#if net1
-        class RenamingInfoComparer : IComparer
-        {
-            int IComparer.Compare(object x, object y)
-            {
-                int retval = (x == null) ? -1 : (y == null ? 1 : 0);
-
-                if (retval == 0)
-                    return Comparer.Default.Compare(((RenamingInfo)x).stratPos, ((RenamingInfo)y).stratPos);
-                else
-                    return retval;
-            }
-        }
-#else
-
         class RenamingInfoComparer : System.Collections.Generic.IComparer<RenamingInfo>
         {
             public int Compare(RenamingInfo x, RenamingInfo y)
@@ -670,8 +660,6 @@ namespace csscript
             }
         }
 
-#endif
-
         /// <summary>
         /// Renames namespaces according renaming instructions.
         /// </summary>
@@ -680,11 +668,8 @@ namespace csscript
         public void DoRenaming(string[][] renamingMap, bool preserveMain)
         {
             int renamingPos = -1;
-#if net1
-            ArrayList renamingPositions = new ArrayList();
-#else
             List<RenamingInfo> renamingPositions = new List<RenamingInfo>();
-#endif
+
             int pos = FindStatement("Main", 0);
             while (!preserveMain && pos != -1 && renamingPos == -1)
             {
@@ -833,6 +818,7 @@ namespace csscript
 #endif
             }
         }
+
         /// <summary>
         /// References to the external assemblies and namespaces.
         /// </summary>
@@ -1247,7 +1233,6 @@ namespace csscript
             if (code.Length > startPos + length && !(char.IsWhiteSpace(code[startPos + length]) || IsOneOf(code[startPos + length], codeDelimiters))) //position is not at the end of the token
                 return false;
 
-
             return true;
         }
 
@@ -1375,7 +1360,7 @@ namespace csscript
 
                 if (startPos != -1 && endPos != -1)
                 {
-                    int startCode = commentRegions.Count == 0 ? 0 : ((int[]) commentRegions[commentRegions.Count - 1])[1] + 1;
+                    int startCode = commentRegions.Count == 0 ? 0 : ((int[])commentRegions[commentRegions.Count - 1])[1] + 1;
 
                     int[] quotationIndexes = AllRawIndexOf("\"", startCode, startPos);
                     if ((quotationIndexes.Length % 2) != 0)

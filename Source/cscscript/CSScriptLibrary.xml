@@ -1377,8 +1377,20 @@
         </member>
         <member name="M:CSScriptLibrary.ScriptParser.GetContext">
             <summary>
-            Gets the script parcing context. This object is efectively a parsing result.
+            Gets the script parsing context. This object is effectively a parsing result.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CSScriptLibrary.ScriptParser.ProcessImportedScript(System.String)">
+            <summary>
+            Processes the imported script. Processing involves lookup for 'static Main' and renaming it so it does not
+            interfere with the 'static Main' of the primary script. After renaming is done the new content is saved in the
+            CS-Script cache and the new file location is returned. The saved file can be used late as an "included script".
+            This technique can be from 'precompiler' scripts.
+            <para>If the script file does not require renaming (static Main is not present) the method returns the
+            original script file location.</para>
+            </summary>
+            <param name="scriptFile">The script file.</param>
             <returns></returns>
         </member>
         <member name="F:CSScriptLibrary.ScriptParser.apartmentState">
