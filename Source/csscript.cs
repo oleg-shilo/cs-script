@@ -729,7 +729,7 @@ namespace csscript
                     // Timeout is infinite as there is very little chance for the stage to hang.
                     // ---
                     // COMPILATION
-                    // Next, if assembly is valid (the script hasn't been changed since last compilation) the it is loaded for further execution without recompilation.
+                    // Next, if assembly is valid (the script hasn't been changed since last compilation) it is loaded for further execution without recompilation.
                     // Otherwise it is compiled again. Compilation stage is also atomic, so concurrent compilations (if happen) do not try to build the assembly potentially
                     // in the same location with the same name (e.g. caching). The whole validation stage is atomic and it's also synchronized system wide via SystemWideLock
                     // 'compilingFileLock'.
@@ -769,9 +769,21 @@ namespace csscript
                     //
                     // * ConcurrencyControl.None
                     //      All synchronization is the responsibility of the hosting environment.
+                    // ------------------------------------------------------
+                    // The CS_Script issue https://github.com/oleg-shilo/cs-script/issues/67 has reported problems on Linux
+                    // The change
+                    //          using (SystemWideLock compilingFileLock = new SystemWideLock(options.scrptFileName, null))
+                    // to
+                    //          using (SystemWideLock compilingFileLock = new SystemWideLock(options.scrptFileName, "c"))
+                    // seems to fix the problem.
+                    // The possible cause of the problem is described here http://man7.org/linux/man-pages/man2/fcntl.2.html
+                    // "If a process closes any file descriptor referring to a file, then all of the process's locks on that file are released, regardless of the file descriptor(s) on which the locks were obtained."
+                    //
+                    // While I don't see how the change can affect the behaver it's safe to accept nevertheless. It does not alter the algorithm
+                    // at all and if there is a chance that it can help on Linux so... be it.
 
                     using (SystemWideLock validatingFileLock = new SystemWideLock(options.scriptFileName, "v"))
-                    using (SystemWideLock compilingFileLock = new SystemWideLock(options.scriptFileName, null))
+                    using (SystemWideLock compilingFileLock = new SystemWideLock(options.scriptFileName, "c"))
                     using (SystemWideLock executingFileLock = new SystemWideLock(options.scriptFileName, "e"))
                     {
                         bool lockByCSScriptEngine = false;
