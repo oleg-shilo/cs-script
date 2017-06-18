@@ -147,7 +147,16 @@ namespace csscript
 
         public static string[] RemovePathDuplicates(string[] list)
         {
-            return list.Where(x => !string.IsNullOrEmpty(x)).Select(x => Path.GetFullPath(x)).Distinct().ToArray();
+            return list.Where(x => !string.IsNullOrEmpty(x))
+                       .Select(x =>
+                               {
+                                   var fullPath = Path.GetFullPath(x);
+                                   if (File.Exists(fullPath))
+                                       return fullPath;
+                                   else
+                                       return x;
+                               })
+                        .Distinct().ToArray();
         }
 
         public static string[] RemoveDuplicates(string[] list)
@@ -1447,7 +1456,8 @@ partial class dbg
         {
             try
             {
-                string precompilerAsm = Path.Combine(CSExecutor.GetCacheDirectory(sourceFile), Path.GetFileName(sourceFile) + ".compiled");
+                var asmExtension = Utils.IsMono ? ".dll" : ".compiled";
+                string precompilerAsm = Path.Combine(CSExecutor.GetCacheDirectory(sourceFile), Path.GetFileName(sourceFile) + asmExtension);
 
                 using (Mutex fileLock = new Mutex(false, "CSSPrecompiling." + CSSUtils.GetHashCodeEx(precompilerAsm))) //have to use hash code as path delimiters are illegal in the mutex name
                 {
@@ -1479,7 +1489,9 @@ partial class dbg
                     //add local and global assemblies (if found) that have the same assembly name as a namespace
                     foreach (string nmSpace in parser.ReferencedNamespaces)
                         foreach (string asm in AssemblyResolver.FindAssembly(nmSpace, searchDirs))
-                            refAssemblies.Add(asm);
+                        {
+                            refAssemblies.Add(asm.EnsureAsmExtension());
+                        }
 
                     //add assemblies referenced from code
                     foreach (string asmName in parser.ReferencedAssemblies)
@@ -1496,16 +1508,24 @@ partial class dbg
                             string[] files = AssemblyResolver.FindAssembly(nameSpace, searchDirs);
 
                             if (files.Length > 0)
+                            {
                                 foreach (string asm in files)
-                                    refAssemblies.Add(asm);
+                                {
+                                    refAssemblies.Add(asm.EnsureAsmExtension());
+                                }
+                            }
                             else
+                            {
                                 refAssemblies.Add(nameSpace + ".dll");
+                            }
                         }
+
                     try
                     {
                         compilerParams.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location);
                     }
                     catch { }
+
                     ////////////////////////////////////////
                     foreach (string asm in Utils.RemovePathDuplicates(refAssemblies.ToArray()))
                     {
@@ -1516,7 +1536,7 @@ partial class dbg
                     CompilerResults result = new CSharpCodeProvider().CreateCompiler().CompileAssemblyFromFile(compilerParams, sourceFile);
 #pragma warning restore 618
 
-                    if (result.Errors.Count != 0)
+                    if (result.Errors.HasErrors)
                         throw CompilerException.Create(result.Errors, true, false);
 
                     if (!File.Exists(precompilerAsm))
