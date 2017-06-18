@@ -7,6 +7,7 @@ namespace csscript
     internal interface ISystemWideLock : IDisposable
     {
         bool Wait(int millisecondsTimeout);
+
         void Release();
     }
 
@@ -42,6 +43,7 @@ namespace csscript
     internal class LinuxSystemWideLock : ISystemWideLock, IDisposable
     {
         Mono.Unix.FileMutex mutex;
+
         public LinuxSystemWideLock(string file, string context)
         {
             mutex = new Mono.Unix.FileMutex(file, context);
@@ -122,5 +124,4 @@ namespace csscript
 
         bool disposed = false;
     }
-
 }

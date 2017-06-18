@@ -770,17 +770,17 @@ namespace csscript
                     // * ConcurrencyControl.None
                     //      All synchronization is the responsibility of the hosting environment.
                     // ------------------------------------------------------
-                    // The CS_Script issue https://github.com/oleg-shilo/cs-script/issues/67 has reported problems on Linux
+                    // The CS_Script issue https://github.com/oleg-shilo/cs-script/issues/67 has reported problems on Linux.
                     // The change
                     //          using (SystemWideLock compilingFileLock = new SystemWideLock(options.scrptFileName, null))
                     // to
                     //          using (SystemWideLock compilingFileLock = new SystemWideLock(options.scrptFileName, "c"))
                     // seems to fix the problem.
-                    // The possible cause of the problem is described here http://man7.org/linux/man-pages/man2/fcntl.2.html
-                    // "If a process closes any file descriptor referring to a file, then all of the process's locks on that file are released, regardless of the file descriptor(s) on which the locks were obtained."
                     //
-                    // While I don't see how the change can affect the behaver it's safe to accept nevertheless. It does not alter the algorithm
-                    // at all and if there is a chance that it can help on Linux so... be it.
+                    // While it's not clear how the change can affect the behaver it's safe to implement it nevertheless.
+                    // It does not alter the algorithm at all and if there is a chance that it can help on Linux so... be it.
+                    // One thing is obvious is that the change eliminates the actual script file from the locking process
+                    // and uses it's "lock mirror" instead.
 
                     using (SystemWideLock validatingFileLock = new SystemWideLock(options.scriptFileName, "v"))
                     using (SystemWideLock compilingFileLock = new SystemWideLock(options.scriptFileName, "c"))
