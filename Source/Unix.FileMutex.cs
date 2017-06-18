@@ -37,9 +37,16 @@ namespace Mono.Unix
         public FileMutex(string fileName, string context)
         {
             if (context == null)
+            {
                 this.fileName = fileName;
+            }
             else
-                this.fileName = fileName + "." + context + ".lock";
+            {
+                var dir = csscript.CSExecutor.GetCacheDirectory(fileName);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+                this.fileName = Path.Combine(dir, Path.GetFileName(fileName) + "." + context + ".lock");
+            }
         }
 
         void Open()
