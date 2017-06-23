@@ -113,9 +113,11 @@ namespace csscript
             //    NotifyClient("Processing NuGet packages...");
             //}
 
-            project.Files = sources.Distinct().ToArray();
-            project.Refs = parser.AgregateReferences(probingDirs, defaultRefAsms, defaultNamespaces).ToArray();
-            project.SearchDirs = probingDirs;
+            project.Files = sources.Distinct().Select(Utils.PathNormaliseSeparators).ToArray();
+            project.Refs = parser.AgregateReferences(probingDirs, defaultRefAsms, defaultNamespaces)
+                                 .Map(Utils.PathNormaliseSeparators, Utils.EnsureAsmExtension)
+                                 .ToArray();
+            project.SearchDirs = probingDirs.Select(Utils.PathNormaliseSeparators).ToArray();
             return project;
         }
 

@@ -179,7 +179,7 @@ namespace csscript
                 return Path.GetDirectoryName(location);
         }
 
-        // Mon doesn't like referencing assemblies without dll or exe extension
+        // Mono doesn't like referencing assemblies without dll or exe extension
         public static string EnsureAsmExtension(this string asmName)
         {
             if (asmName != null && Utils.IsMono)
@@ -190,6 +190,24 @@ namespace csscript
             }
 
             return asmName;
+        }
+
+        public static IEnumerable<TResult> Map<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
+        {
+            return source.Select(selector);
+        }
+
+        public static IEnumerable<T> Map<T>(this IEnumerable<T> source, params Func<T, T>[] selectors)
+        {
+            IEnumerable<T> result = source;
+            foreach (Func<T, T> sel in selectors)
+                result = result.Select(sel);
+            return result;
+        }
+
+        public static string PathNormaliseSeparators(this string path)
+        {
+            return path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         }
 
         //to avoid throwing the exception
@@ -1167,6 +1185,10 @@ partial class dbg
                         options.supressExecution = true;
                         options.DLLExtension = true;
                     }
+                    else if (Args.Same(arg, AppArgs.tc)) // -tc
+                    {
+                        Environment.SetEnvironmentVariable("CSS_PROVIDER_TRACE", "true");
+                    }
                     else if (Args.Same(arg, AppArgs.dbg, AppArgs.d)) // -dbg -d
                     {
                         options.DBG = true;
@@ -1655,7 +1677,7 @@ partial class dbg
         {
             StringBuilder code = new StringBuilder(4096);
             code.Append("//Auto-generated file\r\n"); //cannot use AppendLine as it is not available in StringBuilder v1.1
-            //code.Append("using System;\r\n");
+                                                      //code.Append("using System;\r\n");
 
             bool headerProcessed = false;
 

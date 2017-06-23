@@ -1812,6 +1812,13 @@ namespace csscript
         {
             LastCompileResult = new CompilingInfo() { ScriptFile = scriptFileName, ParsingContext = parser.GetContext(), Result = results, Input = compilerParams };
 
+            // Console.WriteLine("-----------------");
+            // foreach (var asm in compilerParams.ReferencedAssemblies)
+            //     Console.WriteLine(asm);
+            // Environment.SetEnvironmentVariable("CSS_PROVIDER_TRACE", "true");
+            // Console.WriteLine("CSS_PROVIDER_TRACE=true");
+            // Console.WriteLine("-----------------");
+
             if (results.Errors.HasErrors)
             {
                 CompilerException ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings, options.resolveAutogenFilesRefs);
@@ -1861,12 +1868,16 @@ namespace csscript
                 {
                     if (Utils.IsMono)
                     {
-                        if (!File.Exists(symbFileName))
+                        // Do not do conversion if option 'pdbonly' was specified. In this case PDB is portable and both Linux an
+                        // Win debuggers can process it.
+                        bool isPdbOnlyMode = compilerParams.CompilerOptions.Contains("debug:pdbonly");
+
+                        if (!File.Exists(symbFileName) && !isPdbOnlyMode)
                         {
                             // Convert pdb into mdb
+                            var process = new Process();
                             try
                             {
-                                var process = new Process();
                                 process.StartInfo.Arguments = "\"" + assemblyFileName + "\"";
 
                                 if (!Utils.IsLinux())
@@ -1886,7 +1897,8 @@ namespace csscript
                             }
                             catch { }
 
-                            Utils.FileDelete(pdbFileName);
+                            if (process.ExitCode == 0)
+                                Utils.FileDelete(pdbFileName);
                         }
                     }
                 }

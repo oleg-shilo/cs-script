@@ -41,6 +41,7 @@ namespace csscript
         public const string stop = "stop";
         public const string commands = "commands";
         public const string cd = "cd";
+        public const string tc = "tc";
         public const string provider = "provider";
         public const string pc = "pc";
         public const string precompiler = "precompiler";
@@ -190,6 +191,9 @@ namespace csscript
             switch2Help[stop] = new ArgInfo("-stop",
                                                    "Stops all running instances of Roslyn sever (VBCSCompiler.exe).",
                                                    "(applicable for .NET/Windows only)");
+            switch2Help[tc] = new ArgInfo("-tc",
+                                                   "Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.",
+                                                   "It's useful when troubleshooting custom compilers (e.g. Roslyn on Linux).");
             switch2Help[noconfig] = new ArgInfo("-noconfig[:<file>]",
                                                    "Do not use default CS-Script config file or use alternative one.\n" +
                                                    "\tOBSOLETE: Use '-config', which is a preferred switch for all configuration operations",
