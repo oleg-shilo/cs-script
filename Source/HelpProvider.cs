@@ -42,6 +42,7 @@ namespace csscript
         public const string commands = "commands";
         public const string cd = "cd";
         public const string tc = "tc";
+        public const string pdr = "pdr";
         public const string provider = "provider";
         public const string pc = "pc";
         public const string precompiler = "precompiler";
@@ -246,9 +247,12 @@ namespace csscript
                                                    "It instructs script engine to prevent loading any built-in precompilers \n" +
                                                    "like the one for removing shebang before the execution.\n" +
                                                    "(see http://www.csscript.net/help/precompilers.html)");
+            switch2Help[pdr] =
             switch2Help[provider] = new ArgInfo("-provider:<file>",
                                                    "Location of alternative code provider assembly.",
+                                                   "Alias - pdr:<file>\n" +
                                                    "If set it forces script engine to use an alternative code compiler.\n" +
+                                                   "C#7 support is implemented via Roslyn based provider: '-pdr:CSSRoslynProvider'.\n" +
                                                    "(see http://www.csscript.net/help/non_cs_compilers.html)");
             switch2Help[syntax] = new ArgInfo("-syntax",
                                                   "Prints documentation for CS-Script specific C# syntax.");

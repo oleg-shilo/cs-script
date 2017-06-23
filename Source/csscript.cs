@@ -1223,7 +1223,7 @@ namespace csscript
 
         static string ExistingFile(string dir, params string[] paths)
         {
-            var file = Path.Combine(new[] { dir }.Concat(paths).ToArray());
+            var file = Path.Combine(new[] { dir ?? "" }.Concat(paths).ToArray());
             if (File.Exists(file))
                 return file;
             return
@@ -1322,40 +1322,27 @@ namespace csscript
                 // 2. Executable location
                 // 3. Executable location + "Lib"
                 // 4. CSScriptLibrary.dll location
-                string probingDir = firstProbingDir;
-                string altCompilerFile = probingDir != null ? Path.Combine(probingDir, altCompiler) : null;
-                if (altCompilerFile != null && File.Exists(altCompilerFile))
+
+                var exeDir = Path.GetFullPath(Assembly.GetEntryAssembly().GetAssemblyDirectoryName());
+                var asmDir = Path.GetFullPath(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName());
+
+                var altCompilerFile = ExistingFile(firstProbingDir, altCompiler) ??
+                                      ExistingFile(exeDir, altCompiler) ??
+                                      ExistingFile(exeDir, "Lib", altCompiler) ??
+                                      ExistingFile(asmDir, altCompiler);
+
+                if (altCompilerFile == null && Path.GetExtension(altCompiler) == "")
                 {
+                    altCompiler = altCompiler + ".dll";
+
+                    altCompilerFile = ExistingFile(firstProbingDir, altCompiler) ??
+                                      ExistingFile(exeDir, altCompiler) ??
+                                      ExistingFile(exeDir, "Lib", altCompiler) ??
+                                      ExistingFile(asmDir, altCompiler);
+                }
+
+                if (altCompilerFile != null)
                     return altCompilerFile;
-                }
-                else
-                {
-                    probingDir = Path.GetFullPath(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName());
-                    altCompilerFile = Path.Combine(probingDir, altCompiler);
-                    if (File.Exists(altCompilerFile))
-                    {
-                        return altCompilerFile;
-                    }
-                    else
-                    {
-                        probingDir = Path.Combine(probingDir, "Lib");
-                        altCompilerFile = Path.Combine(probingDir, altCompiler);
-                        if (File.Exists(altCompilerFile))
-                        {
-                            return altCompilerFile;
-                        }
-                        else
-                        {
-                            //in case of CSScriptLibrary.dll "this" is not defined in the main executable
-                            probingDir = Path.GetFullPath(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName());
-                            altCompilerFile = Path.Combine(probingDir, altCompiler);
-                            if (File.Exists(altCompilerFile))
-                            {
-                                return altCompilerFile;
-                            }
-                        }
-                    }
-                }
             }
             throw new ApplicationException("Cannot find alternative compiler \"" + altCompiler + "\"");
         }
