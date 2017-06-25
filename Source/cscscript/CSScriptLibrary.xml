@@ -1011,7 +1011,7 @@
             Prints CS-Script specific C# syntax help info.
             </summary>
         </member>
-        <member name="M:csscript.CSExecutor.ShowSample">
+        <member name="M:csscript.CSExecutor.ShowSample(System.String)">
             <summary>
             Show sample C# script file.
             </summary>

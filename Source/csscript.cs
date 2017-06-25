@@ -93,7 +93,7 @@ namespace csscript
 
         void ProcessConfigCommand(string command);
 
-        void ShowSample();
+        void ShowSample(string version);
 
         ExecuteOptions GetOptions();
 
@@ -1223,7 +1223,7 @@ namespace csscript
 
         static string ExistingFile(string dir, params string[] paths)
         {
-            var file = Path.Combine(new[] { dir ?? "" }.Concat(paths).ToArray());
+            var file = Utils.PathCombine(dir, paths);
             if (File.Exists(file))
                 return file;
             return
@@ -1262,10 +1262,11 @@ namespace csscript
             }
             else
             {
+                string scriptDir = Path.GetDirectoryName(Path.GetFullPath(scriptFileName));
+
                 try
                 {
-                    var compilerAsmFile = LookupAltCompilerFile(options.altCompiler,
-                                                                Path.GetDirectoryName(Path.GetFullPath(scriptFileName)));
+                    var compilerAsmFile = LookupAltCompilerFile(options.altCompiler, scriptDir);
 
                     var asm = Assembly.LoadFrom(compilerAsmFile);
                     Type[] types = asm.GetModules()[0].FindTypes(Module.FilterTypeName, "CSSCodeProvider");
@@ -1292,8 +1293,22 @@ namespace csscript
 
                             if (sccssdir != null)//CS-Script is installed/configured
                             {
+                                var errorMessage = "\nCannot find alternative compiler (" + options.altCompiler + "). Loading default compiler instead.";
+
+                                if (options.altCompiler.EndsWith("CSSCodeProvider.v4.6.dll"))
+                                {
+                                    try
+                                    {
+                                        var roslynProvider = options.altCompiler.Replace("CSSCodeProvider.v4.6.dll", "CSSRoslynProvider.dll");
+                                        var compilerAsmFile = LookupAltCompilerFile(roslynProvider, scriptDir);
+                                        errorMessage += "\nHowever CSSRoslynProvider.dll has been detected. You may consider the latest CS-Script provider " +
+                                            "'CSSRoslynProvider.dll' instead of the legacy one 'CSSCodeProvider.v4.6.dll'.";
+                                    }
+                                    catch { }
+                                }
+
                                 if (Directory.Exists(sccssdir) && !File.Exists(options.altCompiler)) //Invalid alt-compiler configured
-                                    print("\nCannot find alternative compiler (" + options.altCompiler + "). Loading default compiler instead.");
+                                    print(errorMessage);
 
                                 options.altCompiler = "";
                                 return LoadDefaultCompiler();
@@ -1307,7 +1322,12 @@ namespace csscript
             return compiler;
         }
 
-        internal static string LookupAltCompilerFile(string altCompiler, string firstProbingDir = null)
+        internal static string LookupAltCompilerFile(string altCompiler)
+        {
+            return LookupAltCompilerFile(altCompiler, null);
+        }
+
+        internal static string LookupAltCompilerFile(string altCompiler, string firstProbingDir)
         {
             if (Path.IsPathRooted(altCompiler))
             {
@@ -2080,10 +2100,10 @@ namespace csscript
         /// <summary>
         /// Show sample C# script file.
         /// </summary>
-        public void ShowSample()
+        public void ShowSample(string version)
         {
             if (print != null)
-                print(HelpProvider.BuildSampleCode());
+                print(HelpProvider.BuildSampleCode(version));
         }
 
         /// <summary>

@@ -15,6 +15,7 @@ namespace csscript
         public const string cmd = "cmd";
         public const string syntax = "syntax";
         public const string s = "s";
+        public const string sample = "sample";
         public const string nl = "nl";
         public const string verbose = "verbose";
         public const string ver = "ver";
@@ -42,7 +43,7 @@ namespace csscript
         public const string commands = "commands";
         public const string cd = "cd";
         public const string tc = "tc";
-        public const string pdr = "pdr";
+        public const string pvdr = "pvdr";
         public const string provider = "provider";
         public const string pc = "pc";
         public const string precompiler = "precompiler";
@@ -132,9 +133,10 @@ namespace csscript
                                                    "Passes compiler options directly to the language compiler.",
                                                    "(e.g.  -co:/d:TRACE pass /d:TRACE option to C# compiler\n" +
                                                    "or  -co:/platform:x86 to produce Win32 executable)");
-            switch1Help[s] = new ArgInfo("-s",
-                                                   "Prints content of sample script file",
-                                                   "(e.g. " + AppInfo.appName + " /s > sample.cs).");
+            switch1Help[s] = new ArgInfo("-s|-sample[:<C# version>]",
+                                                   "Prints content of sample script file.",
+                                                   " -s:7    - prints C# 7 sample. Otherwise it prints the default canonical 'Hello World' sample.\n" +
+                                                   "(e.g. " + AppInfo.appName + " -s:7 > sample.cs).");
             switch1Help[wait] = new ArgInfo("-wait[:prompt]",
                                                    "Waits for user input after the execution before exiting.",
                                                    "If specified the execution will proceed with exit only after any stdinput is received.\n" +
@@ -247,7 +249,7 @@ namespace csscript
                                                    "It instructs script engine to prevent loading any built-in precompilers \n" +
                                                    "like the one for removing shebang before the execution.\n" +
                                                    "(see http://www.csscript.net/help/precompilers.html)");
-            switch2Help[pdr] =
+            switch2Help[pvdr] =
             switch2Help[provider] = new ArgInfo("-provider:<file>",
                                                    "Location of alternative code provider assembly.",
                                                    "Alias - pdr:<file>\n" +
@@ -634,7 +636,52 @@ namespace csscript
             return builder.ToString();
         }
 
-        public static string BuildSampleCode()
+        public static string BuildSampleCode(string version)
+        {
+            if (version == "7")
+                return CSharp7_Sample();
+            else
+                return DefaultSample();
+        }
+
+        static string CSharp7_Sample()
+        {
+            StringBuilder builder = new StringBuilder();
+            if (Utils.IsLinux())
+            {
+                builder.AppendLine("#!<cscs.exe path> " + CSSUtils.Args.DefaultPrefix + "nl ");
+                builder.AppendLine("//css_ref System.Windows.Forms;");
+            }
+
+            builder.AppendLine("using System;");
+            builder.AppendLine("using System.Linq;");
+            builder.AppendLine("using System.Collections.Generic;");
+            builder.AppendLine("using static dbg; // to use 'print' instead of 'dbg.print'");
+            builder.AppendLine("            ");
+            builder.AppendLine("class Script");
+            builder.AppendLine("{");
+            builder.AppendLine("    static public void Main(string[] args)");
+            builder.AppendLine("    {");
+            builder.AppendLine("        (string message, int version) setup_say_hello()");
+            builder.AppendLine("        {");
+            builder.AppendLine("            return (\"Hello from C#\", 7);");
+            builder.AppendLine("        }");
+            builder.AppendLine("");
+            builder.AppendLine("        var info = setup_say_hello();");
+            builder.AppendLine("");
+            builder.AppendLine("        print(info.message, info.version);");
+            builder.AppendLine("");
+            builder.AppendLine("        print(Environment.GetEnvironmentVariables()");
+            builder.AppendLine("                            .Keys");
+            builder.AppendLine("                            .Cast<string>()");
+            builder.AppendLine("                            .Take(5));");
+            builder.AppendLine("    }");
+            builder.AppendLine("}");
+
+            return builder.ToString();
+        }
+
+        static string DefaultSample()
         {
             StringBuilder builder = new StringBuilder();
             if (Utils.IsLinux())

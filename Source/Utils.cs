@@ -233,6 +233,20 @@ namespace csscript
                 return asmName;
         }
 
+        public static string PathCombine(string path, params string[] parts)
+        {
+#if net35
+
+            string result = (path ?? "");
+            foreach (string item in parts)
+                result = Path.Combine(result, item);
+            return result;
+#else
+            var allParts = new[] { path ?? "" }.Concat(parts);
+            return Path.Combine(allParts.ToArray());
+#endif
+        }
+
         public static int PathCompare(string path1, string path2)
         {
             if (Utils.IsLinux())
@@ -568,7 +582,7 @@ partial class dbg
 
         internal static string GetDbgInjectionInterfaceCode(string scriptFileName)
         {
-            var file = Path.Combine(CSExecutor.GetScriptTempDir(), "Cache", "dbg.cs");
+            var file = Utils.PathCombine(CSExecutor.GetScriptTempDir(), "Cache", "dbg.cs");
 
             try
             {
@@ -968,7 +982,7 @@ partial class dbg
 
                 if (Args.IsArg(arg) && (nextArg == AppArgs.help || nextArg == AppArgs.question))
                 {
-                    executor.ShowHelpFor(arg.Substring(1)); //skip preffix
+                    executor.ShowHelpFor(arg.Substring(1)); //skip prefix
                     CLIExitRequest.Throw();
                 }
 
@@ -1008,7 +1022,7 @@ partial class dbg
                         if (argValue != null)
                             options.customConfigFileName = argValue;
                     }
-                    else if (Args.ParseValuedArg(arg, AppArgs.provider, out argValue)) // -provider:file
+                    else if (Args.ParseValuedArg(arg, AppArgs.provider, AppArgs.pvdr, out argValue)) // -provider:file
                     {
                         if (argValue != null)
                             options.altCompiler = Environment.ExpandEnvironmentVariables(argValue);
@@ -1237,9 +1251,9 @@ partial class dbg
                         executor.ShowHelp(AppArgs.commands);
                         CLIExitRequest.Throw();
                     }
-                    else if (Args.Same(arg, AppArgs.s)) // -s
+                    else if (Args.ParseValuedArg(arg, AppArgs.s, AppArgs.sample, out argValue)) // -s:<C# version>
                     {
-                        executor.ShowSample();
+                        executor.ShowSample(argValue);
                         CLIExitRequest.Throw();
                     }
                 }

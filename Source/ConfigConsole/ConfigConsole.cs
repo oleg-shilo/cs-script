@@ -4,10 +4,10 @@
 //css_ref System.Core;
 //css_pre images($this)
 //css_res images.resources; 
-//css_import debugVS8.0.cs;
-//css_import debugVS9.0.cs;
-//css_import debug#D;
-//css_import debugCLR;
+////css_import debugVS8.0.cs;
+////css_import debugVS9.0.cs;
+////css_import debug#D;
+////css_import debugCLR;
 //css_import searchDirs.cs;
 //css_import update;
 //css_import ShellExt.cs;
@@ -2056,18 +2056,18 @@ namespace Config
                 }
                 else
                 {
-                    if (File.Exists(Path.Combine(scHomeDir, @"Lib\CSSCodeProvider.dll")))
-                        settings.UseAlternativeCompiler = @"%CSSCRIPT_DIR%\Lib\CSSCodeProvider.dll";
+                    if (File.Exists(Path.Combine(scHomeDir, @"Lib\CSSRoslynProvider.dll")))
+                        settings.UseAlternativeCompiler = @"%CSSCRIPT_DIR%\Lib\CSSRoslynProvider.dll";
 
                     try
                     {
                         Version availableVer = GetHighestNetVersion();
 
-                        if (File.Exists(Path.Combine(scHomeDir, @"Lib\CSSCodeProvider.dll"))
+                        if (File.Exists(Path.Combine(scHomeDir, @"Lib\CSSRoslynProvider.dll"))
                             && availableVer.Major >= 3
                             && availableVer.Minor >= 5)
                         {
-                            settings.UseAlternativeCompiler = @"%CSSCRIPT_DIR%\Lib\CSSCodeProvider.dll";
+                            settings.UseAlternativeCompiler = @"%CSSCRIPT_DIR%\Lib\CSSRoslynProvider.dll";
                         }
                     }
                     catch { }
@@ -2092,13 +2092,6 @@ namespace Config
                 this.targetCLRVersion.Version = oldClrVersion;
 
                 UpdateFromInstallation(settings, oldHomeDir);
-
-                //reset some defaults
-                //if (settings.CleanupShellCommand == "" && File.Exists(Path.Combine(scHomeDir, @"Lib\clearTemp.cs")))
-                //  settings.CleanupShellCommand = "csws.exe clearTemp.cs";
-
-                //if (settings.UseAlternativeCompiler == "" && File.Exists(Path.Combine(scHomeDir, @"Lib\CSSCodeProvider.dll")))
-                //  settings.UseAlternativeCompiler = Path.Combine(scHomeDir, @"Lib\CSSCodeProvider.dll");
 
                 Update();
                 CSScriptInstaller.justInstalled = false;
@@ -2213,13 +2206,13 @@ namespace Config
             string[] ideInfo;
             ArrayList availableIDE = new ArrayList();
 
-            availableIDE.AddRange(VS90.Script.VS90IDE.GetAvailableIDE()); //Visual Studio 2008
-            availableIDE.AddRange(VS80.Script.VS80IDE.GetAvailableIDE()); //Visual Studio 2005
+            // availableIDE.AddRange(VS90.Script.VS90IDE.GetAvailableIDE()); //Visual Studio 2008
+            // availableIDE.AddRange(VS80.Script.VS80IDE.GetAvailableIDE()); //Visual Studio 2005
 
-            if ((ideInfo = SD.Script.SharpDevelopIDE.GetAvailableIDE()) != null) //"SharpDevelop"
-                availableIDE.Add(ideInfo);
-            if ((ideInfo = CLRDebugger.Script.CLRDE.GetAvailableIDE()) != null) //Visual Studio 2003
-                availableIDE.Add(ideInfo);
+            // if ((ideInfo = SD.Script.SharpDevelopIDE.GetAvailableIDE()) != null) //"SharpDevelop"
+            // availableIDE.Add(ideInfo);
+            // if ((ideInfo = CLRDebugger.Script.CLRDE.GetAvailableIDE()) != null) //Visual Studio 2003
+            // availableIDE.Add(ideInfo);
 
             //populate contextMenu list
             ContextMenuInfo newDocument;

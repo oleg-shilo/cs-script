@@ -216,10 +216,10 @@ REM move ..\Build\temp\temp\CSSCodeProvider.v1.1.dll CSSCodeProvider.v1.1.dll
 REM rem ECHO ------------ECHO ------------ >> ..\Build\build.log
 REM ECHO ------------ >> build.log
 
-ECHO Building CSSCodeProvider.v3.5.dll: >> ..\Build\build.log
-%windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:618 /o /out:..\Build\temp\temp\CSSCodeProvider.v3.5.dll /t:library ..\CSSCodeProvider.v3.5\CSSCodeProvider.cs ..\CSSCodeProvider.v3.5\ccscompiler.cs ..\CSSCodeProvider.v3.5\AssemblyInfo.cs ..\CSSCodeProvider.v3.5\cppcompiler.cs ..\CSSCodeProvider.v3.5\xamlcompiler.cs /r:System.dll /r:Microsoft.JScript.dll /r:System.Windows.Forms.dll >> build.log
-move ..\Build\temp\temp\CSSCodeProvider.v3.5.dll CSSCodeProvider.v3.5.dll
-ECHO ------------ >> ..\Build\build.log
+rem ECHO Building CSSCodeProvider.v3.5.dll: >> ..\Build\build.log
+rem %windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:618 /o /out:..\Build\temp\temp\CSSCodeProvider.v3.5.dll /t:library ..\CSSCodeProvider.v3.5\CSSCodeProvider.cs ..\CSSCodeProvider.v3.5\ccscompiler.cs ..\CSSCodeProvider.v3.5\AssemblyInfo.cs ..\CSSCodeProvider.v3.5\cppcompiler.cs ..\CSSCodeProvider.v3.5\xamlcompiler.cs /r:System.dll /r:Microsoft.JScript.dll /r:System.Windows.Forms.dll >> build.log
+rem move ..\Build\temp\temp\CSSCodeProvider.v3.5.dll CSSCodeProvider.v3.5.dll
+rem ECHO ------------ >> ..\Build\build.log
 
 rem ECHO Building CSScript.Tasks.dll: >> ..\Build\build.log
 rem "%net4_tools%\csc.exe" /nologo /nowarn:618,162 /debug+ /debug:full /o /out:..\Build\temp\temp\CSScript.Tasks.dll /t:library ..\NAnt.CSScript\CSScript.Tasks.cs ..\NAnt.CSScript\AssemblyInfo.cs /r:System.dll /r:CSScriptLibrary.dll /r:System.Core.dll /r:System.Xml.dll /r:E:\Galos\BuildTools\nant\bin\NAnt.Core.dll >> build.log
@@ -229,21 +229,22 @@ rem copy CSScript.Tasks.dll "%local_dev%\Samples\NAnt\CSScript.Tasks.dll"
 rem copy CSScriptLibrary.dll "%local_dev%\Samples\NAnt\CSScriptLibrary.dll"
 rem ECHO ------------ >> ..\Build\build.log
 
-ECHO Building CSSCodeProvider.dll: >> ..\Build\build.log
-"%net4_tools%\csc.exe" /nologo /nowarn:618 /o  /out:..\Build\temp\temp\CSSCodeProvider.dll /t:library ..\CSSCodeProvider.v4.0\CSSCodeProvider.cs ..\CSSCodeProvider.v4.0\ccscompiler.cs ..\CSSCodeProvider.v4.0\AssemblyInfo.cs ..\CSSCodeProvider.v4.0\cppcompiler.cs ..\CSSCodeProvider.v4.0\xamlcompiler.cs /r:System.dll /r:Microsoft.JScript.dll /r:System.Windows.Forms.dll >> build.log
-copy ..\Build\temp\temp\CSSCodeProvider.dll "%local_dev%\Lib\CSSCodeProvider.dll"
-move ..\Build\temp\temp\CSSCodeProvider.dll CSSCodeProvider.dll
-ECHO ------------ >> ..\Build\build.log
+rem ECHO Building CSSCodeProvider.dll: >> ..\Build\build.log
+rem "%net4_tools%\csc.exe" /nologo /nowarn:618 /o  /out:..\Build\temp\temp\CSSCodeProvider.dll /t:library ..\CSSCodeProvider.v4.0\CSSCodeProvider.cs ..\CSSCodeProvider.v4.0\ccscompiler.cs ..\CSSCodeProvider.v4.0\AssemblyInfo.cs ..\CSSCodeProvider.v4.0\cppcompiler.cs ..\CSSCodeProvider.v4.0\xamlcompiler.cs /r:System.dll /r:Microsoft.JScript.dll /r:System.Windows.Forms.dll >> build.log
+rem copy ..\Build\temp\temp\CSSCodeProvider.dll "%local_dev%\Lib\CSSCodeProvider.dll"
+rem move ..\Build\temp\temp\CSSCodeProvider.dll CSSCodeProvider.dll
+rem ECHO ------------ >> ..\Build\build.log
 
-ECHO Building CSSCodeProvider.v4.6.dll: >> ..\Build\build.log
+rem ECHO Building CSSCodeProvider.v4.6.dll: >> ..\Build\build.log
 rem cannot build v4.6 with csc.exe it needs to be VS+manual build
 rem ECHO Building CSSCodeProvider.v4.6.dll: >> ..\Build\build.log
 rem "%net4_tools%\csc.exe" /nologo /nowarn:618 /o /out:..\Build\temp\temp\CSSCodeProvider.v4.6.dll /t:library ..\CSSCodeProvider.v4.6\CSSCodeProvider.cs ..\CSSCodeProvider.v3.5\AssemblyInfo.cs /r:System.dll /r:E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\bin\roslyn\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll >> build.log
-copy ..\CSSCodeProvider.v4.6\bin\roslyn\*.* "%local_dev%\Lib\Bin\Roslyn\"
-     
-del "%local_dev%\Lib\Bin\Roslyn\*.xml"
-copy ..\CSSCodeProvider.v4.6\bin\Release\CSSCodeProvider.v4.6.dll "%local_dev%\Lib\CSSCodeProvider.v4.6.dll"
-copy ..\CSSCodeProvider.v4.6\bin\Release\CSSCodeProvider.v4.6.dll CSSCodeProvider.v4.6.dll
+rem ECHO Copying Roslyn binaries... >> ..\Build\build.log
+rem copy ..\CSSCodeProvider.Legacy\CSSCodeProvider.v4.6\bin\roslyn\*.* "%local_dev%\Lib\Bin\Roslyn\"
+
+rem ECHO Building CSSCodeProvider.v4.6.dll: >> ..\Build\build.log
+copy ..\CSSRoslynProvider\bin\Release\CSSRoslynProvider.dll "%local_dev%\Lib\CSSRoslynProvider.dll"
+copy ..\CSSRoslynProvider\bin\Release\CSSRoslynProvider.dll CSSRoslynProvider.dll
 ECHO ------------ >> ..\Build\build.log
 
 ECHO Building css.exe: >> ..\Build\build.log
