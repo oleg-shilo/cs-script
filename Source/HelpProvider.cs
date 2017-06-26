@@ -250,11 +250,14 @@ namespace csscript
                                                    "like the one for removing shebang before the execution.\n" +
                                                    "(see http://www.csscript.net/help/precompilers.html)");
             switch2Help[pvdr] =
-            switch2Help[provider] = new ArgInfo("-provider:<file>",
-                                                   "Location of alternative code provider assembly.",
-                                                   "Alias - pdr:<file>\n" +
-                                                   "If set it forces script engine to use an alternative code compiler.\n" +
-                                                   "C#7 support is implemented via Roslyn based provider: '-pdr:CSSRoslynProvider'.\n" +
+            switch2Help[provider] = new ArgInfo("-pvdr|-provider:<file>",
+                                                   "Location of the alternative/custom code provider assembly.",
+                                                   "Alias - pvdr:<file>\n" +
+                                                   "If set it forces script engine to use an alternative code compiler.\n\n" +
+                                                   "C#7 support is implemented via Roslyn based provider: '-pvdr:CSSRoslynProvider.dll'.\n" +
+                                                   "If the switch is not specified CSSRoslynProvider.dll file will be use as a code provider\n" +
+                                                   "if it is found in the same folder where the script engine is. Automatic CSSRoslynProvider.dll\n" +
+                                                   "loading can be disabled with special 'none' argument: -pvdr:none.\n" +
                                                    "(see http://www.csscript.net/help/non_cs_compilers.html)");
             switch2Help[syntax] = new ArgInfo("-syntax",
                                                   "Prints documentation for CS-Script specific C# syntax.");
@@ -672,8 +675,7 @@ namespace csscript
             builder.AppendLine("        print(info.message, info.version);");
             builder.AppendLine("");
             builder.AppendLine("        print(Environment.GetEnvironmentVariables()");
-            builder.AppendLine("                            .Keys");
-            builder.AppendLine("                            .Cast<string>()");
+            builder.AppendLine("                            .Cast<object>()");
             builder.AppendLine("                            .Take(5));");
             builder.AppendLine("    }");
             builder.AppendLine("}");

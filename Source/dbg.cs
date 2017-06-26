@@ -93,6 +93,11 @@ partial class dbg
             var arr = obj as IList;
             return "{IList} - Count: " + arr.Count;
         }
+        else if (obj is IDictionary)
+        {
+            var arr = obj as IDictionary;
+            return "{IDictionary} - Count: " + arr.Count;
+        }
         else
         {
             var count = obj.Cast<object>().Count();
@@ -126,13 +131,27 @@ partial class dbg
                     writeLine("... truncated ...");
                     break;
                 }
-                write("[" + (index++) + "]: ");
-                if (level < (depth + 1))
+
+                if (item is DictionaryEntry entry)
                 {
-                    level++;
-                    WriteValue(item);
-                    // WriteObject(item);
-                    level--;
+                    write("[" + entry.Key + "]: ");
+                    if (level < (depth + 1))
+                    {
+                        level++;
+                        WriteValue(entry.Value);
+                        level--;
+                    }
+                }
+                else
+                {
+                    write("[" + (index++) + "]: ");
+                    if (level < (depth + 1))
+                    {
+                        level++;
+                        WriteValue(item);
+                        // WriteObject(item);
+                        level--;
+                    }
                 }
                 writeLine("");
             }

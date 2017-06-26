@@ -1256,6 +1256,12 @@ namespace csscript
                 }
             }
 
+            // Debug.Assert(false);
+            if (options.altCompiler == "")
+                options.altCompiler = LookupDefaultRoslynCompilerFile();
+            else if (options.altCompiler == "none")
+                options.altCompiler = "";
+
             if (options.altCompiler == "")
             {
                 compiler = LoadDefaultCompiler();
@@ -1325,6 +1331,16 @@ namespace csscript
         internal static string LookupAltCompilerFile(string altCompiler)
         {
             return LookupAltCompilerFile(altCompiler, null);
+        }
+
+        internal static string LookupDefaultRoslynCompilerFile()
+        {
+            if (Assembly.GetEntryAssembly() == Assembly.GetExecutingAssembly()) // cscs.exe but not the host application
+            {
+                var exeDir = Path.GetFullPath(Assembly.GetEntryAssembly().GetAssemblyDirectoryName());
+                return ExistingFile(exeDir, "CSSRoslynProvider.dll");
+            }
+            return "";
         }
 
         internal static string LookupAltCompilerFile(string altCompiler, string firstProbingDir)
