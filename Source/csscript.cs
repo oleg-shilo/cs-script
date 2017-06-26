@@ -1256,7 +1256,6 @@ namespace csscript
                 }
             }
 
-            // Debug.Assert(false);
             if (options.altCompiler == "")
                 options.altCompiler = LookupDefaultRoslynCompilerFile();
             else if (options.altCompiler == "none")

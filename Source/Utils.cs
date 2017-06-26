@@ -242,7 +242,7 @@ namespace csscript
                 result = Path.Combine(result, item);
             return result;
 #else
-            var allParts = new[] { path ?? "" }.Concat(parts);
+            var allParts = new[] { path ?? "" }.Concat(parts.Select(x => x ?? ""));
             return Path.Combine(allParts.ToArray());
 #endif
         }

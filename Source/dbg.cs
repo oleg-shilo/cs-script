@@ -132,8 +132,10 @@ partial class dbg
                     break;
                 }
 
-                if (item is DictionaryEntry entry)
+                if (item is DictionaryEntry)
                 {
+                    var entry = (DictionaryEntry)item;
+
                     write("[" + entry.Key + "]: ");
                     if (level < (depth + 1))
                     {

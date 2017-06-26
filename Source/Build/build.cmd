@@ -146,8 +146,8 @@ copy ..\Build\CSScriptLibrary.xml %CS-S_DEV_ROOT%\lib\CSScriptLibrary.xml
 
 rem -------------------------------------------------------------------------------------
 cd ..\Build
-rem need to ensure ConfigConsole.cs doesn't contain "{ 25D84CB0", which is a formatting CSScript.Npp artefact 
-cscs.exe /l /dbg /nl "..\ConfigConsole\buildCheck.cs" >> ..\Build\build.log
+rem need to ensure ConfigConsole.cs doesn't contain "{ 25D84CB0", which is a formatting CSScript.Npp artifact 
+cscs.exe /l /dbg /pvdr:none /nl "..\ConfigConsole\buildCheck.cs" >> ..\Build\build.log
 
 rem neet to remap CSSCRIPT_DIR as otherwise ConfigConsole will be linked against choco CS-S binaries  
 set old_css_dir=%CSSCRIPT_DIR%
@@ -155,7 +155,7 @@ set CSSCRIPT_DIR=%CS-S_DEV_ROOT%
 
 ECHO Building ConfigConsole.exe: 
 ECHO Building ConfigConsole.exe: >> ..\Build\build.log
-cscs.exe /nl /l /dbg /ew "..\ConfigConsole\ConfigConsole.cs"
+cscs.exe /nl /l /dbg -pvdr:none /ew "..\ConfigConsole\ConfigConsole.cs"
 move ..\ConfigConsole\ConfigConsole.exe ..\Build\ConfigConsole.exe
 ECHO ------------ >> ..\Build\build.log
 set CSSCRIPT_DIR=%old_css_dir% 
