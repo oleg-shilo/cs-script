@@ -1337,7 +1337,7 @@ namespace csscript
             if (Assembly.GetEntryAssembly() == Assembly.GetExecutingAssembly()) // cscs.exe but not the host application
             {
                 var exeDir = Path.GetFullPath(Assembly.GetEntryAssembly().GetAssemblyDirectoryName());
-                return ExistingFile(exeDir, "CSSRoslynProvider.dll");
+                return ExistingFile(exeDir, "CSSRoslynProvider.dll") ?? "";
             }
             return "";
         }
