@@ -748,6 +748,9 @@ namespace csscript
                 doc.DocumentElement.AppendChild(doc.CreateElement("reportDetailedErrorInfo")).AppendChild(doc.CreateTextNode(ReportDetailedErrorInfo.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement("enableDbgPrint")).AppendChild(doc.CreateTextNode(enableDbgPrint.ToString()));
 
+                if (ResolveRelativeFromParentScriptLocation != false)
+                    doc.DocumentElement.AppendChild(doc.CreateElement("resolveRelativeFromParentScriptLocation")).AppendChild(doc.CreateTextNode(ResolveRelativeFromParentScriptLocation.ToString()));
+
                 if (hideOptions != HideOptions.HideAll)
                     doc.DocumentElement.AppendChild(doc.CreateElement("hideOptions")).AppendChild(doc.CreateTextNode(hideOptions.ToString()));
 
@@ -910,6 +913,7 @@ namespace csscript
                     node = data.SelectSingleNode("autoclass.decorateAlways"); if (node != null) settings.autoClass_DecorateAlways = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("hideCompilerWarnings"); if (node != null) settings.hideCompilerWarnings = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("inMemoryAsm"); if (node != null) settings.inMemoryAsm = node.InnerText.ToLower() == "true";
+                    node = data.SelectSingleNode("resolveRelativeFromParentScriptLocation"); if (node != null) settings.ResolveRelativeFromParentScriptLocation = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("concurrencyControl"); if (node != null) settings.concurrencyControl = (ConcurrencyControl)Enum.Parse(typeof(ConcurrencyControl), node.InnerText, false);
                     node = data.SelectSingleNode("TargetFramework"); if (node != null) settings.TargetFramework = node.InnerText;
                     node = data.SelectSingleNode("defaultRefAssemblies"); if (node != null) settings.defaultRefAssemblies = node.InnerText;

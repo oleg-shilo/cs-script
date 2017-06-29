@@ -202,6 +202,19 @@
             The Roslyn directory.
             </value>
         </member>
+        <member name="P:csscript.Settings.ResolveRelativeFromParentScriptLocation">
+            <summary>
+            <para> When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.
+            Resolving relative path is typically done with respect to the <c>current directory</c>.
+            </para>
+            <para>
+            The only exception is any path that starts with a single dot ('.') prefix, which triggers the conversion of the path into the absolute path
+            with respect to the location of the file containing the import directive.
+            </para>
+            <para>Set <see cref="P:csscript.Settings.ResolveRelativeFromParentScriptLocation"/> to <c>true</c> if you want to convert all relative paths
+            into the absolute path, not only the ones with a single dot ('.') prefix.</para>
+            </summary>
+        </member>
         <member name="M:csscript.Settings.ExpandUseAlternativeCompiler">
             <summary>
             Returns value of the UseAlternativeCompiler (with expanding environment variables).
@@ -648,9 +661,11 @@
         </member>
         <member name="F:csscript.CSharpParser.ImportInfo.ResolveRelativeFromParentScriptLocation">
             <summary>
-            The resolve path relative to parent script location.
-            <para>If import path specified by relative path the start point is typically a <c>current directory</c> unless the
-            path starts with a single dot ('.') prefix, which triggers the conversion of the path into the absolute path
+            <para> When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.
+            Resolving relative path is typically done with respect to the <c>current directory</c>.
+            </para>
+            <para>
+            The only exception is any path that starts with a single dot ('.') prefix, which triggers the conversion of the path into the absolute path
             with respect to the location of the file containing the import directive.
             </para>
             <para>Set <see cref="F:csscript.CSharpParser.ImportInfo.ResolveRelativeFromParentScriptLocation"/> to <c>true</c> if you want to convert all relative paths
