@@ -126,6 +126,24 @@ namespace csscript
         }
 
         /// <summary>
+        /// <para> When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.
+        /// Resolving relative path is typically done with respect to the <c>current directory</c>.
+        /// </para>
+        /// <para>
+        /// The only exception is any path that starts with a single dot ('.') prefix, which triggers the conversion of the path into the absolute path
+        /// with respect to the location of the file containing the import directive.
+        /// </para>
+        /// <para>Set <see cref="ResolveRelativeFromParentScriptLocation"/> to <c>true</c> if you want to convert all relative paths
+        /// into the absolute path, not only the ones with a single dot ('.') prefix.</para>
+        /// </summary>
+        [Browsable(false)]
+        public bool ResolveRelativeFromParentScriptLocation
+        {
+            get { return CSharpParser.ImportInfo.ResolveRelativeFromParentScriptLocation; }
+            set { CSharpParser.ImportInfo.ResolveRelativeFromParentScriptLocation = value; }
+        }
+
+        /// <summary>
         /// Returns value of the UseAlternativeCompiler (with expanding environment variables).
         /// </summary>
         /// <returns>Path string</returns>

@@ -223,9 +223,26 @@ namespace csscript
         /// </summary>
         public class ImportInfo
         {
+            /// <summary>
+            /// <para> When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.
+            /// Resolving relative path is typically done with respect to the <c>current directory</c>.
+            /// </para>
+            /// <para>
+            /// The only exception is any path that starts with a single dot ('.') prefix, which triggers the conversion of the path into the absolute path
+            /// with respect to the location of the file containing the import directive.
+            /// </para>
+            /// <para>Set <see cref="ResolveRelativeFromParentScriptLocation"/> to <c>true</c> if you want to convert all relative paths
+            /// into the absolute path, not only the ones with a single dot ('.') prefix.</para>
+            /// <para>By default it is set to <c>false</c> unless overwritten via the global settings.</para>
+            /// </summary>
+            public static bool ResolveRelativeFromParentScriptLocation = false;
+
             internal static ImportInfo[] ResolveStatement(string statement, string parentScript, string[] probinghDirs)
             {
-                if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a sinlgle-dot start dir
+                if (ResolveRelativeFromParentScriptLocation && statement.Length > 1 && statement.StartsWith(".."))
+                    statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
+
+                if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
                     statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
 
                 if (statement.Contains("*") || statement.Contains("?"))
@@ -237,15 +254,7 @@ namespace csscript
                     string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
 
                     string filePattern = parts[0];
-#if net1
-                    ArrayList result = new ArrayList();
-                    foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
-                    {
-                        parts[0] = file; //substitute the file path pattern with the actual path
-                        result.Add(new ImportInfo(parts));
-                    }
-                    return (ImportInfo[])result.ToArray(typeof(ImportInfo));
-#else
+
                     List<ImportInfo> result = new List<ImportInfo>();
 
                     // To ensure that parent script dir is on top.
@@ -259,7 +268,6 @@ namespace csscript
                     }
 
                     return result.ToArray();
-#endif
                 }
                 else
                     return new ImportInfo[] { new ImportInfo(statement, parentScript) };
@@ -338,13 +346,8 @@ namespace csscript
             public bool preserveMain = false;
         }
 
-#if net1
-        ArrayList stringRegions = new ArrayList();
-        ArrayList commentRegions = new ArrayList();
-#else
         List<int[]> stringRegions = new List<int[]>();
         List<int[]> commentRegions = new List<int[]>();
-#endif
 
         #region Public interface
 
@@ -974,21 +977,6 @@ namespace csscript
 
         #endregion Public interface
 
-#if net1
-        ArrayList searchDirs = new ArrayList();
-        ArrayList resFiles = new ArrayList();
-        ArrayList refAssemblies = new ArrayList();
-        ArrayList compilerOptions = new ArrayList();
-        ArrayList hostOptions = new ArrayList();
-        ArrayList cmdScripts = new ArrayList();
-        ArrayList inits = new ArrayList();
-        ArrayList nugets = new ArrayList();
-        ArrayList refNamespaces = new ArrayList();
-        ArrayList ignoreNamespaces = new ArrayList();
-        ArrayList imports = new ArrayList();
-        ArrayList precompilers = new ArrayList();
-        ArrayList args = new ArrayList();
-#else
         List<string> searchDirs = new List<string>();
         List<string> resFiles = new List<string>();
         List<string> refAssemblies = new List<string>();
@@ -1002,7 +990,6 @@ namespace csscript
         List<ImportInfo> imports = new List<ImportInfo>();
         List<string> precompilers = new List<string>();
         List<string> args = new List<string>();
-#endif
 
         ApartmentState threadingModel = ApartmentState.Unknown;
         string code = "";

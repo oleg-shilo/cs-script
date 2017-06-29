@@ -287,7 +287,7 @@ namespace csscript
                          "\n" +
                          "This directive is used to include one script into another one.It is a logical equivalent of '#include' in C++.\n" +
                          "This directive is a simplified version of //css_import.\n" +
-                         "If a relative file path is specified with single-dot preficx it will be automatically converted onto the absolute path \n" +
+                         "If a relative file path is specified with a single-dot prefix it will be automatically converted into the absolute path \n" +
                          "with respect to the location of the file containing the directive being resolved.\n" +
                          "Note if you use wildcard in the imported script name (e.g. *_build.cs) the directive will only import from the first\n" +
                          "probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.cs' as they may lead to \n" +

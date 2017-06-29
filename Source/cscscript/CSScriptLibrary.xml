@@ -646,6 +646,18 @@
             Class to hold the script importing information, which actually controls how script is imported.
             </summary>
         </member>
+        <member name="F:csscript.CSharpParser.ImportInfo.ResolveRelativeFromParentScriptLocation">
+            <summary>
+            The resolve path relative to parent script location.
+            <para>If import path specified by relative path the start point is typically a <c>current directory</c> unless the
+            path starts with a single dot ('.') prefix, which triggers the conversion of the path into the absolute path
+            with respect to the location of the file containing the import directive.
+            </para>
+            <para>Set <see cref="F:csscript.CSharpParser.ImportInfo.ResolveRelativeFromParentScriptLocation"/> to <c>true</c> if you want to convert all relative paths
+            into the absolute path, not only the ones with a single dot ('.') prefix.</para>
+            <para>By default it is set to <c>false</c> unless overwritten via the global settings.</para>
+            </summary>
+        </member>
         <member name="M:csscript.CSharpParser.ImportInfo.#ctor(System.String,System.String)">
             <summary>
             Creates an instance of ImportInfo.
