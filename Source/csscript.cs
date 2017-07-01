@@ -2208,7 +2208,7 @@ namespace csscript
                     // set:roslyn
                     string name, value;
 
-                    if (string.Compare(command, "set:roslyn", ignoreCase: true) == 0)
+                    if (string.Compare(command, "set:roslyn", true) == 0)
                     {
                         var asmDir = Assembly.GetExecutingAssembly().GetAssemblyDirectoryName();
 
