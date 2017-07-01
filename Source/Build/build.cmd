@@ -244,6 +244,7 @@ rem copy ..\CSSCodeProvider.Legacy\CSSCodeProvider.v4.6\bin\roslyn\*.* "%local_d
 
 rem ECHO Building CSSCodeProvider.v4.6.dll: >> ..\Build\build.log
 copy ..\CSSRoslynProvider\bin\Release\CSSRoslynProvider.dll "%local_dev%\Lib\CSSRoslynProvider.dll"
+copy ..\CSSRoslynProvider\bin\Release\CSSRoslynProvider.dll "%local_dev%\Lib\Bin\Linux\CSSRoslynProvider.dll"
 copy ..\CSSRoslynProvider\bin\Release\CSSRoslynProvider.dll CSSRoslynProvider.dll
 ECHO ------------ >> ..\Build\build.log
 
