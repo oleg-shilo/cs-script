@@ -390,14 +390,14 @@ namespace csscript
 #if net4
             if (Utils.IsMono)
             {
-                return "System;System.Core;";
+                return "System; System.Core;";
             }
             else
             {
                 if (Utils.IsNet45Plus())
-                    return "System.Core; System.Linq;";
+                    return "System; System.Core; System.Linq;";
                 else
-                    return "System.Core;";
+                    return "System; System.Core;";
             }
 #else
             return "";
