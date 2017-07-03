@@ -77,3 +77,7 @@ __*Linux*__
 | Mono  | Mono         | Consecutive runs  |                0.8 |                   |
 | Mono  | NuGet        | First run         |                2.3 |                   |
 | Mono  | NuGet        | Consecutive runs  |                1.8 |                   |
+
+### Deployment model
+
+![](deployment_model.png)
