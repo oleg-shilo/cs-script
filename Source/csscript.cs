@@ -1890,11 +1890,11 @@ namespace csscript
                 {
                     if (Utils.IsMono)
                     {
-                        // Do not do conversion if option 'pdbonly' was specified. In this case PDB is portable and both Linux an
-                        // Win debuggers can process it.
+                        // Do not do conversion if option 'pdbonly' was specified on Linux. In this case PDB is portable and Linux an
+                        // Mono debugger can process it.
                         bool isPdbOnlyMode = compilerParams.CompilerOptions.Contains("debug:pdbonly");
 
-                        if (!File.Exists(symbFileName) && !isPdbOnlyMode)
+                        if (!Utils.IsLinux() || (!File.Exists(symbFileName) && !isPdbOnlyMode))
                         {
                             // Convert pdb into mdb
                             var process = new Process();
