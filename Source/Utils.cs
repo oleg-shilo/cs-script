@@ -1135,7 +1135,11 @@ partial class dbg
                     else if (Args.ParseValuedArg(arg, AppArgs.autoclass, AppArgs.ac, out argValue)) // -autoclass -ac
                     {
                         //Args.ParseValuedArg(arg, AppArgs.config, out argValue)
-                        if (argValue == "0")
+                        if (argValue == null)
+                        {
+                            options.autoClass = true;
+                        }
+                        else if (argValue == "0")
                         {
                             options.autoClass = false;
                         }
