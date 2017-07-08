@@ -1131,10 +1131,8 @@ partial class dbg
                             options.altConfig = argValue;
                         }
                     }
-                    //else if (Args.Same(arg, AppArgs.autoclass, AppArgs.ac)) // -autoclass -ac
                     else if (Args.ParseValuedArg(arg, AppArgs.autoclass, AppArgs.ac, out argValue)) // -autoclass -ac
                     {
-                        //Args.ParseValuedArg(arg, AppArgs.config, out argValue)
                         if (argValue == null)
                         {
                             options.autoClass = true;

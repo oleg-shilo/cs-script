@@ -697,9 +697,7 @@ namespace csscript
             builder.AppendLine();
             builder.AppendLine("class Script");
             builder.AppendLine("{");
-            if (!Utils.IsLinux())
-                builder.Append("    [STAThread]" + Environment.NewLine);
-            builder.AppendLine("    static public void Main(string[] args)");
+            builder.AppendLine("    static void Main(string[] args)");
             builder.AppendLine("    {");
             builder.AppendLine("        for (int i = 0; i < args.Length; i++)");
             builder.AppendLine("            Console.WriteLine(args[i]);");

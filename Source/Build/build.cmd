@@ -115,6 +115,8 @@ ECHO Building cscs.exe: >> ..\Build\build.log
 "%net4_tools%\msbuild.exe" ..\cscscript\cscscript.csproj /p:AssemblyName=cscs /p:TargetFrameworkVersion=v4.5  /p:configuration=Release;Platform="AnyCPU" /p:OutDir=bin\Distro /p:DefineConstants="net4;net45" %common_msbuild_params%
 ECHO ------------ >> ..\Build\build.log
 move ..\cscscript\bin\Distro\cscs.exe ..\Build\cscs.exe
+..\Build\cscs.exe -? > "%local_dev%\help.txt"
+..\Build\cscs.exe -? > ..\..\..\cs-script\help.txt
 
 ECHO Building cscs32.exe: >> ..\Build\build.log
 "%net4_tools%\msbuild.exe" ..\cscscript\cscscript.csproj /p:AssemblyName=cscs /p:TargetFrameworkVersion=v4.5  /p:PlatformTarget=x86 /p:configuration=Release;Platform="AnyCPU" /p:OutDir=bin\Distro /p:DefineConstants="net4;net45" %common_msbuild_params%
