@@ -37,7 +37,6 @@ namespace csscript
         public const string wait = "wait";
         public const string autoclass = "autoclass";
         public const string sconfig = "sconfig";
-        public const string noconfig = "noconfig";
         public const string config = "config";
         public const string stop = "stop";
         public const string commands = "commands";
@@ -197,15 +196,6 @@ namespace csscript
             switch2Help[tc] = new ArgInfo("-tc",
                                                    "Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.",
                                                    "It's useful when troubleshooting custom compilers (e.g. Roslyn on Linux).");
-            switch2Help[noconfig] = new ArgInfo("-noconfig[:<file>]",
-                                                   "Do not use default CS-Script config file or use alternative one.\n" +
-                                                   "\tOBSOLETE: Use '-config', which is a preferred switch for all configuration operations",
-                                                   "Value \"out\" of the <file> is reserved for creating the config file (css_config.xml) " +
-                                                   "with the default settings in the current directory.\n" +
-                                                   "Value \"print\" of the <file> is reserved for printing the default config file content.\n" +
-                                                   "(e.g. " + AppInfo.appName + " -noconfig sample.cs\n" +
-                                                   AppInfo.appName + " -noconfig:print > css_VB.xml\n" +
-                                                   AppInfo.appName + " -noconfig:c:\\cs-script\\css_VB.xml sample.vb)");
             switch2Help[config] = new ArgInfo("-config[:<option>]",
                                                    "Performs various CS-Script config operations",
                                                    "-config:none           - ignores config file (uses default settings)\n" +
@@ -215,6 +205,7 @@ namespace csscript
                                                    "-config[:ls]           - lists/prints current config values\n" +
                                                    "-config:get:name       - prints current config value\n" +
                                                    "-config:set:name=value - sets current config value\n" +
+                                                   "-config:set:roslyn     - enables Roslyn integration via configuration (C#7 support)\n" +
                                                    "-config:<file>         - uses custom config file\n" +
                                                    "(e.g. " + AppInfo.appName + " -config:none sample.cs\n" +
                                                    AppInfo.appName + " -config:default > css_VB.xml\n" +

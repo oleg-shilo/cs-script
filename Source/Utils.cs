@@ -1078,23 +1078,6 @@ partial class dbg
                         else
                             executor.WaitForInputBeforeExit = "Press any key to continue . . .";
                     }
-                    else if (Args.ParseValuedArg(arg, AppArgs.noconfig, out argValue)) // -noconfig:<file>
-                    {
-                        options.noConfig = true;
-                        if (argValue != null)
-                            if (argValue == "out")
-                            {
-                                executor.CreateDefaultConfigFile();
-                                CLIExitRequest.Throw();
-                            }
-                            else if (argValue == "print")
-                            {
-                                executor.PrintDefaultConfig();
-                                CLIExitRequest.Throw();
-                            }
-                            else
-                                options.altConfig = argValue;
-                    }
                     else if (Args.ParseValuedArg(arg, AppArgs.config, out argValue) && !options.supressExecution) // -config:<file>
                     {
                         //-config:none             - ignore config file (use default settings)

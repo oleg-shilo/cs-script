@@ -672,7 +672,11 @@ namespace csscript
 
         internal void Set(string name, string value)
         {
-            PropertyInfo prop = typeof(Settings).GetProperty(name);
+            string lookupName = name.Replace("_", ""); // all properties do not contain '_' but user is allowed to use '_' fro very long named properties
+
+            PropertyInfo prop = typeof(Settings).GetProperties()
+                                                .Where(x => 0 == string.Compare(x.Name, lookupName, StringComparison.OrdinalIgnoreCase))
+                                                .FirstOrDefault();
 
             if (prop == null)
             {
@@ -680,10 +684,29 @@ namespace csscript
             }
             else
             {
-                value = (value ?? "").Trim('"');
+                value = (value ?? "").Trim('"').Trim('\'');
+                var add = value.StartsWith("add:");
+                var del = value.StartsWith("del:");
 
                 if (prop.PropertyType == typeof(string))
                 {
+                    var old_value = (string)prop.GetValue(this, dummy);
+
+                    if (value.StartsWith("del:"))
+                    {
+                        var val = value.Substring(4);
+
+                        if (old_value.StartsWith(val + " "))
+                            old_value = old_value.Substring(val.Length);
+                        if (old_value.EndsWith(val + " "))
+                            old_value = old_value.Substring(val.Length);
+
+                        value = old_value.Replace(" " + value.Substring(4) + " ", "").Trim();
+                    }
+
+                    if (value.StartsWith("add:"))
+                        value = old_value + " " + value.Substring(4);
+
                     prop.SetValue(this, value, dummy);
                 }
                 else if (prop.PropertyType.IsEnum)
@@ -700,9 +723,13 @@ namespace csscript
 
         internal static object[] dummy = new object[0];
 
-        internal string Get(string name)
+        internal string Get(ref string name)
         {
-            PropertyInfo prop = typeof(Settings).GetProperty(name);
+            // PropertyInfo prop = typeof(Settings).GetProperty(name);
+            string lookupName = name.Replace("_", ""); // all properties do not contain '_' but user is allowed to use '_' fro very long named properties
+            PropertyInfo prop = typeof(Settings).GetProperties()
+                                               .Where(x => 0 == string.Compare(x.Name, lookupName, StringComparison.OrdinalIgnoreCase))
+                                               .FirstOrDefault();
 
             if (prop == null)
             {
@@ -710,6 +737,7 @@ namespace csscript
             }
             else
             {
+                name = prop.Name;
                 if (prop.PropertyType == typeof(string))
                     return "\"" + prop.GetValue(this, dummy) + "\"";
                 else

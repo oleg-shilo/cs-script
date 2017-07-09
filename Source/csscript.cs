@@ -2155,7 +2155,7 @@ namespace csscript
         /// </summary>
         public void CreateDefaultConfigFile()
         {
-            string file = Path.GetFullPath("css_config.xml");
+            string file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml");
             new Settings().Save(file);
             print("The default config file has been created: " + file);
         }
@@ -2200,7 +2200,8 @@ namespace csscript
                 {
                     string name = command.Substring(4);
                     var currentConfig = Settings.Load(false) ?? new Settings();
-                    print(name + ": " + currentConfig.Get(name));
+                    var value = currentConfig.Get(ref name);
+                    print(name + ": " + value);
                 }
                 else if (command.StartsWith("set:"))
                 {
