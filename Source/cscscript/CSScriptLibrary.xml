@@ -916,7 +916,7 @@
         </member>
         <member name="P:csscript.CSExecutor.Rethrow">
             <summary>
-            Force caught exceptions to be rethrown.
+            Force caught exceptions to be re-thrown.
             </summary>
         </member>
         <member name="M:csscript.CSExecutor.Execute(System.String[],csscript.PrintDelegate,System.String)">

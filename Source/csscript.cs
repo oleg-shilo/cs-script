@@ -48,6 +48,7 @@ using System.Globalization;
 using System.Diagnostics;
 using Microsoft.CSharp;
 using System.Windows.Forms;
+using System.Collections;
 
 namespace csscript
 {
@@ -91,6 +92,8 @@ namespace csscript
 
         void PrintDefaultConfig();
 
+        void PrintDecoratedAutoclass(string script);
+
         void ProcessConfigCommand(string command);
 
         void ShowSample(string version);
@@ -108,7 +111,7 @@ namespace csscript
         #region Public interface...
 
         /// <summary>
-        /// Force caught exceptions to be rethrown.
+        /// Force caught exceptions to be re-thrown.
         /// </summary>
         public bool Rethrow
         {
@@ -1843,7 +1846,21 @@ namespace csscript
 
             if (results.Errors.HasErrors)
             {
-                CompilerException ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings, options.resolveAutogenFilesRefs);
+                var ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings, options.resolveAutogenFilesRefs);
+
+                if (ex.Message.Contains("error CS0176:") && ex.Message.Contains("'ScriptClass.main()'"))
+                {
+                    if (options.autoClass)
+                    {
+                        results.Errors.Insert(0, new CompilerError
+                        {
+                            FileName = scriptFileName,
+                            ErrorText = "Auto-class cannot have method `main(...)` with static modifier. Fix it by declaring the `main(...)` as an instance member."
+                        });
+                        ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings, options.resolveAutogenFilesRefs);
+                    }
+                }
+
                 if (options.syntaxCheck)
                 {
                     Console.WriteLine("Compile: {0} error(s)\n{1}", ex.ErrorCount, ex.Message.Trim());
@@ -2166,6 +2183,15 @@ namespace csscript
         public void PrintDefaultConfig()
         {
             print(new Settings().ToStringRaw());
+        }
+
+        public void PrintDecoratedAutoclass(string script)
+        {
+            string code = File.ReadAllText(script);
+
+            var decorated = AutoclassPrecompiler.Process(code);
+
+            print(decorated);
         }
 
         public void ProcessConfigCommand(string command)

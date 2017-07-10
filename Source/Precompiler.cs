@@ -260,6 +260,14 @@ namespace csscript
             return injectionLength > 0;
         }
 
+        internal static string Process(string content)
+        {
+            int injectionPos;
+            int injectionLength;
+            int injectedLine;
+            return Process(content, out injectionPos, out injectionLength, out injectedLine, Settings.DefaultEncodingName);
+        }
+
         internal static string Process(string content, out int injectionPos, out int injectionLength, out int injectedLine, string consoleEncoding)
         {
             int entryPointInjectionPos = -1;

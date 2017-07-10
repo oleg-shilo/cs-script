@@ -1120,6 +1120,11 @@ partial class dbg
                         {
                             options.autoClass = true;
                         }
+                        else if (argValue == "out")
+                        {
+                            executor.PrintDecoratedAutoclass(nextArg);
+                            CLIExitRequest.Throw();
+                        }
                         else if (argValue == "0")
                         {
                             options.autoClass = false;

@@ -573,7 +573,7 @@ namespace csscript
             set { autoClass_DecorateAsCS6 = value; }
         }
 
-        bool autoClass_DecorateAsCS6 = false;
+        bool autoClass_DecorateAsCS6 = true;
 
         //Not used yet.
         [Browsable(false)]
