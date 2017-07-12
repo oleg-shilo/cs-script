@@ -375,7 +375,7 @@ namespace csscript
                                 {
                                     if (!text.Contains("static"))
                                     {
-                                        string tempText = "static ";
+                                        string tempText = "static ///CS-Script auto-class generation" + Environment.NewLine;
 
                                         injectionLength += tempText.Length;
 
@@ -405,7 +405,8 @@ namespace csscript
                     if (insertBreakpointAtLine == lineCount)
                     {
                         insertBreakpointAtLine = -1;
-                        code.Append("System.Diagnostics.Debugger.Break();");
+                        if (injectBreakPoint)
+                            code.Append("System.Diagnostics.Debugger.Break();");
                     }
                     code.Append(Environment.NewLine);
                     lineCount++;

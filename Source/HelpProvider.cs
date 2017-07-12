@@ -142,12 +142,15 @@ namespace csscript
                                                    "Applicable for console mode only.\n" +
                                                    "prompt - if none specified 'Press any key to continue...' will be used\n");
             switch1Help[ac] =
-            switch1Help[autoclass] = new ArgInfo("-ac|-autoclass[:<0|1|2>]",
+            switch1Help[autoclass] = new ArgInfo("-ac|-autoclass[:<0|1|2|out>]",
                                                    "\n" +
-                                                   "\t-ac:0  disables auto-class decoration (which might be enabled globally);\n" +
-                                                   "\t-ac:1  enables auto-class decoration (which might be disabled globally);\n" +
-                                                   "\t-ac:2  same as '-ac:1' but also injects break point enables at the start of the\n" +
-                                                   "\t       user code (useful for IDEs);\n" +
+                                                   "\t-ac     - enables auto-class decoration (which might be disabled globally).\n" +
+                                                   "\t-ac:0   - disables auto-class decoration (which might be enabled globally).\n" +
+                                                   "\t-ac:1   - same as '-ac'\n" +
+                                                   "\t-ac:2   - same as '-ac:1' and '-ac' but also injects break point enables at the start of the\n" +
+                                                   "\t          user code (useful for IDEs).\n" +
+                                                   "\t-ac:out - prints auto-class decoration for a given script file. The argument must be\n" +
+                                                   "\t          followed by the path to script file.\n" +
                                                    "\tAutomatically generates 'static entry point' class if the script doesn't define any.",
                                                    "\n" +
                                                    "    using System;\n" +
@@ -167,7 +170,17 @@ namespace csscript
                                                    "\n" +
                                                    "Note, having any active code above entry point is acceptable though it complicates \n" +
                                                    "the troubleshooting if such a code contains errors.\n" +
-                                                   "(see http://www.csscript.net/help/AutoClass.html)");
+                                                   "(see https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class)\n" +
+                                                   "\n" +
+                                                   "By default CS-Script decorates the script by adding a class declaration statement to the \n" +
+                                                   "start of the script routine and a class closing bracket to the end. This may have an unintended \n" +
+                                                   "effect as any class declared in the script becomes a 'nested class'. While it is acceptable \n" +
+                                                   "for practically all use-cases it may be undesired for just a few scenarios. For example, any \n" +
+                                                   "class containing method extensions must be a top level static class, what conflicts with the \n" +
+                                                   "auto-class decoration algorithm.\n" +
+                                                   "The solution to this problem is to allow some user code to be protected from being included into \n" +
+                                                   "User can achieve this by placing '//css_ac_end' statement into the code. Any user code below this \n" +
+                                                   "statement will be excluded from the decoration and stay unchanged.\n");
             switch2Help[nl] = new ArgInfo("-nl",
                                                    "No logo mode: No banner will be shown/printed at execution time.",
                                                    "Applicable for console mode only.");
@@ -205,11 +218,18 @@ namespace csscript
                                                    "-config[:ls]           - lists/prints current config values\n" +
                                                    "-config:get:name       - prints current config value\n" +
                                                    "-config:set:name=value - sets current config value\n" +
+                                                   "-config:set:name=add:value - updates the current config value content by appending the specified value.\n" +
+                                                   "-config:set:name=del:value - updates the current config value content by removing all\n" +
+                                                   "                             occurrences of the specified value.\n" +
                                                    "-config:set:roslyn     - enables Roslyn integration via configuration (C#7 support)\n" +
                                                    "-config:<file>         - uses custom config file\n" +
+                                                   "Note: The property name in -config:set and -config:set is case insensitive and can also contain '_' \n" +
+                                                   "as a token separator that is ignored during property lookup.\n" +
                                                    "(e.g. " + AppInfo.appName + " -config:none sample.cs\n" +
                                                    AppInfo.appName + " -config:default > css_VB.xml\n" +
                                                    AppInfo.appName + " -config:set:" + inmem + "=true\n" +
+                                                   AppInfo.appName + " -config:set:DefaultArguments=add:-ac\n" +
+                                                   AppInfo.appName + " -config:set:default_arguments=del:-ac\n" +
                                                    AppInfo.appName + " -config:c:\\cs-script\\css_VB.xml sample.vb)");
             switch2Help[@out] = new ArgInfo("-out[:<file>]",
                                                    "Forces the script to be compiled into a specific location.",

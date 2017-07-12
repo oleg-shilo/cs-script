@@ -698,8 +698,8 @@ namespace csscript
 
                         if (old_value.StartsWith(val + " "))
                             old_value = old_value.Substring(val.Length);
-                        if (old_value.EndsWith(val + " "))
-                            old_value = old_value.Substring(val.Length);
+                        if (old_value.EndsWith(" " + val))
+                            old_value = old_value.Substring(0, old_value.Length - val.Length);
 
                         value = old_value.Replace(" " + value.Substring(4) + " ", "").Trim();
                     }

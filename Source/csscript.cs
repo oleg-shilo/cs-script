@@ -2262,6 +2262,9 @@ namespace csscript
                     var currentConfig = Settings.Load(true) ?? new Settings();
                     currentConfig.Set(name, value);
                     currentConfig.Save();
+
+                    var new_value = currentConfig.Get(ref name);
+                    print("set: " + name + ": " + new_value);
                 }
             }
             catch (Exception e)
