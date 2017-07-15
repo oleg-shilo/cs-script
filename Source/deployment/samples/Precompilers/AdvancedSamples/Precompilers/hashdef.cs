@@ -1,10 +1,13 @@
+// CS-Script default ref assemblies are not processed so need to add them explicitly
+//css_ref System.Core  
 using System;
 using System.Collections;
+using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
 
-public class HashDefPrecompiler 
+public class HashDefPrecompiler
 {
     static public bool Compile(ref string code, string scriptFile, bool IsPrimaryScript, Hashtable context)
     {
@@ -13,6 +16,7 @@ public class HashDefPrecompiler
         var content = new StringBuilder();
 
         string line;
+
         using (var sr = new StringReader(code))
             while ((line = sr.ReadLine()) != null)
             {
@@ -26,9 +30,9 @@ public class HashDefPrecompiler
                 else
                     content.AppendLine(line);
             }
-        
+
         code = content.ToString();
-        foreach(string key in hashDefs.Keys) 
+        foreach (string key in hashDefs.Keys.Cast<string>().Reverse())
             code = code.Replace(key, hashDefs[key]);
 
         return true;
