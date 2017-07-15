@@ -36,12 +36,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-#if net1
-using System.Collections;
-#else
-
-#endif
-
 using System.Threading;
 using System.Xml;
 using System.Drawing.Design;

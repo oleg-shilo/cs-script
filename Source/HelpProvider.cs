@@ -349,11 +349,12 @@ namespace csscript
                          "         //css_nuget -ver:\"4.1.1-rc1\" -ng:\"-Pre -NoCache\" NLog\n" +
                          "This directive will install CS-Script NuGet package.\n" +
                          "(see http://www.csscript.net/help/script_nugets.html)\n" +
-            "------------------------------------\n" +
+                         "------------------------------------\n" +
                          "//css_args arg0[,arg1]..[,argN];\n" +
                          "\n" +
                          "Embedded script arguments. The both script and engine arguments are allowed except \"/noconfig\" engine command switch.\n" +
                          " Example: //css_args -dbg, -inmem;\n This directive will always force script engine to execute the script in debug mode.\n" +
+                         "Note: the arguments must be coma separated.\n" +
                          "------------------------------------\n" +
                          "//css_reference <file>;\n" +
                          "\n" +
@@ -379,13 +380,11 @@ namespace csscript
                          "directory - name of the directory to be used for script and assembly probing at run-time.\n" +
                          "\n" +
                          "This directive is used to extend set of search directories (script and assembly probing).\n" +
-#if !net1
                          "The directory name can be a wildcard based expression.In such a case all directories matching the pattern will be this \n" +
                          "case all directories will be probed.\n" +
                          "The special case when the path ends with '**' is reserved to indicate 'sub directories' case. Examples:\n" +
                          "    //css_dir packages\\ServiceStack*.1.0.21\\lib\\net40\n" +
                          "    //css_dir packages\\**\n" +
-#endif
                          "------------------------------------\n" +
                          "//css_resource <file>[, <out_file>];\n" +
                          "\n" +

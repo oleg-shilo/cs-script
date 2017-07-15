@@ -36,19 +36,11 @@
 using System;
 using System.IO;
 using System.Text;
-
-//using System.Windows.Forms;
 using System.Reflection;
 using System.Diagnostics;
 using System.Collections;
-
-#if !net1
-
 using System.Collections.Generic;
 using System.Linq;
-
-#endif
-
 using csscript;
 using System.Threading;
 using System.CodeDom.Compiler;
@@ -78,8 +70,6 @@ namespace CSScriptLibrary
         /// </summary>
         ScriptSystemScope,
     }
-
-#if !net1
 
     /// <summary>
     /// This class encapsulates another object for the purpose of passing it to the anonymous methods as parameters.
@@ -503,8 +493,6 @@ namespace CSScriptLibrary
         }
     }
 
-#endif
-
     /// <summary>
     /// Simple security helper class. This class is nothing else but a syntactic sugar.
     /// <para>
@@ -531,12 +519,7 @@ namespace CSScriptLibrary
         /// </summary>
         /// <param name="obj">The object that is a subject of Fluent invocation.</param>
         /// <param name="action">The action to be performed against object.</param>
-#if net1
-        public static T With<T>(T obj, Action<T> action)
-#else
-
         public static T With<T>(this T obj, Action<T> action)
-#endif
         {
             action(obj);
             return obj;
@@ -547,12 +530,7 @@ namespace CSScriptLibrary
         /// </summary>
         /// <param name="permissions">The permissions set to be used for the execution.</param>
         /// <param name="action">The action to be executed.</param>
-#if net1
-        public static void Execute(PermissionSet permissions, Action action)
-#else
-
         public static void Execute(this PermissionSet permissions, Action action)
-#endif
         {
             permissions.PermitOnly();
 
@@ -1373,8 +1351,6 @@ namespace CSScriptLibrary
             }
         }
 
-#if !net1
-
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>Scripting.DynamicClass</c>), evaluates it and loads the class to the current AppDomain.
         /// <para>Returns instance of <see cref="CSScriptLibrary.MethodDelegate"/> for the first method in the auto-generated class.</para>
@@ -1428,8 +1404,6 @@ namespace CSScriptLibrary
             }
         }
 
-#endif
-
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>Scripting.DynamicClass</c>), evaluates it and loads the class to the current AppDomain.
         /// <para>Returns instance of <c>T</c> delegate for the first method in the auto-generated class.</para>
@@ -1451,8 +1425,6 @@ namespace CSScriptLibrary
         {
             return LoadDelegate<T>(methodCode, null, false);
         }
-
-#if !net1
 
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>Scripting.DynamicClass</c>), evaluates it and loads the class to the current AppDomain.
@@ -1518,212 +1490,6 @@ namespace CSScriptLibrary
             }
         }
 
-#endif
-        static string evalNamespaces;
-
-        /// <summary>
-        /// Sets the <c>;</c>-delimited string containing namespaces to be used by the C# expressions being compiled with
-        /// <see cref="M:CSScriptLibrary.CSScript.Eval"/>.
-        /// <para>The default value is <c>"System;System.IO;System.Diagnostics;System.Collections.Generic;System.Threading"</c></para>
-        /// </summary>
-        /// <para>The following is a typical example of <c>BuildEval</c> usage:</para>
-        /// <code>
-        /// CSScript.EvalNamespaces = "System;System.Diagnostics";
-        ///
-        /// var Trace = CSScript.BuildEval(@"trace (object message)
-        ///                                  {
-        ///                                      Trace.WriteLine(""EVAL:"" + message);
-        ///                                  }");
-        ///
-        /// var Average = CSScript.BuildEval("avrg (int a, int b)  { return (a+b)/2.0; }");
-        ///
-        /// Trace(Average(7, 8));
-        /// </code>
-        /// <value>
-        /// The <c>Eval</c> namespaces.
-        /// </value>
-#if !net35 && !net1
-
-        [Obsolete("This type member will be removed in the future releases. Please use CSScript.Evaluator instead.", true)]
-#endif
-        public static string EvalNamespaces
-        {
-            get
-            {
-                if (evalNamespaces == null)
-                    evalNamespaces = SplitNamespaces("System;System.IO;System.Diagnostics;System.Collections.Generic;System.Threading");
-                return evalNamespaces;
-            }
-            set
-            {
-                evalNamespaces = SplitNamespaces(value);
-            }
-        }
-
-        static string SplitNamespaces(string text)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (string @namespace in text.Split(new char[] { ';' }))
-            {
-                sb.Append("using ");
-                sb.Append(@namespace);
-                sb.Append(";\n");
-            }
-            return sb.ToString();
-        }
-
-#if !net1
-
-        /// <summary>
-        /// Evaluates string as a method code and returns the <see cref="CSScriptLibrary.MethodDelegate"/>.
-        /// <para><c>BuildEval</c> is a specific case of <see cref="M:CSScriptLibrary.CSScript.LoadMethod"/>, which
-        /// offers a simpler and more convenient syntactical model. It has number of limitations comparing to
-        /// the <see cref="M:CSScriptLibrary.CSScript.LoadMethod"/>.
-        /// <list type="bullet">
-        ///         <item ><description><c>methodCode</c> should contain nothing else but only a single method definition</description></item>
-        ///         <item ><description>The method signature should not contain any return type.</description></item>
-        ///         <item ><description>All namespaces used by the method code should be either specified explicitly in code or listed in the value of <see cref="CSScriptLibrary.CSScript.EvalNamespaces"/>.</description></item>
-        ///         <item ><description>The method code can only interact with the types of the currently loaded in the <c>AppDomain.CurrentDomain</c> assemblies.</description></item>
-        /// </list>
-        /// This is the when the flexibility is partially sacrificed for the sake of convenience.
-        /// <para>The following is a typical example of <c>BuildEval</c> usage:</para>
-        /// <code>
-        /// CSScript.EvalNamespaces = "System;System.Diagnostics";
-        ///
-        /// var Trace = CSScript.BuildEval(@"trace (object message)
-        ///                                  {
-        ///                                      Trace.WriteLine(""EVAL:"" + message);
-        ///                                  }");
-        ///
-        /// var Average = CSScript.BuildEval("avrg (int a, int b)  { return (a+b)/2.0; }");
-        ///
-        /// Trace(Average(7, 8));
-        /// </code>
-        /// <remarks>Note that CS-Script <c>BuildEval</c> should not be treated as <c>eval</c> in dynamic languages even despite some resemblance. After all C# is a static language.
-        /// <para>CS-Script <c>BuildEval</c> yields the method delegate, which can access all public types of the AppDomain but it cannot interact with the types instances unless
-        /// they are directly passed to the delegate or can be accessed through the Type static members.</para>
-        /// </remarks>
-        /// </para>
-        /// </summary>
-        /// <param name="methodCode">The method code.</param>
-        /// <returns>Delegate with the "evaluated" routine. It can be invoked as any .NET delegate.</returns>
-#if !net35 && !net1
-
-        [Obsolete("This type member will be removed in the future releases. Please use CSScript.Evaluator instead.", true)]
-#endif
-        static public MethodDelegate BuildEval(string methodCode)
-        {
-            string[] refAssemblies;
-            string code = GenerateEvalSourceCode(methodCode, out refAssemblies, false);
-
-            Assembly asm = LoadMethod(code, null, true, refAssemblies);
-
-            return asm.GetStaticMethod();
-        }
-
-        /// <summary>
-        /// Evaluates string as a method code and executes it with the specified method parameters.
-        /// <para>
-        /// <c>Eval</c> is very similar to <see cref="CSScriptLibrary.CSScript.BuildEval"/> and it shares the some of its limitations.
-        /// <list type="bullet">
-        ///     <item ><description><c>methodCode</c> should contain nothing else but only a single method definition</description></item>
-        ///     <item ><description>The method signature should not contain any return type.</description></item>
-        ///     <item ><description>All namespaces used by the method code should be either specified explicitly in code or listed in the value of <see cref="CSScriptLibrary.CSScript.EvalNamespaces"/>.</description></item>
-        /// </list>
-        /// However <c>Eval</c> offers an important advantage comparing to the <c>BuildEval</c> - after the execution it unloads all dynamically emitted routines
-        /// preventing any potential memory leaks. Though because of this the "evaluated" routines are not reusable thus you need to do the full eval every time
-        /// you wan to invoke the routine. And of course this can affect performance dramatically and that is why usage of <c>Eval</c> should be considered very carefully.
-        ///
-        /// <para>Note that the calling convention is that all parameters of the method to be "evaluated" must be
-        /// followed by the string of code defining this method. </para>
-        /// <para>The following is a typical example of <c>Eval</c> usage:</para>
-        /// <code>
-        ///
-        /// var result = CSScript.Eval(1, 3,
-        ///                          @"sum (int a, int b) {
-        ///                                return a+b;
-        ///                            }");
-        ///
-        /// </code>
-        ///
-        /// <remarks>Note that CS-Script <c>Eval</c> should not be treated as <c>eval</c> in dynamic languages even despite some resemblance.
-        /// After all C# is a static language.
-        /// <para>CS-Script <c>Eval</c> can access all public types of the AppDomain but it cannot interact with the types instances unless
-        /// they are directly passed to the delegate or can be accessed through the Type static members.</para>
-        /// </remarks>
-        ///
-        ///
-        /// </para>
-        /// </summary>
-        /// <param name="args">Collection of the method parameters followed by the method code.</param>
-        /// <returns>The return value of the method being "evaluated"</returns>
-#if !net35 && !net1
-
-        [Obsolete("This type member will be removed in the future releases. Please use CSScript.Evaluator instead.", true)]
-#endif
-        static public object Eval(params object[] args)
-        {
-            if (args.Length == 0)
-                throw new Exception("You did not specify the code to 'Eval'");
-
-            object lastArg = args.Last();
-
-            if (lastArg == null || !(lastArg is string))
-                throw new Exception("You did not specify the code to 'Eval'");
-
-            string methodCode = ((string)lastArg).Trim();
-
-            string methodName = methodCode.Split(new char[] { '(', ' ' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
-
-            if (methodName == null)
-                throw new Exception("The code to 'Eval' is not valid. The expected code patterns is as 'func(type arg1,..., type argN){ return <result>; }'");
-
-            object[] newArgs = new object[args.Length - 1];
-
-            Array.Copy(args, newArgs, newArgs.Length);
-
-            string[] refAssemblies;
-            string code = GenerateEvalSourceCode(methodCode, out refAssemblies, true);
-
-            using (var helper = new AsmHelper(CSScript.CompileCode(code, null, true, refAssemblies), null, true))
-            {
-                return helper.Invoke("*." + methodName, newArgs);
-            }
-        }
-
-#if !net35 && !net1
-
-        [Obsolete("This type member will be removed in the future releases. Please use CSScript.Evaluator instead.")]
-#endif
-        static string GenerateEvalSourceCode(string methodCode, out string[] refAssemblies, bool injectClassDef)
-        {
-            string code = evalNamespaces;
-
-            if (injectClassDef)
-            {
-                //code += "[assembly: System.Runtime.CompilerServices.InternalsVisibleTo( \"Testpad\" )]\n";
-                code += "public static class EvalClass {\n";
-            }
-
-            code += "public static object ";
-
-            if (methodCode.EndsWith("}"))
-                code += methodCode.Substring(0, methodCode.Length - 1) + "\n    return null;\n}"; //ensure "return null; is injected just before the last bracket"
-            else
-                code += methodCode;
-
-            if (injectClassDef)
-                code += "}";
-
-            refAssemblies = AppDomain.CurrentDomain
-                                     .GetAssemblies()
-                                     .Select(a => a.Location())
-                                     .Where(a => a != "")
-                                     .ToArray();
-            return code;
-        }
-
-#endif
         static object LoadAutoCodeSynch = new object();
 
         /// <summary>
@@ -1732,7 +1498,6 @@ namespace CSScriptLibrary
         /// using dynamic methods is to declare them as static methods. In this case they can be
         /// invoked with wild card character as a class name (e.g. asmHelper.Invoke("*.SayHello")).
         /// Otherwise you will need to instantiate class "DyamicClass.Script" in order to call dynamic method.
-        ///
         ///
         /// You can have multiple methods implementations in the single methodCode. Also you can specify namespaces at the beginning of the code:
         /// <code>

@@ -36,21 +36,13 @@ using System.IO;
 using System.Text;
 using System.Reflection;
 using System.Collections;
-
-#if !net1
-
 using System.Collections.Generic;
 using System.Linq;
-
-#endif
-
 using System.Reflection.Emit;
 using CSScriptLibrary;
 using csscript;
 using System.Runtime.Remoting.Lifetime;
 using System.Threading;
-
-#if !net1
 
 /// <summary>
 /// Method extensions for
@@ -74,7 +66,7 @@ public static class CSScriptLibraryExtensionMethods
     }
 
     /// <summary>
-    /// Executes an action as a "singleton". 
+    /// Executes an action as a "singleton".
     /// <para>This extension method takes a delegate and executes it in the context of the claimed named mutex. It doesn't execute the action and
     /// returns immediately if any previously invoked action from the same context is still in progress: mutex is not released.</para>
     /// <para>Mutex name uniqueness is based on the assembly identity (location).</para>
@@ -85,28 +77,28 @@ public static class CSScriptLibraryExtensionMethods
     ///     static void Main()
     ///     {
     ///         Assembly.GetExecutingAssembly()
-    ///                 .SingletonExecute(main, 
+    ///                 .SingletonExecute(main,
     ///                                   ()=>MessageBox.Show("Another instance is already running."));
     ///     }
-    /// 
+    ///
     ///     static void main()
     ///     {
     ///         //business logic
     ///     }
     /// }
-    /// 
+    ///
     /// //script
     /// var script = @"using System.Reflection;
     ///                public static void DoWork()
     ///                {
     ///                    Assembly.GetExecutingAssembly()
-    ///                            .SingletonExecute(() => 
-    ///                            {  
+    ///                            .SingletonExecute(() =>
+    ///                            {
     ///                                //business logic;
-    ///                            }, 
+    ///                            },
     ///                            () => Console.WriteLine(""another instance of 'script' is being executed""));
     ///                }";
-    /// 
+    ///
     /// var DoWork = CSScript.LoadMethod(script).GetStaticMethod();
     /// Task.Run(DoWork);
     /// Task.Run(DoWork);
@@ -117,6 +109,7 @@ public static class CSScriptLibraryExtensionMethods
     /// <param name="action">The action.</param>
     /// <param name="onBusyAction">The on busy action.</param>
 #if net4
+
     public static void SingletonExecute(this Assembly assembly, Action action, Action onBusyAction = null)
 #else
     public static void SingletonExecute(this Assembly assembly, Action action, Action onBusyAction)
@@ -328,13 +321,14 @@ public static class CSScriptLibraryExtensionMethods
         {
             //var owner = method.GetOwnerObject<MarshalByRefObject>();
             //if (owner == null)
-                throw new Exception("MethodDelegate doesn't seem to be owned by the transparent proxy connected to the remote AppDomain object." +
-                    " You don't need to extend life local objects.");
+            throw new Exception("MethodDelegate doesn't seem to be owned by the transparent proxy connected to the remote AppDomain object." +
+                " You don't need to extend life local objects.");
             //return owner.ExtendLife(TimeSpan.FromMinutes(minutes));
         }
     }
 
 #if net4
+
     /// <summary>
     /// Extends the life of the instance created in the remote AppDomain.
     /// </summary>
@@ -365,13 +359,12 @@ public static class CSScriptLibraryExtensionMethods
     {
         var owner = method.GetOwnerObject<MarshalByRefObject>();
         if (owner == null)
-            throw new Exception("MethodDelegate doesn't seem to be owned by the transparent proxy connected to the remote AppDomain object."+
+            throw new Exception("MethodDelegate doesn't seem to be owned by the transparent proxy connected to the remote AppDomain object." +
                 " You don't need to extend life local objects.");
         return owner.ExtendLife(TimeSpan.FromMinutes(minutes));
     }
-#endif
 
-#if !net1
+#endif
 
     /// <summary>
     /// Attempts to align (pseudo typecast) object to interface.
@@ -426,6 +419,7 @@ public static class CSScriptLibraryExtensionMethods
     {
         return CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils.ObjectCaster<T>.As(obj, refAssemblies);
     }
+
     /// <summary>
     /// Attempts to align (pseudo typecast) object to interface.
     /// <para>The object does not necessarily need to implement the interface formally.</para>
@@ -528,11 +522,7 @@ public static class CSScriptLibraryExtensionMethods
 
         return retval;
     }
-
-#endif
 }
-
-#endif
 
 namespace CSScriptLibrary
 {
@@ -574,8 +564,6 @@ namespace CSScriptLibrary
         AppDomain remoteAppDomain;
 
         bool deleteOnExit = false;
-
-#if !net1
 
         /// <summary>
         /// Aligns (pseudo typecasts) object to the specified interface.
@@ -650,8 +638,6 @@ namespace CSScriptLibrary
             return this.asmBrowser.AlignToInterface<T>(this.CreateObject(typeName, args));
         }
 
-#endif
-
         /// <summary>
         /// Instance of the AppDomain, which is used to execute the script.
         /// </summary>
@@ -690,8 +676,6 @@ namespace CSScriptLibrary
             get { return this.asmBrowser.CachingEnabled; }
             set { this.asmBrowser.CachingEnabled = value; }
         }
-
-#if !net1
 
         /// <summary>
         /// This method returns extremely fast delegate for the method specified by "methodName" and
@@ -886,8 +870,6 @@ namespace CSScriptLibrary
             FastInvokeDelegate method = this.asmBrowser.GetMethodInvoker(instance.GetType().FullName + "." + methodName, list);
             return delegate (object[] paramters) { return (T)method(instance, paramters); };
         }
-
-#endif
 
         /// <summary>
         /// Creates an instance of AsmHelper for working with assembly dynamically loaded to current AppDomain.
@@ -1142,15 +1124,11 @@ namespace CSScriptLibrary
 
         bool CachingEnabled { get; set; }
 
-#if !net1
-
         T AlignToInterface<T>(object obj) where T : class;
 
         T AlignToInterface<T>(object obj, bool useAppDomainAssemblies) where T : class;
 
         T AlignToInterface<T>(object obj, params string[] refAssemblies) where T : class;
-
-#endif
 
         FastInvokeDelegate GetMethodInvoker(string methodName, object[] list);
 
@@ -1286,8 +1264,6 @@ namespace CSScriptLibrary
             return asmBrowser.CreateInstance(typeName, args);
         }
 
-#if !net1
-
         public T AlignToInterface<T>(object obj) where T : class
         {
             var retval = CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils.ObjectCaster<T>.As(obj);
@@ -1323,7 +1299,6 @@ namespace CSScriptLibrary
 
             return retval;
         }
-#endif
 
         public string[] GetMembersOf(object obj)
         {
@@ -1335,21 +1310,13 @@ namespace CSScriptLibrary
     {
         public static string[] GetMembersOf(object obj)
         {
-#if net1
-            ArrayList retval = new ArrayList();
-#else
             List<string> retval = new List<string>();
-#endif
 
             foreach (MemberInfo info in obj.GetType().GetMembers())
                 retval.Add(string.Format("MemberType:{0};Name:{1};DeclaringType:{2};Signature:{3}",
                                     info.MemberType, info.Name, info.DeclaringType.FullName, info.ToString()));
 
-#if net1
-            return (string[])retval.ToArray(typeof(string));
-#else
             return retval.ToArray();
-#endif
         }
     }
 
@@ -1361,13 +1328,9 @@ namespace CSScriptLibrary
         }
 
         string workingDir;
-#if net1
-        Hashtable methodCache = new Hashtable(); //cached delegates of the type methods
-        Hashtable infoCache = new Hashtable(); //cached MethodInfo(f) of the type method(s)
-#else
+
         Dictionary<MethodInfo, FastInvoker> methodCache = new Dictionary<MethodInfo, FastInvoker>(); //cached delegates of the type methods
         Dictionary<MethodSignature, MethodInfo> infoCache = new Dictionary<MethodSignature, MethodInfo>(); //cached MethodInfo(f) of the type method(s)
-#endif
 
         Assembly asm;
 
@@ -1489,9 +1452,9 @@ namespace CSScriptLibrary
                 methodName = obj.GetType().FullName + "." + methodName;
 
             if (list.Any(x => x == null))
-                throw new Exception("At least one of the invoke parameters is null. This makes impossible to "+
-                                    "match method signature by the parameter type. Consider using alternative invoking "+
-                                    "mechanisms like:\n"+
+                throw new Exception("At least one of the invoke parameters is null. This makes impossible to " +
+                                    "match method signature by the parameter type. Consider using alternative invoking " +
+                                    "mechanisms like:\n" +
                                     " AsmHelper.GetMethod()\n" +
                                     " AsmHelper.GetStaticMethod()\n" +
                                     " Assembly.GetStaticMethod()\n" +
@@ -1507,15 +1470,11 @@ namespace CSScriptLibrary
             }
             else
             {
-#if net1
-                method = (MethodInfo)infoCache[methodID];
-#else
                 method = infoCache[methodID];
-#endif
             }
+
             try
             {
-#if !net1
                 if (cachingEnabled)
                 {
                     if (!methodCache.ContainsKey(method))
@@ -1524,7 +1483,6 @@ namespace CSScriptLibrary
                     return methodCache[method].Invoke(obj, list);
                 }
                 else
-#endif
                     return method.Invoke(obj, list);
             }
             catch (TargetInvocationException ex)
@@ -1620,11 +1578,8 @@ namespace CSScriptLibrary
             {
                 if (!methodCache.ContainsKey(method))
                     methodCache[method] = new FastInvoker(method);
-#if net1
-                return (methodCache[method] as FastInvoker).GetMethodInvoker();
-#else
+
                 return methodCache[method].GetMethodInvoker();
-#endif
             }
             catch (TargetInvocationException ex)
             {
@@ -1673,16 +1628,8 @@ namespace CSScriptLibrary
 
         object createInstance(Assembly asm, string typeName, object[] args)
         {
-#if net1
-            if (args.Length > 0)
-                throw new ApplicationException("Current runtime doesn't support invoking 'CreateInstance' for non-default constructors.");
-            return asm.CreateInstance(typeName); //let Reflection fail in .NET1 if args were specified
-#else
             return asm.CreateInstance(typeName, args);
-#endif
         }
-
-#if !net1
 
         public T AlignToInterface<T>(object obj) where T : class
         {
@@ -1719,8 +1666,6 @@ namespace CSScriptLibrary
 
             return retval;
         }
-
-#endif
     }
 
     /// <summary>
@@ -1774,11 +1719,6 @@ namespace CSScriptLibrary
 
         FastInvokeDelegate GenerateMethodInvoker(MethodInfo methodInfo)
         {
-#if net1
-            throw new NotImplementedException("This version of AsmHelper does not implement GenerateMethodInvoker()\n"+
-                "Please use CSScriptLibrarly.dll which is compiled against at least CLR v2.0");
-#else
-
             //if(IsNet45OrNewer)
             DynamicMethod dynamicMethod = new DynamicMethod(string.Empty, typeof(object), new Type[] { typeof(object), typeof(object[]) }, methodInfo.DeclaringType.Module);
             ILGenerator il = dynamicMethod.GetILGenerator();
@@ -1841,15 +1781,10 @@ namespace CSScriptLibrary
             il.Emit(OpCodes.Ret);
             FastInvokeDelegate invoder = (FastInvokeDelegate)dynamicMethod.CreateDelegate(typeof(FastInvokeDelegate));
             return invoder;
-#endif
         }
 
         static void EmitCastToReference(ILGenerator il, System.Type type)
         {
-#if net1
-            throw new NotImplementedException("This version of AsmHelper does not implement EmitCastToReference().\n"+
-                "Please use CSScriptLibrarly.dll which is compiled against at least CLR v2.0");
-#else
             if (type.IsValueType)
             {
                 il.Emit(OpCodes.Unbox_Any, type);
@@ -1858,7 +1793,6 @@ namespace CSScriptLibrary
             {
                 il.Emit(OpCodes.Castclass, type);
             }
-#endif
         }
 
         static void EmitBoxIfNeeded(ILGenerator il, System.Type type)

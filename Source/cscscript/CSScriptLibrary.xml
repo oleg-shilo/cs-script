@@ -1109,7 +1109,7 @@
             </summary>
             <param name="Errors">The compiler errors.</param>
             <param name="hideCompilerWarnings">if set to <c>true</c> hide compiler warnings.</param>
-            <param name="resolveAutogenFilesRefs">if set to <c>true</c> all references to the path of the derived auto-generated files 
+            <param name="resolveAutogenFilesRefs">if set to <c>true</c> all references to the path of the derived auto-generated files
             (e.g. errors in the decorated classless scripts) will be replaced with the path of the original files (e.g. classless script itself).</param>
             <returns></returns>
         </member>

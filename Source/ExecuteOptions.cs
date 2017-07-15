@@ -35,22 +35,12 @@
 using System;
 using System.IO;
 using System.Reflection;
-
-#if net1
-using System.Collections;
-#else
-
 using System.Collections.Generic;
-
-#endif
-
 using System.Text;
 using CSScriptLibrary;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.CodeDom.Compiler;
-
-//using System.Windows.Forms;
 using System.Globalization;
 using System.Diagnostics;
 using Microsoft.CSharp;
@@ -117,15 +107,8 @@ namespace csscript
             clone.startDebugger = this.startDebugger;
             clone.local = this.local;
             clone.buildExecutable = this.buildExecutable;
-#if net1
-                clone.refAssemblies = (string[])new ArrayList(this.refAssemblies).ToArray(typeof(string));
-                clone.searchDirs = (string[])new ArrayList(this.searchDirs).ToArray(typeof(string));
-
-#else
             clone.refAssemblies = new List<string>(this.refAssemblies).ToArray();
             clone.searchDirs = new List<string>(this.searchDirs).ToArray();
-#endif
-
             clone.buildWinExecutable = this.buildWinExecutable;
             clone.useSurrogateHostingProcess = this.useSurrogateHostingProcess;
             clone.altCompiler = this.altCompiler;
@@ -184,13 +167,8 @@ namespace csscript
             clone.verbose = this.verbose;
             clone.local = this.local;
             clone.buildExecutable = this.buildExecutable;
-#if net1
-                clone.refAssemblies = (string[])new ArrayList(this.refAssemblies).ToArray(typeof(string));
-                clone.searchDirs = (string[])new ArrayList(this.searchDirs).ToArray(typeof(string));
-#else
             clone.refAssemblies = new List<string>(this.refAssemblies).ToArray();
             clone.searchDirs = new List<string>(this.searchDirs).ToArray();
-#endif
             clone.buildWinExecutable = this.buildWinExecutable;
             clone.altCompiler = this.altCompiler;
             clone.roslynDir = this.roslynDir;
@@ -293,14 +271,9 @@ namespace csscript
 
         public void AddSearchDir(string dir)
         {
-#if net1
-                foreach (string item in this.searchDirs)
-                    if (item == dir)
-                        return;
-#else
             if (Array.Find(this.searchDirs, (x) => x == dir) != null)
                 return;
-#endif
+
             string[] newSearchDirs = new string[this.searchDirs.Length + 1];
             this.searchDirs.CopyTo(newSearchDirs, 0);
             newSearchDirs[newSearchDirs.Length - 1] = dir;

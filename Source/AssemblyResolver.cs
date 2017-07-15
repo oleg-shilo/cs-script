@@ -92,30 +92,12 @@ namespace CSScriptLibrary
             }
         }
 
-#if net1
-        static readonly System.Collections.Hashtable NotFoundAssemblies = new System.Collections.Hashtable();
-#else
         static readonly HashSet<int> NotFoundAssemblies = new HashSet<int>();
-#endif
 
         static int BuildHashSetValue(string assemblyName, string directory)
         {
             return CSSUtils.GetHashCodeEx((assemblyName ?? "") + (directory ?? ""));
         }
-
-        //static Assembly TryLoadAssemblyFrom(string assemblyName, string asmFile)
-        //{
-        //    try
-        //    {
-        //        AssemblyName asmName = AssemblyName.GetAssemblyName(asmFile);
-        //        if (asmName != null && asmName.FullName == assemblyName)
-        //            return Assembly.LoadFrom(asmFile);
-        //        else if (assemblyName.IndexOf(",") == -1 && asmName.FullName.StartsWith(assemblyName)) //short name requested
-        //            return Assembly.LoadFrom(asmFile);
-        //    }
-        //    catch { }
-        //    return null;
-        //}
 
 #if net4
 
@@ -208,11 +190,7 @@ namespace CSScriptLibrary
             {
                 lock (NotFoundAssemblies)
                 {
-#if net1
-                    NotFoundAssemblies.Add(hashSetValue, null);
-#else
                     NotFoundAssemblies.Add(hashSetValue);
-#endif
                 }
             }
             return null;
@@ -278,11 +256,7 @@ namespace CSScriptLibrary
                 }
                 catch { } //does not matter why...
             }
-#if net1
-            return (string[])retval.ToArray(typeof(string));
-#else
             return retval.ToArray();
-#endif
         }
 
         /// <summary>
@@ -412,11 +386,7 @@ namespace CSScriptLibrary
         {
             try
             {
-#if net1
-                Assembly.LoadFrom(Path.GetFullPath(file));
-#else
                 Assembly.ReflectionOnlyLoadFrom(Path.GetFullPath(file));
-#endif
                 return true;
             }
             catch (Exception)

@@ -1,8 +1,6 @@
 using System;
-#if !net1
 using System.Collections.Generic;
 using System.Linq;
-#endif
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -10,7 +8,6 @@ using System.Diagnostics;
 
 namespace csscript
 {
-
     class NuGet
     {
         static public string NuGetCacheView
@@ -24,6 +21,7 @@ namespace csscript
         }
 
         static string nuGetCache = null;
+
         static string NuGetCache
         {
             get
@@ -37,7 +35,6 @@ namespace csscript
                     nuGetCache = Environment.GetEnvironmentVariable("css_nuget") ??
                                  Path.Combine(Environment.GetFolderPath(folder), "CS-Script" + Path.DirectorySeparatorChar + "nuget");
 
-
                     if (!Directory.Exists(nuGetCache))
                         Directory.CreateDirectory(nuGetCache);
                 }
@@ -46,6 +43,7 @@ namespace csscript
         }
 
         static string nuGetExe = null;
+
         internal static string NuGetExe
         {
             get
@@ -70,7 +68,6 @@ namespace csscript
                                 catch { }
                         }
                     }
-
                 }
                 return nuGetExe;
             }
@@ -84,7 +81,7 @@ namespace csscript
                 {
                     var candidates = Environment.GetEnvironmentVariable("PATH")
                                                 .Split(Utils.IsLinux() ? ':' : ';')
-                                                .SelectMany(dir => new[] 
+                                                .SelectMany(dir => new[]
                                                                     {
                                                                         Path.Combine(dir, "nuget"),
                                                                         Path.Combine(dir, "nuget.exe")
@@ -206,7 +203,6 @@ namespace csscript
                         forceDownloading = false;
                 }
 
-
                 if (supressDownloading)
                 {
                     //it is OK if the package is not downloaded (e.g. N++ intellisense)
@@ -302,7 +298,7 @@ namespace csscript
 #if net4
                     Version ver;
                     return Version.TryParse(version, out ver);
-#else 
+#else
                     try
                     {
                         new Version(version);
@@ -341,7 +337,7 @@ namespace csscript
             result.AddRange(GetSinglePackageLibDirs(package, version));
 
             foreach (string dependency in GetPackageDependencies(packageDir, package))
-                result.AddRange(GetSinglePackageLibDirs(dependency, "", packageDir)); //do not assume the dependency has the same version as the major package; Get the latest instead 
+                result.AddRange(GetSinglePackageLibDirs(dependency, "", packageDir)); //do not assume the dependency has the same version as the major package; Get the latest instead
 
             return result.ToArray();
         }
@@ -488,5 +484,4 @@ namespace csscript
                 }
         }
     }
-
 }

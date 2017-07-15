@@ -6,11 +6,7 @@ using System.Reflection;
 // associated with an assembly.
 //
 [assembly: AssemblyTitle("C# Script engine Windows executable")]
-#if net1
-[assembly: AssemblyDescription("C# Script engine (.NET 1.1 build)")]
-#else
 [assembly: AssemblyDescription("C# Script engine Windows executable")]
-#endif
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("C# Script engine")]
 [assembly: AssemblyCopyright("(C) 2004-2017 Oleg Shilo")]

@@ -4,7 +4,7 @@
 // Date:	30/10/10	Time: 8:21
 // Module:	ScriptLauncherBuilder.cs
 // Classes:	ScriptLauncherBuilder
-//			
+//
 // This module contains the definition of the ScriptLauncherBuilder class. Which implements
 // compiling light-weigh host application for the script execution.
 //
@@ -12,20 +12,20 @@
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2017 Oleg Shilo
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all copies or substantial 
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
 // portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
@@ -34,27 +34,15 @@
 using System;
 using System.IO;
 using System.Reflection;
-
-#if net1
-using System.Collections;
-#else
-
 using System.Collections.Generic;
-
-#endif
-
 using System.Text;
 using CSScriptLibrary;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.CodeDom.Compiler;
-//using System.Windows.Forms;
 using System.Globalization;
 using System.Diagnostics;
 using Microsoft.CSharp;
-
-
-
 
 namespace csscript
 {
@@ -66,11 +54,11 @@ namespace csscript
         }
 
         // UnitTest
-        // Make Surrogate scenario to compile conditionally 
+        // Make Surrogate scenario to compile conditionally
         // + check and delete the exe before building
         // + set Appartment state
         // + update all ExecutionClients incliding csslib
-        // + when starting remove css and //x args 
+        // + when starting remove css and //x args
         //+ try to solve limitations with console Input redurectionlimi
         //+ ensure launcher is not build when building dll/exe without execution
         public string BuildSurrogateLauncher(string scriptAssembly, string tragetFramework, CompilerParameters compilerParams, ApartmentState appartmentState, string consoleEncoding)
@@ -85,7 +73,6 @@ namespace csscript
             compilerParams.GenerateExecutable = true;
             compilerParams.GenerateInMemory = false;
             compilerParams.IncludeDebugInformation = false;
-
 
             try
             {
@@ -111,7 +98,7 @@ namespace csscript
                 appartment = "";
 
             foreach (string asm in compilerParams.ReferencedAssemblies)
-                if (File.Exists(asm)) //ignore GAC (not full path) assemblies 
+                if (File.Exists(asm)) //ignore GAC (not full path) assemblies
                     refAssemblies += Assembly.ReflectionOnlyLoadFrom(asm).FullName + ":" + asm + ";";
 
             compilerParams.ReferencedAssemblies.Clear(); //it is important to remove all asms as they can have absolute path to the wrong CLR asms branch
@@ -125,7 +112,7 @@ namespace csscript
             string setEncodingSatement = "";
 
             if (string.Compare(consoleEncoding, Settings.DefaultEncodingName, true) != 0)
-                setEncodingSatement = "try { Console.OutputEncoding = System.Text.Encoding.GetEncoding(\""+consoleEncoding+"\"); } catch {}";
+                setEncodingSatement = "try { Console.OutputEncoding = System.Text.Encoding.GetEncoding(\"" + consoleEncoding + "\"); } catch {}";
 
             string code = launcherCode
                                 .Replace("${REF_ASSEMBLIES}", refAssemblies)
@@ -157,6 +144,7 @@ namespace csscript
             return compilerParams.OutputAssembly;
 #endif
         }
+
         const string launcherCode =
 @"using System;
 using System.Collections;
@@ -183,7 +171,7 @@ class Script
         }
         return Environment.ExitCode;
     }
-   
+
     static public void MainImpl(string[] args)
     {
         //System.Diagnostics.Debug.Assert(false);
@@ -213,7 +201,7 @@ class Script
             if (System.Diagnostics.Debugger.IsAttached)
                 System.Diagnostics.Debugger.Break();
         }
-        
+
         ThreadPool.QueueUserWorkItem(MonitorParentHost);
 
         if (scriptAssembly == """")
