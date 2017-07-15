@@ -1449,7 +1449,7 @@ partial class dbg
         {
             string[] allPrecompillers = CollectPrecompillers(parser, options);
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             foreach (string file in allPrecompillers)
             {
@@ -1459,6 +1459,9 @@ partial class dbg
                     sb.Append(",");
                 }
             }
+
+            sb.Append(",");
+            sb.Append(options.compilerOptions); // parser.CompilerOptions can be ignored as if they are changed the whole script timestamp is also changed
 
             return CSSUtils.GetHashCodeEx(sb.ToString());
         }
@@ -1927,7 +1930,7 @@ partial class dbg
                 using (FileStream fs = new FileStream(file, FileMode.Open))
                 {
                     fs.Seek(0, SeekOrigin.End);
-                    using (BinaryWriter w = new BinaryWriter(fs))
+                    using (var w = new BinaryWriter(fs))
                     {
                         char[] data = this.ToString().ToCharArray();
                         w.Write(data);

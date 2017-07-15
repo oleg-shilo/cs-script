@@ -1780,8 +1780,6 @@ namespace csscript
             if (options.syntaxCheck && File.Exists(compilerParams.OutputAssembly))
                 Utils.FileDelete(compilerParams.OutputAssembly, false);
 
-            //zos
-
             ProcessCompilingResult(results, compilerParams, parser, scriptFileName, assemblyFileName, additionalDependencies);
 
             if (options.useSurrogateHostingProcess)
