@@ -411,10 +411,20 @@ namespace csscript
                     code.Append(Environment.NewLine);
                     lineCount++;
                 }
+
+                if (!autoCodeInjected)
+                {
+                    injectionPos = -1;
+                    injectionLength = 0;
+                    injectedLine = -1;
+
+                    return content;
+                }
             }
             code.Append("} ///CS-Script auto-class generation" + Environment.NewLine);
 
             var result = code.ToString() + footer.ToString();
+
             return result;
         }
     }

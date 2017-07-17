@@ -60,12 +60,15 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
     prompt - if none specified 'Press any key to continue...' will be used
     
 
--ac|-autoclass[:<0|1|2>]
+-ac|-autoclass[:<0|1|2|out>]
     
-	-ac:0  disables auto-class decoration (which might be enabled globally);
-	-ac:1  enables auto-class decoration (which might be disabled globally);
-	-ac:2  same as '-ac:1' but also injects break point enables at the start of the
-	       user code (useful for IDEs);
+	-ac     - enables auto-class decoration (which might be disabled globally).
+	-ac:0   - disables auto-class decoration (which might be enabled globally).
+	-ac:1   - same as '-ac'
+	-ac:2   - same as '-ac:1' and '-ac' but also injects break point enables at the start of the
+	          user code (useful for IDEs).
+	-ac:out - prints auto-class decoration for a given script file. The argument must be
+	          followed by the path to script file.
 	Automatically generates 'static entry point' class if the script doesn't define any.
     
         using System;
@@ -85,7 +88,18 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
     
     Note, having any active code above entry point is acceptable though it complicates 
     the troubleshooting if such a code contains errors.
-    (see http://www.csscript.net/help/AutoClass.html)
+    (see https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class)
+    
+    By default CS-Script decorates the script by adding a class declaration statement to the 
+    start of the script routine and a class closing bracket to the end. This may have an unintended 
+    effect as any class declared in the script becomes a 'nested class'. While it is acceptable 
+    for practically all use-cases it may be undesired for just a few scenarios. For example, any 
+    class containing method extensions must be a top level static class, what conflicts with the 
+    auto-class decoration algorithm.
+    The solution to this problem is to allow some user code to be protected from being included into 
+    User can achieve this by placing '//css_ac_end' statement into the code. Any user code below this 
+    statement will be excluded from the decoration and stay unchanged.
+    
 
 ---------
 <switch 2>
@@ -124,15 +138,6 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
     Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.
     It's useful when troubleshooting custom compilers (e.g. Roslyn on Linux).
 
--noconfig[:<file>]
-    Do not use default CS-Script config file or use alternative one.
-	OBSOLETE: Use '-config', which is a preferred switch for all configuration operations
-    Value "out" of the <file> is reserved for creating the config file (css_config.xml) with the default settings in the current directory.
-    Value "print" of the <file> is reserved for printing the default config file content.
-    (e.g. cscs -noconfig sample.cs
-    cscs -noconfig:print > css_VB.xml
-    cscs -noconfig:c:\cs-script\css_VB.xml sample.vb)
-
 -config[:<option>]
     Performs various CS-Script config operations
     -config:none           - ignores config file (uses default settings)
@@ -142,10 +147,18 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
     -config[:ls]           - lists/prints current config values
     -config:get:name       - prints current config value
     -config:set:name=value - sets current config value
+    -config:set:name=add:value - updates the current config value content by appending the specified value.
+    -config:set:name=del:value - updates the current config value content by removing all
+                                 occurrences of the specified value.
+    -config:set:roslyn     - enables Roslyn integration via configuration (C#7 support)
     -config:<file>         - uses custom config file
+    Note: The property name in -config:set and -config:set is case insensitive and can also contain '_' 
+    as a token separator that is ignored during property lookup.
     (e.g. cscs -config:none sample.cs
     cscs -config:default > css_VB.xml
     cscs -config:set:inmem=true
+    cscs -config:set:DefaultArguments=add:-ac
+    cscs -config:set:default_arguments=del:-ac
     cscs -config:c:\cs-script\css_VB.xml sample.vb)
 
 -out[:<file>]
