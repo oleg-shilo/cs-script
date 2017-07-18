@@ -23,12 +23,15 @@ public class HashDefPrecompiler
                 if (line.Trim().StartsWith("#define ")) //#define <pattern> <replacement> 
                 {
                     string[] tokens = line.Split(" ".ToCharArray(), 3, StringSplitOptions.RemoveEmptyEntries);
-                    hashDefs.Add(tokens[1], tokens[2]);
 
-                    content.AppendLine("//" + line);
+                    if (tokens.Count() > 2)
+                    {
+                        hashDefs.Add(tokens[1], tokens[2]);
+                        content.AppendLine("//" + line);
+                        continue;
+                    }
                 }
-                else
-                    content.AppendLine(line);
+                content.AppendLine(line);
             }
 
         code = content.ToString();
