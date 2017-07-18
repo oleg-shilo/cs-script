@@ -342,7 +342,12 @@ namespace csscript
                             MatchCollection matches = Regex.Matches(text, @"\s+main\s*\(", RegexOptions.IgnoreCase);
                             foreach (Match match in matches)
                             {
-                                if (match.Value.Contains("main")) //assembly pseudo entry point "instance main"
+                                // Ignore VB entry point
+                                if (text.TrimStart().StartsWith("Sub Main", StringComparison.OrdinalIgnoreCase))
+                                    continue;
+
+                                // Ignore assembly pseudo entry point "instance main"
+                                if (match.Value.Contains("main"))
                                 {
                                     bool noargs = Regex.Matches(text, @"\s+main\s*\(\s*\)").Count != 0;
                                     bool noReturn = Regex.Matches(text, @"void\s+main\s*\(").Count != 0;

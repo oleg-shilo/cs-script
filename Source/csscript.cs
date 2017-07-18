@@ -932,7 +932,12 @@ namespace csscript
                         }
 
                         // --- EXECUTE ---
-                        if (!options.supressExecution)
+                        if (options.supressExecution)
+                        {
+                            if (!options.syntaxCheck)
+                                print("Created: " + assemblyFileName);
+                        }
+                        else
                         {
                             try
                             {
