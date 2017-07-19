@@ -1,5 +1,3 @@
-// CS-Script default ref assemblies are not processed so need to add them explicitly
-//css_ref System.Core  
 using System;
 using System.Collections;
 using System.Linq;
@@ -23,19 +21,16 @@ public class HashDefPrecompiler
                 if (line.Trim().StartsWith("#define ")) //#define <pattern> <replacement> 
                 {
                     string[] tokens = line.Split(" ".ToCharArray(), 3, StringSplitOptions.RemoveEmptyEntries);
+                    hashDefs.Add(tokens[1], tokens[2]);
 
-                    if (tokens.Count() > 2)
-                    {
-                        hashDefs.Add(tokens[1], tokens[2]);
-                        content.AppendLine("//" + line);
-                        continue;
-                    }
+                    content.AppendLine("//" + line);
                 }
-                content.AppendLine(line);
+                else
+                    content.AppendLine(line);
             }
 
         code = content.ToString();
-        foreach (string key in hashDefs.Keys.Cast<string>().Reverse())
+        foreach (string key in hashDefs.Keys.Reverse())
             code = code.Replace(key, hashDefs[key]);
 
         return true;

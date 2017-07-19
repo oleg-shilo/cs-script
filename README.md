@@ -15,7 +15,7 @@ CS-Script supports both hosted and standalone execution model. It allows seamles
 [Notepad++](https://github.com/oleg-shilo/cs-script.npp). 
 It can be run on Win, Linux and Mac. And it is compatible with .NET, Mono and .NET Core (ongoing development). 
 
-Over the long history of CS-Script it has been downloaded through Notepad++ plugin maneger alone over ![](http://www.csscript.net/statistics/css.npp.count.jpeg) times.
+Over the long history of CS-Script it has been downloaded through Notepad++ plugin manager alone over ![](http://www.csscript.net/statistics/css.npp.count.jpeg) times.
 
 _**For the all CS-Script details go to the project [Documentation Wiki](https://github.com/oleg-shilo/cs-script/wiki).**_
 <hr/>

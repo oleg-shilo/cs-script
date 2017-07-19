@@ -1,4 +1,4 @@
-C# Script execution engine. Version 3.26.3.0.
+C# Script execution engine. Version 3.27.0.0.
 Copyright (C) 2004-2017 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -294,6 +294,7 @@ This directive will install CS-Script NuGet package.
 Embedded script arguments. The both script and engine arguments are allowed except "/noconfig" engine command switch.
  Example: //css_args -dbg, -inmem;
  This directive will always force script engine to execute the script in debug mode.
+Note: the arguments must be coma separated.
 ------------------------------------
 //css_reference <file>;
 
