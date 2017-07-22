@@ -1454,9 +1454,11 @@ namespace csscript
                 {
                     addByAsmName("System.Linq"); // Implementation of System.Linq namespace
                     addByAsmName("System.Core"); // dependency of System.Linq namespace assembly
+                    addByAsmName("System"); // dependency of System namespace assembly for regular expressions in dbg.cs
                 }
                 else
                 {
+                    addByAsmName("System"); // dependency of System namespace assembly for regular expressions in dbg.cs
                     addByAsmName("System.Core.dll"); // The whole System.Linq namespace assembly
                 }
             }
@@ -1854,14 +1856,21 @@ namespace csscript
                 if (ex.Message.Contains("error CS0176:") && ex.Message.Contains("'ScriptClass.main()'"))
                 {
                     if (options.autoClass)
-                    {
-                        results.Errors.Insert(0, new CompilerError
-                        {
-                            FileName = scriptFileName,
-                            ErrorText = "Auto-class cannot have method `main(...)` with static modifier. Fix it by declaring the `main(...)` as an instance member."
-                        });
-                        ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings, options.resolveAutogenFilesRefs);
-                    }
+                        ex = CompilerException.Create(
+                                              "Auto-class cannot have method `main(...)` with static modifier. Fix it by declaring the `main(...)` as an instance member.",
+                                              scriptFileName,
+                                              ex);
+                }
+
+                //error CS0121: The call is ambiguous between the following methods or properties: 'dbg_extensions.print<T>(T, params object[])' and 'dbg_extensions.print<T>(T, params object[])'
+                if (ex.Message.Contains("error CS0121:") && ex.Message.Contains("dbg_extensions.print<T>(T"))
+                {
+                    ex = CompilerException.Create(
+                                          "The problem most likely is caused by the referenced assemblies being compiled with CS-Script and `EnableDbgPrint` set to `true`. " +
+                                          "The easiest way to fix the problem is to compile the assemblies with `-dbgprint:0` argument passed either from the command line or " +
+                                          "directly from the script code (e.g. `//css_args -dbgprint:0`).",
+                                          scriptFileName,
+                                          ex);
                 }
 
                 if (options.syntaxCheck)

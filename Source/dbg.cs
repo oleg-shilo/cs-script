@@ -10,7 +10,8 @@ public static class dbg_extensions
 {
     static public T dump<T>(this T @object, params object[] args)
     {
-        return @object.print(args);
+        dbg.print(@object, args);
+        return @object;
     }
 
     static public T print<T>(this T @object, params object[] args)
@@ -47,6 +48,7 @@ partial class dbg
             else
             {
                 var sb = new StringBuilder();
+
                 foreach (var o in new[] { @object }.Concat(args))
                 {
                     if (sb.Length > 0)
@@ -123,6 +125,7 @@ partial class dbg
             writeLine(DisplayName(enumerableElement));
 
             int index = 0;
+
             foreach (object item in enumerableElement)
             {
                 write(Indent);
@@ -275,9 +278,11 @@ static class Extension
                              .ReplaceWholeWord("System.String", "string")
                              .ReplaceWholeWord("System.Void", "void")
                              .ReplaceWholeWord("Void", "void");
+
             if (hideSystemNamespace && retval.StartsWith("System."))
             {
                 string typeName = retval.Substring("System.".Length);
+
                 if (!typeName.Contains('.')) // it is not a complex namespace
                     retval = typeName;
             }

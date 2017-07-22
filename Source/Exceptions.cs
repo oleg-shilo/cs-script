@@ -193,5 +193,23 @@ namespace csscript
             retval.ErrorCount = errorCount;
             return retval;
         }
+
+        internal static CompilerException Create(string errorText, string file, CompilerException parentException)
+        {
+            var error = new CompilerError
+            {
+                FileName = file,
+                ErrorText = errorText
+            };
+
+            var errors = (CompilerErrorCollection)parentException.Data["Errors"];
+            errors.Insert(0, error);
+
+            CompilerException retval = new CompilerException(error.ToString() + Environment.NewLine + parentException.Message);
+            retval.Data.Add("Errors", errors);
+            retval.ErrorCount = errors.Count;
+
+            return retval;
+        }
     }
 }

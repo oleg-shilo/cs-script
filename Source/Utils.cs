@@ -560,7 +560,8 @@ public static class dbg_extensions
 {
     static public T dump<T>(this T @object, params object[] args)
     {
-        return @object.print(args);
+        dbg.print(@object, args);
+        return @object;
     }
 
     static public T print<T>(this T @object, params object[] args)
@@ -1015,6 +1016,13 @@ partial class dbg
                             options.inMemoryAsm = true;
                         else if (argValue == "0")
                             options.inMemoryAsm = false;
+                    }
+                    else if (Args.ParseValuedArg(arg, AppArgs.dbgprint, out argValue)) // -dbgprint:<value>
+                    {
+                        if (argValue == "1" || argValue == null)
+                            options.enableDbgPrint = true;
+                        else if (argValue == "0")
+                            options.enableDbgPrint = false;
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.sconfig, out argValue)) // -sconfig:file
                     {

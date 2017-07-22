@@ -47,6 +47,7 @@ namespace csscript
         public const string pc = "pc";
         public const string precompiler = "precompiler";
         public const string cache = "cache";
+        public const string dbgprint = "dbgprint";
         public const string proj = "proj";
         internal const string proj_dbg = "proj:dbg";    // for internal use only
         public static string nathash = "nathash";       // instead of const make it static so this hidden option is not picked by autodocumentor
@@ -197,9 +198,18 @@ namespace csscript
                                                    "This mode allows preventing locking the compiled script file. \n" +
                                                    "Can be beneficial for fine concurrency control as it allows changing \n" +
                                                    "and executing the scripts that are already loaded (being executed). This mode is incompatible \n" +
-                                                   "with the scripting scenarios that require scriptassembly to be file based (e.g. advanced Reflection).\n" +
+                                                   "with the scripting scenarios that require script assembly to be file based (e.g. advanced Reflection).\n" +
                                                    "   -inmem:1   enable caching (which might be disabled globally);\n" +
                                                    "   -inmem:0   disable caching (which might be enabled globally);");
+            switch2Help[dir] = new ArgInfo("-dbgprint[:<0:1>]",
+                                                   "Controls whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now)).",
+                                                   "This setting allows controlling dynamic inclusion of the embedded dbg.cs script containing \n" +
+                                                   "implementation of Python-like print methods `dbg.print` and derived extension methods object.print() \n" +
+                                                   "and object.dup(). While `dbg.print` is extremely useful it can and lead to some referencing challenges when \n" +
+                                                   "the script being executed is referencing assemblies compiled with `dbg.print` already included. \n" +
+                                                   "The simplest way o solve this problem is disable the `dbg.cs` inclusion.\n" +
+                                                   "   -dbgprint:1   enable `dbg.cs` inclusion; Same as `-dbgprint`;\n" +
+                                                   "   -dbgprint:0   disable `dbg.cs` inclusion;");
             switch2Help[verbose] = new ArgInfo("-verbose",
                                                    "Prints runtime information during the script execution.",
                                                    "(applicable for console clients only)");
@@ -245,6 +255,7 @@ namespace csscript
                                                    "Uses explicitly referenced assembly.", "It is required only for " +
                                                    "rare cases when namespace cannot be resolved into assembly.\n" +
                                                    "(e.g. " + AppInfo.appName + " /r:myLib.dll myScript.cs).");
+
             switch2Help[dir] = new ArgInfo("-dir:<directory 1>,<directory N>",
                                                    "Adds path(s) to the assembly probing directory list.",
                                                    "You can use a reserved word 'show' as a directory name to print the configured probing directories.\n" +
