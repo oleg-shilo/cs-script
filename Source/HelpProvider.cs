@@ -51,7 +51,8 @@ namespace csscript
         public const string proj = "proj";
         internal const string proj_dbg = "proj:dbg";    // for internal use only
         public static string nathash = "nathash";       // instead of const make it static so this hidden option is not picked by autodocumentor
-        static public string syntaxHelp = "";
+        static public string SyntaxHelp { get { return syntaxHelp.ToConsoleLines(0); } }
+        static string syntaxHelp = "";
 
         static public Dictionary<string, ArgInfo> switch1Help = new Dictionary<string, ArgInfo>();
         static public Dictionary<string, ArgInfo> switch2Help = new Dictionary<string, ArgInfo>();
@@ -479,12 +480,16 @@ namespace csscript
                          " 'CSScript.EnableScriptLocationReflection = true'.",
                          " ",
                          "The following is the optional set of environment variables that the script engine uses to improve the user experience:",
+                         " ",
                          " 'CSS_NUGET' ",
                          "${<=10}- location of the NuGet packages scripts can load/reference",
+                         " ",
                          " 'CSSCRIPT_DIR'",
-                         "${<=10}script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is during the CS-Script installation.",
+                         "${<=10}- script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is during the CS-Script installation.",
+                         " ",
                          " 'CSSCRIPT_CONSOLE_ENCODING_OVERWRITE'",
                          "${<=10}- script engine output encoding if the one from the css_confix.xml needs to be overwritten.",
+                         " ",
                          " 'CSSCRIPT_INC'",
                          "${<=10}- a system wide include directory for the all frequently used user scripts.",
                          "$(csscript_roslyn)",
@@ -593,7 +598,7 @@ namespace csscript
                         builder.Append(string.Format("{0}\n", typeof(HelpProvider).Assembly.GetAssemblyDirectoryName()));
                         return builder.ToString();
                     }
-                case AppArgs.syntax: return AppArgs.syntaxHelp;
+                case AppArgs.syntax: return AppArgs.SyntaxHelp;
                 case AppArgs.cmd:
                 case AppArgs.commands:
                     {
@@ -688,7 +693,7 @@ namespace csscript
             }
             builder.Append("\n");
             builder.Append("\n");
-            builder.Append(AppArgs.syntaxHelp.ToConsoleLines(0));
+            builder.Append(AppArgs.SyntaxHelp);
 
             return builder.ToString();
         }
