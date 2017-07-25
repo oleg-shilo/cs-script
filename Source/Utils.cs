@@ -2196,6 +2196,9 @@ partial class dbg
         }
     }
 
+    /// <summary>
+    /// Based on "maettu-this" proposal https://github.com/oleg-shilo/cs-script/issues/78
+    /// </summary>
     internal static class ConsoleStringExtensions
     {
         // for free form text when Console is not attached; so make it something big
