@@ -68,7 +68,7 @@ namespace csscript
             {
                 this.argSpec = argSpec;
                 this.description = description;
-                this.doc = string.Join(Environment.NewLine, docLines);
+                this.doc = string.Join(Environment.NewLine, docLines.SelectMany(x => x.SplitSubParagraphs()));
             }
 
             public ArgInfo(string argSpec, string description)
@@ -89,7 +89,7 @@ namespace csscript
                     if (doc != "")
                         result += Environment.NewLine + doc.ToConsoleLines(indent);
 
-                    return result;
+                    return result.TrimEnd();
                 }
             }
 
@@ -98,7 +98,7 @@ namespace csscript
 
         static string fromLines(params string[] lines)
         {
-            return string.Join(Environment.NewLine, lines);
+            return string.Join(Environment.NewLine, lines.SelectMany(x => x.SplitSubParagraphs()));
         }
 
         static string indent(int indent, string text)
@@ -125,7 +125,6 @@ namespace csscript
                                                     "   -? cache",
                                                     "   -cache help",
                                                     "   -cache ?");
-
             switch1Help[e] = new ArgInfo("-e",
                                                    "Compiles script into console application executable.");
             switch1Help[ew] = new ArgInfo("-ew",
@@ -168,8 +167,8 @@ namespace csscript
                                                    " -ac:0   - disables auto-class decoration (which might be enabled globally).",
                                                    " -ac:1   - same as '-ac'",
                                                    " -ac:2   - same as '-ac:1' and '-ac'",
-                                                   " -ac:out - prints auto-class decoration for a given script file.",
-                                                   "${<=11}The argument must be followed by the path to script file.",
+                                                   " -ac:out - ",
+                                                   "${<=-11}prints auto-class decoration for a given script file. The argument must be followed by the path to script file.",
                                                    " ",
                                                    "Automatically generates 'static entry point' class if the script doesn't define any.",
                                                    " ",
@@ -212,6 +211,7 @@ namespace csscript
             switch2Help[ver] =
             switch2Help[v] = new ArgInfo("-v",
                                                    "Prints CS-Script version information.");
+
             switch2Help[inmem] = new ArgInfo("-inmem[:<0|1>]",
                                                    "Loads compiled script in memory before execution.",
                                                    "This mode allows preventing locking the compiled script file. " +
@@ -240,17 +240,17 @@ namespace csscript
                                                    "It's useful when troubleshooting custom compilers (e.g. Roslyn on Linux).");
             switch2Help[config] = new ArgInfo("-config[:<option>]",
                                                    "Performs various CS-Script config operations",
-                                                   " -config:none           - ignores config file (uses default settings)",
-                                                   " -config:create         - creates config file with default settings",
-                                                   " -config:default        - prints default config file",
-                                                   " -config:<raw|xml>      - prints current config file content",
-                                                   " -config[:ls]           - lists/prints current config values",
-                                                   " -config:get:name       - prints current config value",
-                                                   " -config:set:name=value - sets current config value",
-                                                   " -config:set:name=add:value - updates the current config value content by appending the specified value.",
-                                                   " -config:set:name=del:value - updates the current config value content by removing all occurrences of the specified value.",
-                                                   " -config:set:roslyn     - enables Roslyn integration via configuration (C#7 support)",
-                                                   " -config:<file>         - uses custom config file",
+                                                   " -config:none               - ${<==}ignores config file (uses default settings)",
+                                                   " -config:create             - ${<==}creates config file with default settings",
+                                                   " -config:default            - ${<==}prints default config file",
+                                                   " -config:<raw|xml>          - ${<==}prints current config file content",
+                                                   " -config[:ls]               - ${<==}lists/prints current config values",
+                                                   " -config:get:name           - ${<==}prints current config value",
+                                                   " -config:set:name=value     - ${<==}sets current config value",
+                                                   " -config:set:name=add:value - ${<==}updates the current config value content by appending the specified value.",
+                                                   " -config:set:name=del:value - ${<==}updates the current config value content by removing all occurrences of the specified value.",
+                                                   " -config:set:roslyn         - ${<==}enables Roslyn integration via configuration (C#7 support)",
+                                                   " -config:<file>             - ${<==}uses custom config file",
                                                    " ",
                                                    "Note: The property name in -config:set and -config:set is case insensitive and can also contain '_' " +
                                                    "as a token separator that is ignored during property lookup.",
@@ -343,10 +343,10 @@ namespace csscript
                          "There are also another two aliases //css_include and //css_inc. They are equivalents of //css_import <file>, preserve_main",
                          "If $this (or $this.name) is specified as part of <file> it will be replaced at execution time with the main script full name (or file name only).",
                          " ",
-                         "file            - name of a script file to be imported at compile-time.",
-                         "<preserve_main> - do not rename 'static Main'",
-                         "oldName         - name of a namespace to be renamed during importing",
-                         "newName         - new name of a namespace to be renamed during importing",
+                         "file            - ${<==}name of a script file to be imported at compile-time.",
+                         "<preserve_main> - ${<==}do not rename 'static Main'",
+                         "oldName         - ${<==}name of a namespace to be renamed during importing",
+                         "newName         - ${<==}new name of a namespace to be renamed during importing",
                          " ",
                          "This directive is used to inject one script into another at compile time. Thus code from one script can be exercised in another one." +
                          "'Rename' clause can appear in the directive multiple times.",
@@ -368,13 +368,13 @@ namespace csscript
                          "You should use '-noref' switch and reference assemblies manually for all other cases. For example multiple assemblies with the same file name that " +
                          "target different CLRs (e.g. v3.5 vs v4.0) in the same package.",
                          "Switches:",
-                         " -noref - switch for individual packages if automatic referencing isn't desired. ",
-                         "${<=10}You can use 'css_nuget' environment variable for further referencing package content (e.g. //css_dir %css_nuget%\\WixSharp\\**)",
-                         " -force[:delay] - switch to force individual packages downloading even when they were already downloaded.",
-                         "${<=18}You can optionally specify delay for the next forced downloading by number of seconds since last download.",
-                         "${<=18}'-force:3600' will delay it for one hour. This option is useful for preventing frequent download interruptions during active script development.",
-                         " -ver: - switch to download/reference a specific package version.",
-                         " -ng: - switch to pass NuGet arguments for every individual package.",
+                         " -noref         - ${<==}switch for individual packages if automatic referencing isn't desired. ",
+                         "                  ${<==}You can use 'css_nuget' environment variable for further referencing package content (e.g. //css_dir %css_nuget%\\WixSharp\\**)",
+                         " -force[:delay] - ${<==}switch to force individual packages downloading even when they were already downloaded.",
+                         "                  ${<==}You can optionally specify delay for the next forced downloading by number of seconds since last download.",
+                         "                  ${<==}'-force:3600' will delay it for one hour. This option is useful for preventing frequent download interruptions during active script development.",
+                         " -ver:<version> - ${<==}switch to download/reference a specific package version.",
+                         " -ng:<args>     - ${<==}switch to pass NuGet arguments for every individual package.",
                          " ",
                          "Example: //css_nuget cs-script;",
                          "         //css_nuget -ver:4.1.2 NLog",
@@ -423,10 +423,9 @@ namespace csscript
                          "//css_resource <file>[, <out_file>];",
                          " ",
                          "Alias - //css_res",
-                         "file  - name of the compiled resource file (.resources) to be used with the script.",
-                         "${<=8}Alternatively it can be the name of the XML resource file (.resx) that will be compiled on-fly.",
-                         "out_file - output file.",
-                         "${<=11}Optional name of the compiled resource file (.resources) to be generated form the .resx input." +
+                         "file     - name of the compiled resource file (.resources) to be used with the script.",
+                         "           ${<==}Alternatively it can be the name of the XML resource file (.resx) that will be compiled on-fly.",
+                         "out_file - ${<==}Optional name of the compiled resource file (.resources) to be generated form the .resx input." +
                          "If not supplied then the compiled file will have the same name as the input file but the file extension '.resx' " +
                          "changed to '.resources'.",
                          " ",
@@ -456,21 +455,22 @@ namespace csscript
                          "Aliases - //css_pre and //css_post",
                          "file    - script file (extension is optional)",
                          "arg0..N - script string arguments",
-                         "ignore  - continue execution of the main script in case of error",
+                         "ignore  - ${<==}continue execution of the main script in case of error",
                          " ",
                          "These directives are used to execute secondary pre- and post-execution scripts.",
                          "If $this (or $this.name) is specified as arg0..N it will be replaced at execution time with the main script full name (or file name only).",
                          "You may find that in many cases precompilers (//css_pc and -pc) are a more powerful and flexible alternative to the pre-execution script.",
                          "------------------------------------",
-                         "{$css_host}" +
+                         "{$css_host}",
+                         " ",
                          "Note the script engine always sets the following environment variables:",
-                         " 'pid' - host processId (e.g. Environment.GetEnvironmentVariable(\"pid\")",
-                         " 'CSScriptRuntime'         - script engine version",
-                         " 'CSScriptRuntimeLocation' - script engine location",
-                         " 'cscs_exe_dir'            - script engine directory",
-                         " 'EntryScript'          - location of the entry script",
-                         " 'EntryScriptAssembly'  - location of the compiled script assembly",
-                         " 'location:<assm_hash>' - location of the compiled script assembly.",
+                         " 'pid'                     - ${<==}host processId (e.g. Environment.GetEnvironmentVariable(\"pid\")",
+                         " 'CSScriptRuntime'         - ${<==}script engine version",
+                         " 'CSScriptRuntimeLocation' - ${<==}script engine location",
+                         " 'cscs_exe_dir'            - ${<==}script engine directory",
+                         " 'EntryScript'             - ${<==}location of the entry script",
+                         " 'EntryScriptAssembly'     - ${<==}location of the compiled script assembly",
+                         " 'location:<assm_hash>'    - ${<==}location of the compiled script assembly.",
                          " ",
                          "This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script code. " +
                          "Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file. " +
@@ -482,16 +482,16 @@ namespace csscript
                          "The following is the optional set of environment variables that the script engine uses to improve the user experience:",
                          " ",
                          " 'CSS_NUGET' ",
-                         "${<=10}- location of the NuGet packages scripts can load/reference",
+                         "${<=6}location of the NuGet packages scripts can load/reference",
                          " ",
                          " 'CSSCRIPT_DIR'",
-                         "${<=10}- script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is during the CS-Script installation.",
+                         "${<=6}script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is during the CS-Script installation.",
                          " ",
                          " 'CSSCRIPT_CONSOLE_ENCODING_OVERWRITE'",
-                         "${<=10}- script engine output encoding if the one from the css_confix.xml needs to be overwritten.",
+                         "${<=6}script engine output encoding if the one from the css_confix.xml needs to be overwritten.",
                          " ",
                          " 'CSSCRIPT_INC'",
-                         "${<=10}- a system wide include directory for the all frequently used user scripts.",
+                         "${<=6}a system wide include directory for the all frequently used user scripts.",
                          "$(csscript_roslyn)",
 
                          "------------------------------------",
@@ -500,10 +500,9 @@ namespace csscript
                          "This class contains static printing methods that mimic Python's 'print()'. It is particularly useful for object inspection in the absence of a proper debugger.",
                          " ",
                          "Examples:",
-                         "  dbg.print(\"Now:\", DateTime.Now)        - prints concatenated objects.",
-                         "  dbg.print(\"Now:\", DateTime.Now)        - prints concatenated objects.",
-                         "  dbg.print(DateTime.Now)                  - prints object and values of its properties.",
-                         "  dbg.printf(\"Now: {0}\", DateTime.Now)   - formats and prints object and values of its fields and properties.",
+                         "  dbg.print(\"Now:\", DateTime.Now)        - ${<==}prints concatenated objects.",
+                         "  dbg.print(DateTime.Now)                - ${<==}prints object and values of its properties.",
+                         "  dbg.printf(\"Now: {0}\", DateTime.Now)   - ${<==}formats and prints object and values of its fields and properties.",
                          "------------------------------------",
 #endif
                          " ",
@@ -659,40 +658,45 @@ namespace csscript
             }
 
             var builder = new StringBuilder();
-            builder.Append(AppInfo.appLogo);
-            builder.Append("\nUsage: " + AppInfo.appName + " <switch 1> <switch 2> <file> [params] [//x]\n");
-            builder.Append("\n");
-            builder.Append("<switch 1>\n\n");
+            builder.AppendLine(AppInfo.appLogo);
+            builder.AppendLine("Usage: " + AppInfo.appName + " <switch 1> <switch 2> <file> [params] [//x]");
+            builder.AppendLine("");
+            builder.AppendLine("<switch 1>");
+            builder.AppendLine("");
 
             //cannot use Linq as it can be incompatible target
-            List<string> printed = new List<string>();
+            var printed = new List<string>();
 
             foreach (AppArgs.ArgInfo info in AppArgs.switch1Help.Values)
             {
                 if (printed.Contains(info.ArgSpec))
                     continue;
-                builder.Append(info.FullDoc + "\n\n");
+                builder.AppendLine(info.FullDoc);
+                builder.AppendLine("");
                 printed.Add(info.ArgSpec);
             }
-            builder.Append("---------\n");
-            builder.Append("<switch 2>\n\n");
+            builder.AppendLine("---------");
+            builder.AppendLine("<switch 2>");
+            builder.AppendLine("");
             foreach (AppArgs.ArgInfo info in AppArgs.switch2Help.Values)
             {
                 if (printed.Contains(info.ArgSpec))
                     continue;
-                builder.Append(info.FullDoc + "\n\n");
+                builder.AppendLine(info.FullDoc);
+                builder.AppendLine("");
                 printed.Add(info.ArgSpec);
             }
-            builder.Append("---------\n");
+            builder.AppendLine("---------");
             foreach (AppArgs.ArgInfo info in AppArgs.miscHelp.Values)
             {
                 if (printed.Contains(info.ArgSpec))
                     continue;
-                builder.Append(info.FullDoc + "\n\n");
+                builder.AppendLine(info.FullDoc);
+                builder.AppendLine("");
                 printed.Add(info.ArgSpec);
             }
-            builder.Append("\n");
-            builder.Append("\n");
+            builder.AppendLine("");
+            builder.AppendLine("");
             builder.Append(AppArgs.SyntaxHelp);
 
             return builder.ToString();
