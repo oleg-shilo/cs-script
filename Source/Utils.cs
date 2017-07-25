@@ -2195,4 +2195,117 @@ partial class dbg
             return result.ToString().TrimEnd() + Environment.NewLine;
         }
     }
+
+    internal static class ConsoleStringExtensions
+    {
+        // for free form text when Console is not attached; so make it something big
+        public static int MaxNonConsoleTextWidth = 500;
+
+        static int GetMaxTextWidth()
+        {
+            try { return Console.WindowWidth - 1; }
+            catch (Exception) { return MaxNonConsoleTextWidth; }
+        }
+
+        public static string Repeat(this char c, int count)
+        {
+            return new string(c, count);
+        }
+
+        public static int Limit(this int value, int min, int max)
+        {
+            return value < min ? min :
+                   value > max ? max :
+                   value;
+        }
+
+        static string[] newLineSeparators = new string[] { Environment.NewLine, "\n", "\r" };
+        // =============================================
+
+        public static string ToConsoleLines(this string text, int indent)
+        {
+            return text.SplitIntoLines(GetMaxTextWidth(), indent);
+        }
+
+        public static string SplitIntoLines(this string text, int maxWidth, int indent)
+        {
+            var lines = new StringBuilder();
+            string left_indent = ' '.Repeat(indent);
+
+            foreach (string line in text.SplitLexically(maxWidth - indent))
+                lines.Append(left_indent)
+                     .AppendLine(line);
+
+            return lines.ToString();
+        }
+
+        public static string[] SplitLexically(this string text, int desiredChunkLength)
+        {
+            return text.Split(newLineSeparators, StringSplitOptions.None)
+                       .SelectMany(paragraph =>
+                       {
+                           var extraIndent = 0;
+                           const string prefix = "${<=";
+
+                           if (paragraph.StartsWith(prefix)) // e.g. "${<=12}"
+                           {
+                               var indent_info = paragraph.Split('}').First();
+
+                               paragraph = paragraph.Substring(indent_info.Length + 1);
+                               int.TryParse(indent_info.Substring(prefix.Length).Replace("}", ""), out extraIndent);
+                           }
+
+                           return SplitLexicallyWithoutTakingNewLineIntoAccount(paragraph, desiredChunkLength - extraIndent)
+                                       .Select(line => ' '.Repeat(extraIndent) + line);
+                       })
+                       .ToArray();
+        }
+
+        static string[] SplitLexicallyWithoutTakingNewLineIntoAccount(this string str, int desiredChunkLength)
+        {
+            var spaces = new List<int>();
+            // Retrieve all spaces within the string:
+            int i = 0;
+            while ((i = str.IndexOf(' ', i)) >= 0)
+            {
+                spaces.Add(i);
+                i++;
+            }
+
+            // Add an extra space at the end of the string to ensure that the last chunk is split properly:
+            spaces.Add(str.Length);
+
+            // Split the string into the desired chunk size taking word boundaries into account:
+            int startIndex = 0;
+            var chunks = new List<string>();
+            while (startIndex < str.Length)
+            {
+                // Find the furthermost split position:
+                int spaceIndex = spaces.FindLastIndex(value => (value <= (startIndex + desiredChunkLength)));
+
+                int splitIndex;
+                if (spaceIndex >= 0)
+                    splitIndex = spaces[spaceIndex];
+                else
+                    splitIndex = (startIndex + desiredChunkLength);
+
+                // Limit to split within the string and execute the split:
+                splitIndex = splitIndex.Limit(startIndex, str.Length);
+                int length = (splitIndex - startIndex);
+                chunks.Add(str.Substring(startIndex, length));
+                startIndex += length;
+
+                // Remove the already used spaces from the collection to ensure those spaces are not used again:
+                if (spaceIndex >= 0)
+                {
+                    spaces.RemoveRange(0, (spaceIndex + 1));
+                    startIndex++; // Advance an extra character to compensate the space.
+                }
+            }
+
+            return (chunks.ToArray());
+        }
+
+        // =============================================
+    }
 }

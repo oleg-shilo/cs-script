@@ -6,6 +6,7 @@ using CSharpParser = css::csscript.CSharpParser;
 using System;
 using System.Linq;
 using Xunit;
+using csscript;
 
 public class GenericTest
 {
@@ -45,6 +46,18 @@ public class GenericTest
 
         //Assert.True(1 == 1);
     }
+
+    // [Fact]
+    // public void Test_ConsoleLines()
+    // {
+    //     var text = "but also injects break point enables at the start of the user code (useful for IDEs). " +
+    //                "but also injects break point enables at the start of the user code (useful for IDEs). " +
+    //                "but also injects break point enables at the start of the user code (useful for IDEs). " +
+    //                "but also injects break point enables at the start of the user code (useful for IDEs). " +
+    //                "but also injects break point enables at the start of the user code (useful for IDEs). ";
+
+    //     var formatted = text.SplitIntoLines(120, 12);
+    // }
 
     [Fact]
     public void Test_CSS_Init()
