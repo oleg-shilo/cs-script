@@ -230,9 +230,6 @@ namespace csscript
 
             internal static ImportInfo[] ResolveStatement(string statement, string parentScript, string[] probinghDirs)
             {
-                if (ResolveRelativeFromParentScriptLocation && statement.Length > 1 && statement.StartsWith(".."))
-                    statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
-
                 if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
                     statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
 
@@ -281,8 +278,9 @@ namespace csscript
                 string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
 
                 this.file = parts[0];
-                // if (!Path.IsPathRooted(this.file) && ResolveRelativeFromParentScriptLocation)
-                //     this.file = Path.Combine(Path.GetDirectoryName(parentScript), this.file);
+
+                if (!Path.IsPathRooted(this.file) && ResolveRelativeFromParentScriptLocation)
+                    this.file = Path.Combine(Path.GetDirectoryName(parentScript), this.file);
 
                 InternalInit(parts, 1);
             }
