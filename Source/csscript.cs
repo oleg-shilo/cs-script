@@ -139,7 +139,7 @@ namespace csscript
                     print("file:" + file);
 
                 if (request == AppArgs.proj_dbg && options.enableDbgPrint)
-                    print("file:" + CSSUtils.GetDbgInjectionInterfaceCode(null));
+                    print("file:" + CSSUtils.CreateDbgInjectionInterfaceCode(null));
 
                 foreach (string file in project.Refs)
                     print("ref:" + file);
@@ -162,7 +162,7 @@ namespace csscript
             }
             else
             {
-                if (!CSSUtils.IsDynamic(Assembly.GetExecutingAssembly()))
+                if (!Assembly.GetExecutingAssembly().IsDynamic())
                     settings = Settings.LoadDefault();
             }
             return settings;
@@ -198,8 +198,10 @@ namespace csscript
                 options.TargetFramework = settings.TargetFramework;
 
                 //process default command-line arguments
-                string[] defaultCmdArgs = settings.DefaultArguments.Split(" ".ToCharArray());
-                defaultCmdArgs = Utils.RemoveEmptyStrings(defaultCmdArgs);
+                string[] defaultCmdArgs = settings.DefaultArguments
+                                                  .Split(" ".ToCharArray())
+                                                  .Where(Utils.NotEmpty)
+                                                  .ToArray();
 
                 int firstDefaultScriptArg = CSSUtils.ParseAppArgs(defaultCmdArgs, this);
                 if (firstDefaultScriptArg != defaultCmdArgs.Length)
@@ -1231,7 +1233,7 @@ namespace csscript
 
         static string ExistingFile(string dir, params string[] paths)
         {
-            var file = Utils.PathCombine(dir, paths);
+            var file = dir.PathCombine(paths);
             if (File.Exists(file))
                 return file;
             return
@@ -1443,7 +1445,7 @@ namespace csscript
             {
                 string[] defaultAsms = options.defaultRefAssemblies.Split(";,".ToCharArray()).Select(x => x.Trim()).ToArray();
 
-                foreach (string asmName in Utils.Concat(defaultAsms, cmdLineAsms))
+                foreach (string asmName in defaultAsms.Concat(cmdLineAsms))
                     if (asmName != "")
                         addByAsmName(asmName);
             }
@@ -1572,10 +1574,9 @@ namespace csscript
             //if script doesn't follow this assumption user will need to
             //specify assemblies explicitly
             ScriptParser parser = new ScriptParser(scriptFileName, options.searchDirs);
-            options.searchDirs = Utils.RemoveDuplicates(
-                                 Utils.Concat(
-                                        parser.SearchDirs, //parser.searchDirs may be updated as result of script parsing
-                                        Assembly.GetExecutingAssembly().GetAssemblyDirectoryName()));
+            options.searchDirs = parser.SearchDirs //parser.searchDirs may be updated as result of script parsing
+                                       .ConcatWith(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName())
+                                       .RemoveDuplicates();
 
             string[] filesToInject = new string[0];
 
@@ -1603,7 +1604,7 @@ namespace csscript
             compilerParams.GenerateInMemory = false;
             compilerParams.WarningLevel = (options.hideCompilerWarnings ? -1 : 4);
 
-            string[] filesToCompile = Utils.RemoveDuplicates(parser.FilesToCompile);
+            string[] filesToCompile = parser.FilesToCompile.RemoveDuplicates();
             PrecompilationContext context = CSSUtils.Precompile(scriptFileName, filesToCompile, options);
 
             if (context.NewIncludes.Count > 0)
@@ -1612,7 +1613,7 @@ namespace csscript
                 {
                     context.NewIncludes[i] = FileParser.ResolveFile(context.NewIncludes[i], options.searchDirs);
                 }
-                filesToCompile = Utils.Concat(filesToCompile, context.NewIncludes.ToArray());
+                filesToCompile = filesToCompile.Concat(context.NewIncludes).ToArray();
                 context.NewDependencies.AddRange(context.NewIncludes);
             }
 
@@ -1711,14 +1712,14 @@ namespace csscript
             if (generateExe)
             {
                 var exeCompatibleIjections = filesToInject.Where(x => !x.EndsWith(".attr.g.cs")).ToArray();
-                filesToCompile = Utils.Concat(filesToCompile, exeCompatibleIjections);
+                filesToCompile = filesToCompile.ConcatWith(exeCompatibleIjections);
                 results = CompileAssembly(compiler, compilerParams, filesToCompile);
             }
             else
             {
                 if (filesToInject.Any())
                 {
-                    filesToCompile = Utils.Concat(filesToCompile, filesToInject);
+                    filesToCompile = filesToCompile.ConcatWith(filesToInject);
                 }
 
                 CSSUtils.VerbosePrint("  Output file: \n       " + assemblyFileName, options);

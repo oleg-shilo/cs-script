@@ -11,16 +11,17 @@ namespace CSScriptLibrary
     /// <summary>
     /// <para> Do not use as this interface as it's intended for use by CS-Script engine only. </para>
     /// Interface that is used by CS-Script engine to build transparent proxies for EvaluatorRemoting extensions.
-    /// This interface has to be public as it is passed across assemblies. 
+    /// This interface has to be public as it is passed across assemblies.
     /// </summary>
     public interface IRemoteAgent
     {
 #pragma warning disable 1591
+
         object Method(params object[] paramters);
+
         MethodDelegate Implementation { get; set; }
 #pragma warning restore 1591
     }
-
 
     /// <summary>
     /// The extremely simple implementation of generic "Extension Properties".
@@ -63,7 +64,7 @@ namespace CSScriptLibrary
         {
             Dictionary<string, object> properties;
             if (ObjectCache.TryGetValue(obj, out properties) && properties.ContainsKey(name))
-                return (T) properties[name];
+                return (T)properties[name];
             else
                 return default(T);
         }
@@ -81,7 +82,7 @@ namespace CSScriptLibrary
     }
 
     /// <summary>
-    /// Extension methods for invocation of <see cref="CSScriptLibrary.IEvaluator"/> methods in a remote AppDomain. 
+    /// Extension methods for invocation of <see cref="CSScriptLibrary.IEvaluator"/> methods in a remote AppDomain.
     /// </summary>
     public static class EvaluatorRemoting
     {
@@ -92,8 +93,8 @@ namespace CSScriptLibrary
         // - LoadCode - returns proxy which cannot be invoked via 'dynamic'
         // - LoadFile - returns proxy which cannot be invoked via 'dynamic'
         // - LoadMethod - returns proxy which cannot be invoked via 'dynamic'
-        // - LoadDelegate - will require emitting a proxy delegate into the called domain defeating the purpose of not 
-        //                  loading anything to the caller domain. 
+        // - LoadDelegate - will require emitting a proxy delegate into the called domain defeating the purpose of not
+        //                  loading anything to the caller domain.
         //                  But if really needed can be done as "https://msdn.microsoft.com/en-au/library/z43fsh67(v=vs.110).aspx"
 
         class RemoteLoadingContext : MarshalByRefObject
@@ -126,12 +127,11 @@ namespace CSScriptLibrary
                 return eval;
             }
 
-
             public static RemoteLoadingContext NewFor(IEvaluator evaluator, string scriptCode)
             {
                 var asms = evaluator.GetReferencedAssemblies()
                                     .Select(x => x.Location())
-                                    .Where(x => !string.IsNullOrEmpty(x) );
+                                    .Where(x => !string.IsNullOrEmpty(x));
 
                 return new RemoteLoadingContext
                 {
@@ -145,9 +145,9 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Gets the remote AppDomain associated with the evaluator. 
-        /// The AppDomain is set to the Evaluator with the last call of 
-        /// any EvaluatorRemoting extension methods. 
+        /// Gets the remote AppDomain associated with the evaluator.
+        /// The AppDomain is set to the Evaluator with the last call of
+        /// any EvaluatorRemoting extension methods.
         /// </summary>
         /// <param name="evaluator">The evaluator.</param>
         /// <returns></returns>
@@ -181,7 +181,7 @@ namespace CSScriptLibrary
         /// <returns></returns>
         public static T GetOwnerObject<T>(this object obj)
         {
-            return (T) obj.GetValue("OwnerObject");
+            return (T)obj.GetValue("OwnerObject");
         }
 
         internal static object CopyOwnerDomainTo(this object src, object dest)
@@ -198,7 +198,7 @@ namespace CSScriptLibrary
 
         /// <summary>
         /// Gets the AppDomain owning the actual object the transparent proxy is associated with.
-        /// The AppDomain is set to the proxy object on any EvaluatorRemoting extension methods call. 
+        /// The AppDomain is set to the proxy object on any EvaluatorRemoting extension methods call.
         /// </summary>
         /// <param name="obj">The transparent proxy object.</param>
         /// <returns></returns>
@@ -220,9 +220,9 @@ namespace CSScriptLibrary
 
         /// <summary>
         /// Loads the method remotely.
-        /// LoadMethodRemotely is essentially the same as <see cref="CSScriptLibrary.EvaluatorRemoting.LoadCodeRemotely{T}"/>. 
-        /// It just deals not with the whole class definition but a method(s) only. And the rest of the class definition is 
-        /// added automatically by CS-Script. 
+        /// LoadMethodRemotely is essentially the same as <see cref="CSScriptLibrary.EvaluatorRemoting.LoadCodeRemotely{T}"/>.
+        /// It just deals not with the whole class definition but a method(s) only. And the rest of the class definition is
+        /// added automatically by CS-Script.
         /// </summary>
         /// <example>
         ///<code>
@@ -236,9 +236,9 @@ namespace CSScriptLibrary
         ///                                           {
         ///                                               return a-b;
         ///                                           }");
-        /// 
+        ///
         /// int result = script.Sum(15, 3));
-        /// 
+        ///
         /// // after the next line call the remote domain with loaded script will be unloaded
         /// script.UnloadOwnerDomain();
         /// </code>
@@ -268,25 +268,25 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Loads/evaluates C# code into a remote AppDomain and returns a transparent proxy of the 
+        /// Loads/evaluates C# code into a remote AppDomain and returns a transparent proxy of the
         /// instance of the first class defined in the code.
-        /// <para>The returned proxy can be used to unload the AppDomain owning the actual object 
+        /// <para>The returned proxy can be used to unload the AppDomain owning the actual object
         /// the proxy points to.</para>
         /// </summary>
         /// <remarks>
-        /// Note, the concrete type of the return value depends on the script class definition. 
-        /// It the class implement interface then an ordinary type castes proxy object is returned. 
+        /// Note, the concrete type of the return value depends on the script class definition.
+        /// It the class implement interface then an ordinary type castes proxy object is returned.
         /// However if the class doesn't implement the interface the a dynamically emitted duck-typed
-        /// proxy returned instead. Such proxy cannot be built for the types implemented in file-less 
-        /// (in-memory) assemblies. Thus neither Mono nor Roslyn engines cannot be used with this 
-        /// technique. Meaning that 
+        /// proxy returned instead. Such proxy cannot be built for the types implemented in file-less
+        /// (in-memory) assemblies. Thus neither Mono nor Roslyn engines cannot be used with this
+        /// technique. Meaning that
         /// <see cref="CSScriptLibrary.CSScript.CodeDomEvaluator"/> needs to be used.
-        /// <para>While the script class to be evaluated doesn't have to implement from 'T' interface but 
+        /// <para>While the script class to be evaluated doesn't have to implement from 'T' interface but
         /// it must inherit <see cref="System.MarshalByRefObject"/> though.</para>
         /// </remarks>
         /// <example>
         ///<code>
-        /// // duck-typed proxy; must use CodeDomEvaluator                       
+        /// // duck-typed proxy; must use CodeDomEvaluator
         /// var script = CSScript.CodeDomEvaluator
         ///                      .LoadCodeRemotely&lt;ICalc&gt;(
         ///                      @"using System;
@@ -297,8 +297,8 @@ namespace CSScriptLibrary
         ///                                return a + b;
         ///                            }
         ///                        }");
-        ///                        
-        /// // ordinary type casted proxy                       
+        ///
+        /// // ordinary type casted proxy
         /// var script2 = CSScript.Evaluator
         ///                       .LoadCodeRemotely&lt;ICalc&gt;(
         ///                       @"using System;
@@ -309,26 +309,26 @@ namespace CSScriptLibrary
         ///                                 return a + b;
         ///                             }
         ///                         }");
-        ///                         
+        ///
         /// int result = script.Sum(15, 3);
-        ///  
+        ///
         /// // after the next line call the remote domain with loaded script will be unloaded
         /// script.UnloadOwnerDomain();
         /// </code>
         /// </example>
         /// <typeparam name="T">The interface type the remote object should be casted or aligned (duck-typed) to.</typeparam>
         /// <param name="evaluator">The evaluator.</param>
-        /// <param name="scriptCode">The script code that defines the script class to be loaded.  
-        /// <para>The script class doesn't have to implement from 'T' interface but 
+        /// <param name="scriptCode">The script code that defines the script class to be loaded.
+        /// <para>The script class doesn't have to implement from 'T' interface but
         /// it must inherit <see cref="System.MarshalByRefObject"/> though.</para>
         /// </param>
-        /// <param name="probingDirs">The probing directories for the assemblies the script 
+        /// <param name="probingDirs">The probing directories for the assemblies the script
         /// assembly depends on.</param>
         /// <returns></returns>
         public static T LoadCodeRemotely<T>(this IEvaluator evaluator, string scriptCode, params string[] probingDirs) where T : class
         {
             var cx = RemoteLoadingContext.NewFor(evaluator, scriptCode);
-            var searchDirs = Utils.Concat(probingDirs, Path.GetDirectoryName(typeof(T).Assembly.Location()));
+            var searchDirs = probingDirs.ConcatWith(Path.GetDirectoryName(typeof(T).Assembly.Location()));
 
             var remoteDomain = evaluator.GetRemoteDomain();
             if (remoteDomain == null)
@@ -359,7 +359,7 @@ namespace CSScriptLibrary
             if (cx.error != null)
                 throw new CompilerException("Exception in the remote AppDomain: " + cx.error);
 
-            var result = (T) cx.scriptObj;
+            var result = (T)cx.scriptObj;
 
             evaluator.SetRemoteDomain(remoteDomain);
             result.SetOwnerDomain(remoteDomain);
@@ -368,14 +368,14 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), 
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
         /// evaluates it and loads the class to the remote AppDomain.
-        /// <para>Returns non-typed <see cref="CSScriptLibrary.MethodDelegate"/> of the remote object for 
+        /// <para>Returns non-typed <see cref="CSScriptLibrary.MethodDelegate"/> of the remote object for
         /// class-less style of invoking.</para>
         /// </summary>
         /// <example>
         /// <code>
-        /// 
+        ///
         /// var log = CSScript.Evaluator
         ///                   .CreateDelegateRemotely(
         ///                                   @"void Log(string message)
@@ -390,7 +390,7 @@ namespace CSScriptLibrary
         /// </example>
         /// <param name="evaluator">The evaluator.</param>
         /// <param name="code">The C# code.</param>
-        /// <param name="probingDirs">The probing directories for the assemblies the script 
+        /// <param name="probingDirs">The probing directories for the assemblies the script
         /// assembly depends on.</param>
         /// <returns> The instance of a 'duck typed' <see cref="CSScriptLibrary.MethodDelegate"/></returns>
         public static MethodDelegate CreateDelegateRemotely(this IEvaluator evaluator, string code, params string[] probingDirs)
@@ -432,8 +432,8 @@ namespace CSScriptLibrary
                                                  .Where(t => t.Name == "RemoteAgent")
                                                  .First()
                                                  .FullName;
-#endif             
-                    var agent = (IRemoteAgent) script.CreateObject(agentTypeName);
+#endif
+                    var agent = (IRemoteAgent)script.CreateObject(agentTypeName);
                     agent.Implementation = script.GetStaticMethod();
                     context.scriptObj = agent;
                 }
@@ -446,7 +446,7 @@ namespace CSScriptLibrary
             if (cx.error != null)
                 throw new CompilerException("Exception in the remote AppDomain: " + cx.error);
 
-            var agentProxy = (IRemoteAgent) cx.scriptObj;
+            var agentProxy = (IRemoteAgent)cx.scriptObj;
 
             MethodDelegate result = (param) => agentProxy.Method(param);
 
@@ -458,7 +458,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>) implementing interface T, 
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>) implementing interface T,
         /// evaluates it and loads the class to the remote AppDomain.
         /// <para>Returns typed <see cref="CSScriptLibrary.MethodDelegate{T}"/> for class-less style of invoking.</para>
         /// </summary>
@@ -479,17 +479,16 @@ namespace CSScriptLibrary
         /// </example>
         /// <param name="evaluator">The evaluator.</param>
         /// <param name="code">The C# code.</param>
-        /// <param name="probingDirs">The probing directories for the assemblies the script 
+        /// <param name="probingDirs">The probing directories for the assemblies the script
         /// assembly depends on.</param>
         /// <returns> The instance of a 'duck typed' <see cref="CSScriptLibrary.MethodDelegate"/></returns>
         public static MethodDelegate<T> CreateDelegateRemotely<T>(this IEvaluator evaluator, string code, params string[] probingDirs)
         {
             var method = evaluator.CreateDelegateRemotely(code, probingDirs);
-            MethodDelegate<T> result = (param) => (T) method(param);
+            MethodDelegate<T> result = (param) => (T)method(param);
             method.CopyOwnerDomainTo(result)
                   .CopyOwnerObjectTo(result);
             return result;
         }
     }
-
 }

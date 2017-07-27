@@ -752,11 +752,11 @@ namespace CSScriptLibrary
 
             if (assemblies == DomainAssemblies.AllStatic)
             {
-                relevantAssemblies = relevantAssemblies.Where(x => !CSSUtils.IsDynamic(x) && x != mscorelib).ToArray();
+                relevantAssemblies = relevantAssemblies.Where(x => !x.IsDynamic() && x != mscorelib).ToArray();
             }
             else if (assemblies == DomainAssemblies.AllStaticNonGAC)
             {
-                relevantAssemblies = relevantAssemblies.Where(x => !x.GlobalAssemblyCache && !CSSUtils.IsDynamic(x) && x != mscorelib).ToArray();
+                relevantAssemblies = relevantAssemblies.Where(x => !x.GlobalAssemblyCache && !x.IsDynamic() && x != mscorelib).ToArray();
             }
             else if (assemblies == DomainAssemblies.None)
             {

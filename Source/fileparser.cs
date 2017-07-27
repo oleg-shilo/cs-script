@@ -161,7 +161,8 @@ namespace CSScriptLibrary
             this.imported = imported;
             this.prams = prams;
             this.fileName = ResolveFile(fileName, searchDirs);
-            this.searchDirs = Utils.RemovePathDuplicates(Utils.Concat(searchDirs, Path.GetDirectoryName(this.fileName)));
+            this.searchDirs = searchDirs.ConcatWith(Path.GetDirectoryName(this.fileName))
+                                        .RemovePathDuplicates();
             if (process)
                 ProcessFile();
         }
@@ -186,7 +187,7 @@ namespace CSScriptLibrary
 
         public string[] ReferencedNamespaces
         {
-            get { return Utils.Except(parser.RefNamespaces, parser.IgnoreNamespaces); }
+            get { return parser.RefNamespaces.Except(parser.IgnoreNamespaces).ToArray(); }
         }
 
         public string[] IgnoreNamespaces
@@ -245,7 +246,7 @@ namespace CSScriptLibrary
             }
 
             referencedAssemblies.AddRange(parser.RefAssemblies);
-            referencedNamespaces.AddRange(Utils.Except(parser.RefNamespaces, parser.IgnoreNamespaces));
+            referencedNamespaces.AddRange(parser.RefNamespaces.Except(parser.IgnoreNamespaces));
             referencedResources.AddRange(parser.ResFiles);
 
             if (imported)

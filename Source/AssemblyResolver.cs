@@ -242,7 +242,7 @@ namespace CSScriptLibrary
 
                 if (retval.Count == 0)
                 {
-                    string nameSpace = Utils.RemoveAssemblyExtension(name);
+                    string nameSpace = name.RemoveAssemblyExtension();
                     foreach (string asmGACLocation in FindGlobalAssembly(nameSpace))
                         retval.Add(asmGACLocation);
                 }

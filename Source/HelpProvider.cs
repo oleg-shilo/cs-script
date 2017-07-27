@@ -68,7 +68,7 @@ namespace csscript
             {
                 this.argSpec = argSpec;
                 this.description = description;
-                this.doc = string.Join(Environment.NewLine, docLines.SelectMany(x => x.SplitSubParagraphs()));
+                this.doc = string.Join(Environment.NewLine, docLines.SelectMany(x => x.SplitSubParagraphs()).ToArray());
             }
 
             public ArgInfo(string argSpec, string description)
@@ -98,7 +98,7 @@ namespace csscript
 
         static string fromLines(params string[] lines)
         {
-            return string.Join(Environment.NewLine, lines.SelectMany(x => x.SplitSubParagraphs()));
+            return string.Join(Environment.NewLine, lines.SelectMany(x => x.SplitSubParagraphs()).ToArray());
         }
 
         static string indent(int indent, string text)
@@ -255,11 +255,11 @@ namespace csscript
                                                    "Note: The property name in -config:set and -config:set is case insensitive and can also contain '_' " +
                                                    "as a token separator that is ignored during property lookup.",
                                                    "(e.g. " + AppInfo.appName + " -config:none sample.cs",
-                                                   AppInfo.appName + " -config:default > css_VB.xml",
-                                                   AppInfo.appName + " -config:set:" + inmem + "=true",
-                                                   AppInfo.appName + " -config:set:DefaultArguments=add:-ac",
-                                                   AppInfo.appName + " -config:set:default_arguments=del:-ac",
-                                                   AppInfo.appName + " -config:c:\\cs-script\\css_VB.xml sample.vb)");
+                                                   "${<=6}" + AppInfo.appName + " -config:default > css_VB.xml",
+                                                   "${<=6}" + AppInfo.appName + " -config:set:" + inmem + "=true",
+                                                   "${<=6}" + AppInfo.appName + " -config:set:DefaultArguments=add:-ac",
+                                                   "${<=6}" + AppInfo.appName + " -config:set:default_arguments=del:-ac",
+                                                   "${<=6}" + AppInfo.appName + " - config:c:\\cs-script\\css_VB.xml sample.vb)");
             switch2Help[@out] = new ArgInfo("-out[:<file>]",
                                                    "Forces the script to be compiled into a specific location.",
                                                    "Used only for very fine hosting tuning.",

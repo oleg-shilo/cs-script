@@ -28,7 +28,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
-#endregion Licence...
+#endregion License...
 
 using System;
 using System.Collections.Generic;
@@ -45,7 +45,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Global instance of <see cref="CSScriptLibrary.CodeDomEvaluator"/>. This object is to be used for
         /// dynamic loading of the  C# code by using Roslyn "compiler as service".
-        /// <para>If you need to use multiple instances of th evaluator then you will need to call 
+        /// <para>If you need to use multiple instances of th evaluator then you will need to call
         /// <see cref="CSScriptLibrary.IEvaluator"/>.Clone().
         /// </para>
         /// </summary>
@@ -55,11 +55,12 @@ namespace CSScriptLibrary
             get
             {
                 if (EvaluatorConfig.Access == EvaluatorAccess.AlwaysCreate)
-                    return (CodeDomEvaluator) codeDomEvaluator.Value.Clone();
+                    return (CodeDomEvaluator)codeDomEvaluator.Value.Clone();
                 else
                     return codeDomEvaluator.Value;
             }
         }
+
         static Lazy<CodeDomEvaluator> codeDomEvaluator = new Lazy<CodeDomEvaluator>();
     }
 
@@ -79,17 +80,17 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Clones itself as <see cref="CSScriptLibrary.IEvaluator"/>. 
+        /// Clones itself as <see cref="CSScriptLibrary.IEvaluator"/>.
         /// <para>
-        /// This method returns a freshly initialized copy of the <see cref="CSScriptLibrary.IEvaluator"/>. 
+        /// This method returns a freshly initialized copy of the <see cref="CSScriptLibrary.IEvaluator"/>.
         /// The cloning 'depth' can be controlled by the <paramref name="copyRefAssemblies"/>.
         /// </para>
-        /// <para>   
-        /// This method is a convenient technique when multiple <see cref="CSScriptLibrary.IEvaluator"/> instances  
+        /// <para>
+        /// This method is a convenient technique when multiple <see cref="CSScriptLibrary.IEvaluator"/> instances
         /// are required (e.g. for concurrent script evaluation).
         /// </para>
         /// </summary>
-        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced assemblies from the parent <see cref="CSScriptLibrary.IEvaluator"/> 
+        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced assemblies from the parent <see cref="CSScriptLibrary.IEvaluator"/>
         /// will be referenced in the cloned copy.</param>
         /// <returns>The freshly initialized instance of the <see cref="CSScriptLibrary.IEvaluator"/>.</returns>
         public IEvaluator Clone(bool copyRefAssemblies = true)
@@ -124,7 +125,7 @@ namespace CSScriptLibrary
         public bool DebugBuild { get; set; }
 
         /// <summary>
-        /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s). 
+        /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s).
         /// </summary>
         /// <example>
         ///<code>
@@ -137,8 +138,8 @@ namespace CSScriptLibrary
         ///                                               return a+b;
         ///                                           }
         ///                                       }");
-        ///                                          
-        /// dynamic script =  asm.CreateObject("*"); 
+        ///
+        /// dynamic script =  asm.CreateObject("*");
         /// var result = script.Sum(7, 3);
         /// </code>
         /// </example>
@@ -150,7 +151,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies 
+        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies
         /// that the script depend on (via '//css_...' and 'using ...' directives) should be referenced.
         /// </summary>
         /// <value></value>
@@ -159,7 +160,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>) and evaluates it.
         /// <para>
-        /// This method is a logical equivalent of <see cref="CSScriptLibrary.IEvaluator.CompileCode"/> but is allows you to define 
+        /// This method is a logical equivalent of <see cref="CSScriptLibrary.IEvaluator.CompileCode"/> but is allows you to define
         /// your script class by specifying class method instead of whole class declaration.</para>
         /// </summary>
         /// <example>
@@ -169,8 +170,8 @@ namespace CSScriptLibrary
         ///                                           {
         ///                                               return a+b;
         ///                                           }")
-        ///                          .CreateObject("*"); 
-        ///                          
+        ///                          .CreateObject("*");
+        ///
         /// var result = script.Sum(7, 3);
         /// </code>
         /// </example>
@@ -203,7 +204,6 @@ namespace CSScriptLibrary
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
             return CompileCode(scriptText).GetStaticMethod();
-
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace CSScriptLibrary
         List<string> referencedAssemblies = new List<string>();
 
         /// <summary>
-        /// Loads and returns set of referenced assemblies. 
+        /// Loads and returns set of referenced assemblies.
         /// <para>
         /// Notre: the set of assemblies is cleared on Reset.
         /// </para>
@@ -307,7 +307,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
         /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
-        /// <para><c>Note:</c> Because the interface alignment is a duck typing implementation the script class doesn't have to 
+        /// <para><c>Note:</c> Because the interface alignment is a duck typing implementation the script class doesn't have to
         /// inherit from <c>T</c>.</para>
         /// </summary>
         /// <example>The following is the simple example of the interface alignment:
@@ -340,7 +340,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads 
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads
         /// the class to the current AppDomain.
         /// <para>Returns instance of <c>T</c> delegate for the first method in the auto-generated class.</para>
         /// </summary>
@@ -352,7 +352,7 @@ namespace CSScriptLibrary
         ///                                     {
         ///                                         return a * b;
         ///                                     }");
-        ///                                
+        ///
         /// int result = Product(3, 2);
         /// </code>
         /// </example>
@@ -371,7 +371,7 @@ namespace CSScriptLibrary
         ///<code>
         /// dynamic script = CSScript.CodeDomEvaluator
         ///                          .LoadFile("calc.cs");
-        ///                          
+        ///
         /// int result = script.Sum(1, 2);
         /// </code>
         /// </example>/// <param name="scriptFile">The C# script file.</param>
@@ -397,7 +397,7 @@ namespace CSScriptLibrary
         /// ....
         /// ICalc calc = CSScript.CodeDomEvaluator
         ///                      .LoadFile&lt;ICalc&gt;("calc.cs");
-        ///                      
+        ///
         /// int result = calc.Sum(1, 2);
         /// </code>
         /// </example>
@@ -410,7 +410,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads 
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads
         /// the class to the current AppDomain.
         /// </summary>
         /// <example>The following is the simple example of the LoadMethod usage:
@@ -433,7 +433,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads 
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads
         /// the class to the current AppDomain.
         /// <para>
         /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
@@ -471,7 +471,7 @@ namespace CSScriptLibrary
 
         /// <summary>
         /// References the assemblies from the script code.
-        /// <para>The method analyses and tries to resolve CS-Script directives (e.g. '//css_ref') and 'used' namespaces based on the 
+        /// <para>The method analyses and tries to resolve CS-Script directives (e.g. '//css_ref') and 'used' namespaces based on the
         /// optional search directories.</para>
         /// </summary>
         /// <param name="code">The script code.</param>
@@ -496,7 +496,7 @@ namespace CSScriptLibrary
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
             globalProbingDirs.Add(Assembly.GetCallingAssembly().GetAssemblyDirectoryName());
 
-            var dirs = globalProbingDirs.Where(x=> !string.IsNullOrEmpty(x)).ToArray();
+            var dirs = globalProbingDirs.Where(x => !string.IsNullOrEmpty(x)).ToArray();
 
             string asmFile = AssemblyResolver.FindAssembly(assembly, dirs).FirstOrDefault();
             if (asmFile == null)
@@ -528,7 +528,9 @@ namespace CSScriptLibrary
 
             return this;
         }
-#pragma warning disable 618   
+
+#pragma warning disable 618
+
         /// <summary>
         /// References the name of the assembly by its partial name.
         /// <para>Note that the referenced assembly will be loaded into the host AppDomain in order to resolve assembly partial name.</para>
@@ -540,7 +542,9 @@ namespace CSScriptLibrary
         {
             return ReferenceAssembly(Assembly.LoadWithPartialName(assemblyPartialName));
         }
+
 #pragma warning restore 618
+
         /// <summary>
         /// References the assembly by the given namespace it implements.
         /// </summary>
@@ -604,7 +608,7 @@ namespace CSScriptLibrary
 #if net35
         /// <summary>
         /// References the assemblies the are already loaded into the current <c>AppDomain</c>.
-        /// <para>This method is an equivalent of <see cref="CSScriptLibrary.IEvaluator.ReferenceDomainAssemblies"/> 
+        /// <para>This method is an equivalent of <see cref="CSScriptLibrary.IEvaluator.ReferenceDomainAssemblies"/>
         /// with the hard codded <c>DomainAssemblies.AllStaticNonGAC</c> input parameter.
         /// </para>
         /// </summary>
@@ -624,10 +628,10 @@ namespace CSScriptLibrary
 #if net35
         public IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies)
 #else
+
         public IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies = DomainAssemblies.AllStaticNonGAC)
 #endif
         {
-
             //NOTE: It is important to avoid loading the runtime itself (mscorelib) as it
             //will break the code evaluation (compilation).
             //
@@ -637,11 +641,11 @@ namespace CSScriptLibrary
 
             if (assemblies == DomainAssemblies.AllStatic)
             {
-                relevantAssemblies = relevantAssemblies.Where(x => !CSSUtils.IsDynamic(x) && x != mscorelib).ToArray();
+                relevantAssemblies = relevantAssemblies.Where(x => !x.IsDynamic() && x != mscorelib).ToArray();
             }
             else if (assemblies == DomainAssemblies.AllStaticNonGAC)
             {
-                relevantAssemblies = relevantAssemblies.Where(x => !x.GlobalAssemblyCache && !CSSUtils.IsDynamic(x) && x != mscorelib).ToArray();
+                relevantAssemblies = relevantAssemblies.Where(x => !x.GlobalAssemblyCache && !x.IsDynamic() && x != mscorelib).ToArray();
             }
             else if (assemblies == DomainAssemblies.None)
             {
@@ -658,9 +662,9 @@ namespace CSScriptLibrary
         /// Resets Evaluator.
         /// <para>
         /// Resetting means clearing all referenced assemblies, recreating evaluation infrastructure (e.g. compiler setting)
-        /// and reconnection to or recreation of the underlying compiling services. 
+        /// and reconnection to or recreation of the underlying compiling services.
         /// </para>
-        /// <para>Optionally the default current AppDomain assemblies can be referenced automatically with 
+        /// <para>Optionally the default current AppDomain assemblies can be referenced automatically with
         /// <paramref name="referenceDomainAssemblies"/>.</para>
         /// </summary>
         /// <param name="referenceDomainAssemblies">if set to <c>true</c> the default assemblies of the current AppDomain

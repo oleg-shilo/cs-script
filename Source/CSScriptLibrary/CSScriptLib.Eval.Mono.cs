@@ -30,7 +30,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
-#endregion Licence...
+#endregion License...
 
 using System;
 using System.Collections.Generic;
@@ -69,34 +69,34 @@ namespace CSScriptLibrary
     public class MonoEvaluator : IEvaluator
     {
         /// <summary>
-        /// Clones itself as <see cref="CSScriptLibrary.IEvaluator"/>. 
+        /// Clones itself as <see cref="CSScriptLibrary.IEvaluator"/>.
         /// <para>
-        /// This method returns a freshly initialized copy of the <see cref="CSScriptLibrary.IEvaluator"/>. 
+        /// This method returns a freshly initialized copy of the <see cref="CSScriptLibrary.IEvaluator"/>.
         /// The cloning 'depth' can be controlled by the <paramref name="copyRefAssemblies"/>.
         /// </para>
         /// <para>
-        /// This method is a convenient technique when multiple <see cref="CSScriptLibrary.IEvaluator"/> instances  
+        /// This method is a convenient technique when multiple <see cref="CSScriptLibrary.IEvaluator"/> instances
         /// are required (e.g. for concurrent script evaluation).
         /// </para>
         /// </summary>
-        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced assemblies from the parent <see cref="CSScriptLibrary.IEvaluator"/> 
+        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced assemblies from the parent <see cref="CSScriptLibrary.IEvaluator"/>
         /// will be referenced in the cloned copy.</param>
         /// <returns>The freshly initialized instance of the <see cref="CSScriptLibrary.IEvaluator"/>.</returns>
         /// <example>
         ///<code>
         /// var eval1 = CSScript.MonoEvaluator.Clone();
         /// var eval2 = CSScript.MonoEvaluator.Clone();
-        /// 
+        ///
         /// var sub = eval1.LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
         ///                            @"int Sub(int a, int b) {
         ///                                  return a - b;
         ///                              }");
-        ///                              
+        ///
         /// var sum = eval2.LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
         ///                            @"int Sub(int a, int b) {
         ///                                  return a + b;
         ///                              }");
-        ///                              
+        ///
         /// var result = sum(7, sub(4,2));
         /// </code>
         /// </example>
@@ -113,6 +113,7 @@ namespace CSScriptLibrary
             }
             return clone;
         }
+
         /// <summary>
         /// Gets or sets the compiler settings.
         /// </summary>
@@ -130,14 +131,13 @@ namespace CSScriptLibrary
         /// </summary>
         /// <value>The throw on error.</value>
         public bool ThrowOnError { get; set; }
-        
+
         /// <summary>
-        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies 
+        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies
         /// that the script depend on (via '//css_...' and 'using ...' directives) should be referenced.
         /// </summary>
         /// <value></value>
         public bool DisableReferencingFromCode { get; set; }
-
 
         /// <summary>
         /// Gets or sets a value indicating whether to reset <c>Mono.Evaluator</c> automatically after it fails
@@ -289,10 +289,10 @@ namespace CSScriptLibrary
         /// <summary>
         /// Resets Evaluator.
         /// <para>
-        /// Resetting means clearing all referenced assemblies, recreating <see cref="Mono.CSharp.CompilerSettings"/>, 
-        /// <see cref="CompilingResult"/> and underlying compiling services. 
+        /// Resetting means clearing all referenced assemblies, recreating <see cref="Mono.CSharp.CompilerSettings"/>,
+        /// <see cref="CompilingResult"/> and underlying compiling services.
         /// </para>
-        /// <para>Optionally the default current AppDomain assemblies can be referenced automatically with 
+        /// <para>Optionally the default current AppDomain assemblies can be referenced automatically with
         /// <paramref name="referenceDomainAssemblies"/>.</para>
         /// </summary>
         /// <param name="referenceDomainAssemblies">if set to <c>true</c> the default assemblies of the current AppDomain
@@ -302,6 +302,7 @@ namespace CSScriptLibrary
 #if net35
         public IEvaluator Reset(bool referenceDomainAssemblies)
 #else
+
         public IEvaluator Reset(bool referenceDomainAssemblies = true)
 #endif
         {
@@ -326,7 +327,7 @@ namespace CSScriptLibrary
 
         /// <summary>
         /// The delegate for creating Mono compiler settings instance (<see cref="CompilerSettings"/>). The delegate
-        /// is a convenient way to specify global defaults for compiler settings. 
+        /// is a convenient way to specify global defaults for compiler settings.
         /// <example>
         /// <code>MonoEvaluator.CreateCompilerSettings = () => new CompilerSettings {Unsafe = true };</code>
         /// </example>
@@ -345,7 +346,7 @@ namespace CSScriptLibrary
 #if net35
         /// <summary>
         /// References the assemblies the are already loaded into the current <c>AppDomain</c>.
-        /// <para>This method is an equivalent of <see cref="CSScriptLibrary.IEvaluator.ReferenceDomainAssemblies"/> 
+        /// <para>This method is an equivalent of <see cref="CSScriptLibrary.IEvaluator.ReferenceDomainAssemblies"/>
         /// with the hard codded <c>DomainAssemblies.AllStaticNonGAC</c> input parameter.
         /// </para>
         /// </summary>
@@ -370,6 +371,7 @@ namespace CSScriptLibrary
 #if net35
         public IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies)
 #else
+
         public IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies = DomainAssemblies.AllStaticNonGAC)
 #endif
         {
@@ -391,11 +393,11 @@ namespace CSScriptLibrary
 
             if (assemblies == DomainAssemblies.AllStatic)
             {
-                relevantAssemblies = relevantAssemblies.Where(x => !CSSUtils.IsDynamic(x) && x != mscorelib).ToArray();
+                relevantAssemblies = relevantAssemblies.Where(x => !x.IsDynamic() && x != mscorelib).ToArray();
             }
             else if (assemblies == DomainAssemblies.AllStaticNonGAC)
             {
-                relevantAssemblies = relevantAssemblies.Where(x => !x.GlobalAssemblyCache && !CSSUtils.IsDynamic(x) && x != mscorelib).ToArray();
+                relevantAssemblies = relevantAssemblies.Where(x => !x.GlobalAssemblyCache && !x.IsDynamic() && x != mscorelib).ToArray();
             }
             else if (assemblies == DomainAssemblies.None)
             {
@@ -420,7 +422,7 @@ namespace CSScriptLibrary
             var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
             globalProbingDirs.Add(Assembly.GetCallingAssembly().GetAssemblyDirectoryName());
 
-            var dirs = globalProbingDirs.Where(x=> !string.IsNullOrEmpty(x)).ToArray();
+            var dirs = globalProbingDirs.Where(x => !string.IsNullOrEmpty(x)).ToArray();
 
             string asmFile = AssemblyResolver.FindAssembly(assembly, dirs).FirstOrDefault();
             if (asmFile == null)
@@ -508,7 +510,6 @@ namespace CSScriptLibrary
             return this;
         }
 
-
         /// <summary>
         /// References the assemblies from the script code.
         /// <para>The method analyses and tries to resolve CS-Script directives (e.g. '//css_ref') and 'used' namespaces based on the optional search directories.</para>
@@ -542,7 +543,7 @@ namespace CSScriptLibrary
             get
             {
                 FieldInfo info = service.GetType().GetField("importer", BindingFlags.Instance | BindingFlags.NonPublic);
-                return (ReflectionImporter) info.GetValue(service);
+                return (ReflectionImporter)info.GetValue(service);
             }
         }
 
@@ -551,12 +552,12 @@ namespace CSScriptLibrary
             get
             {
                 FieldInfo info = CompilerSettings.GetType().GetField("conditional_symbols", BindingFlags.Instance | BindingFlags.NonPublic);
-                return (List<string>) info.GetValue(CompilerSettings);
+                return (List<string>)info.GetValue(CompilerSettings);
             }
         }
 
         /// <summary>
-        /// Returns set of referenced assemblies. 
+        /// Returns set of referenced assemblies.
         /// <para>
         /// Notre: the set of assemblies is get cleared on Reset.
         /// </para>
@@ -568,13 +569,14 @@ namespace CSScriptLibrary
         }
 
         static FieldInfo _FieldInfo;
+
         Dictionary<Assembly, IAssemblyDefinition> Assembly2Definition
         {
             get
             {
                 if (_FieldInfo == null)
                     _FieldInfo = Importer.GetType().GetField("assembly_2_definition", BindingFlags.Instance | BindingFlags.NonPublic);
-                return (Dictionary<Assembly, IAssemblyDefinition>) _FieldInfo.GetValue(Importer);
+                return (Dictionary<Assembly, IAssemblyDefinition>)_FieldInfo.GetValue(Importer);
             }
         }
 
@@ -615,7 +617,7 @@ namespace CSScriptLibrary
         ///<code>
         /// dynamic script = CSScript.MonoEvaluator
         ///                          .LoadFile("calc.cs");
-        ///                          
+        ///
         /// int result = script.Sum(1, 2);
         /// </code>
         /// </example>/// <param name="scriptFile">The C# script file.</param>
@@ -628,7 +630,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
         /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
-        /// <para><c>Note:</c> Because the interface alignment is a duck typing implementation the script class doesn't have to 
+        /// <para><c>Note:</c> Because the interface alignment is a duck typing implementation the script class doesn't have to
         /// inherit from <c>T</c>.</para>
         /// </summary>
         /// <example>The following is the simple example of the interface alignment:
@@ -658,7 +660,7 @@ namespace CSScriptLibrary
         {
             var script = LoadCode(scriptText, args);
             if (script is T)
-                return (T) script;
+                return (T)script;
 
             this.ReferenceAssemblyOf<T>();
             string type = "";
@@ -666,7 +668,7 @@ namespace CSScriptLibrary
             CompileCode(proxyClass);
             var proxyType = GetCompiledType(type);
 
-            return (T) Activator.CreateInstance(proxyType, script);
+            return (T)Activator.CreateInstance(proxyType, script);
         }
 
         /// <summary>
@@ -718,7 +720,7 @@ namespace CSScriptLibrary
         /// ....
         /// ICalc calc = CSScript.MonoEvaluator
         ///                      .LoadFile&lt;ICalc&gt;("calc.cs");
-        ///                      
+        ///
         /// int result = calc.Sum(1, 2);
         /// </code>
         /// </example>
@@ -837,7 +839,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads 
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads
         /// the class to the current AppDomain.
         /// <para>Returns instance of <c>T</c> delegate for the first method in the auto-generated class.</para>
         /// </summary>
@@ -849,7 +851,7 @@ namespace CSScriptLibrary
         ///                                        {
         ///                                            return a * b;
         ///                                        }");
-        ///                                  
+        ///
         /// int result = Product(3, 2);
         /// </code>
         /// </example>
@@ -866,7 +868,7 @@ namespace CSScriptLibrary
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>) and evaluates it.
         /// <para>
-        /// This method is a logical equivalent of <see cref="CSScriptLibrary.IEvaluator.CompileCode"/> but is allows you to define 
+        /// This method is a logical equivalent of <see cref="CSScriptLibrary.IEvaluator.CompileCode"/> but is allows you to define
         /// your script class by specifying class method instead of whole class declaration.</para>
         /// </summary>
         /// <example>
@@ -876,8 +878,8 @@ namespace CSScriptLibrary
         ///                                           {
         ///                                               return a+b;
         ///                                           }")
-        ///                          .CreateObject("*"); 
-        ///                          
+        ///                          .CreateObject("*");
+        ///
         /// var result = script.Sum(7, 3);
         /// </code>
         /// </example>
@@ -892,13 +894,14 @@ namespace CSScriptLibrary
         Assembly GetCompiledAssembly(int id)
         {
             string className = GetConnectionPointGetTypeExpression(id);
-            return ((Type) service.Evaluate(className)).Assembly;
+            return ((Type)service.Evaluate(className)).Assembly;
         }
 
         string GetConnectionPointClassDeclaration(int id)
         {
             return "\n public struct CSS_ConnectionPoint_" + id + " {}";
         }
+
         string GetConnectionPointGetTypeExpression(int id)
         {
             return "typeof(CSS_ConnectionPoint_" + id + ");";
@@ -911,13 +914,13 @@ namespace CSScriptLibrary
         /// <returns>The type instance</returns>
         public Type GetCompiledType(string type)
         {
-            return (Type) service.Evaluate("typeof(" + type + ");");
+            return (Type)service.Evaluate("typeof(" + type + ");");
         }
 
         static int AsmCounter = 0;
 
         /// <summary>
-        /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s). 
+        /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s).
         /// </summary>
         /// <example>
         ///<code>
@@ -930,8 +933,8 @@ namespace CSScriptLibrary
         ///                                               return a+b;
         ///                                           }
         ///                                       }");
-        ///                                          
-        /// dynamic script =  asm.CreateObject("*"); 
+        ///
+        /// dynamic script =  asm.CreateObject("*");
         /// var result = script.Sum(7, 3);
         /// </code>
         /// </example>
@@ -989,6 +992,7 @@ namespace CSScriptLibrary
                 }
             }
         }
+
         MCS.Evaluator service;
 
         /// <summary>
@@ -1073,7 +1077,7 @@ namespace CSScriptLibrary
                 if (CompilingResult.HasErrors && AutoResetEvaluatorOnError)
                 {
                     //After reset evaluator will loose all references so need to restore them.
-                    //Though all ref asms should be noted before the execution as otherwise Mono can add new refasms 
+                    //Though all ref asms should be noted before the execution as otherwise Mono can add new refasms
                     //during the asm probing.
                     SoftReset();
                     foreach (var asm in initialRefAsms)
@@ -1154,6 +1158,7 @@ namespace CSScriptLibrary
 #if net35
         public CompilerException CreateException(bool hideCompilerWarnings)
 #else
+
         public CompilerException CreateException(bool hideCompilerWarnings = false)
 #endif
         {

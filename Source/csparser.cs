@@ -250,11 +250,15 @@ namespace csscript
 
                     // To ensure that parent script dir is on top.
                     // Required because FileParser.ResolveFiles stops searching when it finds.
-                    probinghDirs = Utils.RemoveDuplicates(Utils.Concat(new[] { Path.GetDirectoryName(parentScript) }, probinghDirs));
+                    probinghDirs = Path.GetDirectoryName(parentScript)
+                                       .ConcatWith(probinghDirs)
+                                       .RemoveDuplicates();
 
                     foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
                     {
-                        parts[0] = file; //substitute the file path pattern with the actual path
+                        //substitute the file path pattern with the actual path
+                        parts[0] = file;
+
                         result.Add(new ImportInfo(parts));
                     }
 
@@ -275,7 +279,10 @@ namespace csscript
                 statementToParse = statementToParse.Replace("\t", "").Trim();
 
                 string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
+
                 this.file = parts[0];
+                // if (!Path.IsPathRooted(this.file) && ResolveRelativeFromParentScriptLocation)
+                //     this.file = Path.Combine(Path.GetDirectoryName(parentScript), this.file);
 
                 InternalInit(parts, 1);
             }

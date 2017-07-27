@@ -148,6 +148,9 @@
     <Compile Include="..\ExecuteOptions.cs">
       <Link>ExecuteOptions.cs</Link>
     </Compile>
+    <Compile Include="..\extensions.cs">
+      <Link>extensions.cs</Link>
+    </Compile>
     <Compile Include="..\fileparser.cs">
       <Link>fileparser.cs</Link>
       <SubType>Code</SubType>

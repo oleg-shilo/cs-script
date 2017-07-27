@@ -435,7 +435,7 @@ public static class CSScriptLibraryExtensionMethods
     public static T TryAlignToInterface<T>(this object obj, bool useAppDomainAssemblies, params string[] refAssemblies) where T : class
     {
         if (useAppDomainAssemblies)
-            refAssemblies = Utils.Concat(CSSUtils.GetAppDomainAssemblies(), refAssemblies);
+            refAssemblies = CSSUtils.GetAppDomainAssemblies().Concat(refAssemblies).ToArray();
 
         return CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils.ObjectCaster<T>.As(obj, refAssemblies);
     }
@@ -1346,7 +1346,7 @@ namespace CSScriptLibrary
 
             try
             {
-                if (!CSSUtils.IsDynamic(asm))
+                if (!asm.IsDynamic())
                     workingDir = asm.GetAssemblyDirectoryName();
             }
             catch { }

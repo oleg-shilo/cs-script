@@ -286,7 +286,7 @@ namespace csscript
         {
             var dirName = Path.GetFileName(dirPath);
 
-            if (Utils.PathCompare(dirName, packageName) == 0)
+            if (dirName.IsSamePath(packageName))
             {
                 return true;
             }
