@@ -174,11 +174,11 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
     and can also contain '_' as a token separator that is ignored during property
     lookup.
     (e.g. cscs -config:none sample.cs
-    cscs -config:default > css_VB.xml
-    cscs -config:set:inmem=true
-    cscs -config:set:DefaultArguments=add:-ac
-    cscs -config:set:default_arguments=del:-ac
-    cscs -config:c:\cs-script\css_VB.xml sample.vb)
+          cscs -config:default > css_VB.xml
+          cscs -config:set:inmem=true
+          cscs -config:set:DefaultArguments=add:-ac
+          cscs -config:set:default_arguments=del:-ac
+          cscs -config:c:\cs-script\css_VB.xml sample.vb)
 
 -out[:<file>]
     Forces the script to be compiled into a specific location.

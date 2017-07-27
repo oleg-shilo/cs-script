@@ -124,6 +124,9 @@
     <Compile Include="..\dbg.res.cs">
       <Link>dbg.res.cs</Link>
     </Compile>
+    <Compile Include="..\extensions.cs">
+      <Link>extensions.cs</Link>
+    </Compile>
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

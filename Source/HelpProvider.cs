@@ -259,7 +259,7 @@ namespace csscript
                                                    "${<=6}" + AppInfo.appName + " -config:set:" + inmem + "=true",
                                                    "${<=6}" + AppInfo.appName + " -config:set:DefaultArguments=add:-ac",
                                                    "${<=6}" + AppInfo.appName + " -config:set:default_arguments=del:-ac",
-                                                   "${<=6}" + AppInfo.appName + " - config:c:\\cs-script\\css_VB.xml sample.vb)");
+                                                   "${<=6}" + AppInfo.appName + " -config:c:\\cs-script\\css_VB.xml sample.vb)");
             switch2Help[@out] = new ArgInfo("-out[:<file>]",
                                                    "Forces the script to be compiled into a specific location.",
                                                    "Used only for very fine hosting tuning.",
