@@ -52,8 +52,8 @@ public class CodeDomEval
         dynamic script = eval.LoadCode(classCode);
         dynamic script2 = eval2.LoadCode(classCode);
 
-        var result = script.Test();  
-        var result2 = script2.Test();  
+        var result = script.Test();
+        var result2 = script2.Test();
 
         Assert.Equal("Release testing", result);
         Assert.Equal("Debug testing", result2);
@@ -129,7 +129,7 @@ public class CodeDomEval
     [Fact]
     public void LoadCode()
     {
-        //CSScript.EvaluatorConfig.RefernceDomainAsemblies = false; 
+        //CSScript.EvaluatorConfig.RefernceDomainAsemblies = false;
         dynamic script = CSScript.CodeDomEvaluator
                                  .LoadCode(@"using System;
                                              public class Script
@@ -191,7 +191,7 @@ public class CodeDomEval
     [Fact]
     public void LoadCodeTyped()
     {
-        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location 
+        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location
         CSScript.GlobalSettings.InMemoryAssembly = false;
 
         ICalc script = CSScript.CodeDomEvaluator
@@ -300,9 +300,9 @@ public class CodeDomEval
     [Fact]
     public void LoadMethodTyped()
     {
-        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location 
+        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location
         CSScript.GlobalSettings.InMemoryAssembly = false;
-        ICalc script = CSScript.CodeDomEvaluator 
+        ICalc script = CSScript.CodeDomEvaluator
                                .LoadMethod<ICalc>(@"using System;
 
                                                     public int Sum(int a, int b)
