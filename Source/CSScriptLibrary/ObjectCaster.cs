@@ -31,6 +31,7 @@ using System.Text;
  * This file is the part of Rubenhak.Utils library.
  * New versions are be found at http://rubenhak.com/.
  */
+
 namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
 {
     /// <summary>
@@ -230,8 +231,13 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
             CodeCompileUnit compileUnit = GenerateProxyClass(interfaceType, sourceType, injectNamespace);
             CodeDomProvider provider = CodeDomProvider.CreateProvider("CSharp");
 
-            try { compileUnit.ReferencedAssemblies.Add(csscript.Utils.Location(sourceType.Assembly)); } catch { }
-            try { compileUnit.ReferencedAssemblies.Add(csscript.Utils.Location(interfaceType.Assembly)); } catch { }
+            if (sourceType.Assembly.Location() == "" || interfaceType.Assembly.Location() == "")
+                throw new Exception("Error compiling proxy class:\nThe dependency assembly is dynamic and doesn't have an assembly " +
+                    "file associated with it. You will need to ensure the all engaged assemblies are loaded from the file system or " +
+                    "script assemblies are compiled with CSScript.GlobalSettings.InMemoryAssembly set to `false`.");
+
+            compileUnit.ReferencedAssemblies.Add(sourceType.Assembly.Location());
+            compileUnit.ReferencedAssemblies.Add(interfaceType.Assembly.Location());
 
             foreach (var asmFile in refAssemblies)
                 compileUnit.ReferencedAssemblies.Add(asmFile);
@@ -277,7 +283,6 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
             }
         }
 
-
         /// <summary>
         /// Generates the proxy class.
         /// </summary>
@@ -299,7 +304,7 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
             // Namespace
             //CodeNamespace ns = new CodeNamespace("Rubenhak.Utils.Gen");
 
-            //Oleg Shilo: move "usings" into global namespace as Roslyn doesn't handle namespaces 
+            //Oleg Shilo: move "usings" into global namespace as Roslyn doesn't handle namespaces
             CodeNamespace global = new CodeNamespace();
             compileUnit.Namespaces.Add(global);
             global.Imports.Add(new CodeNamespaceImport("System"));

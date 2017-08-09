@@ -314,20 +314,22 @@ namespace csscript
 
             #region SyntaxHelp
 
+            const string section_sep = "------------------------------------"; // section_sep separator
+
             syntaxHelp = fromLines(
                          "**************************************",
                          "Script specific syntax",
                          "**************************************",
                          " ",
                          "Engine directives:",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          "//css_include <file>;",
                          " ",
                          "Alias - //css_inc",
                          "file - name of a script file to be included at compile-time.",
                          " ",
-                         "This directive is used to include one script into another one.It is a logical equivalent of '#include' in C++. " +
-                         "It is a simplified version of //css_import.",
+                         "This directive is used to include one script into another one. It is a logical equivalent of '#include' in C++. " +
+                         "This directive is a full but more convenient equivalent of //css_import <file>, preserve_main;",
                          " ",
                          "If a relative file path is specified with a single-dot prefix it will be automatically converted into the absolute path " +
                          "with respect to the location of the file containing the directive being resolved.",
@@ -336,7 +338,7 @@ namespace csscript
                          "probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.cs' as they may lead to " +
                          "unpredictable behavior. For example they may match everything from the very first probing directory, which is typically a current " +
                          "directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.cs', '*Helper.cs', './*.cs')",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          "//css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];",
                          " ",
                          "Alias - //css_imp",
@@ -350,12 +352,7 @@ namespace csscript
                          " ",
                          "This directive is used to inject one script into another at compile time. Thus code from one script can be exercised in another one." +
                          "'Rename' clause can appear in the directive multiple times.",
-                         "------------------------------------",
-                         "//css_include <file>;",
-                         " ",
-                         "Alias - //css_inc",
-                         "This directive is a full but more convenient equivalent of //css_import <file>, preserve_main;",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          " ",
                          "//css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];",
                          " ",
@@ -382,14 +379,14 @@ namespace csscript
                          " ",
                          "This directive will install CS-Script NuGet package.",
                          "(see http://www.csscript.net/help/script_nugets.html)",
-                         "------------------------------------",
+                         section_sep,
                          "//css_args arg0[,arg1]..[,argN];",
                          " ",
                          "Embedded script arguments. The both script and engine arguments are allowed except \"/noconfig\" engine command switch.",
                          "Example: //css_args -dbg, -inmem;",
                          "This directive will always force script engine to execute the script in debug mode.",
                          "Note: the arguments must be coma separated.",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          "//css_reference <file>;",
                          " ",
                          "Alias - //css_ref",
@@ -397,7 +394,7 @@ namespace csscript
                          "",
                          "This directive is used to reference assemblies required at run time.",
                          "The assembly must be in GAC, the same folder with the script file or in the 'Script Library' folders (see 'CS-Script settings').",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          "//css_precompiler <file 1>,<file 2>;",
                          " ",
                          "Alias - //css_pc",
@@ -407,7 +404,7 @@ namespace csscript
                          "before compiling it. Precompilers are typically used to alter the script coder before the execution. Thus CS-Script uses " +
                          "built-in precompiler to decorate classless scripts executed with -autoclass switch.",
                          "(see http://www.csscript.net/help/precompilers.html",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          "//css_searchdir <directory>;",
                          " ",
                          "Alias - //css_dir",
@@ -419,7 +416,7 @@ namespace csscript
                          "The special case when the path ends with '**' is reserved to indicate 'sub directories' case. Examples:",
                          "${<=4}//css_dir packages\\ServiceStack*.1.0.21\\lib\\net40",
                          "${<=4}//css_dir packages\\**",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          "//css_resource <file>[, <out_file>];",
                          " ",
                          "Alias - //css_res",
@@ -433,7 +430,7 @@ namespace csscript
                          " Example: //css_res Scripting.Form1.resources;",
                          "          //css_res Resources1.resx;",
                          "          //css_res Form1.resx, Scripting.Form1.resources;",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          "//css_co <options>;",
                          " ",
                          "options - options string.",
@@ -441,14 +438,14 @@ namespace csscript
                          "This directive is used to pass compiler options string directly to the language specific CLR compiler.",
                          " Example: //css_co /d:TRACE pass /d:TRACE option to C# compiler",
                          "          //css_co /platform:x86 to produce Win32 executable\n",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          "//css_ignore_namespace <namespace>;",
                          " ",
                          "Alias - //css_ignore_ns",
                          "namespace - name of the namespace. Use '*' to completely disable namespace resolution",
                          " ",
                          "This directive is used to prevent CS-Script from resolving the referenced namespace into assembly.",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          "//css_prescript file([arg0][,arg1]..[,argN])[ignore];",
                          "//css_postscript file([arg0][,arg1]..[,argN])[ignore];",
                          " ",
@@ -460,7 +457,7 @@ namespace csscript
                          "These directives are used to execute secondary pre- and post-execution scripts.",
                          "If $this (or $this.name) is specified as arg0..N it will be replaced at execution time with the main script full name (or file name only).",
                          "You may find that in many cases precompilers (//css_pc and -pc) are a more powerful and flexible alternative to the pre-execution script.",
-                         "------------------------------------",
+                         section_sep, //------------------------------------
                          "{$css_host}",
                          " ",
                          "Note the script engine always sets the following environment variables:",
@@ -494,7 +491,7 @@ namespace csscript
                          "${<=6}a system wide include directory for the all frequently used user scripts.",
                          "$(csscript_roslyn)",
 
-                         "------------------------------------",
+                         "---------",
 #if net4
                          "During the script execution CS-Script always injects a little object inspector class 'dbg'. " +
                          "This class contains static printing methods that mimic Python's 'print()'. It is particularly useful for object inspection in the absence of a proper debugger.",
@@ -503,13 +500,13 @@ namespace csscript
                          "  dbg.print(\"Now:\", DateTime.Now)        - ${<==}prints concatenated objects.",
                          "  dbg.print(DateTime.Now)                - ${<==}prints object and values of its properties.",
                          "  dbg.printf(\"Now: {0}\", DateTime.Now)   - ${<==}formats and prints object and values of its fields and properties.",
-                         "------------------------------------",
+                         "---------",
 #endif
                          " ",
                          "Any directive has to be written as a single line in order to have no impact on compiling by CLI compliant compiler." +
                          "It also must be placed before any namespace or class declaration.",
                          " ",
-                         "------------------------------------",
+                         "---------",
                          "Example:",
                          " ",
                          " //css_include web_api_host.cs;",
@@ -547,7 +544,7 @@ namespace csscript
                          "           .StartAsConosle(\"http://localhost:8080\");",
                          " }",
                          " ",
-                         "------------------------------------",
+                         "---------",
                          " Project Website: https://github.com/oleg-shilo/cs-script",
                          " ");
 
@@ -564,7 +561,7 @@ namespace csscript
                                                     " ",
                                                     "These directive is used to execute script from a surrogate host process. The script engine application (cscs.exe or csws.exe) launches the script",
                                                     "execution as a separate process of the specified CLR version and CPU architecture.",
-                                                    "------------------------------------"))
+                                                    section_sep))
                                        .Replace("$(csscript_roslyn)", "");
             else
                 syntaxHelp = syntaxHelp.Replace("{$css_host}", "")
