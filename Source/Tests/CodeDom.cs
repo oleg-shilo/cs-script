@@ -19,7 +19,6 @@ public class CodeDom
                                         }
                                     }";
 
-
     /// <summary>
     /// Gets the unique class code so caching is disabled.
     /// </summary>
@@ -110,8 +109,7 @@ public class CodeDom
             var repeats = 10;
             var sw = new Stopwatch();
 
-
-                CSScript.LoadFiles(files);
+            CSScript.LoadFiles(files);
             sw.Restart();
             //Caching is effectively disabled because LoadFiles creates every time a new "umbrella script" file.
             for (int i = 0; i < repeats; i++)
@@ -126,7 +124,7 @@ public class CodeDom
             sw.Restart();
             for (int i = 0; i < repeats; i++)
             {
-                var asm = CSScript.Load(tempFile);
+                var asm = CSScript.LoadFile(tempFile);
             }
             var cachedLoadFileTime = sw.ElapsedMilliseconds;
             Debug.WriteLine($"LoadFile: {cachedLoadFileTime}");
@@ -173,7 +171,7 @@ public class CodeDom
     [Fact]
     public void LoadCodeWithInterface()
     {
-        var script = (ICalc) CSScript.LoadCode(@"using System;
+        var script = (ICalc)CSScript.LoadCode(@"using System;
                                                 using Tests;
                                                 public class Script : ICalc
                                                 {
@@ -192,7 +190,7 @@ public class CodeDom
     [Fact]
     public void LoadCodeAndAlignToInterface()
     {
-        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location 
+        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location
         CSScript.GlobalSettings.InMemoryAssembly = false;
 
         var script = CSScript.LoadCode(@"public class Script
@@ -241,11 +239,10 @@ public class CodeDom
         Assert.Equal(6, result);
     }
 
-
     [Fact]
     public void LoadMethodAndAlignToInterface()
     {
-        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location 
+        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location
         CSScript.GlobalSettings.InMemoryAssembly = false;
 
         var script = CSScript.LoadMethod(@"int Sum(int a, int b)

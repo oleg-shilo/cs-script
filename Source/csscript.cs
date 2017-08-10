@@ -145,7 +145,7 @@ namespace csscript
                     print("ref:" + file);
 
                 foreach (string file in project.SearchDirs)
-                    print("searcDir:" + file);
+                    print("searchDir:" + file);
             }
         }
 

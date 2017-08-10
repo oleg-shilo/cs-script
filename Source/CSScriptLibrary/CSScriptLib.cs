@@ -1868,7 +1868,21 @@ namespace CSScriptLibrary
         /// <param name="debugBuild">'true' if debug information should be included in assembly; otherwise, 'false'.</param>
         /// <param name="refAssemblies">The string array containing file names to the additional assemblies referenced by the script. </param>
         /// <returns>Compiled/Loaded assembly.</returns>
+        [Obsolete("This method has been renamed to better align with Mono and Roslyn based CS-Script evaluators. Use LoadFile instead.", false)]
         static public Assembly Load(string scriptFile, string assemblyFile, bool debugBuild, params string[] refAssemblies)
+        {
+            return LoadWithConfig(scriptFile, assemblyFile, debugBuild, null, "", refAssemblies);
+        }
+
+        /// <summary>
+        /// Compiles script file into assembly with CSExecutor and loads it in current AppDomain
+        /// </summary>
+        /// <param name="scriptFile">The path to the script file to be compiled.</param>
+        /// <param name="assemblyFile">The path of the compiled assembly to be created. If set to null a temporary file name will be used.</param>
+        /// <param name="debugBuild">'true' if debug information should be included in assembly; otherwise, 'false'.</param>
+        /// <param name="refAssemblies">The string array containing file names to the additional assemblies referenced by the script. </param>
+        /// <returns>Compiled/Loaded assembly.</returns>
+        static public Assembly LoadFile(string scriptFile, string assemblyFile, bool debugBuild, params string[] refAssemblies)
         {
             return LoadWithConfig(scriptFile, assemblyFile, debugBuild, null, "", refAssemblies);
         }
@@ -2004,7 +2018,19 @@ namespace CSScriptLibrary
         /// </summary>
         /// <param name="scriptFile">The path to the script file to be compiled.</param>
         /// <returns>Compiled/Loaded assembly.</returns>
+        [Obsolete("This method has been renamed to better align with Mono and Roslyn based CS-Script evaluators. Use LoadFile instead.", false)]
         static public Assembly Load(string scriptFile)
+        {
+            return Load(scriptFile, null, false, null);
+        }
+
+        /// <summary>
+        /// Compiles script file into assembly (temporary file) with CSExecutor and loads it in current AppDomain.
+        /// This method is an equivalent of the CSScript.Load(scriptFile, null, false);
+        /// </summary>
+        /// <param name="scriptFile">The path to the script file to be compiled.</param>
+        /// <returns>Compiled/Loaded assembly.</returns>
+        static public Assembly LoadFile(string scriptFile)
         {
             return Load(scriptFile, null, false, null);
         }
@@ -2016,7 +2042,20 @@ namespace CSScriptLibrary
         /// <param name="scriptFile">The path to the script file to be compiled.</param>
         /// <param name="refAssemblies">The string array containing file names to the additional assemblies referenced by the script. </param>
         /// <returns>Compiled/Loaded assembly.</returns>
+        [Obsolete("This method has been renamed to better align with Mono and Roslyn based CS-Script evaluators. Use LoadFile instead.", false)]
         static public Assembly Load(string scriptFile, params string[] refAssemblies)
+        {
+            return Load(scriptFile, null, false, refAssemblies);
+        }
+
+        /// <summary>
+        /// Compiles script file into assembly (temporary file) with CSExecutor and loads it in current AppDomain.
+        /// This method is an equivalent of the CSScript.Load(scriptFile, null, false);
+        /// </summary>
+        /// <param name="scriptFile">The path to the script file to be compiled.</param>
+        /// <param name="refAssemblies">The string array containing file names to the additional assemblies referenced by the script. </param>
+        /// <returns>Compiled/Loaded assembly.</returns>
+        static public Assembly LoadFile(string scriptFile, params string[] refAssemblies)
         {
             return Load(scriptFile, null, false, refAssemblies);
         }
