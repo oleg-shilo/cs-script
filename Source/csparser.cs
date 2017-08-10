@@ -277,7 +277,8 @@ namespace csscript
 
                 string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
 
-                this.file = parts[0];
+                this.file =
+                this.rawStatement = parts[0];
 
                 if (!Path.IsPathRooted(this.file) && ResolveRelativeFromParentScriptLocation)
                     this.file = Path.Combine(Path.GetDirectoryName(parentScript), this.file);
@@ -322,6 +323,11 @@ namespace csscript
             /// The file to be imported.
             /// </summary>
             public string file;
+
+            /// <summary>
+            /// The original name of the file to be imported.
+            /// </summary>
+            public string rawStatement;
 
             /// <summary>
             /// Renaming instructions (old_name vs. new_name)

@@ -104,6 +104,7 @@ namespace CSScriptLibrary
         }
 
         public bool preserveMain = false;
+        public string rawStatement;
 
         #endregion Public interface...
 
@@ -122,6 +123,7 @@ namespace CSScriptLibrary
         public ScriptInfo(CSharpParser.ImportInfo info)
         {
             this.fileName = info.file;
+            parseParams.rawStatement = info.rawStatement;
             parseParams.AddRenameNamespaceMap(info.renaming);
             parseParams.preserveMain = info.preserveMain;
         }
@@ -809,53 +811,60 @@ namespace CSScriptLibrary
 
         void ProcessFile(ScriptInfo fileInfo)
         {
-            FileParserComparer fileComparer = new FileParserComparer();
-
-            FileParser importedFile = new FileParser(fileInfo.fileName, fileInfo.parseParams, false, true, this.SearchDirs, throwOnError); //do not parse it yet (the third param is false)
-            if (fileParsers.BinarySearch(importedFile, fileComparer) < 0)
+            try
             {
-                if (File.Exists(importedFile.fileName))
+                FileParserComparer fileComparer = new FileParserComparer();
+
+                FileParser importedFile = new FileParser(fileInfo.fileName, fileInfo.parseParams, false, true, this.SearchDirs, throwOnError); //do not parse it yet (the third param is false)
+                if (fileParsers.BinarySearch(importedFile, fileComparer) < 0)
                 {
-                    importedFile.ProcessFile(); //parse now namespaces, ref. assemblies and scripts; also it will do namespace renaming
+                    if (File.Exists(importedFile.fileName))
+                    {
+                        importedFile.ProcessFile(); //parse now namespaces, ref. assemblies and scripts; also it will do namespace renaming
 
-                    this.fileParsers.Add(importedFile);
-                    this.fileParsers.Sort(fileComparer);
+                        this.fileParsers.Add(importedFile);
+                        this.fileParsers.Sort(fileComparer);
 
-                    foreach (string namespaceName in importedFile.ReferencedNamespaces)
-                        PushNamespace(namespaceName);
+                        foreach (string namespaceName in importedFile.ReferencedNamespaces)
+                            PushNamespace(namespaceName);
 
-                    foreach (string asmName in importedFile.ReferencedAssemblies)
-                        PushAssembly(asmName);
+                        foreach (string asmName in importedFile.ReferencedAssemblies)
+                            PushAssembly(asmName);
 
-                    foreach (string packageName in importedFile.Packages)
-                        PushPackage(packageName);
+                        foreach (string packageName in importedFile.Packages)
+                            PushPackage(packageName);
 
-                    foreach (string file in importedFile.Precompilers)
-                        PushPrecompiler(file);
+                        foreach (string file in importedFile.Precompilers)
+                            PushPrecompiler(file);
 
-                    foreach (ScriptInfo scriptFile in importedFile.ReferencedScripts)
-                        ProcessFile(scriptFile);
+                        foreach (ScriptInfo scriptFile in importedFile.ReferencedScripts)
+                            ProcessFile(scriptFile);
 
-                    foreach (string resFile in importedFile.ReferencedResources)
-                        PushResource(resFile);
+                        foreach (string resFile in importedFile.ReferencedResources)
+                            PushResource(resFile);
 
-                    foreach (string file in importedFile.IgnoreNamespaces)
-                        PushIgnoreNamespace(file);
+                        foreach (string file in importedFile.IgnoreNamespaces)
+                            PushIgnoreNamespace(file);
 
-                    List<string> dirs = new List<string>(this.SearchDirs);
-                    foreach (string dir in importedFile.ExtraSearchDirs)
-                        if (Path.IsPathRooted(dir))
-                            dirs.Add(Path.GetFullPath(dir));
-                        else
-                            dirs.Add(Path.Combine(Path.GetDirectoryName(importedFile.fileName), dir));
-                    this.SearchDirs = dirs.ToArray();
+                        List<string> dirs = new List<string>(this.SearchDirs);
+                        foreach (string dir in importedFile.ExtraSearchDirs)
+                            if (Path.IsPathRooted(dir))
+                                dirs.Add(Path.GetFullPath(dir));
+                            else
+                                dirs.Add(Path.Combine(Path.GetDirectoryName(importedFile.fileName), dir));
+                        this.SearchDirs = dirs.ToArray();
+                    }
+                    else
+                    {
+                        importedFile.fileNameImported = importedFile.fileName;
+                        this.fileParsers.Add(importedFile);
+                        this.fileParsers.Sort(fileComparer);
+                    }
                 }
-                else
-                {
-                    importedFile.fileNameImported = importedFile.fileName;
-                    this.fileParsers.Add(importedFile);
-                    this.fileParsers.Sort(fileComparer);
-                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Cannot import '" + fileInfo.parseParams.rawStatement + "' from the '" + this.scriptPath + "' script.", e);
             }
         }
 
