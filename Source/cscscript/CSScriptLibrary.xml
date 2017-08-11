@@ -691,6 +691,11 @@
             The file to be imported.
             </summary>
         </member>
+        <member name="F:csscript.CSharpParser.ImportInfo.rawStatement">
+            <summary>
+            The original name of the file to be imported.
+            </summary>
+        </member>
         <member name="F:csscript.CSharpParser.ImportInfo.renaming">
             <summary>
             Renaming instructions (old_name vs. new_name)

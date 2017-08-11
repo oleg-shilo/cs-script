@@ -215,7 +215,7 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
     If set it forces script engine to use an alternative code compiler.
     C#7 support is implemented via Roslyn based provider:
     '-pvdr:CSSRoslynProvider.dll'.If the switch is not specified
-    CSSRoslynProvider.dll file will be use as a code providerif it is found in
+    CSSRoslynProvider.dll file will be use as a code provider if it is found in
     the same folder where the script engine is. Automatic CSSRoslynProvider.dll
     loading can be disabled with special 'none' argument: -pvdr:none.
     (see http://www.csscript.net/help/non_cs_compilers.html)
