@@ -60,6 +60,15 @@ public class GenericTest
     // }
 
     [Fact]
+    public void Test_CLI_Help()
+    {
+        // var sw = new System.Diagnostics.Stopwatch();
+        // sw.Restart();
+        // HelpProvider.BuildCommandInterfaceHelp(null);
+        // sw.Stop();
+    }
+
+    [Fact]
     public void Test_CSS_Init()
     {
         CSharpParser.InitInfo info;

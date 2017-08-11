@@ -49,8 +49,16 @@ namespace csscript
 
         static int GetMaxTextWidth()
         {
-            try { return Console.WindowWidth - 1; }
-            catch (Exception) { return MaxNonConsoleTextWidth; }
+            try
+            {
+                // when running on mono under Node.js (VSCode) the Console.WindowWidth is always 0
+                if (Console.WindowWidth != 0)
+                    return Console.WindowWidth - 1;
+                else
+                    return 100;
+            }
+            catch (Exception) { }
+            return MaxNonConsoleTextWidth;
         }
 
         public static string Repeat(this char c, int count)

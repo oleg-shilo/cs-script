@@ -80,17 +80,17 @@ namespace csscript
             public string ArgSpec { get { return argSpec; } }
             public string Description { get { return description; } }
 
-            public string FullDoc
+            public string GetFullDoc()
             {
-                get
-                {
-                    string result = argSpec + Environment.NewLine + ' '.Repeat(indent) + description;
+                var buf = new StringBuilder();
+                buf.AppendLine(argSpec)
+                    .Append(' '.Repeat(indent))
+                    .Append(description);
 
-                    if (doc != "")
-                        result += Environment.NewLine + doc.ToConsoleLines(indent);
+                if (doc != "")
+                    buf.AppendLine().Append(doc.ToConsoleLines(indent));
 
-                    return result.TrimEnd();
-                }
+                return buf.ToString().TrimEnd();
             }
 
             static int indent = 4;
@@ -295,7 +295,7 @@ namespace csscript
                                                    "If set it forces script engine to use an alternative code compiler.",
                                                    "",
                                                    "C#7 support is implemented via Roslyn based provider: '-pvdr:CSSRoslynProvider.dll'." +
-                                                   "If the switch is not specified CSSRoslynProvider.dll file will be use as a code provider" +
+                                                   "If the switch is not specified CSSRoslynProvider.dll file will be use as a code provider " +
                                                    "if it is found in the same folder where the script engine is. Automatic CSSRoslynProvider.dll " +
                                                    "loading can be disabled with special 'none' argument: -pvdr:none.",
                                                    "(see http://www.csscript.net/help/non_cs_compilers.html)");
@@ -647,11 +647,11 @@ namespace csscript
             if (arg != null)
             {
                 if (AppArgs.switch1Help.ContainsKey(arg))
-                    return AppArgs.switch1Help[arg].FullDoc;
+                    return AppArgs.switch1Help[arg].GetFullDoc();
                 else if (AppArgs.switch2Help.ContainsKey(arg))
-                    return AppArgs.switch2Help[arg].FullDoc;
+                    return AppArgs.switch2Help[arg].GetFullDoc();
                 else
-                    return "Invalid 'cmd' argument. Use '" + AppInfo.appName + " -cmd' for the list of valid commands." + Environment.NewLine + AppArgs.switch1Help[AppArgs.help].FullDoc;
+                    return "Invalid 'cmd' argument. Use '" + AppInfo.appName + " -cmd' for the list of valid commands." + Environment.NewLine + AppArgs.switch1Help[AppArgs.help].GetFullDoc();
             }
 
             var builder = new StringBuilder();
@@ -664,11 +664,12 @@ namespace csscript
             //cannot use Linq as it can be incompatible target
             var printed = new List<string>();
 
+            // string fullDoc = GetFullDoc();
             foreach (AppArgs.ArgInfo info in AppArgs.switch1Help.Values)
             {
                 if (printed.Contains(info.ArgSpec))
                     continue;
-                builder.AppendLine(info.FullDoc);
+                builder.AppendLine(info.GetFullDoc());
                 builder.AppendLine("");
                 printed.Add(info.ArgSpec);
             }
@@ -679,7 +680,7 @@ namespace csscript
             {
                 if (printed.Contains(info.ArgSpec))
                     continue;
-                builder.AppendLine(info.FullDoc);
+                builder.AppendLine(info.GetFullDoc());
                 builder.AppendLine("");
                 printed.Add(info.ArgSpec);
             }
@@ -688,7 +689,7 @@ namespace csscript
             {
                 if (printed.Contains(info.ArgSpec))
                     continue;
-                builder.AppendLine(info.FullDoc);
+                builder.AppendLine(info.GetFullDoc());
                 builder.AppendLine("");
                 printed.Add(info.ArgSpec);
             }

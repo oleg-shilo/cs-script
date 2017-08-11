@@ -276,7 +276,7 @@ namespace csscript
 
         static void RunConsoleApp(string app, string args)
         {
-            Process process = new Process();
+            var process = new Process();
             process.StartInfo.FileName = app;
             process.StartInfo.Arguments = args;
             process.StartInfo.WorkingDirectory = Environment.CurrentDirectory;

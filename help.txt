@@ -1,4 +1,4 @@
-C# Script execution engine. Version 3.27.1.0.
+C# Script execution engine. Version 3.27.2.0.
 Copyright (C) 2004-2017 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -249,8 +249,9 @@ Engine directives:
 Alias - //css_inc
 file - name of a script file to be included at compile-time.
  
-This directive is used to include one script into another one.It is a logical
-equivalent of '#include' in C++. It is a simplified version of //css_import.
+This directive is used to include one script into another one. It is a logical
+equivalent of '#include' in C++. This directive is a full but more convenient
+equivalent of //css_import <file>, preserve_main;
  
 If a relative file path is specified with a single-dot prefix it will be
 automatically converted into the absolute path with respect to the location of
@@ -279,12 +280,6 @@ newName         - new name of a namespace to be renamed during importing
 This directive is used to inject one script into another at compile time. Thus
 code from one script can be exercised in another one.'Rename' clause can appear
 in the directive multiple times.
-------------------------------------
-//css_include <file>;
- 
-Alias - //css_inc
-This directive is a full but more convenient equivalent of //css_import <file>,
-preserve_main;
 ------------------------------------
  
 //css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>]
@@ -471,7 +466,7 @@ uses to improve the user experience:
  
  'CSSCRIPT_INC'
       a system wide include directory for the all frequently used user scripts.
-------------------------------------
+---------
 During the script execution CS-Script always injects a little object inspector
 class 'dbg'. This class contains static printing methods that mimic Python's
 'print()'. It is particularly useful for object inspection in the absence of a
@@ -483,13 +478,13 @@ Examples:
                                            properties.
   dbg.printf("Now: {0}", DateTime.Now)   - formats and prints object and values
                                            of its fields and properties.
-------------------------------------
+---------
  
 Any directive has to be written as a single line in order to have no impact on
 compiling by CLI compliant compiler.It also must be placed before any namespace
 or class declaration.
  
-------------------------------------
+---------
 Example:
  
  //css_include web_api_host.cs;
@@ -527,7 +522,7 @@ Or shorter form:
            .StartAsConosle("http://localhost:8080");
  }
  
-------------------------------------
+---------
  Project Website: https://github.com/oleg-shilo/cs-script
  
 

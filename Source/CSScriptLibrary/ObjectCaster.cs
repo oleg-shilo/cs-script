@@ -234,7 +234,8 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
             if (sourceType.Assembly.Location() == "" || interfaceType.Assembly.Location() == "")
                 throw new Exception("Error compiling proxy class:\nThe dependency assembly is dynamic and doesn't have an assembly " +
                    "file associated with it. You will need to ensure the all engaged assemblies are loaded from the file system or " +
-                   "script assemblies are compiled with CSScript.GlobalSettings.InMemoryAssembly set to `false`.");
+                   "script assemblies are compiled with CSScript.GlobalSettings.InMemoryAssembly set to `false`. Another alternative is " +
+                   "to avoid duck typing by directly inheriting the sourceType from the interfaceType.");
 
             compileUnit.ReferencedAssemblies.Add(sourceType.Assembly.Location());
             compileUnit.ReferencedAssemblies.Add(interfaceType.Assembly.Location());
