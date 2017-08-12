@@ -999,7 +999,7 @@ namespace CSScriptLibrary
             var refPkAsms = this.ResolvePackages(true); //suppressDownloading
 
             var refCodeAsms = this.ReferencedAssemblies
-                                  .SelectMany(asm => AssemblyResolver.FindAssembly(asm.Replace("\"", ""), probingDirs));
+                .SelectMany(asm => AssemblyResolver.FindAssembly(asm.Replace("\"", ""), probingDirs));
 
             var refAsms = refPkAsms.Union(refPkAsms)
                                    .Union(refCodeAsms)
@@ -1030,7 +1030,9 @@ namespace CSScriptLibrary
                 refAsms = refAsms.Union(refNsAsms).ToArray();
             }
 
+            // foreach (var item in refAsms) Console.WriteLine("> " + item);
             refAsms = FilterDuplicatedAssembliesByFileName(refAsms);
+            // foreach (var item in refAsms) Console.WriteLine("< " + item);
             return refAsms.ToList();
         }
 
@@ -1042,7 +1044,11 @@ namespace CSScriptLibrary
             {
                 try
                 {
-                    string name = Path.GetFileNameWithoutExtension(item);
+                    // need to ensure that item has extension in order to avoid interpreting
+                    // complex file names as simple name + extension:
+                    // System.Core -> System
+                    // System.dll  -> System
+                    string name = Path.GetFileNameWithoutExtension(item.EnsureAsmExtension());
                     if (!asmNames.Contains(name))
                     {
                         uniqueAsms.Add(item);

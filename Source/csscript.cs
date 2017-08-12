@@ -1461,7 +1461,7 @@ namespace csscript
                 else
                 {
                     addByAsmName("System"); // dependency of System namespace assembly for regular expressions in dbg.cs
-                    addByAsmName("System.Core.dll"); // The whole System.Linq namespace assembly
+                    addByAsmName("System.Core"); // The whole System.Linq namespace assembly
                 }
             }
 
