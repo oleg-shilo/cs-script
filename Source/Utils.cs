@@ -117,7 +117,7 @@ namespace csscript
             }
             var constructor = ex.GetType().GetConstructor(new Type[] { typeof(string), typeof(Exception) });
             if (constructor != null)
-                return (Exception)constructor.Invoke(new object[] { message, childException });
+                return (Exception)constructor.Invoke(new object[] { topLevelMessage, childException });
             else
                 return new Exception(message, childException);
         }
