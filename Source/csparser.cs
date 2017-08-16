@@ -279,6 +279,7 @@ namespace csscript
 
                 this.file =
                 this.rawStatement = parts[0];
+                this.parentScript = parentScript;
 
                 if (!Path.IsPathRooted(this.file) && ResolveRelativeFromParentScriptLocation)
                     this.file = Path.Combine(Path.GetDirectoryName(parentScript), this.file);
@@ -328,6 +329,11 @@ namespace csscript
             /// The original name of the file to be imported.
             /// </summary>
             public string rawStatement;
+
+            /// <summary>
+            /// The name of the script containing the import statement.
+            /// </summary>
+            public string parentScript;
 
             /// <summary>
             /// Renaming instructions (old_name vs. new_name)

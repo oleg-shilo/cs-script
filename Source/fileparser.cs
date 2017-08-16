@@ -104,7 +104,7 @@ namespace CSScriptLibrary
         }
 
         public bool preserveMain = false;
-        public string rawStatement;
+        public string importingErrorMessage;
 
         #endregion Public interface...
 
@@ -123,7 +123,7 @@ namespace CSScriptLibrary
         public ScriptInfo(CSharpParser.ImportInfo info)
         {
             this.fileName = info.file;
-            parseParams.rawStatement = info.rawStatement;
+            parseParams.importingErrorMessage = "Cannot import \"" + info.rawStatement + "\" from the \"" + info.parentScript + "\" script.";
             parseParams.AddRenameNamespaceMap(info.renaming);
             parseParams.preserveMain = info.preserveMain;
         }
@@ -813,9 +813,10 @@ namespace CSScriptLibrary
         {
             try
             {
-                FileParserComparer fileComparer = new FileParserComparer();
+                var fileComparer = new FileParserComparer();
 
-                FileParser importedFile = new FileParser(fileInfo.fileName, fileInfo.parseParams, false, true, this.SearchDirs, throwOnError); //do not parse it yet (the third param is false)
+                var importedFile = new FileParser(fileInfo.fileName, fileInfo.parseParams, false, true, this.SearchDirs, throwOnError); //do not parse it yet (the third param is false)
+
                 if (fileParsers.BinarySearch(importedFile, fileComparer) < 0)
                 {
                     if (File.Exists(importedFile.fileName))
@@ -864,7 +865,9 @@ namespace CSScriptLibrary
             }
             catch (Exception e)
             {
-                throw new Exception("Cannot import '" + fileInfo.parseParams.rawStatement + "' from the '" + this.scriptPath + "' script.", e);
+                throw e.ToNewException(
+                    fileInfo.parseParams.importingErrorMessage,
+                    ExecuteOptions.options.reportDetailedErrorInfo); // encapsulate: ExecuteOptions.options.reportDetailedErrorInfo
             }
         }
 

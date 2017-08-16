@@ -106,6 +106,22 @@ namespace csscript
 
     internal static class Utils
     {
+        public static Exception ToNewException(this Exception ex, string message, bool encapsulate)
+        {
+            var topLevelMessage = message;
+            Exception childException = ex;
+            if (!encapsulate)
+            {
+                topLevelMessage += Environment.NewLine + ex.Message;
+                childException = null;
+            }
+            var constructor = ex.GetType().GetConstructor(new Type[] { typeof(string), typeof(Exception) });
+            if (constructor != null)
+                return (Exception)constructor.Invoke(new object[] { message, childException });
+            else
+                return new Exception(message, childException);
+        }
+
         public static string[] ConcatWith(this string[] array1, IEnumerable<string> array2)
         {
             return array1.Concat(array2).ToArray();
