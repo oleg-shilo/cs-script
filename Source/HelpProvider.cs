@@ -10,16 +10,22 @@ namespace csscript
 {
     internal class AppArgs
     {
+        public static string nl = "nl";
+        public static string nathash = "nathash";       // instead of const make it static so this hidden option is not picked by autodocumentor
+
         public const string help = "help";
+        public const string help2 = "-help";
         public const string question = "?";
+        public const string question2 = "-?";
         public const string cmd = "cmd";
         public const string syntax = "syntax";
         public const string s = "s";
         public const string sample = "sample";
-        public const string nl = "nl";
         public const string verbose = "verbose";
-        public const string ver = "ver";
         public const string v = "v";
+        public const string ver = "ver";
+        public const string version = "version";
+        public const string version2 = "-version";
         public const string c = "c";
         public const string ca = "ca";
         public const string co = "co";
@@ -50,13 +56,27 @@ namespace csscript
         public const string dbgprint = "dbgprint";
         public const string proj = "proj";
         internal const string proj_dbg = "proj:dbg";    // for internal use only
-        public static string nathash = "nathash";       // instead of const make it static so this hidden option is not picked by autodocumentor
         static public string SyntaxHelp { get { return syntaxHelp.ToConsoleLines(0); } }
         static string syntaxHelp = "";
 
         static public Dictionary<string, ArgInfo> switch1Help = new Dictionary<string, ArgInfo>();
         static public Dictionary<string, ArgInfo> switch2Help = new Dictionary<string, ArgInfo>();
         static public Dictionary<string, ArgInfo> miscHelp = new Dictionary<string, ArgInfo>();
+
+        static public string LookupSwitchHelp(string arg)
+        {
+            var rawArg = arg;
+            var normalizedArg = arg;
+
+            if (arg.StartsWith("-"))
+                normalizedArg = arg.Substring(1);
+
+            return AppArgs.switch1Help.ContainsKey(rawArg) ? AppArgs.switch1Help[rawArg].GetFullDoc() :
+                   AppArgs.switch2Help.ContainsKey(rawArg) ? AppArgs.switch2Help[rawArg].GetFullDoc() :
+                   AppArgs.switch1Help.ContainsKey(normalizedArg) ? AppArgs.switch1Help[normalizedArg].GetFullDoc() :
+                   AppArgs.switch2Help.ContainsKey(normalizedArg) ? AppArgs.switch2Help[normalizedArg].GetFullDoc() :
+                   null;
+        }
 
         internal class ArgInfo
         {
@@ -116,8 +136,9 @@ namespace csscript
         static AppArgs()
         {
             //http://www.csscript.net/help/Online/index.html
+            switch1Help[help2] =
             switch1Help[help] =
-            switch1Help[question] = new ArgInfo("-help|-? [command]",
+            switch1Help[question] = new ArgInfo("--help|-help|-? [command]",
                                                     "Displays either generic or command specific help info.",
                                                     "Reversed order of parameters for the command specific help is also acceptable. " +
                                                     "The all following argument combinations print the same help topic for 'cache' command:",
@@ -151,6 +172,7 @@ namespace csscript
                                                    "Passes compiler options directly to the language compiler.",
                                                    "(e.g.  -co:/d:TRACE pass /d:TRACE option to C# compiler",
                                                    "or  -co:/platform:x86 to produce Win32 executable)");
+            switch1Help[sample] =
             switch1Help[s] = new ArgInfo("-s|-sample[:<C# version>]",
                                                    "Prints content of sample script file.",
                                                    " -s:7    - prints C# 7 sample. Otherwise it prints the default canonical 'Hello World' sample.",
@@ -200,16 +222,18 @@ namespace csscript
                                                    "The solution to this problem is to allow some user code to be protected from being included into " +
                                                    "User can achieve this by placing '//css_ac_end' statement into the code. Any user code below this " +
                                                    "statement will be excluded from the decoration and stay unchanged.");
-            switch2Help[nl] = new ArgInfo("-nl",
-                                                   "No logo mode: No banner will be shown/printed at execution time.",
-                                                   "Applicable for console mode only.");
+            // switch2Help[nl] = new ArgInfo("-nl",
+            //                                        "No logo mode: No banner will be shown/printed at execution time.",
+            //                                        "Applicable for console mode only.");
             switch2Help[d] =
             switch2Help[dbg] = new ArgInfo("-dbg|-d",
                                                    "Forces compiler to include debug information.");
             switch2Help[l] = new ArgInfo("-l",
                                                    "'local' (makes the script directory a 'current directory').");
+            switch2Help[version2] =
+            switch2Help[version] =
             switch2Help[ver] =
-            switch2Help[v] = new ArgInfo("-v",
+            switch2Help[v] = new ArgInfo("-v|-ver|--version",
                                                    "Prints CS-Script version information.");
 
             switch2Help[inmem] = new ArgInfo("-inmem[:<0|1>]",
@@ -220,7 +244,7 @@ namespace csscript
                                                    "with the scripting scenarios that require script assembly to be file based (e.g. advanced Reflection).",
                                                    " -inmem:1   enable caching (which might be disabled globally);",
                                                    " -inmem:0   disable caching (which might be enabled globally);");
-            switch2Help[dir] = new ArgInfo("-dbgprint[:<0:1>]",
+            switch2Help[dbgprint] = new ArgInfo("-dbgprint[:<0:1>]",
                                                    "Controls whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now)).",
                                                    "This setting allows controlling dynamic inclusion of the embedded dbg.cs script containing " +
                                                    "implementation of Python-like print methods `dbg.print` and derived extension methods object.print() " +
@@ -609,8 +633,10 @@ namespace csscript
 
                                 if (AppArgs.switch1Help.ContainsKey(arg))
                                     description = AppArgs.switch1Help[arg].Description;
-                                if (AppArgs.switch2Help.ContainsKey(arg))
+                                else if (AppArgs.switch2Help.ContainsKey(arg))
                                     description = AppArgs.switch2Help[arg].Description;
+                                else
+                                    continue;
 
                                 if (map.ContainsKey(description))
                                 {
@@ -646,12 +672,8 @@ namespace csscript
         {
             if (arg != null)
             {
-                if (AppArgs.switch1Help.ContainsKey(arg))
-                    return AppArgs.switch1Help[arg].GetFullDoc();
-                else if (AppArgs.switch2Help.ContainsKey(arg))
-                    return AppArgs.switch2Help[arg].GetFullDoc();
-                else
-                    return "Invalid 'cmd' argument. Use '" + AppInfo.appName + " -cmd' for the list of valid commands." + Environment.NewLine + AppArgs.switch1Help[AppArgs.help].GetFullDoc();
+                return AppArgs.LookupSwitchHelp(arg) ??
+                       "Invalid 'cmd' argument. Use '" + AppInfo.appName + " -cmd' for the list of valid commands." + Environment.NewLine + AppArgs.switch1Help[AppArgs.help].GetFullDoc();
             }
 
             var builder = new StringBuilder();
@@ -673,6 +695,7 @@ namespace csscript
                 builder.AppendLine("");
                 printed.Add(info.ArgSpec);
             }
+
             builder.AppendLine("---------");
             builder.AppendLine("<switch 2>");
             builder.AppendLine("");
@@ -684,6 +707,7 @@ namespace csscript
                 builder.AppendLine("");
                 printed.Add(info.ArgSpec);
             }
+
             builder.AppendLine("---------");
             foreach (AppArgs.ArgInfo info in AppArgs.miscHelp.Values)
             {

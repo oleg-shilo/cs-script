@@ -25,7 +25,7 @@ namespace Mono.Unix
             }
         }
 
-        string fileName;
+        internal string fileName;
         int handle;
         Flock wl;
 
@@ -110,6 +110,9 @@ namespace Mono.Unix
                     // a write (exclusive) unlock
                     wl.l_type = LockType.F_UNLCK;
                     Syscall.fcntl(handle, FcntlCommand.F_SETLKW, ref wl);
+                    handle = 0;
+                    if (this.fileName.EndsWith(".lock")) // pseudo file
+                        try { File.Delete(this.fileName); } catch { }
                 }
             }
         }
@@ -119,7 +122,7 @@ namespace Mono.Unix
     {
         static void __Main(string[] args)
         {
-            string file = @"/home/user/Desktop/krok/lock2";
+            string file = @"/home/user/Desktop/lock2";
 
             FileMutex mutex = new FileMutex(file);
             Console.WriteLine("Trying to obtain exclusive lock...");

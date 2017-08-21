@@ -96,6 +96,7 @@ namespace csscript
                 setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
 
                 appDomain = AppDomain.CreateDomain(domainName, null, setup);
+                // EXPECTED TO FAIL VERY OFTEN. IT'S NORMAL.
                 remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());
                 remoteExecutor.searchDirs = ExecuteOptions.options.searchDirs;
                 return true;
@@ -183,22 +184,33 @@ namespace csscript
             else
             {
                 //Load(byte[]) does not lock the assembly file as LoadFrom(filename) does
-                using (FileStream fs = new FileStream(filename, FileMode.Open))
-                {
-                    byte[] data = new byte[fs.Length];
-                    fs.Read(data, 0, data.Length);
-                    string dbg = Utils.DbgFileOf(filename);
+                byte[] data = File.ReadAllBytes(filename);
+                string dbg = Utils.DbgFileOf(filename);
 
-                    if (ExecuteOptions.options.DBG && File.Exists(dbg))
-                        using (FileStream fsDbg = new FileStream(dbg, FileMode.Open))
-                        {
-                            byte[] dbgData = new byte[fsDbg.Length];
-                            fsDbg.Read(dbgData, 0, dbgData.Length);
-                            assembly = Assembly.Load(data, dbgData);
-                        }
-                    else
-                        assembly = Assembly.Load(data);
+                if (ExecuteOptions.options.DBG && File.Exists(dbg))
+                {
+                    byte[] dbgData = File.ReadAllBytes(dbg);
+                    assembly = Assembly.Load(data, dbgData);
                 }
+                else
+                    assembly = Assembly.Load(data);
+
+                // using (FileStream fs = new FileStream(filename, FileMode.Open)) // mistake: it opens file for writing (at least on Linux).
+                // {
+                //     byte[] data = new byte[fs.Length];
+                //     fs.Read(data, 0, data.Length);
+                //     string dbg = Utils.DbgFileOf(filename);
+
+                //     if (ExecuteOptions.options.DBG && File.Exists(dbg))
+                //         using (FileStream fsDbg = new FileStream(dbg, FileMode.Open))
+                //         {
+                //             byte[] dbgData = new byte[fsDbg.Length];
+                //             fsDbg.Read(dbgData, 0, dbgData.Length);
+                //             assembly = Assembly.Load(data, dbgData);
+                //         }
+                //     else
+                //         assembly = Assembly.Load(data);
+                // }
 
                 asmLock.Release();
             }

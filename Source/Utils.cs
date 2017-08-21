@@ -253,6 +253,19 @@ namespace csscript
                 catch { }
         }
 
+        class Win32
+        {
+            [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+            internal static extern bool SetEnvironmentVariable(string lpName, string lpValue);
+        }
+
+        public static void SetEnvironmentVariable(string name, string value)
+        {
+            Environment.SetEnvironmentVariable(name, value);
+            if (!Utils.IsLinux())
+                try { Win32.SetEnvironmentVariable(name, value); } catch { }
+        }
+
         public static void FileDelete(string path)
         {
             FileDelete(path, false);
@@ -906,6 +919,20 @@ partial class dbg
 
                 return false;
             }
+
+            // detects pseudo arguments - script files named as args (e.g. '-update')
+            // disabled as currently every arg that starts with '-' is treated as scripted arg (script file)
+            // public static bool IsScriptedArg(string arg)
+            // {
+            //     var rootDir = Path.GetFullPath(Assembly.GetExecutingAssembly().Location());
+            //     if (!string.IsNullOrEmpty(rootDir))
+            //         rootDir = Path.GetDirectoryName(rootDir);
+
+            //     if (File.Exists(rootDir.PathCombine(arg)) || File.Exists(rootDir.PathCombine(arg + ".cs")))
+            //         return true;
+            //     else
+            //         return false;
+            // }
         }
 
         static internal int FirstScriptArg(string[] args)
@@ -942,7 +969,7 @@ partial class dbg
                 if ((i + 1) < args.Length)
                     nextArg = args[i + 1];
 
-                if (Args.IsArg(arg) && (nextArg == AppArgs.help || nextArg == AppArgs.question))
+                if (Args.IsArg(arg) && (nextArg == AppArgs.help || nextArg == AppArgs.question || nextArg == AppArgs.help2 || nextArg == AppArgs.question2))
                 {
                     executor.ShowHelpFor(arg.Substring(1)); //skip prefix
                     CLIExitRequest.Throw();
@@ -957,7 +984,9 @@ partial class dbg
                 {
                     if (Args.Same(arg, AppArgs.nl)) // -nl
                     {
-                        options.noLogo = true;
+                        // '-nl' has been bmade obsolete.
+                        // Just continue to let the legacy setting/args pass through without affecting the execution.
+                        // options.noLogo = true;
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.@out, out argValue)) // -out:
                     {
@@ -1170,7 +1199,7 @@ partial class dbg
                     {
                         options.local = true;
                     }
-                    else if (Args.Same(arg, AppArgs.ver, AppArgs.v)) // -ver -v
+                    else if (Args.Same(arg, AppArgs.ver, AppArgs.v, AppArgs.version, AppArgs.version2)) // -ver -v -version --version
                     {
                         executor.ShowVersion();
                         CLIExitRequest.Throw();
@@ -1195,7 +1224,7 @@ partial class dbg
                         if (Args.Same(arg, AppArgs.ew)) // -ew
                             options.buildWinExecutable = true;
                     }
-                    else if (Args.Same(arg, AppArgs.question, AppArgs.help)) // -? -help
+                    else if (Args.Same(arg, AppArgs.question, AppArgs.help, AppArgs.help2)) // -? -help --help
                     {
                         executor.ShowHelpFor(nextArg);
                         CLIExitRequest.Throw();
@@ -1214,6 +1243,13 @@ partial class dbg
                     {
                         executor.ShowSample(argValue);
                         CLIExitRequest.Throw();
+                    }
+                    else
+                    {
+                        // at this stage it's safe to assume that if arg starts with '-' but cannot be matched it is always
+                        // a script file ("pseudo arg")
+                        // if (Args.IsScriptedArg(arg))
+                        return i;
                     }
                 }
                 else

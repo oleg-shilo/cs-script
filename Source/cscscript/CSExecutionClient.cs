@@ -51,15 +51,12 @@ namespace csscript
     /// <summary>
     /// Wrapper class that runs CSExecutor within console application context.
     /// </summary>
-    class CSExecutionClient
+    public class CSExecutionClient
     {
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        internal static extern bool SetEnvironmentVariable(string lpName, string lpValue);
-
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static void Main(string[] rawArgs)
+        public static void Main(string[] rawArgs)
         {
             main(rawArgs);
         }
@@ -110,11 +107,11 @@ namespace csscript
 
                 try
                 {
-                    SetEnvironmentVariable("CSScriptRuntime", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
-                    SetEnvironmentVariable("CSScriptRuntimeLocation", System.Reflection.Assembly.GetExecutingAssembly().Location);
-                    SetEnvironmentVariable("cscs_exe_dir", Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+                    Utils.SetEnvironmentVariable("CSScriptRuntime", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                    Utils.SetEnvironmentVariable("CSScriptRuntimeLocation", System.Reflection.Assembly.GetExecutingAssembly().Location);
+                    Utils.SetEnvironmentVariable("cscs_exe_dir", Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
                 }
-                catch { } //SetEnvironmentVariable will always throw an exception on Mono
+                catch { } //SetEnvironmentVariable may throw an exception on Mono
 
                 CSExecutor.print = new PrintDelegate(Print);
 

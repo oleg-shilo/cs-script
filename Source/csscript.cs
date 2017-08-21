@@ -669,10 +669,16 @@ namespace csscript
                     if (options.local)
                         Environment.CurrentDirectory = Path.GetDirectoryName(Path.GetFullPath(options.scriptFileName));
 
-                    if (!options.noLogo)
-                    {
-                        Console.WriteLine(AppInfo.appLogo);
-                    }
+                    // if (!options.noLogo)
+                    // {
+                    //     // Need to print logo only one time ever per process. This needs to be done as
+                    //     // scripted args can initiate script execution multiple times.
+                    //     if (Environment.GetEnvironmentVariable("css_logo_printed") == null)
+                    //     {
+                    //         Environment.SetEnvironmentVariable("css_logo_printed", "true");
+                    //         Console.WriteLine(AppInfo.appLogo);
+                    //     }
+                    // }
 
                     if (options.verbose)
                     {
@@ -924,6 +930,9 @@ namespace csscript
                         }
                         else
                         {
+                            validatingFileLock.Release();
+                            compilingFileLock.Release();
+
                             Profiler.Stopwatch.Stop();
                             CSSUtils.VerbosePrint("  Loading script from cache...", options);
                             CSSUtils.VerbosePrint("", options);
@@ -1244,7 +1253,7 @@ namespace csscript
         {
             ICodeCompiler compiler;
 
-            if (options.altCompiler == "" || scriptFileName.EndsWith(".cs")) //injection code syntax is C# compatible
+            if (options.altCompiler == "" || scriptFileName.EndsWith(".cs") || Path.GetExtension(scriptFileName) == "") //injection code syntax is C# compatible
             {
                 if (options.InjectScriptAssemblyAttribute)
                 {

@@ -93,7 +93,7 @@ namespace csscript
             ExecuteOptions clone = new ExecuteOptions();
             clone.processFile = this.processFile;
             clone.scriptFileName = this.scriptFileName;
-            clone.noLogo = this.noLogo;
+            // clone.noLogo = this.noLogo;
             clone.useCompiled = this.useCompiled;
             clone.supressTimestampAltering = this.supressTimestampAltering;
             clone.useSmartCaching = this.useSmartCaching;
@@ -211,8 +211,10 @@ namespace csscript
         public string scriptFileName = "";
         public object initContext = null;
         public string scriptFileNamePrimary = null;
-        public bool noLogo = false;
+
+        // public bool noLogo = true;
         public bool useCompiled = false;
+
         public bool useScriptConfig = false;
         public bool useSmartCaching = true; //hardcoded true but can be set from config file in the future
         public bool supressTimestampAltering = false; //hardcoded true but can be set from config file in the future
