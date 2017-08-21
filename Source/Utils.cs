@@ -993,19 +993,25 @@ partial class dbg
                         if (argValue != null)
                             options.forceOutputAssembly = Environment.ExpandEnvironmentVariables(argValue);
                     }
-                    else if (Args.ParseValuedArg(arg, AppArgs.c, out argValue) && !options.supressExecution) // -c:<value>
+                    else if (Args.ParseValuedArg(arg, AppArgs.c, out argValue)) // -c:<value>
                     {
-                        if (argValue == "1" || argValue == null)
-                            options.useCompiled = true;
-                        else if (argValue == "0")
-                            options.useCompiled = false;
+                        if (!options.supressExecution) // do not change the value if compilation is the objective
+                        {
+                            if (argValue == "1" || argValue == null)
+                                options.useCompiled = true;
+                            else if (argValue == "0")
+                                options.useCompiled = false;
+                        }
                     }
-                    else if (Args.ParseValuedArg(arg, AppArgs.inmem, out argValue) && !options.supressExecution) // -inmem:<value>
+                    else if (Args.ParseValuedArg(arg, AppArgs.inmem, out argValue)) // -inmem:<value>
                     {
-                        if (argValue == "1" || argValue == null)
-                            options.inMemoryAsm = true;
-                        else if (argValue == "0")
-                            options.inMemoryAsm = false;
+                        if (!options.supressExecution) // do not change the value if compilation is the objective
+                        {
+                            if (argValue == "1" || argValue == null)
+                                options.inMemoryAsm = true;
+                            else if (argValue == "0")
+                                options.inMemoryAsm = false;
+                        }
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.dbgprint, out argValue)) // -dbgprint:<value>
                     {
@@ -1076,20 +1082,22 @@ partial class dbg
                         else
                             executor.WaitForInputBeforeExit = "Press any key to continue . . .";
                     }
-                    else if (Args.ParseValuedArg(arg, AppArgs.config, out argValue) && !options.supressExecution) // -config:<file>
+                    else if (Args.ParseValuedArg(arg, AppArgs.config, out argValue)) // -config:<file>
                     {
-                        //-config:none             - ignore config file (use default settings)
-                        //-config:create           - create config file with default settings
-                        //-config:default          - print default config file
-                        //-config:raw              - print current config file content
-                        //-config:xml              - print current config file content
-                        //-config:ls               - lists/prints current config values
-                        //-config                  - lists/prints current config values
-                        //-config:get:name         - print current config file value
-                        //-config:set:name:value   - set current config file value
-                        //-config:<file>           - use custom config file
+                        if (!options.supressExecution) // do not change the value if compilation is the objective
+                        {
+                            //-config:none             - ignore config file (use default settings)
+                            //-config:create           - create config file with default settings
+                            //-config:default          - print default config file
+                            //-config:raw              - print current config file content
+                            //-config:xml              - print current config file content
+                            //-config:ls               - lists/prints current config values
+                            //-config                  - lists/prints current config values
+                            //-config:get:name         - print current config file value
+                            //-config:set:name:value   - set current config file value
+                            //-config:<file>           - use custom config file
 
-                        if (argValue == null ||
+                            if (argValue == null ||
                             argValue == "create" ||
                             argValue == "default" ||
                             argValue == "ls" ||
@@ -1097,19 +1105,20 @@ partial class dbg
                             argValue == "xml" ||
                             argValue.StartsWith("get:") ||
                             argValue.StartsWith("set:"))
-                        {
-                            // Debug.Assert(false);
-                            executor.ProcessConfigCommand(argValue);
-                            CLIExitRequest.Throw();
-                        }
-                        if (argValue == "none")
-                        {
-                            options.noConfig = true;
-                        }
-                        else
-                        {
-                            options.noConfig = true;
-                            options.altConfig = argValue;
+                            {
+                                // Debug.Assert(false);
+                                executor.ProcessConfigCommand(argValue);
+                                CLIExitRequest.Throw();
+                            }
+                            if (argValue == "none")
+                            {
+                                options.noConfig = true;
+                            }
+                            else
+                            {
+                                options.noConfig = true;
+                                options.altConfig = argValue;
+                            }
                         }
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.autoclass, AppArgs.ac, out argValue)) // -autoclass -ac
