@@ -969,7 +969,7 @@ partial class dbg
                 if ((i + 1) < args.Length)
                     nextArg = args[i + 1];
 
-                if (Args.IsArg(arg) && (nextArg == AppArgs.help || nextArg == AppArgs.question || nextArg == AppArgs.help2 || nextArg == AppArgs.question2))
+                if (Args.IsArg(arg) && AppArgs.Supports(arg) && AppArgs.IsHelpRequest(nextArg))
                 {
                     executor.ShowHelpFor(arg.Substring(1)); //skip prefix
                     CLIExitRequest.Throw();
@@ -1353,7 +1353,10 @@ partial class dbg
 
             if (options.autoClass)
             {
-                AutoclassPrecompiler.decorateAutoClassAsCS6 = (options.decorateAutoClassAsCS6 && options.enableDbgPrint);
+                bool canHandleCShar6 = (!string.IsNullOrEmpty(options.altCompiler) || Utils.IsLinux());
+
+                AutoclassPrecompiler.decorateAutoClassAsCS6 = (options.decorateAutoClassAsCS6 && options.enableDbgPrint && canHandleCShar6);
+
                 AutoclassPrecompiler.injectBreakPoint = options.autoClass_InjectBreakPoint;
                 if (retval.ContainsKey(Assembly.GetExecutingAssembly().Location))
                     retval[Assembly.GetExecutingAssembly().Location].Add(new AutoclassPrecompiler());

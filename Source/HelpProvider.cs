@@ -63,6 +63,25 @@ namespace csscript
         static public Dictionary<string, ArgInfo> switch2Help = new Dictionary<string, ArgInfo>();
         static public Dictionary<string, ArgInfo> miscHelp = new Dictionary<string, ArgInfo>();
 
+        static public bool IsHelpRequest(string arg)
+        {
+            return (arg == AppArgs.help || arg == AppArgs.question || arg == AppArgs.help2 || arg == AppArgs.question2);
+        }
+
+        static public bool Supports(string arg)
+        {
+            var rawArg = arg;
+            var normalizedArg = arg;
+
+            if (arg.StartsWith("-"))
+                normalizedArg = arg.Substring(1);
+
+            return AppArgs.switch1Help.ContainsKey(rawArg) ||
+                   AppArgs.switch2Help.ContainsKey(rawArg) ||
+                   AppArgs.switch1Help.ContainsKey(normalizedArg) ||
+                   AppArgs.switch2Help.ContainsKey(normalizedArg);
+        }
+
         static public string LookupSwitchHelp(string arg)
         {
             var rawArg = arg;

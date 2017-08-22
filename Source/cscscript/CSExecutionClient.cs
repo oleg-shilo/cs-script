@@ -85,7 +85,7 @@ namespace csscript
 
                 string[] args = rawArgs;
 
-                //Debug.Assert(false);
+                // Debug.Assert(false);
 
                 if (Utils.IsLinux())
                 {
