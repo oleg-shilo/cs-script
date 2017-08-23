@@ -38,7 +38,7 @@ void main(string[] args)
         Process.Start("dpkg", "--purge cs-script")
                .WaitForExit();
     }
-    else if (args.LastOrDefault() == "-i" || args.Count() == 0)
+    else if (args.FirstOrDefault() == "-i" || args.Count() == 0)
     {
         if (Environment.UserName != "root")
         {
@@ -46,9 +46,21 @@ void main(string[] args)
         }
         else
         {
-            var packageUrl = rootUrl + "/cs-script_" + versionUrl.DownloadString() + "_all.deb";
-
             Console.WriteLine("Checking the latest available version...");
+
+            var version = versionUrl.DownloadString();
+
+            if (version == Environment.GetEnvironmentVariable("CSScriptRuntime"))
+            {
+                Console.WriteLine("You already have the latest version. Do you want to reinstall it?\n[Y]es/[N]o");
+
+                var response = Console.ReadLine();
+
+                if (response != "Y" && response != "y")
+                    return;
+            }
+
+            var packageUrl = rootUrl + "/cs-script_" + version + "_all.deb";
             Console.WriteLine("Downloading " + packageUrl + " ...");
 
             // install: sodo dpkg -i cs-script_3.27.2.1.deb
@@ -62,6 +74,8 @@ void main(string[] args)
                    .WaitForExit();
         }
     }
+    else
+        Console.WriteLine("Unknown command");
 }
 
 //css_ac_end

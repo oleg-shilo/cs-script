@@ -16,6 +16,7 @@ class Script
         {
             var s = Path.Combine(src_dir, file);
             var d = Path.Combine(dest_dir, new_file_name ?? file);
+            Console.WriteLine("Copying:\n\t" + s + "\n\t" + d);
             File.Copy(s, d, true);
         }
 
