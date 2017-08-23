@@ -1,0 +1,16 @@
+Source: cs-script
+Section: devel
+Priority: optional
+Maintainer: Oleg Shilo <oshilo@gmail.com>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.6
+Homepage: https://github.com/oleg-shilo/cs-script
+#Vcs-Git: https://github.com/oleg-shilo/cs-script
+#Vcs-Browser: https://github.com/oleg-shilo/cs-script
+
+Package: cs-script
+Architecture: all
+Depends: ${misc:Depends}
+Description: C# scripting runtime environment
+ CS-Script is a CLR (Common Language Runtime) based scripting system, 
+ which uses ECMA-compliant C# as a programming language.
