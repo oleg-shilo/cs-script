@@ -46,7 +46,7 @@ void main(string[] args)
         }
         else
         {
-            var packageUrl = rootUrl + "/cs-script_" + versionUrl.DownloadString() + ".deb";
+            var packageUrl = rootUrl + "/cs-script_" + versionUrl.DownloadString() + "_all.deb";
 
             Console.WriteLine("Checking the latest available version...");
             Console.WriteLine("Downloading " + packageUrl + " ...");

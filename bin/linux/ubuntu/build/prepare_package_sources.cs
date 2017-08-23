@@ -12,10 +12,10 @@ class Script
         var src_dir = Path.GetFullPath(@"..\..\..\..\..\..\Releases\v" + version + @"\bin\lib\Bin\Linux");
         var dest_dir = $"cs-script_{version}";
 
-        void copy(string file)
+        void copy(string file, string new_file_name = null)
         {
             var s = Path.Combine(src_dir, file);
-            var d = Path.Combine(dest_dir, file);
+            var d = Path.Combine(dest_dir, new_file_name ?? file);
             File.Copy(s, d, true);
         }
 
@@ -28,7 +28,7 @@ class Script
         Directory.CreateDirectory(dest_dir);
         copy("CSSRoslynProvider.dll");
         copy("cscs.exe");
-        copy("-update.cs");
+        copy("-update.deb.cs", "-update.cs");
 
         File.WriteAllText(@"..\version.txt", version);
 
