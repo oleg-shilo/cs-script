@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-static string rootUrl = "https://github.com/oleg-shilo/cs-script/raw/master/bin/linux/ubuntu";
+static string rootUrl = "http://oleg-shilo.github.io/cs-script/linux/ubuntu/";
 static string versionUrl = rootUrl + "/version.txt";
 static string help = @"Install/Update CS-Script with the latest Ubuntu package available from product GitHub repository.
  -i (or no args) - installs the latest version of cs-script package
@@ -52,7 +52,7 @@ void main(string[] args)
 
             if (version == Environment.GetEnvironmentVariable("CSScriptRuntime"))
             {
-                Console.WriteLine("You already have the latest version. Do you want to reinstall it?\n[Y]es/[N]o");
+                Console.WriteLine("You already have the latest version. Do you want to reinstall it?\n   [Y]es/[N]o");
 
                 var response = Console.ReadLine();
 
