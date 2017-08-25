@@ -50,6 +50,7 @@ using System.Threading;
 using System.Text;
 using System.Globalization;
 using CSScriptLibrary;
+using System.Diagnostics;
 
 namespace csscript
 {
@@ -1059,13 +1060,18 @@ namespace csscript
                 char c = code[i];
                 if (lastDelimiter != char.MinValue)
                 {
-                    if (lastDelimiter == c) //delimiter was escaped
+                    // need to ensure that double "\n\n" is not treated as escaped delimiter. The same comes to '\r' and '\t'.
+
+                    if (lastDelimiter == c && !char.IsWhiteSpace(lastDelimiter)) //delimiter was escaped
                         lastDelimiter = char.MinValue;
                     else
                         return i - 1;
                 }
                 else
                 {
+                    if (i == 170)
+                        Debug.WriteLine("");
+
                     foreach (char delimiter in delimiters)
                         if (code[i] == delimiter)
                         {

@@ -239,6 +239,7 @@ namespace csscript
                                                    "auto-class decoration algorithm.",
                                                    " ",
                                                    "The solution to this problem is to allow some user code to be protected from being included into " +
+                                                   "the decorated code.",
                                                    "User can achieve this by placing '//css_ac_end' statement into the code. Any user code below this " +
                                                    "statement will be excluded from the decoration and stay unchanged.");
             // switch2Help[nl] = new ArgInfo("-nl",
@@ -488,6 +489,34 @@ namespace csscript
                          "namespace - name of the namespace. Use '*' to completely disable namespace resolution",
                          " ",
                          "This directive is used to prevent CS-Script from resolving the referenced namespace into assembly.",
+
+                         section_sep, //------------------------------------
+                         "//css_ac_end",
+                         " ",
+                         "This directive is only applicable for class-less scripts executed with '-autoclass' CLI argument. " +
+                         "It's nothing else but a marker indicating the end of the code that needs to be decorated as (wrapped " +
+                         "into) an auto-class.",
+                         "This directive allows achieving top level static classes in the class-less scripts, which is required for " +
+                         "implementing extension methods.",
+                         " ",
+                         " //css_args -acutoclass",
+                         " using System;",
+                         " ",
+                         " void main()",
+                         " {",
+                         "     ...",
+                         " }",
+                         " ",
+                         " //css_ac_end",
+                         " ",
+                         " static class Extensions",
+                         " {",
+                         "     static public void Convert(this string text)",
+                         "     {",
+                         "         ...",
+                         "     }",
+                         " }",
+
                          section_sep, //------------------------------------
                          "//css_prescript file([arg0][,arg1]..[,argN])[ignore];",
                          "//css_postscript file([arg0][,arg1]..[,argN])[ignore];",
