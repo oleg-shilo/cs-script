@@ -785,7 +785,7 @@ namespace csscript
             StringBuilder builder = new StringBuilder();
             if (Utils.IsLinux())
             {
-                builder.AppendLine("#!<cscs.exe path> " + CSSUtils.Args.DefaultPrefix + "nl ");
+                builder.AppendLine("// #!/usr/local/bin/cscs");
                 builder.AppendLine("//css_ref System.Windows.Forms;");
             }
 

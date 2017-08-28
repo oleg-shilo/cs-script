@@ -1069,9 +1069,6 @@ namespace csscript
                 }
                 else
                 {
-                    if (i == 170)
-                        Debug.WriteLine("");
-
                     foreach (char delimiter in delimiters)
                         if (code[i] == delimiter)
                         {
