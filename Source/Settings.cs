@@ -924,7 +924,7 @@ namespace csscript
                     node = data.SelectSingleNode("defaultApartmentState"); if (node != null) settings.defaultApartmentState = (ApartmentState)Enum.Parse(typeof(ApartmentState), node.InnerText, false);
                     node = data.SelectSingleNode("reportDetailedErrorInfo"); if (node != null) settings.reportDetailedErrorInfo = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("useAlternativeCompiler"); if (node != null) settings.UseAlternativeCompiler = node.InnerText;
-                    node = data.SelectSingleNode("roslynDir"); if (node != null) settings.RoslynDir = node.InnerText;
+                    node = data.SelectSingleNode("roslynDir"); if (node != null) settings.RoslynDir = Environment.ExpandEnvironmentVariables(node.InnerText);
                     node = data.SelectSingleNode("usePostProcessor"); if (node != null) settings.UsePostProcessor = node.InnerText;
                     node = data.SelectSingleNode("searchDirs"); if (node != null) settings.SearchDirs = node.InnerText;
                     node = data.SelectSingleNode("cleanupShellCommand"); if (node != null) settings.cleanupShellCommand = node.InnerText;

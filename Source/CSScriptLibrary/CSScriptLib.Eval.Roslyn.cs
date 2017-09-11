@@ -616,7 +616,7 @@ namespace CSScriptLibrary
             if (asmFile == null)
                 throw new Exception("Cannot find referenced assembly '" + assembly + "'");
 
-            ReferenceAssembly(Assembly.LoadFrom(asmFile));
+            ReferenceAssembly(Utils.AssemblyLoad(asmFile));
             return this;
         }
 

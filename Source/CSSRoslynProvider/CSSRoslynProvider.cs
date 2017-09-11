@@ -15,7 +15,7 @@ public class CSSCodeProvider
 
     static CSSCodeProvider()
     {
-        //Debug.Assert(false);
+        Debug.Assert(false);
         AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
     }
 

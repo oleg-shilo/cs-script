@@ -483,6 +483,30 @@ namespace csscript
             }
         }
 
+        public static Assembly AssemblyLoad(string asmFile)
+        {
+            try
+            {
+                return Assembly.LoadFrom(asmFile);
+            }
+            catch (FileNotFoundException e)
+            {
+                if (!Utils.IsMono)
+                    throw e;
+                else
+                    try
+                    {
+                        // GAC assemblies on Mono are returned as asm partial name not a file path.
+                        // So file_not_found failures are expected so try load by name.
+                        return Assembly.Load(asmFile);
+                    }
+                    catch
+                    {
+                        throw e;
+                    }
+            }
+        }
+
         public static string DbgFileOf(string assemblyFileName)
         {
             return DbgFileOf(assemblyFileName, IsMono);
