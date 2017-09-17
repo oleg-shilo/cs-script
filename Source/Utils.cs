@@ -1503,6 +1503,7 @@ partial class dbg
 
             sb.Append(",");
             sb.Append(options.compilerOptions); // parser.CompilerOptions can be ignored as if they are changed the whole script timestamp is also changed
+            sb.Append(string.Join("|", options.searchDirs)); // "Incorrect work of cache #86"
 
             return CSSUtils.GetHashCodeEx(sb.ToString());
         }
