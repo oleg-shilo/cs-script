@@ -1002,7 +1002,7 @@ namespace CSScriptLibrary
             var refPkAsms = this.ResolvePackages(true); //suppressDownloading
 
             var refCodeAsms = this.ReferencedAssemblies
-                .SelectMany(asm => AssemblyResolver.FindAssembly(asm.Replace("\"", ""), probingDirs));
+                                  .SelectMany(asm => AssemblyResolver.FindAssembly(asm.Replace("\"", ""), probingDirs));
 
             var refAsms = refPkAsms.Union(refPkAsms)
                                    .Union(refCodeAsms)

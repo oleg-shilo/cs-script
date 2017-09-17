@@ -86,7 +86,7 @@ namespace csscript
                 string[] args = rawArgs;
 
                 // if (args.Contains("-check"))
-                //     Debug.Assert(false);
+                // Debug.Assert(false);
 
                 if (Utils.IsLinux())
                 {

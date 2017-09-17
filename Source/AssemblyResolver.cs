@@ -227,7 +227,7 @@ namespace CSScriptLibrary
 
         static string[] DefaultFindAssemblyAlgorithm(string name, string[] searchDirs)
         {
-            List<string> retval = new List<string>();
+            var retval = new List<string>();
 
             if (!IsLegalPathToken(name))
             {
