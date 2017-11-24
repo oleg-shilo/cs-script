@@ -47,6 +47,7 @@ using System.CodeDom.Compiler;
 using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
+using System.Windows.Forms;
 
 namespace CSScriptLibrary
 {
@@ -2360,7 +2361,16 @@ namespace csscript
         /// <param name="path">The path for the temporary directory.</param>
         static public void SetScriptTempDir(string path)
         {
-            CSExecutor.SetScriptTempDir(path);
+            CSExecutor.SetScriptTempDir(Path.GetFullPath(path));
+        }
+
+        /// <summary>
+        /// Gets the location of the CS-Script temporary files directory.
+        /// </summary>
+        /// <returns></returns>
+        static public string GetScriptTempDir()
+        {
+            return CSExecutor.GetScriptTempDir();
         }
 
         /// <summary>

@@ -2047,10 +2047,14 @@ namespace csscript
         {
             if (tempDir == null)
             {
-                tempDir = Path.Combine(Path.GetTempPath(), "CSSCRIPT");
-                if (!Directory.Exists(tempDir))
+                tempDir = Environment.GetEnvironmentVariable("CSS_CUSTOM_TEMPDIR");
+                if (tempDir == null)
                 {
-                    Directory.CreateDirectory(tempDir);
+                    tempDir = Path.Combine(Path.GetTempPath(), "CSSCRIPT");
+                    if (!Directory.Exists(tempDir))
+                    {
+                        Directory.CreateDirectory(tempDir);
+                    }
                 }
             }
             return tempDir;
@@ -2092,7 +2096,21 @@ namespace csscript
             cacheDir = Path.Combine(commonCacheDir, dirHash);
 
             if (!Directory.Exists(cacheDir))
-                Directory.CreateDirectory(cacheDir);
+                try
+                {
+                    Directory.CreateDirectory(cacheDir);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    var parentDir = commonCacheDir;
+
+                    if (!Directory.Exists(commonCacheDir))
+                        parentDir = Path.GetDirectoryName(commonCacheDir); // GetScriptTempDir()
+
+                    throw new Exception("You do not have write privileges for the CS-Script cache directory (" + parentDir + "). " +
+                                        "Make sure you have sufficient privileges or use an alternative location as the CS-Script " +
+                                        "temporary  directory (cscs -config:set=CustomTempDirectory=<new temp dir>)");
+                }
 
             string infoFile = Path.Combine(cacheDir, "css_info.txt");
             if (!File.Exists(infoFile))

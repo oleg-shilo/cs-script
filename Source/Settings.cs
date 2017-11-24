@@ -318,6 +318,13 @@ namespace csscript
             set { legacyTimestampCaching = value; }
         }
 
+        [Browsable(false)]
+        public string CustomTempDirectory
+        {
+            get { return Environment.GetEnvironmentVariable("CSS_CUSTOM_TEMPDIR"); }
+            set { Environment.SetEnvironmentVariable("CSS_CUSTOM_TEMPDIR", value); }
+        }
+
         static internal bool legacyTimestampCaching
         {
             get { return Environment.GetEnvironmentVariable("CSS_LEGACY_TIMESTAMP_CACHING") == true.ToString(); }
@@ -782,6 +789,9 @@ namespace csscript
                 if (DefaultApartmentState != ApartmentState.STA)
                     doc.DocumentElement.AppendChild(doc.CreateElement("defaultApartmentState")).AppendChild(doc.CreateTextNode(DefaultApartmentState.ToString()));
 
+                if (!string.IsNullOrEmpty(CustomTempDirectory))
+                    doc.DocumentElement.AppendChild(doc.CreateElement("customTempDirectory")).AppendChild(doc.CreateTextNode(CustomTempDirectory));
+
                 if (!string.IsNullOrEmpty(precompiler))
                     doc.DocumentElement.AppendChild(doc.CreateElement("precompiler")).AppendChild(doc.CreateTextNode(Precompiler));
 
@@ -944,6 +954,7 @@ namespace csscript
                     node = data.SelectSingleNode("precompiler"); if (node != null) settings.Precompiler = node.InnerText;
                     node = data.SelectSingleNode("customHashing"); if (node != null) settings.CustomHashing = node.InnerText.ToLower() == "true";
                     node = data.SelectSingleNode("consoleEncoding"); if (node != null) settings.ConsoleEncoding = node.InnerText;
+                    node = data.SelectSingleNode("customTempDirectory"); if (node != null) settings.CustomTempDirectory = node.InnerText;
 
                     //Read old Camel-case naming as well to accommodate older versions
                     node = data.SelectSingleNode("Precompiler"); if (node != null) settings.Precompiler = node.InnerText;

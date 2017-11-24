@@ -321,7 +321,7 @@ namespace csscript
             switch2Help[dir] = new ArgInfo("-dir:<directory 1>,<directory N>",
                                                    "Adds path(s) to the assembly probing directory list.",
                                                    "You can use a reserved word 'show' as a directory name to print the configured probing directories.",
-                                                   "(e.g. " + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs " + AppInfo.appName + " -dir:-show).");
+                                                   "(e.g. " + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs; " + AppInfo.appName + " -dir:show).");
             switch2Help[pc] =
             switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
                                                    "Specifies custom precompiler. This can be either script or assembly file.",

@@ -16,8 +16,8 @@ if %is_local_dev% == true echo --- LOCAL DEVELOPMENT ENVIRONMENT ---
 ECHO off
 ECHO Preparing to build...
 
-ECHO You may need to adjust this file to exclude not needed projects and file copying actions  
-ECHO Add /debug+ /debug:full args to do a debug build
+ECHO You may need to adjust this file to exclude not needed projects and file copying actions
+ECHO Add /debug+ /debug:full /o- args to do a debug build
 
 del *.exe
 del *.dll
@@ -29,39 +29,39 @@ copy ..\CSScriptLibrary\sgKey.snk sgKey.snk
 
 if exist build.log del build.log
 
-@set common_msbuild_params=/nologo /t:Rebuild /verbosity:quiet /noconsolelogger /fl /flp:logfile=..\Build\build.log;verbosity=quiet;append=true 
-@set common_4_params=/noconfig /nostdlib+ /r:"%net4_asms%\System.Design.dll" /r:"%net4_asms%\System.Drawing.dll" /r:"%net4_asms%\mscorlib.dll"  
-@set common_ref_files=/r:..\Mono.Posix.dll 
+@set common_msbuild_params=/nologo /t:Rebuild /verbosity:quiet /noconsolelogger /fl /flp:logfile=..\Build\build.log;verbosity=quiet;append=true
+@set common_4_params=/noconfig /nostdlib+ /r:"%net4_asms%\System.Design.dll" /r:"%net4_asms%\System.Drawing.dll" /r:"%net4_asms%\mscorlib.dll"
+@set common_ref_files=/r:..\Mono.Posix.dll
 @set common_source_files=..\GACHelper.cs ..\fileparser.cs ..\Precompiler.cs ..\extensions.cs ..\csscript.cs ..\csparser.cs ..\AssemblyResolver.cs ..\AssemblyExecutor.cs  ..\Exceptions.cs ..\ExecuteOptions.cs ..\ScriptLauncherBuilder.cs ..\Settings.cs ..\Utils.cs ..\SystemWideLock.cs ..\Unix.FileMutex.cs ..\HelpProvider.cs ..\NuGet.cs ..\Project.cs
 
 REM ECHO Building...
 
 rem CS-Script utils  ----------------------------------------------------
 
-rem ECHO Building csscript resources: 
+rem ECHO Building csscript resources:
 rem ECHO Building csscript resources: >> ..\Build\build.log
 rem "resgen.exe" ..\cscscript\Resources.resx  >> build.log
-rem move ..\cscscript\Resources.resources ..\cscscript\cscscript.Resources.resources  
+rem move ..\cscscript\Resources.resources ..\cscscript\cscscript.Resources.resources
 rem ECHO ------------ >> build.log
 
-ECHO Building css_config.exe: 
+ECHO Building css_config.exe:
 ECHO Building css_config.exe: >> ..\Build\build.log
 "%net4_tools%\csc.exe" /nologo %common_4_params% /unsafe- /nowarn:1701,1702 /o /out:css_config.exe /win32manifest:..\ChooseDefaultProgram\app.manifest /win32icon:..\Logo\css_logo.ico /resource:..\css_config\SplashScreen.resources /target:winexe ..\css_config\AssemblyInfo.cs ..\css_config\css_config.cs ..\css_config\Program.cs ..\css_config\SplashForm.cs ..\css_config\VistaSecurity.cs /r:"%net4_asms%\System.dll" /r:"%net4_asms%\System.Drawing.dll" /r:"%net4_asms%\System.Core.dll" /r:"%net4_asms%\System.Data.dll" /r:"%net4_asms%\System.XML.dll" /r:"%net4_asms%\System.Windows.Forms.dll" >> build.log
 ECHO ------------ >> build.log
 
-ECHO Building CS-Script.exe: 
+ECHO Building CS-Script.exe:
 ECHO Building CS-Script.exe: >> ..\Build\build.log
 "%net4_tools%\csc.exe" /nologo %common_4_params%  /unsafe- /nowarn:1701,1702 /o /out:CS-Script.exe /resource:..\CS-Script\CSScript.Properties.Resources.resources /target:winexe /win32icon:..\Logo\css_logo.ico ..\CS-Script\Properties\AssemblyInfo.cs ..\CS-Script\Program.cs /r:"%net4_asms%\System.dll" /r:"%net4_asms%\System.Drawing.dll" /r:"%net4_asms%\System.Core.dll" /r:"%net4_asms%\System.Data.dll" /r:"%net4_asms%\System.XML.dll" /r:"%net4_asms%\System.Windows.Forms.dll" >> build.log
 ECHO ------------ >> build.log
 
-ECHO Building ChooseDefaultProgram.exe: 
+ECHO Building ChooseDefaultProgram.exe:
 ECHO Building ChooseDefaultProgram.exe: >> ..\Build\build.log
 "%net4_tools%\csc.exe" /nologo %common_4_params%  /unsafe- /nowarn:1701,1702 /o /out:ChooseDefaultProgram.exe /win32manifest:..\ChooseDefaultProgram\app.manifest /resource:..\ChooseDefaultProgram\CSScript.Resources.resources /target:exe /win32icon:..\Logo\css_logo.ico  ..\ChooseDefaultProgram\Resources.Designer.cs ..\ChooseDefaultProgram\AssemblyInfo.cs ..\ChooseDefaultProgram\ChooseDefaultProgram.cs /r:"%net4_asms%\System.dll" /r:"%net4_asms%\System.Core.dll" /r:"%net4_asms%\System.Data.dll" /r:"%net4_asms%\System.XML.dll" /r:"%net4_asms%\System.Windows.Forms.dll" >> build.log
 ECHO ------------ >> build.log
 
 rem .NET v1.1-4.0 ----------------------------------------------------
 
-ECHO Building cscs.v3.5.exe: 
+ECHO Building cscs.v3.5.exe:
 ECHO Building cscs.v3.5.exe: >> build.log
 %windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:cscs.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Properties\AssemblyInfo.cs /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll /r:System.Core.dll %common_ref_files% >> build.log
 rem %windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,618 /o /define:net35 /out:cscs.v3.5.exe /t:exe %common_source_files% ..\cscscript\CSExecutionClient.cs ..\cscscript\Resources.Designer.cs ..\cscscript\Properties\AssemblyInfo.cs /resource:..\cscscript\cscscript.Resources.resources /win32icon:..\Logo\css_logo.ico  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll /r:System.Core.dll %common_ref_files% >> build.log
@@ -85,32 +85,32 @@ REM %windir%\Microsoft.NET\Framework\v2.0.50727\csc /nologo /nowarn:169,618,1699
 REM ECHO ------------ >> build.log
 
 cd ..\CSScriptLibrary
-REM ECHO Building CSScriptLibrary.v1.1.dll: 
+REM ECHO Building CSScriptLibrary.v1.1.dll:
 REM ECHO Building CSScriptLibrary.v1.1.dll: >> ..\Build\build.log
 REM %windir%\Microsoft.NET\Framework\v2.0.50727\csc /nologo /nowarn:169,618,1699 /define:net1 /o /doc:..\Build\temp\temp\CSScriptLibrary.v1.1.xml /out:..\Build\temp\temp\CSScriptLibrary.v1.1.dll /t:library %common_source_files% CSScriptLib.cs crc32.cs AsmHelper.cs Properties\AssemblyInfo.cs  /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> ..\Build\build.log
 REM ECHO ------------ >> ..\Build\build.log
 
-ECHO Building CSScriptLibrary.v3.5.dll: 
+ECHO Building CSScriptLibrary.v3.5.dll:
 ECHO Building CSScriptLibrary.v3.5.dll: >> ..\Build\build.log
 %windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,1699,618 /define:net35 /o /doc:..\Build\temp\temp\CSScriptLibrary.v3.5.xml /out:..\Build\temp\temp\CSScriptLibrary.dll /t:library %common_source_files% CSScriptLib.cs AsmHelper.cs ObjectCaster.cs Properties\AssemblyInfo.cs crc32.cs /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> ..\Build\build.log
 ECHO ------------ >> ..\Build\build.log
 move ..\Build\temp\temp\CSScriptLibrary.dll ..\Build\temp\temp\CSScriptLibrary.v3.5.dll
 
-rem ECHO Building CSScriptLibrary.v3.5.dll (renamed): 
+rem ECHO Building CSScriptLibrary.v3.5.dll (renamed):
 rem ECHO Building CSScriptLibrary.v3.5.dll (renamed): >> ..\Build\build.log
 rem %windir%\Microsoft.NET\Framework\v3.5\csc /nologo /nowarn:169,1699,618 /define:net35 /o /doc:CSScriptLibrary.xml /out:..\Build\temp\temp\CSScriptLibrary.dll /t:library %common_source_files% CSScriptLib.cs AsmHelper.cs ObjectCaster.cs Properties\AssemblyInfo.cs crc32.cs /r:System.dll /r:System.Data.dll /r:System.XML.dll /r:System.Windows.Forms.dll %common_ref_files% >> ..\Build\build.log
 rem ECHO ------------ >> ..\Build\build.log
 
 rem .NET v4.0 -------------------------------------------------------------------------------------
 
-ECHO Building CSScript TargetFramework: v4.0: 
+ECHO Building CSScript TargetFramework: v4.0:
 ECHO Building CSScript.v4.0: >> ..\Build\build.log
 "%net4_tools%\msbuild.exe" ..\CSScriptLibrary\CSScriptLibrary.v4.0.sln /p:configuration=Release /p:platform="Any CPU" %common_msbuild_params%
 ECHO ------------ >> ..\Build\build.log
 
 rem .NET v4.5 -------------------------------------------------------------------------------------
 
-ECHO Building CSScript TargetFramework: v4.5: 
+ECHO Building CSScript TargetFramework: v4.5:
 ECHO Building cscs.exe: >> ..\Build\build.log
 "%net4_tools%\msbuild.exe" ..\cscscript\cscscript.csproj /p:AssemblyName=cscs /p:TargetFrameworkVersion=v4.5  /p:configuration=Release;Platform="AnyCPU" /p:OutDir=bin\Distro /p:DefineConstants="net4;net45" %common_msbuild_params%
 ECHO ------------ >> ..\Build\build.log
@@ -143,25 +143,25 @@ ECHO Building CSScriptLibrary.dll: >> ..\Build\build.log
 ECHO ------------ >> ..\Build\build.log
 move ..\CSScriptLibrary\bin\Distro\CSScriptLibrary.dll ..\Build\CSScriptLibrary.dll
 move ..\CSScriptLibrary\bin\Distro\CSScriptLibrary.xml ..\Build\CSScriptLibrary.xml
-copy ..\Build\CSScriptLibrary.dll %CS-S_DEV_ROOT%\lib\CSScriptLibrary.dll 
-copy ..\Build\CSScriptLibrary.xml %CS-S_DEV_ROOT%\lib\CSScriptLibrary.xml 
+copy ..\Build\CSScriptLibrary.dll %CS-S_DEV_ROOT%\lib\CSScriptLibrary.dll
+copy ..\Build\CSScriptLibrary.xml %CS-S_DEV_ROOT%\lib\CSScriptLibrary.xml
 
 rem -------------------------------------------------------------------------------------
 cd ..\Build
-rem need to ensure ConfigConsole.cs doesn't contain "{ 25D84CB0", which is a formatting CSScript.Npp artifact 
+rem need to ensure ConfigConsole.cs doesn't contain "{ 25D84CB0", which is a formatting CSScript.Npp artifact
 cscs.exe /l /dbg /pvdr:none /nl "..\ConfigConsole\buildCheck.cs" >> ..\Build\build.log
 
-rem neet to remap CSSCRIPT_DIR as otherwise ConfigConsole will be linked against choco CS-S binaries  
+rem neet to remap CSSCRIPT_DIR as otherwise ConfigConsole will be linked against choco CS-S binaries
 set old_css_dir=%CSSCRIPT_DIR%
 set CSSCRIPT_DIR=%CS-S_DEV_ROOT%
 
-ECHO Building ConfigConsole.exe: 
+ECHO Building ConfigConsole.exe:
 ECHO Building ConfigConsole.exe: >> ..\Build\build.log
 cscs.exe /nl /l /dbg -pvdr:none /ew "..\ConfigConsole\ConfigConsole.cs"
 move ..\ConfigConsole\ConfigConsole.exe ..\Build\ConfigConsole.exe
 ECHO ------------ >> ..\Build\build.log
-set CSSCRIPT_DIR=%old_css_dir% 
- 
+set CSSCRIPT_DIR=%old_css_dir%
+
 REM move temp\temp\CSScriptLibrary.v1.1.xml CSScriptLibrary.v1.1.xml
 REM move temp\temp\CSScriptLibrary.v1.1.dll CSScriptLibrary.v1.1.dll
 move temp\temp\CSScriptLibrary.v3.5.xml CSScriptLibrary.v3.5.xml
