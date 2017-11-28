@@ -54,6 +54,19 @@ namespace csscript
     /// </summary>
     public class Settings
     {
+        internal const string dirs_section_prefix = "------- (";
+        internal const string dirs_section_suffix = ") -------";
+        internal const string local_dirs_section = dirs_section_prefix + "local dirs" + dirs_section_suffix;
+        internal const string cmd_dirs_section = dirs_section_prefix + "dirs from cmd args" + dirs_section_suffix;
+        internal const string code_dirs_section = dirs_section_prefix + "dirs from code" + dirs_section_suffix;
+        internal const string config_dirs_section = dirs_section_prefix + "dirs from config" + dirs_section_suffix;
+        internal const string internal_dirs_section = dirs_section_prefix + "cs-script special dirs" + dirs_section_suffix;
+
+        internal static bool ProbingLegacyOrder
+        {
+            get { return Environment.GetEnvironmentVariable("CSS_ProbingLegacyOrder") != null; }
+        }
+
         /// <summary>
         /// Command to be executed to perform custom cleanup.
         /// If this value is empty automatic cleanup of all

@@ -44,6 +44,7 @@ using System.CodeDom.Compiler;
 using System.Globalization;
 using System.Diagnostics;
 using Microsoft.CSharp;
+using System.Linq;
 
 namespace csscript
 {
@@ -271,16 +272,24 @@ namespace csscript
         public Settings.HideOptions hideTemp = Settings.HideOptions.HideMostFiles;
         public uint doCleanupAfterNumberOfRuns = 20;
 
-        public void AddSearchDir(string dir)
+        public void AddSearchDir(string dir, string section)
         {
-            if (Array.Find(this.searchDirs, (x) => x == dir) != null)
-                return;
-
-            string[] newSearchDirs = new string[this.searchDirs.Length + 1];
-            this.searchDirs.CopyTo(newSearchDirs, 0);
-            newSearchDirs[newSearchDirs.Length - 1] = dir;
-            this.searchDirs = newSearchDirs;
+            if (!this.searchDirs.Contains(dir))
+            {
+                this.searchDirs = this.searchDirs.ToList().AddIfNotThere(dir, section).ToArray();
+            }
         }
+
+        // public void AddSearchDir1(string dir)
+        // {
+        //     if (Array.Find(this.searchDirs, (x) => x == dir) != null)
+        //         return;
+
+        //     string[] newSearchDirs = new string[this.searchDirs.Length + 1];
+        //     this.searchDirs.CopyTo(newSearchDirs, 0);
+        //     newSearchDirs[newSearchDirs.Length - 1] = dir;
+        //     this.searchDirs = newSearchDirs;
+        // }
 
         public string[] ExtractShellCommand(string command)
         {

@@ -139,7 +139,7 @@ namespace CSScriptLibrary
         static public Assembly ResolveAssembly(string assemblyName, string dir, bool throwExceptions)
 #endif
         {
-            if (dir == null)
+            if (dir.IsDirSectionSeparator())
                 return null;
 
             int hashSetValue = -1;
@@ -271,26 +271,27 @@ namespace CSScriptLibrary
         {
             //We are returning and array because name may represent assembly name or namespace
             //and as such can consist of more than one assembly file (multiple assembly file is not supported at this stage).
-            try
-            {
-                string asmFile = Path.Combine(dir, name);
-
-                //cannot just check Directory.Exists(dir) as "name" can contain sum subDir parts
-                if (Directory.Exists(Path.GetDirectoryName(asmFile)))
+            if (!dir.IsDirSectionSeparator())
+                try
                 {
-                    //test well-known assembly extensions first
-                    foreach (string ext in new string[] { "", ".dll", ".exe", ".compiled" })
-                    {
-                        string file = asmFile + ext; //just in case if user did not specify the extension
-                        if (ignoreFileName != Path.GetFileName(file) && File.Exists(file))
-                            return new string[] { file };
-                    }
+                    string asmFile = Path.Combine(dir, name);
 
-                    if (asmFile != Path.GetFileName(asmFile) && File.Exists(asmFile))
-                        return new string[] { asmFile };
+                    //cannot just check Directory.Exists(dir) as "name" can contain sum subDir parts
+                    if (Directory.Exists(Path.GetDirectoryName(asmFile)))
+                    {
+                        //test well-known assembly extensions first
+                        foreach (string ext in new string[] { "", ".dll", ".exe", ".compiled" })
+                        {
+                            string file = asmFile + ext; //just in case if user did not specify the extension
+                            if (ignoreFileName != Path.GetFileName(file) && File.Exists(file))
+                                return new string[] { file };
+                        }
+
+                        if (asmFile != Path.GetFileName(asmFile) && File.Exists(asmFile))
+                            return new string[] { asmFile };
+                    }
                 }
-            }
-            catch { } //name may not be a valid path name
+                catch { } //name may not be a valid path name
             return new string[0];
         }
 

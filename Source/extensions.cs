@@ -35,9 +35,63 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.IO;
 
 namespace csscript
 {
+    internal static class GenericExtensions
+    {
+        public static bool IsDirSectionSeparator(this string text)
+        {
+            return text != null && text.StartsWith(Settings.dirs_section_prefix) && text.StartsWith(Settings.dirs_section_suffix);
+        }
+
+        public static List<T> AddIfNotThere<T>(this List<T> items, T item)
+        {
+            if (!items.Contains(item))
+                items.Add(item);
+            return items;
+        }
+
+        public static List<string> AddIfNotThere(this List<string> items, string item, string section)
+        {
+            if (item != null && item != "")
+            {
+                bool isThere = items.Any(x => Utils.IsSamePath(x, item));
+
+                if (!isThere)
+                {
+                    if (Settings.ProbingLegacyOrder)
+                        items.Add(item);
+                    else
+                    {
+                        var insideOfSection = false;
+                        for (int i = 0; i < items.Count; i++)
+                        {
+                            var currItem = items[i];
+                            if (currItem == section)
+                            {
+                                insideOfSection = true;
+                            }
+                            else
+                            {
+                                if (insideOfSection && currItem.StartsWith(Settings.dirs_section_prefix))
+                                {
+                                    items.Insert(i, item);
+                                    insideOfSection = false; // added
+                                    break;
+                                }
+                            }
+                        }
+                        if (insideOfSection)
+                            items.Add(item);
+                    }
+                }
+            }
+            return items;
+        }
+    }
+
     /// <summary>
     /// Based on "maettu-this" proposal https://github.com/oleg-shilo/cs-script/issues/78
     /// His `SplitLexicallyWithoutTakingNewLineIntoAccount` is taken/used practically without any change.

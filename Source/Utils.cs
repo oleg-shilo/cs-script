@@ -1078,7 +1078,7 @@ partial class dbg
                             else
                             {
                                 foreach (string dir in argValue.Split(','))
-                                    options.AddSearchDir(dir.Trim());
+                                    options.AddSearchDir(dir.Trim(), Settings.cmd_dirs_section);
                             }
                         }
                     }
@@ -1851,7 +1851,7 @@ partial class dbg
                         if (Path.IsPathRooted(item.file)) //is absolute path
                         {
                             dependencyFile = item.file;
-                            CSExecutor.options.AddSearchDir(Path.GetDirectoryName(item.file));
+                            CSExecutor.options.AddSearchDir(Path.GetDirectoryName(item.file), Settings.internal_dirs_section);
                         }
                         else
                         {

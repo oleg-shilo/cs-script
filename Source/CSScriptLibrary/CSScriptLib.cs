@@ -1180,7 +1180,7 @@ namespace CSScriptLibrary
                             foreach (string file in refAssemblies)
                             {
                                 dir = Path.GetDirectoryName(file);
-                                CSExecutor.options.AddSearchDir(dir); //settings used by Compiler
+                                CSExecutor.options.AddSearchDir(dir, Settings.cmd_dirs_section); //settings used by Compiler
                                 CSScript.GlobalSettings.AddSearchDir(dir); //settings used by AsmHelper
                             }
                             CSExecutor.options.refAssemblies = refAssemblies;
@@ -1930,7 +1930,7 @@ namespace CSScriptLibrary
                                 dir = Path.GetDirectoryName(file);
                                 if (!string.IsNullOrEmpty(dir))
                                 {
-                                    CSExecutor.options.AddSearchDir(dir); //settings used by Compiler
+                                    CSExecutor.options.AddSearchDir(dir, Settings.code_dirs_section); //settings used by Compiler
                                     CSScript.GlobalSettings.AddSearchDir(dir); //settings used by AsmHelper
                                 }
                             }
