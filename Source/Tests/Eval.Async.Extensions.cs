@@ -8,7 +8,7 @@ using System.IO;
 
 public class EvalAsyncExtensions : TestBase
 {
-    [Fact]
+    [DebugBuildFact]
     public async void LoadDelegateAsync()
     {
         var product = await CSScript.MonoEvaluator
