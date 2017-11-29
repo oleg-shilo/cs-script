@@ -10,7 +10,7 @@ using csscript;
 
 public class GenericTest
 {
-    [Fact]
+    [DebugBuildFact]
     public void Test_PathSimpleExpression()
     {
         Assert.True(System.IO.Directory.Exists(@"C:\ProgramData\CS-Script\nuget\ServiceStack.Interfaces"));
