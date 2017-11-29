@@ -21,7 +21,6 @@ install:
 
     - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %archi%
     - nuget restore "%APPVEYOR_BUILD_FOLDER%"\source\Tests\packages.config -PackagesDirectory "%APPVEYOR_BUILD_FOLDER%"\Source\packages
-    - nuget restore "%APPVEYOR_BUILD_FOLDER%"\source\TestPad\packages.config -PackagesDirectory "%APPVEYOR_BUILD_FOLDER%"\source\TestPad
 
 
 init:
