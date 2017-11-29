@@ -3,10 +3,12 @@ using CSScriptLibrary;
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Tests;
 using Xunit;
 
-public class MonoEval
+public class MonoEval : TestBase
 {
     static string classCode = @"public class ScriptedClass
                                     {
@@ -28,14 +30,14 @@ public class MonoEval
                                         }
                                     }";
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void CompileCode()
     {
         Assembly script = CSScript.MonoEvaluator.CompileCode(classCode);
         Assert.NotNull(script);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void CompileDebugCode()
     {
         //CSScript.EvaluatorConfig.DebugBuild = true; //or set DebugBuild globally
@@ -63,7 +65,7 @@ public class MonoEval
         Assert.Equal("(1,12): error CS1525: Unexpected symbol `class'\r\n", ex.Message);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void CompileMethodInstance()
     {
         dynamic script = CSScript.MonoEvaluator
@@ -78,7 +80,7 @@ public class MonoEval
         Assert.Equal(49, result);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void CompileMethodStatic()
     {
         var script = CSScript.MonoEvaluator
@@ -94,7 +96,7 @@ public class MonoEval
         Assert.Equal(7, data.Index);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void CreateDelegate()
     {
         var Sqr = CSScript.MonoEvaluator
@@ -108,7 +110,7 @@ public class MonoEval
         Assert.Equal(9, r);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void CreateDelegateTyped()
     {
         var Sqr = CSScript.MonoEvaluator
@@ -121,7 +123,7 @@ public class MonoEval
         Assert.Equal(9, r);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void LoadCode()
     {
         dynamic script = CSScript.MonoEvaluator
@@ -139,11 +141,11 @@ public class MonoEval
         Assert.Equal(3, result);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void LoadCode2()
     {
         dynamic script = CSScript.MonoEvaluator
-                                 .With(eval=>eval.DisableReferencingFromCode = true)
+                                 .With(eval => eval.DisableReferencingFromCode = true)
                                  .LoadCode(@"
                     using System;
 
@@ -162,7 +164,7 @@ public class MonoEval
         Assert.Equal(200, result);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void LoadCode3()
     {
         dynamic script = CSScript.MonoEvaluator
@@ -177,7 +179,7 @@ public class MonoEval
                             return new TestStruct();
                         }
                     }
-                    
+
                     [StructLayout(LayoutKind.Explicit, Size = 64)]
                     public struct TestStruct
                     {
@@ -190,7 +192,7 @@ public class MonoEval
         Assert.NotNull(result);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void ProcessCodeDirectives()
     {
         dynamic script = CSScript.MonoEvaluator
@@ -214,7 +216,7 @@ public class MonoEval
         Assert.Equal("System.Xml.Linq.XDocument", script.TestXD());
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void LoadCodeWithInterface()
     {
         var script = (ICalc)CSScript.MonoEvaluator
@@ -233,14 +235,14 @@ public class MonoEval
         Assert.Equal(3, result);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void LoadCodeTyped()
     {
-        //some of the accumulated ref assemblies are causing Mono 
+        //some of the accumulated ref assemblies are causing Mono
         //to throw "error CS0433: The imported type `System.MarshalByRefObject' is defined multiple times" ((result of batch UnitTesting))
         //so use fresh copy (clone) of evaluator
         ICalc script = CSScript.MonoEvaluator
-                               .Clone(copyRefAssemblies:false)
+                               .Clone(copyRefAssemblies: false)
                                .LoadCode<ICalc>(@"using System;
                                                   public class Script
                                                   {
@@ -255,7 +257,7 @@ public class MonoEval
         Assert.Equal(3, result);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void LoadDelegateAction()
     {
         var Test = CSScript.MonoEvaluator
@@ -273,12 +275,60 @@ public class MonoEval
         Assert.Equal(7, data.Index);
     }
 
-    [Fact]
+    // [Fact]
+    // public void ConcurrentCloning()
+    // {
+    //     // To ensure that "lock (As.Blocking)" does not hide concurrency bugs
+
+    //     int done = 0;
+    //     string error = null;
+
+    //     void Test(Action action)
+    //     {
+    //         try
+    //         {
+    //             for (int i = 0; i < 20; i++)
+    //                 action();
+    //             done++;
+    //         }
+    //         catch (Exception er)
+    //         {
+    //             error = er.Message;
+    //         }
+    //     }
+
+    //     Task.Run(() => Test(CloneImpl));
+    //     Task.Run(() => Test(CloneImpl2));
+
+    //     while (done < 2 && error == null)
+    //         Thread.Sleep(1000);
+
+    //     Assert.Null(error);
+    // }
+
+    [DebugBuildFactAttribute]
     public void Clone()
+    {
+        lock (As.Blocking)
+        {
+            CloneImpl();
+        }
+    }
+
+    [DebugBuildFactAttribute]
+    public void Clone2()
+    {
+        lock (As.Blocking)
+        {
+            CloneImpl2();
+        }
+    }
+
+    public void CloneImpl()
     {
         var eval1 = CSScript.Evaluator.Clone();
         var eval2 = CSScript.Evaluator.Clone();
-        
+
         var sub = eval1.LoadDelegate<Func<int, int, int>>(
                                    @"int Sub(int a, int b) {
                                          return a - b;
@@ -288,17 +338,16 @@ public class MonoEval
                                    @"int Sub(int a, int b) {
                                          return a + b;
                                      }");
-                                     
-        var result = sum(7, sub(4,2));
+
+        var result = sum(7, sub(4, 2));
 
         Assert.Equal(9, result);
     }
 
-    [Fact]
-    public void Clone2()
+    public void CloneImpl2()
     {
         //
-       // CSScript.DefaultEvaluatorEngine
+        // CSScript.DefaultEvaluatorEngine
 
         var eval1 = CSScript.Evaluator.Clone();
         var eval2 = CSScript.Evaluator.Clone();
@@ -318,35 +367,41 @@ public class MonoEval
         Assert.Equal(9, result);
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void LoadDelegateFunc()
     {
-        var Product = CSScript.MonoEvaluator
+        lock (As.Blocking)
+        {
+            var Product = CSScript.MonoEvaluator
                               .LoadDelegate<Func<int, int, int>>(
                                          @"int Product(int a, int b)
                                                {
                                                    return a * b;
                                                }");
 
-        int result = Product(3, 2);
-        Assert.Equal(6, result);
+            int result = Product(3, 2);
+            Assert.Equal(6, result);
+        }
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void LoadMethod()
     {
-        dynamic script = CSScript.MonoEvaluator
+        lock (As.Blocking)
+        {
+            dynamic script = CSScript.MonoEvaluator
                                  .LoadMethod(@"int Product(int a, int b)
                                                {
                                                    return a * b;
                                                }");
 
-        int result = script.Product(3, 2);
+            int result = script.Product(3, 2);
 
-        Assert.Equal(6, result);
+            Assert.Equal(6, result);
+        }
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void LoadMethodTyped()
     {
         //ICalc script = CSScript.MonoEvaluator //as alternative syntax

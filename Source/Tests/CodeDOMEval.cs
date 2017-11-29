@@ -230,43 +230,49 @@ public class CodeDomEval
     [Fact]
     public void Clone()
     {
-        var eval1 = CSScript.CodeDomEvaluator.Clone();
-        var eval2 = CSScript.CodeDomEvaluator.Clone();
+        lock (typeof(string))
+        {
+            var eval1 = CSScript.CodeDomEvaluator.Clone();
+            var eval2 = CSScript.CodeDomEvaluator.Clone();
 
-        var sub = eval1.LoadDelegate<Func<int, int, int>>(
-                                   @"int Sub(int a, int b) {
+            var sub = eval1.LoadDelegate<Func<int, int, int>>(
+                                       @"int Sub(int a, int b) {
                                          return a - b;
                                      }");
 
-        var sum = eval2.LoadDelegate<Func<int, int, int>>(
-                                   @"int Sub(int a, int b) {
+            var sum = eval2.LoadDelegate<Func<int, int, int>>(
+                                       @"int Sub(int a, int b) {
                                          return a + b;
                                      }");
 
-        var result = sum(7, sub(4, 2));
+            var result = sum(7, sub(4, 2));
 
-        Assert.Equal(9, result);
+            Assert.Equal(9, result);
+        }
     }
 
     [Fact]
     public void Clone2()
     {
-        var eval1 = CSScript.CodeDomEvaluator.Clone();
-        var eval2 = CSScript.CodeDomEvaluator.Clone();
+        lock (typeof(string))
+        {
+            var eval1 = CSScript.CodeDomEvaluator.Clone();
+            var eval2 = CSScript.CodeDomEvaluator.Clone();
 
-        var sub = eval1.LoadDelegate<Func<int, int, int>>(
-                                   @"int Sub(int a, int b) {
+            var sub = eval1.LoadDelegate<Func<int, int, int>>(
+                                       @"int Sub(int a, int b) {
                                          return a - b;
                                      }");
 
-        var sum = eval2.LoadDelegate<Func<int, int, int>>(
-                                   @"int Sub(int a, int b) {
+            var sum = eval2.LoadDelegate<Func<int, int, int>>(
+                                       @"int Sub(int a, int b) {
                                          return a + b;
                                      }");
 
-        var result = sum(7, sub(4, 2));
+            var result = sum(7, sub(4, 2));
 
-        Assert.Equal(9, result);
+            Assert.Equal(9, result);
+        }
     }
 
     [Fact]

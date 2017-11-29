@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using Tests;
 using Xunit;
 
-public class EvalRemoteExtensions
+public class EvalRemoteExtensions : TestBase
+
 {
-    [Fact]
+    [DebugBuildFactAttribute]
     public async void RemoteAsync()
     {
         var sum = await Task.Run(() =>
@@ -22,60 +23,68 @@ public class EvalRemoteExtensions
         sum.UnloadOwnerDomain();
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void CreateDelegateRemotelyTyped()
     {
-        var sum = CSScript.Evaluator
+        lock (As.Blocking)
+        {
+            var sum = CSScript.Evaluator
                           .CreateDelegateRemotely<int>(@"int Sum(int a, int b)
                                                          {
                                                              return a+b;
                                                          }");
-        Assert.Equal(18, sum(15, 3));
+            Assert.Equal(18, sum(15, 3));
 
-        sum.UnloadOwnerDomain();
+            sum.UnloadOwnerDomain();
+        }
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void CreateDelegateRemotely()
     {
-        var sum = CSScript.Evaluator
+        lock (As.Blocking)
+        {
+            var sum = CSScript.Evaluator
                           .CreateDelegateRemotely(@"int Sum(int a, int b)
                                                     {
                                                         return a+b;
                                                     }");
-        Assert.Equal(18, (int)sum(15, 3));
+            Assert.Equal(18, (int)sum(15, 3));
 
-        sum.UnloadOwnerDomain();
+            sum.UnloadOwnerDomain();
+        }
     }
 
     [Fact]
     public void CreateDelegateRemotelyRoslyn()
     {
-        // Roslyn assemblies have unorthodox dependency model, which needs an explicit AppDomain assembly
-        // resolving if the Roslyn assemblies are not in the entry-assembly folder.
-        //
-        // MSTest (or xUnit) loads the test assembly from its build directory but places and loads the
-        // dependencies into individual temporary folders (one asm per folder). What a "brilliant" idea!!!
-        //
-        // MSTest does explicit asm resolving, what helps for MonoEval. However Roslyn resolving
-        // has to be based on name-only algorithm (a version checking) as it has wired dependencies on
-        // portable asms. Thus we need to set up special asm probing (extra argument) for Roslyn case.
+        lock (As.Blocking)
+        {
+            // Roslyn assemblies have unorthodox dependency model, which needs an explicit AppDomain assembly
+            // resolving if the Roslyn assemblies are not in the entry-assembly folder.
+            //
+            // MSTest (or xUnit) loads the test assembly from its build directory but places and loads the
+            // dependencies into individual temporary folders (one asm per folder). What a "brilliant" idea!!!
+            //
+            // MSTest does explicit asm resolving, what helps for MonoEval. However Roslyn resolving
+            // has to be based on name-only algorithm (a version checking) as it has wired dependencies on
+            // portable asms. Thus we need to set up special asm probing (extra argument) for Roslyn case.
 
-        var sum = CSScript.RoslynEvaluator
+            var sum = CSScript.RoslynEvaluator
                           .CreateDelegateRemotely(@"int Sum(int a, int b)
                                                     {
                                                         return a+b;
                                                     }",
                                                     @"..\..\..\Roslyn.Scripting");
-        Assert.Equal(18, (int)sum(15, 3));
+            Assert.Equal(18, (int)sum(15, 3));
 
-        sum.UnloadOwnerDomain();
+            sum.UnloadOwnerDomain();
+        }
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void CreateDelegateRemotelyMono()
     {
-
         var sum = CSScript.MonoEvaluator
                           .CreateDelegateRemotely(@"int Sum(int a, int b)
                                                     {
@@ -114,10 +123,12 @@ public class EvalRemoteExtensions
         sum.UnloadOwnerDomain();
     }
 
-    [Fact]
+    [DebugBuildFactAttribute]
     public void LoadCodeRemotelyCasted()
     {
-        var script = CSScript.Evaluator
+        lock (As.Blocking)
+        {
+            var script = CSScript.Evaluator
                              .LoadCodeRemotely<ICalc>(@"using System;
                                                         public class Calc : MarshalByRefObject, Tests.ICalc
                                                         {
@@ -126,21 +137,24 @@ public class EvalRemoteExtensions
                                                                 return a+b;
                                                             }
                                                         }", @"..\..\..\Roslyn.Scripting");
-        Assert.Equal(18, script.Sum(15, 3));
+            Assert.Equal(18, script.Sum(15, 3));
 
-        script.UnloadOwnerDomain();
+            script.UnloadOwnerDomain();
+        }
     }
 
     [Fact]
     public void LoadCodeRemotelyTyped()
     {
-        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location 
-        CSScript.GlobalSettings.InMemoryAssembly = false;
+        lock (As.Blocking)
+        {
+            //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location
+            CSScript.GlobalSettings.InMemoryAssembly = false;
 
-        //Mono and Roslyn file-less asms cannot be used to build duck-typed proxies
+            //Mono and Roslyn file-less asms cannot be used to build duck-typed proxies
 
-        var script = CSScript.CodeDomEvaluator
-                             .LoadCodeRemotely<ICalc>(@"using System;
+            var script = CSScript.CodeDomEvaluator
+                                 .LoadCodeRemotely<ICalc>(@"using System;
                                                         public class Calc : MarshalByRefObject
                                                         {
                                                             public int Sum(int a, int b)
@@ -148,9 +162,10 @@ public class EvalRemoteExtensions
                                                                 return a+b;
                                                             }
                                                         }", @"..\..\..\Roslyn.Scripting");
-        Assert.Equal(18, script.Sum(15, 3));
+            Assert.Equal(18, script.Sum(15, 3));
 
-        script.UnloadOwnerDomain();
+            script.UnloadOwnerDomain();
+        }
     }
 
     [Fact]

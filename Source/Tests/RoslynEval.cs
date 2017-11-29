@@ -31,85 +31,105 @@ public class RoslynEval
     [Fact]
     public void CompileCode()
     {
-        RoslynEvaluator.LoadCompilers();
+        lock (As.Blocking)
+        {
+            RoslynEvaluator.LoadCompilers();
 
-        Assembly script = CSScript.RoslynEvaluator.CompileCode(classCode);
-        Assert.NotNull(script);
+            Assembly script = CSScript.RoslynEvaluator.CompileCode(classCode);
+            Assert.NotNull(script);
+        }
     }
 
     [Fact]
     public void CompileCode_Error()
     {
-        var ex = Assert.Throws<CompilationErrorException>(() =>
+        lock (As.Blocking)
+        {
+            var ex = Assert.Throws<CompilationErrorException>(() =>
                      CSScript.RoslynEvaluator.CompileCode(classCode.Replace("public", "error_word")));
 
-        Assert.Equal("(1,12): error CS1002: ; expected", ex.Message);
+            Assert.Equal("(1,12): error CS1002: ; expected", ex.Message);
+        }
     }
 
     [Fact]
     public void CompileMethodInstance()
     {
-        dynamic script = CSScript.RoslynEvaluator
+        lock (As.Blocking)
+        {
+            dynamic script = CSScript.RoslynEvaluator
                                  .CompileMethod(@"int Sqr(int data)
                                                   {
                                                        return data * data;
                                                   }")
                                  .CreateObject("*");
 
-        var result = script.Sqr(7);
+            var result = script.Sqr(7);
 
-        Assert.Equal(49, result);
+            Assert.Equal(49, result);
+        }
     }
 
     [Fact]
     public void CompileMethodStatic()
     {
-        CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn;
+        lock (As.Blocking)
+        {
+            CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn;
 
-        var script = CSScript.RoslynEvaluator
-                             .CompileMethod(@"using Tests;
+            var script = CSScript.RoslynEvaluator
+                                 .CompileMethod(@"using Tests;
                                                   static void Test(InputData data)
                                                   {
                                                       data.Index = 7;
                                                   }");
-        InputData data = new InputData();
-        var Test = script.GetStaticMethod("*.Test", data);
+            InputData data = new InputData();
+            var Test = script.GetStaticMethod("*.Test", data);
 
-        Test(data);
-        Assert.Equal(7, data.Index);
+            Test(data);
+            Assert.Equal(7, data.Index);
+        }
     }
 
     [Fact]
     public void CreateDelegate()
     {
-        var Sqr = CSScript.RoslynEvaluator
+        lock (As.Blocking)
+        {
+            var Sqr = CSScript.RoslynEvaluator
                           .CreateDelegate(@"int Sqr(int a)
                                             {
                                                 return a * a;
                                             }");
 
-        var r = Sqr(3);
+            var r = Sqr(3);
 
-        Assert.Equal(9, r);
+            Assert.Equal(9, r);
+        }
     }
 
     [Fact]
     public void CreateDelegateTyped()
     {
-        var Sqr = CSScript.RoslynEvaluator
+        lock (As.Blocking)
+        {
+            var Sqr = CSScript.RoslynEvaluator
                           .CreateDelegate<int>(@"int Sqr(int a)
                                                  {
                                                      return a * a;
                                                  }");
-        int r = Sqr(3);
+            int r = Sqr(3);
 
-        Assert.Equal(9, r);
+            Assert.Equal(9, r);
+        }
     }
 
     [Fact]
     public void LoadCode()
     {
-        dynamic script = CSScript.RoslynEvaluator
+        lock (As.Blocking)
+        {
+            dynamic script = CSScript.RoslynEvaluator
                                  .LoadCode(@"using System;
                                              public class Script
                                              {
@@ -119,15 +139,18 @@ public class RoslynEval
                                                  }
                                              }");
 
-        int result = script.Sum(1, 2);
+            int result = script.Sum(1, 2);
 
-        Assert.Equal(3, result);
+            Assert.Equal(3, result);
+        }
     }
 
     [Fact]
     public void ProcessCodeDirectives()
     {
-        dynamic script = CSScript.RoslynEvaluator
+        lock (As.Blocking)
+        {
+            dynamic script = CSScript.RoslynEvaluator
                                  .LoadCode(@"//css_ref System.Windows.Forms;
                                              using System;
                                              using System.Xml;
@@ -144,14 +167,17 @@ public class RoslynEval
                                                  }
                                              }");
 
-        Assert.Equal("System.Windows.Forms.MessageBox", script.TestMB());
-        Assert.Equal("System.Xml.Linq.XDocument", script.TestXD());
+            Assert.Equal("System.Windows.Forms.MessageBox", script.TestMB());
+            Assert.Equal("System.Xml.Linq.XDocument", script.TestXD());
+        }
     }
 
     [Fact]
     public void LoadCodeWithInterface()
     {
-        var script = (ICalc)CSScript.RoslynEvaluator
+        lock (As.Blocking)
+        {
+            var script = (ICalc)CSScript.RoslynEvaluator
                                     .LoadCode(@"using Tests;
                                                 public class Script : ICalc
                                                 {
@@ -161,15 +187,18 @@ public class RoslynEval
                                                     }
                                                 }");
 
-        int result = script.Sum(1, 2);
+            int result = script.Sum(1, 2);
 
-        Assert.Equal(3, result);
+            Assert.Equal(3, result);
+        }
     }
 
     [Fact]
     public void LoadCodeTyped()
     {
-        ICalc script = CSScript.RoslynEvaluator
+        lock (As.Blocking)
+        {
+            ICalc script = CSScript.RoslynEvaluator
                                .LoadCode<ICalc>(@"using System;
                                                   public class Script
                                                   {
@@ -179,15 +208,18 @@ public class RoslynEval
                                                       }
                                                   }");
 
-        int result = script.Sum(1, 2);
+            int result = script.Sum(1, 2);
 
-        Assert.Equal(3, result);
+            Assert.Equal(3, result);
+        }
     }
 
     [Fact]
     public void LoadDelegateAction()
     {
-        var Test = CSScript.RoslynEvaluator
+        lock (As.Blocking)
+        {
+            var Test = CSScript.RoslynEvaluator
                            .LoadDelegate<Action<InputData>>(
                                         @"using Tests;
                                               void Test(InputData data)
@@ -195,25 +227,29 @@ public class RoslynEval
                                                   data.Index = 7;
                                               }");
 
-        var data = new InputData();
+            var data = new InputData();
 
-        Test(data);
+            Test(data);
 
-        Assert.Equal(7, data.Index);
+            Assert.Equal(7, data.Index);
+        }
     }
 
     [Fact]
     public void LoadDelegateFunc()
     {
-        var Product = CSScript.RoslynEvaluator
+        lock (As.Blocking)
+        {
+            var Product = CSScript.RoslynEvaluator
                               .LoadDelegate<Func<int, int, int>>(
                                          @"int Product(int a, int b)
                                                {
                                                    return a * b;
                                                }");
 
-        int result = Product(3, 2);
-        Assert.Equal(6, result);
+            int result = Product(3, 2);
+            Assert.Equal(6, result);
+        }
     }
 
     [Fact]

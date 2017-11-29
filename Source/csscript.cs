@@ -1373,6 +1373,8 @@ namespace csscript
                         }
                     }
                     catch { }
+
+                    // Debug.Assert(false);
                     throw new ApplicationException("Cannot use alternative compiler (" + options.altCompiler + "). You may want to adjust 'CSSCRIPT_DIR' environment variable or disable alternative compiler by setting 'useAlternativeCompiler' to empty value in the css_config.xml file.\n\nError Details:", ex);
                 }
             }

@@ -7,7 +7,7 @@ using System.Reflection;
 using Tests;
 using Xunit;
 
-public class CodeDom
+public class CodeDom : TestBase
 {
     static string classCode = @"public class ScriptedClass
                                     {
@@ -30,16 +30,22 @@ public class CodeDom
     [Fact]
     public void CompileCode()
     {
-        string scriptAsm = CSScript.CompileCode(uniqueClassCode);
-        Assert.True(scriptAsm.EndsWith(".compiled"));
+        lock (As.Blocking)
+        {
+            string scriptAsm = CSScript.CompileCode(uniqueClassCode);
+            Assert.True(scriptAsm.EndsWith(".compiled"));
+        }
     }
 
     [Fact]
     public void CompileCode_Error()
     {
-        var ex = Assert.Throws<CompilerException>(() =>
-                     CSScript.CompileCode(classCode.Replace("public", "error_word")));
-        Assert.Contains("error CS0116: A namespace cannot directly contain", ex.Message);
+        lock (As.Blocking)
+        {
+            var ex = Assert.Throws<CompilerException>(() =>
+                         CSScript.CompileCode(classCode.Replace("public", "error_word")));
+            Assert.Contains("error CS0116: A namespace cannot directly contain", ex.Message);
+        }
     }
 
     [Fact]
@@ -97,62 +103,67 @@ public class CodeDom
         Assert.Equal(9, r);
     }
 
-    [Fact(DisplayName = "Issue#34: Faster loading scripts?")]
+    [DebugBuildFactAttribute(DisplayName = "Issue#34: Faster loading scripts?")]
     public void Issue_34()
     {
-        //not a fix but rather an investigation
-        var tempFile = Path.GetTempFileName();
-        try
+        lock (As.Blocking)
         {
-            File.WriteAllText(tempFile, classCode);
-            var files = new[] { tempFile };
-            var repeats = 10;
-            var sw = new Stopwatch();
-
-            CSScript.LoadFiles(files);
-            sw.Restart();
-            //Caching is effectively disabled because LoadFiles creates every time a new "umbrella script" file.
-            for (int i = 0; i < repeats; i++)
+            //not a fix but rather an investigation
+            var tempFile = Path.GetTempFileName();
+            try
             {
-                var asm = CSScript.LoadFiles(files);
-            }
-            var loadFilesTime = sw.ElapsedMilliseconds;
-            Debug.WriteLine($"LoadFiles: {loadFilesTime}");
+                File.WriteAllText(tempFile, classCode);
+                var files = new[] { tempFile };
+                var repeats = 10;
+                var sw = new Stopwatch();
 
-            //Caching is enabled. Caching scope is system-wide as it is a file on FS.
-            //Caching criteria is a file timestamp.
-            sw.Restart();
-            for (int i = 0; i < repeats; i++)
-            {
-                var asm = CSScript.LoadFile(tempFile);
-            }
-            var cachedLoadFileTime = sw.ElapsedMilliseconds;
-            Debug.WriteLine($"LoadFile: {cachedLoadFileTime}");
+                CSScript.LoadFiles(files);
+                sw.Restart();
+                //Caching is effectively disabled because LoadFiles creates every time a new "umbrella script" file.
+                for (int i = 0; i < repeats; i++)
+                {
+                    var asm = CSScript.LoadFiles(files);
+                }
+                var loadFilesTime = sw.ElapsedMilliseconds;
+                Debug.WriteLine($"LoadFiles: {loadFilesTime}");
 
-            //Caching is enabled. Caching scope is process as it is a string in the process memory.
-            //Caching criteria is a code string hash.
-            sw.Restart();
-            for (int i = 0; i < repeats; i++)
-            {
-                CSScript.CreateFunc<int>(@"int Sqr(int a)
+                //Caching is enabled. Caching scope is system-wide as it is a file on FS.
+                //Caching criteria is a file timestamp.
+                sw.Restart();
+                for (int i = 0; i < repeats; i++)
+                {
+                    var asm = CSScript.LoadFile(tempFile);
+                }
+                var cachedLoadFileTime = sw.ElapsedMilliseconds;
+                Debug.WriteLine($"LoadFile: {cachedLoadFileTime}");
+
+                //Caching is enabled. Caching scope is process as it is a string in the process memory.
+                //Caching criteria is a code string hash.
+                sw.Restart();
+                for (int i = 0; i < repeats; i++)
+                {
+                    CSScript.CreateFunc<int>(@"int Sqr(int a)
                                            {
                                                return a * a;
                                            }");
+                }
+                var createFuncTime = sw.ElapsedMilliseconds;
+                Debug.WriteLine($"CreateFunc: {createFuncTime }");
             }
-            var createFuncTime = sw.ElapsedMilliseconds;
-            Debug.WriteLine($"CreateFunc: {createFuncTime }");
-        }
-        finally
-        {
-            if (File.Exists(tempFile))
-                File.Delete(tempFile);
+            finally
+            {
+                if (File.Exists(tempFile))
+                    File.Delete(tempFile);
+            }
         }
     }
 
     [Fact]
     public void LoadCode()
     {
-        Assembly asm = CSScript.LoadCode(@"using System;
+        lock (As.Blocking)
+        {
+            Assembly asm = CSScript.LoadCode(@"using System;
                                               public class Script
                                               {
                                                   public int Sum(int a, int b)
@@ -160,12 +171,13 @@ public class CodeDom
                                                       return a+b;
                                                   }
                                               }");
-        Assert.NotNull(asm);
+            Assert.NotNull(asm);
 
-        dynamic script = asm.CreateObject("*");
-        int result = script.Sum(1, 2);
+            dynamic script = asm.CreateObject("*");
+            int result = script.Sum(1, 2);
 
-        Assert.Equal(3, result);
+            Assert.Equal(3, result);
+        }
     }
 
     [Fact]
@@ -190,22 +202,25 @@ public class CodeDom
     [Fact]
     public void LoadCodeAndAlignToInterface()
     {
-        //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location
-        CSScript.GlobalSettings.InMemoryAssembly = false;
+        lock (As.Blocking)
+        {
+            //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location
+            CSScript.GlobalSettings.InMemoryAssembly = false;
 
-        var script = CSScript.LoadCode(@"public class Script
+            var script = CSScript.LoadCode(@"public class Script
                                                 {
                                                     public int Sum(int a, int b)
                                                     {
                                                         return a+b;
                                                     }
                                                 }")
-                             .CreateObject("*")
-                             .AlignToInterface<ICalc>();
+                                 .CreateObject("*")
+                                 .AlignToInterface<ICalc>();
 
-        int result = script.Sum(1, 2);
+            int result = script.Sum(1, 2);
 
-        Assert.Equal(3, result);
+            Assert.Equal(3, result);
+        }
     }
 
     [Fact]

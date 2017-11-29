@@ -103,6 +103,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>del "$(TargetDir)Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll"</PostBuildEvent>
+    <PostBuildEvent>del "$(TargetDir)Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll"
+copy "$(TargetPath)" "..\..\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

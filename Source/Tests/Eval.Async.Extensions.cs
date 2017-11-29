@@ -6,17 +6,12 @@ using Tests;
 using Xunit;
 using System.IO;
 
-public class EvalAsyncExtensions
+public class EvalAsyncExtensions : TestBase
 {
-    public EvalAsyncExtensions()
-    {
-        CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Mono;
-    }
-
     [Fact]
     public async void LoadDelegateAsync()
     {
-        var product = await CSScript.Evaluator
+        var product = await CSScript.MonoEvaluator
                                 .LoadDelegateAsync<Func<int, int, int>>(
                                       @"int Product(int a, int b)
                                             {
@@ -26,10 +21,10 @@ public class EvalAsyncExtensions
         Assert.Equal(8, product(4, 2));
     }
 
-    [Fact]
+    [DebugBuildFact]
     public async void LoadMethodAsync()
     {
-        dynamic script = await CSScript.Evaluator
+        dynamic script = await CSScript.MonoEvaluator
                                    .LoadMethodAsync(@"public int Sum(int a, int b)
                                             {
                                                 return a + b;
@@ -41,26 +36,26 @@ public class EvalAsyncExtensions
         Assert.Equal(5, script.Div(15, 3));
     }
 
-    [Fact]
+    [DebugBuildFact]
     public async void LoadCodeAsync()
     {
-        ICalc calc = await CSScript.Evaluator
-                                       .LoadCodeAsync<ICalc>(
-                                                  @"using System;
-                                                    public class Script
+        ICalc calc = await CSScript.MonoEvaluator
+                                   .LoadCodeAsync<ICalc>(
+                                              @"using System;
+                                                public class Script
+                                                {
+                                                    public int Sum(int a, int b)
                                                     {
-                                                        public int Sum(int a, int b)
-                                                        {
-                                                            return a+b;
-                                                        }
-                                                    }");
+                                                        return a+b;
+                                                    }
+                                                }");
         Assert.Equal(3, calc.Sum(1, 2));
     }
 
-    [Fact]
+    [DebugBuildFact]
     public async void LoadCodeAsync2()
     {
-        dynamic calc = await CSScript.Evaluator
+        dynamic calc = await CSScript.MonoEvaluator
                                         .LoadCodeAsync(
                                                  @"using System;
                                                    public class Script
@@ -89,7 +84,7 @@ public class EvalAsyncExtensions
         Assert.Equal(15f, result);
     }
 
-    [Fact]
+    [DebugBuildFact]
     public async void CreateUnsafeDelegateAsync2()
     {
         MonoEvaluator.CreateCompilerSettings = () => new Mono.CSharp.CompilerSettings { Unsafe = true };
@@ -105,7 +100,7 @@ public class EvalAsyncExtensions
         Assert.Equal(15f, result);
     }
 
-    [Fact]
+    [DebugBuildFact]
     public async void CreateUnsafeDelegateAsync2b()
     {
         //MonoEvaluator.CreateCompilerSettings = () => new Mono.CSharp.CompilerSettings { Unsafe = true };
@@ -121,12 +116,12 @@ public class EvalAsyncExtensions
         Assert.Equal(15f, result);
     }
 
-    [Fact]
+    [DebugBuildFact]
     public async void CreateUnsafeDelegateAsync3()
     {
         var test = await CSScript.RoslynEvaluator
-                                 .CreateDelegateAsync(
-                                          @"unsafe float UnsafeFunction(IntPtr data)
+                             .CreateDelegateAsync(
+                                      @"unsafe float UnsafeFunction(IntPtr data)
                                             {
                                                 return (float)data + 5f;
                                             }");
@@ -135,7 +130,7 @@ public class EvalAsyncExtensions
         Assert.Equal(15f, result);
     }
 
-    [Fact]
+    [DebugBuildFact]
     public async void CreateDelegateAsync()
     {
         string message = "success";
@@ -152,7 +147,7 @@ public class EvalAsyncExtensions
         Assert.Equal(message, Environment.GetEnvironmentVariable("CreateDelegateAsync_test"));
     }
 
-    [Fact]
+    [DebugBuildFact]
     public async void CreateDelegateAsyncTyped()
     {
         var product = await CSScript.Evaluator
@@ -164,7 +159,7 @@ public class EvalAsyncExtensions
         Assert.Equal(45, product(15, 3));
     }
 
-    [Fact]
+    [DebugBuildFact]
     public async void CompileCodeAsync()
     {
         Assembly script = await CSScript.Evaluator
@@ -180,7 +175,7 @@ public class EvalAsyncExtensions
         Assert.Equal(18, calc.Sum(15, 3));
     }
 
-    [Fact]
+    [DebugBuildFact]
     public async void CompileMethodAsync()
     {
         Assembly script = await CSScript.Evaluator
