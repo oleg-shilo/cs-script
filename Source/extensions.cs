@@ -66,6 +66,7 @@ namespace csscript
                     else
                     {
                         var insideOfSection = false;
+                        bool added = false;
                         for (int i = 0; i < items.Count; i++)
                         {
                             var currItem = items[i];
@@ -78,13 +79,24 @@ namespace csscript
                                 if (insideOfSection && currItem.StartsWith(Settings.dirs_section_prefix))
                                 {
                                     items.Insert(i, item);
-                                    insideOfSection = false; // added
+                                    added = true;
                                     break;
                                 }
                             }
                         }
-                        if (insideOfSection)
+
+                        // it's not critical at this stage as the whole options.SearchDirs (the reason for this routine)
+                        // is rebuild from ground to top if it has no sections
+                        var createMissingSection = false;
+
+                        if (!added)
+                        {
+                            // just to the end
+                            if (!insideOfSection && createMissingSection)
+                                items.Add(section);
+
                             items.Add(item);
+                        }
                     }
                 }
             }

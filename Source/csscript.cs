@@ -316,7 +316,8 @@ namespace csscript
                         foreach (string dir in options.searchDirs) //some directories may be already set from command-line
                         {
                             // command line dirs resolved against current dir
-                            dirs.AddIfNotThere(Path.GetFullPath(dir), Settings.cmd_dirs_section);
+                            if (!dir.IsDirSectionSeparator())
+                                dirs.AddIfNotThere(Path.GetFullPath(dir), Settings.cmd_dirs_section);
                         }
 
                         if (settings != null)
