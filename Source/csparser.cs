@@ -563,9 +563,11 @@ namespace csscript
             foreach (string statement in GetRawStatements("//css_imp", endCodePos))
                 imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim(), file, probingDirs));
             foreach (string statement in GetRawStatements("//css_include", endCodePos))
-                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, probingDirs));
+                if (!string.IsNullOrEmpty(statement))
+                    imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, probingDirs));
             foreach (string statement in GetRawStatements("//css_inc", endCodePos))
-                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, probingDirs));
+                if (!string.IsNullOrEmpty(statement))
+                    imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, probingDirs));
 
             //analyse assembly references
             foreach (string statement in GetRawStatements("//css_reference", endCodePos))
