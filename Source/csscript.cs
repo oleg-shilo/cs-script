@@ -12,7 +12,7 @@
 // Written by Oleg Shilo (oshilo@gmail.com)
 //----------------------------------------------
 // The MIT License (MIT)
-// Copyright (c) 2017 Oleg Shilo
+// Copyright (c) 2004-2018 Oleg Shilo
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 // and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -385,7 +385,7 @@ namespace csscript
                         {
                             Environment.CurrentDirectory = Path.GetDirectoryName(Path.GetFullPath(options.scriptFileName));
 
-                            var code_probing_dirs = parser.ExtraSearchDirs.Select(Path.GetFullPath);
+                            var code_probing_dirs = parser.ExtraSearchDirs.Select<string, string>(Path.GetFullPath);
 
                             foreach (string dir in code_probing_dirs)
                                 newSearchDirs.AddIfNotThere(dir, Settings.code_dirs_section);
