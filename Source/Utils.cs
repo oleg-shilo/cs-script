@@ -273,6 +273,9 @@ namespace csscript
 
         public static void CleanUnusedTmpFiles(string dir, string pattern, bool verifyPid)
         {
+            if (!Directory.Exists(dir))
+				return;
+
             string[] oldTempFiles = Directory.GetFiles(dir, pattern);
 
             foreach (string file in oldTempFiles)
