@@ -128,6 +128,12 @@ namespace csscript
         /// </value>
         public string RoslynDir
         {
+            get { return _RoslynDir; }
+            set { _RoslynDir = value; }
+        }
+
+        static internal string _RoslynDir
+        {
             get { return Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ?? ""; }
             set { Environment.SetEnvironmentVariable("CSSCRIPT_ROSLYN", value); }
         }

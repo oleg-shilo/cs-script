@@ -121,7 +121,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\dbg.cs" />
     <Content Include="App.ico" />
     <Compile Include="..\AssemblyExecutor.cs">
       <Link>AssemblyExecutor.cs</Link>
@@ -209,6 +208,9 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

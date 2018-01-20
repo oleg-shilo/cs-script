@@ -1,5 +1,5 @@
-C# Script execution engine. Version 3.27.6.0.
-Copyright (C) 2004-2017 Oleg Shilo.
+C# Script execution engine. Version 3.27.6.1.
+Copyright (C) 2004-2018 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
 
