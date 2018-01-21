@@ -103,9 +103,15 @@ partial class dbg
         }
     }
 
+    static public string CustomPrimitiveTypes = "Newtonsoft.Json.Linq.JValue;";
+
     static bool isPrimitive(object obj)
     {
-        return (obj == null || obj.GetType().IsPrimitive || obj is decimal || obj is string || obj.GetType().ToString() == "Newtonsoft.Json.Linq.JValue");
+        if (obj == null || obj.GetType().IsPrimitive || obj is decimal || obj is string)
+            return true;
+        else if (CustomPrimitiveTypes != null)
+            return CustomPrimitiveTypes.Split(new char[] { ';' }).Contains(obj.GetType().ToString());
+        return false;
     }
 
     void WriteObject(object obj)

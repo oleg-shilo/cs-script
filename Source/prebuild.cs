@@ -6,10 +6,10 @@ using System.Windows.Forms;
 
 void main(string[] args)
 {
-    // var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-    var dir = Environment.CurrentDirectory;
+    var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+    // var dir = Environment.CurrentDirectory;
 
-    var source = File.ReadAllL(Path.Combine(dir, "dbg.cs"));
+    var source = File.ReadAllText(Path.Combine(dir, "dbg.cs"));
 
     Console.WriteLine(source);
     source = escape(source);
