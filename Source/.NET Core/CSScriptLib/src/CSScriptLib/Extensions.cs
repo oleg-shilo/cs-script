@@ -12,9 +12,9 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 //http://dotnet.github.io/port-to-core/Moq4_ApiPortabilityAnalysis.htm
-
 
 public static class Extensions
 {
@@ -22,6 +22,7 @@ public static class Extensions
     {
         throw new NotImplementedException();
     }
+
     public static string Location(this Assembly asm)
     {
         if (asm.IsDynamic())
@@ -35,12 +36,14 @@ public static class Extensions
         else
             return asm.Location;
     }
+
     public static bool IsDynamic(this Assembly asm)
     {
         //http://bloggingabout.net/blogs/vagif/archive/2010/07/02/net-4-0-and-notsupportedexception-complaining-about-dynamic-assemblies.aspx
         //Will cover both System.Reflection.Emit.AssemblyBuilder and System.Reflection.Emit.InternalAssemblyBuilder
         return asm.GetType().FullName.EndsWith("AssemblyBuilder") || asm.Location == null || asm.Location == "";
     }
+
     public static Assembly Assembly(this Type t)
     {
         return t.GetTypeInfo().Assembly;
@@ -55,10 +58,36 @@ public static class Extensions
     {
         return string.IsNullOrEmpty(txt);
     }
+
     public static bool IsLinux()
     {
         return (RuntimeInformation.IsOSPlatform(OSPlatform.Linux));
     }
+
+    public static void FileDelete(this string filePath, bool rethrow)
+    {
+        //There are the reports about
+        //anti viruses preventing file deletion
+        //See 18 Feb message in this thread https://groups.google.com/forum/#!topic/cs-script/5Tn32RXBmRE
+
+        for (int i = 0; i < 3; i++)
+        {
+            try
+            {
+                if (File.Exists(filePath))
+                    File.Delete(filePath);
+                break;
+            }
+            catch
+            {
+                if (rethrow && i == 2)
+                    throw;
+            }
+
+            Thread.Sleep(300);
+        }
+    }
+
     public static int PathCompare(string path1, string path2)
     {
         if (IsLinux())
@@ -131,13 +160,12 @@ public static class Extensions
     //public static string GetBaseDirectory(this Assembly assembly)
     //{
     //string dir = AssemblyLoadContext.GetLoadContext(assembly.L ).GetBaseDirectory(assembly);
-    //if (!String.IsNullOrEmpty(dir)) 
+    //if (!String.IsNullOrEmpty(dir))
     //    return dir;
 
     //    return AppContext.BaseDirectory;
     //}
 }
-
 
 public class AssemblyLoader : AssemblyLoadContext
 {
@@ -187,7 +215,6 @@ class NuGet
     //        return nuGetCache;
     //    }
     //}
-
 }
 
 class Utils
@@ -200,6 +227,7 @@ class Utils
             return asmName;
     }
 }
+
 class CSSUtils
 {
     static public string[] GetDirectories(string workingDir, string rootDir)
@@ -270,12 +298,15 @@ class CSSUtils
                 case ' ':
                     sb.Append('\\').Append(c);
                     break;
+
                 case '*':
                     sb.Append(".*");
                     break;
+
                 case '?':
                     sb.Append(".");
                     break;
+
                 default:
                     sb.Append(c);
                     break;

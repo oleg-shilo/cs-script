@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace CSScriptLibrary
+namespace CSScriptLib
 {
     public delegate object MethodDelegate(params object[] paramters);
 
@@ -99,22 +99,17 @@ namespace CSScriptLibrary
 
         EvaluatorEngine engine = EvaluatorEngine.Roslyn;
 
-        bool debugBuild = false;
-
         /// <summary>
-        /// Default value of the <see cref="CSScriptLibrary.IEvaluator"/>.DebugBuild property controlling the generation of the debug symbols.
+        /// Default value of the <see cref="CSScriptLib.IEvaluator"/>.
+        /// DebugBuild property controlling the generation of the debug symbols.
         /// </summary>
-        public bool DebugBuild
-        {
-            get { return debugBuild; }
-            set { debugBuild = value; }
-        }
+        public bool DebugBuild { get; set; } = false;
 
         bool refDomainAsms = true;
 
         /// <summary>
         /// Flag that controls if the host AppDo,main referenced assemblies are automatically referenced at creation
-        /// of <see cref="CSScriptLibrary.IEvaluator"/>.
+        /// of <see cref="CSScriptLib.IEvaluator"/>.
         /// </summary>
         public bool RefernceDomainAsemblies
         {
@@ -152,18 +147,18 @@ namespace CSScriptLibrary
         /// Global instance of the generic <see cref="CSScriptLibrary.IEvaluator"/>. This object is to be used for
         /// dynamic loading of the  C# code by "compiler as service" based on the
         /// <see cref="P:CSScriptLibrary.CSScript.EvaluatorConfig.Engine"/> value.
-        /// <para>Generic <see cref="CSScriptLibrary.IEvaluator"/> interface provides a convenient way of accessing
+        /// <para>Generic <see cref="CSScriptLib.IEvaluator"/> interface provides a convenient way of accessing
         /// compilers without 'committing' to a specific compiler technology (e.g. Mono, Roslyn, CodeDOM). This may be
         /// required during troubleshooting or performance tuning.</para>
         /// <para>Switching between compilers can be done via global
         /// CSScript.<see cref="P:CSScriptLibrary.CSScript.EvaluatorConfig.Engine"/>.</para>
         /// <remarks>
-        /// By default CSScript.<see cref="CSScriptLibrary.CSScript.Evaluator"/> always returns a new instance of
+        /// By default CSScript.<see cref="CSScriptLib.CSScript.Evaluator"/> always returns a new instance of
         /// <see cref="CSScriptLibrary.IEvaluator"/>. If this behavior is undesired change the evaluator access
         /// policy by setting <see cref="CSScriptLibrary.CSScript.EvaluatorConfig"/>.Access value.
         /// </remarks>
         /// </summary>
-        /// <value>The <see cref="CSScriptLibrary.IEvaluator"/> instance.</value>
+        /// <value>The <see cref="CSScriptLib.IEvaluator"/> instance.</value>
         /// <example>
         ///<code>
         /// if(testingWithMono)
@@ -212,16 +207,13 @@ namespace CSScriptLibrary
     {
         /// <summary>
         /// Gets or sets a value indicating whether to compile script with debug symbols.
-        /// <para>Note, affect of setting <c>DebugBuild</c> will always depend on the compiler implementation:
-        /// <list type="bullet">
-        ///    <item><term>CodeDom</term><description>Fully supports. Generates debugging symbols (script can be debugged) and defines <c>DEBUG</c> and <c>TRACE</c> conditional symbols</description> </item>
-        ///    <item><term>Mono</term><description>Partially supports. Defines <c>DEBUG</c> and <c>TRACE</c> conditional symbols</description> </item>
-        ///    <item><term>Roslyn</term><description>Doesn't supports at all.</description> </item>
-        /// </list>
+        /// <para>Note, setting <c>DebugBuild</c> will only affect the current instance of Evaluator.
+        /// If you want to emit debug symbols for all instances of Evaluator then use
+        /// <see cref="CSScriptLib.CSScript.EvaluatorConfig"/>.DebugBuild.
         /// </para>
         /// </summary>
         /// <value><c>true</c> if 'debug build'; otherwise, <c>false</c>.</value>
-        bool DebugBuild { get; set; }
+        bool? DebugBuild { get; set; }
 
         /// <summary>
         /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies
@@ -416,9 +408,11 @@ namespace CSScriptLibrary
         ///
         /// int result = script.Sum(1, 2);
         /// </code>
-        /// </example>/// <param name="scriptFile">The C# script file.</param>
+        /// </example>
+        /// <param name="scriptFile">The C# script file.</param>
+        /// <param name="args">Optional non-default constructor arguments.</param>
         /// <returns>Instance of the class defined in the script file.</returns>
-        object LoadFile(string scriptFile);
+        object LoadFile(string scriptFile, params object[] args);
 
         /// <summary>
         /// Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
@@ -442,8 +436,9 @@ namespace CSScriptLibrary
         /// </example>
         /// <typeparam name="T">The type of the interface type the script class instance should be aligned to.</typeparam>
         /// <param name="scriptFile">The C# script text.</param>
+        /// <param name="args">Optional non-default constructor arguments.</param>
         /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script file.</returns>
-        T LoadFile<T>(string scriptFile) where T : class;
+        T LoadFile<T>(string scriptFile, params object[] args) where T : class;
 
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads

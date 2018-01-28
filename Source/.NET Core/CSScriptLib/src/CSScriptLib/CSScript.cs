@@ -11,7 +11,7 @@ using System.Runtime.Loader;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System.Text;
 
-namespace CSScriptLibrary
+namespace CSScriptLib
 {
     public class Settings
     {
@@ -21,26 +21,100 @@ namespace CSScriptLibrary
 
     public partial class CSScript
     {
-        static public  Settings GlobalSettings = new Settings();
+        static string tempDir = null;
 
         /// <summary>
-        /// Global instance of <see cref="CSScriptLibrary.RoslynEvaluator"/>. This object is to be used for
-        /// dynamic loading of the  C# code by using Roslyn "compiler as service".
-        /// <para>If you need to use multiple instances of th evaluator then you will need to call 
-        /// <see cref="CSScriptLibrary.IEvaluator"/>.Clone().
+        /// Returns the name of the temporary folder in the CSSCRIPT subfolder of Path.GetTempPath().
+        /// <para>Under certain circumstances it may be desirable to the use the alternative location for the CS-Script temporary files.
+        /// In such cases use SetScriptTempDir() to set the alternative location.
         /// </para>
         /// </summary>
-        /// <value> The <see cref="CSScriptLibrary.RoslynEvaluator"/> instance.</value>
+        /// <returns>Temporary directory name.</returns>
+        static public string GetScriptTempDir()
+        {
+            if (tempDir == null)
+            {
+                tempDir = Environment.GetEnvironmentVariable("CSS_CUSTOM_TEMPDIR");
+                if (tempDir == null)
+                {
+                    tempDir = Path.Combine(Path.GetTempPath(), "CSSCRIPT");
+                    if (!Directory.Exists(tempDir))
+                    {
+                        Directory.CreateDirectory(tempDir);
+                    }
+                }
+            }
+            return tempDir;
+        }
+
+        /// <summary>
+        /// Returns the name of the temporary file in the CSSCRIPT subfolder of Path.GetTempPath().
+        /// </summary>
+        /// <returns>Temporary file name.</returns>
+        static public string GetScriptTempFile()
+        {
+            lock (typeof(CSScript))
+            {
+                return Path.Combine(GetScriptTempDir(), string.Format("{0}.{1}.tmp", Process.GetCurrentProcess().Id, Guid.NewGuid()));
+            }
+        }
+
+        static internal string GetScriptTempFile(string subDir)
+        {
+            lock (typeof(CSScript))
+            {
+                string tempDir = Path.Combine(GetScriptTempDir(), subDir);
+                if (!Directory.Exists(tempDir))
+                    Directory.CreateDirectory(tempDir);
+
+                return Path.Combine(tempDir, string.Format("{0}.{1}.tmp", Process.GetCurrentProcess().Id, Guid.NewGuid()));
+            }
+        }
+
+        static public Settings GlobalSettings = new Settings();
+
+        /// <summary>
+        /// Global instance of <see cref="CSScriptLib.RoslynEvaluator"/>. This object is to be used for
+        /// dynamic loading of the  C# code by using Roslyn "compiler as service".
+        /// <para>If you need to use multiple instances of th evaluator then you will need to call
+        /// <see cref="CSScriptLib.IEvaluator"/>.Clone().
+        /// </para>
+        /// </summary>
+        /// <value> The <see cref="CSScriptLib.RoslynEvaluator"/> instance.</value>
         static public RoslynEvaluator RoslynEvaluator
         {
             get
             {
                 if (EvaluatorConfig.Access == EvaluatorAccess.AlwaysCreate)
-                    return (RoslynEvaluator) roslynEvaluator.Value.Clone();
+                    return (RoslynEvaluator)roslynEvaluator.Value.Clone();
                 else
                     return roslynEvaluator.Value;
             }
         }
+
+        static List<string> tempFiles;
+
+        internal static void NoteTempFile(string file)
+        {
+            if (tempFiles == null)
+            {
+                tempFiles = new List<string>();
+                AssemblyLoadContext.Default.Unloading += x => CSScript.Cleanup();
+            }
+            tempFiles.Add(file);
+        }
+
+        static internal void Cleanup()
+        {
+            if (tempFiles != null)
+                foreach (string file in tempFiles)
+                {
+                    file.FileDelete(rethrow: false);
+                }
+
+            // CleanupDynamicSources(); zos
+        }
+
         static Lazy<RoslynEvaluator> roslynEvaluator = new Lazy<RoslynEvaluator>();
 
         static internal string WrapMethodToAutoClass(string methodCode, bool injectStatic, bool injectNamespace, string inheritFrom = null)
@@ -99,5 +173,4 @@ namespace CSScriptLibrary
             return code.ToString();
         }
     }
-
 }

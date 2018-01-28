@@ -20,20 +20,20 @@
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2016 Oleg Shilo
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+// and associated documentation files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 // subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in all copies or substantial 
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial
 // portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 
@@ -43,22 +43,19 @@ using System;
 using System.IO;
 using System.Collections;
 
-#if !net1
-
 using System.Collections.Generic;
-
-#endif
 
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Text;
 using System.Linq;
 using System.Globalization;
-using CSScriptLibrary;
+using CSScriptLib;
 
 namespace csscript
 {
     #region CSharpParser...
+
     /// <summary>
     /// Very light parser for C# code. The main purpose of it is to be very fast and reliable.
     /// It only extracts code information relative to the CS-Script.
@@ -130,10 +127,12 @@ namespace csscript
             /// Script file and it's arguments.
             /// </summary>
             public string[] args;
+
             /// <summary>
             /// If set to 'true' the CmdScriptInfo describes the pre-script, otherwise it is for the post-script.
             /// </summary>
             public bool preScript;
+
             /// <summary>
             /// If set to 'true' parent script will be aborted on pre/post-script error, otherwise the error will be ignored.
             /// </summary>
@@ -162,6 +161,7 @@ namespace csscript
 
             static char[] tokenDelimiters = new char[] { '(', ')' };
             static char[] argDelimiters = new char[] { ',' };
+
             /// <summary>
             /// Initializes a new instance of the <see cref="InitInfo"/> class.
             /// </summary>
@@ -242,7 +242,7 @@ namespace csscript
 
                     foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
                     {
-                        parts[0] = file; //substitute the file path pattern with the actual path 
+                        parts[0] = file; //substitute the file path pattern with the actual path
                         result.Add(new ImportInfo(parts));
                     }
 
@@ -251,6 +251,7 @@ namespace csscript
                 else
                     return new ImportInfo[] { new ImportInfo(statement, parentScript) };
             }
+
             /// <summary>
             /// Creates an instance of ImportInfo.
             /// </summary>
@@ -312,10 +313,12 @@ namespace csscript
             /// The file to be imported.
             /// </summary>
             public string file;
+
             /// <summary>
             /// Renaming instructions (old_name vs. new_name)
             /// </summary>
             public string[][] renaming;
+
             /// <summary>
             /// If set to 'true' "static...Main" in the imported script is not renamed.
             /// </summary>
@@ -331,7 +334,9 @@ namespace csscript
 #endif
 
         #region Public interface
+
 #if DEBUG
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CSharpParser"/> class.
         /// </summary>
@@ -339,8 +344,10 @@ namespace csscript
         {
             InitEnvironment();
         }
+
 #endif
         static bool NeedInitEnvironment = true;
+
         static void InitEnvironment()
         {
             if (NeedInitEnvironment)
@@ -350,9 +357,9 @@ namespace csscript
                 {
                     try
                     {
-                        //NuGet.NuGetCacheView will attempt to initialize (create) the cache directory and it is a problem if 
+                        //NuGet.NuGetCacheView will attempt to initialize (create) the cache directory and it is a problem if
                         //it happens that user has no rights to do so.
-                        //Ignore the error and it will be reported when get.exe will try to download the package(s) into 
+                        //Ignore the error and it will be reported when get.exe will try to download the package(s) into
                         //this cache directory.
                         Environment.SetEnvironmentVariable("css_nuget", NuGet.NuGetCacheView);
                     }
@@ -451,7 +458,7 @@ namespace csscript
         //}
 
         /// <summary>
-        /// Global flag to forcefuly supress any C# code analysys. This flag efectively disables 
+        /// Global flag to forcefuly supress any C# code analysys. This flag efectively disables
         /// all CS-Script assembly and script probing and most likely some other functionality.
         /// <para>You may ever want to supress code analysys only for profiling perposes or during performance tuning.</para>
         /// </summary>
@@ -551,7 +558,7 @@ namespace csscript
             foreach (string statement in GetRawStatements("//css_co", endCodePos))
                 compilerOptions.Add(Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim());
 
-            if(!Extensions.IsLinux())
+            if (!Extensions.IsLinux())
                 foreach (string statement in GetRawStatements("//css_host", endCodePos))
                     hostOptions.Add(Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim());
 
@@ -636,7 +643,6 @@ namespace csscript
                     return retval;
             }
         }
-
 
         /// <summary>
         /// Renames namespaces according renaming instructions.
@@ -790,6 +796,7 @@ namespace csscript
 #endif
             }
         }
+
         /// <summary>
         /// References to the external assemblies and namespaces.
         /// </summary>
@@ -977,6 +984,7 @@ namespace csscript
 
         //ApartmentState threadingModel = ApartmentState.Unknown;
         string code = "";
+
         string modifiedCode = "";
 
         /// <summary>
@@ -1204,7 +1212,6 @@ namespace csscript
             if (code.Length > startPos + length && !(char.IsWhiteSpace(code[startPos + length]) || IsOneOf(code[startPos + length], codeDelimiters))) //position is not at the end of the token
                 return false;
 
-
             return true;
         }
 
@@ -1248,12 +1255,12 @@ namespace csscript
 
         /// <summary>
         /// Escapes the CS-Script directive (e.g. //css_*) delimiters.
-        /// <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character. 
-        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters. 
+        /// <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
         /// The correct syntax would be as follows '//css_include script((today)).cs;'</para>
         /// <remarks>The delimiters characters are ';,(){}'.
         /// <para>However you should check <see cref="csscript.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
-        /// </para> 
+        /// </para>
         /// </remarks>
         /// </summary>
         /// <param name="text">The text to be processed.</param>
@@ -1267,12 +1274,12 @@ namespace csscript
 
         /// <summary>
         /// Unescapes the CS-Script directive (e.g. //css_*) delimiters.
-        /// <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character. 
-        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters. 
+        /// <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
         /// The correct syntax would be as follows '//css_include script((today)).cs;'</para>
         /// <remarks>The delimiters characters are ';,(){}'.
         /// <para>However you should check <see cref="csscript.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
-        /// </para> 
+        /// </para>
         /// </remarks>
         /// </summary>
         /// <param name="text">The text to be processed.</param>
@@ -1285,9 +1292,9 @@ namespace csscript
         }
 
         /// <summary>
-        /// The //css_* directive delimiters. 
-        /// <remarks>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character. 
-        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters. 
+        /// The //css_* directive delimiters.
+        /// <remarks>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
         /// The correct syntax would be as follows '//css_include script((today)).cs;'
         /// </remarks>
         /// </summary>
@@ -1332,7 +1339,7 @@ namespace csscript
 
                 if (startPos != -1 && endPos != -1)
                 {
-                    int startCode = commentRegions.Count == 0 ? 0 : ((int[]) commentRegions[commentRegions.Count - 1])[1] + 1;
+                    int startCode = commentRegions.Count == 0 ? 0 : ((int[])commentRegions[commentRegions.Count - 1])[1] + 1;
 
                     int[] quotationIndexes = AllRawIndexOf("\"", startCode, startPos);
                     if ((quotationIndexes.Length % 2) != 0)
