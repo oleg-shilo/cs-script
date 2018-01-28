@@ -1052,8 +1052,16 @@ namespace CSScriptLibrary
         {
             if (!this.disposed)
             {
-                if (asmBrowser != null)
-                    asmBrowser.Dispose();
+                try
+                {
+                    if (asmBrowser != null)
+                        asmBrowser.Dispose();
+                }
+                catch (System.Runtime.Remoting.RemotingException)
+                {
+                    //ignore exception
+                    //Object '/%guid%/%guid%.rem' has been disconnected or does not exist at the server.
+                }
 
                 Unload();
             }
