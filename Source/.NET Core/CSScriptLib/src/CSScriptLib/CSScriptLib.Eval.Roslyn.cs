@@ -66,31 +66,6 @@ using Microsoft.CodeAnalysis.Emit;
 namespace CSScriptLib
 {
     /// <summary>
-    /// Method extensions for Roslyn.<see cref="Microsoft.CodeAnalysis.CSharp.Scripting"/>
-    /// </summary>
-    public class CSScriptRoslynExtensions
-    {
-        /// <summary>
-        /// Single step evaluating method for Roslyn compiler. Compiles specified code, loads the compiled assembly and returns it to the caller.
-        /// </summary>
-        /// <param name="code">The code.</param>
-        /// <returns></returns>
-        public static Assembly Load_obsolete(string code)
-        {
-            var asmName = CSharpScript.Create(code, ScriptOptions.Default)
-                                      .RunAsync()
-                                      .Result
-                                      .Script
-                                      .GetCompilation()
-                                      .AssemblyName;
-
-            throw new NotImplementedException();
-            //return Assembly.Load(asmName);
-            //return AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(asmName, StringComparison.OrdinalIgnoreCase));
-        }
-    }
-
-    /// <summary>
     /// A wrapper class that encapsulates the functionality of the Roslyn  evaluator (<see cref="Microsoft.CodeAnalysis.CSharp.Scripting"/>).
     /// </summary>
     public class RoslynEvaluator : IEvaluator
@@ -474,33 +449,6 @@ namespace CSScriptLib
         {
             this.ReferenceAssemblyOf<T>();
             return (T)this.CompileCode(scriptText).CreateObject("*", args);
-            // throw new NotImplementedException();
-            //Debug.Assert(false);
-            // if (!DisableReferencingFromCode)
-            //     ReferenceAssembliesFromCode(scriptText);
-
-            ////compile script and proxy as two separate actions
-            //var scriptComp = CSharpScript.Create(scriptText, CompilerSettings).RunAsync().Result;
-            //var scriptAsmName = scriptComp.Script.GetCompilation().AssemblyName;
-            //Assembly scriptAsm = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(scriptAsmName, StringComparison.OrdinalIgnoreCase));
-
-            //var scriptObject = scriptAsm.CreateObject("*", args);
-            //Type scriptType = scriptObject.GetType();
-
-            //this.ReferenceAssemblyOf<T>();
-            //string type = "";
-            //string proxyClass = scriptObject.BuildAlignToInterfaceCode<T>(out type, false);
-            //string parentClass = scriptType.FullName.Split('+').First(); //Submission#0+Script
-            //proxyClass = proxyClass.Replace(parentClass + ".", ""); //Compiler cannot compile Submission#0.Script so convert it into Script
-
-            //var proxyComp = scriptComp.ContinueWithAsync(proxyClass).Result;
-            //var proxyAsmName = proxyComp.Script.GetCompilation().AssemblyName;
-
-            //Assembly proxyAsm = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(proxyAsmName, StringComparison.OrdinalIgnoreCase));
-
-            //var proxyObject = proxyAsm.CreateObject("*", new object[] { scriptObject });
-
-            //return (T) proxyObject;
         }
 
         /// <summary>
@@ -701,10 +649,9 @@ namespace CSScriptLib
             if (assembly.Location().IsEmpty())
                 throw new Exception(
                     "Current version of Microsoft.CodeAnalysis.Scripting.dll doesn't support referencing assemblies " +
-                    "which are not loaded from the file location. You may want to use CS-Script MonoEvaluator (Mono.CSharp)");
+                    "which are not loaded from the file location.");
 
             if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>().Any(r => r.FilePath.IsSamePath(assembly.Location())))
-                //if (!CompilerSettings.MetadataReferences.Cast<UnresolvedMetadataReference>().Any(r => r.FilePath.IsSamePath(assembly.Location())))
                 //Future assembly aliases support:
                 //MetadataReference.CreateFromFile("asm.dll", new MetadataReferenceProperties().WithAliases(new[] { "lib_a", "external_lib_a" } })
                 CompilerSettings = CompilerSettings.AddReferences(assembly);
@@ -721,7 +668,6 @@ namespace CSScriptLib
         /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
         public IEvaluator ReferenceAssemblyByName(string assemblyPartialName)
         {
-            //return ReferenceAssembly(AssemblyLoader.LoadWithPartialName(assemblyPartialName));
             return ReferenceAssembly(AssemblyLoader.LoadByName(assemblyPartialName));
         }
 
@@ -811,8 +757,12 @@ namespace CSScriptLib
         public IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies = DomainAssemblies.AllStaticNonGAC)
 #endif
         {
-            return this;
-            throw new NotImplementedException();
+            // var libs = PlatformServices.Default.LibraryManager.GetReferencingLibraries("myLib")
+            //   .SelectMany(info => info.Assemblies)
+            //   .Select(info => Assembly.Load(new AssemblyName(info.Name)));
+
+            // return this;
+            throw new NotImplementedException("Not available on .NET Core");
 
             //NOTE: It is important to avoid loading the runtime itself (mscorelib) as it
             //will break the code evaluation (compilation).

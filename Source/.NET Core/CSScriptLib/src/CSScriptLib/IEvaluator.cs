@@ -102,10 +102,17 @@ namespace CSScriptLib
         /// <summary>
         /// Default value of the <see cref="CSScriptLib.IEvaluator"/>.
         /// DebugBuild property controlling the generation of the debug symbols.
+        /// <example>
+        /// <code>
+        /// CSScript.EvaluatorConfig.DebugBuild = true;
+        /// dynamic script = CSScript.Evaluator
+        ///                          .LoadMethod(...
+        /// </code>
+        /// </example>
         /// </summary>
         public bool DebugBuild { get; set; } = false;
 
-        bool refDomainAsms = true;
+        bool refDomainAsms = false;
 
         /// <summary>
         /// Flag that controls if the host AppDo,main referenced assemblies are automatically referenced at creation

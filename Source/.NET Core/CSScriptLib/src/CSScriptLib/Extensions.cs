@@ -18,11 +18,6 @@ using System.Threading;
 
 public static class Extensions
 {
-    public static Assembly GetCallingAssembly(this Assembly asm)
-    {
-        throw new NotImplementedException();
-    }
-
     public static string Location(this Assembly asm)
     {
         if (asm.IsDynamic())
@@ -124,70 +119,48 @@ public static class Extensions
     /// <returns>Created instance of the type.</returns>
     static object CreateInstance(Assembly asm, string typeName, params object[] args)
     {
-        if (typeName.IndexOf("*") != -1)
+        //note typeName for FindTypes does not include namespace
+        if (typeName == "*")
         {
-            //note typeName for FindTypes does not include namespace
-            if (typeName == "*")
+            //instantiate the first type found (but not auto-generated types)
+            //Ignore Roslyn internal type: "Submission#N"; real script class will be Submission#0+Script
+            foreach (Type type in asm.GetTypes())
             {
-                //instantiate the first type found (but not auto-generated types)
-                //Ignore Roslyn internal type: "Submission#N"; real script class will be Submission#0+Script
-                foreach (Type type in asm.GetTypes())
-                {
-                    bool isMonoInternalType = (type.FullName == "<InteractiveExpressionClass>");
-                    bool isRoslynInternalType = (type.FullName.StartsWith("Submission#") && !type.FullName.Contains("+"));
+                bool isMonoInternalType = (type.FullName == "<InteractiveExpressionClass>");
+                bool isRoslynInternalType = (type.FullName.StartsWith("Submission#") && !type.FullName.Contains("+"));
 
-                    if (!isMonoInternalType && !isRoslynInternalType)
-                    {
-                        return Activator.CreateInstance(type, args);
-                    }
+                if (!isMonoInternalType && !isRoslynInternalType)
+                {
+                    return Activator.CreateInstance(type, args);
                 }
-                return null;
             }
-            else
-            {
-                Type[] types = asm.GetTypes().Where(t => t.FullName == typeName).ToArray();
-                if (types.Length == 0)
-                    throw new Exception("Type " + typeName + " cannot be found.");
-                return Activator.CreateInstance(types.First(), args);
-            }
+            return null;
         }
         else
-            throw new NotImplementedException();
-        //return Activator.CreateInstance(types.First(), args);
-        //return createInstance(asm, typeName, args);
+        {
+            Type[] types = asm.GetTypes().Where(t => t.FullName == typeName || t.FullName == ("Submission#0+" + typeName)).ToArray();
+            if (types.Length == 0)
+                throw new Exception("Type " + typeName + " cannot be found.");
+            return Activator.CreateInstance(types.First(), args);
+        }
     }
-
-    //public static string GetBaseDirectory(this Assembly assembly)
-    //{
-    //string dir = AssemblyLoadContext.GetLoadContext(assembly.L ).GetBaseDirectory(assembly);
-    //if (!String.IsNullOrEmpty(dir))
-    //    return dir;
-
-    //    return AppContext.BaseDirectory;
-    //}
 }
 
 public class AssemblyLoader : AssemblyLoadContext
 {
     public static Assembly LoadFrom(string path)
     {
-        //return new AssemblyLoader().LoadFromAssemblyPath(path);
         return AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
     }
 
     public static Assembly LoadByName(string name)
     {
-        //return new AssemblyLoader().LoadFromAssemblyPath(path);
         return AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(name));
     }
 
     protected override Assembly Load(AssemblyName assemblyName)
     {
-        throw new NotImplementedException();
-        //var deps = DependencyContext.Default;
-        //var res = deps.CompileLibraries.Where(d => d.Name.Contains(assemblyName.Name)).ToList();
-        //var assembly = Assembly.Load(new AssemblyName(res.First(). Name));
-        //return assembly;
+        return AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
     }
 }
 

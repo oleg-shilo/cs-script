@@ -2,6 +2,7 @@ using System;
 
 // using CSScriptLib;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 public interface IScript
 {
@@ -12,6 +13,36 @@ namespace CSScriptLib.Client
 {
     public class Test
     {
+        static public void CrossReferenceCode()
+        {
+            IScript calcEngine = CSScript.Evaluator
+                                         .LoadCode<IScript>(@"using System;
+                                                              public class ScriptImpl : IScript
+                                                              {
+                                                                  public int Sum(int a, int b)
+                                                                  {
+                                                                      return a+b;
+                                                                  }
+                                                              }");
+
+            dynamic calc = CSScript.Evaluator
+                                   .ReferenceAssemblyOf<IScript>()
+                                   .LoadCode(@"using System;
+                                               public class Calc
+                                               {
+                                                   public IScript Engine;
+
+                                                   public int Sum(int a, int b)
+                                                   {
+                                                       return Engine.Sum(a, b);
+                                                   }
+                                               }");
+
+            calc.Engine = calcEngine;
+            var result = calc.Sum(7, 3);
+            Console.WriteLine(result);
+        }
+
         static public void CompileCode()
         {
             Assembly asm = CSScript.Evaluator
@@ -25,6 +56,7 @@ namespace CSScriptLib.Client
                                                   }");
 
             dynamic script = asm.CreateObject("*");
+
             var result = script.Sum(7, 3);
             Console.WriteLine(result);
         }

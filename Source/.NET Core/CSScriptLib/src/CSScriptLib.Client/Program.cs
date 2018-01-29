@@ -17,8 +17,10 @@ namespace CSScriptLib.Client
         {
             // test();
             CSScript.EvaluatorConfig.DebugBuild = true;
+            CSScript.EvaluatorConfig.RefernceDomainAsemblies = false;
 
-            Test.CompileCode();
+            // Test.CompileCode();
+            Test.CrossReferenceCode();
             // Test.CompileMethod();
             // Test.CompileCSharp_7();
             // Test.CompileDelegate();
