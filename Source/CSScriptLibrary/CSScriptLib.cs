@@ -878,20 +878,7 @@ namespace CSScriptLibrary
                     if (!debugBuild)
                         Utils.FileDelete(tempFile);
                     else
-                    {
-                        if (tempFiles == null)
-                        {
-                            tempFiles = new ArrayList();
-
-                            //Note: ApplicationExit will not be called if this library is hosted by a console application.
-                            //Thus CS-Script periodical cleanup will take care of the temp files
-
-                            //Application.ApplicationExit += new EventHandler(OnApplicationExit); //will not be available on .NET CE
-                            //AppDomain.CurrentDomain.DomainUnload += new EventHandler(CurrentDomain_DomainUnload);
-                            AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnApplicationExit);
-                        }
-                        tempFiles.Add(tempFile);
-                    }
+                        CSScript.NoteTempFile(tempFile);
                 }
             }
         }
@@ -1787,6 +1774,16 @@ namespace CSScriptLibrary
                         tempFiles.Add(tempFile);
                 }
             }
+        }
+
+        internal static void NoteTempFile(string file)
+        {
+            if (tempFiles == null)
+            {
+                tempFiles = new ArrayList();
+                AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnApplicationExit);
+            }
+            tempFiles.Add(file);
         }
 
         static void ScheduleCleanup()

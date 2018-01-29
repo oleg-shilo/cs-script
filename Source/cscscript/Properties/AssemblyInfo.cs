@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("C# Script engine Console executable")]
 [assembly: AssemblyDescription("C# Script engine Console executable")]
 [assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("Oleg Shilo")]
 [assembly: AssemblyProduct("C# Script engine")]
 [assembly: AssemblyCopyright("(C) 2004-2018 Oleg Shilo")]
 [assembly: AssemblyTrademark("")]

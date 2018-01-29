@@ -384,6 +384,11 @@ public static class CSScriptLibraryExtensionMethods
         return CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils.ObjectCaster<T>.BuildProxyClassCode(typeof(T), obj.GetType(), out typeFullName, injectNamespace);
     }
 
+    internal static string BuildAlignToInterfaceCode<T>(this Type type, out string typeFullName, bool injectNamespace) where T : class
+    {
+        return CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils.ObjectCaster<T>.BuildProxyClassCode(typeof(T), type, out typeFullName, injectNamespace);
+    }
+
     /// <summary>
     /// Attempts to align (pseudo typecast) object to interface.
     /// <para>The object does not necessarily need to implement the interface formally.</para>
@@ -1612,17 +1617,9 @@ namespace CSScriptLibrary
                 if (typeName == "*")
                 {
                     //instantiate the first type found (but not auto-generated types)
-                    //Ignore Roslyn internal type: "Submission#N"; real script class will be Submission#0+Script
-                    foreach (Type type in asm.GetModules()[0].GetTypes())
-                    {
-                        bool isMonoInternalType = (type.FullName == "<InteractiveExpressionClass>");
-                        bool isRoslynInternalType = (type.FullName.StartsWith("Submission#") && !type.FullName.Contains("+"));
-
-                        if (!isMonoInternalType && !isRoslynInternalType)
-                        {
-                            return createInstance(asm, type.FullName, args);
-                        }
-                    }
+                    var type = FindFirstScriptUserType(asm);
+                    if (type != null)
+                        return createInstance(asm, type.FullName, args);
                     return null;
                 }
                 else
@@ -1635,6 +1632,24 @@ namespace CSScriptLibrary
             }
             else
                 return createInstance(asm, typeName, args);
+        }
+
+        static public Type FindFirstScriptUserType(Assembly asm, string typeName = null)
+        {
+            //find the first type found (but not auto-generated types)
+            //Ignore Roslyn internal type: "Submission#N"; real script class will be Submission#0+Script
+            foreach (Type type in asm.GetModules()[0].GetTypes())
+            {
+                bool isMonoInternalType = (type.FullName == "<InteractiveExpressionClass>");
+                bool isRoslynInternalType = (type.FullName.StartsWith("Submission#") && !type.FullName.Contains("+"));
+
+                if (!isMonoInternalType && !isRoslynInternalType)
+                {
+                    if (typeName == null || type.Name == typeName)
+                        return type;
+                }
+            }
+            return null;
         }
 
         object createInstance(Assembly asm, string typeName, object[] args)

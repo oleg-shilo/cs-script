@@ -42,6 +42,8 @@ using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using csscript;
 using System.Diagnostics;
+using Microsoft.CodeAnalysis.Emit;
+using System.Text;
 
 // <summary>
 //<package id="Microsoft.Net.Compilers" version="1.2.0-beta-20151211-01" targetFramework="net45" developmentDependency="true" />
@@ -121,7 +123,9 @@ namespace CSScriptLibrary
         /// </para>
         /// </summary>
         /// <value><c>true</c> if 'debug build'; otherwise, <c>false</c>.</value>
-        public bool DebugBuild { get; set; }
+        public bool? DebugBuild { get; set; }
+
+        bool IsDebug { get { return this.DebugBuild ?? CSScript.EvaluatorConfig.DebugBuild; } }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RoslynEvaluator" /> class.
@@ -213,23 +217,73 @@ namespace CSScriptLibrary
             if (!DisableReferencingFromCode)
                 ReferenceAssembliesFromCode(scriptText);
 
-            if (prefereEval)
+            return CompileCode(scriptText, null);
+        }
+
+        Assembly CompileCode(string scriptText, string scriptFile)
+        {
+            string tempScriptFile = null;
+            try
             {
-                var get_asm_code = @" class EntryPoint{}; return typeof(EntryPoint).Assembly;";
-                return CSharpScript.EvaluateAsync<Assembly>(scriptText + get_asm_code, CompilerSettings).Result;
+                if (this.IsDebug)
+                {
+                    if (scriptFile == null)
+                    {
+                        tempScriptFile = CSScript.GetScriptTempFile();
+                        File.WriteAllText(tempScriptFile, scriptText);
+                    }
+
+                    scriptText = $"#line 1 \"{scriptFile ?? tempScriptFile}\"{Environment.NewLine}" + scriptText;
+                }
+
+                var compilation = CSharpScript.Create(scriptText, CompilerSettings)
+                                              .GetCompilation();
+
+                if (this.IsDebug)
+                    compilation = compilation.WithOptions(compilation.Options
+                                             .WithOptimizationLevel(OptimizationLevel.Debug)
+                                             .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+
+                using (var pdb = new MemoryStream())
+                using (var asm = new MemoryStream())
+                {
+                    var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
+
+                    EmitResult result;
+                    if (IsDebug)
+                        result = compilation.Emit(asm, pdb, options: emitOptions);
+                    else
+                        result = compilation.Emit(asm);
+
+                    if (!result.Success)
+                    {
+                        IEnumerable<Diagnostic> failures = result.Diagnostics.Where(d => d.IsWarningAsError ||
+                                                                                         d.Severity == DiagnosticSeverity.Error);
+
+                        var message = new StringBuilder();
+                        foreach (Diagnostic diagnostic in failures)
+                            message.AppendFormat($"{diagnostic.Id}: {diagnostic.GetMessage()}");
+                        throw new Exception("Compile error(s): " + message);
+                    }
+                    else
+                    {
+                        asm.Seek(0, SeekOrigin.Begin);
+                        if (IsDebug)
+                        {
+                            pdb.Seek(0, SeekOrigin.Begin);
+                            return AppDomain.CurrentDomain.Load(asm.GetBuffer(), pdb.GetBuffer());
+                        }
+                        else
+                            return AppDomain.CurrentDomain.Load(asm.GetBuffer());
+                    }
+                }
             }
-            else
+            finally
             {
-                var asmName = CSharpScript.Create(scriptText, CompilerSettings)
-                                          .RunAsync()
-                                          .Result
-                                          .Script
-                                          .GetCompilation()
-                                          .AssemblyName;
-
-                Assembly result = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(asmName, StringComparison.OrdinalIgnoreCase));
-
-                return result;
+                if (this.IsDebug)
+                    CSScript.NoteTempFile(tempScriptFile);
+                else
+                    Utils.FileDelete(tempScriptFile, false);
             }
         }
 
@@ -414,32 +468,65 @@ namespace CSScriptLibrary
         /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script.</returns>
         public T LoadCode<T>(string scriptText, params object[] args) where T : class
         {
+            return LoadCode<T>(scriptText, null, args);
+        }
+
+        T LoadCode<T>(string scriptText, string scriptFile, params object[] args) where T : class
+        {
             //Debug.Assert(false);
             if (!DisableReferencingFromCode)
                 ReferenceAssembliesFromCode(scriptText);
 
-            //compile script and proxy as two separate actions
-            var scriptComp = CSharpScript.Create(scriptText, CompilerSettings).RunAsync().Result;
-            var scriptAsmName = scriptComp.Script.GetCompilation().AssemblyName;
-            Assembly scriptAsm = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(scriptAsmName, StringComparison.OrdinalIgnoreCase));
+            if (this.IsDebug)
+            {
+                //compile script and proxy as two separate actions
 
-            var scriptObject = scriptAsm.CreateObject("*", args);
-            Type scriptType = scriptObject.GetType();
+                //fin the exact class name of the script by test compiling it and browsing the assembly
+                Assembly testAsm = CompileCode(scriptText, scriptFile);
+                Type scriptType = AsmBrowser.FindFirstScriptUserType(testAsm);
 
-            this.ReferenceAssemblyOf<T>();
-            string type = "";
-            string proxyClass = scriptObject.BuildAlignToInterfaceCode<T>(out type, false);
-            string parentClass = scriptType.FullName.Split('+').First(); //Submission#0+Script
-            proxyClass = proxyClass.Replace(parentClass + ".", ""); //Compiler cannot compile Submission#0.Script so convert it into Script
+                this.ReferenceAssemblyOf<T>();
 
-            var proxyComp = scriptComp.ContinueWithAsync(proxyClass).Result;
-            var proxyAsmName = proxyComp.Script.GetCompilation().AssemblyName;
+                string proxyTypeName = "";
+                string proxyClass = scriptType.BuildAlignToInterfaceCode<T>(out proxyTypeName, false);
+                string parentClass = scriptType.FullName.Split('+').First(); // the full name is "Submission#0+Script"
+                proxyClass = proxyClass.Replace(parentClass + ".", ""); //Compiler cannot compile the full name Submission#0.Script so convert it into short name Script
+                string separator = Environment.NewLine + "// start of user code" + Environment.NewLine;
 
-            Assembly proxyAsm = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(proxyAsmName, StringComparison.OrdinalIgnoreCase));
+                Assembly scriptAsm = CompileCode(proxyClass + separator + scriptText, scriptFile);
 
-            var proxyObject = proxyAsm.CreateObject("*", new object[] { scriptObject });
+                scriptType = AsmBrowser.FindFirstScriptUserType(scriptAsm, scriptType.Name);
+                var proxyType = AsmBrowser.FindFirstScriptUserType(scriptAsm, proxyTypeName);
 
-            return (T)proxyObject;
+                var scriptObject = Activator.CreateInstance(scriptType, args);
+                var proxyObject = Activator.CreateInstance(proxyType, new object[] { scriptObject });
+
+                return (T)proxyObject;
+            }
+            else
+            {
+                //compile script and proxy as two separate actions
+                var scriptComp = CSharpScript.Create(scriptText, CompilerSettings).RunAsync().Result;
+                var scriptAsmName = scriptComp.Script.GetCompilation().AssemblyName;
+                Assembly scriptAsm = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(scriptAsmName, StringComparison.OrdinalIgnoreCase));
+
+                var scriptObject = scriptAsm.CreateObject("*", args);
+                Type scriptType = scriptObject.GetType();
+
+                this.ReferenceAssemblyOf<T>();
+                string type = "";
+                string proxyClass = scriptObject.BuildAlignToInterfaceCode<T>(out type, false);
+                string parentClass = scriptType.FullName.Split('+').First(); //Submission#0+Script
+                proxyClass = proxyClass.Replace(parentClass + ".", ""); //Compiler cannot compile Submission#0.Script so convert it into Script
+
+                var proxyComp = scriptComp.ContinueWithAsync(proxyClass).Result;
+                var proxyAsmName = proxyComp.Script.GetCompilation().AssemblyName;
+                Assembly proxyAsm = AppDomain.CurrentDomain.GetAssemblies().First(a => a.FullName.StartsWith(proxyAsmName, StringComparison.OrdinalIgnoreCase));
+
+                var proxyObject = proxyAsm.CreateObject("*", new object[] { scriptObject });
+
+                return (T)proxyObject;
+            }
         }
 
         /// <summary>
@@ -484,7 +571,7 @@ namespace CSScriptLibrary
         /// <returns>Instance of the class defined in the script file.</returns>
         public object LoadFile(string scriptFile)
         {
-            return LoadCode(File.ReadAllText(scriptFile));
+            return CompileCode(File.ReadAllText(scriptFile), scriptFile).CreateObject("*");
         }
 
         /// <summary>
@@ -512,7 +599,7 @@ namespace CSScriptLibrary
         /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script file.</returns>
         public T LoadFile<T>(string scriptFile) where T : class
         {
-            return LoadCode<T>(File.ReadAllText(scriptFile));
+            return LoadCode<T>(File.ReadAllText(scriptFile), scriptFile);
         }
 
         /// <summary>

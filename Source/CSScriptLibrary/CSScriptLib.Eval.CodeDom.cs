@@ -122,7 +122,9 @@ namespace CSScriptLibrary
         /// <para>Note, currently only CodeDom fully supports generation of debugging symbols.</para>
         /// </summary>
         /// <value><c>true</c> if 'debug build'; otherwise, <c>false</c>.</value>
-        public bool DebugBuild { get; set; }
+        public bool? DebugBuild { get; set; }
+
+        bool IsDebug { get { return this.DebugBuild ?? CSScript.EvaluatorConfig.DebugBuild; } }
 
         /// <summary>
         /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s).
@@ -147,7 +149,7 @@ namespace CSScriptLibrary
         /// <returns>The compiled assembly.</returns>
         public Assembly CompileCode(string scriptText)
         {
-            return CSScript.LoadCode(scriptText, null, this.DebugBuild, this.referencedAssemblies.ToArray());
+            return CSScript.LoadCode(scriptText, null, this.IsDebug, this.referencedAssemblies.ToArray());
         }
 
         /// <summary>

@@ -8,6 +8,7 @@ using System.Reflection;
 [assembly: AssemblyTitle("C# Script engine Windows executable")]
 [assembly: AssemblyDescription("C# Script engine Windows executable")]
 [assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("Oleg Shilo")]
 [assembly: AssemblyProduct("C# Script engine")]
 [assembly: AssemblyCopyright("(C) 2004-2018 Oleg Shilo")]
 [assembly: AssemblyTrademark("")]

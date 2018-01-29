@@ -137,7 +137,7 @@ namespace CSScriptLibrary
                 {
                     code = scriptCode,
                     refAsms = asms.ToArray(),
-                    debug = evaluator.DebugBuild,
+                    debug = evaluator.DebugBuild ?? CSScript.EvaluatorConfig.DebugBuild,
                     inMemoryAsm = CSScript.GlobalSettings.InMemoryAssembly,
                     evaluatorType = evaluator.GetType()
                 };

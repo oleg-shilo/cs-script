@@ -217,7 +217,7 @@ namespace CSScriptLibrary
         //    }
         //}
 
-        bool debugBuild;
+        bool? debugBuild;
 
         /// <summary>
         /// Gets or sets a value indicating whether to compile script with debug symbols.
@@ -230,7 +230,7 @@ namespace CSScriptLibrary
         /// </para>
         /// </summary>
         /// <value><c>true</c> if 'debug build'; otherwise, <c>false</c>.</value>
-        public bool DebugBuild
+        public bool? DebugBuild
         {
             get
             {
@@ -240,9 +240,9 @@ namespace CSScriptLibrary
             set
             {
                 debugBuild = value;
-                IsDebugSymbolDefined = debugBuild;
-                IsTraceSymbolDefined = debugBuild;
-                CompilerSettings.GenerateDebugInfo = debugBuild;
+                IsDebugSymbolDefined = debugBuild ?? false;
+                IsTraceSymbolDefined = debugBuild ?? false;
+                CompilerSettings.GenerateDebugInfo = debugBuild ?? false;
             }
         }
 

@@ -278,8 +278,19 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
             // Generate the code
             using (StringWriter wr = new StringWriter())
             {
+                bool verbose = injectNamespace;
+
                 provider.GenerateCodeFromCompileUnit(compileUnit, wr, new CodeGeneratorOptions());
                 string code = wr.ToString();
+
+                if (!verbose)
+                {
+                    var codeStart = code.IndexOf("using System;");
+                    if (codeStart != -1)
+                        code = code.Substring(codeStart)
+                                   .Replace(Environment.NewLine + Environment.NewLine, Environment.NewLine)
+                                   .Replace(Environment.NewLine + Environment.NewLine, Environment.NewLine); // deflate
+                }
                 return code;
             }
         }
