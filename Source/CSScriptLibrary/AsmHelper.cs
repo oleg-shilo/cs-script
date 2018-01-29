@@ -1053,8 +1053,8 @@ namespace CSScriptLibrary
             if (!this.disposed)
             {
                 if (asmBrowser != null)
-                    asmBrowser.Dispose();
-
+                    try { asmBrowser.Dispose(); }
+                    catch { } // Dispose should never throw no matter what
                 Unload();
             }
             disposed = true;
@@ -1145,6 +1145,16 @@ namespace CSScriptLibrary
 
         AsmBrowser asmBrowser;
 
+        // https://github.com/oleg-shilo/cs-script/issues/98
+        // public override object InitializeLifetimeService()
+        // {
+        //     var lease = (ILease)base.InitializeLifetimeService();
+        //     if (lease.CurrentState == LeaseState.Initial)
+        //         lease.InitialLeaseTime = TimeSpan.Zero;
+
+        //     return (lease);
+        // }
+
         public AsmRemoteBrowser()
         {
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(ResolveEventHandler);
@@ -1164,7 +1174,8 @@ namespace CSScriptLibrary
         public void Dispose()
         {
             if (asmBrowser != null)
-                asmBrowser.Dispose();
+                try { asmBrowser.Dispose(); }
+                catch { } // Dispose should never throw no matter what
 
             AppDomain.CurrentDomain.AssemblyResolve -= new ResolveEventHandler(ResolveEventHandler);
         }
