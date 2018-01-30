@@ -236,13 +236,14 @@ namespace CSScriptLibrary
                     scriptText = $"#line 1 \"{scriptFile ?? tempScriptFile}\"{Environment.NewLine}" + scriptText;
                 }
 
-                var compilation = CSharpScript.Create(scriptText, CompilerSettings)
+                var compilation = CSharpScript.Create(scriptText, CompilerSettings
+                                                                     .WithFilePath(scriptFile ?? tempScriptFile))
                                               .GetCompilation();
 
                 if (this.IsDebug)
                     compilation = compilation.WithOptions(compilation.Options
-                                             .WithOptimizationLevel(OptimizationLevel.Debug)
-                                             .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+                                                                     .WithOptimizationLevel(OptimizationLevel.Debug)
+                                                                     .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
 
                 using (var pdb = new MemoryStream())
                 using (var asm = new MemoryStream())
@@ -262,8 +263,25 @@ namespace CSScriptLibrary
 
                         var message = new StringBuilder();
                         foreach (Diagnostic diagnostic in failures)
-                            message.AppendFormat($"{diagnostic.Id}: {diagnostic.GetMessage()}");
-                        throw new Exception("Compile error(s): " + message);
+                        {
+                            string error_location = "";
+                            if (diagnostic.Location.IsInSource)
+                            {
+                                var error_pos = diagnostic.Location.GetLineSpan().StartLinePosition;
+
+                                int error_line = error_pos.Line + 1;
+                                int error_column = error_pos.Character + 1;
+
+                                // the actual source contains an injected '#line' directive f compiled with debug symbols
+                                if (IsDebug)
+                                    error_line--;
+
+                                error_location = $"{diagnostic.Location.SourceTree.FilePath}({error_line},{ error_column}): ";
+                            }
+                            message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
+                        }
+                        var errors = message.ToString();
+                        throw new CompilerException(errors);
                     }
                     else
                     {

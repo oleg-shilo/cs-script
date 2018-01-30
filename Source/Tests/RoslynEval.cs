@@ -5,6 +5,7 @@ using CSScriptLibrary;
 using Microsoft.CodeAnalysis.Scripting;
 using Tests;
 using Xunit;
+using csscript;
 
 //https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples#expr
 public class RoslynEval
@@ -45,10 +46,10 @@ public class RoslynEval
     {
         lock (As.Blocking)
         {
-            var ex = Assert.Throws<CompilationErrorException>(() =>
+            var ex = Assert.Throws<CompilerException>(() =>
                      CSScript.RoslynEvaluator.CompileCode(classCode.Replace("public", "error_word")));
 
-            Assert.Equal("(1,12): error CS1002: ; expected", ex.Message);
+            Assert.Contains("(1,12): error CS1002: ; expected", ex.Message);
         }
     }
 

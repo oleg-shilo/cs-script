@@ -51,6 +51,7 @@ using csscript;
 using CSScriptLib;
 using System.Text;
 using Microsoft.CodeAnalysis.Emit;
+using System.Runtime.Serialization;
 
 // <summary>
 //<package id="Microsoft.Net.Compilers" version="1.2.0-beta-20151211-01" targetFramework="net45" developmentDependency="true" />
@@ -65,6 +66,34 @@ using Microsoft.CodeAnalysis.Emit;
 // </summary>
 namespace CSScriptLib
 {
+    /// <summary>
+    /// The exception that is thrown when a the script compiler error occurs.
+    /// </summary>
+    [Serializable]
+    public class CompilerException : ApplicationException
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CompilerException"/> class.
+        /// </summary>
+        public CompilerException() { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CompilerException"/> class.
+        /// </summary>
+        /// <param name="info">The object that holds the serialized object data.</param>
+        /// <param name="context">The contextual information about the source or destination.</param>
+        public CompilerException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CompilerException"/> class.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public CompilerException(string message)
+            : base(message)
+        {
+        }
+    }
+
     /// <summary>
     /// A wrapper class that encapsulates the functionality of the Roslyn  evaluator (<see cref="Microsoft.CodeAnalysis.CSharp.Scripting"/>).
     /// </summary>
@@ -217,8 +246,25 @@ namespace CSScriptLib
 
                         var message = new StringBuilder();
                         foreach (Diagnostic diagnostic in failures)
-                            message.AppendFormat($"{diagnostic.Id}: {diagnostic.GetMessage()}");
-                        throw new Exception("Compile error(s): " + message);
+                        {
+                            string error_location = "";
+                            if (diagnostic.Location.IsInSource)
+                            {
+                                var error_pos = diagnostic.Location.GetLineSpan().StartLinePosition;
+
+                                int error_line = error_pos.Line + 1;
+                                int error_column = error_pos.Character + 1;
+
+                                // the actual source contains an injected '#line' directive f compiled with debug symbols
+                                if (IsDebug)
+                                    error_line--;
+
+                                error_location = $"{diagnostic.Location.SourceTree.FilePath}({error_line},{ error_column}): ";
+                            }
+                            message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
+                        }
+                        var errors = message.ToString();
+                        throw new CompilerException(errors);
                     }
                     else
                     {
@@ -235,7 +281,7 @@ namespace CSScriptLib
             }
             finally
             {
-                if (this.DebugBuild ?? CSScript.EvaluatorConfig.DebugBuild)
+                if (this.IsDebug)
                     CSScript.NoteTempFile(tempScriptFile);
                 else
                     tempScriptFile.FileDelete(false);
