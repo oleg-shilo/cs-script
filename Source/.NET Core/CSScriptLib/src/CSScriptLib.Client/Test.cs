@@ -1,4 +1,6 @@
+using Newtonsoft.Json.Linq;
 using System;
+using System.Net;
 
 // using CSScriptLib;
 using System.Reflection;
@@ -13,6 +15,39 @@ namespace CSScriptLib.Client
 {
     public class Test
     {
+        static public void ReferencingPackagesCode()
+        {
+            dynamic script = CSScript.Evaluator
+                                        .ReferenceAssemblyByName("Microsoft.CSharp")
+                                        .ReferenceAssemblyOf<WebClient>()
+                                        .ReferenceAssemblyOf<JArray>()
+                                        .LoadCode(@"
+
+                                        using System;
+                                        using System.Text;
+                                        using System.Net;
+                                        using Newtonsoft.Json.Linq;
+
+                                        public class Script
+                                        {
+                                            public string Run(string url)
+                                            {
+                                                var client = new WebClient();
+                                                client.Headers.Add(""user-agent"", ""anything"");
+
+                                                var releases = client.DownloadString(url);
+
+                                                var report = new StringBuilder();
+                                                foreach (dynamic release in JArray.Parse(releases))
+                                                    report.AppendLine(release.name.ToString());
+                                                return report.ToString();
+                                            }
+                                        }");
+
+            var report = script.Run("https://api.github.com/repos/oleg-shilo/cs-script/releases");
+            Console.WriteLine(report);
+        }
+
         static public void CrossReferenceCode()
         {
             IScript calcEngine = CSScript.Evaluator
