@@ -18,6 +18,15 @@ using System.Threading;
 
 public static class Extensions
 {
+    public static string Directory(this Assembly asm)
+    {
+        var file = asm.Location();
+        if (file.HasText())
+            return Path.GetDirectoryName(file);
+        else
+            return "";
+    }
+
     public static string Location(this Assembly asm)
     {
         if (asm.IsDynamic())

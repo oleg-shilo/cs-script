@@ -1,5 +1,6 @@
 using Newtonsoft.Json.Linq;
 using System;
+using System.IO;
 using System.Net;
 
 // using CSScriptLib;
@@ -17,12 +18,16 @@ namespace CSScriptLib.Client
     {
         static public void ReferencingPackagesCode()
         {
-            dynamic script = CSScript.Evaluator
-                                        .ReferenceAssemblyByName("Microsoft.CSharp")
-                                        .ReferenceAssemblyOf<WebClient>()
-                                        .ReferenceAssemblyOf<JArray>()
-                                        .LoadCode(@"
+            // CSScript.GlobalSettings.AddSearchDirsFromHost();
 
+            dynamic script = CSScript.Evaluator
+                                        //.ReferenceAssemblyByName("Microsoft.CSharp")
+                                        //.ReferenceAssemblyOf<WebClient>()
+                                        //.ReferenceAssemblyOf<JArray>()
+                                        .LoadCode(@"
+                                        //css_ref Microsoft.CSharp
+                                        //css_ref System.Net.WebClient
+                                        //css_ref Newtonsoft.Json
                                         using System;
                                         using System.Text;
                                         using System.Net;

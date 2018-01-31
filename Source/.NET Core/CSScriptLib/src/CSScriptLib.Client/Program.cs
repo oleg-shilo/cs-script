@@ -19,6 +19,7 @@ namespace CSScriptLib.Client
         {
             // CSScript.EvaluatorConfig.DebugBuild = true;
 
+            Test.ReferencingPackagesCode(); return;
             Test.CompileCode();
             Test.CompileMethod();
             Test.CompileCSharp_7();
@@ -27,7 +28,6 @@ namespace CSScriptLib.Client
             Test.LoadCode();
             Test.LoadCode2();
             Test.CrossReferenceCode();
-            Test.ReferencingPackagesCode();
         }
     }
 }

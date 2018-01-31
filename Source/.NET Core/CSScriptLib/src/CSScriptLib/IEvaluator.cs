@@ -112,7 +112,7 @@ namespace CSScriptLib
         /// </summary>
         public bool DebugBuild { get; set; } = false;
 
-        bool refDomainAsms = false;
+        bool refDomainAsms = true;
 
         /// <summary>
         /// Flag that controls if the host AppDo,main referenced assemblies are automatically referenced at creation

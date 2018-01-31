@@ -207,7 +207,10 @@ namespace CSScriptLib
             try
             {
                 if (!DisableReferencingFromCode)
-                    ReferenceAssembliesFromCode(scriptText);
+                {
+                    var localDir = Path.GetDirectoryName(this.GetType().Assembly.Location);
+                    ReferenceAssembliesFromCode(scriptText, localDir);
+                }
 
                 if (this.IsDebug)
                 {
@@ -414,25 +417,35 @@ namespace CSScriptLib
 
             var parser = new csscript.CSharpParser(code);
 
-            var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            var globalProbingDirs = CSScript.GlobalSettings.SearchDirs
+                                                           .Select(Environment.ExpandEnvironmentVariables)
+                                                           .Where(x => x.Any());
 
-            var dirs = searchDirs
-                                 //zos
-                                 //.Concat(new string[] { Assembly.GetCallingAssembly().GetAssemblyDirectoryName() })
-                                 .Concat(parser.ExtraSearchDirs)
+            var dirs = searchDirs.Concat(parser.ExtraSearchDirs)
                                  .Concat(globalProbingDirs)
                                  .ToArray();
 
             dirs = dirs.Select(x => Path.GetFullPath(x)).Distinct().ToArray();
 
             var asms = new List<string>(parser.RefAssemblies);
-
-            if (!parser.IgnoreNamespaces.Any(x => x == "*"))
-                asms.AddRange(parser.RefNamespaces.Except(parser.IgnoreNamespaces));
+            var unresolved_asms = new List<string>();
 
             foreach (var asm in asms)
-                foreach (string asmFile in AssemblyResolver.FindAssembly(asm, dirs))
-                    retval.Add(asmFile);
+            {
+                var files = AssemblyResolver.FindAssembly(asm, dirs);
+                if (files.Any())
+                    retval.AddRange(files);
+                else
+                    unresolved_asms.Add(asm);
+            }
+
+            if (!parser.IgnoreNamespaces.Any(x => x == "*"))
+                foreach (var asm in parser.RefNamespaces.Except(parser.IgnoreNamespaces))
+                    foreach (string asmFile in AssemblyResolver.FindAssembly(asm, dirs))
+                        retval.Add(asmFile);
+
+            foreach (var asm in unresolved_asms)
+                this.ReferenceAssemblyByName(asm);
 
             return retval.Distinct().ToArray();
         }
@@ -665,7 +678,7 @@ namespace CSScriptLib
         /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
         public IEvaluator ReferenceAssembly(string assembly)
         {
-            var globalProbingDirs = Environment.ExpandEnvironmentVariables(CSScript.GlobalSettings.SearchDirs).Split(",;".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            var globalProbingDirs = CSScript.GlobalSettings.SearchDirs.ToList();
 
             //zos
             //globalProbingDirs.Add(Assembly.GetCallingAssembly().GetAssemblyDirectoryName());
@@ -803,11 +816,13 @@ namespace CSScriptLib
         public IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies = DomainAssemblies.AllStaticNonGAC)
 #endif
         {
-            // var libs = PlatformServices.Default.LibraryManager.GetReferencingLibraries("myLib")
-            //   .SelectMany(info => info.Assemblies)
-            //   .Select(info => Assembly.Load(new AssemblyName(info.Name)));
-
-            // return this;
+            foreach (var name in Assembly.GetCallingAssembly().GetReferencedAssemblies())
+            {
+                var asm = Assembly.Load(name); // the asm is already loaded by the host anyway
+                ReferenceAssembly(asm);
+            }
+            // there are not ApPDomain assemblies but the assemblies referenced by the host
+            return this;
             throw new NotImplementedException("Not available on .NET Core");
 
             //NOTE: It is important to avoid loading the runtime itself (mscorelib) as it

@@ -15,8 +15,40 @@ namespace CSScriptLib
 {
     public class Settings
     {
-        public string SearchDirs { get; set; } = "";
-        //public List<string> SearchDirs { get; set; } = new List<string>();
+        public string[] SearchDirs { get => searchDirs.ToArray(); }
+
+        List<string> searchDirs { get; set; } = new List<string>();
+
+        public Settings ClearSearchDirs()
+        {
+            searchDirs.Clear();
+            return this;
+        }
+
+        public Settings AddSearchDir(string dir)
+        {
+            searchDirs.Add(Environment.ExpandEnvironmentVariables(dir));
+            return this;
+        }
+
+        public Settings AddSearchDirsFromHost()
+        {
+            try
+            {
+                var dirs = new List<string>();
+                foreach (var asm in Assembly.GetCallingAssembly().GetReferencedAssemblies())
+                    try
+                    {
+                        var dir = Assembly.Load(asm).Directory(); // the asm is already loaded by the host anyway
+                        if (dir.HasText())
+                            dirs.Add(dir);
+                    }
+                    catch { }
+                searchDirs.AddRange(dirs.Distinct());
+            }
+            catch { }
+            return this;
+        }
     }
 
     public partial class CSScript
