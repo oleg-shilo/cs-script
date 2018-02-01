@@ -1144,7 +1144,7 @@ namespace CSScriptLibrary
         string[] GetMembersOf(object obj);
     }
 
-    internal class AsmRemoteBrowser : MarshalByRefObject, IAsmBrowser
+    internal class AsmRemoteBrowser : MarshalByRefObjectWithInfiniteLifetime, IAsmBrowser
     {
         string workingDir;
 
