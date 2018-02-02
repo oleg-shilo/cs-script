@@ -43,6 +43,7 @@ using CSScriptLibrary;
 using csscript;
 using System.Runtime.Remoting.Lifetime;
 using System.Threading;
+using System.Diagnostics;
 
 /// <summary>
 /// Method extensions for
@@ -1282,6 +1283,8 @@ namespace CSScriptLibrary
 
         public T AlignToInterface<T>(object obj) where T : class
         {
+            Debug.Assert(false);
+
             var retval = CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils.ObjectCaster<T>.As(obj);
 
             if (retval == null)
@@ -1634,7 +1637,12 @@ namespace CSScriptLibrary
                 return createInstance(asm, typeName, args);
         }
 
-        static public Type FindFirstScriptUserType(Assembly asm, string typeName = null)
+        static public Type FindFirstScriptUserType(Assembly asm)
+        {
+            return FindFirstScriptUserType(asm, null);
+        }
+
+        static public Type FindFirstScriptUserType(Assembly asm, string typeName)
         {
             //find the first type found (but not auto-generated types)
             //Ignore Roslyn internal type: "Submission#N"; real script class will be Submission#0+Script
@@ -1915,7 +1923,7 @@ namespace CSScriptLibrary
 /// the hosting application is terminated, all objects will be finalized anyway.
 ///
 /// Without the modification, if there is no interaction between script and host for more than
-/// 5 minutes (the default lease time for .NET Remoting), a <see cref="RemotingException"/>
+/// 5 minutes (the default lease time for .NET Remoting), a <see cref="T:System.Runtime.RemotingException"/>
 /// may be thrown, stating:
 /// <![CDATA[Object '/<guid>/<id>.rem' has been disconnected or does not exist at the server.]]>
 /// </remarks>

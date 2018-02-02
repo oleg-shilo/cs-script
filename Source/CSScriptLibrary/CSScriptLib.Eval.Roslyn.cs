@@ -189,8 +189,6 @@ namespace CSScriptLibrary
             CSharpScript.EvaluateAsync("1 + 2"); //this will loaded all required assemblies
         }
 
-        static bool prefereEval = true;
-
         /// <summary>
         /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s).
         /// </summary>

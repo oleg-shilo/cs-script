@@ -239,11 +239,12 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
 
             compileUnit.ReferencedAssemblies.Add(sourceType.Assembly.Location());
             compileUnit.ReferencedAssemblies.Add(interfaceType.Assembly.Location());
+            compileUnit.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location());
 
             foreach (var asmFile in refAssemblies)
                 compileUnit.ReferencedAssemblies.Add(asmFile);
 
-            // Generate the code
+            // Generate the code (for testing)
             using (StringWriter wr = new StringWriter())
             {
                 provider.GenerateCodeFromCompileUnit(compileUnit, wr, new CodeGeneratorOptions());
@@ -340,7 +341,8 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
                 typeFuleName = className;
 
             CodeTypeDeclaration genClass = new CodeTypeDeclaration(className);
-            genClass.BaseTypes.Add(new CodeTypeReference(typeof(MarshalByRefObject)));
+            // genClass.BaseTypes.Add(new CodeTypeReference(typeof(MarshalByRefObject))); // zos
+            genClass.BaseTypes.Add(new CodeTypeReference(typeof(MarshalByRefObjectWithInfiniteLifetime)));
             genClass.BaseTypes.Add(new CodeTypeReference(interfaceType));
             ns.Types.Add(genClass);
 
