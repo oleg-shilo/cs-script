@@ -16,8 +16,17 @@ using System.Threading;
 
 //http://dotnet.github.io/port-to-core/Moq4_ApiPortabilityAnalysis.htm
 
+/// <summary>
+/// Common extensions class.
+/// </summary>
 public static class Extensions
 {
+    /// <summary>
+    /// Safely retrieves parent directory of the assembly. Returns empty string if the assembly is
+    /// a dynamic or in-memory assembly.
+    /// </summary>
+    /// <param name="asm">The asm.</param>
+    /// <returns></returns>
     public static string Directory(this Assembly asm)
     {
         var file = asm.Location();
@@ -27,6 +36,12 @@ public static class Extensions
             return "";
     }
 
+    /// <summary>
+    /// Safely retrieves parent location of the assembly. Returns empty string if the assembly is
+    /// a dynamic or in-memory assembly.
+    /// </summary>
+    /// <param name="asm">The asm.</param>
+    /// <returns></returns>
     public static string Location(this Assembly asm)
     {
         if (asm.IsDynamic())
@@ -41,6 +56,13 @@ public static class Extensions
             return asm.Location;
     }
 
+    /// <summary>
+    /// Determines whether the assembly is dynamic.
+    /// </summary>
+    /// <param name="asm">The asm.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified asm is dynamic; otherwise, <c>false</c>.
+    /// </returns>
     public static bool IsDynamic(this Assembly asm)
     {
         //http://bloggingabout.net/blogs/vagif/archive/2010/07/02/net-4-0-and-notsupportedexception-complaining-about-dynamic-assemblies.aspx
@@ -48,26 +70,56 @@ public static class Extensions
         return asm.GetType().FullName.EndsWith("AssemblyBuilder") || asm.Location == null || asm.Location == "";
     }
 
-    public static Assembly Assembly(this Type t)
+    /// <summary>
+    /// returns an assembly of a specified type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns></returns>
+    public static Assembly Assembly(this Type type)
     {
-        return t.GetTypeInfo().Assembly;
+        return type.GetTypeInfo().Assembly;
     }
 
+    /// <summary>
+    /// Determines whether string has text.
+    /// </summary>
+    /// <param name="txt">The text.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified text has text; otherwise, <c>false</c>.
+    /// </returns>
     public static bool HasText(this string txt)
     {
         return !string.IsNullOrEmpty(txt);
     }
 
+    /// <summary>
+    /// Determines whether the text is empty.
+    /// </summary>
+    /// <param name="txt">The text.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified text is empty; otherwise, <c>false</c>.
+    /// </returns>
     public static bool IsEmpty(this string txt)
     {
         return string.IsNullOrEmpty(txt);
     }
 
+    /// <summary>
+    /// Determines whether the hosting OS is Linux.
+    /// </summary>
+    /// <returns>
+    ///   <c>true</c> if hosting OS is Linux; otherwise, <c>false</c>.
+    /// </returns>
     public static bool IsLinux()
     {
         return (RuntimeInformation.IsOSPlatform(OSPlatform.Linux));
     }
 
+    /// <summary>
+    /// Files the delete.
+    /// </summary>
+    /// <param name="filePath">The file path.</param>
+    /// <param name="rethrow">if set to <c>true</c> [rethrow].</param>
     public static void FileDelete(this string filePath, bool rethrow)
     {
         //There are the reports about
@@ -92,6 +144,12 @@ public static class Extensions
         }
     }
 
+    /// <summary>
+    /// Compare paths using case sensitivity based on the OS type.
+    /// </summary>
+    /// <param name="path1">The path1.</param>
+    /// <param name="path2">The path2.</param>
+    /// <returns></returns>
     public static int PathCompare(string path1, string path2)
     {
         if (IsLinux())
@@ -100,21 +158,49 @@ public static class Extensions
             return string.Compare(path1, path2, true);
     }
 
+    /// <summary>
+    /// Determines whether two paths are same. OS/FS neutral algorithm.
+    /// </summary>
+    /// <param name="path1">The path1.</param>
+    /// <param name="path2">The path2.</param>
+    /// <returns>
+    ///   <c>true</c> if [is same path] [the specified path2]; otherwise, <c>false</c>.
+    /// </returns>
     public static bool IsSamePath(this string path1, string path2)
     {
         return PathCompare(path1, path2) == 0;
     }
 
-    public static MethodInfo[] GetMethods(this Type t)
+    /// <summary>
+    /// Gets the methods of the specified type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns></returns>
+    public static MethodInfo[] GetMethods(this Type type)
     {
-        return t.GetTypeInfo().GetMethods();
+        return type.GetTypeInfo().GetMethods();
     }
 
-    public static string GetName(this Type t)
+    /// <summary>
+    /// Gets the name of the type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns></returns>
+    public static string GetName(this Type type)
     {
-        return t.GetTypeInfo().Name;
+        return type.GetTypeInfo().Name;
     }
 
+    /// <summary>
+    /// Creates instance of a class from underlying assembly.
+    /// </summary>
+    /// <param name="asm">The asm.</param>
+    /// <param name="typeName">The 'Type' full name of the type to create. (see Assembly.CreateInstance()).
+    /// You can use wild card meaning the first type found. However only full wild card "*" is supported.</param>
+    /// <param name="args">The non default constructor arguments.</param>
+    /// <returns>
+    /// Instance of the 'Type'. Throws an ApplicationException if the instance cannot be created.
+    /// </returns>
     public static object CreateObject(this Assembly asm, string typeName, params object[] args)
     {
         return CreateInstance(asm, typeName, args);
@@ -123,9 +209,13 @@ public static class Extensions
     /// <summary>
     /// Creates instance of a Type from underlying assembly.
     /// </summary>
+    /// <param name="asm">The asm.</param>
     /// <param name="typeName">Name of the type to be instantiated. Allows wild card character (e.g. *.MyClass can be used to instantiate MyNamespace.MyClass).</param>
     /// <param name="args">The non default constructor arguments.</param>
-    /// <returns>Created instance of the type.</returns>
+    /// <returns>
+    /// Created instance of the type.
+    /// </returns>
+    /// <exception cref="System.Exception">Type " + typeName + " cannot be found.</exception>
     static object CreateInstance(Assembly asm, string typeName, params object[] args)
     {
         //note typeName for FindTypes does not include namespace
@@ -155,18 +245,36 @@ public static class Extensions
     }
 }
 
+/// <summary>
+/// Class that mimics AppDomain functionality.
+/// </summary>
 public class AssemblyLoader : AssemblyLoadContext
 {
+    /// <summary>
+    /// Loads an assembly from the specified file path.
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <returns></returns>
     public static Assembly LoadFrom(string path)
     {
         return AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
     }
 
+    /// <summary>
+    /// Loads the assembly by its name.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns></returns>
     public static Assembly LoadByName(string name)
     {
         return AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(name));
     }
 
+    /// <summary>
+    /// Loads the assembly by the specified assembly name.
+    /// </summary>
+    /// <param name="assemblyName">Name of the assembly.</param>
+    /// <returns></returns>
     protected override Assembly Load(AssemblyName assemblyName)
     {
         return AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);

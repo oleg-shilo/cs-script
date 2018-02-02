@@ -13,24 +13,44 @@ using System.Text;
 
 namespace CSScriptLib
 {
+    /// <summary>
+    /// Settings is an class that holds CS-Script application settings.
+    /// </summary>
     public class Settings
     {
+        /// <summary>
+        /// List of directories to be used to search (probing) for referenced assemblies and script files.
+        /// This setting is similar to the system environment variable PATH.
+        /// </summary>
         public string[] SearchDirs { get => searchDirs.ToArray(); }
 
         List<string> searchDirs { get; set; } = new List<string>();
 
+        /// <summary>
+        /// Clears the search directories.
+        /// </summary>
+        /// <returns></returns>
         public Settings ClearSearchDirs()
         {
             searchDirs.Clear();
             return this;
         }
 
+        /// <summary>
+        /// Adds the search directories aggregated from the unique locations of all assemblies referenced by the host application.
+        /// </summary>
+        /// <param name="dir">The dir.</param>
+        /// <returns></returns>
         public Settings AddSearchDir(string dir)
         {
             searchDirs.Add(Environment.ExpandEnvironmentVariables(dir));
             return this;
         }
 
+        /// <summary>
+        /// Adds the search dirs from host.
+        /// </summary>
+        /// <returns></returns>
         public Settings AddSearchDirsFromHost()
         {
             try
@@ -51,6 +71,9 @@ namespace CSScriptLib
         }
     }
 
+    /// <summary>
+    /// Class which is implements CS-Script class library interface.
+    /// </summary>
     public partial class CSScript
     {
         static string tempDir = null;
@@ -103,6 +126,10 @@ namespace CSScriptLib
             }
         }
 
+        /// <summary>
+        /// Settings object containing runtime settings, which controls script compilation/execution.
+        /// This is Settings class essentially is a deserialized content of the CS-Script configuration file (css_config.xml).
+        /// </summary>
         static public Settings GlobalSettings = new Settings();
 
         /// <summary>

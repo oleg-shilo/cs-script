@@ -9,7 +9,24 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-  </PropertyGroup>
+    <!--<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>-->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.0.0</Version>
+    <Authors>Oleg Shilo</Authors>
+    <Description>CS-Script engine Class Library for .NET Core</Description>
+    <Copyright>(C) 2018 Oleg Shilo</Copyright>
+    <PackageLicenseUrl>https://github.com/oleg-shilo/cs-script/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/oleg-shilo/cs-script/master/Source/wiki/images/css_logo_codeplex_256x256_2.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/oleg-shilo/cs-script.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+
+</PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin\Debug\netstandard1.6\CSScriptLib.xml</DocumentationFile>

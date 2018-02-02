@@ -1,7 +1,11 @@
+//css_args -inmem:0
 using System.Runtime.Remoting.Lifetime;
 using System;
 using System.Threading;
 using CSScriptLibrary;
+
+// This hosting sample can only work from the file-full host assemblies. Thus the host must be either 
+// an application or a script executed with -inmem:0 switch
 
 public interface IScript
 {
@@ -34,7 +38,7 @@ class Host
     {
         ClientSponsor scriptSponsor; //need to have as local variables to prevent unintended collection by GC
         ClientSponsor helperSponsor;
-        
+
         using (var helper = new AsmHelper(CSScript.CompileCode(code), null, false))
         {
             IScript script = helper.CreateAndAlignToInterface<IScript>("*");
@@ -42,7 +46,7 @@ class Host
             if (extensionMinutes != -1)
             {
                 helperSponsor = helper.RemoteObject.ExtendLifeFromMinutes(extensionMinutes); //this line is required if the script methods to be invoked though helper.Invoke(...)
-                scriptSponsor = (script as MarshalByRefObject).ExtendLifeFromMinutes(extensionMinutes);
+                scriptSponsor = script.ExtendLifeFromMinutes(extensionMinutes);
             }
 
             try

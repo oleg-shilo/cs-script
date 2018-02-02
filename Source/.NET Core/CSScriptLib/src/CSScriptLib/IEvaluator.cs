@@ -7,8 +7,23 @@ using System.Threading.Tasks;
 
 namespace CSScriptLib
 {
+    /// <summary>
+    /// Delegate which is used as a return type for AsmHelper.GetMethodInvoker().
+    ///
+    /// AsmHelper.GetStaticMethod() and AsmHelper.GetMethod() allow obtaining dynamic method delegate emitted on the base of the MethodInfo (from the compiled script type).
+    /// </summary>
+    /// <param name="paramters">Optional method parameters.</param>
+    /// <returns>Returns MethodInfo return value</returns>
     public delegate object MethodDelegate(params object[] paramters);
 
+    /// <summary>
+    /// Delegate which is used as a return type for AsmHelper.GetMethodInvoker().
+    ///
+    /// AsmHelper.GetStaticMethod() and AsmHelper.GetMethod() allow obtaining dynamic method delegate emitted on the base of the MethodInfo (from the compiled script type).
+    /// </summary>
+    /// <typeparam name="T">The delegate return type.</typeparam>
+    /// <param name="paramters">Optional method parameters.</param>
+    /// <returns>Returns MethodInfo return value</returns>
     public delegate T MethodDelegate<T>(params object[] paramters);
 
     /// <summary>

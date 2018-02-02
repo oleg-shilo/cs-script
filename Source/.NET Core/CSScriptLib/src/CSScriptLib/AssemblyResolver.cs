@@ -21,6 +21,7 @@ namespace csscript
     /// <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
     /// <returns></returns>
     public delegate string[] ResolveSourceFileAlgorithm(string file, string[] searchDirs, bool throwOnError);
+
     /// <summary>
     /// Delegate implementing assembly file probing algorithm.
     /// </summary>
@@ -29,6 +30,9 @@ namespace csscript
     /// <returns></returns>
     public delegate string[] ResolveAssemblyHandler(string file, string[] searchDirs);
 
+    /// <summary>
+    /// Utility class for assembly probing.
+    /// </summary>
     public class AssemblyResolver
     {
         /// <summary>
@@ -57,7 +61,7 @@ namespace csscript
         /// </summary>
         /// <param name="name">'namespace'/assembly(file) name</param>
         /// <param name="searchDirs">Assembly search directories</param>
-        /// <para>If the default implementation isn't suitable then you can set <c>CSScript.FindAssemblyAlgorithm</c> 
+        /// <para>If the default implementation isn't suitable then you can set <c>CSScript.FindAssemblyAlgorithm</c>
         /// to the alternative implementation of the probing algorithm.</para>
         /// <returns>collection of assembly file names where namespace is implemented</returns>
         static public string[] FindAssembly(string name, string[] searchDirs)
@@ -96,7 +100,7 @@ namespace csscript
                     if (Path.IsPathRooted(name) && File.Exists(name)) //note relative path will return IsLegalPathToken(name)==true
                         retval.Add(name);
                 }
-                catch { } //does not matter why... 
+                catch { } //does not matter why...
             }
             return retval.ToArray();
         }
@@ -136,6 +140,12 @@ namespace csscript
             return new string[0];
         }
 
+        /// <summary>
+        /// Resolves namespace into array of global assembly (GAC) locations.
+        /// <para>NOTE: this method does nothing on .NET Core as it offers no GAC discovery mechanizm.</para>
+        /// </summary>
+        /// <param name="namespaceStr">'namespace' name</param>
+        /// <returns>collection of assembly file names where namespace is implemented</returns>
         public static string[] FindGlobalAssembly(string namespaceStr)
         {
             List<string> retval = new List<string>();
