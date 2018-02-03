@@ -60,6 +60,56 @@ namespace CSScriptLibrary
 {
     public partial class CSScript
     {
+        static public void compile_local()
+        {
+            string path = Path.GetFullPath("script.cs");
+
+            var lines = File.ReadAllLines(path);
+            var sb = new StringBuilder();
+            sb.AppendLine($"#line 1 \"{path}\"");
+            foreach (var l in lines)
+            {
+                if (l.StartsWith("write"))
+                {
+                    var res = l.Substring(l.IndexOf(" ", StringComparison.Ordinal)).Trim();
+                    sb.AppendLine($"System.Console.WriteLine(\"{res}\");");
+                }
+                else
+                    sb.AppendLine(l);
+            }
+            // string code = $"#line 1 \"{Path.GetFullPath(file)}\";{Environment.NewLine}System.Console.WriteLine(\"Hello\");";
+            // File.WriteAllText(file, code);
+            string code = sb.ToString();
+            var options = Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default;
+            var roslynScript = CSharpScript.Create(code, options);
+            var compilation = roslynScript.GetCompilation();
+
+            compilation = compilation.WithOptions(compilation.Options
+               .WithOptimizationLevel(OptimizationLevel.Debug)
+               .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+
+            using (var assemblyStream = new MemoryStream())
+            {
+                using (var symbolStream = new MemoryStream())
+                {
+                    var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
+                    var result = compilation.Emit(assemblyStream, symbolStream, options: emitOptions);
+                    if (!result.Success)
+                    {
+                        var errors = string.Join(Environment.NewLine, result.Diagnostics.Select(x => x));
+                        Console.WriteLine(errors);
+                        return;
+                    }
+
+                    var assembly = Assembly.Load(assemblyStream.ToArray(), symbolStream.ToArray());
+                    var type = assembly.GetType("Submission#0");
+                    var method = type.GetMethod("<Factory>", BindingFlags.Static | BindingFlags.Public);
+
+                    method.Invoke(null, new object[] { new object[2] });
+                }
+            }
+        }
+
         /// <summary>
         /// Global instance of <see cref="CSScriptLibrary.RoslynEvaluator"/>. This object is to be used for
         /// dynamic loading of the  C# code by using Roslyn "compiler as service".
@@ -218,6 +268,117 @@ namespace CSScriptLibrary
             return CompileCode(scriptText, null);
         }
 
+        public Assembly CompileCode2(string scriptText, string scriptFile)
+        {
+            string tempScriptFile = null;
+            try
+            {
+                if (this.IsDebug)
+                {
+                    // Excellent example of debugging support
+                    // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
+
+                    if (scriptFile == null)
+                    {
+                        tempScriptFile = CSScript.GetScriptTempFile();
+                        File.WriteAllText(tempScriptFile, scriptText, Encoding.Default);
+                    }
+
+                    scriptText = $"#line 1 \"{scriptFile ?? tempScriptFile}\"{Environment.NewLine}" + scriptText;
+                }
+
+                // {
+                //     var options = CompilerSettings;
+                //     var roslynScript = CSharpScript.Create(scriptText, options);
+                //     var compilation1 = roslynScript.GetCompilation();
+
+                //     compilation1 = compilation1.WithOptions(compilation1.Options
+                //        .WithOptimizationLevel(OptimizationLevel.Debug)
+                //        .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+
+                //     using (var assemblyStream = new MemoryStream())
+                //     {
+                //         using (var symbolStream = new MemoryStream())
+                //         {
+                //             var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
+                //             var result = compilation1.Emit(assemblyStream, symbolStream, options: emitOptions);
+                //             if (!result.Success)
+                //             {
+                //                 var errors = string.Join(Environment.NewLine, result.Diagnostics.Select(x => x));
+                //                 Console.WriteLine(errors);
+                //             }
+                //         }
+                //     }
+                // }
+
+                var compilation = CSharpScript.Create(scriptText, CompilerSettings.WithFilePath(scriptFile ?? tempScriptFile))
+                                              .GetCompilation();
+
+                if (this.IsDebug)
+                    compilation = compilation.WithOptions(compilation.Options
+                                                                     .WithOptimizationLevel(OptimizationLevel.Debug)
+                                                                     .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+
+                using (var pdb = new MemoryStream())
+                using (var asm = new MemoryStream())
+                {
+                    var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
+
+                    EmitResult result;
+                    if (IsDebug)
+                        result = compilation.Emit(asm, pdb, options: emitOptions);
+                    else
+                        result = compilation.Emit(asm);
+
+                    if (!result.Success)
+                    {
+                        IEnumerable<Diagnostic> failures = result.Diagnostics.Where(d => d.IsWarningAsError ||
+                                                                                         d.Severity == DiagnosticSeverity.Error);
+
+                        var message = new StringBuilder();
+                        foreach (Diagnostic diagnostic in failures)
+                        {
+                            string error_location = "";
+                            if (diagnostic.Location.IsInSource)
+                            {
+                                var error_pos = diagnostic.Location.GetLineSpan().StartLinePosition;
+
+                                int error_line = error_pos.Line + 1;
+                                int error_column = error_pos.Character + 1;
+
+                                // the actual source contains an injected '#line' directive f compiled with debug symbols
+                                if (IsDebug)
+                                    error_line--;
+
+                                error_location = $"{diagnostic.Location.SourceTree.FilePath}({error_line},{ error_column}): ";
+                            }
+                            message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
+                        }
+                        var errors = message.ToString();
+                        throw new CompilerException(errors);
+                    }
+                    else
+                    {
+                        asm.Seek(0, SeekOrigin.Begin);
+                        if (IsDebug)
+                        {
+                            pdb.Seek(0, SeekOrigin.Begin);
+                            return AppDomain.CurrentDomain.Load(asm.GetBuffer(), pdb.GetBuffer());
+                        }
+                        else
+                            return AppDomain.CurrentDomain.Load(asm.GetBuffer());
+                    }
+                }
+            }
+            finally
+            {
+                if (this.IsDebug)
+                    CSScript.NoteTempFile(tempScriptFile);
+                else
+                    Utils.FileDelete(tempScriptFile, false);
+            }
+        }
+
         Assembly CompileCode(string scriptText, string scriptFile)
         {
             string tempScriptFile = null;
@@ -225,17 +386,29 @@ namespace CSScriptLibrary
             {
                 if (this.IsDebug)
                 {
+                    // Excellent example of debugging support
+                    // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
+
                     if (scriptFile == null)
                     {
                         tempScriptFile = CSScript.GetScriptTempFile();
-                        File.WriteAllText(tempScriptFile, scriptText);
+                        File.WriteAllText(tempScriptFile, scriptText, Encoding.UTF8);
                     }
 
                     scriptText = $"#line 1 \"{scriptFile ?? tempScriptFile}\"{Environment.NewLine}" + scriptText;
                 }
 
-                var compilation = CSharpScript.Create(scriptText, CompilerSettings
-                                                                     .WithFilePath(scriptFile ?? tempScriptFile))
+                var options = CompilerSettings;
+                if (!IsDebug)
+                {
+                    // There is a Roslyn bug that prevents emitting debug symbols if file path is specified. And fails
+                    // the whole compilation:
+                    // It triggers "error CS8055: Cannot emit debug information for a source text without encoding."
+                    // Thus disable setting the source path until Roslyn is fixed.
+                    options = CompilerSettings.WithFilePath(scriptFile ?? tempScriptFile);
+                }
+
+                var compilation = CSharpScript.Create(scriptText, options)
                                               .GetCompilation();
 
                 if (this.IsDebug)
