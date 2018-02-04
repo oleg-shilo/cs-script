@@ -15,22 +15,9 @@ namespace CSScriptLib.Client
 {
     public class Program
     {
-        static void LoadNewtonsoftJson()
-        {
-            // var nj = typeof(JArray);
-            AssemblyLoader.LoadByName("Newtonsoft.Json");
-        }
-
         public static void Main(string[] args)
         {
-            // CSScript.EvaluatorConfig.DebugBuild = true;
-
-            var befor = Assembly.GetExecutingAssembly().GetReferencedAssemblies();
-            LoadNewtonsoftJson();
-            var after = Assembly.GetExecutingAssembly().GetReferencedAssemblies();
-
-            var ttt = Assembly.GetExecutingAssembly().GetReferencedAssemblies();
-            var asms = Assembly.GetExecutingAssembly().GetTypes().Select(t => t.Assembly).Distinct().ToArray();
+            CSScript.EvaluatorConfig.DebugBuild = true;
 
             Test.ReferencingPackagesCode(); //return;
             Test.CompileCode();
@@ -41,7 +28,6 @@ namespace CSScriptLib.Client
             Test.LoadCode();
             Test.LoadCode2();
             Test.CrossReferenceCode();
-            asms = Assembly.GetExecutingAssembly().GetTypes().Select(t => t.Assembly).Distinct().ToArray();
         }
     }
 }

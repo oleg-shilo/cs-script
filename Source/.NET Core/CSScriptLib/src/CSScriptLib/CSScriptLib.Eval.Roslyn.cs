@@ -203,6 +203,8 @@ namespace CSScriptLib
 
         Assembly CompileCode(string scriptText, string scriptFile)
         {
+            // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
+
             string tempScriptFile = null;
             try
             {

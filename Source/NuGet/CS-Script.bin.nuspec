@@ -2,19 +2,22 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CS-Script.bin</id>
-<version>3.27.2.0</version>
+<version>3.28.0.0</version>
         <title>CS-Script Binaries</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
-        <licenseUrl>http://www.csscript.net/Licence.html</licenseUrl>
-        <projectUrl>http://www.csscript.net/</projectUrl>
-        <iconUrl>http://www.csscript.net/css_logo.ico</iconUrl>
+        <licenseUrl>https://github.com/oleg-shilo/cs-script/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/oleg-shilo/cs-script/</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/oleg-shilo/cs-script/master/Source/Logo/css_logo.ico</iconUrl>
         <requireLicenseAcceptance>true</requireLicenseAcceptance>
         <description>Class Library assembly for the CS-Script engine. CS-Script is a CLR (Common Language Runtime) based scripting system which uses ECMA-compliant C# as a programming language.</description>
-        <summary>Binaries for C# script engine for execution of scripts with Mono, Roslyn or CodeDom. Binaries for Mono and Roslyn are also included.</summary>
-        <releaseNotes>Continuation of the CLI/Mono/VSCode related effort started with v3.27.0. 
+        <summary>This is the complete package containing all binaries for hosting the script engine in .NET (full) applications.
 
-Significant usability improvements CLI and Roslyn integration. Most of he features are triggered by VSCode and Mono/Linux integration. 
+It is the package that you need to have CS-Script with all three compilation engines enabled: Roslyn, Mono and CodeDom.
+</summary>
+        <releaseNotes>Continuation of the CLI/Mono/VSCode related effort started with v3.27.0.
+
+Significant usability improvements CLI and Roslyn integration. Most of he features are triggered by VSCode and Mono/Linux integration.
 Most of the changes and their impact are reflected in the new CLI guide: https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide
 
 v3.27.1-2
@@ -26,7 +29,7 @@ v3.27.1-2
 * Issue #82: More specific error message in case of file resolution fails related to //css_import
 * Issue #81: CodeDom and interfaces
 * Issue #78: Beautify command line help output
-* Issue #71: Issue with multiple indirect relative paths 
+* Issue #71: Issue with multiple indirect relative paths
 * Throw informative exception on "in-memory" assembly being subject of "AlighnToInterface" use-case.
 * Started phasing out of `CSScript.Load` in favor of `CSScript.LoadFile`
 * Added System.dll auto-referencing on `EnableDbgPrint:true` to allow regular expressions to be used in auto-injected `dbg.cs`.

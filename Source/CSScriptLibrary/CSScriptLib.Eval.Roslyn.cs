@@ -81,7 +81,8 @@ namespace CSScriptLibrary
                 }
                 catch (Exception e)
                 {
-                    if (e.Message.Contains("System.Collections.Immutable"))
+                    if (e.Message.Contains("System.Collections.Immutable") ||
+                       (e.InnerException != null && e.InnerException.Message.Contains("System.Collections.Immutable")))
                         throw new Exception("File loading error. Make sure 'Microsoft.CodeAnalysis.CSharp.Scripting' package is installed", e);
                     else
                         throw;
