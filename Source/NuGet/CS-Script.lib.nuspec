@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>CS-Script.lib</id>
+<version>3.27.2.0</version>
+        <title>CS-Script Class Library (CSScriptLibrary.dll)</title>
+        <authors>Oleg Shilo</authors>
+        <owners>Oleg Shilo</owners>
+        <licenseUrl>http://www.csscript.net/Licence.html</licenseUrl>
+        <projectUrl>http://www.csscript.net/</projectUrl>
+        <iconUrl>http://www.csscript.net/css_logo.ico</iconUrl>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <description>Class Library assembly for the CS-Script engine (no dependencies). CS-Script is a CLR (Common Language Runtime) based scripting system which uses ECMA-compliant C# as a programming language.
+This package distributes only the raw CS-Script engine so you can use it (if required) with untested dependencies (e.g. any version of Roslyn).</description>
+        <summary>Library file (CSScriptLibrary.dll) of C# script engine for execution of scripts with Mono, Roslyn or CodeDom.</summary>
+        <releaseNotes>Continuation of the CLI/Mono/VSCode related effort started with v3.27.0. 
+
+Significant usability improvements CLI and Roslyn integration. Most of he features are triggered by VSCode and Mono/Linux integration. 
+Most of the changes and their impact are reflected in the new CLI guide: https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide
+
+v3.27.1-2
+* CLI help improvements
+  - Runtime optimization
+  - Added CLI help content separators to assist with parsing when hosted by IDEs.
+  - Fixed typo in CLI output for `-proj` ('searcDir:' -> 'searchDir:')
+  - Fixed problem with CLI being hosted under Mono+Node.js (Console.WindowWidth is always 0)
+* Issue #82: More specific error message in case of file resolution fails related to //css_import
+* Issue #81: CodeDom and interfaces
+* Issue #78: Beautify command line help output
+* Issue #71: Issue with multiple indirect relative paths 
+* Throw informative exception on "in-memory" assembly being subject of "AlighnToInterface" use-case.
+* Started phasing out of `CSScript.Load` in favor of `CSScript.LoadFile`
+* Added System.dll auto-referencing on `EnableDbgPrint:true` to allow regular expressions to be used in auto-injected `dbg.cs`.
+
+v3.27.0
+* CLI improvements
+  - Added console out feedback for `-e` and `-cd` options (build exe and dll)
+  - Added avoiding accidental decorating of VB scripts in auto-class mode (`-ac` CLI argument).
+  - Added disabling auto-class decoration if no "main" is detected in the script.
+  - Improved CLI help content
+  - Added printing new config value during `-config:set` operation
+  - Added `-ac:out` switch for printing auto-class decoration result.
+  - removed `-noconfig` support
+  - described `-config:set:roslyn`
+  - added support for case insensitive property name during `-config:set` and `-config:get`
+  - added support for `_` separators in property name during `-config:set` and `-config:get`
+  - added support for `add:` and `del:` opcodes in `-config:set`
+  - default `-ac` to `-ac:1`
+  - added command `-config:set:roslyn`
+
+* Misc
+  - Added 'compiler options' hash to the script metadata structure (part of 'IsOutOfDate' algorithm)
+  - Setting `autoClass_DecorateAsCS6` is set to true by default
+  - Fixed problem with generating debug info for Mono-Debug on Windows
+  - Added `System` to DefaultRefAssemblies on .NET (previously it was only done under Mono)
+  - CSSCodeProvider.v4.7.dll replaced with CSSRoslynProvider.dll
+  - Removed obsolete .NET 1 specific code
+  - Removed obsolete `CSScript.BuildEval` code
+
+
+    </releaseNotes>
+        <copyright>Copyright (C) 2004-2017 Oleg Shilo</copyright>
+        <language>en-AU</language>
+        <tags>C# Scripting Dynamic CS-Script csscript</tags>
+    </metadata>
+    <files>
+        <file src="lib\net46\CSScriptLibrary.dll" target="lib\CSScriptLibrary.dll" />
+        <file src="lib\net46\CSScriptLibrary.xml" target="lib\CSScriptLibrary.xml" />
+    </files>
+</package>

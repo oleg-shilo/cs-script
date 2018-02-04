@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>CS-Script.RoslynProvider</id>
+<version>3.27.2.0</version>
+        <title>CS-Script CodeDom Roslyn provider (CSSRoslynProvider.dll)</title>
+        <authors>Oleg Shilo</authors>
+        <owners>Oleg Shilo</owners>
+        <licenseUrl>http://www.csscript.net/Licence.html</licenseUrl>
+        <projectUrl>http://www.csscript.net/</projectUrl>
+        <iconUrl>http://www.csscript.net/css_logo.ico</iconUrl>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <description>The CodeDom provider for CS-Script Class Library that targets Roslyn.</description>
+        <summary>This assembly allows targeting Roslyn compilers in CodeDom mode. Thus the scripts written in C#7 syntax can be debugged. Note, ironically Roslyn's native scripting infrastructure that doesn't allow debugging the scripts. Thus CS-Script is the only available option today.</summary>
+        <releaseNotes>Release v3.26.2.0
+            Initial release
+</releaseNotes>
+        <copyright>Copyright (C) 2004-2017 Oleg Shilo</copyright>
+        <language>en-AU</language>
+        <tags>C# Scripting Dynamic CS-Script csscript</tags>
+        <dependencies>
+            <dependency id="CS-Script.bin" version="3.27.0.0" />
+            <dependency id="Microsoft.Net.Compilers" version="2.2.0" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="lib\net46\CSSRoslynProvider.dll" target="lib\net46\CSSRoslynProvider.dll" />
+        <file src="content\net46\Scripting.native.Roslyn.cs" target="content\net46\Scripting.native.Roslyn.cs" />
+    </files>
+</package>
