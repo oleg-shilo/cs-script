@@ -13,7 +13,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>-->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.0.0</Version>
+    <Version>1.0.0.2</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET Core</Description>
     <Copyright>(C) 2018 Oleg Shilo</Copyright>
@@ -23,8 +23,16 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
-    <PackageReleaseNotes>First release</PackageReleaseNotes>
+    <PackageReleaseNotes>- CSScriptLib .NET Core v1.0.0 (NuGet package)
+- Implemented debugging in RoslynEvaluator
+- Implemented MarshalByRefObjectWithInfiniteLifetime to allow long living remote script objects
+- Added MarshalByRefObjectWithInfiniteLifetime class for managing remote scripts lifetime
+- Improved RoslynEvaluator error reporting
+- Added exception handling on AsmHelper disposing.
+</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
 
 </PropertyGroup>
 

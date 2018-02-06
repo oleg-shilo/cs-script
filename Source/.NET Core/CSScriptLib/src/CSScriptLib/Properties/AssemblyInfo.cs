@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oleg Shilo")]
-[assembly: AssemblyProduct("CSScriptLib")]
+[assembly: AssemblyProduct("CS-Script")]
 [assembly: AssemblyTrademark("CS-Script")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
