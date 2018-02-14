@@ -48,6 +48,7 @@ using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
 using System.Windows.Forms;
+using System.Runtime.Remoting.Lifetime;
 
 namespace CSScriptLibrary
 {
@@ -2448,5 +2449,57 @@ namespace csscript
 
         //#pragma warning restore 414
         public static string appParamsHelp = "nl	-	No logo mode: No banner will be shown at execution time.\n";
+    }
+
+    /// <summary>
+    /// Enables access to objects across application domain boundaries in applications that support
+    /// Remoting, giving them infinite lease time by setting <see cref="ILease.InitialLeaseTime"/>
+    /// to <see cref="TimeSpan.Zero"/>.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var code = @"using System;
+    ///              public class Script : MarshalByRefObjectWithInfiniteLifetime
+    ///              {
+    ///                  public void Hello(string greeting)
+    ///                  {
+    ///                      Console.WriteLine(greeting);
+    ///                  }
+    ///              }";
+    ///
+    /// using (var helper = new AsmHelper(CSScript.CompileCode(code), null, deleteOnExit: true))
+    /// {
+    ///     IScript script = helper.CreateAndAlignToInterface&lt;IScript&gt;("*");
+    ///     script.Hello("Hi there...");
+    /// }
+    /// </code>
+    /// </example>
+    /// <remarks>
+    /// The script engine mechanism is not a real inter-process communication. It does use remoting,
+    /// but within a single process. So it is acceptable to switch off the timeout mechanism. When
+    /// the hosting application is terminated, all objects will be finalized anyway.
+    ///
+    /// Without the modification, if there is no interaction between script and host for more than
+    /// 5 minutes (the default lease time for .NET Remoting), a <see cref="T:System.Runtime.RemotingException"/>
+    /// may be thrown, stating:
+    /// <![CDATA[Object '/<guid>/<id>.rem' has been disconnected or does not exist at the server.]]>
+    /// </remarks>
+    public class MarshalByRefObjectWithInfiniteLifetime : MarshalByRefObject
+    {
+        /// <summary>
+        /// Obtains a lifetime service object to control the lifetime policy for this instance.
+        /// </summary>
+        public override object InitializeLifetimeService()
+        {
+            var lease = (ILease)base.InitializeLifetimeService();
+            if (lease.CurrentState == LeaseState.Initial)
+            {
+                // If the 'InitialLeaseTime' property is set to 'TimeSpan.Zero', then the lease will
+                // never time out and the object associated with it will have an infinite lifetime:
+                lease.InitialLeaseTime = TimeSpan.Zero;
+            }
+
+            return (lease);
+        }
     }
 }
