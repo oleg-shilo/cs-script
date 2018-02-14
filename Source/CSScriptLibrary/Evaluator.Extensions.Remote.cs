@@ -97,7 +97,7 @@ namespace CSScriptLibrary
         //                  loading anything to the caller domain.
         //                  But if really needed can be done as "https://msdn.microsoft.com/en-au/library/z43fsh67(v=vs.110).aspx"
 
-        class RemoteLoadingContext : MarshalByRefObject
+        class RemoteLoadingContext : MarshalByRefObjectWithInfiniteLifetime
         {
             public string code;
             public string[] refAsms;

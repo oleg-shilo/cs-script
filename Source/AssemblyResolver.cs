@@ -395,29 +395,5 @@ namespace CSScriptLibrary
                 return false;
             }
         }
-
-        //public class AsmReader : MarshalByRefObject
-        //{
-        //    //Allows working with assembly loaded in a separate AppDomain
-        //    //After processing the assembly and its domain automatically unloaded
-
-        //    static public object Read(string file, Func<Assembly, object> routine)
-        //    {
-        //        var appDomain = AppDomain.CreateDomain("", null, new AppDomainSetup());
-
-        //        object obj = appDomain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, typeof(AsmReader).ToString());
-
-        //        var retval = (obj as AsmReader).ReadInternal(file, routine);
-
-        //        AppDomain.Unload(appDomain);
-
-        //        return retval;
-        //    }
-
-        //    object ReadInternal(string file, Func<Assembly, object> routine)
-        //    {
-        //        return routine(Assembly.LoadFrom(file));
-        //    }
-        //}
     }
 }

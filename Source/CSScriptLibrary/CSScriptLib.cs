@@ -91,7 +91,7 @@ namespace CSScriptLibrary
     /// </example>
     /// </summary>
     /// <typeparam name="T">Type of the encapsulated object.</typeparam>
-    public class Ref<T> : MarshalByRefObject
+    public class Ref<T> : MarshalByRefObjectWithInfiniteLifetime
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Ref&lt;T&gt;"/> class.
@@ -276,7 +276,7 @@ namespace CSScriptLibrary
     /// </para>
     /// <remarks>
     /// The functionality of this class is very similar to the <see cref="CSScriptLibrary.AsmHelper" />, which also allows executing and unloading the script(s).
-    /// However  <see cref="CSScriptLibrary.AppDomainHelper" /> is designed as a generic class and as such it is more suitable for executing a "job" routines instead of individual scripts.
+    /// However <see cref="CSScriptLibrary.AppDomainHelper" /> is designed as a generic class and as such it is more suitable for executing a "job" routines instead of individual scripts.
     /// <para>
     /// This creates some attractive opportunities for grouping scripting routines in a single <see cref="CSScriptLibrary.AsmHelper" />, which allows simple calling conventions (e.g. <c>CSScript.Load()</c>
     /// instead of <c>CSScript.Compile()</c>) lighter type system (e.g. no need for MarshalByRefObject inheritance).
@@ -285,7 +285,7 @@ namespace CSScriptLibrary
     /// </summary>
     public static class AppDomainHelper
     {
-        class RemoteExecutor : MarshalByRefObject
+        class RemoteExecutor : MarshalByRefObjectWithInfiniteLifetime
         {
             SimpleAsmProbing AsmProbing = new SimpleAsmProbing();
 

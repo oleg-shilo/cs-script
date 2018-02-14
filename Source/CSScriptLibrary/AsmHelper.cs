@@ -297,6 +297,7 @@ public static class CSScriptLibraryExtensionMethods
     /// <param name="obj">The instance created in the remote AppDomain.</param>
     /// <param name="renewalTime">The renewal time.</param>
     /// <returns>Returns <see cref="T:System.Runtime.Remoting.LifetimeClientSponsor" />  object.</returns>
+    [Obsolete("While this method is absolutely OK to use inheriting script class from MarshalByRefObjectWithInfiniteLifetime is a more convenient single- step approach.", false)]
     public static ClientSponsor ExtendLife(this MarshalByRefObject obj, TimeSpan renewalTime)
     {
         var sponsor = new ClientSponsor();
@@ -312,6 +313,7 @@ public static class CSScriptLibraryExtensionMethods
     /// <param name="obj">The instance created in the remote AppDomain.</param>
     /// <param name="minutes">The renewal time in minutes.</param>
     /// <returns>Returns <see cref="T:System.Runtime.Remoting.LifetimeClientSponsor" />  object.</returns>
+    [Obsolete("While this method is absolutely OK to use inheriting script class from MarshalByRefObjectWithInfiniteLifetime is a more convenient single- step approach.", false)]
     public static ClientSponsor ExtendLifeFromMinutes(this object obj, int minutes)
     {
         if (obj is MarshalByRefObject)
@@ -356,6 +358,7 @@ public static class CSScriptLibraryExtensionMethods
     /// <returns>Returns <see cref="T:System.Runtime.Remoting.LifetimeClientSponsor" />  object.</returns>
     /// <exception cref="System.Exception">MethodDelegate doesn't seem to be owned by the transparent proxy connected to the remote AppDomain object. +
     ///                  You don't need to extend life local objects.</exception>
+
     public static ClientSponsor ExtendLifeFromMinutes(this MethodDelegate method, int minutes)
     {
         var owner = method.GetOwnerObject<MarshalByRefObject>();
@@ -1891,57 +1894,5 @@ namespace CSScriptLibrary
                 il.Emit(OpCodes.Ldc_I4, value);
             }
         }
-    }
-}
-
-/// <summary>
-/// Enables access to objects across application domain boundaries in applications that support
-/// remoting, giving them infinite lease time by setting <see cref="ILease.InitialLeaseTime"/>
-/// to <see cref="TimeSpan.Zero"/>.
-/// </summary>
-/// <example>
-/// <code>
-/// var code = @"using System;
-///              public class Script : MarshalByRefObjectWithInfiniteLifetime
-///              {
-///                  public void Hello(string greeting)
-///                  {
-///                      Console.WriteLine(greeting);
-///                  }
-///              }";
-///
-/// using (var helper = new AsmHelper(CSScript.CompileCode(code), null, deleteOnExit: true))
-/// {
-///     IScript script = helper.CreateAndAlignToInterface&lt;IScript&gt;("*");
-///     script.Hello("Hi there...");
-/// }
-/// </code>
-/// </example>
-/// <remarks>
-/// The script engine mechanism is not a real inter-process communication. It does use remoting,
-/// but within a single process. So it is acceptable to switch off the timeout mechanism. When
-/// the hosting application is terminated, all objects will be finalized anyway.
-///
-/// Without the modification, if there is no interaction between script and host for more than
-/// 5 minutes (the default lease time for .NET Remoting), a <see cref="T:System.Runtime.RemotingException"/>
-/// may be thrown, stating:
-/// <![CDATA[Object '/<guid>/<id>.rem' has been disconnected or does not exist at the server.]]>
-/// </remarks>
-public class MarshalByRefObjectWithInfiniteLifetime : MarshalByRefObject
-{
-    /// <summary>
-    /// Obtains a lifetime service object to control the lifetime policy for this instance.
-    /// </summary>
-    public override object InitializeLifetimeService()
-    {
-        var lease = (ILease)base.InitializeLifetimeService();
-        if (lease.CurrentState == LeaseState.Initial)
-        {
-            // If the 'InitialLeaseTime' property is set to 'TimeSpan.Zero', then the lease will
-            // never time out and the object associated with it will have an infinite lifetime:
-            lease.InitialLeaseTime = TimeSpan.Zero;
-        }
-
-        return (lease);
     }
 }
