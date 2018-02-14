@@ -122,7 +122,7 @@ namespace csscript
     /// <summary>
     /// Invokes static method 'Main' from the assembly.
     /// </summary>
-    class RemoteExecutor : MarshalByRefObject
+    class RemoteExecutor : MarshalByRefObjectWithInfiniteLifetime
     {
         public string[] searchDirs = new string[0];
 

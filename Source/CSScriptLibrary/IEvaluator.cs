@@ -141,7 +141,10 @@ namespace CSScriptLibrary
         /// <value>The evaluator CSScript.<see cref="CSScriptLibrary.EvaluatorConfig"/>.</value>
         public static EvaluatorConfig EvaluatorConfig
         {
-            get { return evaluatorConfig; }
+            get
+            {
+                return evaluatorConfig;
+            }
         }
 
         /// <summary>

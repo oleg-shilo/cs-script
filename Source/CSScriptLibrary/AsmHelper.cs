@@ -297,7 +297,7 @@ public static class CSScriptLibraryExtensionMethods
     /// <param name="obj">The instance created in the remote AppDomain.</param>
     /// <param name="renewalTime">The renewal time.</param>
     /// <returns>Returns <see cref="T:System.Runtime.Remoting.LifetimeClientSponsor" />  object.</returns>
-    [Obsolete("While this method is absolutely OK to use inheriting script class from MarshalByRefObjectWithInfiniteLifetime is a more convenient single- step approach.", false)]
+    [Obsolete("While this method is absolutely OK to use, inheriting script class from MarshalByRefObjectWithInfiniteLifetime is a more convenient single- step approach.", false)]
     public static ClientSponsor ExtendLife(this MarshalByRefObject obj, TimeSpan renewalTime)
     {
         var sponsor = new ClientSponsor();
@@ -313,7 +313,7 @@ public static class CSScriptLibraryExtensionMethods
     /// <param name="obj">The instance created in the remote AppDomain.</param>
     /// <param name="minutes">The renewal time in minutes.</param>
     /// <returns>Returns <see cref="T:System.Runtime.Remoting.LifetimeClientSponsor" />  object.</returns>
-    [Obsolete("While this method is absolutely OK to use inheriting script class from MarshalByRefObjectWithInfiniteLifetime is a more convenient single- step approach.", false)]
+    [Obsolete("While this method is absolutely OK to use, inheriting script class from MarshalByRefObjectWithInfiniteLifetime is a more convenient single- step approach.", false)]
     public static ClientSponsor ExtendLifeFromMinutes(this object obj, int minutes)
     {
         if (obj is MarshalByRefObject)

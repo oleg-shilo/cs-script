@@ -1227,10 +1227,10 @@
             Repository for application specific data
             </summary>
         </member>
-        <member name="T:MarshalByRefObjectWithInfiniteLifetime">
+        <member name="T:CSScriptLibrary.MarshalByRefObjectWithInfiniteLifetime">
              <summary>
              Enables access to objects across application domain boundaries in applications that support
-             remoting, giving them infinite lease time by setting <see cref="P:System.Runtime.Remoting.Lifetime.ILease.InitialLeaseTime"/>
+             Remoting, giving them infinite lease time by setting <see cref="P:System.Runtime.Remoting.Lifetime.ILease.InitialLeaseTime"/>
              to <see cref="F:System.TimeSpan.Zero"/>.
              </summary>
              <example>
@@ -1262,7 +1262,7 @@
              <![CDATA[Object '/<guid>/<id>.rem' has been disconnected or does not exist at the server.]]>
              </remarks>
         </member>
-        <member name="M:MarshalByRefObjectWithInfiniteLifetime.InitializeLifetimeService">
+        <member name="M:CSScriptLibrary.MarshalByRefObjectWithInfiniteLifetime.InitializeLifetimeService">
             <summary>
             Obtains a lifetime service object to control the lifetime policy for this instance.
             </summary>
