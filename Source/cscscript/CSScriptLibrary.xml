@@ -1227,6 +1227,46 @@
             Repository for application specific data
             </summary>
         </member>
+        <member name="T:MarshalByRefObjectWithInfiniteLifetime">
+             <summary>
+             Enables access to objects across application domain boundaries in applications that support
+             remoting, giving them infinite lease time by setting <see cref="P:System.Runtime.Remoting.Lifetime.ILease.InitialLeaseTime"/>
+             to <see cref="F:System.TimeSpan.Zero"/>.
+             </summary>
+             <example>
+             <code>
+             var code = @"using System;
+                          public class Script : MarshalByRefObjectWithInfiniteLifetime
+                          {
+                              public void Hello(string greeting)
+                              {
+                                  Console.WriteLine(greeting);
+                              }
+                          }";
+            
+             using (var helper = new AsmHelper(CSScript.CompileCode(code), null, deleteOnExit: true))
+             {
+                 IScript script = helper.CreateAndAlignToInterface&lt;IScript&gt;("*");
+                 script.Hello("Hi there...");
+             }
+             </code>
+             </example>
+             <remarks>
+             The script engine mechanism is not a real inter-process communication. It does use remoting,
+             but within a single process. So it is acceptable to switch off the timeout mechanism. When
+             the hosting application is terminated, all objects will be finalized anyway.
+            
+             Without the modification, if there is no interaction between script and host for more than
+             5 minutes (the default lease time for .NET Remoting), a <see cref="T:System.Runtime.RemotingException"/>
+             may be thrown, stating:
+             <![CDATA[Object '/<guid>/<id>.rem' has been disconnected or does not exist at the server.]]>
+             </remarks>
+        </member>
+        <member name="M:MarshalByRefObjectWithInfiniteLifetime.InitializeLifetimeService">
+            <summary>
+            Obtains a lifetime service object to control the lifetime policy for this instance.
+            </summary>
+        </member>
         <member name="T:CSScriptLibrary.AssemblyResolver">
             <summary>
             Class for resolving assembly name to assembly file

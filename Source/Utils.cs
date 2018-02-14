@@ -47,6 +47,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Xml;
+using System.Runtime.Remoting.Lifetime;
 
 namespace csscript
 {
