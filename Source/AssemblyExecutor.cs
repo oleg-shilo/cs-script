@@ -38,6 +38,7 @@ using System.Linq;
 using System.Reflection;
 using CSScriptLibrary;
 using System.Threading;
+using System.Runtime.Remoting.Lifetime;
 
 namespace csscript
 {
@@ -122,8 +123,21 @@ namespace csscript
     /// <summary>
     /// Invokes static method 'Main' from the assembly.
     /// </summary>
-    class RemoteExecutor : MarshalByRefObjectWithInfiniteLifetime
+    class RemoteExecutor : MarshalByRefObject
     {
+        public override object InitializeLifetimeService()
+        {
+            var lease = (ILease)base.InitializeLifetimeService();
+            if (lease.CurrentState == LeaseState.Initial)
+            {
+                // If the 'InitialLeaseTime' property is set to 'TimeSpan.Zero', then the lease will
+                // never time out and the object associated with it will have an infinite lifetime:
+                lease.InitialLeaseTime = TimeSpan.Zero;
+            }
+
+            return (lease);
+        }
+
         public string[] searchDirs = new string[0];
 
         public RemoteExecutor(string[] searchDirs)
