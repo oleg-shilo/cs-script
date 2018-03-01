@@ -158,9 +158,14 @@ namespace CSScriptLib
             if (tempFiles == null)
             {
                 tempFiles = new List<string>();
-                AssemblyLoadContext.Default.Unloading += x => CSScript.Cleanup();
+                AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnApplicationExit);
             }
             tempFiles.Add(file);
+        }
+
+        static void OnApplicationExit(object sender, EventArgs e)
+        {
+            Cleanup();
         }
 
         static internal void Cleanup()

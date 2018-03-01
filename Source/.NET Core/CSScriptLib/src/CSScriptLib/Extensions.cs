@@ -245,42 +245,6 @@ public static class Extensions
     }
 }
 
-/// <summary>
-/// Class that mimics AppDomain functionality.
-/// </summary>
-public class AssemblyLoader : AssemblyLoadContext
-{
-    /// <summary>
-    /// Loads an assembly from the specified file path.
-    /// </summary>
-    /// <param name="path">The path.</param>
-    /// <returns></returns>
-    public static Assembly LoadFrom(string path)
-    {
-        return AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
-    }
-
-    /// <summary>
-    /// Loads the assembly by its name.
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public static Assembly LoadByName(string name)
-    {
-        return AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(name));
-    }
-
-    /// <summary>
-    /// Loads the assembly by the specified assembly name.
-    /// </summary>
-    /// <param name="assemblyName">Name of the assembly.</param>
-    /// <returns></returns>
-    protected override Assembly Load(AssemblyName assemblyName)
-    {
-        return AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
-    }
-}
-
 class NuGet
 {
     static public string NuGetCacheView
