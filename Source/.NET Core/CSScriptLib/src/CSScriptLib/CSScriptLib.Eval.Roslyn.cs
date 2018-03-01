@@ -99,7 +99,7 @@ namespace CSScriptLib
     /// </summary>
     public class RoslynEvaluator : IEvaluator
     {
-        static Assembly mscorelib = 333.GetType().Assembly();
+        static Assembly mscorelib = 333.GetType().Assembly;
 
         /// <summary>
         /// Gets or sets a value indicating whether to compile script with debug symbols.
@@ -277,10 +277,10 @@ namespace CSScriptLib
                         if (IsDebug)
                         {
                             pdb.Seek(0, SeekOrigin.Begin);
-                            return AssemblyLoadContext.Default.LoadFromStream(asm, pdb);
+                            return AppDomain.CurrentDomain.Load(asm.GetBuffer(), pdb.GetBuffer());
                         }
                         else
-                            return AssemblyLoadContext.Default.LoadFromStream(asm);
+                            return AppDomain.CurrentDomain.Load(asm.GetBuffer());
                     }
                 }
             }
@@ -401,7 +401,7 @@ namespace CSScriptLib
             //which only referenced already loaded assemblies but not file locations
             var assemblies = CompilerSettings.MetadataReferences
                                              .OfType<PortableExecutableReference>()
-                                             .Select(r => AssemblyLoader.LoadFrom(r.FilePath))
+                                             .Select(r => Assembly.LoadFrom(r.FilePath))
                                              .ToArray();
 
             return assemblies;
@@ -691,7 +691,7 @@ namespace CSScriptLib
             if (asmFile == null)
                 throw new Exception("Cannot find referenced assembly '" + assembly + "'");
 
-            ReferenceAssembly(AssemblyLoader.LoadFrom(asmFile));
+            ReferenceAssembly(Assembly.LoadFrom(asmFile));
             return this;
         }
 
@@ -706,17 +706,20 @@ namespace CSScriptLib
         /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
         public IEvaluator ReferenceAssembly(Assembly assembly)
         {
-            //Microsoft.Net.Compilers.1.2.0 - beta
-            if (assembly.Location().IsEmpty())
-                throw new Exception(
-                    "Current version of Microsoft.CodeAnalysis.Scripting.dll doesn't support referencing assemblies " +
-                    "which are not loaded from the file location.");
+            if (assembly != null)//this check is needed when trying to load partial name assembalies that result in null
+            {
+                //Microsoft.Net.Compilers.1.2.0 - beta
+                if (assembly.Location().IsEmpty())
+                    throw new Exception(
+                        "Current version of Microsoft.CodeAnalysis.Scripting.dll doesn't support referencing assemblies " +
+                        "which are not loaded from the file location.");
 
-            if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>().Any(r => r.FilePath.IsSamePath(assembly.Location())))
-                //Future assembly aliases support:
-                //MetadataReference.CreateFromFile("asm.dll", new MetadataReferenceProperties().WithAliases(new[] { "lib_a", "external_lib_a" } })
-                CompilerSettings = CompilerSettings.AddReferences(assembly);
-
+                if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
+                        .Any(r => r.FilePath.IsSamePath(assembly.Location())))
+                    //Future assembly aliases support:
+                    //MetadataReference.CreateFromFile("asm.dll", new MetadataReferenceProperties().WithAliases(new[] { "lib_a", "external_lib_a" } })
+                    CompilerSettings = CompilerSettings.AddReferences(assembly);
+            }
             return this;
         }
 
@@ -729,7 +732,7 @@ namespace CSScriptLib
         /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
         public IEvaluator ReferenceAssemblyByName(string assemblyPartialName)
         {
-            return ReferenceAssembly(AssemblyLoader.LoadByName(assemblyPartialName));
+            return ReferenceAssembly(Assembly.LoadWithPartialName(assemblyPartialName));
         }
 
         /// <summary>
