@@ -818,39 +818,30 @@ namespace CSScriptLib
         public IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies = DomainAssemblies.AllStaticNonGAC)
 #endif
         {
-            foreach (var name in Assembly.GetCallingAssembly().GetReferencedAssemblies())
-            {
-                var asm = Assembly.Load(name); // the asm is already loaded by the host anyway
-                ReferenceAssembly(asm);
-            }
-            // there are not ApPDomain assemblies but the assemblies referenced by the host
-            return this;
-            throw new NotImplementedException("Not available on .NET Core");
-
             //NOTE: It is important to avoid loading the runtime itself (mscorelib) as it
             //will break the code evaluation (compilation).
             //
             //On .NET mscorelib is filtered out by GlobalAssemblyCache check but
             //on Mono it passes through so there is a need to do a specific check for mscorelib assembly.
-            //var relevantAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var relevantAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-            //if (assemblies == DomainAssemblies.AllStatic)
-            //{
-            //    relevantAssemblies = relevantAssemblies.Where(x => !x.IsDynamic() && x != mscorelib).ToArray();
-            //}
-            //else if (assemblies == DomainAssemblies.AllStaticNonGAC)
-            //{
-            //    relevantAssemblies = relevantAssemblies.Where(x => !x.GlobalAssemblyCache && !x.IsDynamic() && x != mscorelib).ToArray();
-            //}
-            //else if (assemblies == DomainAssemblies.None)
-            //{
-            //    relevantAssemblies = new Assembly[0];
-            //}
+            if (assemblies == DomainAssemblies.AllStatic)
+            {
+                relevantAssemblies = relevantAssemblies.Where(x => !x.IsDynamic() && x != mscorelib).ToArray();
+            }
+            else if (assemblies == DomainAssemblies.AllStaticNonGAC)
+            {
+                relevantAssemblies = relevantAssemblies.Where(x => !x.GlobalAssemblyCache && !x.IsDynamic() && x != mscorelib).ToArray();
+            }
+            else if (assemblies == DomainAssemblies.None)
+            {
+                relevantAssemblies = new Assembly[0];
+            }
 
-            //foreach (var asm in relevantAssemblies)
-            //    ReferenceAssembly(asm);
+            foreach (var asm in relevantAssemblies)
+                ReferenceAssembly(asm);
 
-            //return this;
+            return this;
         }
 
         /// <summary>
