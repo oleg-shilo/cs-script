@@ -123,6 +123,27 @@ namespace csscript
                 return new Exception(message, childException);
         }
 
+        internal static string Expand(this string text)
+        {
+            return Environment.ExpandEnvironmentVariables(text).Trim();
+        }
+
+        internal static string NormaliseAsDirectiveOf(this string statement, string parentScript)
+        {
+            var text = CSharpParser.UnescapeDirectiveDelimiters(statement);
+
+            if (text.Length > 1 && (text[0] == '.' && text[1] != '.')) //just a single-dot start dir
+                text = Path.Combine(Path.GetDirectoryName(parentScript), text);
+
+            return Environment.ExpandEnvironmentVariables(text).Trim();
+        }
+
+        internal static string NormaliseAsDirective(this string statement)
+        {
+            var text = CSharpParser.UnescapeDirectiveDelimiters(statement);
+            return Environment.ExpandEnvironmentVariables(text).Trim();
+        }
+
         public static string[] ConcatWith(this string[] array1, IEnumerable<string> array2)
         {
             return array1.Concat(array2).ToArray();

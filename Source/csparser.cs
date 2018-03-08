@@ -229,6 +229,17 @@ namespace csscript
             /// </summary>
             public static bool ResolveRelativeFromParentScriptLocation = false;
 
+            internal class Resolver
+            {
+                public string parentScript;
+                public string[] dirs;
+
+                public ImportInfo[] Resolve(string statement)
+                {
+                    return ImportInfo.ResolveStatement(statement.Expand(), parentScript, dirs);
+                }
+            }
+
             internal static ImportInfo[] ResolveStatement(string statement, string parentScript, string[] probinghDirs)
             {
                 if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
@@ -557,38 +568,40 @@ namespace csscript
                 foreach (string package in SplitByDelimiter(statement, ','))
                     nugets.Add(package.Trim());
 
+            var infos = new ImportInfo.Resolver { parentScript = file, dirs = probingDirs };
+
             //analyse script imports/includes
             foreach (string statement in GetRawStatements("//css_import", endCodePos))
-                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim(), file, probingDirs));
+                imports.AddRange(infos.Resolve(statement));
             foreach (string statement in GetRawStatements("//css_imp", endCodePos))
-                imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim(), file, probingDirs));
+                imports.AddRange(infos.Resolve(statement));
             foreach (string statement in GetRawStatements("//css_include", endCodePos))
                 if (!string.IsNullOrEmpty(statement))
-                    imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, probingDirs));
+                    imports.AddRange(infos.Resolve(statement.Expand() + ",preserve_main"));
             foreach (string statement in GetRawStatements("//css_inc", endCodePos))
                 if (!string.IsNullOrEmpty(statement))
-                    imports.AddRange(ImportInfo.ResolveStatement(Environment.ExpandEnvironmentVariables(statement).Trim() + ",preserve_main", file, probingDirs));
+                    imports.AddRange(infos.Resolve(statement.Expand() + ",preserve_main"));
 
             //analyse assembly references
             foreach (string statement in GetRawStatements("//css_reference", endCodePos))
-                refAssemblies.Add(Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim());
+                refAssemblies.Add(statement.NormaliseAsDirectiveOf(file));
             foreach (string statement in GetRawStatements("//css_ref", endCodePos))
-                refAssemblies.Add(Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim());
+                refAssemblies.Add(statement.NormaliseAsDirectiveOf(file));
 
             //analyse precompilers
             foreach (string statement in GetRawStatements("//css_precompiler", endCodePos))
-                precompilers.Add(Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim());
+                precompilers.Add(statement.NormaliseAsDirectiveOf(file));
 
             foreach (string statement in GetRawStatements("//css_pc", endCodePos))
-                precompilers.Add(Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim());
+                precompilers.Add(statement.NormaliseAsDirectiveOf(file));
 
             //analyse compiler options
             foreach (string statement in GetRawStatements("//css_co", endCodePos))
-                compilerOptions.Add(Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim());
+                compilerOptions.Add(statement.NormaliseAsDirective());
 
             if (!Utils.IsLinux())
                 foreach (string statement in GetRawStatements("//css_host", endCodePos))
-                    hostOptions.Add(Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim());
+                    hostOptions.Add(statement.NormaliseAsDirective());
 
             //analyse assembly references
             foreach (string statement in GetRawStatements("//css_ignore_namespace", endCodePos))
@@ -598,11 +611,11 @@ namespace csscript
 
             //analyse resource references
             foreach (string statement in GetRawStatements("//css_resource", endCodePos))
-                resFiles.Add(UnescapeDirectiveDelimiters(statement).Trim());
+                resFiles.Add(statement.NormaliseAsDirectiveOf(file));
             foreach (string statement in GetRawStatements("//css_res", endCodePos))
-                resFiles.Add(UnescapeDirectiveDelimiters(statement).Trim());
+                resFiles.Add(statement.NormaliseAsDirectiveOf(file));
 
-            //analyse resource references
+            //analyse extra search (probing) dirs
             foreach (string statement in GetRawStatements("//css_searchdir", endCodePos))
                 searchDirs.AddRange(CSSUtils.GetDirectories(workingDir, Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim()));
             foreach (string statement in GetRawStatements("//css_dir", endCodePos))
