@@ -571,7 +571,6 @@ namespace CSScriptLibrary
     {
         IAsmBrowser asmBrowser;
         AppDomain remoteAppDomain;
-
         bool deleteOnExit = false;
 
         /// <summary>
@@ -684,6 +683,25 @@ namespace CSScriptLibrary
         {
             get { return this.asmBrowser.CachingEnabled; }
             set { this.asmBrowser.CachingEnabled = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to unpack <c>TargetInvocationException</c>s.
+        /// <para>Script are often invoked via Reflection with <see cref="AsmHelper"/>, what leads to the script internal runrtime exceptions to
+        /// be wrapped into noninformative <see cref="TargetInvocationException"/>. Thus <see cref="AsmHelper"/> by default unwraps the internal exception
+        /// and rethrows it withour an additional <see cref="TargetInvocationException"/> container.
+        /// </para>
+        /// <para>While this is a more convenient approach, sometimes it may be required to investigate the Reflection callstack. Then you will need
+        /// to suppress <see cref="TargetInvocationException"/> unpacking with this very property.</para>
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if unpack <see cref="TargetInvocationException"/>; otherwise, <c>false</c>.
+        /// </value>
+        public static bool UnpackTargetInvocationExceptions
+        {
+            // need to use EnvVar as this property can be accessed form the different AppDomain
+            get { return Environment.GetEnvironmentVariable("SupressUnpackingTargetInvocationExceptions") != "true"; }
+            set { Environment.SetEnvironmentVariable("SupressUnpackingTargetInvocationExceptions", value ? null : "true"); }
         }
 
         /// <summary>
@@ -1509,7 +1527,10 @@ namespace CSScriptLibrary
             }
             catch (TargetInvocationException ex)
             {
-                throw ex.InnerException != null ? ex.InnerException : ex; //unpack the exception
+                if (AsmHelper.UnpackTargetInvocationExceptions && ex.InnerException != null)
+                    throw ex.InnerException; //unpack the exception
+                else
+                    throw;
             }
         }
 

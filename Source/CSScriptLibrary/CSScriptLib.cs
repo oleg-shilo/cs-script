@@ -2267,7 +2267,7 @@ namespace CSScriptLibrary
 
             internal static bool ScriptAsmOutOfDateAdvanced(string scriptFileName, string assemblyFileName)
             {
-                if (assemblyFileName == "" || assemblyFileName == null)
+                if (assemblyFileName == "" || assemblyFileName == null || !File.Exists(assemblyFileName))
                     return true;
 
                 if (Settings.legacyTimestampCaching)

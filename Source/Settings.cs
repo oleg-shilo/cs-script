@@ -698,10 +698,10 @@ namespace csscript
 
         internal void Set(string name, string value)
         {
-            string lookupName = name.Replace("_", ""); // all properties do not contain '_' but user is allowed to use '_' fro very long named properties
+            string lookupName = name.Replace("_", ""); // user is allowed to use '_' for very long named properties
 
             PropertyInfo prop = typeof(Settings).GetProperties()
-                                                .Where(x => 0 == string.Compare(x.Name, lookupName, StringComparison.OrdinalIgnoreCase))
+                                                .Where(x => 0 == string.Compare(x.Name.Replace("_", ""), lookupName, StringComparison.OrdinalIgnoreCase))
                                                 .FirstOrDefault();
 
             if (prop == null)
@@ -751,11 +751,10 @@ namespace csscript
 
         internal string Get(ref string name)
         {
-            // PropertyInfo prop = typeof(Settings).GetProperty(name);
-            string lookupName = name.Replace("_", ""); // all properties do not contain '_' but user is allowed to use '_' fro very long named properties
+            string lookupName = name.Replace("_", ""); // user is allowed to use '_' for very long named properties
             PropertyInfo prop = typeof(Settings).GetProperties()
-                                               .Where(x => 0 == string.Compare(x.Name, lookupName, StringComparison.OrdinalIgnoreCase))
-                                               .FirstOrDefault();
+                                                .Where(x => 0 == string.Compare(x.Name.Replace("_", ""), lookupName, StringComparison.OrdinalIgnoreCase))
+                                                .FirstOrDefault();
 
             if (prop == null)
             {

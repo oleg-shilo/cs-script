@@ -36,6 +36,7 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 
 namespace csscript
 {
@@ -51,6 +52,20 @@ namespace csscript
             if (!items.Contains(item))
                 items.Add(item);
             return items;
+        }
+
+        public static Exception CaptureExceptionDispatchInfo(this Exception ex)
+        {
+            try
+            {
+                // on .NET 4.5 ExceptionDispatchInfo can be used
+                // ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+
+                typeof(Exception).GetMethod("PrepForRemoting", BindingFlags.NonPublic | BindingFlags.Instance)
+                                 .Invoke(ex, new object[0]);
+            }
+            catch { }
+            return ex;
         }
 
         public static List<string> AddIfNotThere(this List<string> items, string item, string section)
