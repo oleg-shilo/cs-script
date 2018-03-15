@@ -699,9 +699,10 @@ namespace CSScriptLibrary
         /// </value>
         public static bool UnpackTargetInvocationExceptions
         {
-            // need to use EnvVar as this property can be accessed form the different AppDomain
-            get { return Environment.GetEnvironmentVariable("SupressUnpackingTargetInvocationExceptions") != "true"; }
-            set { Environment.SetEnvironmentVariable("SupressUnpackingTargetInvocationExceptions", value ? null : "true"); }
+            // need to use EnvVar as this property can be accessed from the different AppDomain and static
+            // members are maintained per domain (not per process)
+            get { return Environment.GetEnvironmentVariable("CSSCRIPT_SuppressUnpackingTargetInvocationExceptions") != "true"; }
+            set { Environment.SetEnvironmentVariable("CSSCRIPT_SuppressUnpackingTargetInvocationExceptions", value ? null : "true"); }
         }
 
         /// <summary>
