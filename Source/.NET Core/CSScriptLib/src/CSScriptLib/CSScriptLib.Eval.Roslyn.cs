@@ -201,14 +201,58 @@ namespace CSScriptLib
             return CompileCode(scriptText, null, null);
         }
 
+        /// <summary>
+        /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s).
+        /// <para>The method is identical to <see cref="RoslynEvaluator.CompileCode(string)"/> except that it allows specifying
+        /// the destination assembly file.</para>
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// var info = new RoslynEvaluator.CompileInfo
+        /// {
+        ///     AssemblyFile = @"E:\temp\asm.dll"
+        /// };
+        ///
+        /// Assembly asm = CSScript.Evaluator
+        ///                        .Cast&lt;RoslynEvaluator&gt;()
+        ///                        .CompileCode(@"using System;
+        ///                                       public class Script
+        ///                                       {
+        ///                                           public int Sum(int a, int b)
+        ///                                           {
+        ///                                               return a+b;
+        ///                                           }
+        ///                                       }",
+        ///                                       info);
+        ///
+        /// dynamic script =  asm.CreateObject("*");
+        /// var result = script.Sum(7, 3);
+        /// </code>
+        /// </example>
+        /// <param name="scriptText">The C# script text.</param>
+        /// <param name="info"></param>
+        /// <returns>The compiled assembly.</returns>
         public Assembly CompileCode(string scriptText, CompileInfo info)
         {
             return CompileCode(scriptText, null, info);
         }
 
+        /// <summary>
+        /// The information about the location of the compiler output - assembly and pdb file.
+        /// </summary>
         public class CompileInfo
         {
+            /// <summary>
+            /// The assembly file path.
+            /// </summary>
             public string AssemblyFile;
+
+            /// <summary>
+            /// The PDB file path.
+            /// <para>Even if the this value is specified the file will not be generated unless
+            /// <see cref="CSScript.EvaluatorConfig"/>.DebugBuild is set to <c>true</c>.
+            /// </para>
+            /// </summary>
             public string PdbFile;
         }
 

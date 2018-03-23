@@ -18,20 +18,6 @@ namespace CSScriptLib.Client
     {
         public static void Main(string[] args)
         {
-            var info = new RoslynEvaluator.CompileInfo { AssemblyFile = @"E:\Galos\Projects\VSX\COTS\asm.dll" };
-
-            Assembly asm = CSScript.Evaluator
-                                   .Cast<RoslynEvaluator>()
-                                   .CompileCode(@"using System;
-                                                  public class Script
-                                                  {
-                                                      public int Sum(int a, int b)
-                                                      {
-                                                          return a+b;
-                                                      }
-                                                  }",
-                                                  info);
-
             CSScript.EvaluatorConfig.DebugBuild = true;
 
             Test.ReferencingPackagesCode(); //return;

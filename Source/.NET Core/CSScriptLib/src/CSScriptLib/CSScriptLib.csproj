@@ -13,7 +13,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>-->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.0.3-HotFix</Version>
+    <Version>1.0.0.4-HotFix</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET Core</Description>
     <Copyright>(C) 2018 Oleg Shilo</Copyright>
@@ -26,8 +26,8 @@
     <PackageReleaseNotes>- Issue #106: Fix netstandard2 version to work in 4.6.1 and fix ReferenceDomainAssemblies 
 </PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.0.0.3</AssemblyVersion>
-    <FileVersion>1.0.0.3</FileVersion>
+    <AssemblyVersion>1.0.0.4</AssemblyVersion>
+    <FileVersion>1.0.0.4</FileVersion>
 
 </PropertyGroup>
 
