@@ -23,8 +23,7 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
-    <PackageReleaseNotes>- Issue #106: Fix netstandard2 version to work in 4.6.1 and fix ReferenceDomainAssemblies 
-</PackageReleaseNotes>
+    <PackageReleaseNotes>- Issue #110: Compiling to Byte[]/File in .NET Standard</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <AssemblyVersion>1.0.0.4</AssemblyVersion>
     <FileVersion>1.0.0.4</FileVersion>
