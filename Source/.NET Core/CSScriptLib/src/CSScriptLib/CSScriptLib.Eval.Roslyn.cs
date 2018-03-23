@@ -198,10 +198,21 @@ namespace CSScriptLib
         /// <returns>The compiled assembly.</returns>
         public Assembly CompileCode(string scriptText)
         {
-            return CompileCode(scriptText, null);
+            return CompileCode(scriptText, null, null);
         }
 
-        Assembly CompileCode(string scriptText, string scriptFile)
+        public Assembly CompileCode(string scriptText, CompileInfo info)
+        {
+            return CompileCode(scriptText, null, info);
+        }
+
+        public class CompileInfo
+        {
+            public string AssemblyFile;
+            public string PdbFile;
+        }
+
+        Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
         {
             // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
 
@@ -274,13 +285,23 @@ namespace CSScriptLib
                     else
                     {
                         asm.Seek(0, SeekOrigin.Begin);
+                        byte[] buffer = asm.GetBuffer();
+
+                        if (info?.AssemblyFile != null)
+                            File.WriteAllBytes(info.AssemblyFile, buffer);
+
                         if (IsDebug)
                         {
                             pdb.Seek(0, SeekOrigin.Begin);
-                            return AppDomain.CurrentDomain.Load(asm.GetBuffer(), pdb.GetBuffer());
+                            byte[] pdbBuffer = pdb.GetBuffer();
+
+                            if (info?.PdbFile != null)
+                                File.WriteAllBytes(info.PdbFile, pdbBuffer);
+
+                            return AppDomain.CurrentDomain.Load(buffer, pdbBuffer);
                         }
                         else
-                            return AppDomain.CurrentDomain.Load(asm.GetBuffer());
+                            return AppDomain.CurrentDomain.Load(buffer);
                     }
                 }
             }
@@ -556,7 +577,7 @@ namespace CSScriptLib
         /// <returns>Instance of the class defined in the script file.</returns>
         public object LoadFile(string scriptFile, params object[] args)
         {
-            return CompileCode(File.ReadAllText(scriptFile), scriptFile).CreateObject("*", args);
+            return CompileCode(File.ReadAllText(scriptFile), scriptFile, null).CreateObject("*", args);
         }
 
         /// <summary>
@@ -585,7 +606,7 @@ namespace CSScriptLib
         /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script file.</returns>
         public T LoadFile<T>(string scriptFile, params object[] args) where T : class
         {
-            return (T)CompileCode(File.ReadAllText(scriptFile), scriptFile).CreateObject("*", args);
+            return (T)CompileCode(File.ReadAllText(scriptFile), scriptFile, null).CreateObject("*", args);
         }
 
         /// <summary>

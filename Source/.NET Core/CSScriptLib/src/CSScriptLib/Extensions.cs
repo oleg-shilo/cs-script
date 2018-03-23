@@ -92,6 +92,11 @@ public static class Extensions
         return !string.IsNullOrEmpty(txt);
     }
 
+    public static T Cast<T>(this object @obj)
+    {
+        return (T)@obj;
+    }
+
     /// <summary>
     /// Determines whether the text is empty.
     /// </summary>
