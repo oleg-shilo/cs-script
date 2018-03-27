@@ -296,7 +296,7 @@ namespace csscript
         static string[] GetLocalPackages()
         {
             return Directory.GetDirectories(NuGetCache)
-                            .Select(Path.GetFileName)
+                            .Select(x => Path.GetFileName(x))
                             .ToArray();
         }
 
