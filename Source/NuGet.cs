@@ -260,6 +260,46 @@ namespace csscript
             return Utils.RemovePathDuplicates(assemblies.ToArray());
         }
 
+        public static void InstallPackage(string packageNameMask)
+        {
+            var packages = new string[0];
+            int index = 0;
+            //index is 1-based, exactly as it is printed with ListPackages
+            if (int.TryParse(packageNameMask, out index))
+            {
+                var all_packages = GetLocalPackages();
+                if (0 < index && index <= all_packages.Count())
+                    packages = new string[] { all_packages[index - 1] };
+                else
+                    Console.WriteLine("There is no package with the specified index");
+            }
+            else
+                packages = Directory.GetDirectories(NuGetCache, packageNameMask);
+
+            foreach (string dir in packages)
+            {
+                string name = Path.GetFileName(dir);
+                Console.WriteLine("Installing " + name + " package...");
+                Run(NuGetExe, "install " + name + " -OutputDirectory " + Path.Combine(NuGetCache, name));
+                Console.WriteLine("");
+            }
+        }
+
+        public static void ListPackages()
+        {
+            Console.WriteLine("Repository: " + NuGetCache);
+            int i = 0;
+            foreach (string name in GetLocalPackages())
+                Console.WriteLine((++i) + ". " + name);
+        }
+
+        static string[] GetLocalPackages()
+        {
+            return Directory.GetDirectories(NuGetCache)
+                            .Select(Path.GetFileName)
+                            .ToArray();
+        }
+
         static string GetPackageName(string path)
         {
             var result = Path.GetFileName(path);

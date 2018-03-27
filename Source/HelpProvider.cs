@@ -49,6 +49,7 @@ namespace csscript
         public const string cd = "cd";
         public const string tc = "tc";
         public const string pvdr = "pvdr";
+        public const string nuget = "nuget";
         public const string provider = "provider";
         public const string pc = "pc";
         public const string precompiler = "precompiler";
@@ -337,12 +338,26 @@ namespace csscript
                                                    "Location of the alternative/custom code provider assembly.",
                                                    "Alias - pvdr:<file>",
                                                    "If set it forces script engine to use an alternative code compiler.",
-                                                   "",
+                                                   " ",
                                                    "C#7 support is implemented via Roslyn based provider: '-pvdr:CSSRoslynProvider.dll'." +
                                                    "If the switch is not specified CSSRoslynProvider.dll file will be use as a code provider " +
                                                    "if it is found in the same folder where the script engine is. Automatic CSSRoslynProvider.dll " +
                                                    "loading can be disabled with special 'none' argument: -pvdr:none.",
                                                    "(see http://www.csscript.net/help/non_cs_compilers.html)");
+            switch2Help[nuget] = new ArgInfo("-nuget[:<package|purge>]",
+                                                   "Installs new or updates existing NuGet package.",
+                                                   "This command allows light management of the NuGet packages in the CS-Script local package repository (%PROGRAMDATA%\\CS-Script\\nuget).",
+                                                   "The tasks are limited to installing, updating and listing the local packages.",
+                                                   " ",
+                                                   " -nuget           - ${<==}prints the list of all root packages in the repository",
+                                                   // " -nuget:purge     - ${<==}detects multiple versions of the same package and removes all but the latest one. ",
+                                                   " -nuget:<package> - ${<==}downloads and installs the latest version of the package(s). ",
+                                                   "                    ${<==}Wild cards can be used to update multiple packages. For example '-nuget:ServiceStack*' will update all " +
+                                                   "already installed ServiceStack packages.",
+                                                   "                    ${<==}You can also use the index of the package instead of its full name.",
+                                                   " ",
+                                                   "Installing packages this way is an alternative to have '//css_nuget -force ...' directive in the script code as it may be " +
+                                                   "more convenient for the user to update packages manually instead of having them updated on every script execution/recompilation.");
             switch2Help[syntax] = new ArgInfo("-syntax",
                                                   "Prints documentation for CS-Script specific C# syntax.");
             switch2Help[commands] =

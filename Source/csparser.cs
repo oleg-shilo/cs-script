@@ -294,7 +294,11 @@ namespace csscript
                 this.parentScript = parentScript;
 
                 if (!Path.IsPathRooted(this.file) && ResolveRelativeFromParentScriptLocation)
-                    this.file = Path.Combine(Path.GetDirectoryName(parentScript), this.file);
+                {
+                    var fullPath = Path.Combine(Path.GetDirectoryName(parentScript), this.file);
+                    if (File.Exists(fullPath))
+                        this.file = fullPath;
+                }
 
                 InternalInit(parts, 1);
             }

@@ -1262,6 +1262,14 @@ partial class dbg
                         executor.ShowVersion();
                         CLIExitRequest.Throw();
                     }
+                    else if (Args.ParseValuedArg(arg, AppArgs.nuget, out argValue)) // -nuget[:<package>]
+                    {
+                        if (argValue.NotEmpty())
+                            NuGet.InstallPackage(argValue);
+                        else
+                            NuGet.ListPackages();
+                        CLIExitRequest.Throw();
+                    }
                     else if (Args.Same(arg, AppArgs.stop)) // -stop
                     {
                         StopVBCSCompilers();
