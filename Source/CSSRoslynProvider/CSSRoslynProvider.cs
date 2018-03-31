@@ -80,8 +80,12 @@ public class CSSCodeProvider
             catch { }
     }
 
-    static void Init()
+    static void Init(string sourceFile = null)
     {
+        var compilerName = "csc.exe";
+        if ((sourceFile ?? "").EndsWith(".vb", comparisonType: StringComparison.OrdinalIgnoreCase))
+            compilerName = "vbc.exe";
+
         //Debug.Assert(false);
         if (!inited)
         {
@@ -89,7 +93,7 @@ public class CSSCodeProvider
             InitMonoIntegration();
 
             CompilerPath = CompilerPath ??
-                           GetDefaultAssemblyPath("csc.exe");
+                           GetDefaultAssemblyPath(compilerName);
 
             if ((Environment.GetEnvironmentVariable("CSS_PROVIDER_TRACE") ?? "").ToLower() == "true")
                 try
@@ -121,7 +125,7 @@ public class CSSCodeProvider
     public static ICodeCompiler CreateCompiler(string sourceFile)
     {
         //System.Diagnostics.Debug.Assert(false);
-        Init();
+        Init(sourceFile);
         return CreateCompilerImpl(sourceFile);
     }
 
