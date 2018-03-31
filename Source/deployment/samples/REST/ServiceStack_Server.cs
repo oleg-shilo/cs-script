@@ -7,14 +7,17 @@ public class Host : ConsoleHost
 {
     static void Main()
     {
-        new Host().Init()
-                  .Start("http://*:8080/");
+        int port = 5000;
+        new Host()
+                .Init()
+                .Start($"http://*:{port}/");
 
-        Console.WriteLine("AppHost listening on http://localhost:8080/\n\t sample: http://localhost:8080/hello/John");
+        Console.WriteLine($"AppHost listening on http://localhost:{port}/\n\t sample: http://localhost:{port}/hello/John");
         Console.ReadKey();
     }
 }
 
+[Route("/hello")]
 [Route("/hello/{Name}")]
 public class Hello
 {
