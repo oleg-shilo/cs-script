@@ -41,19 +41,22 @@ public class CSSCodeProvider
         var file = Path.Combine(new[] { dir }.Concat(paths).ToArray());
         if (File.Exists(file))
             return file;
-        return
-            null;
+        else
+            return null;
     }
 
     static string GetDefaultAssemblyPath(string file)
     {
         var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
+        // Remember, Linux FS is case sensitive.
         return ExistingFile(Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ?? dir, file) ??
                ExistingFile(dir, file) ??
                ExistingFile(dir, "bin", file) ??
                ExistingFile(dir, "roslyn", file) ??
-               ExistingFile(dir, "bin", "roslyn", file);
+               ExistingFile(dir, "Roslyn", file) ??
+               ExistingFile(dir, "bin", "roslyn", file) ??
+               ExistingFile(dir, "bin", "Roslyn", file);
     }
 
     static bool inited = false;
