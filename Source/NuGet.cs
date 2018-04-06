@@ -205,7 +205,7 @@ namespace csscript
 
                 if (suppressDownloading)
                 {
-                    //it is OK if the package is not downloaded (e.g. N++ intellisense)
+                    //it is OK if the package is not downloaded (e.g. N++ Intellisense)
                     if (!suppressReferencing && IsPackageDownloaded(packageDir, packageVersion))
                         assemblies.AddRange(GetPackageLibDlls(package, packageVersion));
                 }
@@ -497,7 +497,7 @@ namespace csscript
         static void Run(string exe, string args)
         {
             //http://stackoverflow.com/questions/38118548/how-to-install-nuget-from-command-line-on-linux
-            //on linux native "nuget" app doesn't play nice with std.out redirected
+            //on Linux native "nuget" app doesn't play nice with std.out redirected
 
             if (Utils.IsLinux())
             {

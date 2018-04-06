@@ -1,4 +1,4 @@
-//css dir C:\Program Files (x86)\Mono\lib\mono\4.0
+//css_dir C:\Program Files (x86)\Mono\lib\mono\4.0
 //css_ref Mono.Posix.dll;
 //css_ref System;
 using System;

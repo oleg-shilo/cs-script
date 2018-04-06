@@ -1033,7 +1033,7 @@ partial class dbg
                 {
                     if (Args.Same(arg, AppArgs.nl)) // -nl
                     {
-                        // '-nl' has been bmade obsolete.
+                        // '-nl' has been made obsolete.
                         // Just continue to let the legacy setting/args pass through without affecting the execution.
                         // options.noLogo = true;
                     }
@@ -1721,6 +1721,7 @@ partial class dbg
             return num1 + num2 * 0x5d588b65;
         }
 
+        // disabled just in case
         //public static unsafe int GetHashCode32Unsafe(string s)
         //{
         //    fixed (char* str = s.ToCharArray())
@@ -2126,10 +2127,6 @@ partial class dbg
         }
 
         int stampID = CSSUtils.GetHashCodeEx(Assembly.GetExecutingAssembly().FullName.Split(",".ToCharArray())[1]);
-
-        //#pragma warning disable 414
-        //int executionFlag = Marshal.SizeOf((Int32)0);
-        //#pragma warning restore 414
 
         bool IsGACAssembly(string file)
         {

@@ -11,7 +11,7 @@ namespace csscript
     internal class AppArgs
     {
         public static string nl = "nl";
-        public static string nathash = "nathash";       // instead of const make it static so this hidden option is not picked by autodocumentor
+        public static string nathash = "nathash";       // instead of const make it static so this hidden option is not picked by auto-documenter
 
         public const string help = "help";
         public const string help2 = "-help";
@@ -752,7 +752,7 @@ namespace csscript
             builder.AppendLine("<switch 1>");
             builder.AppendLine("");
 
-            //cannot use Linq as it can be incompatible target
+            //cannot use LINQ as it can be incompatible target
             var printed = new List<string>();
 
             // string fullDoc = GetFullDoc();
@@ -892,7 +892,7 @@ namespace csscript
             builder.Append(Environment.NewLine);
             builder.Append("        //if scriptCode needs to be altered assign scriptCode the new value and return true. Otherwise return false" + Environment.NewLine);
             builder.Append(Environment.NewLine);
-            builder.Append("        //scriptCode = \"code after precompilation\";" + Environment.NewLine);
+            builder.Append("        //scriptCode = \"code after pre-compilation\";" + Environment.NewLine);
             builder.Append("        //return true;" + Environment.NewLine);
             builder.Append(Environment.NewLine);
             builder.Append("        return false;" + Environment.NewLine);

@@ -9,25 +9,25 @@ using System.Diagnostics;
 namespace csscript
 {
     /// <summary>
-    /// This class is a container for information related to the script precompilation.
+    /// This class is a container for information related to the script pre-compilation.
     /// <para>It is used to pass an input information from the script engine to the <c>precompiler</c> instance as well as to pass back
     /// to the script engine some output information (e.g. added referenced assemblies)</para> .
     /// </summary>
     internal class PrecompilationContext
     {
         ///// <summary>
-        ///// Full path of the script being passed for precompilation.
+        ///// Full path of the script being passed for pre-compilation.
         ///// </summary>
         //public string ScriptFileName;
         ///// <summary>
-        ///// Flag, which indicates if the script passed for precompilation is an entry script (primary script).
-        ///// <para>This field can be used to determine the precompilation algorithm based on the entry script. For example
+        ///// Flag, which indicates if the script passed for pre-compilation is an entry script (primary script).
+        ///// <para>This field can be used to determine the pre-compilation algorithm based on the entry script. For example
         ///// generating the <c>static Main()</c> wrapper for classless scripts should be done only for an entry script but not for other included/imported script. </para>
         ///// </summary>
         //public bool IsPrimaryScript = true;
         /// <summary>
         /// Collection of the referenced assemblies to be added to the process script referenced assemblies.
-        /// <para>You may want to add new items to the referenced assemblies because of the precompilation logic (e.g. some code using assemblies not referenced by the primary script
+        /// <para>You may want to add new items to the referenced assemblies because of the pre-compilation logic (e.g. some code using assemblies not referenced by the primary script
         /// is injected in the script).</para>
         /// </summary>
         public List<string> NewReferences = new List<string>();
@@ -47,7 +47,7 @@ namespace csscript
 
         /// <summary>
         /// Collection of the assembly and script probing directories to be added to the process search directories.
-        /// <para>You may want to add new items to the process search directories because of the precompilation logic.</para>
+        /// <para>You may want to add new items to the process search directories because of the pre-compilation logic.</para>
         /// </summary>
         public List<string> NewSearchDirs = new List<string>();
 
@@ -56,40 +56,6 @@ namespace csscript
         /// </summary>
         public string[] SearchDirs = new string[0];
     }
-
-    ///// <summary>
-    ///// The interface that all CS-Script precompilers need to implement.
-    ///// <para>
-    ///// The following is an example of the precompiler for sanitizing the script containing hashbang string on Linux.
-    ///// </para>
-    ///// <code>
-    /////  public class HashBangPrecompiler : IPrecompiler
-    /////  {
-    /////     public bool Compile(ref string code, PrecompilationContext context)
-    /////     {
-    /////         if (code.StartsWith("#!"))
-    /////         {
-    /////              code = "//" + code; //comment the Linux hashbang line to keep C# compiler happy
-    /////              return true;
-    /////         }
-    /////
-    /////         return false;
-    /////     }
-    ///// }
-    ///// </code>
-    ///// </summary>
-    //public interface IPrecompiler
-    //{
-    //    /// <summary>
-    //    /// Compiles/modifies the specified code.
-    //    /// <para>
-    //    /// </para>
-    //    /// </summary>
-    //    /// <param name="code">The code to be compiled.</param>
-    //    /// <param name="context">The context.</param>
-    //    /// <returns><c>True</c> if the <paramref name="code"/> code has been modified and <c>False</c> </returns>
-    //    bool Compile(ref string code, PrecompilationContext context);
-    //}
 
     internal class DefaultPrecompiler
     {
@@ -335,9 +301,9 @@ namespace csscript
 
                         if (!text.StartsWith("//"))
                         {
-                            //static void Main(string[] args)
-                            //or
-                            //int main(string[] args)
+                            // static void Main(string[] args)
+                            // or
+                            // int main(string[] args)
 
                             MatchCollection matches = Regex.Matches(text, @"\s+main\s*\(", RegexOptions.IgnoreCase);
                             foreach (Match match in matches)
