@@ -496,7 +496,7 @@ namespace CSScriptLibrary
         public string[] IgnoreNamespaces;
 
         /// <summary>
-        /// The compiler options sepcified with `//css_co` directive
+        /// The compiler options specified with `//css_co` directive
         /// </summary>
         public string[] CompilerOptions;
 
@@ -625,7 +625,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Collection of namespaces referenced from code (including those referenced in dependand scripts)
+        /// Collection of namespaces referenced from code (including those referenced in dependant scripts)
         /// </summary>
         public string[] ReferencedNamespaces
         {
@@ -722,7 +722,7 @@ namespace CSScriptLibrary
         /// Constructor.
         /// </summary>
         /// <param name="fileName">Script file name</param>
-        /// <param name="searchDirs">Extra ScriptLibrary directory(ies) </param>
+        /// <param name="searchDirs">Extra ScriptLibrary directory(s) </param>
         /// <param name="throwOnError">flag to indicate if the file parsing/processing error should raise an exception</param>
         public ScriptParser(string fileName, string[] searchDirs, bool throwOnError)
         {
@@ -748,7 +748,7 @@ namespace CSScriptLibrary
         /// Initialization of ScriptParser instance
         /// </summary>
         /// <param name="fileName">Script file name</param>
-        /// <param name="searchDirs">Extra ScriptLibrary directory(ies) </param>
+        /// <param name="searchDirs">Extra ScriptLibrary directory(s) </param>
         void Init(string fileName, string[] searchDirs)
         {
             ScriptPath = fileName;
@@ -985,7 +985,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Aggregates the references from the script and its imported scripts. It is a logical equivalent od CSExecutor.AggregateReferencedAssemblies
+        /// Aggregates the references from the script and its imported scripts. It is a logical equivalent of CSExecutor.AggregateReferencedAssemblies
         /// but optimized for later .NET versions (e.g LINQ) and completely decoupled. Thus it has no dependencies on internal state
         /// (e.g. settings, options.shareHostAssemblies).
         /// <para>It is the method to call for generating list of ref asms as part of the project info.</para>
@@ -993,7 +993,7 @@ namespace CSScriptLibrary
         /// </summary>
         /// <param name="searchDirs">The search dirs.</param>
         /// <param name="defaultRefAsms">The default ref asms.</param>
-        /// <param name="defaultNamespacess">The default namespacess.</param>
+        /// <param name="defaultNamespacess">The default namespaces.</param>
         /// <returns></returns>
         public List<string> AgregateReferences(IEnumerable<string> searchDirs, IEnumerable<string> defaultRefAsms, IEnumerable<string> defaultNamespacess)
         {

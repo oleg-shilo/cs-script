@@ -426,10 +426,10 @@ namespace csscript
         }
 
         /// <summary>
-        /// Loads and parces the file the file.
+        /// Loads and parses the file the file.
         /// </summary>
         /// <param name="script">The script.</param>
-        /// <returns>Parser contining parsing result.</returns>
+        /// <returns>Parser object containing parsing result.</returns>
         public static CSharpParser LoadFile(string script)
         {
             return new CSharpParser(script, true);
@@ -476,27 +476,6 @@ namespace csscript
         /// The result of search for additional C# script directives to search (directive vs. value).
         /// </summary>
         public Hashtable CustomDirectives = new Hashtable();
-
-        ///// <summary>
-        ///// Parses the C# code. Only one of the 'code' and 'file' parameters can be non empty.
-        ///// </summary>
-        ///// <param name="code">C# script code (empty string if code is in a file form).</param>
-        ///// <param name="file">The script file name (empty if code is in the text form).</param>
-        //public void Init(string code, string file)
-        //{
-        //    Init(code, file, null, null);
-        //}
-
-        ///// <summary>
-        ///// Parses the C# code.
-        ///// </summary>
-        ///// <param name="code">C# script (code or file).</param>
-        ///// <param name="file">If set to 'true' the script is a file, otherwise it is a C# code.</param>
-        ///// <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
-        //void Init(string code, string file, string[] directivesToSearch)
-        //{
-        //    Init(code, file, directivesToSearch, null);
-        //}
 
         /// <summary>
         /// Global flag to forcefully suppress any C# code analyses. This flag effectively disables

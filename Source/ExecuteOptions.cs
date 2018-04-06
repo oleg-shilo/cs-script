@@ -255,10 +255,7 @@ namespace csscript
         public string forceOutputAssembly = "";
         public string cleanupShellCommand = "";
         public bool noConfig = false;
-
-        //public bool suppressExternalHosting = true;
         public bool customHashing = true;
-
         public bool autoClass = false;
         public bool autoClass_InjectBreakPoint = false;
         public bool versionOnly = false;

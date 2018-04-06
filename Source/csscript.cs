@@ -702,17 +702,6 @@ namespace csscript
                     if (options.local)
                         Environment.CurrentDirectory = Path.GetDirectoryName(Path.GetFullPath(options.scriptFileName));
 
-                    // if (!options.noLogo)
-                    // {
-                    //     // Need to print logo only one time ever per process. This needs to be done as
-                    //     // scripted args can initiate script execution multiple times.
-                    //     if (Environment.GetEnvironmentVariable("css_logo_printed") == null)
-                    //     {
-                    //         Environment.SetEnvironmentVariable("css_logo_printed", "true");
-                    //         Console.WriteLine(AppInfo.appLogo);
-                    //     }
-                    // }
-
                     if (options.verbose)
                     {
                         Console.WriteLine("> ----------------");
@@ -809,7 +798,7 @@ namespace csscript
                     //
                     // * ConcurrencyControl.Standard
                     //      Due to the limited choices with the system wide named synchronization objects on Linux both Validation and Compilations stages are treated as a single stage,
-                    //      controlled by a single synch object compilingFileLock.
+                    //      controlled by a single sync object compilingFileLock.
                     //      This happens to be a good default choice for Windows as well.
                     //
                     // * ConcurrencyControl.None
@@ -1523,7 +1512,7 @@ namespace csscript
 
                 if (Path.IsPathRooted(asm)) //absolute path
                 {
-                    //not-searchable assemblies
+                    //non-searchable assemblies
                     if (File.Exists(asm))
                     {
                         requestedRefAsms.AddAssembly(NormalizeGacAssemblyPath(asm));
@@ -1904,13 +1893,6 @@ namespace csscript
         {
             LastCompileResult = new CompilingInfo() { ScriptFile = scriptFileName, ParsingContext = parser.GetContext(), Result = results, Input = compilerParams };
 
-            // Console.WriteLine("-----------------");
-            // foreach (var asm in compilerParams.ReferencedAssemblies)
-            //     Console.WriteLine(asm);
-            // Environment.SetEnvironmentVariable("CSS_PROVIDER_TRACE", "true");
-            // Console.WriteLine("CSS_PROVIDER_TRACE=true");
-            // Console.WriteLine("-----------------");
-
             if (results.Errors.HasErrors)
             {
                 var ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings, options.resolveAutogenFilesRefs);
@@ -1963,8 +1945,6 @@ namespace csscript
                     Console.WriteLine("> ----------------", options);
                 }
 
-                //if (Mono)
-
                 string symbFileName = Utils.DbgFileOf(assemblyFileName);
                 string pdbFileName = Utils.DbgFileOf(assemblyFileName, false);
 
@@ -1996,7 +1976,7 @@ namespace csscript
                                 if (!Utils.IsLinux())
                                 {
                                     // hide terminal window
-                                    process.StartInfo.FileName = @"pdb2mdb.bat";
+                                    process.StartInfo.FileName = "pdb2mdb.bat";
                                     process.StartInfo.UseShellExecute = false;
                                     process.StartInfo.ErrorDialog = false;
                                     process.StartInfo.CreateNoWindow = true;
@@ -2333,6 +2313,7 @@ namespace csscript
 
                         var providerFile = ExistingFile(asmDir, "CSSRoslynProvider.dll") ??
                                            ExistingFile(asmDir, "Lib", "CSSRoslynProvider.dll");
+
                         if (providerFile != null)
                         {
                             name = "UseAlternativeCompiler";

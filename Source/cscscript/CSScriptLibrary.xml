@@ -739,10 +739,10 @@
         </member>
         <member name="M:csscript.CSharpParser.LoadFile(System.String)">
             <summary>
-            Loads and parces the file the file.
+            Loads and parses the file the file.
             </summary>
             <param name="script">The script.</param>
-            <returns>Parser contining parsing result.</returns>
+            <returns>Parser object containing parsing result.</returns>
         </member>
         <member name="M:csscript.CSharpParser.#ctor(System.String,System.Boolean,System.String[])">
             <summary>
@@ -1405,7 +1405,7 @@
         </member>
         <member name="F:CSScriptLibrary.ScriptParsingResult.CompilerOptions">
             <summary>
-            The compiler options sepcified with `//css_co` directive
+            The compiler options specified with `//css_co` directive
             </summary>
         </member>
         <member name="F:CSScriptLibrary.ScriptParsingResult.SearchDirs">
@@ -1483,7 +1483,7 @@
         </member>
         <member name="P:CSScriptLibrary.ScriptParser.ReferencedNamespaces">
             <summary>
-            Collection of namespaces referenced from code (including those referenced in dependand scripts)
+            Collection of namespaces referenced from code (including those referenced in dependant scripts)
             </summary>
         </member>
         <member name="P:CSScriptLibrary.ScriptParser.IgnoreNamespaces">
@@ -1530,7 +1530,7 @@
             Constructor.
             </summary>
             <param name="fileName">Script file name</param>
-            <param name="searchDirs">Extra ScriptLibrary directory(ies) </param>
+            <param name="searchDirs">Extra ScriptLibrary directory(s) </param>
             <param name="throwOnError">flag to indicate if the file parsing/processing error should raise an exception</param>
         </member>
         <member name="P:CSScriptLibrary.ScriptParser.ScriptPath">
@@ -1543,7 +1543,7 @@
             Initialization of ScriptParser instance
             </summary>
             <param name="fileName">Script file name</param>
-            <param name="searchDirs">Extra ScriptLibrary directory(ies) </param>
+            <param name="searchDirs">Extra ScriptLibrary directory(s) </param>
         </member>
         <member name="M:CSScriptLibrary.ScriptParser.SaveImportedScripts">
             <summary>
@@ -1563,7 +1563,7 @@
         </member>
         <member name="M:CSScriptLibrary.ScriptParser.AgregateReferences(System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String})">
              <summary>
-             Aggregates the references from the script and its imported scripts. It is a logical equivalent od CSExecutor.AggregateReferencedAssemblies
+             Aggregates the references from the script and its imported scripts. It is a logical equivalent of CSExecutor.AggregateReferencedAssemblies
              but optimized for later .NET versions (e.g LINQ) and completely decoupled. Thus it has no dependencies on internal state
              (e.g. settings, options.shareHostAssemblies).
              <para>It is the method to call for generating list of ref asms as part of the project info.</para>
@@ -1571,7 +1571,7 @@
              </summary>
              <param name="searchDirs">The search dirs.</param>
              <param name="defaultRefAsms">The default ref asms.</param>
-             <param name="defaultNamespacess">The default namespacess.</param>
+             <param name="defaultNamespacess">The default namespaces.</param>
              <returns></returns>
         </member>
     </members>

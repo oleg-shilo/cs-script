@@ -209,23 +209,6 @@ namespace csscript
                 else
                     assembly = Assembly.Load(data);
 
-                // using (FileStream fs = new FileStream(filename, FileMode.Open)) // mistake: it opens file for writing (at least on Linux).
-                // {
-                //     byte[] data = new byte[fs.Length];
-                //     fs.Read(data, 0, data.Length);
-                //     string dbg = Utils.DbgFileOf(filename);
-
-                //     if (ExecuteOptions.options.DBG && File.Exists(dbg))
-                //         using (FileStream fsDbg = new FileStream(dbg, FileMode.Open))
-                //         {
-                //             byte[] dbgData = new byte[fsDbg.Length];
-                //             fsDbg.Read(dbgData, 0, dbgData.Length);
-                //             assembly = Assembly.Load(data, dbgData);
-                //         }
-                //     else
-                //         assembly = Assembly.Load(data);
-                // }
-
                 asmLock.Release();
             }
 

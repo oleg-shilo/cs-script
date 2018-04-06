@@ -49,7 +49,6 @@ using System.Text;
  *	When you enumerate assemblies that are available in the GAC.
  *
 */
-//#pragma warning disable 414
 
 namespace csscript
 {
@@ -298,7 +297,7 @@ namespace csscript
     }
 
     /// <summary>
-    ///  Helper calss for IAssemblyCache
+    ///  Helper class for IAssemblyCache
     /// </summary>
     [ComVisible(false)]
     class AssemblyCache
@@ -358,7 +357,7 @@ namespace csscript
     }
 
     /// <summary>
-    /// Helper calss for IAssemblyEnum
+    /// Helper class for IAssemblyEnum
     /// </summary>
     [ComVisible(false)]
     class AssemblyEnum
