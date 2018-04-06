@@ -96,11 +96,11 @@ namespace csscript
             clone.scriptFileName = this.scriptFileName;
             // clone.noLogo = this.noLogo;
             clone.useCompiled = this.useCompiled;
-            clone.supressTimestampAltering = this.supressTimestampAltering;
+            clone.suppressTimestampAltering = this.suppressTimestampAltering;
             clone.useSmartCaching = this.useSmartCaching;
             clone.DLLExtension = this.DLLExtension;
             clone.forceCompile = this.forceCompile;
-            clone.supressExecution = this.supressExecution;
+            clone.suppressExecution = this.suppressExecution;
             clone.syntaxCheck = this.syntaxCheck;
             clone.DBG = this.DBG;
             clone.TargetFramework = this.TargetFramework;
@@ -157,10 +157,10 @@ namespace csscript
             //clone.scriptFileName = this.scriptFileName;
             //clone.noLogo = this.noLogo;
             //clone.useCompiled = this.useCompiled;
-            clone.useSmartCaching = this.useSmartCaching;
             //clone.DLLExtension = this.DLLExtension;
             //clone.forceCompile = this.forceCompile;
-            clone.supressExecution = this.supressExecution;
+            clone.useSmartCaching = this.useSmartCaching;
+            clone.suppressExecution = this.suppressExecution;
             clone.InjectScriptAssemblyAttribute = this.InjectScriptAssemblyAttribute;
             clone.resolveAutogenFilesRefs = this.resolveAutogenFilesRefs;
             clone.DBG = this.DBG;
@@ -212,20 +212,15 @@ namespace csscript
         public string scriptFileName = "";
         public object initContext = null;
         public string scriptFileNamePrimary = null;
-
-        // public bool noLogo = true;
         public bool useCompiled = false;
-
         public bool useScriptConfig = false;
         public bool useSmartCaching = true; //hardcoded true but can be set from config file in the future
-        public bool supressTimestampAltering = false; //hardcoded true but can be set from config file in the future
+        public bool suppressTimestampAltering = false; //hardcoded true but can be set from config file in the future
         public string customConfigFileName = "";
         public bool DLLExtension = false;
         public bool forceCompile = false;
-        public bool supressExecution = false;
+        public bool suppressExecution = false;
         public bool syntaxCheck = false;
-
-        //public bool syntaxCheck = false;
         public bool DBG = false;
 
 #if net35

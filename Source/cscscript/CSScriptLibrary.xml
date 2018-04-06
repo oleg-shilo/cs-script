@@ -766,11 +766,18 @@
             The result of search for additional C# script directives to search (directive vs. value).
             </summary>
         </member>
+        <member name="F:csscript.CSharpParser.SuppressCodeAnalysis">
+            <summary>
+            Global flag to forcefully suppress any C# code analyses. This flag effectively disables
+            all CS-Script assembly and script probing and most likely some other functionality.
+            <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
+            </summary>
+        </member>
         <member name="F:csscript.CSharpParser.SupressCodeAnalysis">
             <summary>
-            Global flag to forcefuly supress any C# code analysys. This flag efectively disables
+            Global flag to forcefully suppress any C# code analyses. This flag effectively disables
             all CS-Script assembly and script probing and most likely some other functionality.
-            <para>You may ever want to supress code analysys only for profiling perposes or during performance tuning.</para>
+            <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
             </summary>
         </member>
         <member name="M:csscript.CSharpParser.Init(System.String,System.String,System.String[],System.String[])">

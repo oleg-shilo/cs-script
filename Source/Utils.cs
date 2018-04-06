@@ -1044,7 +1044,7 @@ partial class dbg
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.c, out argValue)) // -c:<value>
                     {
-                        if (!options.supressExecution) // do not change the value if compilation is the objective
+                        if (!options.suppressExecution) // do not change the value if compilation is the objective
                         {
                             if (argValue == "1" || argValue == null)
                                 options.useCompiled = true;
@@ -1054,7 +1054,7 @@ partial class dbg
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.inmem, out argValue)) // -inmem:<value>
                     {
-                        if (!options.supressExecution) // do not change the value if compilation is the objective
+                        if (!options.suppressExecution) // do not change the value if compilation is the objective
                         {
                             if (argValue == "1" || argValue == null)
                                 options.inMemoryAsm = true;
@@ -1133,7 +1133,7 @@ partial class dbg
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.config, out argValue)) // -config:<file>
                     {
-                        if (!options.supressExecution) // do not change the value if compilation is the objective
+                        if (!options.suppressExecution) // do not change the value if compilation is the objective
                         {
                             //-config:none             - ignore config file (use default settings)
                             //-config:create           - create config file with default settings
@@ -1208,7 +1208,7 @@ partial class dbg
                     {
                         options.useCompiled = false;
                         options.forceCompile = true;
-                        options.supressExecution = true;
+                        options.suppressExecution = true;
                         options.syntaxCheck = true;
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.proj, out argValue)) // -proj
@@ -1229,7 +1229,7 @@ partial class dbg
                     {
                         options.useCompiled = true;
                         options.forceCompile = true;
-                        options.supressExecution = true;
+                        options.suppressExecution = true;
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.co, out argValue)) // -co:<value>
                     {
@@ -1242,7 +1242,7 @@ partial class dbg
                     }
                     else if (Args.Same(arg, AppArgs.cd)) // -cd
                     {
-                        options.supressExecution = true;
+                        options.suppressExecution = true;
                         options.DLLExtension = true;
                     }
                     else if (Args.Same(arg, AppArgs.tc)) // -tc
@@ -1286,7 +1286,7 @@ partial class dbg
                     else if (Args.Same(arg, AppArgs.e, AppArgs.ew)) // -e -ew
                     {
                         options.buildExecutable = true;
-                        options.supressExecution = true;
+                        options.suppressExecution = true;
                         if (Args.Same(arg, AppArgs.ew)) // -ew
                             options.buildWinExecutable = true;
                     }
@@ -1659,11 +1659,13 @@ partial class dbg
             }
         }
 
-        static public bool IsRuntimeErrorReportingSupressed
+        static public bool IsRuntimeErrorReportingSuppressed
         {
             get
             {
-                return Environment.GetEnvironmentVariable("CSS_IsRuntimeErrorReportingSupressed") != null;
+                // old silly typo
+                return Environment.GetEnvironmentVariable("CSS_IsRuntimeErrorReportingSuppressed") != null ||
+                       Environment.GetEnvironmentVariable("CSS_IsRuntimeErrorReportingSupressed") != null;
             }
         }
 

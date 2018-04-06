@@ -575,7 +575,7 @@ namespace csscript
                 {
                     Environment.ExitCode = 1;
 
-                    if (!CSSUtils.IsRuntimeErrorReportingSupressed)
+                    if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
                     {
                         if (options.reportDetailedErrorInfo && !(ex is FileNotFoundException))
                             print(ex.ToString());
@@ -945,7 +945,7 @@ namespace csscript
                             }
                             catch
                             {
-                                if (!CSSUtils.IsRuntimeErrorReportingSupressed)
+                                if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
                                 {
                                     print("Error: Specified file could not be compiled.\n");
                                     if (NuGet.newPackageWasInstalled)
@@ -977,7 +977,7 @@ namespace csscript
                         }
 
                         // --- EXECUTE ---
-                        if (options.supressExecution)
+                        if (options.suppressExecution)
                         {
                             if (!options.syntaxCheck)
                                 print("Created: " + assemblyFileName);
@@ -1025,7 +1025,7 @@ namespace csscript
                             }
                             catch
                             {
-                                if (!CSSUtils.IsRuntimeErrorReportingSupressed)
+                                if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
                                     print("Error: Specified file could not be executed.\n");
                                 throw;
                             }
@@ -1083,7 +1083,7 @@ namespace csscript
                 else
                 {
                     Environment.ExitCode = 1;
-                    if (!CSSUtils.IsRuntimeErrorReportingSupressed)
+                    if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
                     {
                         if (options.reportDetailedErrorInfo)
                             print(ex.ToString());

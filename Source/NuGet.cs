@@ -115,7 +115,7 @@ namespace csscript
 
         public static bool newPackageWasInstalled = false;
 
-        static public string[] Resolve(string[] packages, bool supressDownloading, string script)
+        static public string[] Resolve(string[] packages, bool suppressDownloading, string script)
         {
             List<string> assemblies = new List<string>();
 
@@ -129,8 +129,8 @@ namespace csscript
                 string nugetArgs = "";
                 string packageVersion = "";
 
-                bool supressReferencing = item.StartsWith("-noref");
-                if (supressReferencing)
+                bool suppressReferencing = item.StartsWith("-noref");
+                if (suppressReferencing)
                     package = item.Replace("-noref", "").Trim();
 
                 bool forceDownloading = item.StartsWith("-force");
@@ -203,10 +203,10 @@ namespace csscript
                         forceDownloading = false;
                 }
 
-                if (supressDownloading)
+                if (suppressDownloading)
                 {
                     //it is OK if the package is not downloaded (e.g. N++ intellisense)
-                    if (!supressReferencing && IsPackageDownloaded(packageDir, packageVersion))
+                    if (!suppressReferencing && IsPackageDownloaded(packageDir, packageVersion))
                         assemblies.AddRange(GetPackageLibDlls(package, packageVersion));
                 }
                 else
@@ -252,7 +252,7 @@ namespace csscript
                     if (!IsPackageDownloaded(packageDir, packageVersion))
                         throw new ApplicationException("Cannot process NuGet package '" + package + "'");
 
-                    if (!supressReferencing)
+                    if (!suppressReferencing)
                         assemblies.AddRange(GetPackageLibDlls(package, packageVersion));
                 }
             }

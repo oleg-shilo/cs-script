@@ -499,11 +499,19 @@ namespace csscript
         //}
 
         /// <summary>
-        /// Global flag to forcefuly supress any C# code analysys. This flag efectively disables
+        /// Global flag to forcefully suppress any C# code analyses. This flag effectively disables
         /// all CS-Script assembly and script probing and most likely some other functionality.
-        /// <para>You may ever want to supress code analysys only for profiling perposes or during performance tuning.</para>
+        /// <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
         /// </summary>
-        public static bool SupressCodeAnalysis = false;
+        public static bool SuppressCodeAnalysis = false;
+
+        /// <summary>
+        /// Global flag to forcefully suppress any C# code analyses. This flag effectively disables
+        /// all CS-Script assembly and script probing and most likely some other functionality.
+        /// <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
+        /// </summary>
+        [Obsolete("Please use 'SuppressCodeAnalysis' instead.", true)]
+        public static bool SupressCodeAnalysis;
 
         /// <summary>
         /// Parses the C# code.
@@ -520,7 +528,7 @@ namespace csscript
 
             this.code = code;
 
-            if (SupressCodeAnalysis)
+            if (SuppressCodeAnalysis)
                 return;
 
             //analyse comments and strings
