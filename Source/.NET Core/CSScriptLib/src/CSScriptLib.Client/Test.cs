@@ -21,16 +21,17 @@ namespace CSScriptLib.Client
             // CSScript.GlobalSettings.AddSearchDirsFromHost();
 
             dynamic script = CSScript.Evaluator
-                                        //.ReferenceAssemblyByName("Microsoft.CSharp")
-                                        //.ReferenceAssemblyOf<WebClient>()
-                                        //.ReferenceAssemblyOf<JArray>()
-                                        .LoadCode(@"
+                                     //.ReferenceAssemblyByName("Microsoft.CSharp")
+                                     //.ReferenceAssemblyOf<WebClient>()
+                                     //.ReferenceAssemblyOf<JArray>()
+                                     .LoadCode(@"
                                         //css_ref Microsoft.CSharp
                                         //css_ref System.Net.WebClient
                                         //css_ref Newtonsoft.Json
                                         using System;
                                         using System.Text;
                                         using System.Net;
+                                        using System.Xml;
                                         using Newtonsoft.Json.Linq;
 
                                         public class Script
