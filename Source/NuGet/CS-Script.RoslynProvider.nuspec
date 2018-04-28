@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CS-Script.RoslynProvider</id>
-<version>3.28.2.0</version>
+<version>3.28.4.0</version>
         <title>CS-Script CodeDom Roslyn provider (CSSRoslynProvider.dll)</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -13,26 +13,24 @@
         <description>The CodeDom provider for CS-Script Class Library that targets Roslyn.</description>
         <summary>This is the complete package for hosting the script engine in .NET (full) applications. Apart from having all binaries required for the all three available compilation engines (Roslyn, Mono and CodeDom) it also contains the integration module (CSSRoslynProvider.dll) that allows CodeDom compilation engine and the CS-Script legacy native interface to process C# 7.0 syntax.</summary>
         <releaseNotes>
-# Release v3.28.2.0
+# Release v3.28.4.0
 
-* CS-Script.Core
-- Issue #106: Fix netstandard2 version to work in 4.6.1 and fix ReferenceDomainAssemblies
-- Fix netstandard2 version to work in 4.6.1 and fix ReferenceDomainAssemblies
+* CS-Script v3.28.4.0
+  - Added resolving GAC assemblies on Mono (when running on Windows)
+  - Implemented resolving custom config file specified by file name only (local with respect to cscs.exe)
+  - Command `-stop` now stops syntaxer.exe as well
 
-* CS-Script
-- Issue #108: Option to no longer suppress TargetInvocationException in AsmBrowser
-- Fixed problem with `cscs -config:get` not handling the properties containing '_'
-- Issue #107: //css_resource fails to resolve relative paths
-- Solved problem with `MarshalByRefObjectWithInfiniteLifetime` being defined in both cscs and CSScriptLibrary
-- Renamed MarshalByRefObjectWithInfiniteLifetime -> CSScriptLibrary.MarshalByRefObjectWithInfiniteLifetime
-- Processing feedback on #98 fixes.
+* CS-Script.Core v1.0.1.0
+  - Implemented resolving `using` into assemblies from 'dotnet\shared' folder
+  - Issue #110: Compiling to Byte[]/File in .NET Standard
+  - Issue #106: Fix netstandard2 version to work in 4.6.1 and fix ReferenceDomainAssemblies
 
 </releaseNotes>
         <copyright>Copyright (C) 2004-2018 Oleg Shilo</copyright>
         <language>en-AU</language>
         <tags>C# Scripting Dynamic CS-Script csscript</tags>
         <dependencies>
-            <dependency id="CS-Script.bin" version="3.28.2.0" />
+            <dependency id="CS-Script.bin" version="3.28.4.0" />
             <dependency id="Microsoft.Net.Compilers" version="2.2.0" />
         </dependencies>
     </metadata>

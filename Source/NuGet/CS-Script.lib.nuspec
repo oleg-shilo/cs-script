@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CS-Script.lib</id>
-<version>3.28.2.0</version>
+<version>3.28.4.0</version>
         <title>CS-Script Class Library (CSScriptLibrary.dll)</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -14,20 +14,17 @@
 This package distributes only the raw CS-Script engine so you can use it (if required) with untested dependencies (e.g. any version of Roslyn).</description>
         <summary>This is the minimal package for referencing CS-Script engine from .NET (full) applications. It contains only the CS-Script class library CSScriptLibrary.dll.</summary>
         <releaseNotes>
-# Release v3.28.2.0
+# Release v3.28.4.0
 
-* CS-Script.Core
-- Issue #106: Fix netstandard2 version to work in 4.6.1 and fix ReferenceDomainAssemblies
-- Fix netstandard2 version to work in 4.6.1 and fix ReferenceDomainAssemblies
+* CS-Script v3.28.4.0
+  - Added resolving GAC assemblies on Mono (when running on Windows)
+  - Implemented resolving custom config file specified by file name only (local with respect to cscs.exe)
+  - Command `-stop` now stops syntaxer.exe as well
 
-* CS-Script
-- Issue #108: Option to no longer suppress TargetInvocationException in AsmBrowser
-- Fixed problem with `cscs -config:get` not handling the properties containing '_'
-- Issue #107: //css_resource fails to resolve relative paths
-- Solved problem with `MarshalByRefObjectWithInfiniteLifetime` being defined in both cscs and CSScriptLibrary
-- Renamed MarshalByRefObjectWithInfiniteLifetime -> CSScriptLibrary.MarshalByRefObjectWithInfiniteLifetime
-- Processing feedback on #98 fixes.
-
+* CS-Script.Core v1.0.1.0
+  - Implemented resolving `using` into assemblies from 'dotnet\shared' folder
+  - Issue #110: Compiling to Byte[]/File in .NET Standard
+  - Issue #106: Fix netstandard2 version to work in 4.6.1 and fix ReferenceDomainAssemblies
 
     </releaseNotes>
         <copyright>Copyright (C) 2004-2018 Oleg Shilo</copyright>
