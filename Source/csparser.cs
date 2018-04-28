@@ -590,7 +590,7 @@ namespace csscript
             foreach (string statement in GetRawStatements("//css_co", endCodePos))
                 compilerOptions.Add(statement.NormaliseAsDirective());
 
-            if (!Utils.IsLinux())
+            if (!Utils.IsLinux)
                 foreach (string statement in GetRawStatements("//css_host", endCodePos))
                     hostOptions.Add(statement.NormaliseAsDirective());
 

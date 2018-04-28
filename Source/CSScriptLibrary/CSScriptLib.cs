@@ -1039,7 +1039,7 @@ namespace CSScriptLibrary
         {
             var scriptPath = Path.GetFullPath(script);
 
-            if (!Utils.IsLinux())
+            if (!Utils.IsLinux)
                 scriptPath = scriptPath.ToLower();
 
             switch (HostingConcurrencyControl)

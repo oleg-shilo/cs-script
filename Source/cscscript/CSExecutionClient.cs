@@ -89,7 +89,7 @@ namespace csscript
                 // if (args.Contains("-check"))
                 // Debug.Assert(false);
 
-                if (Utils.IsLinux())
+                if (Utils.IsLinux)
                 {
                     //because Linux shebang does not properly split arguments we need to take care of this
                     //http://www.daniweb.com/software-development/c/threads/268382
@@ -113,7 +113,7 @@ namespace csscript
                     Utils.SetEnvironmentVariable("CSScriptRuntimeLocation", System.Reflection.Assembly.GetExecutingAssembly().Location);
                     Utils.SetEnvironmentVariable("cscs_exe_dir", Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
 
-                    if (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") == null && Utils.IsLinux())
+                    if (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") == null && Utils.IsLinux)
                     {
                         // GetExecutingAssembly().Location may be empty even for the entry assembly
                         var cscs_exe_dir = Environment.GetEnvironmentVariable("cscs_exe_dir");

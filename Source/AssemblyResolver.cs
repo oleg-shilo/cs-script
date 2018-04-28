@@ -307,9 +307,12 @@ namespace CSScriptLibrary
             if (Utils.IsMono)
             {
                 if (Utils.MonoGAC.Contains(namespaceStr))
+                {
                     retval.Add(namespaceStr);
+                }
             }
-            else
+
+            if (!retval.Any() && Utils.IsWin)
             {
                 try
                 {
@@ -334,8 +337,9 @@ namespace CSScriptLibrary
                         retval.Add(asmLocation);
                     }
                 }
-                catch
+                catch (Exception)
                 {
+                    // fuslion.dll cannot be found under Mono even if it is running on Windows
                     //If exception is thrown it is very likely it is because where fusion.dll does not exist/unavailable/broken.
                     //We might be running under the MONO run-time.
                 }

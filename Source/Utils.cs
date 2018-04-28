@@ -255,7 +255,7 @@ namespace csscript
 
         public static bool IsSamePath(this string path1, string path2)
         {
-            return string.Compare(path1, path2, !Utils.IsLinux()) == 0;
+            return string.Compare(path1, path2, Utils.IsWin) == 0;
         }
 
         public static void ClearFile(string path)
@@ -284,7 +284,7 @@ namespace csscript
         public static void SetEnvironmentVariable(string name, string value)
         {
             Environment.SetEnvironmentVariable(name, value);
-            if (!Utils.IsLinux())
+            if (Utils.IsWin)
                 try { Win32.SetEnvironmentVariable(name, value); } catch { }
         }
 
@@ -456,11 +456,19 @@ namespace csscript
             return false;
         }
 
-        public static bool IsLinux()
+        public static bool IsWin
         {
-            // Note it is not about OS being exactly Linux but rather about OS having Linux type of file system.
-            // For example path being case sensitive
-            return (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
+            get { return !IsLinux; }
+        }
+
+        public static bool IsLinux
+        {
+            get
+            {
+                // Note it is not about OS being exactly Linux but rather about OS having Linux type of file system.
+                // For example path being case sensitive
+                return (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
+            }
         }
 
         static bool isMono = (Type.GetType("Mono.Runtime") != null);
@@ -627,7 +635,7 @@ partial class dbg
             {
                 //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
                 //throw a nice informative exception.
-                if (!Utils.IsLinux())
+                if (!Utils.IsLinux)
                     fileLock.Wait(1000);
 
                 var cache_dir = Path.Combine(CSExecutor.GetScriptTempDir(), "Cache");
@@ -657,7 +665,7 @@ partial class dbg
             {
                 //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
                 //throw a nice informative exception.
-                if (!Utils.IsLinux())
+                if (Utils.IsWin)
                     fileLock.Wait(1000);
 
                 string code = string.Format("[assembly: System.Reflection.AssemblyDescriptionAttribute(@\"{0}\")]", scriptFileName);
@@ -893,7 +901,7 @@ partial class dbg
             {
                 get
                 {
-                    if (Utils.IsLinux())
+                    if (Utils.IsLinux)
                         return "-";
                     else
                         return "/";
@@ -908,7 +916,7 @@ partial class dbg
                         if (arg.Length == pattern.Length + 1 && arg.IndexOf(pattern) == 1)
                             return true;
 
-                    if (!Utils.IsLinux() && arg[0] == '/')
+                    if (Utils.IsWin && arg[0] == '/')
                         if (arg.Length == pattern.Length + 1 && arg.IndexOf(pattern) == 1)
                             return true;
                 }
@@ -919,7 +927,7 @@ partial class dbg
             {
                 if (arg.StartsWith("-"))
                     return true;
-                if (!Utils.IsLinux())
+                if (Utils.IsWin)
                     return (arg[0] == '/');
                 return false;
             }
@@ -928,7 +936,7 @@ partial class dbg
             {
                 if (arg.StartsWith("-"))
                     return arg.IndexOf(pattern) == 1;
-                if (!Utils.IsLinux())
+                if (Utils.IsWin)
                     if (arg[0] == '/')
                         return arg.IndexOf(pattern) == 1;
                 return false;
@@ -1273,6 +1281,7 @@ partial class dbg
                     else if (Args.Same(arg, AppArgs.stop)) // -stop
                     {
                         StopVBCSCompilers();
+                        StopSyntaxer();
                         CLIExitRequest.Throw();
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.r, out argValue)) // -r:file1,file2
@@ -1410,7 +1419,7 @@ partial class dbg
 
             if (options.autoClass)
             {
-                bool canHandleCShar6 = (!string.IsNullOrEmpty(options.altCompiler) || Utils.IsLinux());
+                bool canHandleCShar6 = (!string.IsNullOrEmpty(options.altCompiler) || Utils.IsLinux);
 
                 AutoclassPrecompiler.decorateAutoClassAsCS6 = (options.decorateAutoClassAsCS6 && options.enableDbgPrint && canHandleCShar6);
 
@@ -1498,13 +1507,23 @@ partial class dbg
 
         internal static void StopVBCSCompilers()
         {
+            kill("VBCSCompiler");
+        }
+
+        static void kill(string proc_name)
+        {
             try
             {
-                foreach (var p in Process.GetProcessesByName("VBCSCompiler"))
+                foreach (var p in Process.GetProcessesByName(proc_name))
                     try { p.Kill(); }
                     catch { } //cannot analyse main module as it may not be accessible for x86 vs. x64 reasons
             }
             catch { }
+        }
+
+        internal static void StopSyntaxer()
+        {
+            kill("syntaxer");
         }
 
         internal static string[] CollectPrecompillers(CSharpParser parser, ExecuteOptions options)
@@ -1874,7 +1893,7 @@ partial class dbg
 
             if (depInfo.ReadFileStamp(assembly))
             {
-                //Trace.WriteLine("Reading mete data...");
+                // Trace.WriteLine("Reading meta data...");
                 //foreach (MetaDataItems.MetaDataItem item in depInfo.items)
                 //    Trace.WriteLine(item.file + " : " + item.date);
 
@@ -1910,7 +1929,9 @@ partial class dbg
                 return false;
             }
             else
+            {
                 return true;
+            }
         }
 
         public string[] AddItems(System.Collections.Specialized.StringCollection files, bool isAssembly, string[] searchDirs)
@@ -2063,15 +2084,21 @@ partial class dbg
                         {
                             int value = ReadIntBackwards(r, ref offset);
                             if (value != CSSUtils.GetHashCodeEx(Environment.Version.ToString()))
+                            {
                                 return false;
+                            }
 
                             value = ReadIntBackwards(r, ref offset);
                             if (value != CSExecutor.options.compilationContext)
+                            {
                                 return false;
+                            }
 
                             value = ReadIntBackwards(r, ref offset);
                             if (value != (CSExecutor.options.DBG ? 1 : 0))
+                            {
                                 return false;
+                            }
 
                             int dataSize = ReadIntBackwards(r, ref offset);
                             if (dataSize != 0)

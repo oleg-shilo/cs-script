@@ -29,7 +29,7 @@ namespace csscript
                 if (nuGetCache == null)
                 {
                     var folder = Environment.SpecialFolder.CommonApplicationData;
-                    if (Utils.IsLinux())
+                    if (Utils.IsLinux)
                         folder = Environment.SpecialFolder.ApplicationData;
 
                     nuGetCache = Environment.GetEnvironmentVariable("css_nuget") ??
@@ -80,7 +80,7 @@ namespace csscript
                 if (Environment.GetEnvironmentVariable("NUGET_INCOMPATIBLE_HOST") == null)
                 {
                     var candidates = Environment.GetEnvironmentVariable("PATH")
-                                                .Split(Utils.IsLinux() ? ':' : ';')
+                                                .Split(Utils.IsLinux ? ':' : ';')
                                                 .SelectMany(dir => new[]
                                                                     {
                                                                         Path.Combine(dir, "nuget"),
@@ -117,6 +117,8 @@ namespace csscript
 
         static public string[] Resolve(string[] packages, bool suppressDownloading, string script)
         {
+            // Debug.Assert(false);
+
             List<string> assemblies = new List<string>();
 
             bool promptPrinted = false;
@@ -499,7 +501,7 @@ namespace csscript
             //http://stackoverflow.com/questions/38118548/how-to-install-nuget-from-command-line-on-linux
             //on Linux native "nuget" app doesn't play nice with std.out redirected
 
-            if (Utils.IsLinux())
+            if (Utils.IsLinux)
             {
                 Process.Start(exe, args).WaitForExit();
             }

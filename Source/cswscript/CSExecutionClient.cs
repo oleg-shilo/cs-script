@@ -66,7 +66,7 @@ namespace csscript
                 Environment.SetEnvironmentVariable("windir", Environment.GetEnvironmentVariable("SystemRoot"));
             Environment.SetEnvironmentVariable("pid", Process.GetCurrentProcess().Id.ToString());
 
-            if (Utils.IsLinux())
+            if (Utils.IsLinux)
             {
                 //because Linux shebang does not properly split arguments we need to take care of this
                 //http://www.daniweb.com/software-development/c/threads/268382

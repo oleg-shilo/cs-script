@@ -946,12 +946,33 @@ namespace csscript
         {
             //System.Diagnostics.Debug.Assert(false);
             Settings settings = new Settings();
-            if (fileName != null && File.Exists(fileName))
+
+            var filePath = fileName;
+
+            if (filePath != null)
+            {
+                var config_root = Path.GetDirectoryName(fileName);
+
+                filePath = Path.GetFullPath(filePath);
+
+                if (!File.Exists(filePath) && config_root == "")
+                {
+                    try
+                    {
+                        var candidate = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location()), fileName);
+                        if (File.Exists(candidate))
+                            filePath = candidate;
+                    }
+                    catch { }
+                }
+            }
+
+            if (filePath != null && File.Exists(filePath))
             {
                 try
                 {
                     XmlDocument doc = new XmlDocument();
-                    doc.Load(fileName);
+                    doc.Load(filePath);
                     XmlNode data = doc.FirstChild;
                     XmlNode node;
                     node = data.SelectSingleNode("defaultArguments"); if (node != null) settings.defaultArguments = node.InnerText;
@@ -991,7 +1012,7 @@ namespace csscript
                     if (!createAlways)
                         settings = null;
                     else
-                        settings.Save(fileName);
+                        settings.Save(filePath);
                 }
                 if (settings != null)
                     CSharpParser.OpenEndDirectiveSyntax = settings.OpenEndDirectiveSyntax;

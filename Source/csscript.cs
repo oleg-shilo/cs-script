@@ -602,7 +602,7 @@ namespace csscript
                         if (options.noConfig)
                         {
                             if (options.altConfig != "")
-                                settings = Settings.Load(Path.GetFullPath(options.altConfig)); //read persistent settings from configuration file
+                                settings = Settings.Load(options.altConfig); //read persistent settings from configuration file
                         }
                         else
                         {
@@ -898,7 +898,7 @@ namespace csscript
 
                             //no need to act on lockedByCompiler/lockedByHost as Compile(...) will throw the exception
 
-                            if (!options.inMemoryAsm && !Utils.IsLinux())
+                            if (!options.inMemoryAsm && Utils.IsWin)
                             {
                                 // wait for other EXECUTION to complete (if any)
                                 bool lockedByHost = !executingFileLock.Wait(1000);
@@ -1195,7 +1195,8 @@ namespace csscript
 
             if (asmFileName == null || asmFileName == "")
             {
-                var asmExtension = Utils.IsMono ? ".dll" : ".compiled";
+                var asmExtension = Utils.IsMono && Utils.IsLinux ? ".dll" : ".compiled";
+                // asmExtension = ".dll"; // testing
 
                 asmFileName = options.hideTemp != Settings.HideOptions.DoNotHide ? Path.Combine(CSExecutor.ScriptCacheDir, Path.GetFileName(scripFileName) + asmExtension) : scripFileName + ".c";
             }
@@ -1965,7 +1966,7 @@ namespace csscript
                         // Mono debugger can process it.
                         bool isPdbOnlyMode = compilerParams.CompilerOptions.Contains("debug:pdbonly");
 
-                        if (!Utils.IsLinux() || (!File.Exists(symbFileName) && !isPdbOnlyMode))
+                        if (!Utils.IsLinux || (!File.Exists(symbFileName) && !isPdbOnlyMode))
                         {
                             // Convert pdb into mdb
                             var process = new Process();
@@ -1973,7 +1974,7 @@ namespace csscript
                             {
                                 process.StartInfo.Arguments = "\"" + assemblyFileName + "\"";
 
-                                if (!Utils.IsLinux())
+                                if (!Utils.IsLinux)
                                 {
                                     // hide terminal window
                                     process.StartInfo.FileName = "pdb2mdb.bat";
@@ -2115,7 +2116,7 @@ namespace csscript
             string cacheDir;
             string directoryPath = Path.GetDirectoryName(Path.GetFullPath(file));
             string dirHash;
-            if (!Utils.IsLinux())
+            if (!Utils.IsLinux)
             {
                 //Win is not case-sensitive so ensure, both lower and capital case path yield the same hash
                 dirHash = CSSUtils.GetHashCodeEx(directoryPath.ToLower()).ToString();
