@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "cscs.exe.core": {
+      "commandName": "Project",
+      "commandLineArgs": "-verbose C:\\Users\\master\\AppData\\Roaming\\Code\\User\\cs-script.user\\new_script.cs"
+    }
+  }
+}
