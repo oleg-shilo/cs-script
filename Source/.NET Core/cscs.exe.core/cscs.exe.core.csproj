@@ -5,10 +5,11 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\cscs.dll\cscs.eng.csproj" />
+    <ProjectReference Include="..\cscs.eng\cscs.eng.csproj" />
   </ItemGroup>
 
 </Project>

@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cscs.exe.core", "cscs.exe.c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cscs.exe.full", "cscs.exe.full\cscs.exe.full.csproj", "{B0911A74-BD2B-4530-8803-0582E1F1E62E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cssc", "cssc\cssc.csproj", "{A8755B0E-EE1D-4CC0-9C58-A7ABB0EFAE3C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{B0911A74-BD2B-4530-8803-0582E1F1E62E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0911A74-BD2B-4530-8803-0582E1F1E62E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0911A74-BD2B-4530-8803-0582E1F1E62E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8755B0E-EE1D-4CC0-9C58-A7ABB0EFAE3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8755B0E-EE1D-4CC0-9C58-A7ABB0EFAE3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8755B0E-EE1D-4CC0-9C58-A7ABB0EFAE3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8755B0E-EE1D-4CC0-9C58-A7ABB0EFAE3C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B0911A74-BD2B-4530-8803-0582E1F1E62E}</ProjectGuid>
+    <ProjectGuid>{A8755B0E-EE1D-4CC0-9C58-A7ABB0EFAE3C}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>CSScripting</RootNamespace>
-    <AssemblyName>cscs</AssemblyName>
+    <RootNamespace>cssc</RootNamespace>
+    <AssemblyName>cssc</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -47,12 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\cscs.eng\cscs.eng.csproj">
-      <Project>{14ce2784-9214-4763-aefb-bd4efeb7e86a}</Project>
-      <Name>cscs.eng</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

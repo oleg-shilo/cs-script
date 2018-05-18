@@ -47,6 +47,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Xml;
+using CSScripting.CodeDom;
 // using System.Runtime.Remoting.Lifetime;
 
 namespace csscript
@@ -242,7 +243,7 @@ namespace csscript
         public static string EnsureDir(this string path)
         {
             // if (!Directory.Exists(path))  // the checking can be inaccurate (e.g. file/dir just has been deleted but the checking reports "exists")
-                Directory.CreateDirectory(path);
+            Directory.CreateDirectory(path);
             return path;
         }
 
@@ -512,31 +513,19 @@ namespace csscript
             return false;
         }
 
-        public static bool IsWin
-        {
-            get { return !isLinux; }
-        }
+        public static bool IsWin { get; } = !isLinux; 
 
-        static bool isLinux
-        {
-            get
-            {
-                // Note it is not about OS being exactly Linux but rather about OS having Linux type of file system.
-                // For example path being case sensitive
-                return (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
-            }
-        }
+        // Note it is not about OS being exactly Linux but rather about OS having Linux type of file system.
+        // For example path being case sensitive
+        static bool isLinux { get; } = (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
 
-        static bool isMono = (Type.GetType("Mono.Runtime") != null);
-
-        public static bool IsMono
-        {
-            get { return isMono; }
-        }
+        public static bool IsMono { get; } = (Type.GetType("Mono.Runtime") != null);
+        public static bool IsCore { get; } = "".GetType().Assembly.Location.Split(Path.DirectorySeparatorChar).Contains("Microsoft.NETCore.App");
+        public static bool IsNet { get; } = !IsMono && !IsCore;
 
         internal static void SetMonoRootDirEnvvar()
         {
-            if (Environment.GetEnvironmentVariable("MONO") == null && isMono)
+            if (Environment.GetEnvironmentVariable("MONO") == null && IsMono)
                 Environment.SetEnvironmentVariable("MONO", MonoRootDir);
         }
 
@@ -550,7 +539,7 @@ namespace csscript
                     {
                         // C:\Program Files(x86)\Mono\lib\mono\4.5\*.dll
                         // C:\Program Files(x86)\Mono\lib\mono
-                        return Path.GetDirectoryName(Path.GetDirectoryName(runtime.Assembly.Location));
+                        return runtime.Assembly.Location.GetDirName().GetDirName();
                     }
                     catch { }
                 return null;

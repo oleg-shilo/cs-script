@@ -40,14 +40,9 @@ using System;
 using System.IO;
 using System.Text;
 
-#if net1
-using System.Collections;
-#else
-
 using System.Collections.Generic;
 using System.Linq;
 
-#endif
 
 using csscript;
 
@@ -59,24 +54,14 @@ namespace CSScriptLib
     /// </summary>
     class ParsingParams
     {
-        #region Public interface...
-
         public ParsingParams()
         {
-#if net1
-            renameNamespaceMap = new ArrayList();
-#else
             renameNamespaceMap = new List<string[]>();
-#endif
         }
 
         public string[][] RenameNamespaceMap
         {
-#if net1
-            get { return (string[][])renameNamespaceMap.ToArray(typeof(string[])); }
-#else
             get { return renameNamespaceMap.ToArray(); }
-#endif
         }
 
         public void AddRenameNamespaceMap(string[][] names)
@@ -119,13 +104,7 @@ namespace CSScriptLib
 
         public bool preserveMain = false;
 
-        #endregion Public interface...
-
-#if net1
-        ArrayList renameNamespaceMap;
-#else
         List<string[]> renameNamespaceMap;
-#endif
     }
 
     /// <summary>
@@ -230,11 +209,7 @@ namespace CSScriptLib
 
         public ScriptInfo[] ReferencedScripts
         {
-#if net1
-            get { return (ScriptInfo[])referencedScripts.ToArray(typeof(ScriptInfo)); }
-#else
             get { return referencedScripts.ToArray(); }
-#endif
         }
 
         public void ProcessFile()
@@ -341,20 +316,12 @@ namespace CSScriptLib
             {
                 string dir = Path.GetDirectoryName(filePath);
                 string name = Path.GetFileName(filePath);
-#if net1
-                ArrayList result = new ArrayList();
-#else
                 List<string> result = new List<string>();
-#endif
                 if (Directory.Exists(dir))
                     foreach (string item in Directory.GetFiles(dir, name))
                         result.Add(Path.GetFullPath(item));
 
-#if net1
-                return (string[])result.ToArray(typeof(string));
-#else
                 return result.ToArray();
-#endif
             }
             catch { }
             return new string[0];
@@ -419,32 +386,6 @@ namespace CSScriptLib
     /// Implementation of the IComparer for sorting operations of collections of FileParser instances
     /// </summary>
     ///
-#if net1
-    class FileParserComparer : IComparer
-    {
-        public int Compare(object x, object y)
-        {
-            if (x == null && y == null)
-                return 0;
-
-            int retval = x == null ? -1 : (y == null ? 1 : 0);
-
-            if (retval == 0)
-            {
-                FileParser xParser = (FileParser)x;
-                FileParser yParser = (FileParser)y;
-                retval = string.Compare(xParser.fileName, yParser.fileName, true);
-                if (retval == 0)
-                {
-                    retval = ParsingParams.Compare(xParser.prams, yParser.prams);
-                }
-            }
-
-            return retval;
-        }
-    }
-#else
-
     class FileParserComparer : IComparer<FileParser>
     {
         public int Compare(FileParser x, FileParser y)
@@ -466,6 +407,4 @@ namespace CSScriptLib
             return retval;
         }
     }
-
-#endif
 }

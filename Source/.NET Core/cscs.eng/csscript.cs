@@ -46,6 +46,7 @@ using System.Globalization;
 using System.Diagnostics;
 using Microsoft.CSharp;
 using System.Collections;
+using CSScripting.CodeDom;
 
 namespace csscript
 {
@@ -1720,7 +1721,7 @@ namespace csscript
         {
             LastCompileResult = new CompilingInfo() { ScriptFile = scriptFileName, ParsingContext = parser.GetContext(), Result = results, Input = compilerParams };
 
-            if (results.Errors.Any())
+            if (results.Errors.HasErrors())
             {
                 var ex = CompilerException.Create(results.Errors, options.hideCompilerWarnings, options.resolveAutogenFilesRefs);
 
@@ -1909,6 +1910,7 @@ namespace csscript
                 tempDir = Environment.GetEnvironmentVariable("CSS_CUSTOM_TEMPDIR");
                 if (tempDir == null)
                 {
+                    // tempDir = Path.Combine(Path.GetTempPath(), Utils.IsCore ? "csscript.core" : "csscript");
                     tempDir = Path.Combine(Path.GetTempPath(), "csscript.core");
                     if (!Directory.Exists(tempDir))
                         Directory.CreateDirectory(tempDir);

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>cscs.eng</RootNamespace>
-    <AssemblyName>cscs_eng</AssemblyName>
+    <AssemblyName>cscs.eng</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

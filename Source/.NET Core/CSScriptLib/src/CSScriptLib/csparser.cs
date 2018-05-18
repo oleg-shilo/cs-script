@@ -1,22 +1,5 @@
 #region Licence...
 
-//-----------------------------------------------------------------------------
-// Date:	26/12/05	Time: 16:11p
-// Module:	csparser.cs
-// Classes:	CSharpParser
-//
-// This module contains the definition of the class CSharpParser, which implements
-// parsing C# code. The result of such processing is a collections of the names
-// of the namespacs and assemblies used by C# code and a 'code' (content of
-// C# script file stripped out of comments, "using [namespace name];" and C# script engine directives.
-//
-// C# script engine directives:
-//	[//css_import <file>[,rename_namespace(<oldName>, <newName>);]
-//	[//css_reference <file>;]
-//	[//css_prescript file([arg0][, arg1]..[,arg2])[,ignore];]
-//	[//css_postscript file([arg0][, arg1]..[,arg2])[,ignore];]
-//
-// Written by Oleg Shilo (oshilo@gmail.com)
 //----------------------------------------------
 // The MIT License (MIT)
 // Copyright (c) 2016 Oleg Shilo
@@ -86,11 +69,8 @@ namespace csscript
                 int lBracket = statement.IndexOf("(");
                 if (lBracket != -1)
                 {
-#if net1
-                    ArrayList argList = new ArrayList();
-#else
                     List<string> argList = new List<string>();
-#endif
+
                     argList.Add("-nl");
                     argList.Add(statement.Substring(0, lBracket).Trim());
 
@@ -105,11 +85,7 @@ namespace csscript
                         if (clearArg != string.Empty)
                             argList.Add(clearArg.StartsWith("$this") ? (clearArg == "$this.name" ? Path.GetFileNameWithoutExtension(parentScript) : parentScript) : clearArg);
                     }
-#if net1
-                    args = (string[])argList.ToArray(typeof(string));
-#else
                     args = argList.ToArray();
-#endif
                     if (statement.Substring(rBracket + 1).Trim().Replace(",", "") == "ignore")
                         abortOnError = false;
                 }
@@ -276,11 +252,7 @@ namespace csscript
 
             private void InternalInit(string[] statementParts, int startIndex)
             {
-#if net1
-                ArrayList renameingMap = new ArrayList();
-#else
                 List<string[]> renameingMap = new List<string[]>();
-#endif
 
                 for (int i = startIndex; i < statementParts.Length;)
                 {
@@ -302,11 +274,7 @@ namespace csscript
                 if (renameingMap.Count == 0)
                     this.renaming = new string[0][];
                 else
-#if net1
-                    this.renaming = (string[][])renameingMap.ToArray(typeof(string[]));
-#else
                     this.renaming = renameingMap.ToArray();
-#endif
             }
 
             /// <summary>
@@ -325,13 +293,8 @@ namespace csscript
             public bool preserveMain = false;
         }
 
-#if net1
-        ArrayList stringRegions = new ArrayList();
-        ArrayList commentRegions = new ArrayList();
-#else
         List<int[]> stringRegions = new List<int[]>();
         List<int[]> commentRegions = new List<int[]>();
-#endif
 
         #region Public interface
 
@@ -604,15 +567,9 @@ namespace csscript
             {
                 foreach (string directive in directivesToSearch)
                 {
-#if net1
-                    this.CustomDirectives[directive] = new ArrayList();
-                    foreach (string statement in GetRawStatements(directive, endCodePos))
-                        (this.CustomDirectives[directive] as ArrayList).Add(statement.Trim());
-#else
                     this.CustomDirectives[directive] = new List<string>();
                     foreach (string statement in GetRawStatements(directive, endCodePos))
                         (this.CustomDirectives[directive] as List<string>).Add(statement.Trim());
-#endif
                 }
             }
         }
@@ -744,11 +701,7 @@ namespace csscript
         {
             get
             {
-#if net1
-                return (string[])args.ToArray(typeof(string));
-#else
                 return args.ToArray();
-#endif
             }
         }
 
@@ -759,11 +712,7 @@ namespace csscript
         {
             get
             {
-#if net1
-                return (string[])compilerOptions.ToArray(typeof(string));
-#else
                 return compilerOptions.ToArray();
-#endif
             }
         }
 
@@ -774,11 +723,7 @@ namespace csscript
         {
             get
             {
-#if net1
-                return (string[])hostOptions.ToArray(typeof(string));
-#else
                 return hostOptions.ToArray();
-#endif
             }
         }
 
@@ -789,11 +734,7 @@ namespace csscript
         {
             get
             {
-#if net1
-                return (string[])precompilers.ToArray(typeof(string));
-#else
                 return precompilers.ToArray();
-#endif
             }
         }
 
@@ -804,17 +745,10 @@ namespace csscript
         {
             get
             {
-#if net1
-                ArrayList retval = new ArrayList();
-                retval.AddRange(refAssemblies);
-                retval.AddRange(refNamespaces);
-                return (string[])retval.ToArray(typeof(string));
-#else
                 List<string> retval = new List<string>();
                 retval.AddRange(refAssemblies);
                 retval.AddRange(refNamespaces);
                 return retval.ToArray();
-#endif
             }
         }
 
@@ -823,11 +757,7 @@ namespace csscript
         /// </summary>
         public string[] RefAssemblies
         {
-#if net1
-            get { return (string[])refAssemblies.ToArray(typeof(string)); }
-#else
             get { return refAssemblies.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -835,11 +765,7 @@ namespace csscript
         /// </summary>
         public string[] IgnoreNamespaces
         {
-#if net1
-            get { return (string[])ignoreNamespaces.ToArray(typeof(string)); }
-#else
             get { return ignoreNamespaces.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -847,11 +773,7 @@ namespace csscript
         /// </summary>
         public string[] ExtraSearchDirs
         {
-#if net1
-            get { return (string[])searchDirs.ToArray(typeof(string)); }
-#else
             get { return searchDirs.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -859,11 +781,7 @@ namespace csscript
         /// </summary>
         public string[] ResFiles
         {
-#if net1
-            get { return (string[])resFiles.ToArray(typeof(string)); }
-#else
             get { return resFiles.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -871,11 +789,7 @@ namespace csscript
         /// </summary>
         public string[] RefNamespaces
         {
-#if net1
-            get { return (string[])refNamespaces.ToArray(typeof(string)); }
-#else
             get { return refNamespaces.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -883,11 +797,7 @@ namespace csscript
         /// </summary>
         public string[] NuGets
         {
-#if net1
-            get { return (string[])nugets.ToArray(typeof(string)); }
-#else
             get { return nugets.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -895,11 +805,7 @@ namespace csscript
         /// </summary>
         public ImportInfo[] Imports
         {
-#if net1
-            get { return (ImportInfo[])imports.ToArray(typeof(ImportInfo)); }
-#else
             get { return imports.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -907,11 +813,7 @@ namespace csscript
         /// </summary>
         public CmdScriptInfo[] CmdScripts
         {
-#if net1
-            get { return (CmdScriptInfo[])cmdScripts.ToArray(typeof(CmdScriptInfo)); }
-#else
             get { return cmdScripts.ToArray(); }
-#endif
         }
 
         /// <summary>
@@ -919,11 +821,7 @@ namespace csscript
         /// </summary>
         public InitInfo[] Inits
         {
-#if net1
-            get { return (InitInfo[])inits.ToArray(typeof(InitInfo)); }
-#else
             get { return inits.ToArray(); }
-#endif
         }
 
         ///// <summary>
@@ -952,21 +850,6 @@ namespace csscript
 
         #endregion Public interface
 
-#if net1
-        ArrayList searchDirs = new ArrayList();
-        ArrayList resFiles = new ArrayList();
-        ArrayList refAssemblies = new ArrayList();
-        ArrayList compilerOptions = new ArrayList();
-        ArrayList hostOptions = new ArrayList();
-        ArrayList cmdScripts = new ArrayList();
-        ArrayList inits = new ArrayList();
-        ArrayList nugets = new ArrayList();
-        ArrayList refNamespaces = new ArrayList();
-        ArrayList ignoreNamespaces = new ArrayList();
-        ArrayList imports = new ArrayList();
-        ArrayList precompilers = new ArrayList();
-        ArrayList args = new ArrayList();
-#else
         List<string> searchDirs = new List<string>();
         List<string> resFiles = new List<string>();
         List<string> refAssemblies = new List<string>();
@@ -980,7 +863,6 @@ namespace csscript
         List<ImportInfo> imports = new List<ImportInfo>();
         List<string> precompilers = new List<string>();
         List<string> args = new List<string>();
-#endif
 
         //ApartmentState threadingModel = ApartmentState.Unknown;
         string code = "";
@@ -999,11 +881,7 @@ namespace csscript
 
         string[] GetRawStatements(string codeToanalyze, string pattern, int endIndex, bool ignoreComments)
         {
-#if net1
-            ArrayList retval = new ArrayList();
-#else
             List<string> retval = new List<string>();
-#endif
 
             int pos = codeToanalyze.IndexOf(pattern);
             int endPos = -1;
@@ -1026,20 +904,12 @@ namespace csscript
                 }
                 pos = codeToanalyze.IndexOf(pattern, pos + 1);
             }
-#if net1
-            return (string[])retval.ToArray(typeof(string));
-#else
             return retval.ToArray();
-#endif
         }
 
         int[] AllRawIndexOf(string pattern, int startIndex, int endIndex) //all raw matches
         {
-#if net1
-            ArrayList retval = new ArrayList();
-#else
             List<int> retval = new List<int>();
-#endif
 
             int pos = code.IndexOf(pattern, startIndex, endIndex - startIndex);
             while (pos != -1)
@@ -1047,11 +917,7 @@ namespace csscript
                 retval.Add(pos);
                 pos = code.IndexOf(pattern, pos + 1, endIndex - (pos + 1));
             }
-#if net1
-            return (int[])retval.ToArray(typeof(int));
-#else
             return retval.ToArray();
-#endif
         }
 
         int IndexOf(string pattern, int startIndex, int endIndex) //non-comment match
@@ -1080,11 +946,7 @@ namespace csscript
         internal static string[] SplitByDelimiter(string text, params char[] delimiters)
         {
             StringBuilder builder = new StringBuilder();
-#if net1
-            ArrayList retval = new ArrayList();
-#else
             List<string> retval = new List<string>();
-#endif
             char lastDelimiter = char.MinValue;
 
             foreach (char c in text)
@@ -1122,11 +984,7 @@ namespace csscript
             if (builder.Length > 0)
                 retval.Add(builder.ToString());
 
-#if net1
-            return (string[])retval.ToArray(typeof(string));
-#else
             return retval.ToArray();
-#endif
         }
 
         int IndexOfDelimiter(int startIndex, int endIndex, params char[] delimiters)
@@ -1181,23 +1039,6 @@ namespace csscript
             }
             return false;
         }
-
-        //bool IsTokenOld(int startPos, int length)
-        //{
-        //    if (code.Length < startPos + length)
-        //        return false;
-
-        //    int probeStart = (startPos != 0) ? startPos - 1 : 0;
-        //    int endPos = (code.Length == startPos + length) ? startPos + length : startPos + length + 1;
-
-        //    string original = code.Substring(startPos, length);
-        //    string probeStr = code.Substring(probeStart, endPos - probeStart);
-
-        //    probeStr = probeStr.Replace(";", "").Replace("(", "").Replace(")", "").Replace("{", "");
-        //    probeStr = probeStr.Trim();
-
-        //    return probeStr.Length == original.Length;
-        //}
 
         static char[] codeDelimiters = new char[] { ';', '(', ')', '{', };
 
@@ -1302,11 +1143,7 @@ namespace csscript
 
         void NoteCommentsAndStrings()
         {
-#if net1
-            ArrayList quotationChars = new ArrayList();
-#else
             List<int> quotationChars = new List<int>();
-#endif
             int startPos = -1;
             int startSLC = -1; //single line comment
             int startMLC = -1; //multiple line comment
@@ -1364,17 +1201,10 @@ namespace csscript
 
             for (int i = 0; i < quotationChars.Count; i++)
             {
-#if net1
-                if (i + 1 < stringRegions.Count)
-                    stringRegions.Add(new int[] { (int)quotationChars[i], (int)quotationChars[i + 1] });
-                else
-                    stringRegions.Add(new int[] { (int)quotationChars[i], -1 });
-#else
                 if (i + 1 < stringRegions.Count)
                     stringRegions.Add(new int[] { quotationChars[i], quotationChars[i + 1] });
                 else
                     stringRegions.Add(new int[] { quotationChars[i], -1 });
-#endif
                 i++;
             }
         }

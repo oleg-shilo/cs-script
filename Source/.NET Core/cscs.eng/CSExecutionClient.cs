@@ -30,6 +30,14 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 
+/// <summary>
+/// CS-Script engine class library assembly.
+/// Runtime: .NET Standard 2.0
+/// File name: cscs.eng.dll
+/// Implements light/refined business logic of standard CS-Script. 
+/// </summary>
+
+
 /*
  Limitations comparing to CS-Script for .NET
 
@@ -39,10 +47,10 @@ using System.Threading;
     - Ensure default '-l:1'
     - NuGet support
     - Share source modules between cscs and CSScriptLib
-    - Launcher return value
     - .NET Full use-case
     - Ensure the cached script is not used/shared between .NET Full and Core launchers
     - Ensure C# 7 syntax
+    - Process CompilerParameters during compilation
     - Ensure ".NET standard" class libraries can be referenced from .NET Full cscs.exe 
 
  CS-Script limitations:
