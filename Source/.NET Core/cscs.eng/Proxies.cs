@@ -100,17 +100,90 @@ namespace CSScripting.CodeDom
             var refs = new StringBuilder();
             var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
                                                              .Where(Path.IsPathRooted)
-                                                             .Where(not_in_engine_dir);
+                                                             .Where(not_in_engine_dir)
+                                                             .ToArray(); // for debugging
 
+            if (ref_assemblies.Any())
+            {
+                // var logger = NLog.LogManager.GetCurrentClassLogger();
+                // logger.Info("Hello World");
 
-            foreach (string asm in ref_assemblies)
-                refs.AppendLine($@"<Reference Include=""{asm.GetFileName()}""><HintPath>{asm}</HintPath></Reference>");
+                foreach (string asm in ref_assemblies)
+                    refs.AppendLine($@"<Reference Include=""{asm.GetFileName()}""><HintPath>{asm}</HintPath></Reference>");
 
-            project_content = project_content.Replace("</Project>",
-                                                    $@"  <ItemGroup>
+                project_content = project_content.Replace("</Project>",
+                                                        $@"  <ItemGroup>
                                                         {refs.ToString()}
                                                         </ItemGroup>
                                                      </Project>");
+
+            }
+
+            // var package_name = "NLog.Config";
+            // var package_ver = "4.5.4";
+            // project_content = project_content.Replace("</Project>",
+            //                                        $@"  <ItemGroup>
+            //                                             <PackageReference Include=""{package_name}""  />
+            //                                             </ItemGroup>
+            //                                          </Project>");
+
+            // "C:\Users\%username%\.nuget\packages\nlog\4.5.4\lib\netstandard2.0\NLog.dll"
+            // var logger = NLog.LogManager.GetCurrentClassLogger();
+
+            // <PackageReference Include=""{package_name}"" Version=""{package_ver}"" />
+            /*
+            <ItemGroup>
+                <PackageReference Include="NLog.Config" Version="4.5.4" />
+            </ItemGroup>
+            */
+            /*
+             "targets": {
+    ".NETStandard,Version=v2.0": {},
+    ".NETStandard,Version=v2.0/": {
+      "script/1.0.0": {
+        "dependencies": {
+          "NETStandard.Library": "2.0.1",
+          "NLog.Config": "4.5.4"
+        },
+        "runtime": {
+          "script.dll": {}
+        }
+      },
+      "Microsoft.NETCore.Platforms/1.1.0": {},
+      "NETStandard.Library/2.0.1": {
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "1.1.0"
+        }
+      },
+      "NLog/4.5.4": {
+        "runtime": {
+          "lib/netstandard2.0/NLog.dll": {}
+        }
+      },
+             */
+            // C:\Users\%username%\.nuget\packages\nlog\4.5.4\lib\netstandard2.0\NLog.dll
+
+            /* "NLog/4.5.4": {
+                  "type": "package",
+                  "serviceable": true,
+                  "sha512": "sha512-sYOzep0pdVat2zkOREy6FQwcH4zRCTimGr4c1Esqc0+t9QYvQ5JXDnW/sdqOsVxbxJ28sa/3MRUGSAfXz7eIGw==",
+                  "path": "nlog/4.5.4",
+                  "hashPath": "nlog.4.5.4.nupkg.sha512"
+                },
+                "NLog.Config/4.5.4": {
+                  "type": "package",
+                  "serviceable": true,
+                  "sha512": "sha512-qMqpvqTqUwUuOQB7Y4HKJ/ZWPIsDyt4qD58B+z6KRG1vN0TeGKfz0gF4rGSGXLvOpwlxd6Gqai2u9U6WtbhOgg==",
+                  "path": "nlog.config/4.5.4",
+                  "hashPath": "nlog.config.4.5.4.nupkg.sha512"
+                },
+                "NLog.Schema/4.5.4": {
+                  "type": "package",
+                  "serviceable": true,
+                  "sha512": "sha512-DEjVc+GSpUpeR3zInV6GJ6OuHzoM0qgweTbpuQc6wHicENq6ZY4DNi2Kk4AcEGrzdIwyIcyAsvAxYg/+bZHQEQ==",
+                  "path": "nlog.schema/4.5.4",
+                  "hashPath": "nlog.schema.4.5.4.nupkg.sha512"
+                }*/
 
             File.WriteAllText(build_dir.PathJoin(projectShortName + ".csproj"), project_content);
 
@@ -124,6 +197,8 @@ namespace CSScripting.CodeDom
             result.NativeCompilerReturnValue = Run(dotnet, "build -o " + output, build_dir, x => result.Output.Add(x));
 
             result.ProcessErrors();
+
+            // result.ProbingDirs.Add(@"C:\Users\%username%\.nuget\packages\nlog\4.5.4\lib\netstandard2.0");
 
             result.Errors
                   .ForEach(x =>
@@ -210,6 +285,7 @@ namespace CSScripting.CodeDom
     public class CompilerResults
     {
         public TempFileCollection TempFiles { get; set; } = new TempFileCollection();
+        public List<string> ProbingDirs { get; set; } = new List<string>();
         public Assembly CompiledAssembly { get; set; }
         public List<CompilerError> Errors { get; set; } = new List<CompilerError>();
         public List<string> Output { get; set; } = new List<string>();
@@ -267,9 +343,9 @@ namespace CSScripting.CodeDom
 
         public static CompilerError Parser(string compilerOutput)
         {
-            // C:\Program Files\dotnet\sdk\2.1.300-preview1-008174\Sdks\Microsoft.NET.Sdk\build\Microsoft.NET.ConflictResolution.targets(59,5): error MSB4018: The "ResolvePackageFileConflicts" task failed unexpectedly. [C:\Users\master\AppData\Local\Temp\csscript.core\cache\1822444284\.build\script.cs\script.csproj]
-            // script.cs(11,8): error CS1029: #error: 'this is the error...' [C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284\.build\script.cs\script.csproj]
-            // script.cs(10,10): warning CS1030: #warning: 'DEBUG is defined' [C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284\.build\script.cs\script.csproj]
+            // C:\Program Files\dotnet\sdk\2.1.300-preview1-008174\Sdks\Microsoft.NET.Sdk\build\Microsoft.NET.ConflictResolution.targets(59,5): error MSB4018: The "ResolvePackageFileConflicts" task failed unexpectedly. [C:\Users\%username%\AppData\Local\Temp\csscript.core\cache\1822444284\.build\script.cs\script.csproj]
+            // script.cs(11,8): error CS1029: #error: 'this is the error...' [C:\Users\%username%\AppData\Local\Temp\csscript.core\cache\1822444284\.build\script.cs\script.csproj]
+            // script.cs(10,10): warning CS1030: #warning: 'DEBUG is defined' [C:\Users\%username%\AppData\Local\Temp\csscript.core\cache\1822444284\.build\script.cs\script.csproj]
             bool isError = compilerOutput.Contains("): error ");
             bool isWarning = compilerOutput.Contains("): warning ");
 

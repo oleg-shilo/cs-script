@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Diagnostics;
+using CSScripting.CodeDom;
 
 namespace csscript
 {
@@ -22,18 +23,28 @@ namespace csscript
 
         static string nuGetCache = null;
 
+        //https://docs.microsoft.com/en-us/nuget/consume-packages/managing-the-global-packages-and-cache-folders
+        // .NET Mono, .NET Core
+        static string NugetGlobalPackages =
+            Utils.IsWin ?
+                   Environment.ExpandEnvironmentVariables(@"%userprofile%\.nuget\packages") :
+                   "~/.nuget/packages";
+
+        // C:\ProgramData\CS-Script\nuget\WixSharp\WixSharp.bin.1.0.30.4
+        // C:\Users\%username%\.nuget\packages\nlog\4.5.4\lib\netstandard2.0\NLog.dll
+        static string CSScriptNugetGlobalPackages =
+            Path.Combine(
+                Environment.GetFolderPath(Utils.IsWin ? Environment.SpecialFolder.CommonApplicationData : Environment.SpecialFolder.ApplicationData),
+                "CS-Script" + Path.DirectorySeparatorChar + "nuget");
+
         static string NuGetCache
         {
             get
             {
                 if (nuGetCache == null)
                 {
-                    var folder = Environment.SpecialFolder.CommonApplicationData;
-                    if (!Utils.IsWin)
-                        folder = Environment.SpecialFolder.ApplicationData;
-
-                    nuGetCache = Environment.GetEnvironmentVariable("css_nuget") ??
-                                 Path.Combine(Environment.GetFolderPath(folder), "CS-Script" + Path.DirectorySeparatorChar + "nuget");
+                    // nuGetCache = Environment.GetEnvironmentVariable("css_nuget") ?? NugetGlobalPackages ?? CSScriptNugetGlobalPackages;
+                    nuGetCache = NugetGlobalPackages;
 
                     if (!Directory.Exists(nuGetCache))
                         Directory.CreateDirectory(nuGetCache);
@@ -334,9 +345,18 @@ namespace csscript
             }
             else
             {
+                string version = null;
+
+                // .../NLog/NLog.4.5.4/lib/...  NuGet v2.0
+                // .../NLog/4.5.4/lib/...       NuGet v3.0
                 if (dirName.StartsWith(packageName + ".", StringComparison.OrdinalIgnoreCase))
+                    version = dirName.Substring(packageName.Length + 1);
+
+                if (File.Exists(dirPath.PathJoin(packageName.ToLower() + ".nuspec")))
+                    version = dirName;
+
+                if (version != null)
                 {
-                    var version = dirName.Substring(packageName.Length + 1);
                     Version ver;
                     return Version.TryParse(version, out ver);
                 }
@@ -361,8 +381,8 @@ namespace csscript
 
             //cs-script will always store dependency packages in the package root directory:
             //
-            //C:\ProgramData\CS-Script\nuget\WixSharp\WixSharp.1.0.30.4
-            //C:\ProgramData\CS-Script\nuget\WixSharp\WixSharp.bin.1.0.30.4
+            // C:\ProgramData\CS-Script\nuget\WixSharp\WixSharp.1.0.30.4
+            // C:\ProgramData\CS-Script\nuget\WixSharp\WixSharp.bin.1.0.30.4
 
             string packageDir = Path.Combine(NuGetCache, package);
 
@@ -377,6 +397,23 @@ namespace csscript
         static public string[] GetSinglePackageLibDirs(string package, string version)
         {
             return GetSinglePackageLibDirs(package, version, null);
+        }
+
+        static string NugetTargetFramework
+        {
+            get
+            {
+                // https://docs.microsoft.com/en-us/nuget/reference/target-frameworks
+                if (Utils.IsCore)
+                {
+                    if (CSharpCompiler.DefaultCompilerRuntime == DefaultCompilerRuntime.Standard)
+                        return "netstandard";
+                    else
+                        return "netcoreapp";
+                }
+                else
+                    return "net";
+            }
         }
 
         /// <summary>
@@ -411,9 +448,15 @@ namespace csscript
             if (Directory.GetFiles(lib, "*.dll").Any())
                 result.Add(lib);
 
-            var libVersions = Directory.GetDirectories(lib, "net*");
+            var libVersions = Directory.GetDirectories(lib, NugetTargetFramework + "*").OrderByDescending(x => x);
 
-            if (libVersions.Length != 0)
+
+            if (!libVersions.Any())
+            {
+                libVersions = Directory.GetDirectories(lib, "netstandard*").OrderByDescending(x => x); // fallback to .NET Standard
+            }
+
+            if (libVersions.Any())
             {
                 Func<string, string, bool> compatibleWith = (x, y) =>
                 {

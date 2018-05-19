@@ -489,17 +489,17 @@ namespace csscript
         public static bool IsNet45Plus()
         {
             // Class "ReflectionContext" exists from .NET 4.5 onwards.
-            return Type.GetType("System.Reflection.ReflectionContext", false) != null;
+            return !Utils.IsCore && Type.GetType("System.Reflection.ReflectionContext", false) != null;
         }
 
         public static bool IsNet40Plus()
         {
-            return Environment.Version.Major >= 4;
+            return !Utils.IsCore && Environment.Version.Major >= 4;
         }
 
         public static bool IsNet20Plus()
         {
-            return Environment.Version.Major >= 2;
+            return !Utils.IsCore && Environment.Version.Major >= 2;
         }
 
         public static bool IsRuntimeCompatibleAsm(string file)
@@ -2004,7 +2004,13 @@ partial class dbg
                                 if (!IsGACAssembly(asmFile) && string.Compare(dir, Path.GetDirectoryName(asmFile), true) == 0)
                                 {
                                     found = true;
-                                    AddItem(Path.GetFileName(asmFile), File.GetLastWriteTimeUtc(asmFile), true);
+
+                                    var file = asmFile;
+
+                                    if (!asmFile.StartsWith(NuGet.NuGetCacheView))
+                                        file = asmFile.GetFileName();
+
+                                    AddItem(asmFile, File.GetLastWriteTimeUtc(asmFile), true);
                                     break;
                                 }
 

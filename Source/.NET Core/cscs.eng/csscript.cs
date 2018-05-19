@@ -1693,6 +1693,9 @@ namespace csscript
                 }
             }
 
+            foreach (var new_dir in results.ProbingDirs)
+                options.AddSearchDir(new_dir, Settings.internal_dirs_section);
+
             if (options.syntaxCheck && File.Exists(compilerParams.OutputAssembly))
                 Utils.FileDelete(compilerParams.OutputAssembly, false);
 
@@ -1845,8 +1848,13 @@ namespace csscript
 
                         //save referenced local assemblies info
                         string[] newProbingDirs = depInfo.AddItems(compilerParams.ReferencedAssemblies.ToArray(), true, searchDirs);
+
+                        //needed to be added at Compilation for further resolving during the Invoking stage
                         foreach (string dir in newProbingDirs)
-                            options.AddSearchDir(dir, Settings.code_dirs_section); //needed to be added at Compilation for further resolving during the Invoking stage
+                            options.AddSearchDir(dir, Settings.code_dirs_section); 
+
+                        //save new probing dirs found by compilation (e.g. nuget)
+                        string[] extraProbingDirs = depInfo.AddItems(results.ProbingDirs.Select(x=>"package_dir:"+x).ToArray(), true, searchDirs);
 
                         depInfo.StampFile(assemblyFileName);
                     }

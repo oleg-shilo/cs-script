@@ -16,6 +16,7 @@ namespace cscs.exe.core
     {
         static void Main(string[] args)
         {
+            Environment.SetEnvironmentVariable("css_nuget", null);
             CSExecutionClient.Main(args);
         }
     }

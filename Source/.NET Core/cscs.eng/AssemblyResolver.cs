@@ -94,7 +94,7 @@ namespace CSScriptLibrary
         {
             try
             {
-                if (asmFile.EndsWith(".cs"))
+                if (asmFile.EndsWith(".cs") || (!asmFile.EndsWith(".dll") && !asmFile.EndsWith(".exe") && !asmFile.EndsWith(".compiled")))
                     return null;
 
                 AssemblyName asmName = AssemblyName.GetAssemblyName(asmFile);

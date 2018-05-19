@@ -74,19 +74,25 @@ namespace csscript
         /// </summary>
         public Assembly ResolveEventHandler(object sender, ResolveEventArgs args)
         {
-            Assembly retval = null;
+            //it is tempting to throw but should not as there can be other (e.g. host) ResolveEventHandler(s)
+            //and throwing will prevent them from being invoked
+            bool throwExceptions = false;
 
-            foreach (string dir in searchDirs)
+            var dirs = searchDirs.Where(x => !x.StartsWith(Settings.dirs_section_prefix));
+
+            Assembly probe(string name)
             {
-                //it is tempting to throw but should not as there can be other (e.g. host) ResolveEventHandler(s)
-                //and throwing will prevent them from being invoked
-                bool throwExceptions = false;
-
-                retval = CSScriptLibrary.AssemblyResolver.ResolveAssembly(args.Name, dir, throwExceptions);
-                if (retval != null)
-                    break;
+                foreach (string dir in dirs)
+                {
+                    var retval = CSScriptLibrary.AssemblyResolver.ResolveAssembly(name, dir, throwExceptions);
+                    if (retval != null)
+                        return retval;
+                }
+                return null;
             }
-            return retval;
+
+            return probe(args.Name) ??
+                   probe(args.Name.Split(',').First()); // repeat it again but with the short name
         }
 
         public Assembly ResolveResEventHandler(object sender, ResolveEventArgs args)
@@ -103,8 +109,8 @@ namespace csscript
 
         public void ExecuteAssembly(string filename, string[] args, SystemWideLock asmLock)
         {
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(ResolveEventHandler);
-            AppDomain.CurrentDomain.ResourceResolve += new ResolveEventHandler(ResolveResEventHandler);
+            AppDomain.CurrentDomain.AssemblyResolve += ResolveEventHandler;
+            AppDomain.CurrentDomain.ResourceResolve += ResolveResEventHandler;
 
             asmFile = filename;
 
