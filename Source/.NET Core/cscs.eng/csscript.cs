@@ -1372,9 +1372,12 @@ namespace csscript
                 }
             }
 
-            //add assemblies referenced from code
+            //add assemblies/packages referenced from code
             foreach (string asmName in parser.ResolvePackages())
+            {
                 requestedRefAsms.AddAssembly(asmName);
+                options.AddSearchDir(asmName.GetDirName(), Settings.code_dirs_section);
+            }
 
             AssemblyResolver.ignoreFileName = Path.GetFileNameWithoutExtension(parser.ScriptPath) + ".dll";
 
@@ -1851,10 +1854,10 @@ namespace csscript
 
                         //needed to be added at Compilation for further resolving during the Invoking stage
                         foreach (string dir in newProbingDirs)
-                            options.AddSearchDir(dir, Settings.code_dirs_section); 
+                            options.AddSearchDir(dir, Settings.code_dirs_section);
 
                         //save new probing dirs found by compilation (e.g. nuget)
-                        string[] extraProbingDirs = depInfo.AddItems(results.ProbingDirs.Select(x=>"package_dir:"+x).ToArray(), true, searchDirs);
+                        string[] extraProbingDirs = depInfo.AddItems(results.ProbingDirs.Select(x => "package_dir:" + x).ToArray(), true, searchDirs);
 
                         depInfo.StampFile(assemblyFileName);
                     }
