@@ -200,7 +200,7 @@ namespace csscript
             return clone;
         }
 
-        public bool inMemoryAsm = false;
+        public bool inMemoryAsm = true;
         public bool processFile = true;
         public object nonExecuteOpRquest = null;
         public int compilationContext = 0;
@@ -226,7 +226,7 @@ namespace csscript
         internal bool InjectScriptAssemblyAttribute = true;
         public bool verbose = false;
         public bool startDebugger = false;
-        public bool local = false;
+        public bool local = true;
         public bool buildExecutable = false;
         public string[] refAssemblies = new string[0];
         public string[] searchDirs = new string[0];

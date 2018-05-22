@@ -44,14 +44,15 @@ using System.Threading;
  CS-Script todo:
 
     - Implement inmem loading
-    - Ensure default '-l:1'
-    - NuGet support
     - Share source modules between cscs and CSScriptLib
     - .NET Full use-case
     - Ensure the cached script is not used/shared between .NET Full and Core launchers
     - Ensure C# 7 syntax
     - Process CompilerParameters during compilation
     - Ensure ".NET standard" class libraries can be referenced from .NET Full cscs.exe 
+    + NuGet support
+    + Ensure default '-l:1'
+    + Describe //css_nuget -rt:<name> directive arg
 
  CS-Script limitations:
     - No building "*.exe"

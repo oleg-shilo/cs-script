@@ -108,6 +108,49 @@ namespace csscript
 
     internal static class Utils
     {
+        public static Thread StartMonitor(StreamReader stream, Action<string> action = null)
+        {
+            var thread = new Thread(x =>
+            {
+                try
+                {
+                    string line = null;
+                    while (null != (line = stream.ReadLine()))
+                        action?.Invoke(line);
+                }
+                catch { }
+            });
+            thread.Start();
+            return thread;
+        }
+
+        public static int Run(string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null)
+        {
+            var process = new Process();
+
+            process.StartInfo.FileName = exe;
+            process.StartInfo.Arguments = args;
+            process.StartInfo.WorkingDirectory = dir;
+
+            // hide terminal window
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.ErrorDialog = false;
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.Start();
+
+            var error = StartMonitor(process.StandardError, onError);
+            var output = StartMonitor(process.StandardOutput, onOutput);
+
+            process.WaitForExit();
+
+            try { error.Abort(); } catch { }
+            try { output.Abort(); } catch { }
+
+            return process.ExitCode;
+        }
+
         public static Exception ToNewException(this Exception ex, string message, bool encapsulate)
         {
             var topLevelMessage = message;
@@ -243,7 +286,8 @@ namespace csscript
         public static string EnsureDir(this string path)
         {
             // if (!Directory.Exists(path))  // the checking can be inaccurate (e.g. file/dir just has been deleted but the checking reports "exists")
-            Directory.CreateDirectory(path);
+            if (!path.IsEmpty())
+                Directory.CreateDirectory(path);
             return path;
         }
 
@@ -300,9 +344,9 @@ namespace csscript
             return path;
         }
 
-        public static string PathJoin(this string path, params string[] parts)
+        public static string PathJoin(this string path, params object[] parts)
         {
-            var allParts = new[] { path ?? "" }.Concat(parts.Select(x => x ?? ""));
+            var allParts = new[] { path ?? "" }.Concat(parts.Select(x => x?.ToString() ?? ""));
             return Path.Combine(allParts.ToArray());
         }
 
@@ -513,7 +557,7 @@ namespace csscript
             return false;
         }
 
-        public static bool IsWin { get; } = !isLinux; 
+        public static bool IsWin { get; } = !isLinux;
 
         // Note it is not about OS being exactly Linux but rather about OS having Linux type of file system.
         // For example path being case sensitive
@@ -1302,9 +1346,11 @@ partial class dbg
                     {
                         options.DBG = true;
                     }
-                    else if (Args.Same(arg, AppArgs.l))
+                    else if (Args.ParseValuedArg(arg, AppArgs.l, out argValue)) // -l[:<0|1>]
                     {
                         options.local = true;
+                        if(argValue == "0")
+                            options.local = false;
                     }
                     else if (Args.Same(arg, AppArgs.ver, AppArgs.v, AppArgs.version, AppArgs.version2)) // -ver -v -version --version
                     {

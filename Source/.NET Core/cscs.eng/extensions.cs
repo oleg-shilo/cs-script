@@ -30,10 +30,66 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using csscript;
+using System.Xml.Linq;
 
-internal class Profiler
+/// <summary>
+/// Credit to https://stackoverflow.com/questions/298830/split-string-containing-command-line-parameters-into-string-in-c-sharp/298990#298990
+/// </summary>
+public static class CLIExtensions
 {
-    static public Stopwatch Stopwatch = new Stopwatch();
+
+    public static string TrimMatchingQuotes(this string input, char quote)
+    {
+        if (input.Length >= 2 && input.First() == quote && input.Last() == quote)
+            return input.Substring(1, input.Length - 2);
+
+        return input;
+    }
+
+    public static IEnumerable<string> Split(this string str, Func<char, bool> controller)
+    {
+        int nextPiece = 0;
+
+        for (int c = 0; c < str.Length; c++)
+        {
+            if (controller(str[c]))
+            {
+                yield return str.Substring(nextPiece, c - nextPiece);
+                nextPiece = c + 1;
+            }
+        }
+
+        yield return str.Substring(nextPiece);
+    }
+
+    public static string ArgValue(this string[] arguments, string prefix)
+    {
+        return (arguments.FirstOrDefault(x => x.StartsWith(prefix + ":"))
+                        ?.Substring(prefix.Length + 1).TrimMatchingQuotes('"'))
+
+               ?? arguments.Where(x => x == prefix).Select(x => "").FirstOrDefault();
+    }
+
+    public static string ArgValue(this string argument, string prefix)
+    {
+        return argument.StartsWith(prefix + ":") == false ? null : argument.Substring(prefix.Length + 1).TrimMatchingQuotes('"');
+    }
+
+    public static string[] SplitCommandLine(this string commandLine)
+    {
+        bool inQuotes = false;
+
+        return commandLine.Split(c =>
+                                 {
+                                     if (c == '\"')
+                                         inQuotes = !inQuotes;
+
+                                     return !inQuotes && c == ' ';
+                                 })
+                          .Select(arg => arg.Trim().TrimMatchingQuotes('\"'))
+                          .Where(arg => arg.IsNotEmpty())
+                          .ToArray();
+    }
 }
 
 public static class CoreExtensions
@@ -54,12 +110,30 @@ public static class CoreExtensions
         return collection;
     }
 
+    public static XElement SelectFirst(this XContainer element, string path)
+    {
+        string[] parts = path.Split('/');
+
+        var e = element.Elements()
+                       .Where(el => el.Name.LocalName == parts[0])
+                       .GetEnumerator();
+
+        if (!e.MoveNext())
+            return null;
+
+        if (parts.Length == 1) //the last link in the chain
+            return e.Current;
+        else
+            return e.Current.SelectFirst(path.Substring(parts[0].Length + 1)); //be careful RECURSION
+    }
+
     static string sdk_root = "".GetType().Assembly.Location.GetDirName();
 
     public static bool IsSharedAssembly(this string path) => path.StartsWith(sdk_root, StringComparison.OrdinalIgnoreCase);
 
     public static bool ToBool(this string text) => text.ToLower() == "true";
     public static bool IsEmpty(this string text) => string.IsNullOrEmpty(text);
+    public static bool IsNotEmpty(this string text) => !string.IsNullOrEmpty(text);
 
     public static string[] SplitMergedArgs(this string[] args)
     {

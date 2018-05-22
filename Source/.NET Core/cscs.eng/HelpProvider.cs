@@ -249,8 +249,8 @@ namespace csscript
             switch2Help[d] =
             switch2Help[dbg] = new ArgInfo("-dbg|-d",
                                                    "Forces compiler to include debug information.");
-            switch2Help[l] = new ArgInfo("-l",
-                                                   "'local' (makes the script directory a 'current directory').");
+            switch2Help[l] = new ArgInfo("-l[:<0|1>]",
+                                                   "'local' (makes the script directory a 'current directory'). '1' is a default value.");
             switch2Help[version2] =
             switch2Help[version] =
             switch2Help[ver] =
@@ -419,7 +419,7 @@ namespace csscript
                          "'Rename' clause can appear in the directive multiple times.",
                          section_sep, //------------------------------------
                          " ",
-                         "//css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];",
+                         "//css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-rt:<runtime>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];",
                          " ",
                          "Downloads/Installs the NuGet package. It also automatically references the downloaded package assemblies.",
                          "Note: The directive switches need to be in the order as above.",
@@ -436,11 +436,12 @@ namespace csscript
                          "                  ${<==}You can optionally specify delay for the next forced downloading by number of seconds since last download.",
                          "                  ${<==}'-force:3600' will delay it for one hour. This option is useful for preventing frequent download interruptions during active script development.",
                          " -ver:<version> - ${<==}switch to download/reference a specific package version.",
+                         " -rt:<runtime>  - ${<==}switch to use specific runtime binaries (e.g. '-rt:netstandard1.3').",
                          " -ng:<args>     - ${<==}switch to pass NuGet arguments for every individual package.",
                          " ",
                          "Example: //css_nuget cs-script;",
                          "         //css_nuget -ver:4.1.2 NLog",
-                         "         //css_nuget -ver:\"4.1.1-rc1\" -ng:\"-Pre -NoCache\" NLog",
+                         "         //css_nuget -ver:\"4.1.1-rc1\" -rt:netstandard2.0 -ng:\"-Pre -NoCache\" NLog",
                          " ",
                          "This directive will install CS-Script NuGet package.",
                          "(see http://www.csscript.net/help/script_nugets.html)",
@@ -951,7 +952,7 @@ namespace csscript
             else
                 builder.Append(compiler + "\n");
 
-            builder.Append("   NuGet manager:   " + NuGet.NuGetExe + "\n");
+            builder.Append("   NuGet manager:   " + NuGet.NuGetExeView + "\n");
             builder.Append("   NuGet cache:     " + NuGet.NuGetCacheView + "\n");
 
             //builder.Append("   Engine:         " + Assembly.GetExecutingAssembly().Location + "\n");

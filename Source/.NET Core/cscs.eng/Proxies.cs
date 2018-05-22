@@ -57,12 +57,13 @@ namespace CSScripting.CodeDom
 
             if (!File.Exists(proj_template))
             {
-                Run("dotnet.exe", "new console", build_root);
+                Utils.Run("dotnet", "new console", build_root);
                 build_root.PathJoin("Program.cs").DeleteIfExists();
             }
 
             return proj_template;
         }
+
         public static DefaultCompilerRuntime DefaultCompilerRuntime = DefaultCompilerRuntime.Host;
 
         public CompilerResults CompileAssemblyFromFileBatch(CompilerParameters options, string[] fileNames)
@@ -194,7 +195,14 @@ namespace CSScripting.CodeDom
 
             var result = new CompilerResults();
 
-            result.NativeCompilerReturnValue = Run(dotnet, "build -o " + output, build_dir, x => result.Output.Add(x));
+
+            Profiler.get("compiler").Start();
+            result.NativeCompilerReturnValue = Utils.Run(dotnet, "build -o " + output, build_dir, x => result.Output.Add(x));
+            Profiler.get("compiler").Stop();
+
+            // var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
+            // if (timing != null)
+            //     Console.WriteLine("    dotnet: " + timing);
 
             result.ProcessErrors();
 
@@ -218,48 +226,7 @@ namespace CSScripting.CodeDom
             return result;
         }
 
-        private static Thread StartMonitor(StreamReader stream, Action<string> action = null)
-        {
-            var thread = new Thread(x =>
-            {
-                try
-                {
-                    string line = null;
-                    while (null != (line = stream.ReadLine()))
-                        action?.Invoke(line);
-                }
-                catch { }
-            });
-            thread.Start();
-            return thread;
-        }
-
-        private static int Run(string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null)
-        {
-            var process = new Process();
-
-            process.StartInfo.FileName = exe;
-            process.StartInfo.Arguments = args;
-            process.StartInfo.WorkingDirectory = dir;
-
-            // hide terminal window
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.ErrorDialog = false;
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.Start();
-
-            var error = StartMonitor(process.StandardError, onError);
-            var output = StartMonitor(process.StandardOutput, onOutput);
-
-            process.WaitForExit();
-
-            try { error.Abort(); } catch { }
-            try { output.Abort(); } catch { }
-
-            return process.ExitCode;
-        }
+       
 
         public CompilerResults CompileAssemblyFromSource(CompilerParameters options, string source)
         {

@@ -2,7 +2,7 @@
   "profiles": {
     "cscs.exe.core": {
       "commandName": "Project",
-      "commandLineArgs": "-verbose \"E:\\Galos\\Projects\\CS-Script\\GitHub\\cs-script\\Source\\.NET Core\\spike\\script.cs\""
+      "commandLineArgs": "\"E:\\Galos\\Projects\\CS-Script\\GitHub\\cs-script\\Source\\.NET Core\\spike\\script.cs\""
     }
   }
 }

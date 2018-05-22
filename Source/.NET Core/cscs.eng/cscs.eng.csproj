@@ -50,7 +50,7 @@
     <Compile Update="HelpProvider.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="NuGet.cs">
+    <Compile Update="NuGet.Full.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Precompiler.cs">

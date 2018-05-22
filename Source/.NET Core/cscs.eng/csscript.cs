@@ -70,6 +70,16 @@ namespace csscript
     internal class Profiler
     {
         static public Stopwatch Stopwatch = new Stopwatch();
+
+        static Dictionary<string, Stopwatch> items = new Dictionary<string, Stopwatch>();
+
+        public static bool has(string key) => items.ContainsKey(key);
+        public static Stopwatch get(string key)
+        {
+            if (!items.ContainsKey(key))
+                items[key] = new Stopwatch();
+            return items[key];
+        }
     }
 
     internal interface IScriptExecutor
@@ -845,19 +855,25 @@ namespace csscript
                                 CSSUtils.VerbosePrint("", options);
 
                                 TimeSpan initializationTime = Profiler.Stopwatch.Elapsed;
-                                Profiler.Stopwatch.Reset();
-                                Profiler.Stopwatch.Start();
+                                Profiler.Stopwatch.Restart();
 
                                 assemblyFileName = Compile(options.scriptFileName);
 
-                                if (Profiler.Stopwatch.IsRunning)
+                                Profiler.Stopwatch.Stop();
+
+                                if (options.verbose)
                                 {
-                                    Profiler.Stopwatch.Stop();
                                     TimeSpan compilationTime = Profiler.Stopwatch.Elapsed;
-                                    CSSUtils.VerbosePrint("Initialization time: " + initializationTime.TotalMilliseconds + " msec", options);
-                                    CSSUtils.VerbosePrint("Compilation time:    " + compilationTime.TotalMilliseconds + " msec", options);
-                                    CSSUtils.VerbosePrint("> ----------------", options);
-                                    CSSUtils.VerbosePrint("", options);
+
+                                    var pureCompilerTime = (compilationTime - initializationTime);
+                                    if (Profiler.has("compiler"))
+                                        pureCompilerTime = Profiler.get("compiler").Elapsed;
+
+                                    Console.WriteLine($"Initialization time: {initializationTime.TotalMilliseconds} msec");
+                                    Console.WriteLine($"Compilation time:    {pureCompilerTime.TotalMilliseconds} msec");
+                                    Console.WriteLine($"Total load time:     {compilationTime.TotalMilliseconds} msec");
+                                    Console.WriteLine("> ----------------");
+                                    Console.WriteLine("");
                                 }
                             }
                             catch
