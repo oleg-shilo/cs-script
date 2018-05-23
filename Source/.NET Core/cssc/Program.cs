@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,8 +25,9 @@ namespace cssc
     {
         static int Main(string[] args)
         {
+
             var arguments = new List<string>();
-            arguments.Add(@"E:\Galos\Projects\CS-Script\GitHub\cs-script\Source\.NET Core\cscs.exe.core\bin\Debug\netcoreapp2.1\cscs.dll");
+            arguments.Add(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "cscs.dll"));
             arguments.AddRange(args);
 
             var combinedArgs = string.Join(" ",

@@ -56,4 +56,8 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetPath)" "$(ProjectDir)..\out\.NET\$(TargetFileName)"
+copy "$(TargetDir)cscs.eng.dll" "$(ProjectDir)..\out\.NET\cscs.eng.dll"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -12,4 +12,8 @@
     <ProjectReference Include="..\cscs.eng\cscs.eng.csproj" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\out\.NET Core\$(TargetFileName)&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.eng.dll&quot; &quot;$(ProjectDir)..\out\.NET Core\cscs.eng.dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.runtimeconfig.json&quot; &quot;$(ProjectDir)..\out\.NET Core\cscs.runtimeconfig.json&quot;" />
+  </Target>
+
 </Project>
