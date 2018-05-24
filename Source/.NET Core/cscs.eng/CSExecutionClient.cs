@@ -42,21 +42,25 @@ using System.Threading;
  Limitations comparing to CS-Script for .NET
 
  CS-Script todo:
-
-    - Implement inmem loading
+    - Major refactoring to meet C# 7 standards
+    - remove all code (and config) for -inmem:0 use-case 
+    - Full support for std in, out and error in cssc launcher
     - Share source modules between cscs and CSScriptLib
-    - .NET Full use-case
     - Ensure the cached script is not used/shared between .NET Full and Core launchers
-    - Ensure C# 7 syntax
     - Process CompilerParameters during compilation
     - Ensure ".NET standard" class libraries can be referenced from .NET Full cscs.exe 
+    - Decide which NuGet engine to invoke 
+    - Handle //css_nuget -rt:<name> directive arg in .NET Full NuGet.exe use-case
+    + In -ver output handle/reflect absent config 
+    + Ensure C# 7 syntax
+    + Ensure inmem loading
     + NuGet support
     + Ensure default '-l:1'
     + Describe //css_nuget -rt:<name> directive arg
 
  CS-Script limitations:
     - No building "*.exe"
-    - Huge compilation startup delay (no VBCSCompiler.exe optimization)
+    - Huge compilation startup delay (no VBCSCompiler.exe optimisation)
     - Support for custom config files is not available for .NET Core due to the API limitations
       See in full version source "...if (AppDomain.CurrentDomain.FriendlyName != "ExecutionDomain")...")
 

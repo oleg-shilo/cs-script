@@ -352,6 +352,8 @@ namespace csscript
 
         public static string GetDirName(this string path) => Path.GetDirectoryName(path);
         public static string GetFileName(this string path) => Path.GetFileName(path);
+        public static bool FileExists(this string path) => path.IsNotEmpty() ? File.Exists(path) : false;
+        public static bool DirExists(this string path) => path.IsNotEmpty() ? Directory.Exists(path) : false;
         public static string ChangeExtension(this string path, string extension) => Path.ChangeExtension(path, extension);
 
         public static bool IsSamePath(this string path1, string path2)
@@ -1349,7 +1351,7 @@ partial class dbg
                     else if (Args.ParseValuedArg(arg, AppArgs.l, out argValue)) // -l[:<0|1>]
                     {
                         options.local = true;
-                        if(argValue == "0")
+                        if (argValue == "0")
                             options.local = false;
                     }
                     else if (Args.Same(arg, AppArgs.ver, AppArgs.v, AppArgs.version, AppArgs.version2)) // -ver -v -version --version
