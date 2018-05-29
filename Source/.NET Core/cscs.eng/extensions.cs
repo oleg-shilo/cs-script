@@ -134,6 +134,7 @@ public static class CoreExtensions
     public static bool ToBool(this string text) => text.ToLower() == "true";
     public static bool IsEmpty(this string text) => string.IsNullOrEmpty(text);
     public static bool IsNotEmpty(this string text) => !string.IsNullOrEmpty(text);
+    public static bool IsEmpty<T>(this IEnumerable<T> collection) => collection == null ? true : !collection.Any();
 
     public static string[] SplitMergedArgs(this string[] args)
     {

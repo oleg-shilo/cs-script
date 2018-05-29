@@ -1523,7 +1523,7 @@ namespace csscript
             foreach (string option in parser.CompilerOptions)
                 Utils.AddCompilerOptions(compilerParams, option);
 
-            if (options.DBG)
+            if (options.DBG && !(Utils.IsCore || CSharpCompiler.DefaultCompilerRuntime == DefaultCompilerRuntime.Standard))
                 Utils.AddCompilerOptions(compilerParams, "/d:DEBUG /d:TRACE");
 
             compilerParams.IncludeDebugInformation = options.DBG;

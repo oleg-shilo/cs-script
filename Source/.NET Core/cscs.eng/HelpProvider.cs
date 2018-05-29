@@ -38,7 +38,7 @@ namespace csscript
         public const string dbg = "dbg";
         public const string d = "d";
         public const string l = "l";
-        public const string inmem = "inmem";
+        // public const string inmem = "inmem"; // may need to resurrect if users do miss it :)
         public const string ac = "ac";
         public const string wait = "wait";
         public const string autoclass = "autoclass";
@@ -257,14 +257,16 @@ namespace csscript
             switch2Help[v] = new ArgInfo("-v|-ver|--version",
                                                    "Prints CS-Script version information.");
 
-            switch2Help[inmem] = new ArgInfo("-inmem[:<0|1>]",
-                                                   "Loads compiled script in memory before execution.",
-                                                   "This mode allows preventing locking the compiled script file. " +
-                                                   "Can be beneficial for fine concurrency control as it allows changing " +
-                                                   "and executing the scripts that are already loaded (being executed). This mode is incompatible " +
-                                                   "with the scripting scenarios that require script assembly to be file based (e.g. advanced Reflection).",
-                                                   " -inmem:1   enable caching (which might be disabled globally);",
-                                                   " -inmem:0   disable caching (which might be enabled globally);");
+            // may need to resurrect if users do miss it :)
+            // switch2Help[inmem] = new ArgInfo("-inmem[:<0|1>]",
+            //                                        "Loads compiled script in memory before execution.",
+            //                                        "This mode allows preventing locking the compiled script file. " +
+            //                                        "Can be beneficial for fine concurrency control as it allows changing " +
+            //                                        "and executing the scripts that are already loaded (being executed). This mode is incompatible " +
+            //                                        "with the scripting scenarios that require script assembly to be file based (e.g. advanced Reflection).",
+            //                                        " -inmem:1   enable caching (which might be disabled globally);",
+            //                                        " -inmem:0   disable caching (which might be enabled globally);");
+
             switch2Help[dbgprint] = new ArgInfo("-dbgprint[:<0:1>]",
                                                    "Controls whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now)).",
                                                    "This setting allows controlling dynamic inclusion of the embedded dbg.cs script containing " +
@@ -301,7 +303,9 @@ namespace csscript
                                                    "as a token separator that is ignored during property lookup.",
                                                    "(e.g. " + AppInfo.appName + " -config:none sample.cs",
                                                    "${<=6}" + AppInfo.appName + " -config:default > css_VB.xml",
-                                                   "${<=6}" + AppInfo.appName + " -config:set:" + inmem + "=true",
+                                                   
+                                                   // "${<=6}" + AppInfo.appName + " -config:set:" + inmem + "=true", // may need to resurrect if users do miss it :)
+
                                                    "${<=6}" + AppInfo.appName + " -config:set:DefaultArguments=add:-ac",
                                                    "${<=6}" + AppInfo.appName + " -config:set:default_arguments=del:-ac",
                                                    "${<=6}" + AppInfo.appName + " -config:c:\\cs-script\\css_VB.xml sample.vb)");

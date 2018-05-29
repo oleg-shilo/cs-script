@@ -977,9 +977,12 @@ partial class dbg
 
                 foreach (string arg in args)
                 {
-                    sb.Append(" ");
-                    sb.Append("-");
-                    sb.Append(arg);
+                    if (arg.IsNotEmpty())
+                    {
+                        sb.Append(" ");
+                        sb.Append("-");
+                        sb.Append(arg);
+                    }
                 }
                 return sb.ToString().Trim();
             }
@@ -1147,16 +1150,17 @@ partial class dbg
                                 options.useCompiled = false;
                         }
                     }
-                    else if (Args.ParseValuedArg(arg, AppArgs.inmem, out argValue)) // -inmem:<value>
-                    {
-                        if (!options.suppressExecution) // do not change the value if compilation is the objective
-                        {
-                            if (argValue == "1" || argValue == null)
-                                options.inMemoryAsm = true;
-                            else if (argValue == "0")
-                                options.inMemoryAsm = false;
-                        }
-                    }
+                    // may need to resurrect if users do miss it :)
+                    // else if (Args.ParseValuedArg(arg, AppArgs.inmem, out argValue)) // -inmem:<value>
+                    // {
+                    //     if (!options.suppressExecution) // do not change the value if compilation is the objective
+                    //     {
+                    //         if (argValue == "1" || argValue == null)
+                    //             options.inMemoryAsm = true;
+                    //         else if (argValue == "0")
+                    //             options.inMemoryAsm = false;
+                    //     }
+                    // }
                     else if (Args.ParseValuedArg(arg, AppArgs.dbgprint, out argValue)) // -dbgprint:<value>
                     {
                         if (argValue == "1" || argValue == null)

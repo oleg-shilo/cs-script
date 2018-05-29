@@ -31,6 +31,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Reflection;
 using System.Linq;
+using CSScripting.CodeDom;
 
 namespace csscript
 {
@@ -99,7 +100,7 @@ namespace csscript
         /// regardless if the user specified "/dbg" when a particular script is launched.
         /// </summary>
         [Category("RuntimeSettings"), Description("Default command-line arguments (e.g.-dbg) for all scripts.")]
-        public string DefaultArguments { get; set; } = CSSUtils.Args.Join("c", "co:" + CSSUtils.Args.DefaultPrefix + "warn:0");
+        public string DefaultArguments { get; set; } = CSSUtils.Args.Join("c", (Utils.IsCore || CSharpCompiler.DefaultCompilerRuntime == DefaultCompilerRuntime.Standard) ? "" : "co:" + CSSUtils.Args.DefaultPrefix + "warn:0");
 
         /// <summary>
         /// Gets or sets a value indicating whether script assembly attribute should be injected. The AssemblyDecription attribute

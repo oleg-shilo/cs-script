@@ -104,6 +104,23 @@ namespace CSScripting.CodeDom
                                                              .Where(not_in_engine_dir)
                                                              .ToArray(); // for debugging
 
+            void CopySourceToBuildDir(string source)
+            {
+                // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported 
+                // by both .NET debugger (VS) and .NET Core debugger (VSCode).
+
+                // However PortablePDB does not store the full source path but file name only (at least for now). It works fine in typical
+                // .Core scenario where the all sources are in the root directory but if they are not (e.g. scripting or desktop app) then
+                // debugger cannot resolve sources without user input.
+
+                // The only solution (ugly one) is to inject the full file path at startup with #line directive
+
+                var new_file = build_dir.PathJoin(source.GetFileName());
+                var sourceText = $"#line 1 \"{source}\"{Environment.NewLine}" + File.ReadAllText(source);
+                File.WriteAllText(new_file, sourceText);
+            }
+
+
             if (ref_assemblies.Any())
             {
                 // var logger = NLog.LogManager.GetCurrentClassLogger();
@@ -114,11 +131,76 @@ namespace CSScripting.CodeDom
 
                 project_content = project_content.Replace("</Project>",
                                                         $@"  <ItemGroup>
-                                                        {refs.ToString()}
-                                                        </ItemGroup>
-                                                     </Project>");
+                                                                {refs.ToString()}
+                                                             </ItemGroup>
+                                                          </Project>");
 
             }
+
+
+            File.WriteAllText(build_dir.PathJoin(projectShortName + ".csproj"), project_content);
+
+            fileNames.ForEach(CopySourceToBuildDir);
+
+            var output = "bin";
+            var assembly = build_dir.PathJoin(output, projectShortName + ".dll");
+
+            var result = new CompilerResults();
+
+
+            var config = options.IncludeDebugInformation ? "--configuration Debug" : "--configuration Release";
+
+            Profiler.get("compiler").Start();
+            result.NativeCompilerReturnValue = Utils.Run(dotnet, $"build {config} -o {output} {options.CompilerOptions}", build_dir, x => result.Output.Add(x));
+            Profiler.get("compiler").Stop();
+
+
+
+            // var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
+            // if (timing != null)
+            //     Console.WriteLine("    dotnet: " + timing);
+
+            result.ProcessErrors();
+
+
+            result.Errors
+                  .ForEach(x =>
+                  {
+                      // by default x.FileName is a file name only 
+                      x.FileName = fileNames.FirstOrDefault(f => f.EndsWith(x.FileName ?? "")) ?? x.FileName;
+                  });
+
+            if (result.NativeCompilerReturnValue == 0 && File.Exists(assembly))
+            {
+                result.PathToAssembly = options.OutputAssembly;
+                File.Copy(assembly, result.PathToAssembly, true);
+
+                if (options.IncludeDebugInformation)
+                    File.Copy(assembly.ChangeExtension(".pdb"),
+                              result.PathToAssembly.ChangeExtension(".pdb"),
+                              true);
+            }
+            else
+            {
+                if (result.Errors.IsEmpty())
+                {
+                    // unknown error; e.g. invalid compiler params 
+                    result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
+                }
+            }
+
+            build_dir.DeleteDir();
+
+            return result;
+        }
+
+        public CompilerResults CompileAssemblyFromSource(CompilerParameters options, string source)
+        {
+            return CompileAssemblyFromFileBatch(options, new[] { source });
+        }
+
+        static void explore_package_dependencies_spike()
+        {
 
             // var package_name = "NLog.Config";
             // var package_ver = "4.5.4";
@@ -186,51 +268,10 @@ namespace CSScripting.CodeDom
                   "hashPath": "nlog.schema.4.5.4.nupkg.sha512"
                 }*/
 
-            File.WriteAllText(build_dir.PathJoin(projectShortName + ".csproj"), project_content);
 
-            fileNames.ForEach(x => x.CopyFileTo(build_dir));
-
-            var output = "bin";
-            var assembly = build_dir.PathJoin(output, projectShortName + ".dll");
-
-            var result = new CompilerResults();
-
-
-            Profiler.get("compiler").Start();
-            result.NativeCompilerReturnValue = Utils.Run(dotnet, "build -o " + output, build_dir, x => result.Output.Add(x));
-            Profiler.get("compiler").Stop();
-
-            // var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
-            // if (timing != null)
-            //     Console.WriteLine("    dotnet: " + timing);
-
-            result.ProcessErrors();
+            // result.ProcessErrors();
 
             // result.ProbingDirs.Add(@"C:\Users\%username%\.nuget\packages\nlog\4.5.4\lib\netstandard2.0");
-
-            result.Errors
-                  .ForEach(x =>
-                  {
-                      // by default x.FileName is a file name only 
-                      x.FileName = fileNames.FirstOrDefault(f => f.EndsWith(x.FileName)) ?? x.FileName;
-                  });
-
-            if (result.NativeCompilerReturnValue == 0 && File.Exists(assembly))
-            {
-                result.PathToAssembly = options.OutputAssembly;
-                File.Copy(assembly, result.PathToAssembly, true);
-            }
-
-            build_dir.DeleteDir();
-
-            return result;
-        }
-
-       
-
-        public CompilerResults CompileAssemblyFromSource(CompilerParameters options, string source)
-        {
-            return CompileAssemblyFromFileBatch(options, new[] { source });
         }
     }
 
@@ -267,12 +308,20 @@ namespace CSScripting.CodeDom
             {
                 if (!isErrroSection)
                 {
+                    // MSBUILD : error MSB1001: Unknown switch.
                     if (line.StartsWith("Build FAILED.") || line.StartsWith("Build succeeded."))
                         isErrroSection = true;
+
+                    if (line.Contains("MSBUILD : error "))
+                    {
+                        var error = CompilerError.Parser(line);
+                        if (error != null)
+                            Errors.Add(error);
+                    }
                 }
                 else
                 {
-                    if (!line.IsEmpty())
+                    if (line.IsNotEmpty())
                     {
                         var error = CompilerError.Parser(line);
                         if (error != null)
@@ -313,10 +362,21 @@ namespace CSScripting.CodeDom
             // C:\Program Files\dotnet\sdk\2.1.300-preview1-008174\Sdks\Microsoft.NET.Sdk\build\Microsoft.NET.ConflictResolution.targets(59,5): error MSB4018: The "ResolvePackageFileConflicts" task failed unexpectedly. [C:\Users\%username%\AppData\Local\Temp\csscript.core\cache\1822444284\.build\script.cs\script.csproj]
             // script.cs(11,8): error CS1029: #error: 'this is the error...' [C:\Users\%username%\AppData\Local\Temp\csscript.core\cache\1822444284\.build\script.cs\script.csproj]
             // script.cs(10,10): warning CS1030: #warning: 'DEBUG is defined' [C:\Users\%username%\AppData\Local\Temp\csscript.core\cache\1822444284\.build\script.cs\script.csproj]
+            // MSBUILD : error MSB1001: Unknown switch.
             bool isError = compilerOutput.Contains("): error ");
             bool isWarning = compilerOutput.Contains("): warning ");
+            bool isBuildError = compilerOutput.Contains("MSBUILD : error");
 
-            if (isWarning || isError)
+            if (isBuildError)
+            {
+                var parts = compilerOutput.Replace("MSBUILD : error ", "").Split(":".ToCharArray(), 2);
+                return new CompilerError
+                {
+                    ErrorText = "MSBUILD: " + parts.Last().Trim(),        // MSBUILD error: Unknown switch.
+                    ErrorNumber = parts.First()                           // MSB1001
+                };
+            }
+            else if (isWarning || isError)
             {
                 var result = new CompilerError();
 
@@ -358,9 +418,9 @@ namespace CSScripting.CodeDom
 
     public class CompilerParameters
     {
-        private List<string> linkedResources = new List<string>();
-        private List<string> embeddedResources = new List<string>();
-        private List<string> referencedAssemblies = new List<string>();
+        readonly List<string> linkedResources = new List<string>();
+        readonly List<string> embeddedResources = new List<string>();
+        readonly List<string> referencedAssemblies = new List<string>();
 
         public List<string> LinkedResources { get => linkedResources; }
         public List<string> EmbeddedResources { get => embeddedResources; }

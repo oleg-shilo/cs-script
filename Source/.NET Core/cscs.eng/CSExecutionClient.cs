@@ -34,7 +34,7 @@ using System.Threading;
 /// CS-Script engine class library assembly.
 /// Runtime: .NET Standard 2.0
 /// File name: cscs.eng.dll
-/// Implements light/refined business logic of standard CS-Script. 
+/// Implements light/refined business logic of the standard CS-Script. 
 /// </summary>
 
 
@@ -42,26 +42,30 @@ using System.Threading;
  Limitations comparing to CS-Script for .NET
 
  CS-Script todo:
-    - Major refactoring to meet C# 7 standards
-    - remove all code (and config) for -inmem:0 use-case 
-    - Full support for std in, out and error in cssc launcher
-    - Share source modules between cscs and CSScriptLib
-    - Ensure the cached script is not used/shared between .NET Full and Core launchers
-    - Process CompilerParameters during compilation
-    - Ensure ".NET standard" class libraries can be referenced from .NET Full cscs.exe 
-    - Decide which NuGet engine to invoke 
-    - Handle //css_nuget -rt:<name> directive arg in .NET Full NuGet.exe use-case
-    + In -ver output handle/reflect absent config 
-    + Ensure C# 7 syntax
-    + Ensure inmem loading
-    + NuGet support
-    + Ensure default '-l:1'
-    + Describe //css_nuget -rt:<name> directive arg
+    - Refactoring
+        - Major refactoring to meet C# 7 standards
+        - Share source modules between cscs and CSScriptLib
+    - Functionality
+        - Full support for std in, out and error in cssc launcher
+        - Decide which NuGet engine to invoke 
+        - Handle //css_nuget -rt:<name> directive arg in .NET Full NuGet.exe use-case
+        + remove all code (and config) for -inmem:0 use-case 
+        + Process CompilerParameters during compilation
+        + Ensure the cached script is not used/shared between .NET Full and Core launchers
+        + Ensure ".NET standard" class libraries can be referenced from .NET Full cscs.exe 
+        + In -ver output handle/reflect absent config 
+        + Ensure C# 7 syntax
+        + Ensure inmem loading
+        + NuGet support
+        + Ensure default '-l:1'
+        + Describe //css_nuget -rt:<name> directive arg
 
  CS-Script limitations:
     - No building "*.exe"
-    - Huge compilation startup delay (no VBCSCompiler.exe optimisation)
-    - Support for custom config files is not available for .NET Core due to the API limitations
+    - No NuGet inter-package dependencies resolving. All packages (including dependency packages) must be specified in the script 
+    - Huge compilation startup delay (.NET Core offers no VBCSCompiler.exe optimisation)
+      There may be some hope as VS actually runs "dotnet VBCSCompiler.dll -namedpipe:..." 
+    - Support for custom app.config files is not available for .NET Core due to the API limitations
       See in full version source "...if (AppDomain.CurrentDomain.FriendlyName != "ExecutionDomain")...")
 
  CS-Script obsolete features and limitations:
