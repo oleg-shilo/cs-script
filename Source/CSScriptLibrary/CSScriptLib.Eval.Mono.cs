@@ -449,7 +449,7 @@ namespace CSScriptLibrary
                 {
                     service.ReferenceAssembly(assembly);
                 }
-                catch { } //some assemblies can faile (e.g. xunit)
+                catch { } //some assemblies can fail (e.g. xunit)
             return this;
         }
 

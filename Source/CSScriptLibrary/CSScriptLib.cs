@@ -446,6 +446,16 @@ namespace CSScriptLibrary
             return null;
         }
 
+        /// <summary>
+        /// Gets the name of the directory from the specified path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public static string GetDirName(this string path)
+        {
+            return Path.GetDirectoryName(path ?? "");
+        }
+
 #endif
 
         /// <summary>

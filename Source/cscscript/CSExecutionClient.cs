@@ -59,6 +59,7 @@ namespace csscript
         public static void Main(string[] rawArgs)
         {
             // Debug.Assert(false);
+            // Debugger.Break();
             main(rawArgs);
         }
 

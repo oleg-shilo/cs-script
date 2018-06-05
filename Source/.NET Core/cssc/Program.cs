@@ -19,65 +19,21 @@ using System.Threading.Tasks;
 /// Example: "cssc.exe script.cs" 
 /// </summary>
 
-namespace cssc
+namespace css
 {
     class Program
     {
-        static int Main(string[] args)
+        static void Main(string[] args)
         {
 
             var arguments = new List<string>();
             arguments.Add(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "cscs.dll"));
             arguments.AddRange(args);
 
-            var combinedArgs = string.Join(" ",
-                                           arguments.Select(x => (x.Contains(" ") || x.Contains("\t")) ? $"\"{x}\"" : x)
-                                                    .ToArray());
+            var combinedArgs = arguments.Select(x => (x.Contains(" ") || x.Contains("\t")) ? $"\"{x}\"" : x)
+                                        .ToArray();
 
-            return Run("dotnet", combinedArgs, null, Console.WriteLine, Console.WriteLine);
-        }
-
-        private static Thread StartMonitor(StreamReader stream, Action<string> action = null)
-        {
-            var thread = new Thread(x =>
-            {
-                try
-                {
-                    string line = null;
-                    while (null != (line = stream.ReadLine()))
-                        action?.Invoke(line);
-                }
-                catch { }
-            });
-            thread.Start();
-            return thread;
-        }
-
-        private static int Run(string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null)
-        {
-            var process = new Process();
-
-            process.StartInfo.FileName = exe;
-            process.StartInfo.Arguments = args;
-            process.StartInfo.WorkingDirectory = dir;
-
-            // hide terminal window
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.ErrorDialog = false;
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.Start();
-
-            var error = StartMonitor(process.StandardError, onError);
-            var output = StartMonitor(process.StandardOutput, onOutput);
-
-            process.WaitForExit();
-
-            try { error.Abort(); } catch { }
-            try { output.Abort(); } catch { }
-
-            return process.ExitCode;
+            ScriptLauncher.Run("dotnet", string.Join(" ", combinedArgs));
         }
     }
 }

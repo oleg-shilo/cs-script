@@ -3,15 +3,18 @@ rem Many builds are commented out as they are no longer included into distro. Bu
 @set BATCH_BUILD=true
 @set oldPATH=%PATH%;
 @set PATH=%windir%\Microsoft.NET\Framework\v1.1.4322;%PATH%;
-@set net4_tools=C:\Program Files (x86)\MSBuild\12.0\Bin
-@set net45_tools=C:\Program Files (x86)\MSBuild\14.0\Bin
+rem @set net4_tools=C:\Program Files (x86)\MSBuild\12.0\Bin
+@set net4_tools=C:\Windows\Microsoft.NET\Framework\v4.0.30319
+rem @set net45_tools=C:\Program Files (x86)\MSBuild\14.0\Bin
+@set net45_tools=C:\Program Files (x86)\MSBuild\15.0\Bin
 @set local_dev=%CS-S_DEV_ROOT%
 @set is_local_dev=true
 if "%local_dev%" == "" @set is_local_dev=false
 
 if %is_local_dev% == true echo --- LOCAL DEVELOPMENT ENVIRONMENT ---
 
-@set net4_asms=C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5
+rem @set net4_asms=C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5
+@set net4_asms=C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6
 
 ECHO off
 ECHO Preparing to build...
