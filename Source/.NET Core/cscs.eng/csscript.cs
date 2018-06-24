@@ -104,7 +104,7 @@ namespace csscript
 
         void ProcessConfigCommand(string command);
 
-        void ShowSample(string version);
+        void Sample(string version, string file = null);
 
         ExecuteOptions GetOptions();
 
@@ -2058,11 +2058,15 @@ namespace csscript
         /// <summary>
         /// Show sample C# script file.
         /// </summary>
-        public void ShowSample(string version)
+        public void Sample(string version, string outFile)
         {
-            if (print != null)
-                print(HelpProvider.BuildSampleCode(version));
-        }
+            var code = HelpProvider.BuildSampleCode(version);
+
+            if (outFile.IsNotEmpty())
+                File.WriteAllText(outFile, code);
+            else if (print != null)
+                print(code);
+            }
 
         /// <summary>
         /// Show sample precompiler C# script file.

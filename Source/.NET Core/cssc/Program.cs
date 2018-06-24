@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+// -c:0 "E:\Galos\Projects\CS-Script\GitHub\cs-script\Source\.NET Core\spike\script.cs"
 
 /// <summary>
 /// .NET Full/Mono app launcher for CS-Script .NET Core host. This executable is a simple process router that forks 
@@ -34,6 +35,10 @@ namespace css
                                         .ToArray();
 
             ScriptLauncher.Run("dotnet", string.Join(" ", combinedArgs));
+            // Console.WriteLine("===========");
+            // ScriptLauncher.Run("dotnet", string.Join(" ", combinedArgs));
+
+            // Console.WriteLine("The end");
         }
     }
 }

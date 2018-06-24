@@ -46,9 +46,9 @@ using System.Threading;
         - Major refactoring to meet C# 7 standards
         - Share source modules between cscs and CSScriptLib
     - Functionality
-        - Full support for std in, out and error in cssc launcher
         - Decide which NuGet engine to invoke 
         - Handle //css_nuget -rt:<name> directive arg in .NET Full NuGet.exe use-case
+        + Full support for std in, out and error in css launcher
         + remove all code (and config) for -inmem:0 use-case 
         + Process CompilerParameters during compilation
         + Ensure the cached script is not used/shared between .NET Full and Core launchers
@@ -65,6 +65,10 @@ using System.Threading;
     - No NuGet inter-package dependencies resolving. All packages (including dependency packages) must be specified in the script 
     - Huge compilation startup delay (.NET Core offers no VBCSCompiler.exe optimisation)
       There may be some hope as VS actually runs "dotnet VBCSCompiler.dll -namedpipe:..." 
+      The side signs are indicating that MS is working on this problem. Thus a call "dotnet build ..."
+      forks an addition long standing process 
+      "C:\Program Files\dotnet\dotnet.exe" "C:\Program Files\dotnet\sdk\2.1.300-preview1-008174\Roslyn\bincore\VBCSCompiler.dll" "-pipename:<user_name>.F.QF+8Z+bcVzTAZf2vxEt85UoKv"
+
     - Support for custom app.config files is not available for .NET Core due to the API limitations
       See in full version source "...if (AppDomain.CurrentDomain.FriendlyName != "ExecutionDomain")...")
 

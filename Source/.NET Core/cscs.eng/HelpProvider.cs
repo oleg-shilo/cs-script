@@ -1,7 +1,6 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -17,17 +16,20 @@ namespace csscript
         public const string help2 = "-help";
         public const string question = "?";
         public const string question2 = "-?";
+        public const string ver = "ver";
         public const string cmd = "cmd";
         public const string syntax = "syntax";
+        public const string commands = "commands";
+        public const string config = "config";
         public const string s = "s";
         public const string sample = "sample";
+        public const string @new = "new";
         public const string verbose = "verbose";
         public const string v = "v";
-        public const string ver = "ver";
         public const string version = "version";
         public const string version2 = "-version";
         public const string c = "c";
-        public const string ca = "ca";
+        public const string cd = "cd";
         public const string co = "co";
         public const string check = "check";
         public const string r = "r";
@@ -35,6 +37,7 @@ namespace csscript
         public const string ew = "ew";
         public const string dir = "dir";
         public const string @out = "out";
+        public const string ca = "ca";
         public const string dbg = "dbg";
         public const string d = "d";
         public const string l = "l";
@@ -43,10 +46,7 @@ namespace csscript
         public const string wait = "wait";
         public const string autoclass = "autoclass";
         public const string sconfig = "sconfig";
-        public const string config = "config";
         public const string stop = "stop";
-        public const string commands = "commands";
-        public const string cd = "cd";
         public const string tc = "tc";
         public const string pvdr = "pvdr";
         public const string nuget = "nuget";
@@ -197,6 +197,11 @@ namespace csscript
                                                    "Prints content of sample script file.",
                                                    " -s:7    - prints C# 7 sample. Otherwise it prints the default canonical 'Hello World' sample.",
                                                    "(e.g. " + AppInfo.appName + " -s:7 > sample.cs).");
+
+            switch1Help[@new] = new ArgInfo("-new <script name>",
+                                                   "Creates a sample script file with a given name. This command is similar to '-sample'.",
+                                                   "(e.g. " + AppInfo.appName + " -new sample.cs");
+
             switch1Help[wait] = new ArgInfo("-wait[:prompt]",
                                                    "Waits for user input after the execution before exiting.",
                                                    "If specified the execution will proceed with exit only after any std input is received.",

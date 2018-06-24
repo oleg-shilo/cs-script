@@ -1409,7 +1409,12 @@ partial class dbg
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.s, AppArgs.sample, out argValue)) // -s:<C# version>
                     {
-                        executor.ShowSample(argValue);
+                        executor.Sample(argValue);
+                        CLIExitRequest.Throw();
+                    }
+                    else if (Args.ParseValuedArg(arg, AppArgs.@new, out argValue)) // -new <file>
+                    {
+                        executor.Sample(argValue, nextArg);
                         CLIExitRequest.Throw();
                     }
                     else
