@@ -311,11 +311,14 @@ namespace csscript
                                                    "Forces the script to be compiled into a specific location.",
                                                    "Used only for very fine hosting tuning.",
                                                    "(e.g. " + AppInfo.appName + " -out:%temp%\\%pid%\\sample.dll sample.cs");
-            switch2Help[sconfig] = new ArgInfo("-sconfig[:file]",
-                                                   "Uses script config file or custom config file as a .NET app.config.",
-                                                   "This option might be useful for running scripts, which usually cannot be executed without configuration file (e.g. WCF, Remoting).",
-                                                   "(e.g. if -sconfig is used the expected config file name is <script_name>.cs.config or <script_name>.exe.config" +
-                                                   "if -sconfig:myApp.config is used the expected config file name is myApp.config)");
+
+            switch2Help[sconfig] = new ArgInfo("-sconfig[:<file>|none]",
+                                                   "Uses custom config file as a .NET app.config.",
+                                                   "This option might be useful for running scripts, which usually cannot be executed without custom configuration file (e.g. WCF, Remoting).",
+                                                   "By default CS-Script expects script config file name to be <script_name>.cs.config or <script_name>.exe.config. " +
+                                                   "However if <file> value is specified the it is used as a config file. ",
+                                                   "(e.g. if -sconfig:myApp.config is used the expected config file name is myApp.config)");
+
             switch2Help[r] = new ArgInfo("-r:<assembly 1>,<assembly N>",
                                                    "Uses explicitly referenced assembly.", "It is required only for " +
                                                    "rare cases when namespace cannot be resolved into assembly.",
