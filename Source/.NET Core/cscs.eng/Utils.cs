@@ -1171,8 +1171,14 @@ partial class dbg
                     else if (Args.ParseValuedArg(arg, AppArgs.sconfig, out argValue)) // -sconfig:file
                     {
                         options.useScriptConfig = true;
-                        if (argValue != null)
+                        if (argValue == "none")
+                        {
+                            options.useScriptConfig = false;
+                        }
+                        else if (argValue != null)
+                        {
                             options.customConfigFileName = argValue;
+                        }
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.provider, AppArgs.pvdr, out argValue)) // -provider:file
                     {

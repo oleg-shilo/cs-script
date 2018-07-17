@@ -61,6 +61,7 @@ using System.Threading;
         + Describe //css_nuget -rt:<name> directive arg
 
  CS-Script limitations:
+    - No support for script app.config file
     - No building "*.exe"
     - No NuGet inter-package dependencies resolving. All packages (including dependency packages) must be specified in the script 
     - Huge compilation startup delay (.NET Core offers no VBCSCompiler.exe optimisation)

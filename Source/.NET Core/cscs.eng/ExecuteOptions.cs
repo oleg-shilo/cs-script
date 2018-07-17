@@ -208,7 +208,7 @@ namespace csscript
         public object initContext = null;
         public string scriptFileNamePrimary = null;
         public bool useCompiled = false;
-        public bool useScriptConfig = false;
+        public bool useScriptConfig = true;
         public bool useSmartCaching = true; //hardcoded true but can be set from config file in the future
         public bool suppressTimestampAltering = false; //hardcoded true but can be set from config file in the future
         public string customConfigFileName = "";
