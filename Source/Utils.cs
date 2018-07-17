@@ -1261,9 +1261,9 @@ partial class dbg
                     {
                         options.DBG = true;
                     }
-                    else if (Args.Same(arg, AppArgs.l))
+                    else if (Args.ParseValuedArg(arg, AppArgs.l, out argValue)) // -l:<1|0>
                     {
-                        options.local = true;
+                        options.local = (argValue != "0");
                     }
                     else if (Args.Same(arg, AppArgs.ver, AppArgs.v, AppArgs.version, AppArgs.version2)) // -ver -v -version --version
                     {
