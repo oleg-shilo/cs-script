@@ -1,4 +1,4 @@
-C# Script execution engine. Version 3.28.4.0.
+C# Script execution engine. Version 3.28.5.0.
 Copyright (C) 2004-2018 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -105,8 +105,10 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
 -dbg|-d
     Forces compiler to include debug information.
 
--l
-    'local' (makes the script directory a 'current directory').
+-l[:<0|1>]
+    'local'- makes the script directory a 'current directory' (enabled by default).
+     -l:1   the process current directory is assigned to the script directory (default);
+     -l:0   the process current directory is not adjusted in any way;
 
 -v|-ver|--version
     Prints CS-Script version information.
@@ -170,12 +172,13 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
     Used only for very fine hosting tuning.
     (e.g. cscs -out:%temp%\%pid%\sample.dll sample.cs
 
--sconfig[:file]
-    Uses script config file or custom config file as a .NET app.config.
-    This option might be useful for running scripts, which usually cannot be executed without configuration file (e.g.
-    WCF, Remoting).
-    (e.g. if -sconfig is used the expected config file name is <script_name>.cs.config or <script_name>.exe.configif
-    -sconfig:myApp.config is used the expected config file name is myApp.config)
+-sconfig[:<file>|none]
+    Uses custom config file as a .NET app.config.
+    This option might be useful for running scripts, which usually cannot be executed without custom configuration file
+    (e.g. WCF, Remoting).
+    By default CS-Script expects script config file name to be <script_name>.cs.config or <script_name>.exe.config.
+    However if <file> value is specified the it is used as a config file. 
+    (e.g. if -sconfig:myApp.config is used the expected config file name is myApp.config)
 
 -r:<assembly 1>,<assembly N>
     Uses explicitly referenced assembly.

@@ -6,7 +6,8 @@ rem Many builds are commented out as they are no longer included into distro. Bu
 rem @set net4_tools=C:\Program Files (x86)\MSBuild\12.0\Bin
 @set net4_tools=C:\Windows\Microsoft.NET\Framework\v4.0.30319
 rem @set net45_tools=C:\Program Files (x86)\MSBuild\14.0\Bin
-@set net45_tools=C:\Program Files (x86)\MSBuild\15.0\Bin
+rem @set net45_tools=C:\Program Files (x86)\MSBuild\15.0\Bin
+@set net45_tools=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\
 @set local_dev=%CS-S_DEV_ROOT%
 @set is_local_dev=true
 if "%local_dev%" == "" @set is_local_dev=false
