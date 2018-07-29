@@ -68,6 +68,237 @@ namespace CSScripting.CodeDom
 
         public CompilerResults CompileAssemblyFromFileBatch(CompilerParameters options, string[] fileNames)
         {
+            // csc();
+            return CompileAssemblyFromFileBatch_with_Csc(options, fileNames);
+            // return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
+        }
+
+        // CompilerResults CompileAssemblyFromFileBatch_with_roslyn(CompilerParameters options, string[] fileNames)
+        // {
+        //     Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
+        //     {
+        //         // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
+
+        //         string tempScriptFile = null;
+        //         try
+        //         {
+        //             if (!DisableReferencingFromCode)
+        //             {
+        //                 var localDir = Path.GetDirectoryName(this.GetType().Assembly.Location);
+        //                 ReferenceAssembliesFromCode(scriptText, localDir);
+        //             }
+
+        //             if (this.IsDebug)
+        //             {
+        //                 if (scriptFile == null)
+        //                 {
+        //                     tempScriptFile = CSScript.GetScriptTempFile();
+        //                     File.WriteAllText(tempScriptFile, scriptText);
+        //                 }
+
+        //                 scriptText = $"#line 1 \"{scriptFile ?? tempScriptFile}\"{Environment.NewLine}" + scriptText;
+        //             }
+
+        //             var compilation = CSharpScript.Create(scriptText, CompilerSettings)
+        //                                           .GetCompilation();
+
+        //             if (this.IsDebug)
+        //                 compilation = compilation.WithOptions(compilation.Options
+        //                                          .WithOptimizationLevel(OptimizationLevel.Debug)
+        //                                          .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+
+        //             using (var pdb = new MemoryStream())
+        //             using (var asm = new MemoryStream())
+        //             {
+        //                 var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
+
+        //                 EmitResult result;
+        //                 if (IsDebug)
+        //                     result = compilation.Emit(asm, pdb, options: emitOptions);
+        //                 else
+        //                     result = compilation.Emit(asm);
+
+        //                 if (!result.Success)
+        //                 {
+        //                     IEnumerable<Diagnostic> failures = result.Diagnostics.Where(d => d.IsWarningAsError ||
+        //                                                                                      d.Severity == DiagnosticSeverity.Error);
+
+        //                     var message = new StringBuilder();
+        //                     foreach (Diagnostic diagnostic in failures)
+        //                     {
+        //                         string error_location = "";
+        //                         if (diagnostic.Location.IsInSource)
+        //                         {
+        //                             var error_pos = diagnostic.Location.GetLineSpan().StartLinePosition;
+
+        //                             int error_line = error_pos.Line + 1;
+        //                             int error_column = error_pos.Character + 1;
+
+        //                             // the actual source contains an injected '#line' directive f compiled with debug symbols
+        //                             if (IsDebug)
+        //                                 error_line--;
+
+        //                             error_location = $"{diagnostic.Location.SourceTree.FilePath}({error_line},{ error_column}): ";
+        //                         }
+        //                         message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
+        //                     }
+        //                     var errors = message.ToString();
+        //                     throw new CompilerException(errors);
+        //                 }
+        //                 else
+        //                 {
+        //                     asm.Seek(0, SeekOrigin.Begin);
+        //                     byte[] buffer = asm.GetBuffer();
+
+        //                     if (info?.AssemblyFile != null)
+        //                         File.WriteAllBytes(info.AssemblyFile, buffer);
+
+        //                     if (IsDebug)
+        //                     {
+        //                         pdb.Seek(0, SeekOrigin.Begin);
+        //                         byte[] pdbBuffer = pdb.GetBuffer();
+
+        //                         if (info?.PdbFile != null)
+        //                             File.WriteAllBytes(info.PdbFile, pdbBuffer);
+
+        //                         return AppDomain.CurrentDomain.Load(buffer, pdbBuffer);
+        //                     }
+        //                     else
+        //                         return AppDomain.CurrentDomain.Load(buffer);
+        //                 }
+        //             }
+        //         }
+        //         finally
+        //         {
+        //             if (this.IsDebug)
+        //                 CSScript.NoteTempFile(tempScriptFile);
+        //             else
+        //                 tempScriptFile.FileDelete(false);
+        //         }
+        //     }
+        // }
+
+        CompilerResults CompileAssemblyFromFileBatch_with_Csc(CompilerParameters options, string[] fileNames)
+        {
+            string projectName = fileNames.First().GetFileName();
+
+            var engine_dir = this.GetType().Assembly.Location.GetDirName();
+            var cache_dir = CSExecutor.ScriptCacheDir; // C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284
+            var build_dir = cache_dir.PathJoin(".build", projectName);
+
+            build_dir.DeleteDir()
+                     .EnsureDir();
+
+
+            var sources = new List<string>();
+
+            fileNames.ForEach((string source) =>
+                {
+                    // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported 
+                    // by both .NET debugger (VS) and .NET Core debugger (VSCode).
+
+                    // However PortablePDB does not store the full source path but file name only (at least for now). It works fine in typical
+                    // .Core scenario where the all sources are in the root directory but if they are not (e.g. scripting or desktop app) then
+                    // debugger cannot resolve sources without user input.
+
+                    // The only solution (ugly one) is to inject the full file path at startup with #line directive
+
+                    var new_file = build_dir.PathJoin(source.GetFileName());
+                    var sourceText = $"#line 1 \"{source}\"{Environment.NewLine}" + File.ReadAllText(source);
+                    File.WriteAllText(new_file, sourceText);
+                    sources.Add(new_file);
+                });
+
+            var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
+                                                             .Where(Path.IsPathRooted)
+                                                             .Where(asm => asm.GetDirName() != engine_dir)
+                                                             .ToArray();
+
+            var refs = new StringBuilder();
+            var assembly = build_dir.PathJoin(projectName + ".dll");
+
+            var result = new CompilerResults();
+
+            if (!options.GenerateExecutable || !Utils.IsCore || DefaultCompilerRuntime == DefaultCompilerRuntime.Standard)
+            {
+                // todo
+            }
+
+            //----------------------------
+
+            //pseudo-gac as .NET core does not support GAC but rather common assemblies.
+            var core_dir = typeof(string).Assembly.Location.GetDirName();
+
+            core_dir = @"C:\Program Files\dotnet\sdk\2.0.3\Roslyn";
+            // var gac = @"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.0-preview1-26216-03";
+
+            var gac = typeof(string).Assembly.Location.GetDirName();
+
+            var refs_args = "";
+            var source_args = "";
+
+            var common_args = "/utf8output /nostdlib+ ";
+            if (options.GenerateExecutable)
+                common_args += "/t:exe ";
+            else
+                common_args += "/t:library ";
+
+            if (options.IncludeDebugInformation)
+                common_args += "/debug+";
+
+            foreach (string file in Directory.GetFiles(gac, "System.*.dll"))
+                refs_args += $"/r:\"{file}\" ";
+
+            foreach (string file in ref_assemblies)
+                refs_args += $"/r:\"{file}\" ";
+
+            foreach (string file in sources)
+                source_args += $"\"{file}\" ";
+
+            var cmd = $@"""{core_dir}\csc.exe"" {common_args} {refs_args} {source_args} /out:""{assembly}""";
+            //----------------------------
+
+            Profiler.get("compiler").Start();
+            result.NativeCompilerReturnValue = Utils.Run(dotnet, cmd, build_dir, x => result.Output.Add(x));
+            Profiler.get("compiler").Stop();
+
+            Console.WriteLine("    csc.exe: " + Profiler.get("compiler").Elapsed);
+
+            result.ProcessErrors();
+
+            result.Errors
+                  .ForEach(x =>
+                  {
+                      // by default x.FileName is a file name only 
+                      x.FileName = fileNames.FirstOrDefault(f => f.EndsWith(x.FileName ?? "")) ?? x.FileName;
+                  });
+
+            if (result.NativeCompilerReturnValue == 0 && File.Exists(assembly))
+            {
+                result.PathToAssembly = options.OutputAssembly;
+                File.Copy(assembly, result.PathToAssembly, true);
+
+                if (options.IncludeDebugInformation)
+                    File.Copy(assembly.ChangeExtension(".pdb"),
+                              result.PathToAssembly.ChangeExtension(".pdb"),
+                              true);
+            }
+            else
+            {
+                if (result.Errors.IsEmpty())
+                {
+                    // unknown error; e.g. invalid compiler params 
+                    result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
+                }
+            }
+
+            build_dir.DeleteDir();
+
+            return result;
+        }
+
+        CompilerResults CompileAssemblyFromFileBatch_with_Build(CompilerParameters options, string[] fileNames)
+        {
             string projectName = fileNames.First().GetFileName();
             string projectShortName = Path.GetFileNameWithoutExtension(projectName);
 
@@ -131,9 +362,9 @@ namespace CSScripting.CodeDom
 
                 project_content = project_content.Replace("</Project>",
                                                         $@"  <ItemGroup>
-                                                                {refs.ToString()}
-                                                             </ItemGroup>
-                                                          </Project>");
+                                                                    {refs.ToString()}
+                                                                 </ItemGroup>
+                                                              </Project>");
 
             }
 
@@ -156,9 +387,9 @@ namespace CSScripting.CodeDom
 
 
 
-            // var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
-            // if (timing != null)
-            //     Console.WriteLine("    dotnet: " + timing);
+            var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
+            if (timing != null)
+                Console.WriteLine("    dotnet: " + timing);
 
             result.ProcessErrors();
 

@@ -37,7 +37,6 @@ using System.Xml.Linq;
 /// </summary>
 public static class CLIExtensions
 {
-
     public static string TrimMatchingQuotes(this string input, char quote)
     {
         if (input.Length >= 2 && input.First() == quote && input.Last() == quote)

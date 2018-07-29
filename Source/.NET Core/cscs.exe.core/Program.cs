@@ -16,6 +16,8 @@ namespace cscs.exe.core
     {
         static void Main(string[] args)
         {
+            // var t = typeof(System.Text.RegularExpressions.Regex).Assembly.Location;
+
             // var v1 = "10.20";
             // var v2 = "2.20";
             // var v3 = "1.20";
