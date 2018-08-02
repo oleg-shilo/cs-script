@@ -1,4 +1,10 @@
 using csscript;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Emit;
+using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -69,115 +75,15 @@ namespace CSScripting.CodeDom
         public CompilerResults CompileAssemblyFromFileBatch(CompilerParameters options, string[] fileNames)
         {
             // csc();
-            return CompileAssemblyFromFileBatch_with_Csc(options, fileNames);
+            // CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
+            return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
+            // return CompileAssemblyFromFileBatch_with_Csc(options, fileNames);
             // return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
         }
 
-        // CompilerResults CompileAssemblyFromFileBatch_with_roslyn(CompilerParameters options, string[] fileNames)
-        // {
-        //     Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
-        //     {
-        //         // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
+       
 
-        //         string tempScriptFile = null;
-        //         try
-        //         {
-        //             if (!DisableReferencingFromCode)
-        //             {
-        //                 var localDir = Path.GetDirectoryName(this.GetType().Assembly.Location);
-        //                 ReferenceAssembliesFromCode(scriptText, localDir);
-        //             }
-
-        //             if (this.IsDebug)
-        //             {
-        //                 if (scriptFile == null)
-        //                 {
-        //                     tempScriptFile = CSScript.GetScriptTempFile();
-        //                     File.WriteAllText(tempScriptFile, scriptText);
-        //                 }
-
-        //                 scriptText = $"#line 1 \"{scriptFile ?? tempScriptFile}\"{Environment.NewLine}" + scriptText;
-        //             }
-
-        //             var compilation = CSharpScript.Create(scriptText, CompilerSettings)
-        //                                           .GetCompilation();
-
-        //             if (this.IsDebug)
-        //                 compilation = compilation.WithOptions(compilation.Options
-        //                                          .WithOptimizationLevel(OptimizationLevel.Debug)
-        //                                          .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
-
-        //             using (var pdb = new MemoryStream())
-        //             using (var asm = new MemoryStream())
-        //             {
-        //                 var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
-
-        //                 EmitResult result;
-        //                 if (IsDebug)
-        //                     result = compilation.Emit(asm, pdb, options: emitOptions);
-        //                 else
-        //                     result = compilation.Emit(asm);
-
-        //                 if (!result.Success)
-        //                 {
-        //                     IEnumerable<Diagnostic> failures = result.Diagnostics.Where(d => d.IsWarningAsError ||
-        //                                                                                      d.Severity == DiagnosticSeverity.Error);
-
-        //                     var message = new StringBuilder();
-        //                     foreach (Diagnostic diagnostic in failures)
-        //                     {
-        //                         string error_location = "";
-        //                         if (diagnostic.Location.IsInSource)
-        //                         {
-        //                             var error_pos = diagnostic.Location.GetLineSpan().StartLinePosition;
-
-        //                             int error_line = error_pos.Line + 1;
-        //                             int error_column = error_pos.Character + 1;
-
-        //                             // the actual source contains an injected '#line' directive f compiled with debug symbols
-        //                             if (IsDebug)
-        //                                 error_line--;
-
-        //                             error_location = $"{diagnostic.Location.SourceTree.FilePath}({error_line},{ error_column}): ";
-        //                         }
-        //                         message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
-        //                     }
-        //                     var errors = message.ToString();
-        //                     throw new CompilerException(errors);
-        //                 }
-        //                 else
-        //                 {
-        //                     asm.Seek(0, SeekOrigin.Begin);
-        //                     byte[] buffer = asm.GetBuffer();
-
-        //                     if (info?.AssemblyFile != null)
-        //                         File.WriteAllBytes(info.AssemblyFile, buffer);
-
-        //                     if (IsDebug)
-        //                     {
-        //                         pdb.Seek(0, SeekOrigin.Begin);
-        //                         byte[] pdbBuffer = pdb.GetBuffer();
-
-        //                         if (info?.PdbFile != null)
-        //                             File.WriteAllBytes(info.PdbFile, pdbBuffer);
-
-        //                         return AppDomain.CurrentDomain.Load(buffer, pdbBuffer);
-        //                     }
-        //                     else
-        //                         return AppDomain.CurrentDomain.Load(buffer);
-        //                 }
-        //             }
-        //         }
-        //         finally
-        //         {
-        //             if (this.IsDebug)
-        //                 CSScript.NoteTempFile(tempScriptFile);
-        //             else
-        //                 tempScriptFile.FileDelete(false);
-        //         }
-        //     }
-        // }
-
+    
         CompilerResults CompileAssemblyFromFileBatch_with_Csc(CompilerParameters options, string[] fileNames)
         {
             string projectName = fileNames.First().GetFileName();

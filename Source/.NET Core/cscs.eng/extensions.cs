@@ -61,6 +61,11 @@ public static class CLIExtensions
         yield return str.Substring(nextPiece);
     }
 
+    public static string[] GetLines(this string str) // too simplistic though adequate
+    {
+        return str.Replace("\r\n", "\n").Split('\n');
+    }
+
     public static string ArgValue(this string[] arguments, string prefix)
     {
         return (arguments.FirstOrDefault(x => x.StartsWith(prefix + ":"))
