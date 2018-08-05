@@ -75,7 +75,7 @@ namespace CSScripting.CodeDom
         public CompilerResults CompileAssemblyFromFileBatch(CompilerParameters options, string[] fileNames)
         {
             // csc();
-            // CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
+            // RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
             return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
             // return CompileAssemblyFromFileBatch_with_Csc(options, fileNames);
             // return CompileAssemblyFromFileBatch_with_Build(options, fileNames);

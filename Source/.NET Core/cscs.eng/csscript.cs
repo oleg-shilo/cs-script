@@ -80,6 +80,20 @@ namespace csscript
                 items[key] = new Stopwatch();
             return items[key];
         }
+
+        public static void measure(string name, Action action)
+        {
+            var sw = new Stopwatch();
+            try
+            {
+                sw.Start();
+                action();
+            }
+            finally
+            {
+                Console.WriteLine($"{name}: {sw.Elapsed}");
+            }
+        }
     }
 
     internal interface IScriptExecutor
@@ -2066,7 +2080,7 @@ namespace csscript
                 File.WriteAllText(outFile, code);
             else if (print != null)
                 print(code);
-            }
+        }
 
         /// <summary>
         /// Show sample precompiler C# script file.

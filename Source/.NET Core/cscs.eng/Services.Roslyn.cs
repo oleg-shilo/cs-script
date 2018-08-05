@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,7 +19,7 @@ using System.Threading;
 
 namespace CSScripting.CodeDom
 {
-    static class RoslynService
+    static public class RoslynService
     {
 
         static (string file, int line) Translate(this Dictionary<(int, int), (string, int)> mapping, int line)
@@ -142,90 +144,69 @@ namespace CSScripting.CodeDom
             //----------------------------
 
             var scriptText = File.ReadAllText(single_source);
-            ScriptOptions CompilerSettings = ScriptOptions.Default;
+            ScriptOptions scriptOptions = ScriptOptions.Default;
 
-            foreach (string file in Directory.GetFiles(gac, "System.*.dll"))
-            {
-                try
-                {
-                    var asm = Assembly.LoadFrom(file);
-                    CompilerSettings = CompilerSettings.AddReferences(asm);
-                }
-                catch
-                {
-                }
-            }
+            Profiler.measure("refs", () =>
+             {
+                 foreach (string file in Directory.GetFiles(gac, "System.*.dll"))
+                     try
+                     {
+                         var asm = Assembly.LoadFrom(file);
+                         scriptOptions = scriptOptions.AddReferences(asm);
+                     }
+                     catch { }
+             });
 
-            foreach (string file in ref_assemblies)
-            {
-                var asm = Assembly.LoadFrom(file);
-                CompilerSettings = CompilerSettings.AddReferences(asm);
-            }
+            Compilation compilation = null;
 
-            var compilation = CSharpScript.Create(scriptText, CompilerSettings)
-                                          .GetCompilation();
-
-            if (options.IncludeDebugInformation)
-                compilation = compilation.WithOptions(compilation.Options
-                                         .WithOptimizationLevel(OptimizationLevel.Debug)
-                                         .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
-
-            using (var pdb = new MemoryStream())
-            using (var asm = new MemoryStream())
-            {
-                var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
-
-                EmitResult emitResult;
-                if (options.IncludeDebugInformation)
-                    emitResult = compilation.Emit(asm, pdb, options: emitOptions);
-                else
-                    emitResult = compilation.Emit(asm);
-
-                if (!emitResult.Success)
-                {
-                    IEnumerable<Diagnostic> failures = emitResult.Diagnostics.Where(d => d.IsWarningAsError ||
-                                                                                         d.Severity == DiagnosticSeverity.Error);
-
-                    var message = new StringBuilder();
-                    foreach (Diagnostic diagnostic in failures)
-                    {
-                        string error_location = "";
-                        if (diagnostic.Location.IsInSource)
+            Profiler.measure("refs-2", () =>
                         {
-                            var error_pos = diagnostic.Location.GetLineSpan().StartLinePosition;
-
-                            int error_line = error_pos.Line;
-                            int error_column = error_pos.Character;
-
-                            var source = diagnostic.Location.SourceTree.FilePath;
-                            if (source == "")
+                            foreach (string file in ref_assemblies)
                             {
-                                (source, error_line) = mapping.Translate(error_line);
+                                var asm = Assembly.LoadFrom(file);
+                                scriptOptions = scriptOptions.AddReferences(asm);
                             }
 
-                            error_line++; 
-                            error_location = $"{source}({error_line},{ error_column}): ";
-                        }
-                        message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
-                    }
-                    var errors = message.ToString();
-                    throw new CompilerException(errors);
-                }
-                else
+                            compilation = CSharpScript.Create(scriptText, scriptOptions)
+                                                      .GetCompilation();
+
+                            if (options.IncludeDebugInformation)
+                                compilation = compilation.WithOptions(compilation.Options
+                                                         .WithOptimizationLevel(OptimizationLevel.Debug)
+                                                         .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+                        });
+            var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
+
+
+            BuildResult emitResult = compilation.Build(single_source, assembly, options.IncludeDebugInformation, emitOptions);
+
+            if (!emitResult.Success)
+            {
+                var message = new StringBuilder();
+
+                IEnumerable<BuildResult.Diagnostic> failures = emitResult.Diagnostics.Where(d => d.IsWarningAsError ||
+                                                                                     d.Severity == DiagnosticSeverity.Error);
+                foreach (var diagnostic in failures)
                 {
-                    asm.Seek(0, SeekOrigin.Begin);
-                    byte[] buffer = asm.GetBuffer();
-
-                    File.WriteAllBytes(assembly, buffer);
-
-                    if (options.IncludeDebugInformation)
+                    string error_location = "";
+                    if (diagnostic.Location_IsInSource)
                     {
-                        pdb.Seek(0, SeekOrigin.Begin);
-                        byte[] pdbBuffer = pdb.GetBuffer();
+                        int error_line = diagnostic.Location_StartLinePosition_Line;
+                        int error_column = diagnostic.Location_StartLinePosition_Character;
 
-                        File.WriteAllBytes(assembly.ChangeExtension(".pdb"), pdbBuffer);
+                        var source = diagnostic.Location_FilePath;
+                        if (source == "")
+                        {
+                            (source, error_line) = mapping.Translate(error_line);
+                        }
+
+                        error_line++;
+                        error_location = $"{source}({error_line},{ error_column}): ";
                     }
+                    message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.Message}");
                 }
+                var errors = message.ToString();
+                throw new CompilerException(errors);
             }
 
             //----------------------------
@@ -266,5 +247,121 @@ namespace CSScripting.CodeDom
             return result;
         }
 
+        static BuildResult Build(this Compilation compilation, string sourceFile, string assemblyFile, bool IsDebug, EmitOptions emitOptions)
+        {
+            bool useServer = true;
+
+            try
+            {
+                if (useServer)
+                    return build_remotelly(compilation, sourceFile, assemblyFile, IsDebug, emitOptions);
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            return build_locally(compilation, assemblyFile, IsDebug, emitOptions);
+        }
+
+        public static string process_build_remotelly_request(string request_data)
+        {
+            BuildRequest request = request_data.Deserialize<BuildRequest>();
+
+            var scriptText = File.ReadAllText(request.Source);
+            ScriptOptions scriptOptions = ScriptOptions.Default;
+
+            foreach (string file in request.References)
+            {
+                try
+                {
+                    var asm = Assembly.LoadFrom(file); // may fail for some gac assemblies
+                    scriptOptions = scriptOptions.AddReferences(asm);
+                }
+                catch { }
+            }
+
+            var compilation = CSharpScript.Create(scriptText, scriptOptions)
+                                          .GetCompilation();
+
+            if (request.IsDebug)
+                compilation = compilation.WithOptions(compilation.Options
+                                         .WithOptimizationLevel(OptimizationLevel.Debug)
+                                         .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+
+            var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
+
+            BuildResult result = build_locally(compilation, request.Assembly, request.IsDebug, emitOptions);
+
+            return result.Serialize();
+        }
+
+        static BuildResult build_remotelly(Compilation compilation, string sourceFile, string assemblyFile, bool IsDebug, EmitOptions emitOptions)
+        {
+            var request = new BuildRequest
+            {
+                Source = sourceFile,
+                Assembly = assemblyFile,
+                IsDebug = IsDebug,
+                References = compilation.ExternalReferences.Select(x => x.Display).ToArray()
+            };
+
+
+            try
+            {
+                var message = request.Serialize();
+
+                bool pseudoRemoteMode = false;
+
+                Profiler.get("server").Restart();
+                try
+                {
+                    if (pseudoRemoteMode)
+                        return process_build_remotelly_request(message).Deserialize<BuildResult>();
+                    else
+                        return BuildServer.SentRequest(message).Deserialize<BuildResult>();
+                }
+                finally
+                {
+                    Console.WriteLine("    server: " + Profiler.get("server").Elapsed);
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType().Name.EndsWith("SocketException"))
+                {
+                    var exe = Assembly.GetEntryAssembly().Location();
+                    Utils.Run("dotnet", $"\"{exe}\" -server");
+                }
+                Console.WriteLine("Build server problem:" + e.Message);
+                throw;
+            }
+        }
+
+        static BuildResult build_locally(Compilation compilation, string assemblyFile, bool IsDebug, EmitOptions emitOptions)
+        {
+            using (var asm = new MemoryStream())
+            using (var pdb = new MemoryStream())
+            {
+                var emitResult = compilation.Emit(asm, pdb, options: emitOptions);
+
+                if (emitResult.Success)
+                {
+                    asm.Seek(0, SeekOrigin.Begin);
+                    byte[] buffer = asm.GetBuffer();
+
+                    File.WriteAllBytes(assemblyFile, buffer);
+
+                    if (IsDebug)
+                    {
+                        pdb.Seek(0, SeekOrigin.Begin);
+                        byte[] pdbBuffer = pdb.GetBuffer();
+
+                        File.WriteAllBytes(assemblyFile.ChangeExtension(".pdb"), pdbBuffer);
+                    }
+                }
+                return BuildResult.From(emitResult);
+            }
+        }
     }
 }
