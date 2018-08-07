@@ -124,7 +124,7 @@ namespace csscript
             return thread;
         }
 
-        public static int Run(string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null)
+        public static Process RunAsync(string exe, string args, string dir = null)
         {
             var process = new Process();
 
@@ -139,6 +139,13 @@ namespace csscript
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.Start();
+
+            return process;
+        }
+
+        public static int Run(string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null)
+        {
+            var process = RunAsync(exe, args, dir);
 
             var error = StartMonitor(process.StandardError, onError);
             var output = StartMonitor(process.StandardOutput, onOutput);

@@ -146,39 +146,10 @@ namespace CSScripting.CodeDom
             var scriptText = File.ReadAllText(single_source);
             ScriptOptions scriptOptions = ScriptOptions.Default;
 
-            Profiler.measure("refs", () =>
-             {
-                 foreach (string file in Directory.GetFiles(gac, "System.*.dll"))
-                     try
-                     {
-                         var asm = Assembly.LoadFrom(file);
-                         scriptOptions = scriptOptions.AddReferences(asm);
-                     }
-                     catch { }
-             });
+            var all_refs = Directory.GetFiles(gac, "System.*.dll")
+                                    .ConcatWith(ref_assemblies);
 
-            Compilation compilation = null;
-
-            Profiler.measure("refs-2", () =>
-                        {
-                            foreach (string file in ref_assemblies)
-                            {
-                                var asm = Assembly.LoadFrom(file);
-                                scriptOptions = scriptOptions.AddReferences(asm);
-                            }
-
-                            compilation = CSharpScript.Create(scriptText, scriptOptions)
-                                                      .GetCompilation();
-
-                            if (options.IncludeDebugInformation)
-                                compilation = compilation.WithOptions(compilation.Options
-                                                         .WithOptimizationLevel(OptimizationLevel.Debug)
-                                                         .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
-                        });
-            var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
-
-
-            BuildResult emitResult = compilation.Build(single_source, assembly, options.IncludeDebugInformation, emitOptions);
+            BuildResult emitResult = Build(single_source, assembly, all_refs, options.IncludeDebugInformation);
 
             if (!emitResult.Success)
             {
@@ -212,7 +183,7 @@ namespace CSScripting.CodeDom
             //----------------------------
             Profiler.get("compiler").Stop();
 
-            Console.WriteLine("    roslyn: " + Profiler.get("compiler").Elapsed);
+            // Console.WriteLine("    roslyn: " + Profiler.get("compiler").Elapsed);
 
             result.ProcessErrors();
 
@@ -247,19 +218,31 @@ namespace CSScripting.CodeDom
             return result;
         }
 
-        static BuildResult Build(this Compilation compilation, string sourceFile, string assemblyFile, bool IsDebug, EmitOptions emitOptions)
+        static BuildResult Build(string sourceFile, string assemblyFile, string[] refs, bool IsDebug)
         {
             bool useServer = true;
-
+            var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
             try
             {
                 if (useServer)
-                    return build_remotelly(compilation, sourceFile, assemblyFile, IsDebug, emitOptions);
+                    return build_remotelly(sourceFile, assemblyFile, refs, IsDebug, emitOptions);
             }
-            catch (Exception e)
-            {
+            catch { }
 
-            }
+            var scriptText = File.ReadAllText(sourceFile);
+            var scriptOptions = ScriptOptions.Default;
+
+            foreach (string file in refs)
+                try { scriptOptions = scriptOptions.AddReferences(Assembly.LoadFrom(file)); }
+                catch { }
+
+            Compilation compilation = CSharpScript.Create(scriptText, scriptOptions)
+                                                  .GetCompilation();
+
+            if (IsDebug)
+                compilation = compilation.WithOptions(compilation.Options
+                                         .WithOptimizationLevel(OptimizationLevel.Debug)
+                                         .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
 
             return build_locally(compilation, assemblyFile, IsDebug, emitOptions);
         }
@@ -296,16 +279,15 @@ namespace CSScripting.CodeDom
             return result.Serialize();
         }
 
-        static BuildResult build_remotelly(Compilation compilation, string sourceFile, string assemblyFile, bool IsDebug, EmitOptions emitOptions)
+        static BuildResult build_remotelly(string sourceFile, string assemblyFile, string[] refs, bool IsDebug, EmitOptions emitOptions)
         {
             var request = new BuildRequest
             {
                 Source = sourceFile,
                 Assembly = assemblyFile,
                 IsDebug = IsDebug,
-                References = compilation.ExternalReferences.Select(x => x.Display).ToArray()
+                References = refs
             };
-
 
             try
             {
@@ -323,7 +305,7 @@ namespace CSScripting.CodeDom
                 }
                 finally
                 {
-                    Console.WriteLine("    server: " + Profiler.get("server").Elapsed);
+                    // Console.WriteLine("    server: " + Profiler.get("server").Elapsed);
                 }
             }
             catch (Exception e)
@@ -331,21 +313,102 @@ namespace CSScripting.CodeDom
                 if (e.GetType().Name.EndsWith("SocketException"))
                 {
                     var exe = Assembly.GetEntryAssembly().Location();
-                    Utils.Run("dotnet", $"\"{exe}\" -server");
+                    Utils.RunAsync("dotnet", $"\"{exe}\" -server");
                 }
-                Console.WriteLine("Build server problem:" + e.Message);
+                // Console.WriteLine("Build server problem:" + e.Message);
                 throw;
             }
         }
 
-        static BuildResult build_locally(Compilation compilation, string assemblyFile, bool IsDebug, EmitOptions emitOptions)
+        // public static void Init1()
+        // {
+        //     var sourceFile = Path.GetTempFileName();
+        //     var assemblyFile = sourceFile + ".dll";
+
+        //     try
+        //     {
+        //         var code = @"using System;
+        //                      class Script
+        //                      {
+        //                          static public void Main()
+        //                          {
+        //                              (int a, int b) t = (1, 2);
+        //                              Console.WriteLine(""hello...""); 
+        //                          }
+        //                      }";
+
+        //         File.WriteAllText(sourceFile, code);
+        //         var refs = new List<string>();
+
+        //         var gac = typeof(string).Assembly.Location.GetDirName();
+
+        //         var request = new BuildRequest
+        //         {
+        //             Source = sourceFile,
+        //             Assembly = assemblyFile,
+        //             IsDebug = true,
+        //             References = Directory.GetFiles(gac, "System.*.dll")
+        //         }.Serialize();
+
+        //         process_build_remotelly_request(request);
+        //     }
+        //     catch { }
+        //     finally
+        //     {
+        //         try { sourceFile.DeleteIfExists(); } catch { }
+        //         try { assemblyFile.DeleteIfExists(); } catch { }
+        //     }
+        // }
+
+        public static object Init()
+        {
+            try
+            {
+                var code = @"
+using System;
+class Script
+{
+    static public void Main()
+    {
+        (int a, int b) t = (1, 2);
+        Console.WriteLine(""hello...""); 
+    }
+}";
+                var scriptOptions = ScriptOptions.Default;
+
+                var gac = typeof(string).Assembly.Location.GetDirName();
+                foreach (string file in Directory.GetFiles(gac, "System.*.dll"))
+                    try
+                    {
+                        var asm = Assembly.LoadFrom(file);
+                        scriptOptions = scriptOptions.AddReferences(asm);
+                    }
+                    catch { }
+
+                var compilation = CSharpScript.Create(code, scriptOptions)
+                                              .GetCompilation();
+
+                using (var pdb = new MemoryStream())
+                using (var asm = new MemoryStream())
+                {
+                    var emitResult = compilation.Emit(asm, pdb, options: new EmitOptions(false, DebugInformationFormat.PortablePdb));
+                    return BuildResult.From(emitResult);
+                }
+            }
+            catch { }
+            return null;
+        }
+
+
+
+        static BuildResult build_locally(Compilation compilation, string assemblyFile, bool IsDebug, EmitOptions emitOptions, bool doNotSave = false)
         {
             using (var asm = new MemoryStream())
             using (var pdb = new MemoryStream())
             {
                 var emitResult = compilation.Emit(asm, pdb, options: emitOptions);
 
-                if (emitResult.Success)
+                if (emitResult.Success && !doNotSave)
                 {
                     asm.Seek(0, SeekOrigin.Begin);
                     byte[] buffer = asm.GetBuffer();
