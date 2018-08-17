@@ -253,6 +253,11 @@ namespace csscript
 #endif
         }
 
+        public static string GetDirName(this string path)
+        {
+            return Path.GetDirectoryName(path ?? "");
+        }
+
         public static bool IsSamePath(this string path1, string path2)
         {
             return string.Compare(path1, path2, Utils.IsWin) == 0;

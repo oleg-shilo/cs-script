@@ -127,7 +127,7 @@ namespace CSScriptLibrary
         /// Gets or sets a value indicating whether to compile script with debug symbols.
         /// <para>Note, affect of setting <c>DebugBuild</c> will always depend on the compiler implementation:
         /// <list type="bullet">
-        ///    <item><term>CodeDom</term><description>Fully supports. Generates degugging symbols (script can be debugged) and defines <c>DEBUG</c> and <c>TRACE</c> conditional symbols</description> </item>
+        ///    <item><term>CodeDom</term><description>Fully supports. Generates debugging symbols (script can be debugged) and defines <c>DEBUG</c> and <c>TRACE</c> conditional symbols</description> </item>
         ///    <item><term>Mono</term><description>Partially supports. Defines <c>DEBUG</c> and <c>TRACE</c> conditional symbols</description> </item>
         ///    <item><term>Roslyn</term><description>Doesn't supports at all.</description> </item>
         /// </list>

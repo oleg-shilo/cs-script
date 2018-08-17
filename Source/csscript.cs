@@ -624,12 +624,62 @@ namespace csscript
 
                         string[] searchDirs = dirs.ToArray();
                         script = FileParser.ResolveFile(script, searchDirs);
+
+
+                        if (options.customConfigFileName == "")
+                        {
+                            using (var reader = new StreamReader(script)) //quickly check if the app.config was specified in the code as -sconfig argument
+                            {
+                                string line;
+                                while (null != (line = reader.ReadLine()))
+                                {
+                                    line = line.Trim();
+                                    if (line.Any())
+                                    {
+                                        if (!line.StartsWith("//css"))
+                                            break;
+
+                                        if (line.StartsWith("//css_args"))
+                                        {
+                                            var custom_app_config = line.Substring("//css_args".Length)
+                                                               .SplitCommandLine()
+                                                               .FirstOrDefault(x=>x.StartsWith("-"+ AppArgs.sconfig + ":") 
+                                                                               || x.StartsWith("/" + AppArgs.sconfig + ":"));
+
+                                            if (custom_app_config != null)
+                                            {
+                                                options.customConfigFileName = custom_app_config.Substring(AppArgs.sconfig.Length + 2);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         if (options.customConfigFileName != "")
+                        {
                             return Path.Combine(Path.GetDirectoryName(script), options.customConfigFileName);
+                        }
+
                         if (File.Exists(script + ".config"))
+                        {
                             return script + ".config";
+                        }
                         else if (File.Exists(Path.ChangeExtension(script, ".exe.config")))
+                        {
                             return Path.ChangeExtension(script, ".exe.config");
+                        }
+                        else if (File.Exists(Path.ChangeExtension(script, ".config")))
+                        {
+                            return Path.ChangeExtension(script, ".config");
+                        }
+                        else
+                        {
+                            var defaultAppConfig = script.GetDirName().PathCombine("app.config");
+                            if (File.Exists(defaultAppConfig))
+                                return defaultAppConfig;
+                        }
                     }
                 }
             }
