@@ -528,17 +528,7 @@ namespace csscript
 
             //analyse script arguments
             foreach (string statement in GetRawStatements("//css_args", endCodePos))
-            {
-                foreach (string arg in SplitByDelimiter(statement, ','))
-                {
-                    string newArg = arg.Trim();
-                    if (newArg.StartsWith("\""))
-                        newArg = newArg.Substring(1);
-                    if (newArg.EndsWith("\""))
-                        newArg = newArg.Remove(newArg.Length - 1, 1);
-                    args.Add(newArg);
-                }
-            }
+                args.AddRange(statement.SplitCommandLine());
 
             //analyse 'pre' and 'post' script commands
             foreach (string statement in GetRawStatements("//css_pre", endCodePos))
