@@ -46,9 +46,21 @@ public static class CLIExtensions
 {
     public static string TrimMatchingQuotes(this string input, char quote)
     {
-        if (input.Length >= 2 && input.First() == quote && input.Last() == quote)
-            return input.Substring(1, input.Length - 2);
-
+        if (input.Length >= 2)
+        {
+            //"-sconfig:My Script.cs.config"
+            if (input.First() == quote && input.Last() == quote)
+            {
+                return input.Substring(1, input.Length - 2);
+            }
+            //-sconfig:"My Script.cs.config"
+            else if (input.Last() == quote)
+            {
+                var firstQuote = input.IndexOf(quote);
+                if (firstQuote != input.Length - 1) //not the last one
+                    return input.Substring(0, firstQuote) + input.Substring(firstQuote + 1, input.Length - 2 - firstQuote);
+            }
+        }
         return input;
     }
 
@@ -96,17 +108,22 @@ public static class CLIExtensions
     public static string[] SplitCommandLine(this string commandLine)
     {
         bool inQuotes = false;
+        bool isEscaping = false;
 
         return commandLine.Split(c =>
-                                 {
-                                     if (c == '\"')
-                                         inQuotes = !inQuotes;
+        {
+            if (c == '\\' && !isEscaping) { isEscaping = true; return false; }
 
-                                     return !inQuotes && c == ' ';
-                                 })
-                          .Select(arg => arg.Trim().TrimMatchingQuotes('\"'))
-                          .Where(arg => arg.IsNotEmpty())
-                          .ToArray();
+            if (c == '\"' && !isEscaping)
+                inQuotes = !inQuotes;
+
+            isEscaping = false;
+
+            return !inQuotes && Char.IsWhiteSpace(c)/*c == ' '*/;
+        })
+        .Select(arg => arg.Trim().TrimMatchingQuotes('\"').Replace("\\\"", "\""))
+        .Where(arg => !string.IsNullOrEmpty(arg))
+        .ToArray();
     }
 }
 
