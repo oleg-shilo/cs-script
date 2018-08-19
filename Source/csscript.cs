@@ -657,6 +657,9 @@ namespace csscript
                             }
                         }
 
+                        if (options.customConfigFileName != "none")
+                            return "";
+
                         if (options.customConfigFileName != "")
                         {
                             return Path.Combine(Path.GetDirectoryName(script), options.customConfigFileName);
