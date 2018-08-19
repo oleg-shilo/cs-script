@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>cscs.eng</RootNamespace>
     <AssemblyName>cscs.eng</AssemblyName>
+    <Version>0.0.2-alpha</Version>
   </PropertyGroup>
 
   <ItemGroup>

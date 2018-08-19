@@ -6,6 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
+    <Version>0.0.2-alpha</Version>
   </PropertyGroup>
 
   <ItemGroup>
