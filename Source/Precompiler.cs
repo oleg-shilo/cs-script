@@ -213,9 +213,12 @@ namespace csscript
 
         internal static bool decorateAutoClassAsCS6 = false;
         internal static bool injectBreakPoint = false;
+        internal static string scriptFile;
 
         public static bool Compile(ref string content, string scriptFile, bool IsPrimaryScript, Hashtable context)
         {
+            AutoclassPrecompiler.scriptFile = scriptFile;
+
             if (!IsPrimaryScript)
                 return false;
 
@@ -241,8 +244,8 @@ namespace csscript
             injectionLength = 0;
             injectedLine = -1;
 
-            //Debug.Assert(false);
-            //we will be effectively normalizing the line ends but the input file may no be
+            // Debug.Assert(false);
+            // we will be effectively normalizing the line ends but the input file may no be
 
             var code = new StringBuilder(4096);
             var footer = new StringBuilder();
@@ -264,7 +267,10 @@ namespace csscript
                 while ((line = sr.ReadLine()) != null)
                 {
                     if (!stopDecoratingDetected && line.Trim() == "//css_ac_end")
+                    {
                         stopDecoratingDetected = true;
+                        footer.AppendLine("#line " + (lineCount + 1) + " \"" + scriptFile + "\"");
+                    }
 
                     if (stopDecoratingDetected)
                     {
@@ -289,34 +295,33 @@ namespace csscript
 
                             injectionLength += tempText.Length;
                             entryPointInjectionPos = code.Length;
-                            //injectedLine = lineCount;
                         }
 
                     if (!autoCodeInjected && entryPointInjectionPos != -1 && !Utils.IsNullOrWhiteSpace(line))
                     {
-                        string text = line.TrimStart();
+                        string lineText = line.TrimStart();
 
-                        bracket_count += text.Split('{').Length - 1;
-                        bracket_count -= text.Split('}').Length - 1;
+                        bracket_count += lineText.Split('{').Length - 1;
+                        bracket_count -= lineText.Split('}').Length - 1;
 
-                        if (!text.StartsWith("//"))
+                        if (!lineText.StartsWith("//"))
                         {
                             // static void Main(string[] args)
                             // or
                             // int main(string[] args)
 
-                            MatchCollection matches = Regex.Matches(text, @"\s+main\s*\(", RegexOptions.IgnoreCase);
+                            MatchCollection matches = Regex.Matches(lineText, @"\s+main\s*\(", RegexOptions.IgnoreCase);
                             foreach (Match match in matches)
                             {
                                 // Ignore VB entry point
-                                if (text.TrimStart().StartsWith("Sub Main", StringComparison.OrdinalIgnoreCase))
+                                if (lineText.TrimStart().StartsWith("Sub Main", StringComparison.OrdinalIgnoreCase))
                                     continue;
 
                                 // Ignore assembly pseudo entry point "instance main"
                                 if (match.Value.Contains("main"))
                                 {
-                                    bool noargs = Regex.Matches(text, @"\s+main\s*\(\s*\)").Count != 0;
-                                    bool noReturn = Regex.Matches(text, @"void\s+main\s*\(").Count != 0;
+                                    bool noargs = Regex.Matches(lineText, @"\s+main\s*\(\s*\)").Count != 0;
+                                    bool noReturn = Regex.Matches(lineText, @"void\s+main\s*\(").Count != 0;
 
                                     string actualArgs = (noargs ? "" : "args");
 
@@ -324,9 +329,6 @@ namespace csscript
 
                                     if (string.Compare(consoleEncoding, Settings.DefaultEncodingName, true) != 0)
                                         entryPointDefinition += "try { Console.OutputEncoding = System.Text.Encoding.GetEncoding(\"" + consoleEncoding + "\"); } catch {} ";
-
-                                    if (injectBreakPoint)
-                                        entryPointDefinition += "System.Diagnostics.Debugger.Break(); ";
 
                                     if (noReturn)
                                     {
@@ -338,32 +340,48 @@ namespace csscript
                                     }
                                     entryPointDefinition += "} ///CS-Script auto-class generation" + Environment.NewLine;
 
+                                    // point to the next line
+                                    entryPointDefinition += "#line " + (lineCount + 1) + " \"" + scriptFile + "\"" + Environment.NewLine;
                                     injectedLine = lineCount;
+                                    if (injectBreakPoint)
+                                        insertBreakpointAtLine = lineCount + 1;
                                     injectionLength += entryPointDefinition.Length;
                                     code.Insert(entryPointInjectionPos, entryPointDefinition);
                                 }
                                 else if (match.Value.Contains("Main")) //assembly entry point "static Main"
                                 {
-                                    if (!text.Contains("static"))
+                                    if (!lineText.Contains("static"))
                                     {
                                         string tempText = "static ///CS-Script auto-class generation" + Environment.NewLine;
 
                                         injectionLength += tempText.Length;
 
-                                        bool allow_member_declarations_before_entry_point = true; //testing
-                                        if (allow_member_declarations_before_entry_point)
-                                            code.Append(tempText);
-                                        else
-                                            code.Insert(entryPointInjectionPos, tempText);
+                                        code.Append(tempText);
+                                        code.AppendLine("#line " + (lineCount + 1) + " \"" + scriptFile + "\"");
 
                                         insertBreakpointAtLine = lineCount + 1;
+
                                     }
-                                    else if (bracket_count > 0) //not classless but a complete class with static Main
+                                    else
                                     {
-                                        injectionPos = -1;
-                                        injectionLength = 0;
-                                        injectedLine = -1;
-                                        return content;
+                                        if (bracket_count > 0) //not classless but a complete class with static Main
+                                        {
+                                            injectionPos = -1;
+                                            injectionLength = 0;
+                                            injectedLine = -1;
+                                            return content;
+                                        }
+                                        else
+                                        {
+                                            string tempText = "///CS-Script auto-class generation" + Environment.NewLine;
+
+                                            injectionLength += tempText.Length;
+
+                                            code.Append(tempText);
+                                            code.AppendLine("#line " + (lineCount + 1) + " \"" + scriptFile + "\"");
+
+                                            insertBreakpointAtLine = lineCount + 1;
+                                        }
                                     }
                                 }
                                 autoCodeInjected = true;
@@ -376,9 +394,10 @@ namespace csscript
                     if (insertBreakpointAtLine == lineCount)
                     {
                         insertBreakpointAtLine = -1;
-                        if (injectBreakPoint)
-                            code.Append("System.Diagnostics.Debugger.Break();");
+                        // if (injectBreakPoint)
+                        //     code.Append("System.Diagnostics.Debugger.Break();");
                     }
+
                     code.Append(Environment.NewLine);
                     lineCount++;
                 }

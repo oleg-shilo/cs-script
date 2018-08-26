@@ -972,7 +972,7 @@ namespace csscript
                 {
                     XmlDocument doc = new XmlDocument();
                     doc.Load(filePath);
-                    XmlNode data = doc.FirstChild;
+                    XmlNode data = doc.SelectSingleNode("CSSConfig");
                     XmlNode node;
                     node = data.SelectSingleNode("defaultArguments"); if (node != null) settings.defaultArguments = node.InnerText;
                     node = data.SelectSingleNode("defaultApartmentState"); if (node != null) settings.defaultApartmentState = (ApartmentState)Enum.Parse(typeof(ApartmentState), node.InnerText, false);
