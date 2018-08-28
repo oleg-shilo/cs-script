@@ -151,17 +151,26 @@ namespace csscript
                 {
                     if (!isInLine)
                     {
-                        if (i > 0 && text[i] == '\n')
+                        if (i == 0)
                         {
-                            if (text[i - 1] == '\n') // /n[/n]
+                            // start of the text
+                            if (text[i] == '\r' || text[i] == '\n')
                                 lineCount++;
                         }
-                        if (i > 0 && text[i] == '\r')
+                        else
                         {
-                            if (text[i - 1] == '\r')  // /r[/r]
-                                lineCount++;
-                            else if (text[i - 1] == '\n') // /r/n/[/r]/n
-                                lineCount++;
+                            if (text[i] == '\n')
+                            {
+                                if (text[i - 1] == '\n') // /n[/n]
+                                    lineCount++;
+                            }
+                            else if (text[i] == '\r')
+                            {
+                                if (text[i - 1] == '\r')  // /r[/r]
+                                    lineCount++;
+                                else if (text[i - 1] == '\n') // /r/n/[/r]/n
+                                    lineCount++;
+                            }
                         }
                     }
 
@@ -205,13 +214,8 @@ namespace csscript
         static public string ConsoleEncoding = "utf-8";
     }
 
-    internal class AutoclassPrecompiler// : IPrecompiler
+    internal class AutoclassPrecompiler
     {
-        //static string FileToClassName(string text)
-        //{
-        //    return Path.GetFileNameWithoutExtension(text).Replace("_", ""); //double '_' are not allowed for class names
-        //}
-
         internal static bool decorateAutoClassAsCS6 = false;
         internal static bool injectBreakPoint = false;
         internal static string scriptFile;
@@ -236,6 +240,21 @@ namespace csscript
             int injectionLength;
             int injectedLine;
             return Process(content, out injectionPos, out injectionLength, out injectedLine, Settings.DefaultEncodingName);
+        }
+
+        internal class Result
+        {
+            public string content;
+            public int injectionPos;
+            public int injectionLength;
+            public int injectedLine;
+
+            public void Reset()
+            {
+                injectionPos = -1;
+                injectionLength = 0;
+                injectedLine = -1;
+            }
         }
 
         internal static string Process(string content, out int injectionPos, out int injectionLength, out int injectedLine, string consoleEncoding)
