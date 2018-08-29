@@ -355,6 +355,12 @@ namespace csscript
                     //do quick parsing for pre/post scripts, ThreadingModel and embedded script arguments
                     CSharpParser parser = new CSharpParser(options.scriptFileName, true, null, options.searchDirs);
 
+                    if (parser.AutoClassMode != null)
+                    {
+                        options.autoClass = true;
+                        options.autoClassMode = parser.AutoClassMode;
+                    }
+
                     if (parser.Inits.Length != 0)
                         options.initContext = parser.Inits[0];
 

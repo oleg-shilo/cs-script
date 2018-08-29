@@ -1362,6 +1362,7 @@ partial class dbg
             contextData["SearchDirs"] = context.SearchDirs;
             contextData["ConsoleEncoding"] = options.consoleEncoding;
             contextData["CompilerOptions"] = options.compilerOptions;
+            contextData["AutoClassMode"] = options.autoClassMode;
 
             Dictionary<string, List<object>> precompilers = CSSUtils.LoadPrecompilers(options);
 

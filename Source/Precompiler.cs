@@ -85,8 +85,10 @@ namespace csscript
         /// <returns></returns>
         static public string Process(string code, out int injectionPos, out int injectionLength)
         {
-            int injectedLine;
-            return AutoclassPrecompiler.Process(code, out injectionPos, out injectionLength, out injectedLine, ConsoleEncoding);
+            AutoclassPrecompiler.Result result = AutoclassPrecompiler.Process(code, ConsoleEncoding);
+            injectionPos = result.InjectionPos;
+            injectionLength = result.InjectionLength;
+            return result.Content;
         }
 
         //Returns 0-based line and column of the position in the text
@@ -188,24 +190,25 @@ namespace csscript
         /// <returns></returns>
         static public string Process(string code, ref int position)
         {
-            int injectionPos;
-            int injectionLength;
-            int injectedLine;
-
             int[] line_col = GetLineCol(code, position);
             int originalLine = line_col[0];
             int originalCol = line_col[1];
-            string retval = AutoclassPrecompiler.Process(code, out injectionPos, out injectionLength, out injectedLine, ConsoleEncoding);
 
-            if (injectionPos != -1)
+            var result = AutoclassPrecompiler.Process(code, ConsoleEncoding);
+
+            if (result.InjectionPos != -1)
             {
-                int injectedLinesCount = 2;
-                if (injectedLine != -1 && injectedLine <= originalLine)
-                    position = GetPos(retval, originalLine + injectedLinesCount, originalCol);
-                else
-                    position = GetPos(retval, originalLine, originalCol);
+                int line = originalLine;
+                if (result.BodyInjectedLine != -1 && result.BodyInjectedLine <= originalLine)
+                {
+                    line += result.BodyInjectedLineCount;
+                    if (result.FooterInjectedLine != -1 && result.FooterInjectedLine <= originalLine)
+                        line += result.FooterInjectedLineCount;
+
+                }
+                position = GetPos(result.Content, line, originalCol);
             }
-            return retval;
+            return result.Content;
         }
 
         /// <summary>
@@ -227,42 +230,49 @@ namespace csscript
             if (!IsPrimaryScript)
                 return false;
 
-            int injectionPos;
-            int injectionLength;
-            int injectedLine;
-            content = Process(content, out injectionPos, out injectionLength, out injectedLine, (string)context["ConsoleEncoding"]);
-            return injectionLength > 0;
+            var result = Process(content, (string)context["ConsoleEncoding"]);
+            content = result.Content;
+            return result.InjectionLength > 0;
         }
 
         internal static string Process(string content)
         {
-            int injectionPos;
-            int injectionLength;
-            int injectedLine;
-            return Process(content, out injectionPos, out injectionLength, out injectedLine, Settings.DefaultEncodingName);
+            return Process(content, Settings.DefaultEncodingName).Content;
         }
 
         internal class Result
         {
-            public string content;
-            public int injectionPos;
-            public int injectionLength;
-            public int injectedLine;
-
-            public void Reset()
+            public Result(string content)
             {
-                injectionPos = -1;
-                injectionLength = 0;
-                injectedLine = -1;
+                Content = content;
+                Reset();
+            }
+
+            public string Content;
+            public int InjectionPos;
+            public int InjectionLength;
+            public int BodyInjectedLine;
+            public int BodyInjectedLineCount;
+            public int FooterInjectedLine;
+            public int FooterInjectedLineCount;
+
+            public Result Reset()
+            {
+                InjectionPos = -1;
+                InjectionLength = 0;
+                BodyInjectedLine = -1;
+                BodyInjectedLineCount = 0;
+                FooterInjectedLine = -1;
+                FooterInjectedLineCount = 0;
+                return this;
             }
         }
 
-        internal static string Process(string content, out int injectionPos, out int injectionLength, out int injectedLine, string consoleEncoding)
+        internal static Result Process(string content, string consoleEncoding)
         {
             int entryPointInjectionPos = -1;
-            injectionPos = -1;
-            injectionLength = 0;
-            injectedLine = -1;
+            var result = new Result(content);
+            string autoClassMode = null;
 
             // Debug.Assert(false);
             // we will be effectively normalizing the line ends but the input file may no be
@@ -286,10 +296,17 @@ namespace csscript
                 int lineCount = 0;
                 while ((line = sr.ReadLine()) != null)
                 {
+                    string lineText = line.TrimStart();
+
                     if (!stopDecoratingDetected && line.Trim() == "//css_ac_end")
                     {
                         stopDecoratingDetected = true;
                         footer.AppendLine("#line " + (lineCount + 1) + " \"" + scriptFile + "\"");
+                        result.FooterInjectedLine = lineCount;
+
+                        // One is "} ///CS-Script auto-class generation"
+                        // And another one "#line "
+                        result.FooterInjectedLineCount = 2;
                     }
 
                     if (stopDecoratingDetected)
@@ -298,13 +315,40 @@ namespace csscript
                         continue;
                     }
 
+                    if (!headerProcessed && (lineText.StartsWith("//css_autoclass") || lineText.StartsWith("//css_ac")))
+                    {
+                        autoClassMode = lineText.Replace("//css_ac", "")
+                                                .Replace("//css_autoclass", "")
+                                                .Trim();
+                    }
+
                     if (!headerProcessed && !line.TrimStart().StartsWith("using ")) //not using...; statement of the file header
+                    {
                         if (!line.StartsWith("//") && line.Trim() != "") //not comments or empty line
                         {
                             headerProcessed = true;
 
-                            injectionPos = code.Length;
+                            result.InjectionPos = code.Length;
                             string tempText = "public class ScriptClass { public ";
+
+                            if (autoClassMode == "freestyle")
+                            {
+                                var setConsoleEncoding = "";
+                                if (string.Compare(consoleEncoding, Settings.DefaultEncodingName, true) != 0)
+                                    setConsoleEncoding = "try { System.Console.OutputEncoding = System.Text.Encoding.GetEncoding(\"" + consoleEncoding + "\"); } catch {} ";
+
+                                tempText += "static void Main(string[] args) { " + setConsoleEncoding + " main_impl(args); } " + Environment.NewLine;
+
+                                //"#line" must be injected before the method name. Injecting into the first line in body does not work. probably related to JIT 
+                                tempText += "#line " + (lineCount) + " \"" + scriptFile + "\"" + Environment.NewLine;
+                                tempText += "static public void main_impl(string[] args) {" + Environment.NewLine;
+
+                                result.BodyInjectedLine = lineCount;
+                                result.InjectionLength += tempText.Length;
+                                result.BodyInjectedLineCount = 3;
+
+                                autoCodeInjected = true;
+                            }
 #if net4
 #if !InterfaceAssembly
                             if (decorateAutoClassAsCS6)
@@ -313,13 +357,13 @@ namespace csscript
 #endif
                             code.Append(tempText);
 
-                            injectionLength += tempText.Length;
+                            result.InjectionLength += tempText.Length;
                             entryPointInjectionPos = code.Length;
                         }
+                    }
 
                     if (!autoCodeInjected && entryPointInjectionPos != -1 && !Utils.IsNullOrWhiteSpace(line))
                     {
-                        string lineText = line.TrimStart();
 
                         bracket_count += lineText.Split('{').Length - 1;
                         bracket_count -= lineText.Split('}').Length - 1;
@@ -348,7 +392,7 @@ namespace csscript
                                     string entryPointDefinition = "static int Main(string[] args) { ";
 
                                     if (string.Compare(consoleEncoding, Settings.DefaultEncodingName, true) != 0)
-                                        entryPointDefinition += "try { Console.OutputEncoding = System.Text.Encoding.GetEncoding(\"" + consoleEncoding + "\"); } catch {} ";
+                                        entryPointDefinition += "try { System.Console.OutputEncoding = System.Text.Encoding.GetEncoding(\"" + consoleEncoding + "\"); } catch {} ";
 
                                     if (noReturn)
                                         entryPointDefinition += "new ScriptClass().main(" + actualArgs + "); return 0; } ";
@@ -360,8 +404,9 @@ namespace csscript
                                                             "#line " + (lineCount + 1) + " \"" + scriptFile + "\"";
                                     // if (injectBreakPoint)
                                     //     insertBreakpointAtLine = lineCount + 1;
-                                    injectedLine = lineCount;
-                                    injectionLength += entryPointDefinition.Length;
+                                    result.BodyInjectedLine = lineCount;
+                                    result.InjectionLength += entryPointDefinition.Length;
+                                    result.BodyInjectedLineCount = 2;
                                     code.Insert(entryPointInjectionPos, entryPointDefinition + Environment.NewLine);
                                 }
                                 else if (match.Value.Contains("Main")) //assembly entry point "static Main"
@@ -370,20 +415,17 @@ namespace csscript
                                     {
                                         if (bracket_count > 0) //not classless but a complete class with static Main
                                         {
-                                            injectionPos = -1;
-                                            injectionLength = 0;
-                                            injectedLine = -1;
-                                            return content;
+                                            return result.Reset();
                                         }
                                     }
-
-                                    injectedLine = lineCount;
 
                                     string entryPointDefinition = "///CS-Script auto-class generation" + Environment.NewLine +
                                                                   "#line " + (lineCount + 1) + " \"" + scriptFile + "\"";
 
+                                    result.BodyInjectedLine = lineCount;
+                                    result.BodyInjectedLineCount = 2;
                                     code.AppendLine(entryPointDefinition);
-                                    injectionLength += entryPointDefinition.Length;
+                                    result.InjectionLength += entryPointDefinition.Length;
                                     // insertBreakpointAtLine = lineCount + 1;
                                 }
                                 autoCodeInjected = true;
@@ -406,16 +448,16 @@ namespace csscript
 
                 if (!autoCodeInjected)
                 {
-                    injectionPos = -1;
-                    injectionLength = 0;
-                    injectedLine = -1;
-
-                    return content;
+                    return result.Reset();
                 }
             }
+
+            if (autoClassMode == "freestyle")
+                code.Append("}");
+
             code.Append("} ///CS-Script auto-class generation" + Environment.NewLine);
 
-            var result = code.ToString() + footer.ToString();
+            result.Content = code.ToString() + footer.ToString();
 
             return result;
         }

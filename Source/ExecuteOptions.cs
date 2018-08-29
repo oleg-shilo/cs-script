@@ -132,6 +132,7 @@ namespace csscript
             clone.defaultRefAssemblies = this.defaultRefAssemblies;
             clone.hideTemp = this.hideTemp;
             clone.autoClass = this.autoClass;
+            clone.autoClassMode = this.autoClassMode;
             clone.autoClass_InjectBreakPoint = this.autoClass_InjectBreakPoint;
             clone.decorateAutoClassAsCS6 = this.decorateAutoClassAsCS6;
             clone.enableDbgPrint = this.enableDbgPrint;
@@ -257,6 +258,7 @@ namespace csscript
         public bool noConfig = false;
         public bool customHashing = true;
         public bool autoClass = false;
+        public string autoClassMode = "";
         public bool autoClass_InjectBreakPoint = false;
         public bool versionOnly = false;
         public string compilerOptions = "";

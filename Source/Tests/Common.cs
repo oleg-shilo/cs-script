@@ -1,7 +1,9 @@
 using CSScriptLibrary;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 
 public class TestBase
@@ -15,6 +17,29 @@ public class TestBase
             probing = SimpleAsmProbing.For(".", @"..\..\..\Roslyn.Scripting");
         }
         Environment.SetEnvironmentVariable("CSSCRIPT_DIR", Environment.CurrentDirectory);
+    }
+}
+
+internal static class Extensions
+{
+    public static string WordAfter(this string text, int position)
+    {
+        return text.Substring(position).Split(" \t\n\r".ToCharArray()).FirstOrDefault();
+    }
+
+    public static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)
+    {
+        if (assembly == null)
+            throw new ArgumentNullException(nameof(assembly));
+
+        try
+        {
+            return assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException e)
+        {
+            return e.Types.Where(t => t != null);
+        }
     }
 }
 
