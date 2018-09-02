@@ -298,7 +298,7 @@ namespace csscript
                 {
                     string lineText = line.TrimStart();
 
-                    if (!stopDecoratingDetected && line.Trim() == "//css_ac_end")
+                    if (!stopDecoratingDetected && (line.Trim() == "//css_ac_end" || line.Trim() == "//css_autoclass_end"))
                     {
                         stopDecoratingDetected = true;
                         footer.AppendLine("#line " + (lineCount + 1) + " \"" + scriptFile + "\"");

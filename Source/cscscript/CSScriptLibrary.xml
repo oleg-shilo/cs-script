@@ -871,6 +871,11 @@
             Apartment state of the script.
             </summary>
         </member>
+        <member name="P:csscript.CSharpParser.AutoClassMode">
+            <summary>
+            Gets the `auto-class` decoration mode value.
+            </summary>
+        </member>
         <member name="P:csscript.CSharpParser.Code">
             <summary>
             Script C# raw code.

@@ -899,6 +899,10 @@ namespace csscript
         }
 
         string autoClassMode = null;
+
+        /// <summary>
+        /// Gets the `auto-class` decoration mode value.
+        /// </summary>
         public string AutoClassMode
         {
             get { return autoClassMode; }

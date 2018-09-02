@@ -147,6 +147,59 @@ Console.WriteLine(3);
         Assert.Equal(expected_generated_code, generated_code);
     }
 
+    [Fact]
+    public void DecorateFreestyleAutoclassWithExtensionMethod()
+    {
+        string raw_code = @"//css_autoclass freestyle
+using System;
+
+Console.WriteLine(1);
+Console.WriteLine(2);
+Console.WriteLine(3);
+
+//css_ac_end
+
+static class Extensions
+{
+    static public void Convert(this string text)
+    {
+        Console.WriteLine(""converting"");
+    }
+}
+";
+
+        string expected_generated_code = @"//css_autoclass freestyle
+using System;
+
+public class ScriptClass { public static void Main(string[] args) { try { System.Console.OutputEncoding = System.Text.Encoding.GetEncoding(""utf-8""); } catch {}  main_impl(args); } 
+#line 3 """"
+static public void main_impl(string[] args) {
+Console.WriteLine(1);
+Console.WriteLine(2);
+Console.WriteLine(3);
+
+}} ///CS-Script auto-class generation
+#line 8 """"
+//css_ac_end
+
+static class Extensions
+{
+    static public void Convert(this string text)
+    {
+        Console.WriteLine(""converting"");
+    }
+}
+";
+
+        int position = raw_code.IndexOf("converting");
+        string word1 = raw_code.WordAfter(position);
+
+        string generated_code = AutoclassGenerator.Process(raw_code, ref position);
+
+        string word2 = generated_code.WordAfter(position);
+        Assert.Equal(expected_generated_code, generated_code);
+    }
+
 
     [Fact]
     public void DecorateGenericAutoclassIntVoid()

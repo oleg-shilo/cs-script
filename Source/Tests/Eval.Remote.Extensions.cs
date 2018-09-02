@@ -17,7 +17,7 @@ public class EvalRemoteExtensions : TestBase
                                      .CreateDelegateRemotely<int>(@"int Sum(int a, int b)
                                                                     {
                                                                         return a+b;
-                                                                    }"));
+                                                                    }", ".\\"));
         Assert.Equal(18, sum(15, 3));
 
         sum.UnloadOwnerDomain();
@@ -32,7 +32,7 @@ public class EvalRemoteExtensions : TestBase
                           .CreateDelegateRemotely<int>(@"int Sum(int a, int b)
                                                          {
                                                              return a+b;
-                                                         }");
+                                                         }", ".\\");
             Assert.Equal(18, sum(15, 3));
 
             sum.UnloadOwnerDomain();
@@ -48,7 +48,7 @@ public class EvalRemoteExtensions : TestBase
                           .CreateDelegateRemotely(@"int Sum(int a, int b)
                                                     {
                                                         return a+b;
-                                                    }");
+                                                    }", ".\\");
             Assert.Equal(18, (int)sum(15, 3));
 
             sum.UnloadOwnerDomain();
@@ -89,7 +89,7 @@ public class EvalRemoteExtensions : TestBase
                           .CreateDelegateRemotely(@"int Sum(int a, int b)
                                                     {
                                                         return a+b;
-                                                    }");
+                                                    }", ".\\");
         Assert.Equal(18, (int)sum(15, 3));
 
         sum.UnloadOwnerDomain();
@@ -136,7 +136,7 @@ public class EvalRemoteExtensions : TestBase
                                                             {
                                                                 return a+b;
                                                             }
-                                                        }", @"..\..\..\Roslyn.Scripting");
+                                                        }", @"..\..\..\Roslyn.Scripting", ".\\");
             Assert.Equal(18, script.Sum(15, 3));
 
             script.UnloadOwnerDomain();

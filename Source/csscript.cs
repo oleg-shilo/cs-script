@@ -358,7 +358,6 @@ namespace csscript
                     if (parser.AutoClassMode != null)
                     {
                         options.autoClass = true;
-                        options.autoClassMode = parser.AutoClassMode;
                     }
 
                     if (parser.Inits.Length != 0)
