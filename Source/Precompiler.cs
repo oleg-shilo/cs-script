@@ -337,11 +337,11 @@ namespace csscript
                                 if (string.Compare(consoleEncoding, Settings.DefaultEncodingName, true) != 0)
                                     setConsoleEncoding = "try { System.Console.OutputEncoding = System.Text.Encoding.GetEncoding(\"" + consoleEncoding + "\"); } catch {} ";
 
-                                tempText += "static void Main(string[] args) { " + setConsoleEncoding + " main_impl(args); } " + Environment.NewLine;
+                                tempText += "static void Main(string[] args) { " + setConsoleEncoding + " main_impl(args); } ///CS-Script auto-class generation" + Environment.NewLine;
 
                                 //"#line" must be injected before the method name. Injecting into the first line in body does not work. probably related to JIT 
                                 tempText += "#line " + (lineCount) + " \"" + scriptFile + "\"" + Environment.NewLine;
-                                tempText += "static public void main_impl(string[] args) {" + Environment.NewLine;
+                                tempText += "static public void main_impl(string[] args) { ///CS-Script auto-class generation" + Environment.NewLine;
 
                                 result.BodyInjectedLine = lineCount;
                                 result.InjectionLength += tempText.Length;
