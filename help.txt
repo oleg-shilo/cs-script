@@ -1,4 +1,4 @@
-C# Script execution engine. Version 3.28.7.0.
+C# Script execution engine. Version 3.28.8.0.
 Copyright (C) 2004-2018 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -345,12 +345,7 @@ https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class
  
 A special case of auto-class use case is a free style C# code that has no entry point 'main' at all:
  
-    //css_ac freestyle
-    using System;
-    using System.IO;
- 
-    foreach (var file in Directory.GetFiles(@".\"))
-        Console.WriteLine(file);
+    
  
 Since it's problematic to reliable auto-detect free style auto-classes, they must be defined with the special parameter
 'freestyle' after the '//css_ac' directive
