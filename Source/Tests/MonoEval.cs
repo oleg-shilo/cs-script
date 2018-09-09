@@ -309,7 +309,7 @@ public class MonoEval : TestBase
     [DebugBuildFactAttribute]
     public void Clone()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             CloneImpl();
         }
@@ -318,7 +318,7 @@ public class MonoEval : TestBase
     [DebugBuildFactAttribute]
     public void Clone2()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             CloneImpl2();
         }
@@ -370,7 +370,7 @@ public class MonoEval : TestBase
     [DebugBuildFactAttribute]
     public void LoadDelegateFunc()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var Product = CSScript.MonoEvaluator
                               .LoadDelegate<Func<int, int, int>>(
@@ -387,7 +387,7 @@ public class MonoEval : TestBase
     [DebugBuildFactAttribute]
     public void LoadMethod()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             dynamic script = CSScript.MonoEvaluator
                                  .LoadMethod(@"int Product(int a, int b)

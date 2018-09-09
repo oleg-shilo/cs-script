@@ -26,7 +26,7 @@ public class EvalRemoteExtensions : TestBase
     [DebugBuildFactAttribute]
     public void CreateDelegateRemotelyTyped()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var sum = CSScript.Evaluator
                           .CreateDelegateRemotely<int>(@"int Sum(int a, int b)
@@ -42,7 +42,7 @@ public class EvalRemoteExtensions : TestBase
     [DebugBuildFactAttribute]
     public void CreateDelegateRemotely()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var sum = CSScript.Evaluator
                           .CreateDelegateRemotely(@"int Sum(int a, int b)
@@ -58,7 +58,7 @@ public class EvalRemoteExtensions : TestBase
     [Fact]
     public void CreateDelegateRemotelyRoslyn()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             // Roslyn assemblies have unorthodox dependency model, which needs an explicit AppDomain assembly
             // resolving if the Roslyn assemblies are not in the entry-assembly folder.
@@ -126,7 +126,7 @@ public class EvalRemoteExtensions : TestBase
     [DebugBuildFactAttribute]
     public void LoadCodeRemotelyCasted()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var script = CSScript.Evaluator
                              .LoadCodeRemotely<ICalc>(@"using System;
@@ -146,7 +146,7 @@ public class EvalRemoteExtensions : TestBase
     [Fact]
     public void LoadCodeRemotelyTyped()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location
             CSScript.GlobalSettings.InMemoryAssembly = false;

@@ -129,9 +129,9 @@ Console.WriteLine(3);
         string expected_generated_code = @"//css_autoclass freestyle
 using System;
 
-public class ScriptClass { public static void Main(string[] args) { try { System.Console.OutputEncoding = System.Text.Encoding.GetEncoding(""utf-8""); } catch {}  main_impl(args); } 
+public class ScriptClass { public static void Main(string[] args) { try { System.Console.OutputEncoding = System.Text.Encoding.GetEncoding(""utf-8""); } catch {}  main_impl(args); } ///CS-Script auto-class generation
 #line 3 """"
-static public void main_impl(string[] args) {
+static public void main_impl(string[] args) { ///CS-Script auto-class generation
 Console.WriteLine(1);
 Console.WriteLine(2);
 Console.WriteLine(3);
@@ -171,9 +171,9 @@ static class Extensions
         string expected_generated_code = @"//css_autoclass freestyle
 using System;
 
-public class ScriptClass { public static void Main(string[] args) { try { System.Console.OutputEncoding = System.Text.Encoding.GetEncoding(""utf-8""); } catch {}  main_impl(args); } 
+public class ScriptClass { public static void Main(string[] args) { try { System.Console.OutputEncoding = System.Text.Encoding.GetEncoding(""utf-8""); } catch {}  main_impl(args); } ///CS-Script auto-class generation
 #line 3 """"
-static public void main_impl(string[] args) {
+static public void main_impl(string[] args) { ///CS-Script auto-class generation
 Console.WriteLine(1);
 Console.WriteLine(2);
 Console.WriteLine(3);

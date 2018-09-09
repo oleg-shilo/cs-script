@@ -58,7 +58,7 @@ public class DebugBuildFactAttribute : FactAttribute
 
 class As
 {
-    public static object Blocking = typeof(string);
+    public static object BlockingTest = typeof(string);
 }
 
 namespace Tests
