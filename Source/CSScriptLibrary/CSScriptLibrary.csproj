@@ -239,15 +239,7 @@
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent>echo off
-
-if "%25CS-S_DEV_ROOT%25" == "" go exit
-echo ------------------------------
-echo Updating local deployment folder "%25CS-S_DEV_ROOT%25"
-rem copy "$(TargetPath)" "%25CS-S_DEV_ROOT%25\Lib"
-rem copy "$(TargetDir)$(TargetName).xml" "%25CS-S_DEV_ROOT%25\Lib"
-echo ------------------------------
-
-:exit</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

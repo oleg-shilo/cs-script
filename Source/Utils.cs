@@ -263,6 +263,16 @@ namespace csscript
             return string.Compare(path1, path2, Utils.IsWin) == 0;
         }
 
+        public static bool IsEmpty(this string text)
+        {
+            return string.IsNullOrEmpty(text);
+        }
+
+        public static bool IsNotEmpty(this string text)
+        {
+            return !string.IsNullOrEmpty(text);
+        }
+
         public static void ClearFile(string path)
         {
             string parentDir = null;
