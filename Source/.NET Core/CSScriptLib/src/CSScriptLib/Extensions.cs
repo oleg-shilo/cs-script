@@ -36,6 +36,11 @@ public static class Extensions
             return "";
     }
 
+    internal static Type FirstTypeAssignableFrom<T>(this Assembly asm)
+    {
+        return asm.ExportedTypes.FirstOrDefault(x => typeof(T).IsAssignableFrom(x));
+    }
+
     /// <summary>
     /// Safely retrieves parent location of the assembly. Returns empty string if the assembly is
     /// a dynamic or in-memory assembly.
@@ -211,6 +216,12 @@ public static class Extensions
         return CreateInstance(asm, typeName, args);
     }
 
+    public static bool None<T>(this IEnumerable<T> collection, Predicate<T> filter)
+    {
+        return !collection.All(ch => !filter(ch));
+    }
+
+
     /// <summary>
     /// Creates instance of a Type from underlying assembly.
     /// </summary>
@@ -242,9 +253,18 @@ public static class Extensions
         }
         else
         {
-            Type[] types = asm.GetTypes().Where(t => t.FullName == typeName || t.FullName == ("Submission#0+" + typeName)).ToArray();
+            var name = typeName.Replace("*.", "");
+
+            Type[] types = asm.GetTypes()
+                              .Where(t => t.FullName.None(char.IsDigit)
+                                          &&  (t.FullName == name
+                                               || t.FullName == ("Submission#0+" + name)
+                                               || t.Name == name))
+                                 .ToArray();
+
             if (types.Length == 0)
                 throw new Exception("Type " + typeName + " cannot be found.");
+
             return Activator.CreateInstance(types.First(), args);
         }
     }

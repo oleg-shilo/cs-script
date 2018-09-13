@@ -23,6 +23,7 @@ namespace CSScriptLib.Client
 
             RoslynEvaluator.LoadCompilers();
 
+            Test.CompileAssembly(); return;
             Test.ReferencingPackagesCode(); //return;
             Test.CompileCode();
             Test.CompileMethod();

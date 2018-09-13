@@ -101,6 +101,22 @@ namespace CSScriptLib.Client
             Console.WriteLine(result);
         }
 
+        static public void CompileAssembly()
+        {
+            string asm = CSScript.Evaluator
+                                 .CompileAssemblyFromCode(
+                                                @"using System;
+                                                  public class Script
+                                                  {
+                                                      public int Sum(int a, int b)
+                                                      {
+                                                          return a+b;
+                                                      }
+                                                  }", 
+                                                  "Test.dll");
+            Console.WriteLine(asm);
+        }
+
         static public void CompileMethod()
         {
             dynamic script = CSScript.Evaluator
