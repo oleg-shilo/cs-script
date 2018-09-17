@@ -462,7 +462,10 @@ namespace csscript
                          " ",
                          "A special case of auto-class use case is a free style C# code that has no entry point 'main' at all:",
                          " ",
-                         "    ",
+                         "    //css_autoclass freestyle",
+                         "    using System;",
+                         " ",
+                         "    Console.WriteLine(Environment.Version);",
                          " ",
                          "Since it's problematic to reliable auto-detect free style auto-classes, they must be defined with the " +
                          "special parameter 'freestyle' after the '//css_ac' directive",
