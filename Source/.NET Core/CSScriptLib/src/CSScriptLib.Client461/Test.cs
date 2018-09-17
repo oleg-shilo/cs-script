@@ -105,16 +105,38 @@ namespace CSScriptLib.Client
         {
             string asm = CSScript.Evaluator
                                  .CompileAssemblyFromCode(
-                                                @"using System;
-                                                  public class Script
-                                                  {
-                                                      public int Sum(int a, int b)
-                                                      {
-                                                          return a+b;
-                                                      }
-                                                  }", 
-                                                  "Test.dll");
+                                              @"using System;
+                                                public class Script
+                                                {
+                                                    public int Sum(int a, int b)
+                                                    {
+                                                        return a+b;
+                                                    }
+                                                }",
+                                                "Test.dll");
             Console.WriteLine(asm);
+        }
+
+        static public void CheckForErrors()
+        {
+            try
+            {
+
+                CSScript.Evaluator
+                        .Check(@"using System;
+                                 public class Script
+                                 {
+                                     public int Sum(int a, int b)
+                                     {
+                                         error 
+                                         return a+b;
+                                     }
+                                 }");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         static public void CompileMethod()

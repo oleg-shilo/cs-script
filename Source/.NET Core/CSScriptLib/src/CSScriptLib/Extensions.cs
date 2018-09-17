@@ -36,9 +36,15 @@ public static class Extensions
             return "";
     }
 
-    internal static Type FirstTypeAssignableFrom<T>(this Assembly asm)
+    internal static Type FirstUserTypeAssignableFrom<T>(this Assembly asm)
     {
-        return asm.ExportedTypes.FirstOrDefault(x => typeof(T).IsAssignableFrom(x));
+        // exclude Roslyn internal types  
+        return asm
+            .ExportedTypes
+            .Where(t => t.FullName.None(char.IsDigit)           // 1 (yes Roslyn can generate class with this name)
+                     && t.FullName.StartsWith("Submission#0+")  // Submission#0+Script
+                     && !t.FullName.Contains("<<Initialize>>")) // Submission#0+<<Initialize>>d__0
+            .FirstOrDefault(x => typeof(T).IsAssignableFrom(x));
     }
 
     /// <summary>
@@ -257,7 +263,7 @@ public static class Extensions
 
             Type[] types = asm.GetTypes()
                               .Where(t => t.FullName.None(char.IsDigit)
-                                          &&  (t.FullName == name
+                                          && (t.FullName == name
                                                || t.FullName == ("Submission#0+" + name)
                                                || t.Name == name))
                                  .ToArray();

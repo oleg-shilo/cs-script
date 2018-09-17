@@ -67,6 +67,25 @@ using System.Runtime.Serialization;
 namespace CSScriptLib
 {
     /// <summary>
+    /// The information about the location of the compiler output - assembly and pdb file.
+    /// </summary>
+    public class CompileInfo
+    {
+        /// <summary>
+        /// The assembly file path.
+        /// </summary>
+        public string AssemblyFile;
+
+        /// <summary>
+        /// The PDB file path.
+        /// <para>Even if the this value is specified the file will not be generated unless
+        /// <see cref="CSScript.EvaluatorConfig"/>.DebugBuild is set to <c>true</c>.
+        /// </para>
+        /// </summary>
+        public string PdbFile;
+    }
+
+    /// <summary>
     /// The exception that is thrown when a the script compiler error occurs.
     /// </summary>
     [Serializable]
@@ -237,25 +256,6 @@ namespace CSScriptLib
             return CompileCode(scriptText, null, info);
         }
 
-        /// <summary>
-        /// The information about the location of the compiler output - assembly and pdb file.
-        /// </summary>
-        public class CompileInfo
-        {
-            /// <summary>
-            /// The assembly file path.
-            /// </summary>
-            public string AssemblyFile;
-
-            /// <summary>
-            /// The PDB file path.
-            /// <para>Even if the this value is specified the file will not be generated unless
-            /// <see cref="CSScript.EvaluatorConfig"/>.DebugBuild is set to <c>true</c>.
-            /// </para>
-            /// </summary>
-            public string PdbFile;
-        }
-
         Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
         {
             // scriptFile is needed to allow injection of the debug information
@@ -288,7 +288,13 @@ namespace CSScriptLib
             return info.AssemblyFile;
         }
 
-        (byte[] asm, byte[] pdb) Compile(string scriptText, string scriptFile, CompileInfo info)
+
+        public void Check(string scriptText)
+        {
+            Compile(scriptText, null, null);
+        }
+
+        (byte[] asm, byte[] pdb) Compile(string scriptText, string scriptFile, CompileInfo info = null)
         {
             // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
 
@@ -590,18 +596,21 @@ namespace CSScriptLib
 
         /// <summary>
         /// Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
-        /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
-        /// <para><c>Note:</c> Because the interface alignment is a duck typing implementation the script class doesn't have to
-        /// inherit from <c>T</c>.</para>
         /// </summary>
+        /// <typeparam name="T">The type of the script class instance should be type casted to.</typeparam>
+        /// <param name="scriptText">The C# script text.</param>
+        /// <param name="args">The non default type <c>T</c> constructor arguments.</param>
+        /// <returns>
+        /// Aligned to the <c>T</c> interface instance of the class defined in the script.
+        /// </returns>
         /// <example>The following is the simple example of the interface alignment:
-        ///<code>
+        /// <code>
         /// public interface ICalc
         /// {
         ///     int Sum(int a, int b);
         /// }
         /// ....
-        /// ICalc calc = CSScript.RoslynEvaluator
+        /// ICalc calc = CSScript.Evaluator
         ///                      .LoadCode&lt;ICalc&gt;(@"using System;
         ///                                         public class Script
         ///                                         {
@@ -611,17 +620,12 @@ namespace CSScriptLib
         ///                                             }
         ///                                         }");
         /// int result = calc.Sum(1, 2);
-        /// </code>
-        /// </example>
-        /// <typeparam name="T">The type of the interface type the script class instance should be aligned to.</typeparam>
-        /// <param name="scriptText">The C# script text.</param>
-        /// <param name="args">The non default type <c>T</c> constructor arguments.</param>
-        /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script.</returns>
+        /// </code></example>
         public T LoadCode<T>(string scriptText, params object[] args) where T : class
         {
             this.ReferenceAssemblyOf<T>();
             var asm = CompileCode(scriptText);
-            var type = asm.FirstTypeAssignableFrom<T>();
+            var type = asm.FirstUserTypeAssignableFrom<T>();
             return (T)asm.CreateObject(type.FullName, args);
         }
 
@@ -700,7 +704,7 @@ namespace CSScriptLib
         public T LoadFile<T>(string scriptFile, params object[] args) where T : class
         {
             var asm = CompileCode(File.ReadAllText(scriptFile), scriptFile, null);
-            var type = asm.FirstTypeAssignableFrom<T>();
+            var type = asm.FirstUserTypeAssignableFrom<T>();
             return (T)asm.CreateObject(type.FullName, args);
         }
 

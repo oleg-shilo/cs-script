@@ -13,7 +13,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>-->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.2.0</Version>
+    <Version>1.0.3.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET Core</Description>
     <Copyright>(C) 2018 Oleg Shilo</Copyright>
@@ -24,9 +24,8 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
     <PackageReleaseNotes>- Issue #123: cs-script.core and &lt;PrivateImplementationDetails&gt;1 error
-- Issue #124: cs-script.core compile only
-- Added `CompileAssemblyFromCode`
-- Added `CompileAssemblyFromFile`</PackageReleaseNotes>
+- Added `CSScript.Evaluator.Check` 
+</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <AssemblyVersion>1.0.2.0</AssemblyVersion>
     <FileVersion>1.0.2.0</FileVersion>

@@ -267,6 +267,36 @@ namespace CSScriptLib
         /// <returns>The compiled assembly.</returns>
         Assembly CompileCode(string scriptText);
 
+
+        /// <summary>
+        /// Compiles the specified script text without loading it into the AppDomain or
+        /// writing to the file system. 
+        /// </summary>
+        /// <example>
+        ///<code>
+        /// try 
+        /// {  
+        ///     CSScript.Evaluator
+        ///             .Check(@"using System;
+        ///                      public class Script
+        ///                      {
+        ///                          public int Sum(int a, int b)
+        ///                          {
+        ///                              error 
+        ///                              return a+b;
+        ///                          }
+        ///                      }");
+        /// }
+        /// catch (Exception e)
+        /// {
+        ///     Console.WriteLine("Compile error: " + e.Message);
+        /// }
+        /// </code>
+        /// </example>
+        /// <param name="scriptText">The script text.</param>
+        /// <returns></returns>
+        void Check(string scriptText);
+
         /// <summary>
         /// Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
         /// </summary>
@@ -405,11 +435,10 @@ namespace CSScriptLib
         /// <returns>Instance of the class defined in the script.</returns>
         object LoadCode(string scriptText, params object[] args);
 
+
+
         /// <summary>
         /// Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
-        /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
-        /// <para><c>Note:</c> Because the interface alignment is a duck typing implementation the script class doesn't have to
-        /// inherit from <c>T</c>.</para>
         /// </summary>
         /// <example>The following is the simple example of the interface alignment:
         ///<code>
@@ -430,7 +459,7 @@ namespace CSScriptLib
         /// int result = calc.Sum(1, 2);
         /// </code>
         /// </example>
-        /// <typeparam name="T">The type of the interface type the script class instance should be aligned to.</typeparam>
+        /// <typeparam name="T">The type of the script class instance should be type casted to.</typeparam>
         /// <param name="scriptText">The C# script text.</param>
         /// <param name="args">The non default type <c>T</c> constructor arguments.</param>
         /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script.</returns>
