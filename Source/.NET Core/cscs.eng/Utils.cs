@@ -351,10 +351,25 @@ namespace csscript
             return path;
         }
 
+        public static string GetPath(this Environment.SpecialFolder folder)
+        {
+            return Environment.GetFolderPath(folder);
+        }
+
         public static string PathJoin(this string path, params object[] parts)
         {
             var allParts = new[] { path ?? "" }.Concat(parts.Select(x => x?.ToString() ?? ""));
             return Path.Combine(allParts.ToArray());
+        }
+
+        public static string[] PathGetDirs(this string path, string mask)
+        {
+            return Directory.GetDirectories(path, mask);
+        }
+
+        public static string[] PathGetFiles(this string path, string mask)
+        {
+            return Directory.GetFiles(path, mask);
         }
 
         public static string GetDirName(this string path) => Path.GetDirectoryName(path);
@@ -1224,6 +1239,8 @@ partial class dbg
                         if (argValue != null && argValue != "print")
                         {
                             options.preCompilers = argValue;
+
+
                         }
                         else
                         {
@@ -1290,6 +1307,10 @@ partial class dbg
                         }
                         else if (argValue == "out")
                         {
+                            if (nextArg.IsEmpty())
+                            {
+                                throw new CLIException($"Incomplete '{arg}' argument.");
+                            }
                             executor.PrintDecoratedAutoclass(nextArg);
                             CLIExitRequest.Throw();
                         }

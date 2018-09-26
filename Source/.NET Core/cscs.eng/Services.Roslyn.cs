@@ -129,7 +129,10 @@ namespace CSScripting.CodeDom
             var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
                                                              .Where(Path.IsPathRooted)
                                                              .Where(asm => asm.GetDirName() != engine_dir)
-                                                             .ToArray();
+                                                             .ToList();
+
+            if(CSExecutor.options.enableDbgPrint)
+                ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
 
             var refs = new StringBuilder();
             var assembly = build_dir.PathJoin(projectName + ".dll");
@@ -221,6 +224,7 @@ namespace CSScripting.CodeDom
         static BuildResult Build(string sourceFile, string assemblyFile, string[] refs, bool IsDebug)
         {
             bool useServer = true;
+            // useServer = false;
             var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
             try
             {
@@ -235,6 +239,8 @@ namespace CSScripting.CodeDom
             foreach (string file in refs)
                 try { scriptOptions = scriptOptions.AddReferences(Assembly.LoadFrom(file)); }
                 catch { }
+
+            // scriptOptions = scriptOptions.AddReferences(Assembly.GetExecutingAssembly()); // zos
 
             Compilation compilation = CSharpScript.Create(scriptText, scriptOptions)
                                                   .GetCompilation();
@@ -263,6 +269,8 @@ namespace CSScripting.CodeDom
                 }
                 catch { }
             }
+
+            // scriptOptions = scriptOptions.AddReferences(Assembly.GetExecutingAssembly()); // zos
 
             var compilation = CSharpScript.Create(scriptText, scriptOptions)
                                           .GetCompilation();

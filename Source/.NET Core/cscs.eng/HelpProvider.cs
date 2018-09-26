@@ -7,6 +7,14 @@ using System.Text;
 
 namespace csscript
 {
+    internal class Directives
+    {
+        public const string compiler = "//css_compiler";
+        public const string compiler_csc = "csc";
+        public const string compiler_roslyn = "roslyn";
+        public const string compiler_dotnet = "dotnet";
+    }
+
     internal class AppArgs
     {
         public static string nl = "nl";
@@ -56,6 +64,7 @@ namespace csscript
         public const string cache = "cache";
         public const string dbgprint = "dbgprint";
         public const string proj = "proj";
+
         internal const string proj_dbg = "proj:dbg";    // for internal use only
         static public string SyntaxHelp { get { return syntaxHelp.ToConsoleLines(0); } }
         static string syntaxHelp = "";
@@ -308,7 +317,7 @@ namespace csscript
                                                    "as a token separator that is ignored during property lookup.",
                                                    "(e.g. " + AppInfo.appName + " -config:none sample.cs",
                                                    "${<=6}" + AppInfo.appName + " -config:default > css_VB.xml",
-                                                   
+
                                                    // "${<=6}" + AppInfo.appName + " -config:set:" + inmem + "=true", // may need to resurrect if users do miss it :)
 
                                                    "${<=6}" + AppInfo.appName + " -config:set:DefaultArguments=add:-ac",
@@ -805,24 +814,83 @@ namespace csscript
         public static string BuildSampleCode(string version)
         {
             if (version == "7")
-                return CSharp7_Sample();
-            else
                 return DefaultSample();
+            if (version == "4")
+                return CSharp4_Sample();
+            if (version == "freestyle")
+                return CSharp_freestyle_Sample();
+            if (version == "auto")
+                return CSharp_auto_Sample();
+            else
+                return CSharp7_Sample();
         }
 
+        static string CSharp_freestyle_Sample()
+        {
+            StringBuilder builder = new StringBuilder();
+            if (!Utils.IsWin)
+            {
+                builder.AppendLine("// #!/usr/local/bin/cscs");
+            }
+
+            builder.AppendLine("//css_ac freestyle");
+            builder.AppendLine("using System;");
+            builder.AppendLine("using System.IO;");
+            builder.AppendLine("");
+            builder.AppendLine("Directory.GetFiles(@\".\\\").print();");
+            builder.AppendLine("");
+
+            return builder.ToString();
+        }
+
+        static string CSharp_auto_Sample()
+        {
+            StringBuilder builder = new StringBuilder();
+            if (!Utils.IsWin)
+            {
+                builder.AppendLine("// #!/usr/local/bin/cscs");
+            }
+
+            builder.AppendLine("//css_ac");
+            builder.AppendLine("using System;");
+            builder.AppendLine("using System.IO;");
+            if (CSExecutor.options.compilerEngine != Directives.compiler_roslyn)
+                builder.AppendLine("using static dbg; // to use 'print' instead of 'dbg.print'");
+            builder.AppendLine("            ");
+            builder.AppendLine("void main(string[] args)");
+            builder.AppendLine("{");
+            builder.AppendLine("    (string message, int version) setup_say_hello()");
+            builder.AppendLine("    {");
+            builder.AppendLine("        return (\"Hello from C#\", 7);");
+            builder.AppendLine("    }");
+            builder.AppendLine("");
+            builder.AppendLine("    var info = setup_say_hello();");
+            builder.AppendLine("");
+            if (CSExecutor.options.compilerEngine == Directives.compiler_roslyn)
+            {
+                builder.AppendLine("    Console.WriteLine(info);");
+            }
+            else
+            {
+                builder.AppendLine("    print(info);");
+            }
+            builder.AppendLine("}");
+
+            return builder.ToString();
+        }
         static string CSharp7_Sample()
         {
             StringBuilder builder = new StringBuilder();
             if (!Utils.IsWin)
             {
                 builder.AppendLine("// #!/usr/local/bin/cscs");
-                builder.AppendLine("//css_ref System.Windows.Forms;");
             }
 
             builder.AppendLine("using System;");
             builder.AppendLine("using System.Linq;");
             builder.AppendLine("using System.Collections.Generic;");
-            builder.AppendLine("using static dbg; // to use 'print' instead of 'dbg.print'");
+            if (CSExecutor.options.compilerEngine != Directives.compiler_roslyn)
+                builder.AppendLine("using static dbg; // to use 'print' instead of 'dbg.print'");
             builder.AppendLine("            ");
             builder.AppendLine("class Script");
             builder.AppendLine("{");
@@ -835,11 +903,44 @@ namespace csscript
             builder.AppendLine("");
             builder.AppendLine("        var info = setup_say_hello();");
             builder.AppendLine("");
-            builder.AppendLine("        print(info.message, info.version);");
+            if (CSExecutor.options.compilerEngine == Directives.compiler_roslyn)
+            {
+                builder.AppendLine("        Console.WriteLine(info.message + \" \" + info.version);");
+            }
+            else
+            {
+                builder.AppendLine("        print(info.message, info.version);");
+                builder.AppendLine("");
+                builder.AppendLine("        print(Environment.GetEnvironmentVariables()");
+                builder.AppendLine("                            .Cast<object>()");
+                builder.AppendLine("                            .Take(5));");
+            }
+            builder.AppendLine("    }");
+            builder.AppendLine("}");
+
+            return builder.ToString();
+        }
+
+        static string CSharp4_Sample()
+        {
+            StringBuilder builder = new StringBuilder();
+            if (!Utils.IsWin)
+            {
+                builder.AppendLine("#!<cscs.exe path> " + CSSUtils.Args.DefaultPrefix + "nl ");
+                // builder.AppendLine("//css_ref System.Windows.Forms;"); // core does not support forms yet
+            }
+
+            builder.AppendLine("using System;");
+            // builder.AppendLine("using System.Windows.Forms;");
+            builder.AppendLine();
+            builder.AppendLine("class Script");
+            builder.AppendLine("{");
+            builder.AppendLine("    static void Main(string[] args)");
+            builder.AppendLine("    {");
+            builder.AppendLine("        Console.WriteLine(\"Hello World!\");");
             builder.AppendLine("");
-            builder.AppendLine("        print(Environment.GetEnvironmentVariables()");
-            builder.AppendLine("                            .Cast<object>()");
-            builder.AppendLine("                            .Take(5));");
+            builder.AppendLine("        for (int i = 0; i < args.Length; i++)");
+            builder.AppendLine("            Console.WriteLine(args[i]);");
             builder.AppendLine("    }");
             builder.AppendLine("}");
 
@@ -848,28 +949,7 @@ namespace csscript
 
         static string DefaultSample()
         {
-            StringBuilder builder = new StringBuilder();
-            if (!Utils.IsWin)
-            {
-                builder.AppendLine("#!<cscs.exe path> " + CSSUtils.Args.DefaultPrefix + "nl ");
-                builder.AppendLine("//css_ref System.Windows.Forms;");
-            }
-
-            builder.AppendLine("using System;");
-            builder.AppendLine("using System.Windows.Forms;");
-            builder.AppendLine();
-            builder.AppendLine("class Script");
-            builder.AppendLine("{");
-            builder.AppendLine("    static void Main(string[] args)");
-            builder.AppendLine("    {");
-            builder.AppendLine("        for (int i = 0; i < args.Length; i++)");
-            builder.AppendLine("            Console.WriteLine(args[i]);");
-            builder.AppendLine("");
-            builder.AppendLine("        MessageBox.Show(\"Just a test!\");");
-            builder.AppendLine("    }");
-            builder.AppendLine("}");
-
-            return builder.ToString();
+            return CSharp7_Sample();
         }
 
         public static string BuildPrecompilerSampleCode()

@@ -76,6 +76,19 @@ namespace csscript
         {
             throw new CLIExitRequest();
         }
+
+        static public void Throw(string message)
+        {
+             throw new CLIExitRequest(message);
+        }
+
+        public CLIExitRequest(string message) : base(message)
+        {
+        }
+
+        public CLIExitRequest()
+        {
+        }
     }
 
     /// <summary>

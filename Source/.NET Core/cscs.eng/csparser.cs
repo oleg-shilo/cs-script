@@ -458,7 +458,15 @@ namespace csscript
         /// <summary>
         /// The result of search for additional C# script directives to search (directive vs. value).
         /// </summary>
-        public Hashtable CustomDirectives = new Hashtable();
+        public Dictionary<string, List<string>> CustomDirectives = new Dictionary<string, List<string>>();
+
+        public IList<string> GetDirective(string name)
+        {
+            if (CustomDirectives.ContainsKey(name))
+                return CustomDirectives[name];
+            else
+                return null;
+        }
 
         /// <summary>
         /// Global flag to forcefully suppress any C# code analyses. This flag effectively disables
@@ -512,6 +520,12 @@ namespace csscript
             //analyse script arguments
             foreach (string statement in GetRawStatements("//css_args", endCodePos))
                 args.AddRange(statement.SplitCommandLine());
+
+            // analyse auto-class decoration mode
+            foreach (string statement in GetRawStatements("//css_ac", endCodePos))
+                autoClassMode = statement;
+            foreach (string statement in GetRawStatements("//css_autoclass", endCodePos))
+                autoClassMode = statement;
 
             //analyse 'pre' and 'post' script commands
             foreach (string statement in GetRawStatements("//css_pre", endCodePos))
@@ -873,6 +887,16 @@ namespace csscript
         public ApartmentState ThreadingModel
         {
             get { return threadingModel; }
+        }
+
+        string autoClassMode = null;
+
+        /// <summary>
+        /// Gets the `auto-class` decoration mode value.
+        /// </summary>
+        public string AutoClassMode
+        {
+            get { return autoClassMode; }
         }
 
         /// <summary>

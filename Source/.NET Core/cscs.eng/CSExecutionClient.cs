@@ -100,6 +100,7 @@ namespace csscript
         /// </summary>
         public static void Main(string[] rawArgs)
         {
+            // Debug.Assert(false);
             main(PreprocessArgs(rawArgs));
         }
 
@@ -279,12 +280,12 @@ namespace csscript
 
         public static string appLogo
         {
-            get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\nCopyright (C) 2004-2018 Oleg Shilo.\n"; }
+            get { return "C# Script execution engine (.NET Core). Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\nCopyright (C) 2004-2018 Oleg Shilo.\n"; }
         }
 
         public static string appLogoShort
         {
-            get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\n"; }
+            get { return "C# Script execution engine (.NET Core). Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\n"; }
         }
     }
 

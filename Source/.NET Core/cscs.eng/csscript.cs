@@ -370,8 +370,18 @@ namespace csscript
                     options.searchDirs = dirs.ToArray();
                     CSharpParser.CmdScriptInfo[] cmdScripts = new CSharpParser.CmdScriptInfo[0];
 
+                    var compilerDirective = "//css_compiler";
                     //do quick parsing for pre/post scripts, ThreadingModel and embedded script arguments
-                    CSharpParser parser = new CSharpParser(options.scriptFileName, true, null, options.searchDirs);
+
+                    CSharpParser parser = new CSharpParser(options.scriptFileName, true, new[] { compilerDirective }, options.searchDirs);
+
+                    // it is either '' or 'freestyle', but not 'null' if '//css_ac' was specified 
+                    if (parser.AutoClassMode != null)
+                    {
+                        options.autoClass = true;
+                    }
+
+                    options.compilerEngine = parser.GetDirective(compilerDirective)?.LastOrDefault();
 
                     if (parser.Inits.Length != 0)
                         options.initContext = parser.Inits[0];

@@ -74,16 +74,37 @@ namespace CSScripting.CodeDom
 
         public CompilerResults CompileAssemblyFromFileBatch(CompilerParameters options, string[] fileNames)
         {
-            // csc();
-            // RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
-            return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
-            // return CompileAssemblyFromFileBatch_with_Csc(options, fileNames);
-            // return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
+            switch (CSExecutor.options.compilerEngine)
+            {
+                case "csc":
+                    return CompileAssemblyFromFileBatch_with_Csc(options, fileNames);
+                case "roslyn":
+                    return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
+                case "dotnet":
+                    return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
+                default:
+                    return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
+            }
         }
 
-       
 
-    
+        string findCsc()
+        {
+            // program_files/dotnet/sdk/<version>/Roslyn/csc.exe
+            var dirs = Environment.SpecialFolder.ProgramFiles.GetPath()
+                                  .PathJoin(@"dotnet\sdk")
+                                  .PathGetDirs("*")
+                                  .Where(dir => char.IsDigit(dir.GetFileName()[0]) && !dir.GetFileName().Contains('-')) // 2.0.3-preview
+                                  .OrderBy(x => Version.Parse(x.GetFileName()))
+                                  .SelectMany(dir => dir.PathGetDirs("Roslyn"));
+
+            var csc_exe = dirs.Select(dir => dir.PathJoin("csc.exe"))
+                         .LastOrDefault(File.Exists); 
+
+            // C:\Program Files\dotnet\sdk\2.0.3\Roslyn";
+            return csc_exe;
+        }
+
         CompilerResults CompileAssemblyFromFileBatch_with_Csc(CompilerParameters options, string[] fileNames)
         {
             string projectName = fileNames.First().GetFileName();
@@ -94,7 +115,6 @@ namespace CSScripting.CodeDom
 
             build_dir.DeleteDir()
                      .EnsureDir();
-
 
             var sources = new List<string>();
 
@@ -133,10 +153,7 @@ namespace CSScripting.CodeDom
             //----------------------------
 
             //pseudo-gac as .NET core does not support GAC but rather common assemblies.
-            var core_dir = typeof(string).Assembly.Location.GetDirName();
-
-            core_dir = @"C:\Program Files\dotnet\sdk\2.0.3\Roslyn";
-            // var gac = @"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.0-preview1-26216-03";
+            var csc_exe = findCsc();
 
             var gac = typeof(string).Assembly.Location.GetDirName();
 
@@ -161,14 +178,15 @@ namespace CSScripting.CodeDom
             foreach (string file in sources)
                 source_args += $"\"{file}\" ";
 
-            var cmd = $@"""{core_dir}\csc.exe"" {common_args} {refs_args} {source_args} /out:""{assembly}""";
+            var cmd = $@"""{csc_exe}"" {common_args} {refs_args} {source_args} /out:""{assembly}""";
             //----------------------------
 
             Profiler.get("compiler").Start();
             result.NativeCompilerReturnValue = Utils.Run(dotnet, cmd, build_dir, x => result.Output.Add(x));
             Profiler.get("compiler").Stop();
 
-            Console.WriteLine("    csc.exe: " + Profiler.get("compiler").Elapsed);
+            if (CSExecutor.options.verbose)
+                Console.WriteLine("    csc.exe: " + Profiler.get("compiler").Elapsed);
 
             result.ProcessErrors();
 
@@ -292,10 +310,12 @@ namespace CSScripting.CodeDom
             Profiler.get("compiler").Stop();
 
 
-
-            var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
-            if (timing != null)
-                Console.WriteLine("    dotnet: " + timing);
+            if (CSExecutor.options.verbose)
+            {
+                var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
+                if (timing != null)
+                    Console.WriteLine("    dotnet: " + timing);
+            }
 
             result.ProcessErrors();
 

@@ -26,7 +26,6 @@ namespace css
     {
         static void Main(string[] args)
         {
-
             var arguments = new List<string>();
             arguments.Add(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "cscs.dll"));
             arguments.AddRange(args);
@@ -35,10 +34,6 @@ namespace css
                                         .ToArray();
 
             ScriptLauncher.Run("dotnet", string.Join(" ", combinedArgs));
-            // Console.WriteLine("===========");
-            // ScriptLauncher.Run("dotnet", string.Join(" ", combinedArgs));
-
-            // Console.WriteLine("The end");
         }
     }
 }
