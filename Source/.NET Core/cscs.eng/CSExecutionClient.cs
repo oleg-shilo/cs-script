@@ -143,10 +143,13 @@ namespace csscript
                 }
 
                 if (exec.WaitForInputBeforeExit != null)
-                {
-                    Console.WriteLine(exec.WaitForInputBeforeExit);
-                    Console.ReadKey();
-                }
+                    try
+                    {
+
+                        Console.WriteLine(exec.WaitForInputBeforeExit);
+                        Console.Read();
+                    }
+                    catch { }
             }
             finally
             {
@@ -348,7 +351,7 @@ namespace csscript
             ProcessNewEncoding(null);
 
             AppInfo.appName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-            CSSUtils.DbgInjectionCode = embedded_strings.dbg_source;
+            // CSSUtils.DbgInjectionCode = embedded_strings.dbg_source;
 
             CSExecutor.print = Console.WriteLine;
         }

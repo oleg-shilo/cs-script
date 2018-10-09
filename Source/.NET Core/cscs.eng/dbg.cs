@@ -7,23 +7,20 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
-// namespace csscript
-// {
-    public static class dbg_extensions
+public static class dbg_extensions
+{
+    static public T dump<T>(this T @object, params object[] args)
     {
-        static public T dump<T>(this T @object, params object[] args)
-        {
-            dbg.print(@object, args);
-            return @object;
-        }
-
-        static public T print<T>(this T @object, params object[] args)
-        {
-            dbg.print(@object, args);
-            return @object;
-        }
+        dbg.print(@object, args);
+        return @object;
     }
-//}
+
+    static public T print<T>(this T @object, params object[] args)
+    {
+        dbg.print(@object, args);
+        return @object;
+    }
+}
 
 public class dbg
 {
@@ -133,7 +130,7 @@ public class dbg
         // {
 
         // }
-        else if (obj is IEnumerable enumerableElement )
+        else if (obj is IEnumerable enumerableElement)
         {
             writeLine(DisplayName(enumerableElement));
 
@@ -148,7 +145,7 @@ public class dbg
                     break;
                 }
 
-                 if (obj is IDictionary)
+                if (obj is IDictionary)
                     write($"{index++} - ");
                 else
                     write("[" + (index++) + "]: ");

@@ -19,6 +19,55 @@ class ScriptLauncher
     static bool nologo = false;
     static int lineCount = 0;
 
+    [DllImport("User32")]
+    static extern int ShowWindow(IntPtr hwnd, int nCmdShow);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, out IntPtr ProcessId);
+
+    [DllImport("kernel32")]
+    static extern IntPtr GetConsoleWindow();
+    static bool isLinux { get; } = (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
+
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool AllocConsole();
+
+    [DllImport("kernel32", SetLastError = true)]
+    private static extern bool AttachConsole(int dwProcessId);
+
+    internal static void HideConsole()
+    {
+        if (!isLinux)
+        {
+            IntPtr hwnd = GetConsoleWindow();
+            if (hwnd != IntPtr.Zero)
+            {
+                int SW_HIDE = 0;
+                IntPtr processId = IntPtr.Zero;
+                GetWindowThreadProcessId(hwnd, out processId);
+                if (Process.GetCurrentProcess().Id == (int)processId)
+                    ShowWindow(hwnd, SW_HIDE);
+            }
+        }
+    }
+
+    internal static void ShowConsole()
+    {
+        // interferes with Conspole.ReadKey
+
+        if (!isLinux)
+            try
+            {
+                // int SW_SHOW = 5;
+                // ShowWindow(GetConsoleWindow(), SW_SHOW);
+                if (!AttachConsole(Process.GetCurrentProcess().Id))
+                    Debug.WriteLine(AllocConsole());
+            }
+            catch { }
+    }
+
     static public void Run(string app, string arguments)
     {
         try
@@ -50,12 +99,15 @@ class ScriptLauncher
             Environment.ExitCode = process.ExitCode;
 
             outputThread.Join(1000);
-            
-            inputThread.IsBackground = true;
-            inputThread.Abort();
+
+            if (inputThread.IsAlive)
+            {
+                inputThread.IsBackground = true;
+                inputThread.Abort();
+            }
 
             // background threads anyway
-            errorThread.Abort(); 
+            errorThread.Abort();
             outputThread.Abort();
         }
         catch

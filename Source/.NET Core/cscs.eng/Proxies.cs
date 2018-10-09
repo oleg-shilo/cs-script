@@ -99,7 +99,7 @@ namespace CSScripting.CodeDom
                                   .SelectMany(dir => dir.PathGetDirs("Roslyn"));
 
             var csc_exe = dirs.Select(dir => dir.PathJoin("csc.exe"))
-                         .LastOrDefault(File.Exists); 
+                         .LastOrDefault(File.Exists);
 
             // C:\Program Files\dotnet\sdk\2.0.3\Roslyn";
             return csc_exe;
@@ -138,7 +138,10 @@ namespace CSScripting.CodeDom
             var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
                                                              .Where(Path.IsPathRooted)
                                                              .Where(asm => asm.GetDirName() != engine_dir)
-                                                             .ToArray();
+                                                             .ToList();
+
+            if (CSExecutor.options.enableDbgPrint)
+                ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
 
             var refs = new StringBuilder();
             var assembly = build_dir.PathJoin(projectName + ".dll");
@@ -257,7 +260,10 @@ namespace CSScripting.CodeDom
             var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
                                                              .Where(Path.IsPathRooted)
                                                              .Where(not_in_engine_dir)
-                                                             .ToArray(); // for debugging
+                                                             .ToList(); 
+
+            if (CSExecutor.options.enableDbgPrint)
+                ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
 
             void CopySourceToBuildDir(string source)
             {
