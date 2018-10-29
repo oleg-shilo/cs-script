@@ -93,7 +93,7 @@ namespace CSScriptLibrary
             set { defaultAccess = value; }
         }
 
-        EvaluatorEngine engine = EvaluatorEngine.Mono;
+        EvaluatorEngine engine = EvaluatorEngine.Roslyn;
 
         bool debugBuild = false;
 
