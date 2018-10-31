@@ -80,6 +80,20 @@ namespace csscript
                 items[key] = new Stopwatch();
             return items[key];
         }
+
+        public static void measure(string name, Action action)
+        {
+            var sw = new Stopwatch();
+            try
+            {
+                sw.Start();
+                action();
+            }
+            finally
+            {
+                Console.WriteLine($"{name}: {sw.Elapsed}");
+            }
+        }
     }
 
     internal interface IScriptExecutor
@@ -356,8 +370,18 @@ namespace csscript
                     options.searchDirs = dirs.ToArray();
                     CSharpParser.CmdScriptInfo[] cmdScripts = new CSharpParser.CmdScriptInfo[0];
 
+                    var compilerDirective = "//css_compiler";
                     //do quick parsing for pre/post scripts, ThreadingModel and embedded script arguments
-                    CSharpParser parser = new CSharpParser(options.scriptFileName, true, null, options.searchDirs);
+
+                    CSharpParser parser = new CSharpParser(options.scriptFileName, true, new[] { compilerDirective }, options.searchDirs);
+
+                    // it is either '' or 'freestyle', but not 'null' if '//css_ac' was specified
+                    if (parser.AutoClassMode != null)
+                    {
+                        options.autoClass = true;
+                    }
+
+                    options.compilerEngine = parser.GetDirective(compilerDirective)?.LastOrDefault();
 
                     if (parser.Inits.Length != 0)
                         options.initContext = parser.Inits[0];
@@ -1224,34 +1248,13 @@ namespace csscript
                 {
                     try
                     {
-                        //try to recover from incorrectly configured CS-Script but only if not hosted by another app
-                        if (!Assembly.GetExecutingAssembly().Location.ToLower().EndsWith("csscriptlibrary.dll"))
-                        {
-                            string sccssdir = Environment.GetEnvironmentVariable("CSSCRIPT_DIR");
+                        var errorMessage = "\nCannot find alternative compiler (" + options.altCompiler + "). Loading default compiler instead.";
 
-                            if (sccssdir != null)//CS-Script is installed/configured
-                            {
-                                var errorMessage = "\nCannot find alternative compiler (" + options.altCompiler + "). Loading default compiler instead.";
+                        if (!File.Exists(options.altCompiler)) //Invalid alt-compiler configured
+                            print(errorMessage);
 
-                                if (options.altCompiler.EndsWith("CSSCodeProvider.v4.6.dll"))
-                                {
-                                    try
-                                    {
-                                        var roslynProvider = options.altCompiler.Replace("CSSCodeProvider.v4.6.dll", "CSSRoslynProvider.dll");
-                                        var compilerAsmFile = LookupAltCompilerFile(roslynProvider, scriptDir);
-                                        errorMessage += "\nHowever CSSRoslynProvider.dll has been detected. You may consider the latest CS-Script provider " +
-                                            "'CSSRoslynProvider.dll' instead of the legacy one 'CSSCodeProvider.v4.6.dll'.";
-                                    }
-                                    catch { }
-                                }
-
-                                if (Directory.Exists(sccssdir) && !File.Exists(options.altCompiler)) //Invalid alt-compiler configured
-                                    print(errorMessage);
-
-                                options.altCompiler = "";
-                                return LoadDefaultCompiler();
-                            }
-                        }
+                        options.altCompiler = "";
+                        return LoadDefaultCompiler();
                     }
                     catch { }
 
@@ -2066,7 +2069,7 @@ namespace csscript
                 File.WriteAllText(outFile, code);
             else if (print != null)
                 print(code);
-            }
+        }
 
         /// <summary>
         /// Show sample precompiler C# script file.

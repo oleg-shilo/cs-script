@@ -1,4 +1,10 @@
 using csscript;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Emit;
+using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -68,6 +74,158 @@ namespace CSScripting.CodeDom
 
         public CompilerResults CompileAssemblyFromFileBatch(CompilerParameters options, string[] fileNames)
         {
+            switch (CSExecutor.options.compilerEngine)
+            {
+                case "csc":
+                    return CompileAssemblyFromFileBatch_with_Csc(options, fileNames);
+                case "roslyn":
+                    return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
+                case "dotnet":
+                    return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
+                default:
+                    return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
+            }
+        }
+
+
+        string findCsc()
+        {
+            // program_files/dotnet/sdk/<version>/Roslyn/csc.exe
+            var dirs = Environment.SpecialFolder.ProgramFiles.GetPath()
+                                  .PathJoin(@"dotnet\sdk")
+                                  .PathGetDirs("*")
+                                  .Where(dir => char.IsDigit(dir.GetFileName()[0]) && !dir.GetFileName().Contains('-')) // 2.0.3-preview
+                                  .OrderBy(x => Version.Parse(x.GetFileName()))
+                                  .SelectMany(dir => dir.PathGetDirs("Roslyn"));
+
+            var csc_exe = dirs.Select(dir => dir.PathJoin("csc.exe"))
+                         .LastOrDefault(File.Exists);
+
+            // C:\Program Files\dotnet\sdk\2.0.3\Roslyn";
+            return csc_exe;
+        }
+
+        CompilerResults CompileAssemblyFromFileBatch_with_Csc(CompilerParameters options, string[] fileNames)
+        {
+            string projectName = fileNames.First().GetFileName();
+
+            var engine_dir = this.GetType().Assembly.Location.GetDirName();
+            var cache_dir = CSExecutor.ScriptCacheDir; // C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284
+            var build_dir = cache_dir.PathJoin(".build", projectName);
+
+            build_dir.DeleteDir()
+                     .EnsureDir();
+
+            var sources = new List<string>();
+
+            fileNames.ForEach((string source) =>
+                {
+                    // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported 
+                    // by both .NET debugger (VS) and .NET Core debugger (VSCode).
+
+                    // However PortablePDB does not store the full source path but file name only (at least for now). It works fine in typical
+                    // .Core scenario where the all sources are in the root directory but if they are not (e.g. scripting or desktop app) then
+                    // debugger cannot resolve sources without user input.
+
+                    // The only solution (ugly one) is to inject the full file path at startup with #line directive
+
+                    var new_file = build_dir.PathJoin(source.GetFileName());
+                    var sourceText = $"#line 1 \"{source}\"{Environment.NewLine}" + File.ReadAllText(source);
+                    File.WriteAllText(new_file, sourceText);
+                    sources.Add(new_file);
+                });
+
+            var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
+                                                             .Where(Path.IsPathRooted)
+                                                             .Where(asm => asm.GetDirName() != engine_dir)
+                                                             .ToList();
+
+            if (CSExecutor.options.enableDbgPrint)
+                ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
+
+            var refs = new StringBuilder();
+            var assembly = build_dir.PathJoin(projectName + ".dll");
+
+            var result = new CompilerResults();
+
+            if (!options.GenerateExecutable || !Utils.IsCore || DefaultCompilerRuntime == DefaultCompilerRuntime.Standard)
+            {
+                // todo
+            }
+
+            //----------------------------
+
+            //pseudo-gac as .NET core does not support GAC but rather common assemblies.
+            var csc_exe = findCsc();
+
+            var gac = typeof(string).Assembly.Location.GetDirName();
+
+            var refs_args = "";
+            var source_args = "";
+
+            var common_args = "/utf8output /nostdlib+ ";
+            if (options.GenerateExecutable)
+                common_args += "/t:exe ";
+            else
+                common_args += "/t:library ";
+
+            if (options.IncludeDebugInformation)
+                common_args += "/debug+";
+
+            foreach (string file in Directory.GetFiles(gac, "System.*.dll"))
+                refs_args += $"/r:\"{file}\" ";
+
+            foreach (string file in ref_assemblies)
+                refs_args += $"/r:\"{file}\" ";
+
+            foreach (string file in sources)
+                source_args += $"\"{file}\" ";
+
+            var cmd = $@"""{csc_exe}"" {common_args} {refs_args} {source_args} /out:""{assembly}""";
+            //----------------------------
+
+            Profiler.get("compiler").Start();
+            result.NativeCompilerReturnValue = Utils.Run(dotnet, cmd, build_dir, x => result.Output.Add(x));
+            Profiler.get("compiler").Stop();
+
+            if (CSExecutor.options.verbose)
+                Console.WriteLine("    csc.exe: " + Profiler.get("compiler").Elapsed);
+
+            result.ProcessErrors();
+
+            result.Errors
+                  .ForEach(x =>
+                  {
+                      // by default x.FileName is a file name only 
+                      x.FileName = fileNames.FirstOrDefault(f => f.EndsWith(x.FileName ?? "")) ?? x.FileName;
+                  });
+
+            if (result.NativeCompilerReturnValue == 0 && File.Exists(assembly))
+            {
+                result.PathToAssembly = options.OutputAssembly;
+                File.Copy(assembly, result.PathToAssembly, true);
+
+                if (options.IncludeDebugInformation)
+                    File.Copy(assembly.ChangeExtension(".pdb"),
+                              result.PathToAssembly.ChangeExtension(".pdb"),
+                              true);
+            }
+            else
+            {
+                if (result.Errors.IsEmpty())
+                {
+                    // unknown error; e.g. invalid compiler params 
+                    result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
+                }
+            }
+
+            build_dir.DeleteDir();
+
+            return result;
+        }
+
+        CompilerResults CompileAssemblyFromFileBatch_with_Build(CompilerParameters options, string[] fileNames)
+        {
             string projectName = fileNames.First().GetFileName();
             string projectShortName = Path.GetFileNameWithoutExtension(projectName);
 
@@ -102,7 +260,10 @@ namespace CSScripting.CodeDom
             var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
                                                              .Where(Path.IsPathRooted)
                                                              .Where(not_in_engine_dir)
-                                                             .ToArray(); // for debugging
+                                                             .ToList(); 
+
+            if (CSExecutor.options.enableDbgPrint)
+                ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
 
             void CopySourceToBuildDir(string source)
             {
@@ -131,9 +292,9 @@ namespace CSScripting.CodeDom
 
                 project_content = project_content.Replace("</Project>",
                                                         $@"  <ItemGroup>
-                                                                {refs.ToString()}
-                                                             </ItemGroup>
-                                                          </Project>");
+                                                                    {refs.ToString()}
+                                                                 </ItemGroup>
+                                                              </Project>");
 
             }
 
@@ -155,10 +316,12 @@ namespace CSScripting.CodeDom
             Profiler.get("compiler").Stop();
 
 
-
-            // var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
-            // if (timing != null)
-            //     Console.WriteLine("    dotnet: " + timing);
+            if (CSExecutor.options.verbose)
+            {
+                var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
+                if (timing != null)
+                    Console.WriteLine("    dotnet: " + timing);
+            }
 
             result.ProcessErrors();
 

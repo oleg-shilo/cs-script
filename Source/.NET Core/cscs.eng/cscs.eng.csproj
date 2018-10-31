@@ -4,6 +4,18 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>cscs.eng</RootNamespace>
     <AssemblyName>cscs.eng</AssemblyName>
+    <Version>0.0.4-beta</Version>
+    <Authors>Oleg Shilo</Authors>
+    <Product>CS-Script</Product>
+    <Copyright>(C) 2004-2018 Oleg Shilo</Copyright>
+    <Description>C# Script engine library (netstandard2)</Description>
+    <PackageLicenseUrl>https://github.com/oleg-shilo/cs-script/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/oleg-shilo/cs-script/master/Source/wiki/images/css_logo_codeplex_256x256_2.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>C# script dynamic</PackageTags>
+    <PackageReleaseNotes>C# Script engine library (.NET Standard 2)</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +26,10 @@
     <None Include="GACHelper.cs">
       <SubType>Code</SubType>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.8.2" />
   </ItemGroup>
 
   <ItemGroup>

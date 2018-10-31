@@ -124,7 +124,7 @@ namespace csscript
             return thread;
         }
 
-        public static int Run(string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null)
+        public static Process RunAsync(string exe, string args, string dir = null)
         {
             var process = new Process();
 
@@ -139,6 +139,13 @@ namespace csscript
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.Start();
+
+            return process;
+        }
+
+        public static int Run(string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null)
+        {
+            var process = RunAsync(exe, args, dir);
 
             var error = StartMonitor(process.StandardError, onError);
             var output = StartMonitor(process.StandardOutput, onOutput);
@@ -344,10 +351,25 @@ namespace csscript
             return path;
         }
 
+        public static string GetPath(this Environment.SpecialFolder folder)
+        {
+            return Environment.GetFolderPath(folder);
+        }
+
         public static string PathJoin(this string path, params object[] parts)
         {
             var allParts = new[] { path ?? "" }.Concat(parts.Select(x => x?.ToString() ?? ""));
             return Path.Combine(allParts.ToArray());
+        }
+
+        public static string[] PathGetDirs(this string path, string mask)
+        {
+            return Directory.GetDirectories(path, mask);
+        }
+
+        public static string[] PathGetFiles(this string path, string mask)
+        {
+            return Directory.GetFiles(path, mask);
         }
 
         public static string GetDirName(this string path) => Path.GetDirectoryName(path);
@@ -1171,8 +1193,14 @@ partial class dbg
                     else if (Args.ParseValuedArg(arg, AppArgs.sconfig, out argValue)) // -sconfig:file
                     {
                         options.useScriptConfig = true;
-                        if (argValue != null)
+                        if (argValue == "none")
+                        {
+                            options.useScriptConfig = false;
+                        }
+                        else if (argValue != null)
+                        {
                             options.customConfigFileName = argValue;
+                        }
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.provider, AppArgs.pvdr, out argValue)) // -provider:file
                     {
@@ -1211,6 +1239,8 @@ partial class dbg
                         if (argValue != null && argValue != "print")
                         {
                             options.preCompilers = argValue;
+
+
                         }
                         else
                         {
@@ -1277,6 +1307,10 @@ partial class dbg
                         }
                         else if (argValue == "out")
                         {
+                            if (nextArg.IsEmpty())
+                            {
+                                throw new CLIException($"Incomplete '{arg}' argument.");
+                            }
                             executor.PrintDecoratedAutoclass(nextArg);
                             CLIExitRequest.Throw();
                         }
@@ -1676,7 +1710,7 @@ partial class dbg
         public static Assembly CompilePrecompilerScript(string sourceFile, string[] searchDirs)
         {
             // https://github.com/aspnet/RoslynCodeDomProvider/issues/37
-            // .NET Core team does not have any plans for CodeDOM 
+            // .NET Core team does not have any plans for CodeDOM
             try
             {
                 var asmExtension = Utils.IsMono ? ".dll" : ".compiled";

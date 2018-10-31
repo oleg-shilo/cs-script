@@ -31,18 +31,36 @@ using System.IO;
 using System.Reflection;
 using csscript;
 using System.Xml.Linq;
+using System.Net.Sockets;
+using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Emit;
+using Microsoft.CodeAnalysis;
+using System.Xml.Serialization;
+using System.Xml;
 
 /// <summary>
 /// Credit to https://stackoverflow.com/questions/298830/split-string-containing-command-line-parameters-into-string-in-c-sharp/298990#298990
 /// </summary>
 public static class CLIExtensions
 {
-
     public static string TrimMatchingQuotes(this string input, char quote)
     {
-        if (input.Length >= 2 && input.First() == quote && input.Last() == quote)
-            return input.Substring(1, input.Length - 2);
-
+        if (input.Length >= 2)
+        {
+            //"-sconfig:My Script.cs.config"
+            if (input.First() == quote && input.Last() == quote)
+            {
+                return input.Substring(1, input.Length - 2);
+            }
+            //-sconfig:"My Script.cs.config"
+            else if (input.Last() == quote)
+            {
+                var firstQuote = input.IndexOf(quote);
+                if (firstQuote != input.Length - 1) //not the last one
+                    return input.Substring(0, firstQuote) + input.Substring(firstQuote + 1, input.Length - 2 - firstQuote);
+            }
+        }
         return input;
     }
 
@@ -62,6 +80,18 @@ public static class CLIExtensions
         yield return str.Substring(nextPiece);
     }
 
+    public static string[] GetLines(this string str) // too simplistic though adequate
+    {
+        return str.Replace("\r\n", "\n").Split('\n');
+    }
+
+    public static string[] ArgValues(this string[] arguments, string prefix)
+    {
+        return arguments.Where(x => x.StartsWith(prefix + ":"))
+                        .Select(x => x.Substring(prefix.Length + 1).TrimMatchingQuotes('"'))
+                        .ToArray();
+    }
+
     public static string ArgValue(this string[] arguments, string prefix)
     {
         return (arguments.FirstOrDefault(x => x.StartsWith(prefix + ":"))
@@ -78,18 +108,175 @@ public static class CLIExtensions
     public static string[] SplitCommandLine(this string commandLine)
     {
         bool inQuotes = false;
+        bool isEscaping = false;
 
         return commandLine.Split(c =>
-                                 {
-                                     if (c == '\"')
-                                         inQuotes = !inQuotes;
+        {
+            if (c == '\\' && !isEscaping) { isEscaping = true; return false; }
 
-                                     return !inQuotes && c == ' ';
-                                 })
-                          .Select(arg => arg.Trim().TrimMatchingQuotes('\"'))
-                          .Where(arg => arg.IsNotEmpty())
-                          .ToArray();
+            if (c == '\"' && !isEscaping)
+                inQuotes = !inQuotes;
+
+            isEscaping = false;
+
+            return !inQuotes && Char.IsWhiteSpace(c)/*c == ' '*/;
+        })
+        .Select(arg => arg.Trim().TrimMatchingQuotes('\"').Replace("\\\"", "\""))
+        .Where(arg => !string.IsNullOrEmpty(arg))
+        .ToArray();
     }
+}
+
+public static class SocketExtensions
+{
+    public static byte[] GetBytes(this string data)
+    {
+        return Encoding.UTF8.GetBytes(data);
+    }
+
+    public static string GetString(this byte[] data)
+    {
+        return Encoding.UTF8.GetString(data);
+    }
+
+    public static byte[] ReadAllBytes(this TcpClient client)
+    {
+        var bytes = new byte[client.ReceiveBufferSize];
+        var len = client.GetStream()
+                        .Read(bytes, 0, bytes.Length);
+        var result = new byte[len];
+        Array.Copy(bytes, result, len);
+        return result;
+    }
+
+    public static string ReadAllText(this TcpClient client)
+    {
+        return client.ReadAllBytes().GetString();
+    }
+
+    public static void WriteAllBytes(this TcpClient client, byte[] data)
+    {
+        var stream = client.GetStream();
+        stream.Write(data, 0, data.Length);
+        stream.Flush();
+    }
+
+    public static void WriteAllText(this TcpClient client, string data)
+    {
+        client.WriteAllBytes(data.GetBytes());
+    }
+}
+
+static class Serialization
+{
+    public static T Deserialize<T>(this string data)
+    {
+        var serializer = new XmlSerializer(typeof(T));
+
+        using (var buffer = new StringReader(data))
+        using (var reader = XmlReader.Create(buffer))
+        {
+            return (T)serializer.Deserialize(reader);
+        }
+    }
+
+    public static string Serialize(this object obj)
+    {
+        if (obj == null) return "";
+
+        var serializer = new XmlSerializer(obj.GetType());
+        using (var string_writer = new StringWriter())
+        using (var xml_writer = XmlWriter.Create(string_writer))
+        {
+            serializer.Serialize(xml_writer, obj);
+            return string_writer.ToString();
+        }
+    }
+}
+
+public class BuildRequest
+{
+    public string Source;
+    public string Assembly;
+    public bool IsDebug;
+    public string[] References;
+}
+
+public class BuildResult
+{
+    // using XML or JSON serializer is the best approach, though the first one  is heavy
+    // and the second one requires an additional NuGet package, which even does not exist
+    // for .NET Standard 2.0.
+    // Thus for the temp solution like this go with a simple line serialization
+    public class Diagnostic
+    {
+        /* Microsoft.CodeAnalysis.Diagnostic is coupled to the source tree and other CodeDOM objects
+         * so need to use an adapter.
+         */
+
+        public static BuildResult.Diagnostic From(Microsoft.CodeAnalysis.Diagnostic data)
+        {
+            return new BuildResult.Diagnostic
+            {
+                IsWarningAsError = data.IsWarningAsError,
+                Severity = data.Severity,
+                Location_IsInSource = data.Location.IsInSource,
+                Location_StartLinePosition_Line = data.Location.GetLineSpan().StartLinePosition.Line,
+                Location_StartLinePosition_Character = data.Location.GetLineSpan().StartLinePosition.Character,
+                Location_FilePath = data.Location.SourceTree.FilePath,
+                Id = data.Id,
+                Message = data.GetMessage()
+            };
+        }
+
+        public bool IsWarningAsError;
+        public DiagnosticSeverity Severity;
+        public bool Location_IsInSource;
+        public int Location_StartLinePosition_Line;
+        public int Location_StartLinePosition_Character;
+        public string Location_FilePath;
+        public string Id;
+        public string Message;
+    }
+
+    public bool Success;
+    public List<BuildResult.Diagnostic> Diagnostics = new List<BuildResult.Diagnostic>();
+
+    public static BuildResult From(EmitResult data)
+    {
+        return new BuildResult
+        {
+            Success = data.Success,
+            Diagnostics = data.Diagnostics.Select(x => Diagnostic.From(x)).ToList()
+        };
+    }
+
+    // public static BuildResult Deserialize(string data)
+    // {
+    //     var lines = data.GetLines();
+
+    //     var refs = lines.ArgValues("-ref");
+    //     var script = lines.ArgValue("-source");
+    //     var isDbg = lines.ArgValue("-dbg") != null;
+    //     var asmFile = lines.ArgValue("-asm");
+
+    //     return new BuildResult
+    //     {
+    //         Success = lines.ArgValue("-success") == true.ToString()
+    //         //,
+    //         // Diagnostics = lines.ArgValues("-diagnostics").Select().ToList()
+    //     };
+    // }
+
+    // public string Serialize()
+    // {
+    //     var request = new List<string>();
+    //     request.Add("-success:" + this.Success);
+    //     foreach (var item in this.Diagnostics)
+    //         request.Add("-diagnostic:" + item.Serialize());
+
+    //     return "";
+    // }
 }
 
 public static class CoreExtensions
@@ -152,8 +339,11 @@ public static class CoreExtensions
 
 namespace csscript
 {
-    internal static class GenericExtensions
+    static class GenericExtensions
     {
+        public static string PathGetDir(this string path)
+            => path == null ? null : Path.GetDirectoryName(path);
+
         public static bool IsDirSectionSeparator(this string text)
         {
             return text != null && text.StartsWith(Settings.dirs_section_prefix) && text.StartsWith(Settings.dirs_section_suffix);

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("cscs.exe")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("css")]
+[assembly: AssemblyDescription("C# script engine Console executable (.NET full)")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("cscs.exe")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCompany("Oleg Shilo")]
+[assembly: AssemblyProduct("CS-Script")]
+[assembly: AssemblyCopyright("(C) 2004-2018 Oleg Shilo")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b0911a74-bd2b-4530-8803-0582e1f1e62e")]
+[assembly: Guid("a8755b0e-ee1d-4cc0-9c58-a7abb0efae3c")]
 
 // Version information for an assembly consists of the following four values:
 //

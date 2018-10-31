@@ -61,6 +61,7 @@ using System.Threading;
         + Describe //css_nuget -rt:<name> directive arg
 
  CS-Script limitations:
+    - No support for script app.config file
     - No building "*.exe"
     - No NuGet inter-package dependencies resolving. All packages (including dependency packages) must be specified in the script 
     - Huge compilation startup delay (.NET Core offers no VBCSCompiler.exe optimisation)
@@ -99,6 +100,7 @@ namespace csscript
         /// </summary>
         public static void Main(string[] rawArgs)
         {
+            // Debug.Assert(false);
             main(PreprocessArgs(rawArgs));
         }
 
@@ -141,10 +143,13 @@ namespace csscript
                 }
 
                 if (exec.WaitForInputBeforeExit != null)
-                {
-                    Console.WriteLine(exec.WaitForInputBeforeExit);
-                    Console.ReadKey();
-                }
+                    try
+                    {
+
+                        Console.WriteLine(exec.WaitForInputBeforeExit);
+                        Console.Read();
+                    }
+                    catch { }
             }
             finally
             {
@@ -278,12 +283,12 @@ namespace csscript
 
         public static string appLogo
         {
-            get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\nCopyright (C) 2004-2018 Oleg Shilo.\n"; }
+            get { return "C# Script execution engine (.NET Core). Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\nCopyright (C) 2004-2018 Oleg Shilo.\n"; }
         }
 
         public static string appLogoShort
         {
-            get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\n"; }
+            get { return "C# Script execution engine (.NET Core). Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\n"; }
         }
     }
 
@@ -346,7 +351,7 @@ namespace csscript
             ProcessNewEncoding(null);
 
             AppInfo.appName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
-            CSSUtils.DbgInjectionCode = embedded_strings.dbg_source;
+            // CSSUtils.DbgInjectionCode = embedded_strings.dbg_source;
 
             CSExecutor.print = Console.WriteLine;
         }

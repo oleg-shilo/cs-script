@@ -1,7 +1,7 @@
 {
   "profiles": {
     "cscs": {
-      "commandName": "Project"
+      "commandName": "Executable"
     }
   }
 }

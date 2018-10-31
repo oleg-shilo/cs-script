@@ -6,6 +6,17 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
+    <Version>0.0.4-beta</Version>
+    <Authors>Oleg Shilo</Authors>
+    <Product>CS-Script</Product>
+    <Copyright>(C) 2004-2018 Oleg Shilo</Copyright>
+    <Description>C# Script engine .NET Core executable</Description>
+    <PackageLicenseUrl>https://github.com/oleg-shilo/cs-script/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/oleg-shilo/cs-script/master/Source/wiki/images/css_logo_codeplex_256x256_2.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>C# script dynamic</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
