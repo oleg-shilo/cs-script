@@ -205,52 +205,29 @@ namespace csscript
             switch1Help[ac] =
             switch1Help[autoclass] = new ArgInfo("-ac|-autoclass[:<0|1|2|out>]",
                                                    "",
+                                                   "This argument has the same effect as the script directive '//css_autoclass' placed in directly in the code.",
                                                    " -ac     - enables auto-class decoration (which might be disabled globally).",
                                                    " -ac:0   - disables auto-class decoration (which might be enabled globally).",
                                                    " -ac:1   - same as '-ac'",
-                                                   " -ac:2   - same as '-ac:1' and '-ac'",
+                                                   // " -ac:2   - same as '-ac:1' and '-ac' with the additional berakpoint insertion",
                                                    " -ac:out - ",
                                                    "${<=-11}prints auto-class decoration for a given script file. The argument must be followed by the path to script file.",
                                                    " ",
                                                    "Automatically generates 'static entry point' class if the script doesn't define any.",
                                                    " ",
-                                                   "    using System;",
-                                                   " ",
-                                                   "    void Main()",
-                                                   "    {",
-                                                   "        Console.WriteLine(\"Hello World!\";",
-                                                   "    }",
-                                                   " ",
-                                                   "Using an alternative 'instance entry point' is even more convenient (and reliable).",
-                                                   "The acceptable 'instance entry point' signatures are:",
-                                                   " ",
-                                                   "    void main()",
-                                                   "    void main(string[] args)",
-                                                   "    int main()",
-                                                   "    int main(string[] args)",
-                                                   " ",
-                                                   "Note, having any active code above entry point is acceptable though it complicates the troubleshooting if such a code contains errors. " +
-                                                   "(see https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class)",
-                                                   " ",
-                                                   "By default CS-Script decorates the script by adding a class declaration statement to the " +
-                                                   "start of the script routine and a class closing bracket to the end. This may have an unintended " +
-                                                   "effect as any class declared in the script becomes a 'nested class'. While it is acceptable " +
-                                                   "for practically all use-cases it may be undesired for just a few scenarios. For example, any " +
-                                                   "class containing method extensions must be a top level static class, what conflicts with the " +
-                                                   "auto-class decoration algorithm.",
-                                                   " ",
-                                                   "The solution to this problem is to allow some user code to be protected from being included into " +
-                                                   "the decorated code.",
-                                                   "User can achieve this by placing '//css_ac_end' statement into the code. Any user code below this " +
-                                                   "statement will be excluded from the decoration and stay unchanged.");
+                                                   "See '//css_autoclass' directive for details. Or find the full documentation on GitHub: " +
+                                                   " https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class",
+                                                   " ");                                                   
             // switch2Help[nl] = new ArgInfo("-nl",
             //                                        "No logo mode: No banner will be shown/printed at execution time.",
             //                                        "Applicable for console mode only.");
             switch2Help[d] =
             switch2Help[dbg] = new ArgInfo("-dbg|-d",
                                                    "Forces compiler to include debug information.");
-            switch2Help[l] = new ArgInfo("-l",
-                                                   "'local' (makes the script directory a 'current directory').");
+            switch2Help[l] = new ArgInfo("-l[:<0|1>]",
+                                                   "'local'- makes the script directory a 'current directory' (enabled by default).",
+                                                   " -l:1   the process current directory is assigned to the script directory (default);",
+                                                   " -l:0   the process current directory is not adjusted in any way;");
             switch2Help[version2] =
             switch2Help[version] =
             switch2Help[ver] =
@@ -309,11 +286,14 @@ namespace csscript
                                                    "Forces the script to be compiled into a specific location.",
                                                    "Used only for very fine hosting tuning.",
                                                    "(e.g. " + AppInfo.appName + " -out:%temp%\\%pid%\\sample.dll sample.cs");
-            switch2Help[sconfig] = new ArgInfo("-sconfig[:file]",
-                                                   "Uses script config file or custom config file as a .NET app.config.",
-                                                   "This option might be useful for running scripts, which usually cannot be executed without configuration file (e.g. WCF, Remoting).",
-                                                   "(e.g. if -sconfig is used the expected config file name is <script_name>.cs.config or <script_name>.exe.config" +
-                                                   "if -sconfig:myApp.config is used the expected config file name is myApp.config)");
+
+            switch2Help[sconfig] = new ArgInfo("-sconfig[:<file>|none]",
+                                                   "Uses custom config file as a .NET app.config.",
+                                                   "This option might be useful for running scripts, which usually cannot be executed without custom configuration file (e.g. WCF, Remoting).",
+                                                   "By default CS-Script expects script config file name to be <script_name>.cs.config or <script_name>.exe.config. " +
+                                                   "However if <file> value is specified the it is used as a config file. ",
+                                                   "(e.g. if -sconfig:myApp.config is used the expected config file name is myApp.config)");
+
             switch2Help[r] = new ArgInfo("-r:<assembly 1>,<assembly N>",
                                                    "Uses explicitly referenced assembly.", "It is required only for " +
                                                    "rare cases when namespace cannot be resolved into assembly.",
@@ -375,13 +355,7 @@ namespace csscript
 
             const string section_sep = "------------------------------------"; // section_sep separator
 
-            syntaxHelp = fromLines(
-                         "**************************************",
-                         "Script specific syntax",
-                         "**************************************",
-                         " ",
-                         "Engine directives:",
-                         section_sep, //------------------------------------
+            var syntaxDetails = fromLines(
                          "//css_include <file>;",
                          " ",
                          "Alias - //css_inc",
@@ -404,19 +378,13 @@ namespace csscript
                          "unpredictable behavior. For example they may match everything from the very first probing directory, which is typically a current " +
                          "directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.cs', '*Helper.cs', './*.cs')",
                          section_sep, //------------------------------------
-                         "//css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];",
+                         "//css_reference <file>;",
                          " ",
-                         "Alias - //css_imp",
-                         "There are also another two aliases //css_include and //css_inc. They are equivalents of //css_import <file>, preserve_main",
-                         "If $this (or $this.name) is specified as part of <file> it will be replaced at execution time with the main script full name (or file name only).",
-                         " ",
-                         "file            - ${<==}name of a script file to be imported at compile-time.",
-                         "<preserve_main> - ${<==}do not rename 'static Main'",
-                         "oldName         - ${<==}name of a namespace to be renamed during importing",
-                         "newName         - ${<==}new name of a namespace to be renamed during importing",
-                         " ",
-                         "This directive is used to inject one script into another at compile time. Thus code from one script can be exercised in another one." +
-                         "'Rename' clause can appear in the directive multiple times.",
+                         "Alias - //css_ref",
+                         "file - name of the assembly file to be loaded at run-time.",
+                         "",
+                         "This directive is used to reference assemblies required at run time.",
+                         "The assembly must be in GAC, the same folder with the script file or in the 'Script Library' folders (see 'CS-Script settings').",
                          section_sep, //------------------------------------
                          " ",
                          "//css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];",
@@ -445,31 +413,12 @@ namespace csscript
                          "This directive will install CS-Script NuGet package.",
                          "(see http://www.csscript.net/help/script_nugets.html)",
                          section_sep,
-                         "//css_args arg0[,arg1]..[,argN];",
+                         "//css_args arg0[ arg1]..[ argN];",
                          " ",
                          "Embedded script arguments. The both script and engine arguments are allowed except \"/noconfig\" engine command switch.",
-                         "Example: //css_args -dbg, -inmem;",
+                         "Example: //css_args -dbg -inmem;",
                          "This directive will always force script engine to execute the script in debug mode.",
-                         "Note: the arguments must be coma separated.",
-                         section_sep, //------------------------------------
-                         "//css_reference <file>;",
-                         " ",
-                         "Alias - //css_ref",
-                         "file - name of the assembly file to be loaded at run-time.",
-                         "",
-                         "This directive is used to reference assemblies required at run time.",
-                         "The assembly must be in GAC, the same folder with the script file or in the 'Script Library' folders (see 'CS-Script settings').",
-                         section_sep, //------------------------------------
-                         "//css_precompiler <file 1>,<file 2>;",
-                         " ",
-                         "Alias - //css_pc",
-                         "file - name of the script or assembly file implementing precompiler.",
-                         " ",
-                         "This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time just " +
-                         "before compiling it. Precompilers are typically used to alter the script coder before the execution. Thus CS-Script uses " +
-                         "built-in precompiler to decorate classless scripts executed with -autoclass switch.",
-                         "(see http://www.csscript.net/help/precompilers.html",
-                         section_sep, //------------------------------------
+                          section_sep, //------------------------------------
                          "//css_searchdir <directory>;",
                          " ",
                          "Alias - //css_dir",
@@ -481,6 +430,87 @@ namespace csscript
                          "The special case when the path ends with '**' is reserved to indicate 'sub directories' case. Examples:",
                          "${<=4}//css_dir packages\\ServiceStack*.1.0.21\\lib\\net40",
                          "${<=4}//css_dir packages\\**",
+                          section_sep, //------------------------------------
+                         "//css_autoclass [style]",
+                         " ",
+                         "Alias - //css_ac",
+                         "Automatically generates 'static entry point' class if the script doesn't define any.",
+                         " ",
+                         "    //css_ac",
+                         "    using System;",
+                         " ",
+                         "    void Main()",
+                         "    {",
+                         "        Console.WriteLine(\"Hello World!\");",
+                         "    }",
+                         " ",
+                         "Using an alternative 'instance entry point' is even more convenient (and reliable).",
+                         "The acceptable 'instance entry point' signatures are:",
+                         " ",
+                         "    void main()",
+                         "    void main(string[] args)",
+                         "    int main()",
+                         "    int main(string[] args)",
+                         " ",
+                         "The convention for the classless (auto-class) code structure is as follows:",
+                         " - set of 'using' statements" +
+                         " - classless 'main' "+
+                         " - user code "+
+                         " - optional //css_ac_end directive"+
+                         " - optional user code that is not a subject of auto-class decoration"+
+                         "(see https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class)",
+                         " ",
+                         "A special case of auto-class use case is a free style C# code that has no entry point 'main' at all:",
+                         " ",
+                         "    //css_autoclass freestyle",
+                         "    using System;",
+                         " ",
+                         "    Console.WriteLine(Environment.Version);",
+                         " ",
+                         "Since it's problematic to reliable auto-detect free style auto-classes, they must be defined with the " +
+                         "special parameter 'freestyle' after the '//css_ac' directive",
+                         " ",
+                         "By default CS-Script decorates the script by adding a class declaration statement to the " +
+                         "start of the script routine and a class closing bracket to the end. This may have an unintended " +
+                         "effect as any class declared in the script becomes a 'nested class'. While it is acceptable " +
+                         "for practically all use-cases it may be undesired for just a few scenarios. For example, any " +
+                         "class containing method extensions must be a top level static class, what conflicts with the " +
+                         "auto-class decoration algorithm.",
+                         " ",
+                         "An additional '//css_autoclass_end' ('//css_ac_end') directive can be used to solve this problem.",
+                         " ",
+                         "It's nothing else but a marker indicating the end of the code that needs to be decorated as (wrapped " +
+                         "into) an auto-class.",
+                         "This directive allows defining top level static classes in the class-less scripts, which is required for " +
+                         "implementing extension methods.",
+                         " ",
+                         " //css_ac",
+                         " using System;",
+                         " ",
+                         " void main()",
+                         " {",
+                         "     ...",
+                         " }",
+                         " ",
+                         " //css_ac_end",
+                         " ",
+                         " static class Extensions",
+                         " {",
+                         "     static public string Convert(this string text)",
+                         "     {",
+                         "         ...",
+                         "     }",
+                         " }",
+                         section_sep, //------------------------------------
+                         "//css_precompiler <file 1>,<file 2>;",
+                         " ",
+                         "Alias - //css_pc",
+                         "file - name of the script or assembly file implementing precompiler.",
+                         " ",
+                         "This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time just " +
+                         "before compiling it. Precompilers are typically used to alter the script coder before the execution. Thus CS-Script uses " +
+                         "built-in precompiler to decorate classless scripts executed with -autoclass switch.",
+                         "(see http://www.csscript.net/help/precompilers.html",
                          section_sep, //------------------------------------
                          "//css_resource <file>[, <out_file>];",
                          " ",
@@ -496,6 +526,20 @@ namespace csscript
                          "          //css_res Resources1.resx;",
                          "          //css_res Form1.resx, Scripting.Form1.resources;",
                          section_sep, //------------------------------------
+                         "//css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];",
+                         " ",
+                         "Alias - //css_imp",
+                         "There are also another two aliases //css_include and //css_inc. They are equivalents of //css_import <file>, preserve_main",
+                         "If $this (or $this.name) is specified as part of <file> it will be replaced at execution time with the main script full name (or file name only).",
+                         " ",
+                         "file            - ${<==}name of a script file to be imported at compile-time.",
+                         "<preserve_main> - ${<==}do not rename 'static Main'",
+                         "oldName         - ${<==}name of a namespace to be renamed during importing",
+                         "newName         - ${<==}new name of a namespace to be renamed during importing",
+                         " ",
+                         "This directive is used to inject one script into another at compile time. Thus code from one script can be exercised in another one." +
+                         "'Rename' clause can appear in the directive multiple times.",
+                         section_sep, //------------------------------------
                          "//css_co <options>;",
                          " ",
                          "options - options string.",
@@ -510,33 +554,6 @@ namespace csscript
                          "namespace - name of the namespace. Use '*' to completely disable namespace resolution",
                          " ",
                          "This directive is used to prevent CS-Script from resolving the referenced namespace into assembly.",
-
-                         section_sep, //------------------------------------
-                         "//css_ac_end",
-                         " ",
-                         "This directive is only applicable for class-less scripts executed with '-autoclass' CLI argument. " +
-                         "It's nothing else but a marker indicating the end of the code that needs to be decorated as (wrapped " +
-                         "into) an auto-class.",
-                         "This directive allows achieving top level static classes in the class-less scripts, which is required for " +
-                         "implementing extension methods.",
-                         " ",
-                         " //css_args -acutoclass",
-                         " using System;",
-                         " ",
-                         " void main()",
-                         " {",
-                         "     ...",
-                         " }",
-                         " ",
-                         " //css_ac_end",
-                         " ",
-                         " static class Extensions",
-                         " {",
-                         "     static public void Convert(this string text)",
-                         "     {",
-                         "         ...",
-                         "     }",
-                         " }",
 
                          section_sep, //------------------------------------
                          "//css_prescript file([arg0][,arg1]..[,argN])[ignore];",
@@ -622,7 +639,7 @@ namespace csscript
                          " ",
                          "Or shorter form:",
                          " ",
-                         " //css_args -ac",
+                         " //css_autoclass",
                          " //css_inc web_api_host.cs",
                          " //css_ref media_server.dll",
                          " //css_nuget Newtonsoft.Json",
@@ -640,6 +657,27 @@ namespace csscript
                          "---------",
                          " Project Website: https://github.com/oleg-shilo/cs-script",
                          " ");
+
+
+            var directives = syntaxDetails.Split('\n')
+                                          .Where(x => x.StartsWith("//css_"))
+                                          .Select(x => " - " + x.TrimEnd())
+                                          .ToArray()
+                                          ;
+
+            syntaxHelp = fromLines(
+                         "**************************************",
+                         "Script specific syntax",
+                         "**************************************",
+                         "Engine directives:",
+                         " ",
+                         string.Join(Environment.NewLine, directives),
+                         " ",
+                         section_sep //------------------------------------
+                         );
+
+            syntaxHelp += Environment.NewLine + syntaxDetails;
+
 
             if (Utils.IsWin)
                 syntaxHelp = syntaxHelp.Replace("{$css_host}",

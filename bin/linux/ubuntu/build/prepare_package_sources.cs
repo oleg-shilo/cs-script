@@ -7,7 +7,7 @@ class Script
 {
     static public void Main()
     {
-        var version = "3.27.5.0";
+        var version = "3.28.8.0";
 
         var src_dir = Path.GetFullPath(@"..\..\..\..\..\..\Releases\v" + version + @"\bin\lib\Bin\Linux");
         var dest_dir = $"cs-script_{version}";
@@ -44,9 +44,11 @@ class Script
                                text => text.Replace("${version}", version));
 
         Process.Start(editor, "readme.md");
-        Process.Start("7z.exe", @"a -r -tzip build.zip .\*");
+        Process.Start("7z.exe", @"a -r -tzip .\..\build.zip .\*");
 
+        Console.WriteLine("=====================");
         Console.WriteLine("Prepared for building package cs-script_" + version);
+        Console.WriteLine("The build folder '.\\..\\build.zip' is ready.");
     }
 
     static string editor = @"C:\Program Files\Sublime Text 3\sublime_text.exe";

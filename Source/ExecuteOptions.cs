@@ -213,7 +213,7 @@ namespace csscript
         public object initContext = null;
         public string scriptFileNamePrimary = null;
         public bool useCompiled = false;
-        public bool useScriptConfig = false;
+        public bool useScriptConfig = true;
         public bool useSmartCaching = true; //hardcoded true but can be set from config file in the future
         public bool suppressTimestampAltering = false; //hardcoded true but can be set from config file in the future
         public string customConfigFileName = "";
@@ -231,7 +231,7 @@ namespace csscript
         internal bool InjectScriptAssemblyAttribute = true;
         public bool verbose = false;
         public bool startDebugger = false;
-        public bool local = false;
+        public bool local = true;
         public bool buildExecutable = false;
         public string[] refAssemblies = new string[0];
         public string[] searchDirs = new string[0];

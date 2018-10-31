@@ -105,6 +105,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoClass.cs" />
     <Compile Include="CodeDom.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="CodeDomEval.cs" />

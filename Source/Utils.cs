@@ -253,9 +253,24 @@ namespace csscript
 #endif
         }
 
+        public static string GetDirName(this string path)
+        {
+            return Path.GetDirectoryName(path ?? "");
+        }
+
         public static bool IsSamePath(this string path1, string path2)
         {
             return string.Compare(path1, path2, Utils.IsWin) == 0;
+        }
+
+        public static bool IsEmpty(this string text)
+        {
+            return string.IsNullOrEmpty(text);
+        }
+
+        public static bool IsNotEmpty(this string text)
+        {
+            return !string.IsNullOrEmpty(text);
         }
 
         public static void ClearFile(string path)
@@ -1080,8 +1095,14 @@ partial class dbg
                     else if (Args.ParseValuedArg(arg, AppArgs.sconfig, out argValue)) // -sconfig:file
                     {
                         options.useScriptConfig = true;
-                        if (argValue != null)
+                        if (argValue == "none")
+                        {
+                            options.useScriptConfig = false;
+                        }
+                        else if (argValue != null)
+                        {
                             options.customConfigFileName = argValue;
+                        }
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.provider, AppArgs.pvdr, out argValue)) // -provider:file
                     {
@@ -1261,9 +1282,9 @@ partial class dbg
                     {
                         options.DBG = true;
                     }
-                    else if (Args.Same(arg, AppArgs.l))
+                    else if (Args.ParseValuedArg(arg, AppArgs.l, out argValue)) // -l:<1|0>
                     {
-                        options.local = true;
+                        options.local = (argValue != "0");
                     }
                     else if (Args.Same(arg, AppArgs.ver, AppArgs.v, AppArgs.version, AppArgs.version2)) // -ver -v -version --version
                     {

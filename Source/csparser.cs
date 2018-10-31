@@ -528,17 +528,13 @@ namespace csscript
 
             //analyse script arguments
             foreach (string statement in GetRawStatements("//css_args", endCodePos))
-            {
-                foreach (string arg in SplitByDelimiter(statement, ','))
-                {
-                    string newArg = arg.Trim();
-                    if (newArg.StartsWith("\""))
-                        newArg = newArg.Substring(1);
-                    if (newArg.EndsWith("\""))
-                        newArg = newArg.Remove(newArg.Length - 1, 1);
-                    args.Add(newArg);
-                }
-            }
+                args.AddRange(statement.SplitCommandLine());
+
+            // analyse auto-class decoration mode
+            foreach (string statement in GetRawStatements("//css_ac", endCodePos))
+                autoClassMode = statement;
+            foreach (string statement in GetRawStatements("//css_autoclass", endCodePos))
+                autoClassMode = statement;
 
             //analyse 'pre' and 'post' script commands
             foreach (string statement in GetRawStatements("//css_pre", endCodePos))
@@ -550,18 +546,18 @@ namespace csscript
             foreach (string statement in GetRawStatements("//css_postscript", endCodePos))
                 cmdScripts.Add(new CmdScriptInfo(statement.Trim(), false, file));
 
-            //analyze script initialization directives
+            // analyse script initialization directives
             foreach (string statement in GetRawStatements("//css_init", endCodePos))
                 inits.Add(new InitInfo(statement.Trim()));
 
-            //analyze script initialization directives
+            // analyse script initialization directives
             foreach (string statement in GetRawStatements("//css_nuget", endCodePos))
                 foreach (string package in SplitByDelimiter(statement, ','))
                     nugets.Add(package.Trim());
 
             var infos = new ImportInfo.Resolver { parentScript = file, dirs = probingDirs };
 
-            //analyse script imports/includes
+            // analyse script imports/includes
             foreach (string statement in GetRawStatements("//css_import", endCodePos))
                 imports.AddRange(infos.Resolve(statement));
             foreach (string statement in GetRawStatements("//css_imp", endCodePos))
@@ -573,20 +569,20 @@ namespace csscript
                 if (!string.IsNullOrEmpty(statement))
                     imports.AddRange(infos.Resolve(statement.Expand() + ",preserve_main"));
 
-            //analyse assembly references
+            // analyse assembly references
             foreach (string statement in GetRawStatements("//css_reference", endCodePos))
                 refAssemblies.Add(statement.NormaliseAsDirectiveOf(file));
             foreach (string statement in GetRawStatements("//css_ref", endCodePos))
                 refAssemblies.Add(statement.NormaliseAsDirectiveOf(file));
 
-            //analyse precompilers
+            // analyse precompilers
             foreach (string statement in GetRawStatements("//css_precompiler", endCodePos))
                 precompilers.Add(statement.NormaliseAsDirectiveOf(file));
 
             foreach (string statement in GetRawStatements("//css_pc", endCodePos))
                 precompilers.Add(statement.NormaliseAsDirectiveOf(file));
 
-            //analyse compiler options
+            // analyse compiler options
             foreach (string statement in GetRawStatements("//css_co", endCodePos))
                 compilerOptions.Add(statement.NormaliseAsDirective());
 
@@ -900,6 +896,16 @@ namespace csscript
         public ApartmentState ThreadingModel
         {
             get { return threadingModel; }
+        }
+
+        string autoClassMode = null;
+
+        /// <summary>
+        /// Gets the `auto-class` decoration mode value.
+        /// </summary>
+        public string AutoClassMode
+        {
+            get { return autoClassMode; }
         }
 
         /// <summary>

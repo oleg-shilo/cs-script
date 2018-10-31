@@ -30,7 +30,7 @@ public class CodeDom : TestBase
     [Fact]
     public void CompileCode()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             string scriptAsm = CSScript.CompileCode(uniqueClassCode);
             Assert.True(scriptAsm.EndsWith(".compiled"));
@@ -40,7 +40,7 @@ public class CodeDom : TestBase
     [Fact]
     public void CompileCode_Error()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var ex = Assert.Throws<CompilerException>(() =>
                          CSScript.CompileCode(classCode.Replace("public", "error_word")));
@@ -106,7 +106,7 @@ public class CodeDom : TestBase
     [DebugBuildFactAttribute(DisplayName = "Issue#34: Faster loading scripts?")]
     public void Issue_34()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             //not a fix but rather an investigation
             var tempFile = Path.GetTempFileName();
@@ -161,7 +161,7 @@ public class CodeDom : TestBase
     [Fact]
     public void LoadCode()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             Assembly asm = CSScript.LoadCode(@"using System;
                                               public class Script
@@ -202,7 +202,7 @@ public class CodeDom : TestBase
     [Fact]
     public void LoadCodeAndAlignToInterface()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             //This use-case uses Interface Alignment and this requires all assemblies involved to have non-empty Assembly.Location
             CSScript.GlobalSettings.InMemoryAssembly = false;

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("css")]
-[assembly: AssemblyDescription("C# script engine Console executable (.NET full)")]
+[assembly: AssemblyTitle("cssc")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Oleg Shilo")]
-[assembly: AssemblyProduct("CS-Script")]
-[assembly: AssemblyCopyright("(C) 2004-2018 Oleg Shilo")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("cssc")]
+[assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -32,7 +32,7 @@ public class RoslynEval
     [Fact]
     public void CompileCode()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             RoslynEvaluator.LoadCompilers();
 
@@ -44,7 +44,7 @@ public class RoslynEval
     [Fact]
     public void CompileCode_Error()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var ex = Assert.Throws<CompilerException>(() =>
                      CSScript.RoslynEvaluator.CompileCode(classCode.Replace("public", "error_word")));
@@ -56,7 +56,7 @@ public class RoslynEval
     [Fact]
     public void CompileMethodInstance()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             dynamic script = CSScript.RoslynEvaluator
                                  .CompileMethod(@"int Sqr(int data)
@@ -74,7 +74,7 @@ public class RoslynEval
     [Fact]
     public void CompileMethodStatic()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn;
 
@@ -95,7 +95,7 @@ public class RoslynEval
     [Fact]
     public void CreateDelegate()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var Sqr = CSScript.RoslynEvaluator
                           .CreateDelegate(@"int Sqr(int a)
@@ -112,7 +112,7 @@ public class RoslynEval
     [Fact]
     public void CreateDelegateTyped()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var Sqr = CSScript.RoslynEvaluator
                           .CreateDelegate<int>(@"int Sqr(int a)
@@ -128,7 +128,7 @@ public class RoslynEval
     [Fact]
     public void LoadCode()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             dynamic script = CSScript.RoslynEvaluator
                                  .LoadCode(@"using System;
@@ -149,7 +149,7 @@ public class RoslynEval
     [Fact]
     public void ProcessCodeDirectives()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             dynamic script = CSScript.RoslynEvaluator
                                  .LoadCode(@"//css_ref System.Windows.Forms;
@@ -176,7 +176,7 @@ public class RoslynEval
     [Fact]
     public void LoadCodeWithInterface()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var script = (ICalc)CSScript.RoslynEvaluator
                                     .LoadCode(@"using Tests;
@@ -197,7 +197,7 @@ public class RoslynEval
     [Fact]
     public void LoadCodeTyped()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             ICalc script = CSScript.RoslynEvaluator
                                .LoadCode<ICalc>(@"using System;
@@ -218,7 +218,7 @@ public class RoslynEval
     [Fact]
     public void LoadDelegateAction()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var Test = CSScript.RoslynEvaluator
                            .LoadDelegate<Action<InputData>>(
@@ -239,7 +239,7 @@ public class RoslynEval
     [Fact]
     public void LoadDelegateFunc()
     {
-        lock (As.Blocking)
+        lock (As.BlockingTest)
         {
             var Product = CSScript.RoslynEvaluator
                               .LoadDelegate<Func<int, int, int>>(

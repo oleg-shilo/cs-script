@@ -12,18 +12,34 @@ using System.Threading.Tasks;
 // -c:0 "E:\Galos\Projects\CS-Script\GitHub\cs-script\Source\.NET Core\spike\script.cs"
 
 /// <summary>
-/// .NET Full/Mono app launcher for CS-Script .NET Core host. This executable is a simple process router that forks
+/// .NET Full/Mono app launcher for CS-Script .NET Core host. This executable is a simple process router that forks 
 /// a .NET Core host for CS-Script engine class library assembly. It simply executes "dotnet cscs.dll script.cs" and redirects
-/// STD input, error and output.
+/// STD input, error and output. 
 /// It's just a convenient way to launch CS-Script .NET Core with minimal typing.
 /// Runtime: .NET Framework 4.6.1
 /// File name: cssc.exe
-/// Example: "cssc.exe script.cs"
+/// Example: "cssc.exe script.cs" 
 /// </summary>
+
 namespace css
 {
     class Program
     {
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool AllocConsole();
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool FreeConsole();
+
+        [DllImport("kernel32", SetLastError = true)]
+        static extern bool AttachConsole(int dwProcessId);
+
+        [DllImport("user32.dll")]
+        static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern uint GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
+
         static void Main(string[] args)
         {
             bool hideConsole = false;

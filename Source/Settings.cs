@@ -258,8 +258,7 @@ namespace csscript
             set { resolveAutogenFilesRefs = value; }
         }
 
-        string defaultArguments = CSSUtils.Args.Join("c", "sconfig", "co:" + CSSUtils.Args.DefaultPrefix + "warn:0");
-        //string defaultArguments = CSSUtils.Args.DefaultPrefix + "c " + CSSUtils.Args.DefaultPrefix + "sconfig " + CSSUtils.Args.DefaultPrefix + "co:" + CSSUtils.Args.DefaultPrefix + "warn:0";
+        string defaultArguments = CSSUtils.Args.Join("c", "co:" + CSSUtils.Args.DefaultPrefix + "warn:0");
 
         ///// <summary>
         ///// Enables using a surrogate process to host the script engine at runtime. This may be a useful option for fine control over the hosting process
@@ -973,7 +972,7 @@ namespace csscript
                 {
                     XmlDocument doc = new XmlDocument();
                     doc.Load(filePath);
-                    XmlNode data = doc.FirstChild;
+                    XmlNode data = doc.SelectSingleNode("CSSConfig");
                     XmlNode node;
                     node = data.SelectSingleNode("defaultArguments"); if (node != null) settings.defaultArguments = node.InnerText;
                     node = data.SelectSingleNode("defaultApartmentState"); if (node != null) settings.defaultApartmentState = (ApartmentState)Enum.Parse(typeof(ApartmentState), node.InnerText, false);
