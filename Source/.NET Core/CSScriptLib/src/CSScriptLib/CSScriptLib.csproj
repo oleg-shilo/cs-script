@@ -13,7 +13,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>-->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.1.0</Version>
+    <Version>1.0.4.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET Core</Description>
     <Copyright>(C) 2018 Oleg Shilo</Copyright>
@@ -23,17 +23,20 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
-    <PackageReleaseNotes>- Implemented resolving `using` into assemblies from 'dotnet\shared' folder
-- Issue #110: Compiling to Byte[]/File in .NET Standard
-- Issue #106: Fix netstandard2 version to work in 4.6.1 and fix ReferenceDomainAssemblies</PackageReleaseNotes>
+    <PackageReleaseNotes>- Added XML API documentation file
+</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <FileVersion>1.0.4.0</FileVersion>
 
 </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard1.6\CSScriptLib.xml</DocumentationFile>
+    <DocumentationFile>E:\PrivateData\Galos\Projects\CS-Script\GitHub\cs-script\Source\.NET Core\CSScriptLib\src\CSScriptLib\CSScriptLib.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>E:\PrivateData\Galos\Projects\CS-Script\GitHub\cs-script\Source\.NET Core\CSScriptLib\src\CSScriptLib\CSScriptLib.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -67,6 +67,25 @@ using System.Runtime.Serialization;
 namespace CSScriptLib
 {
     /// <summary>
+    /// The information about the location of the compiler output - assembly and pdb file.
+    /// </summary>
+    public class CompileInfo
+    {
+        /// <summary>
+        /// The assembly file path.
+        /// </summary>
+        public string AssemblyFile;
+
+        /// <summary>
+        /// The PDB file path.
+        /// <para>Even if the this value is specified the file will not be generated unless
+        /// <see cref="CSScript.EvaluatorConfig"/>.DebugBuild is set to <c>true</c>.
+        /// </para>
+        /// </summary>
+        public string PdbFile;
+    }
+
+    /// <summary>
     /// The exception that is thrown when a the script compiler error occurs.
     /// </summary>
     [Serializable]
@@ -237,32 +256,54 @@ namespace CSScriptLib
             return CompileCode(scriptText, null, info);
         }
 
-        /// <summary>
-        /// The information about the location of the compiler output - assembly and pdb file.
-        /// </summary>
-        public class CompileInfo
+        Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
         {
-            /// <summary>
-            /// The assembly file path.
-            /// </summary>
-            public string AssemblyFile;
+            // scriptFile is needed to allow injection of the debug information
 
-            /// <summary>
-            /// The PDB file path.
-            /// <para>Even if the this value is specified the file will not be generated unless
-            /// <see cref="CSScript.EvaluatorConfig"/>.DebugBuild is set to <c>true</c>.
-            /// </para>
-            /// </summary>
-            public string PdbFile;
+            (byte[] asm, byte[] pdb) = Compile(scriptText, scriptFile, info);
+
+            if (pdb != null)
+                return AppDomain.CurrentDomain.Load(asm, pdb);
+            else
+                return AppDomain.CurrentDomain.Load(asm);
         }
 
-        Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
+        public string CompileAssemblyFromFile(string scriptFile, string outputFile)
+        {
+            var info = new CompileInfo();
+            info.AssemblyFile = Path.GetFullPath(outputFile);
+            info.PdbFile = Path.ChangeExtension(info.AssemblyFile, ".pdb");
+
+            Compile(null, scriptFile, info);
+            return info.AssemblyFile;
+        }
+
+        public string CompileAssemblyFromCode(string scriptText, string outputFile)
+        {
+            var info = new CompileInfo();
+            info.AssemblyFile = Path.GetFullPath(outputFile);
+            info.PdbFile = Path.ChangeExtension(info.AssemblyFile, ".pdb");
+
+            Compile(scriptText, null, info);
+            return info.AssemblyFile;
+        }
+
+
+        public void Check(string scriptText)
+        {
+            Compile(scriptText, null, null);
+        }
+
+        (byte[] asm, byte[] pdb) Compile(string scriptText, string scriptFile, CompileInfo info = null)
         {
             // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
 
             string tempScriptFile = null;
             try
             {
+                if (scriptText == null && scriptFile != null)
+                    scriptText = File.ReadAllText(scriptFile);
+
                 if (!DisableReferencingFromCode)
                 {
                     var localDir = Path.GetDirectoryName(this.GetType().Assembly.Location);
@@ -342,10 +383,10 @@ namespace CSScriptLib
                             if (info?.PdbFile != null)
                                 File.WriteAllBytes(info.PdbFile, pdbBuffer);
 
-                            return AppDomain.CurrentDomain.Load(buffer, pdbBuffer);
+                            return (buffer, pdbBuffer);
                         }
                         else
-                            return AppDomain.CurrentDomain.Load(buffer);
+                            return (buffer, null);
                     }
                 }
             }
@@ -539,23 +580,37 @@ namespace CSScriptLib
         /// <returns>Instance of the class defined in the script.</returns>
         public object LoadCode(string scriptText, params object[] args)
         {
-            return CompileCode(scriptText).CreateObject("*", args);
+            return CompileCode(scriptText).CreateObject(ExtractClassName(scriptText), args);
+        }
+
+        static string ExtractClassName(string scriptText)
+        {
+            // will need to use Roslyn eventually
+            return "*";
+        }
+
+        internal object LoadCodeByName(string scriptText, string className, params object[] args)
+        {
+            return CompileCode(scriptText).CreateObject(className, args);
         }
 
         /// <summary>
         /// Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
-        /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
-        /// <para><c>Note:</c> Because the interface alignment is a duck typing implementation the script class doesn't have to
-        /// inherit from <c>T</c>.</para>
         /// </summary>
+        /// <typeparam name="T">The type of the script class instance should be type casted to.</typeparam>
+        /// <param name="scriptText">The C# script text.</param>
+        /// <param name="args">The non default type <c>T</c> constructor arguments.</param>
+        /// <returns>
+        /// Aligned to the <c>T</c> interface instance of the class defined in the script.
+        /// </returns>
         /// <example>The following is the simple example of the interface alignment:
-        ///<code>
+        /// <code>
         /// public interface ICalc
         /// {
         ///     int Sum(int a, int b);
         /// }
         /// ....
-        /// ICalc calc = CSScript.RoslynEvaluator
+        /// ICalc calc = CSScript.Evaluator
         ///                      .LoadCode&lt;ICalc&gt;(@"using System;
         ///                                         public class Script
         ///                                         {
@@ -565,16 +620,13 @@ namespace CSScriptLib
         ///                                             }
         ///                                         }");
         /// int result = calc.Sum(1, 2);
-        /// </code>
-        /// </example>
-        /// <typeparam name="T">The type of the interface type the script class instance should be aligned to.</typeparam>
-        /// <param name="scriptText">The C# script text.</param>
-        /// <param name="args">The non default type <c>T</c> constructor arguments.</param>
-        /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script.</returns>
+        /// </code></example>
         public T LoadCode<T>(string scriptText, params object[] args) where T : class
         {
             this.ReferenceAssemblyOf<T>();
-            return (T)this.CompileCode(scriptText).CreateObject("*", args);
+            var asm = CompileCode(scriptText);
+            var type = asm.FirstUserTypeAssignableFrom<T>();
+            return (T)asm.CreateObject(type.FullName, args);
         }
 
         /// <summary>
@@ -621,7 +673,8 @@ namespace CSScriptLib
         /// <returns>Instance of the class defined in the script file.</returns>
         public object LoadFile(string scriptFile, params object[] args)
         {
-            return CompileCode(File.ReadAllText(scriptFile), scriptFile, null).CreateObject("*", args);
+            var code = File.ReadAllText(scriptFile);
+            return CompileCode(code, scriptFile, null).CreateObject(ExtractClassName(code), args);
         }
 
         /// <summary>
@@ -650,7 +703,9 @@ namespace CSScriptLib
         /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script file.</returns>
         public T LoadFile<T>(string scriptFile, params object[] args) where T : class
         {
-            return (T)CompileCode(File.ReadAllText(scriptFile), scriptFile, null).CreateObject("*", args);
+            var asm = CompileCode(File.ReadAllText(scriptFile), scriptFile, null);
+            var type = asm.FirstUserTypeAssignableFrom<T>();
+            return (T)asm.CreateObject(type.FullName, args);
         }
 
         /// <summary>
@@ -674,7 +729,7 @@ namespace CSScriptLib
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, false, false);
 
-            return LoadCode(scriptText);
+            return LoadCodeByName(scriptText, ExtractClassName(scriptText));
         }
 
         /// <summary>
@@ -791,13 +846,13 @@ namespace CSScriptLib
         /// <summary>
         /// References the name of the assembly by its partial name.
         /// <para>Note that the referenced assembly will be loaded into the host AppDomain in order to resolve assembly partial name.</para>
-        /// <para>It is an equivalent of <c>Evaluator.ReferenceAssembly(Assembly.LoadWithPartialName(assemblyPartialName))</c></para>
+        /// <para>It is an equivalent of <c>Evaluator.ReferenceAssembly(Assembly.Load(assemblyPartialName))</c></para>
         /// </summary>
-        /// <param name="assemblyPartialName">Partial name of the assembly.</param>
+        /// <param name="assemblyName">Name of the assembly.</param>
         /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
-        public IEvaluator ReferenceAssemblyByName(string assemblyPartialName)
+        public IEvaluator ReferenceAssemblyByName(string assemblyName)
         {
-            return ReferenceAssembly(Assembly.LoadWithPartialName(assemblyPartialName));
+            return ReferenceAssembly(Assembly.Load(assemblyName));
         }
 
         /// <summary>
