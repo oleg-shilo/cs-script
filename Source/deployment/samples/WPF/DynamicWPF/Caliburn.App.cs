@@ -1,4 +1,5 @@
-//css_nuget Caliburn.Micro,Caliburn.Micro.Core;
+//css_nuget Caliburn.Micro;
+//css_nuget Caliburn.Micro.Core;
 //css_ref PresentationCore;
 //css_ref PresentationFramework;
 //css_ref System.Core;
@@ -26,9 +27,10 @@ namespace Caliburn.Micro
         
         static public void Run(System.Action onstartup)
         {
-            var app = new Application();
             var bs = new SimpleBootstrapper();
             bs.onstartup = onstartup;
+            
+            var app = new Application();
             app.Run();
         }
         
