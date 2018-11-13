@@ -1437,6 +1437,7 @@ namespace VS150 //Visual Studio 2017
 
                 try
                 {
+                    var EnterpriseEdition = @"VisualStudio.csproj.9223cb7f\shell\Open\Command";
                     var professionalEdition = @"VisualStudio.csproj.08b5bc5a\shell\Open\Command";
                     var communityEdition = @"VisualStudio.csproj.1d6c1d8e\shell\Open\Command";
                     var expressEdition = @"WDExpress.cs.15.0\shell\Open\Command";
@@ -1445,8 +1446,12 @@ namespace VS150 //Visual Studio 2017
                     string keyname = isExpress ? expressEdition : communityEdition;
                     RegistryKey IDE = Registry.ClassesRoot.OpenSubKey(keyname);
 
+                    //Professional
                     if (IDE == null && !isExpress)
                         IDE = Registry.ClassesRoot.OpenSubKey(professionalEdition);
+                    //Enterprise
+                    if (IDE == null && !isExpress)
+                        IDE = Registry.ClassesRoot.OpenSubKey(EnterpriseEdition);
 
                     if (IDE != null)
                     {
