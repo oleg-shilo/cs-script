@@ -1437,30 +1437,34 @@ namespace VS150 //Visual Studio 2017
 
                 try
                 {
-                    var EnterpriseEdition = @"VisualStudio.csproj.9223cb7f\shell\Open\Command";
-                    var professionalEdition = @"VisualStudio.csproj.08b5bc5a\shell\Open\Command";
-                    var communityEdition = @"VisualStudio.csproj.1d6c1d8e\shell\Open\Command";
-                    var expressEdition = @"WDExpress.cs.15.0\shell\Open\Command";
-                    var isExpress = (edition == IDEEditions.express);
+                    string vsWherePath = Path.Combine(GetProgramFilesDirectory(), @"Microsoft Visual Studio\Installer\vswhere.exe");
+                    ProcessStartInfo vsWhereStartInfo = new ProcessStartInfo();
+                    vsWhereStartInfo.FileName = vsWherePath;
+                    vsWhereStartInfo.Arguments = "-version \"15.0\" -property installationPath";
+                    vsWhereStartInfo.UseShellExecute = false;
+                    vsWhereStartInfo.CreateNoWindow = true;
+                    vsWhereStartInfo.RedirectStandardOutput = true;
 
-                    string keyname = isExpress ? expressEdition : communityEdition;
-                    RegistryKey IDE = Registry.ClassesRoot.OpenSubKey(keyname);
+                    Process vsWhereProcess = new Process();
+                    vsWhereProcess.StartInfo = vsWhereStartInfo;
 
-                    //Professional
-                    if (IDE == null && !isExpress)
-                        IDE = Registry.ClassesRoot.OpenSubKey(professionalEdition);
-                    //Enterprise
-                    if (IDE == null && !isExpress)
-                        IDE = Registry.ClassesRoot.OpenSubKey(EnterpriseEdition);
+                    vsWhereProcess.Start();
+                    vsWhereProcess.WaitForExit();
 
-                    if (IDE != null)
-                    {
-                        if (IDE.GetValue("") != null)
-                            retval = IDE.GetValue("").ToString().TrimStart("\"".ToCharArray()).Split("\"".ToCharArray())[0];
-                    }
+                    retval = Path.Combine(vsWhereProcess.StandardOutput.ReadToEnd().Trim(), @"Common7\IDE\devenv.exe");
                 }
                 catch { }
                 return retval;
+            }
+
+            static public string GetProgramFilesDirectory()
+            {
+                string programFiles = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+                if (String.IsNullOrEmpty(programFiles))
+                {
+                    programFiles = Environment.GetEnvironmentVariable("ProgramFiles");
+                }
+                return programFiles;
             }
 
             static public string GetEnvironmentVariable(string name)
