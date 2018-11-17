@@ -1,14 +1,8 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using Microsoft.CodeAnalysis.Scripting;
-using System.Runtime.Loader;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -38,7 +32,7 @@ public static class Extensions
 
     internal static Type FirstUserTypeAssignableFrom<T>(this Assembly asm)
     {
-        // exclude Roslyn internal types  
+        // exclude Roslyn internal types
         return asm
             .ExportedTypes
             .Where(t => t.FullName.None(char.IsDigit)           // 1 (yes Roslyn can generate class with this name)
@@ -103,6 +97,12 @@ public static class Extensions
         return !string.IsNullOrEmpty(txt);
     }
 
+    /// <summary>
+    /// Casts the specified object.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="obj">The object.</param>
+    /// <returns></returns>
     public static T Cast<T>(this object @obj)
     {
         return (T)@obj;
@@ -222,11 +222,17 @@ public static class Extensions
         return CreateInstance(asm, typeName, args);
     }
 
+    /// <summary>
+    /// Checks if none of the specified satisfies the filter condition.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="collection">The collection.</param>
+    /// <param name="filter">The filter.</param>
+    /// <returns></returns>
     public static bool None<T>(this IEnumerable<T> collection, Predicate<T> filter)
     {
         return !collection.All(ch => !filter(ch));
     }
-
 
     /// <summary>
     /// Creates instance of a Type from underlying assembly.
@@ -238,7 +244,7 @@ public static class Extensions
     /// Created instance of the type.
     /// </returns>
     /// <exception cref="System.Exception">Type " + typeName + " cannot be found.</exception>
-    static object CreateInstance(Assembly asm, string typeName, params object[] args)
+    private static object CreateInstance(Assembly asm, string typeName, params object[] args)
     {
         //note typeName for FindTypes does not include namespace
         if (typeName == "*")
@@ -276,13 +282,9 @@ public static class Extensions
     }
 }
 
-class NuGet
+internal class NuGet
 {
-    static public string NuGetCacheView
-    {
-        get { return "<not defined>"; }
-        //get { return Directory.Exists(NuGetCache) ? NuGetCache : "<not found>"; }
-    }
+    static public string NuGetCacheView => "<not defined>";
 
     //static string nuGetCache = null;
     //static string NuGetCache
@@ -302,7 +304,7 @@ class NuGet
     //}
 }
 
-class Utils
+internal class Utils
 {
     public static string RemoveAssemblyExtension(string asmName)
     {
@@ -313,7 +315,7 @@ class Utils
     }
 }
 
-class CSSUtils
+internal class CSSUtils
 {
     static public string[] GetDirectories(string workingDir, string rootDir)
     {

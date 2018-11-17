@@ -30,28 +30,23 @@
 
 #endregion License...
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+using csscript;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Emit;
 
 //using Microsoft.CodeAnalysis;
 //using Microsoft.CodeAnalysis.CSharp.Scripting;
 //using Microsoft.CodeAnalysis.Scripting;
 //using csscript;
-using System.Diagnostics;
 using Microsoft.CodeAnalysis.Scripting;
-using System.Runtime.Loader;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis;
-using csscript;
-using CSScriptLib;
-using System.Text;
-using Microsoft.CodeAnalysis.Emit;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
 
 // <summary>
 //<package id="Microsoft.Net.Compilers" version="1.2.0-beta-20151211-01" targetFramework="net45" developmentDependency="true" />
@@ -118,7 +113,7 @@ namespace CSScriptLib
     /// </summary>
     public class RoslynEvaluator : IEvaluator
     {
-        static Assembly mscorelib = 333.GetType().Assembly;
+        private static Assembly mscorelib = 333.GetType().Assembly;
 
         /// <summary>
         /// Gets or sets a value indicating whether to compile script with debug symbols.
@@ -130,7 +125,7 @@ namespace CSScriptLib
         /// <value><c>true</c> if 'debug build'; otherwise, <c>false</c>.</value>
         public bool? DebugBuild { get; set; }
 
-        bool IsDebug { get => DebugBuild ?? CSScript.EvaluatorConfig.DebugBuild; }
+        private bool IsDebug => DebugBuild ?? CSScript.EvaluatorConfig.DebugBuild;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RoslynEvaluator" /> class.
@@ -167,7 +162,7 @@ namespace CSScriptLib
             return clone;
         }
 
-        ScriptOptions compilerSettings = ScriptOptions.Default;
+        private ScriptOptions compilerSettings = ScriptOptions.Default;
 
         /// <summary>
         /// Gets or sets the compiler settings.
@@ -175,8 +170,8 @@ namespace CSScriptLib
         /// <value>The compiler settings.</value>
         public ScriptOptions CompilerSettings
         {
-            get { return compilerSettings; }
-            set { compilerSettings = value; }
+            get => compilerSettings;
+            set => compilerSettings = value;
         }
 
         /// <summary>
@@ -256,7 +251,7 @@ namespace CSScriptLib
             return CompileCode(scriptText, null, info);
         }
 
-        Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
+        private Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
         {
             // scriptFile is needed to allow injection of the debug information
 
@@ -268,6 +263,20 @@ namespace CSScriptLib
                 return AppDomain.CurrentDomain.Load(asm);
         }
 
+        /// <summary>
+        /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <param name="scriptFile">The C# script file.</param>
+        /// <param name="outputFile">The path to the assembly file to be compiled.</param>
+        /// <returns>
+        /// The compiled assembly file path.
+        /// </returns>
+        /// <example>
+        ///   <code>
+        /// string asmFile = CSScript.Evaluator
+        ///                          .CompileAssemblyFromFile("MyScript.cs", "MyScript.dll");
+        /// </code>
+        /// </example>
         public string CompileAssemblyFromFile(string scriptFile, string outputFile)
         {
             var info = new CompileInfo();
@@ -278,6 +287,27 @@ namespace CSScriptLib
             return info.AssemblyFile;
         }
 
+        /// <summary>
+        /// Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <example>
+        ///<code>
+        /// string asmFile = CSScript.Evaluator
+        ///                          .CompileAssemblyFromCode(
+        ///                                 @"using System;
+        ///                                   public class Script
+        ///                                   {
+        ///                                       public int Sum(int a, int b)
+        ///                                       {
+        ///                                           return a+b;
+        ///                                       }
+        ///                                   }",
+        ///                                   "MyScript.dll");
+        /// </code>
+        /// </example>
+        /// <param name="scriptText">The C# script text.</param>
+        /// <param name="outputFile">The path to the assembly file to be compiled.</param>
+        /// <returns>The compiled assembly file path.</returns>
         public string CompileAssemblyFromCode(string scriptText, string outputFile)
         {
             var info = new CompileInfo();
@@ -288,13 +318,39 @@ namespace CSScriptLib
             return info.AssemblyFile;
         }
 
-
+        /// <summary>
+        /// Compiles the specified script text without loading it into the AppDomain or
+        /// writing to the file system.
+        /// </summary>
+        /// <example>
+        ///<code>
+        /// try
+        /// {
+        ///     CSScript.Evaluator
+        ///             .Check(@"using System;
+        ///                      public class Script
+        ///                      {
+        ///                          public int Sum(int a, int b)
+        ///                          {
+        ///                              error
+        ///                              return a+b;
+        ///                          }
+        ///                      }");
+        /// }
+        /// catch (Exception e)
+        /// {
+        ///     Console.WriteLine("Compile error: " + e.Message);
+        /// }
+        /// </code>
+        /// </example>
+        /// <param name="scriptText">The script text.</param>
+        /// <returns></returns>
         public void Check(string scriptText)
         {
             Compile(scriptText, null, null);
         }
 
-        (byte[] asm, byte[] pdb) Compile(string scriptText, string scriptFile, CompileInfo info = null)
+        private (byte[] asm, byte[] pdb) Compile(string scriptText, string scriptFile, CompileInfo info = null)
         {
             // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
 
@@ -583,7 +639,7 @@ namespace CSScriptLib
             return CompileCode(scriptText).CreateObject(ExtractClassName(scriptText), args);
         }
 
-        static string ExtractClassName(string scriptText)
+        private static string ExtractClassName(string scriptText)
         {
             // will need to use Roslyn eventually
             return "*";
