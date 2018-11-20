@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using System.Runtime.Loader;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System.Text;
+using CSScriptLib.Extensions;
 
 namespace CSScriptLib
 {

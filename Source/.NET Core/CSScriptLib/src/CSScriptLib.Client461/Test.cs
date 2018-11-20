@@ -6,6 +6,7 @@ using System.Net;
 // using CSScriptLib;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using CSScriptLib.Extensions;
 
 public interface IScript
 {

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
+using CSScriptLib;
+using CSScriptLib.Extensions;
 
 namespace csscript
 {
@@ -76,7 +78,7 @@ namespace csscript
 
                 if (retval.Count == 0)
                 {
-                    string nameSpace = Utils.RemoveAssemblyExtension(name);
+                    string nameSpace = name.RemoveAssemblyExtension();
                     foreach (string asmGACLocation in FindGlobalAssembly(nameSpace))
                     {
                         retval.Add(asmGACLocation);

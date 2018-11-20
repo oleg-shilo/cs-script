@@ -2,17 +2,17 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Net;
-
-// using CSScriptLib;
+using CSScriptLib;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using CSScriptLib.Extensions;
 
 public interface IScript
 {
     int Sum(int a, int b);
 }
 
-namespace CSScriptLib.Client
+namespace Client
 {
     public class Test
     {
@@ -96,6 +96,7 @@ namespace CSScriptLib.Client
                                                       }
                                                   }");
 
+            // CSScriptLib.Extensions.Cr
             dynamic script = asm.CreateObject("*");
 
             var result = script.Sum(7, 3);

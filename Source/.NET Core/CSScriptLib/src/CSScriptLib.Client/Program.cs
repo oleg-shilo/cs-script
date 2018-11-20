@@ -5,6 +5,9 @@ using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System.IO;
 using System.Text;
+
+using System.Linq;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using System.Runtime.Loader;
@@ -18,6 +21,7 @@ namespace EvalTest
     {
         public static void Main(string[] args)
         {
+            var ttt = "".Cast<char>();
             // CSScript.EvaluatorConfig.DebugBuild = true;
 
             // Test.ReferencingPackagesCode(); //return;
@@ -29,7 +33,6 @@ namespace EvalTest
             // Test.LoadCode();
             // Test.LoadCode2();
             // Test.CrossReferenceCode();
-
 
             // dynamic func1 = CSScript.Evaluator.LoadMethod(
             //       @"public object Func()

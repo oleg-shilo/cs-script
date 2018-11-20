@@ -34,6 +34,7 @@ using System.Text;
 using System.Linq;
 using System.Globalization;
 using CSScriptLib;
+using CSScriptLib.Extensions;
 
 namespace csscript
 {
