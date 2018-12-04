@@ -30,14 +30,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 
-/// <summary>
-/// CS-Script engine class library assembly.
-/// Runtime: .NET Standard 2.0
-/// File name: cscs.eng.dll
-/// Implements light/refined business logic of the standard CS-Script. 
-/// </summary>
-
-
 /*
  Limitations comparing to CS-Script for .NET
 
@@ -46,14 +38,14 @@ using System.Threading;
         - Major refactoring to meet C# 7 standards
         - Share source modules between cscs and CSScriptLib
     - Functionality
-        - Decide which NuGet engine to invoke 
+        - Decide which NuGet engine to invoke
         - Handle //css_nuget -rt:<name> directive arg in .NET Full NuGet.exe use-case
         + Full support for std in, out and error in css launcher
-        + remove all code (and config) for -inmem:0 use-case 
+        + remove all code (and config) for -inmem:0 use-case
         + Process CompilerParameters during compilation
         + Ensure the cached script is not used/shared between .NET Full and Core launchers
-        + Ensure ".NET standard" class libraries can be referenced from .NET Full cscs.exe 
-        + In -ver output handle/reflect absent config 
+        + Ensure ".NET standard" class libraries can be referenced from .NET Full cscs.exe
+        + In -ver output handle/reflect absent config
         + Ensure C# 7 syntax
         + Ensure inmem loading
         + NuGet support
@@ -63,11 +55,11 @@ using System.Threading;
  CS-Script limitations:
     - No support for script app.config file
     - No building "*.exe"
-    - No NuGet inter-package dependencies resolving. All packages (including dependency packages) must be specified in the script 
+    - No NuGet inter-package dependencies resolving. All packages (including dependency packages) must be specified in the script
     - Huge compilation startup delay (.NET Core offers no VBCSCompiler.exe optimisation)
-      There may be some hope as VS actually runs "dotnet VBCSCompiler.dll -namedpipe:..." 
+      There may be some hope as VS actually runs "dotnet VBCSCompiler.dll -namedpipe:..."
       The side signs are indicating that MS is working on this problem. Thus a call "dotnet build ..."
-      forks an addition long standing process 
+      forks an addition long standing process
       "C:\Program Files\dotnet\dotnet.exe" "C:\Program Files\dotnet\sdk\2.1.300-preview1-008174\Roslyn\bincore\VBCSCompiler.dll" "-pipename:<user_name>.F.QF+8Z+bcVzTAZf2vxEt85UoKv"
 
     - Support for custom app.config files is not available for .NET Core due to the API limitations
@@ -86,6 +78,12 @@ using System.Threading;
     // https://github.com/aspnet/RoslynCodeDomProvider/issues/37
 */
 
+/// <summary>
+/// CS-Script engine class library assembly.
+/// Runtime: .NET Standard 2.0
+/// File name: cscs.eng.dll
+/// Implements light/refined business logic of the standard CS-Script.
+/// </summary>
 namespace csscript
 {
     internal delegate void PrintDelegate(string msg);
@@ -145,7 +143,6 @@ namespace csscript
                 if (exec.WaitForInputBeforeExit != null)
                     try
                     {
-
                         Console.WriteLine(exec.WaitForInputBeforeExit);
                         Console.Read();
                     }

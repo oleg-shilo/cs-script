@@ -32,21 +32,18 @@
 
 #endregion Licence...
 
+using CSScripting.CodeDom;
+using CSScriptLibrary;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
-using System.Text;
-using CSScriptLibrary;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
-using System.CodeDom.Compiler;
-using System.Globalization;
-using System.Diagnostics;
-using Microsoft.CSharp;
-using System.Collections;
-using CSScripting.CodeDom;
 
 namespace csscript
 {
@@ -74,6 +71,7 @@ namespace csscript
         static Dictionary<string, Stopwatch> items = new Dictionary<string, Stopwatch>();
 
         public static bool has(string key) => items.ContainsKey(key);
+
         public static Stopwatch get(string key)
         {
             if (!items.ContainsKey(key))
@@ -1461,7 +1459,6 @@ namespace csscript
 
         string NormalizeGacAssemblyPath(string asm)
         {
-
             return asm;
         }
 
@@ -1786,7 +1783,8 @@ namespace csscript
 
                 if (options.verbose)
                 {
-                    Console.WriteLine("  Compiler Output: ", options);
+                    if (results.Errors.Any())
+                        Console.WriteLine("    Compiler Output: ");
                     foreach (CompilerError err in results.Errors)
                     {
                         string file = err.FileName;
@@ -1795,7 +1793,7 @@ namespace csscript
                             CSSUtils.NormaliseFileReference(ref file, ref line);
                         Console.WriteLine("  {0}({1},{2}):{3} {4} {5}", file, line, err.Column, (err.IsWarning ? "warning" : "error"), err.ErrorNumber, err.ErrorText);
                     }
-                    Console.WriteLine("> ----------------", options);
+                    Console.WriteLine("> ----------------" + options);
                 }
 
                 string symbFileName = Utils.DbgFileOf(assemblyFileName);

@@ -1,13 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace css
 {
@@ -39,6 +32,9 @@ namespace css
         {
             value = null;
 
+            if (pattern == null)
+                return false;
+
             if (Args.Same(arg, pattern))
                 return true;
 
@@ -66,6 +62,9 @@ namespace css
         {
             return arg.Substring(pattern.Length + 1);
         }
+
+        public static bool ParseArg(this IEnumerable<string> args, string pattern, string pattern2 = null)
+            => ParseValuedArg(args, pattern, pattern2, out string value);
 
         public static bool ParseValuedArg(this IEnumerable<string> args, string pattern, string pattern2, out string value)
         {

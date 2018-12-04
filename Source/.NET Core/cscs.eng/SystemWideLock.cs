@@ -42,7 +42,7 @@ namespace csscript
 
     internal class LinuxSystemWideLock : WinSystemWideLock
     {
-        public LinuxSystemWideLock(string context):base(context)
+        public LinuxSystemWideLock(string context) : base(context)
         {
         }
     }

@@ -1,10 +1,9 @@
-using System.IO;
-using System.Text;
-using System.Collections.Generic;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Diagnostics;
 
 namespace csscript
 {
@@ -195,7 +194,6 @@ namespace csscript
                     line += result.BodyInjectedLineCount;
                     if (result.FooterInjectedLine != -1 && result.FooterInjectedLine <= originalLine)
                         line += result.FooterInjectedLineCount;
-
                 }
                 position = GetPos(result.Content, line, originalCol);
             }
@@ -333,7 +331,6 @@ namespace csscript
                                 //"#line" must be injected before the method name. Injecting into the first line in body does not work. probably related to JIT
                                 tempText += "#line " + (lineCount) + " \"" + scriptFile + "\"" + Environment.NewLine;
                                 tempText += "static public void main_impl(string[] args) { ///CS-Script auto-class generation" + Environment.NewLine;
-
                                 result.BodyInjectedLine = lineCount;
                                 result.InjectionLength += tempText.Length;
                                 result.BodyInjectedLineCount = 3;
@@ -355,7 +352,6 @@ namespace csscript
 
                     if (!autoCodeInjected && entryPointInjectionPos != -1 && !Utils.IsNullOrWhiteSpace(line))
                     {
-
                         bracket_count += lineText.Split('{').Length - 1;
                         bracket_count -= lineText.Split('}').Length - 1;
 

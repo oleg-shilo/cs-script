@@ -1,9 +1,8 @@
+using csscript;
 using System;
-using static System.Console;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
-using csscript;
+using static System.Console;
 
 namespace CSScripting.CodeDom
 {
@@ -36,8 +35,8 @@ namespace CSScripting.CodeDom
 
         public static void Start()
         {
-            // Task.Run(() => 
-                Profiler.measure(">> Initialized: ", ()=> RoslynService.Init());
+            // Task.Run(() =>
+            Profiler.measure(">> Initialized: ", () => RoslynService.Init());
 
             try
             {
@@ -87,5 +86,4 @@ namespace CSScripting.CodeDom
             }
         }
     }
-
 }

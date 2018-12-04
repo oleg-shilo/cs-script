@@ -22,18 +22,14 @@
 
 #endregion Licence...
 
-using System;
-using System.IO;
-using System.Collections;
-
-using System.Collections.Generic;
-
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Text;
-using System.Globalization;
 using CSScriptLibrary;
-using System.Diagnostics;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Threading;
 
 namespace csscript
 {

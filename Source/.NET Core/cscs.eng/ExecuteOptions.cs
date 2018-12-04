@@ -33,18 +33,9 @@
 #endregion Licence...
 
 using System;
-using System.IO;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Text;
-using CSScriptLibrary;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.CodeDom.Compiler;
-using System.Globalization;
-using System.Diagnostics;
-using Microsoft.CSharp;
 using System.Linq;
+using System.Threading;
 
 namespace csscript
 {

@@ -22,22 +22,20 @@
 
 #endregion Licence...
 
+using csscript;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Emit;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
-using csscript;
-using System.Xml.Linq;
+using System.Linq;
 using System.Net.Sockets;
-using Microsoft.CodeAnalysis.Scripting;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.Emit;
-using Microsoft.CodeAnalysis;
-using System.Xml.Serialization;
+using System.Reflection;
+using System.Text;
 using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Serialization;
 
 /// <summary>
 /// Credit to https://stackoverflow.com/questions/298830/split-string-containing-command-line-parameters-into-string-in-c-sharp/298990#298990
@@ -319,8 +317,11 @@ public static class CoreExtensions
     public static bool IsSharedAssembly(this string path) => path.StartsWith(sdk_root, StringComparison.OrdinalIgnoreCase);
 
     public static bool ToBool(this string text) => text.ToLower() == "true";
+
     public static bool IsEmpty(this string text) => string.IsNullOrEmpty(text);
+
     public static bool IsNotEmpty(this string text) => !string.IsNullOrEmpty(text);
+
     public static bool IsEmpty<T>(this IEnumerable<T> collection) => collection == null ? true : !collection.Any();
 
     public static string[] SplitMergedArgs(this string[] args)
@@ -434,9 +435,15 @@ namespace csscript
         {
             try
             {
+                int width = 0;
+                if (int.TryParse(Environment.GetEnvironmentVariable("Console.WindowWidth") ?? "", out int parentWidth))
+                {
+                    width = parentWidth - 1;
+                }
+
                 // when running on mono under Node.js (VSCode) the Console.WindowWidth is always 0
-                if (Console.WindowWidth != 0)
-                    return Console.WindowWidth - 1;
+                if (width != 0)
+                    return width - 1;
                 else
                     return 100;
             }
@@ -466,7 +473,7 @@ namespace csscript
                    value;
         }
 
-        static string[] newLineSeparators = new string[] { Environment.NewLine, "\n", "\r" };
+        static string[] newLineSeparators = { Environment.NewLine, "\n", "\r" };
         // =============================================
 
         public static string ToConsoleLines(this string text, int indent)

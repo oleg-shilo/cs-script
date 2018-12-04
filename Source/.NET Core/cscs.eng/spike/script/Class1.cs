@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace script
+﻿namespace script
 {
     public class Class1
     {

@@ -1,13 +1,11 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Threading;
-using System.Diagnostics;
 using CSScripting.CodeDom;
-using System.Xml.Linq;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace csscript
 {
@@ -33,7 +31,6 @@ namespace csscript
 
         public void InstallPackage(string packageNameMask, string version = null)
         {
-
             var packages = new string[0];
             //index is 1-based, exactly as it is printed with ListPackages
             if (int.TryParse(packageNameMask, out int index))
@@ -217,7 +214,6 @@ namespace csscript
                         forceDownloading = false;
                 }
 
-
                 if (suppressDownloading)
                 {
                     // it is OK if the package is not downloaded (e.g. N++ Intellisense)
@@ -254,7 +250,6 @@ namespace csscript
                     if (package_info == null)
                         throw new ApplicationException("Cannot process NuGet package '" + package + "'");
 
-
                     if (!suppressReferencing)
                     {
                         package_info.PreferredRuntime = packageArgs.ArgValue("-rt");
@@ -266,5 +261,4 @@ namespace csscript
             return Utils.RemovePathDuplicates(assemblies.ToArray());
         }
     }
-
 }

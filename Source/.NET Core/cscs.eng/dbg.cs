@@ -1,7 +1,5 @@
-using System.Diagnostics;
 using System;
 using System.Collections;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -128,7 +126,6 @@ public class dbg
         }
         // else if (obj is IDictionary dictionaryElement)
         // {
-
         // }
         else if (obj is IEnumerable enumerableElement)
         {

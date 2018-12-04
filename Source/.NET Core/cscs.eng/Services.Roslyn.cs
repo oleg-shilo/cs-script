@@ -7,21 +7,15 @@ using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace CSScripting.CodeDom
 {
     static public class RoslynService
     {
-
         static (string file, int line) Translate(this Dictionary<(int, int), (string, int)> mapping, int line)
         {
             foreach ((int start, int end) range in mapping.Keys)
@@ -68,8 +62,7 @@ namespace CSScripting.CodeDom
                 // writer.WriteLine(File.ReadAllText(attr_file));
             }
 
-
-            // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported 
+            // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported
             // by both .NET debugger (VS) and .NET Core debugger (VSCode).
 
             // However PortablePDB does not store the full source path but file name only (at least for now). It works fine in typical
@@ -88,8 +81,8 @@ namespace CSScripting.CodeDom
 
             var combinedScript = new List<string>();
 
-            // exclude dbg_inject_file because it has extension methods, which are not permitted in Roslyn scripts 
-            // exclude attr_file because it has assembly attribute, which is not permitted in Roslyn scripts 
+            // exclude dbg_inject_file because it has extension methods, which are not permitted in Roslyn scripts
+            // exclude attr_file because it has assembly attribute, which is not permitted in Roslyn scripts
             var imported_sources = fileNames.Where(x => x != attr_file && x != firstScript && x != dbg_inject_file);
 
             var mapping = new Dictionary<(int, int), (string, int)>();
@@ -131,7 +124,7 @@ namespace CSScripting.CodeDom
                                                              .Where(asm => asm.GetDirName() != engine_dir)
                                                              .ToList();
 
-            if(CSExecutor.options.enableDbgPrint)
+            if (CSExecutor.options.enableDbgPrint)
                 ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
 
             var refs = new StringBuilder();
@@ -193,7 +186,7 @@ namespace CSScripting.CodeDom
             result.Errors
                   .ForEach(x =>
                   {
-                      // by default x.FileName is a file name only 
+                      // by default x.FileName is a file name only
                       x.FileName = fileNames.FirstOrDefault(f => f.EndsWith(x.FileName ?? "")) ?? x.FileName;
                   });
 
@@ -211,7 +204,7 @@ namespace CSScripting.CodeDom
             {
                 if (result.Errors.IsEmpty())
                 {
-                    // unknown error; e.g. invalid compiler params 
+                    // unknown error; e.g. invalid compiler params
                     result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
                 }
             }
@@ -341,7 +334,7 @@ namespace CSScripting.CodeDom
         //                          static public void Main()
         //                          {
         //                              (int a, int b) t = (1, 2);
-        //                              Console.WriteLine(""hello...""); 
+        //                              Console.WriteLine(""hello..."");
         //                          }
         //                      }";
 
@@ -379,7 +372,7 @@ class Script
     static public void Main()
     {
         (int a, int b) t = (1, 2);
-        Console.WriteLine(""hello...""); 
+        Console.WriteLine(""hello..."");
     }
 }";
                 var scriptOptions = ScriptOptions.Default;
@@ -406,8 +399,6 @@ class Script
             catch { }
             return null;
         }
-
-
 
         static BuildResult build_locally(Compilation compilation, string assemblyFile, bool IsDebug, EmitOptions emitOptions, bool doNotSave = false)
         {

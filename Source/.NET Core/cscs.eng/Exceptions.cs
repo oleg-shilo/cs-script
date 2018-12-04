@@ -22,13 +22,11 @@
 
 #endregion Licence...
 
-using System;
-using System.CodeDom.Compiler;
-
-using System.Text;
-using System.Runtime.Serialization;
-using System.Collections.Generic;
 using CSScripting.CodeDom;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Text;
 
 namespace csscript
 {
@@ -79,7 +77,7 @@ namespace csscript
 
         static public void Throw(string message)
         {
-             throw new CLIExitRequest(message);
+            throw new CLIExitRequest(message);
         }
 
         public CLIExitRequest(string message) : base(message)

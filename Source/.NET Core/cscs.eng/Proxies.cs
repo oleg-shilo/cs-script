@@ -1,10 +1,5 @@
 using csscript;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Emit;
-using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace CSScripting.CodeDom
 {
@@ -50,7 +44,6 @@ namespace CSScripting.CodeDom
             throw new NotImplementedException();
         }
 
-
         static string dotnet { get; } = Utils.IsCore ? Process.GetCurrentProcess().MainModule.FileName : "dotnet";
 
         static string InitBuildTools()
@@ -78,15 +71,17 @@ namespace CSScripting.CodeDom
             {
                 case "csc":
                     return CompileAssemblyFromFileBatch_with_Csc(options, fileNames);
+
                 case "roslyn":
                     return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
+
                 case "dotnet":
                     return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
+
                 default:
                     return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
             }
         }
-
 
         string findCsc()
         {
@@ -120,7 +115,7 @@ namespace CSScripting.CodeDom
 
             fileNames.ForEach((string source) =>
                 {
-                    // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported 
+                    // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported
                     // by both .NET debugger (VS) and .NET Core debugger (VSCode).
 
                     // However PortablePDB does not store the full source path but file name only (at least for now). It works fine in typical
@@ -196,7 +191,7 @@ namespace CSScripting.CodeDom
             result.Errors
                   .ForEach(x =>
                   {
-                      // by default x.FileName is a file name only 
+                      // by default x.FileName is a file name only
                       x.FileName = fileNames.FirstOrDefault(f => f.EndsWith(x.FileName ?? "")) ?? x.FileName;
                   });
 
@@ -214,7 +209,7 @@ namespace CSScripting.CodeDom
             {
                 if (result.Errors.IsEmpty())
                 {
-                    // unknown error; e.g. invalid compiler params 
+                    // unknown error; e.g. invalid compiler params
                     result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
                 }
             }
@@ -250,9 +245,9 @@ namespace CSScripting.CodeDom
             // In .NET Core this creates a problem as the compiler does not expect any default (shared)
             // assemblies to be passed. So we do need to exclude them.
             // Note: .NET project that uses 'standard' assemblies brings facade/full .NET Core assemblies in the working folder (engine dir)
-            // 
-            // Though we still need to keep shared assembly resolving in the host as the future compiler 
-            // require ALL ref assemblies to be pushed to the compiler. 
+            //
+            // Though we still need to keep shared assembly resolving in the host as the future compiler
+            // require ALL ref assemblies to be pushed to the compiler.
 
             bool not_in_engine_dir(string asm) => (asm.GetDirName() != this.GetType().Assembly.Location.GetDirName());
 
@@ -260,14 +255,14 @@ namespace CSScripting.CodeDom
             var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
                                                              .Where(Path.IsPathRooted)
                                                              .Where(not_in_engine_dir)
-                                                             .ToList(); 
+                                                             .ToList();
 
             if (CSExecutor.options.enableDbgPrint)
                 ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
 
             void CopySourceToBuildDir(string source)
             {
-                // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported 
+                // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported
                 // by both .NET debugger (VS) and .NET Core debugger (VSCode).
 
                 // However PortablePDB does not store the full source path but file name only (at least for now). It works fine in typical
@@ -280,7 +275,6 @@ namespace CSScripting.CodeDom
                 var sourceText = $"#line 1 \"{source}\"{Environment.NewLine}" + File.ReadAllText(source);
                 File.WriteAllText(new_file, sourceText);
             }
-
 
             if (ref_assemblies.Any())
             {
@@ -295,9 +289,7 @@ namespace CSScripting.CodeDom
                                                                     {refs.ToString()}
                                                                  </ItemGroup>
                                                               </Project>");
-
             }
-
 
             File.WriteAllText(build_dir.PathJoin(projectShortName + ".csproj"), project_content);
 
@@ -308,13 +300,11 @@ namespace CSScripting.CodeDom
 
             var result = new CompilerResults();
 
-
             var config = options.IncludeDebugInformation ? "--configuration Debug" : "--configuration Release";
 
             Profiler.get("compiler").Start();
             result.NativeCompilerReturnValue = Utils.Run(dotnet, $"build {config} -o {output} {options.CompilerOptions}", build_dir, x => result.Output.Add(x));
             Profiler.get("compiler").Stop();
-
 
             if (CSExecutor.options.verbose)
             {
@@ -325,11 +315,10 @@ namespace CSScripting.CodeDom
 
             result.ProcessErrors();
 
-
             result.Errors
                   .ForEach(x =>
                   {
-                      // by default x.FileName is a file name only 
+                      // by default x.FileName is a file name only
                       x.FileName = fileNames.FirstOrDefault(f => f.EndsWith(x.FileName ?? "")) ?? x.FileName;
                   });
 
@@ -347,7 +336,7 @@ namespace CSScripting.CodeDom
             {
                 if (result.Errors.IsEmpty())
                 {
-                    // unknown error; e.g. invalid compiler params 
+                    // unknown error; e.g. invalid compiler params
                     result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
                 }
             }
@@ -364,7 +353,6 @@ namespace CSScripting.CodeDom
 
         static void explore_package_dependencies_spike()
         {
-
             // var package_name = "NLog.Config";
             // var package_ver = "4.5.4";
             // project_content = project_content.Replace("</Project>",
@@ -431,7 +419,6 @@ namespace CSScripting.CodeDom
                   "hashPath": "nlog.schema.4.5.4.nupkg.sha512"
                 }*/
 
-
             // result.ProcessErrors();
 
             // result.ProbingDirs.Add(@"C:\Users\%username%\.nuget\packages\nlog\4.5.4\lib\netstandard2.0");
@@ -492,7 +479,6 @@ namespace CSScripting.CodeDom
                     }
                 }
             }
-
         }
     }
 
@@ -508,6 +494,7 @@ namespace CSScripting.CodeDom
     public class TempFileCollection
     {
         public List<string> Items { get; set; } = new List<string>();
+
         public void Clear() => Items.ForEach(File.Delete);
     }
 
@@ -549,9 +536,7 @@ namespace CSScripting.CodeDom
                 {
                     try
                     {
-
                         var m = Regex.Match(match.Value, @"\(\d+\,\d+\)\:");
-
 
                         var location_items = m.Value.Substring(1, m.Length - 3).Split(separator: ',').ToArray();
                         var description_items = compilerOutput.Substring(match.Value.Length).Split(":".ToArray(), 2);

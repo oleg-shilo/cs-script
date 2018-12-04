@@ -1,19 +1,9 @@
+using CSScriptLibrary;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Text;
-using CSScriptLibrary;
-using System.Runtime.InteropServices;
-using System.CodeDom.Compiler;
-using Microsoft.CSharp;
-using System.Globalization;
-using System.Threading;
-using System.Collections;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
-using System.Xml;
 
 namespace csscript
 {

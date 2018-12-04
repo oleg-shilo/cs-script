@@ -30,24 +30,21 @@
 
 #endregion Licence...
 
-using System;
-using System.IO;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-
-using System.Text;
-using CSScriptLibrary;
-using System.Runtime.InteropServices;
-using System.CodeDom.Compiler;
-using Microsoft.CSharp;
-using System.Globalization;
-using System.Threading;
-using System.Collections;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
-using System.Xml;
 using CSScripting.CodeDom;
+using CSScriptLibrary;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+
 // using System.Runtime.Remoting.Lifetime;
 
 namespace csscript
@@ -373,9 +370,13 @@ namespace csscript
         }
 
         public static string GetDirName(this string path) => Path.GetDirectoryName(path);
+
         public static string GetFileName(this string path) => Path.GetFileName(path);
+
         public static bool FileExists(this string path) => path.IsNotEmpty() ? File.Exists(path) : false;
+
         public static bool DirExists(this string path) => path.IsNotEmpty() ? Directory.Exists(path) : false;
+
         public static string ChangeExtension(this string path, string extension) => Path.ChangeExtension(path, extension);
 
         public static bool IsSamePath(this string path1, string path2)
@@ -1239,8 +1240,6 @@ partial class dbg
                         if (argValue != null && argValue != "print")
                         {
                             options.preCompilers = argValue;
-
-
                         }
                         else
                         {

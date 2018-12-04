@@ -1,4 +1,3 @@
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,8 +48,10 @@ namespace csscript
         public const string dbg = "dbg";
         public const string d = "d";
         public const string l = "l";
+
         // public const string inmem = "inmem"; // may need to resurrect if users do miss it :)
         public const string ac = "ac";
+
         public const string wait = "wait";
         public const string autoclass = "autoclass";
         public const string sconfig = "sconfig";
@@ -287,7 +288,7 @@ namespace csscript
                                                    "implementation of Python-like print methods `dbg.print` and derived extension methods object.print() " +
                                                    "and object.dup(). While `dbg.print` is extremely useful it can and lead to some referencing challenges when " +
                                                    "the script being executed is referencing assemblies compiled with `dbg.print` already included. " +
-                                                   "The simplest way o solve this problem is disable the `dbg.cs` inclusion.",
+                                                   "The simplest way to solve this problem is disable the `dbg.cs` inclusion.",
                                                    " -dbgprint:1   enable `dbg.cs` inclusion; Same as `-dbgprint`;",
                                                    " -dbgprint:0   disable `dbg.cs` inclusion;");
             switch2Help[verbose] = new ArgInfo("-verbose",
@@ -878,6 +879,7 @@ namespace csscript
 
             return builder.ToString();
         }
+
         static string CSharp7_Sample()
         {
             StringBuilder builder = new StringBuilder();

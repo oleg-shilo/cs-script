@@ -1,20 +1,16 @@
 using System;
-using System.Threading;
-using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Reflection;
 using System.Text;
+using System.Threading;
 
-//todo: start as shortcut scenario:
-//create event here and set it in the cscs.exe as mutex claimed in the cscs.exe may be released if cscs.exe does not live long enough
-//so css would believe console should not be visible
+// todo: start as shortcut scenario:
+// create event here and set it in the cscs.exe as mutex claimed in the cscs.exe may be released if cscs.exe does not live long enough
+// so css would believe console should not be visible
 class ScriptLauncher
 {
     static Process process = new Process();
     static Thread inputThread = null;
-    // static bool nologo = false;
-    // static int lineCount = 0;
 
     [DllImport("User32")]
     static extern int ShowWindow(IntPtr hwnd, int nCmdShow);
@@ -24,8 +20,8 @@ class ScriptLauncher
 
     [DllImport("kernel32")]
     static extern IntPtr GetConsoleWindow();
-    static bool isLinux { get; } = (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
 
+    static bool isLinux { get; } = (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
 
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -169,4 +165,3 @@ class ScriptLauncher
         }
     }
 }
-

@@ -26,7 +26,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CSScriptLibrary;
 
 namespace csscript
 {
@@ -48,7 +47,6 @@ namespace csscript
         {
             remoteExecutor.ExecuteAssembly(assemblyFileName, args);
         }
-
     }
 
     /// <summary>
@@ -56,7 +54,6 @@ namespace csscript
     /// </summary>
     class LocalExecutor
     {
-
         public string[] searchDirs = new string[0];
 
         public LocalExecutor(string[] searchDirs)

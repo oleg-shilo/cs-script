@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 // -c:0 "E:\Galos\Projects\CS-Script\GitHub\cs-script\Source\.NET Core\spike\script.cs"
 
@@ -26,6 +21,7 @@ namespace css
     {
         static void Main(string[] args)
         {
+            Environment.SetEnvironmentVariable("Console.WindowWidth", Console.WindowWidth.ToString());
             bool hideConsole = false;
 
             if (args.Contains("-noconsole") || args.Contains("-nc"))
@@ -36,16 +32,26 @@ namespace css
 
             if (args.ParseValuedArg("engine", "eng", out string value))
             {
+                var full_env = Environment.OSVersion.IsWin() ? ".NET" : "Mono";
+
                 args = args.Where(a => !(a.StartsWith("-engine") || a.StartsWith("-eng"))).ToArray();
                 if (value == null)
                 {
-                    Console.WriteLine("-eng|-engine[:<core|net>]\n" +
-                        "    Sets the execution engine to .NET Core or the full version of .NET/Mono.");
+                    if (args.Contains("?") || args.Contains("help"))
+                    {
+                        Console.WriteLine("-eng|-engine[:<core|net>]\n" +
+                                          "    Sets the execution engine to .NET Core or the full version of .NET/Mono.");
+                    }
+                    else
+                    {
+                        if (File.Exists(RedirectFileName))
+                            Console.WriteLine($"The execution engine is set to {full_env}");
+                        else
+                            Console.WriteLine($"The execution engine is set to .NET Core");
+                    }
                 }
                 else
                 {
-                    var full_env = Environment.OSVersion.IsWin() ? ".NET" : "Mono";
-
                     switch (value.ToLower())
                     {
                         case "net":

@@ -22,14 +22,12 @@
 
 #endregion Licence...
 
-using System;
-using System.IO;
-using System.Text;
-
-using System.Collections.Generic;
-using System.Linq;
-
 using csscript;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace CSScriptLibrary
 {
@@ -621,7 +619,6 @@ namespace CSScriptLibrary
         {
             get { return ignoreNamespaces.ToArray(); }
         }
-
 
         /// <summary>
         /// Resolves the NuGet packages into assemblies to be referenced by the script.

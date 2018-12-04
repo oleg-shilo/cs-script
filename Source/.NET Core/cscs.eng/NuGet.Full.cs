@@ -1,12 +1,11 @@
+using CSScripting.CodeDom;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Diagnostics;
-using CSScripting.CodeDom;
-
 
 // Tempting to use "NuGet.Core" NuGet package to avoid deploying and using nuget.exe.
 // However it is not compatible with .NET Core runtime (at least as at 19.05.2018)
@@ -21,7 +20,9 @@ namespace csscript
         static public string NuGetCacheView { get => Directory.Exists(nuget.NuGetCache) ? nuget.NuGetCache : "<not found>"; }
         static public string NuGetExeView { get => (nuget.NuGetExe.FileExists() || nuget.NuGetExe == "dotnet") ? nuget.NuGetExe : "<not found>"; }
         static public bool newPackageWasInstalled { get => nuget.NewPackageWasInstalled; }
+
         static public void InstallPackage(string packageNameMask) => nuget.InstallPackage(packageNameMask);
+
         static public void ListPackages()
         {
             Console.WriteLine("Repository: " + NuGetCacheView);
@@ -30,6 +31,7 @@ namespace csscript
                 Console.WriteLine((++i) + ". " + name);
             nuget.ListPackages();
         }
+
         static public string[] Resolve(string[] packages, bool suppressDownloading, string script) => nuget.Resolve(packages, suppressDownloading, script);
     }
 
@@ -38,8 +40,11 @@ namespace csscript
         string NuGetCache { get; }
         string NuGetExe { get; }
         bool NewPackageWasInstalled { get; }
+
         void InstallPackage(string packageNameMask, string version = null);
+
         string[] ListPackages();
+
         string[] Resolve(string[] packages, bool suppressDownloading, string script);
     }
 
@@ -55,6 +60,7 @@ namespace csscript
                 "CS-Script", "nuget");
 
         static string nuGetCache = null;
+
         public string NuGetCache
         {
             get
@@ -459,7 +465,6 @@ namespace csscript
                 result.Add(lib);
 
             var libVersions = Directory.GetDirectories(lib, NugetTargetFramework + "*").OrderByDescending(x => x);
-
 
             if (!libVersions.Any())
             {
