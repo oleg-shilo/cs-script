@@ -1,4 +1,4 @@
-//css_nuget Caliburn.Micro,Caliburn.Micro.Core;
+//css_nuget Caliburn.Micro, Caliburn.Micro.Core;
 //css_inc Caliburn.App.cs;
 //css_ref System.Runtime
 //css_ref System.ObjectModel

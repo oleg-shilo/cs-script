@@ -259,3 +259,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/Source/.NET Core/spike
+/Source/.NET Core/css/spike
+/Source/.NET Core/prepare_publish_cs-script.core.cmd

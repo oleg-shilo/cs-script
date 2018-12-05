@@ -217,13 +217,13 @@ namespace csscript
                                                    " ",
                                                    "See '//css_autoclass' directive for details. Or find the full documentation on GitHub: " +
                                                    " https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class",
-                                                   " ");                                                   
+                                                   " ");
             // switch2Help[nl] = new ArgInfo("-nl",
             //                                        "No logo mode: No banner will be shown/printed at execution time.",
             //                                        "Applicable for console mode only.");
             switch2Help[d] =
             switch2Help[dbg] = new ArgInfo("-dbg|-d",
-                                                   "Forces compiler to include debug information.");
+                                       "Forces compiler to include debug information.");
             switch2Help[l] = new ArgInfo("-l[:<0|1>]",
                                                    "'local'- makes the script directory a 'current directory' (enabled by default).",
                                                    " -l:1   the process current directory is assigned to the script directory (default);",
@@ -454,10 +454,10 @@ namespace csscript
                          " ",
                          "The convention for the classless (auto-class) code structure is as follows:",
                          " - set of 'using' statements" +
-                         " - classless 'main' "+
-                         " - user code "+
-                         " - optional //css_ac_end directive"+
-                         " - optional user code that is not a subject of auto-class decoration"+
+                         " - classless 'main' " +
+                         " - user code " +
+                         " - optional //css_ac_end directive" +
+                         " - optional user code that is not a subject of auto-class decoration" +
                          "(see https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class)",
                          " ",
                          "A special case of auto-class use case is a free style C# code that has no entry point 'main' at all:",
@@ -658,7 +658,6 @@ namespace csscript
                          " Project Website: https://github.com/oleg-shilo/cs-script",
                          " ");
 
-
             var directives = syntaxDetails.Split('\n')
                                           .Where(x => x.StartsWith("//css_"))
                                           .Select(x => " - " + x.TrimEnd())
@@ -677,7 +676,6 @@ namespace csscript
                          );
 
             syntaxHelp += Environment.NewLine + syntaxDetails;
-
 
             if (Utils.IsWin)
                 syntaxHelp = syntaxHelp.Replace("{$css_host}",
