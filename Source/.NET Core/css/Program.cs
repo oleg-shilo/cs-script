@@ -30,7 +30,7 @@ namespace css
                 args = args.Where(a => a != "-noconsole" && a != "-nc").ToArray();
             }
 
-            if (args.ParseValuedArg("engine", "eng", out string value))
+            if (args.ParseValuedArg("runtime", "rt", out string value))
             {
                 var full_env = Environment.OSVersion.IsWin() ? ".NET" : "Mono";
 
@@ -39,7 +39,7 @@ namespace css
                 {
                     if (args.Contains("?") || args.Contains("help"))
                     {
-                        Console.WriteLine("-eng|-engine[:<core|net>]\n" +
+                        Console.WriteLine("-rt|-runtime[:<core|net>]\n" +
                                           "    Sets the execution engine to .NET Core or the full version of .NET/Mono.");
                     }
                     else

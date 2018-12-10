@@ -7,7 +7,10 @@ rem @set net4_tools=C:\Program Files (x86)\MSBuild\12.0\Bin
 @set net4_tools=C:\Windows\Microsoft.NET\Framework\v4.0.30319
 rem @set net45_tools=C:\Program Files (x86)\MSBuild\14.0\Bin
 rem @set net45_tools=C:\Program Files (x86)\MSBuild\15.0\Bin
-@set net45_tools=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\
+rem @set net45_tools=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\
+rem @set net45_tools=C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\
+@set net45_tools=C:\Program Files (x86)\Microsoft Visual Studio\2017\%VS_EDITION%\MSBuild\15.0\Bin\
+
 @set local_dev=%CS-S_DEV_ROOT%
 @set is_local_dev=true
 if "%local_dev%" == "" @set is_local_dev=false
@@ -121,7 +124,6 @@ ECHO ------------ >> ..\Build\build.log
 move ..\cscscript\bin\Distro\cscs.exe ..\Build\cscs.exe
 ..\Build\cscs.exe -? > "%local_dev%\help.txt"
 ..\Build\cscs.exe -? > ..\..\..\cs-script\help.txt
-
 ECHO Building cscs32.exe: >> ..\Build\build.log
 "%net4_tools%\msbuild.exe" ..\cscscript\cscscript.csproj /p:AssemblyName=cscs /p:TargetFrameworkVersion=v4.5  /p:PlatformTarget=x86 /p:configuration=Release;Platform="AnyCPU" /p:OutDir=bin\Distro /p:DefineConstants="net4;net45" %common_msbuild_params%
 move ..\cscscript\bin\Distro\cscs.exe ..\Build\cscs32.exe
@@ -165,6 +167,7 @@ cscs.exe /nl /l /dbg -pvdr:none /ew "..\ConfigConsole\ConfigConsole.cs"
 move ..\ConfigConsole\ConfigConsole.exe ..\Build\ConfigConsole.exe
 ECHO ------------ >> ..\Build\build.log
 set CSSCRIPT_DIR=%old_css_dir%
+set build_tools=E:\PrivateData\Galos
 
 REM move temp\temp\CSScriptLibrary.v1.1.xml CSScriptLibrary.v1.1.xml
 REM move temp\temp\CSScriptLibrary.v1.1.dll CSScriptLibrary.v1.1.dll
@@ -228,7 +231,7 @@ rem move ..\Build\temp\temp\CSSCodeProvider.v3.5.dll CSSCodeProvider.v3.5.dll
 rem ECHO ------------ >> ..\Build\build.log
 
 rem ECHO Building CSScript.Tasks.dll: >> ..\Build\build.log
-rem "%net4_tools%\csc.exe" /nologo /nowarn:618,162 /debug+ /debug:full /o /out:..\Build\temp\temp\CSScript.Tasks.dll /t:library ..\NAnt.CSScript\CSScript.Tasks.cs ..\NAnt.CSScript\AssemblyInfo.cs /r:System.dll /r:CSScriptLibrary.dll /r:System.Core.dll /r:System.Xml.dll /r:E:\Galos\BuildTools\nant\bin\NAnt.Core.dll >> build.log
+rem "%net4_tools%\csc.exe" /nologo /nowarn:618,162 /debug+ /debug:full /o /out:..\Build\temp\temp\CSScript.Tasks.dll /t:library ..\NAnt.CSScript\CSScript.Tasks.cs ..\NAnt.CSScript\AssemblyInfo.cs /r:System.dll /r:CSScriptLibrary.dll /r:System.Core.dll /r:System.Xml.dll /r:..\BuildTools\nant\bin\NAnt.Core.dll >> build.log
 rem move ..\Build\temp\temp\CSScript.Tasks.dll CSScript.Tasks.dll
 rem copy CSScript.Tasks.dll "%local_dev%\Lib\CSScript.Tasks.dll"
 rem copy CSScript.Tasks.dll "%local_dev%\Samples\NAnt\CSScript.Tasks.dll"
@@ -244,7 +247,7 @@ rem ECHO ------------ >> ..\Build\build.log
 rem ECHO Building CSSCodeProvider.v4.6.dll: >> ..\Build\build.log
 rem cannot build v4.6 with csc.exe it needs to be VS+manual build
 rem ECHO Building CSSCodeProvider.v4.6.dll: >> ..\Build\build.log
-rem "%net4_tools%\csc.exe" /nologo /nowarn:618 /o /out:..\Build\temp\temp\CSSCodeProvider.v4.6.dll /t:library ..\CSSCodeProvider.v4.6\CSSCodeProvider.cs ..\CSSCodeProvider.v3.5\AssemblyInfo.cs /r:System.dll /r:E:\Galos\Projects\CS-Script\Src\CSSCodeProvider.v4.6\bin\roslyn\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll >> build.log
+rem "%net4_tools%\csc.exe" /nologo /nowarn:618 /o /out:..\Build\temp\temp\CSSCodeProvider.v4.6.dll /t:library ..\CSSCodeProvider.v4.6\CSSCodeProvider.cs ..\CSSCodeProvider.v3.5\AssemblyInfo.cs /r:System.dll /r:%build_tools%\Projects\CS-Script\Src\CSSCodeProvider.v4.6\bin\roslyn\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll >> build.log
 rem ECHO Copying Roslyn binaries... >> ..\Build\build.log
 rem copy ..\CSSCodeProvider.Legacy\CSSCodeProvider.v4.6\bin\roslyn\*.* "%local_dev%\Lib\Bin\Roslyn\"
 
@@ -254,9 +257,9 @@ copy ..\CSSRoslynProvider\bin\Release\CSSRoslynProvider.dll "%local_dev%\Lib\Bin
 copy ..\CSSRoslynProvider\bin\Release\CSSRoslynProvider.dll CSSRoslynProvider.dll
 ECHO ------------ >> ..\Build\build.log
 
-ECHO Building css.exe: >> ..\Build\build.log
-%windir%\Microsoft.NET\Framework\v2.0.50727\csc /nologo /define:net1 /o /out:css.exe /win32icon:..\Logo\css_logo.ico /t:exe ..\css.cs ..\CS-S.AsmInfo.cs /r:System.dll >> build.log
-ECHO ------------ >> ..\Build\build.log
+rem ECHO Building css.exe: >> ..\Build\build.log
+rem %windir%\Microsoft.NET\Framework\v2.0.50727\csc /nologo /define:net1 /o /out:css.exe /win32icon:..\Logo\css_logo.ico /t:exe ..\css.cs ..\CS-S.AsmInfo.cs /r:System.dll >> build.log
+rem ECHO ------------ >> ..\Build\build.log
 
 ECHO Building runasm32.exe: >> ..\Build\build.log
 "%net4_tools%\csc.exe" /nologo  /o /platform:x86 /out:runasm32.exe /t:exe ..\runasm32.cs /r:System.dll >> build.log
