@@ -857,7 +857,7 @@ namespace csscript
             builder.AppendLine("using System.IO;");
             if (CSExecutor.options.compilerEngine != Directives.compiler_roslyn)
                 builder.AppendLine("using static dbg; // to use 'print' instead of 'dbg.print'");
-            builder.AppendLine("            ");
+            builder.AppendLine("");
             builder.AppendLine("void main(string[] args)");
             builder.AppendLine("{");
             builder.AppendLine("    (string message, int version) setup_say_hello()");
