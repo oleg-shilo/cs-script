@@ -13,7 +13,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>-->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.5.0</Version>
+    <Version>1.0.6.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET Core</Description>
     <Copyright>(C) 2018 Oleg Shilo</Copyright>
@@ -26,8 +26,8 @@
     <PackageReleaseNotes>- Updated dependencies to their latest available versions
 </PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.0.4.0</AssemblyVersion>
-    <FileVersion>1.0.4.0</FileVersion>
+    <AssemblyVersion>1.0.6.0</AssemblyVersion>
+    <FileVersion>1.0.6.0</FileVersion>
 
 </PropertyGroup>
 
