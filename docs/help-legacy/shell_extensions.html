@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+  <title>Advanced Shell Extensions</title><meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Advanced Shell Extensions</h1>
+</div>
+</div>
+<br>
+<div id="nstext"><font face="Arial" size="2"><span><span style="font-weight: bold;"></span></span></font>One
+of the important components of the CS-Script integration with the OS is
+a set of Windows Explorer shell extensions. All of them can be enabled
+and disabled on individual base from the <span style="font-style: italic;">General</span> page (Simplified Context Menus) of the <a href="Config.html">configuration console.</a> <br>
+These shell extensions are implemented as simple registry entries and
+appear on the root level of the explorer context menu: &nbsp;
+<br>
+<br>
+<div style="text-align: center;"><img style="width: 345px; height: 264px;" alt="" src="Images/ShellExt.PNG"><br>
+</div>
+<br>
+In addition to these&nbsp;simple shell extensions CS-Script (starting from <span style="font-style: italic;">v1.8.0</span>)
+offers Advanced Shell Extensions. &nbsp;This is a set of configurable
+batch file based shell extensions which can be modified and extended by
+user according his/her needs. &nbsp;The Advanced Shell Extensions can
+be enabled/disabled form&nbsp;the <a href="Config.html">configuration console.</a><br>
+<br>
+By default Advanced Shell Extensions allow you to:<br>
+<ul>
+  <li>Open script file in VS8.0</li>
+  <li>Run script as a WinForm application</li>
+  <li>Run script as a console application</li>
+  <li>Start script under debugger</li>
+  <li>Check script for errors (verify)</li>
+  <li>Start configuration console</li>
+  <li>Convert script to a VS2005 project</li>
+  <li>Convert script to a VS2008 project</li>
+  <li>Creates shortcut to the script file to run it by double-clicking
+(this is a much safer option than to modify default double-click
+behavior for all .cs files)</li>
+  <li>Compile script into a&nbsp;WinForm application</li>
+  <li>Compile script into a console application</li>
+  <li>Compile script into a class library</li>
+  <li>Compile script into a&nbsp;WinForm application with embedded debug information</li>
+  <li>Compile script into a console application&nbsp; with embedded debug information</li>
+</ul>
+<br>
+This is how  Advanced Shell Extensions appear in windows explorer:<br>
+<div style="text-align: center;"><img style="width: 470px; height: 371px;" alt="" src="Images/ShellExt2.PNG"><br>
+</div>
+<br>
+The major difference between simple and Advanced Shell Extensions is
+that advanced extensions are implemented as a COM server
+with&nbsp;dynamic behavior. This allows user to have highly structured
+explorer context menus by creating or modifying corresponding batch
+files. <br>
+<br>
+User can alter shell extension&nbsp;without producing a single line of code. This includes:<br>
+<ul>
+  <li>Change structure of menu branches</li>
+  <li>Change menu item name&nbsp;&nbsp;</li>
+  <li>Create new menu item</li>
+  <li>Remove existing menu item</li>
+  <li>Change menu item associated action</li>
+  <li>Change menu item order</li>
+</ul>
+<br>
+The idea behind the Advanced Shell Extensions is simple: file structure
+and content of batch files controls appearance and behavior of the
+explorer context menu. The context menu on the image above is generated
+on the base of the following file structure:<br>
+<br>
+<div style="text-align: center;"><img style="width: 668px; height: 151px;" alt="" src="Images/ShellExt3.PNG"><br>
+</div>
+<br>
+&nbsp;<br>
+<br>
+Thus if you want to create menu item "Open in Notepad" in the root
+level of CS-Script shell extension you will need to create&nbsp; "<span style="font-style: italic;">C:\cs-script\Lib\ShellExtensions\CS-Script\Open in Notepad.cmd</span>" batch file containing the following text:<br>
+<div class="syntax">notepad.exe&nbsp; %1</div>
+To ensure the menu item position you can preface the batch file name
+with two digit (##.) prefix which is not displayed at runtime. Also you
+can use suffix ".c" between file name and file extension to force the
+shell extension to display console window during the execution.<br>
+<br>
+The best way to learn how to control Advanced Shell Extensions is to analyse existing batch files.
+<br>
+<font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font><br>
+<h4 class="dtH4">See Also</h4>
+<br>
+<a href="Config.html">CS-Script Settings</a><br>
+<br>
+<br>
+<a href="ws.html"><span style="text-decoration: underline;">
+</span></a></div>
+</body></html>
+

@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>CS-Script Config Utilities</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<xml></xml>
+<link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> <br>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">CS-Script Config
+Utilities</h1>
+</div>
+</div>
+<div id="nstext">
+<p>CS-Script&nbsp;settings&nbsp;can be
+viewed/edited with the CS-Script&nbsp;<a href="Config.html">configuration
+console</a>.
+However some of the settings can be adjusted without launching the
+whole configuration console but rather specialised utility, which
+provides more detailed view of a particular settings group.
+CS-Scriptcomes with a set of such utilities, and any of
+them&nbsp;can
+be launched either from the confiiguration console or as
+a standalone applications. The following is a brief description of the
+these utilities. &nbsp; &nbsp;</p>
+<br>
+<h4 class="dtH4">Advanced Shell Extension</h4>
+<br>
+To start this utility&nbsp;execute the following command in command
+prompt:
+<div class="syntax"> css shellext&nbsp; </div>
+<div style="text-align: center;">
+<div style="text-align: left;"><span style="font-weight: bold;"></span><span style="font-style: italic;">Alternatively it can be started from </span><a style="font-style: italic;" href="Config.html">Configuration Console</a><span style="font-style: italic;">.<br><br></span>After
+the&nbsp;console is displayed you can enable or disable particular
+menu
+item or change item order. I addition to this you can also modify
+the command associated with the menu.&nbsp; You can read more about
+Advanced
+Shell Extension in the <a href="shell_extensions.html">corresponding
+documentation chapter</a>.<br>
+<br>
+<div style="text-align: center;"><img style="width: 519px; height: 434px;" alt="" src="Images/config4.png"></div>
+<br>
+<h4 class="dtH4"><a id="_vs_integration" name="_vs_integration"></a>Visual Studio Integration</h4>
+<br>
+To start this utility&nbsp;execute the following command in command
+prompt:
+<div class="syntax">css VSintegration&nbsp; </div>
+<span style="font-style: italic;">Alternatively it can be started from </span><a style="font-style: italic;" href="Config.html">Configuration Console</a><span style="font-style: italic;">.</span><br><span style="font-weight: bold;"></span><br>This
+utility
+allow you to
+enable or disable CS-Script integration with any version of MS Visual
+Studio installed on your PC. &nbsp;The integration is accomplished
+by
+activating the CS-Script code snippet collection and by creating
+CS-Script toolbar with commonly used CS-Script commands. Thus VS
+Integraion utility is nothing else but a custom VS Add-in Manager.<br>
+&nbsp;&nbsp; <br>
+&nbsp;
+<div style="text-align: center;"><img style="width: 705px; height: 300px;" alt="" src="Images/config5.png"><br>
+</div>
+<p>The
+first two columns in the grid represent current state of
+the IDE
+version (installed or not) and sate of the CS-Script toolbar (present
+or not). &nbsp;The rest of the columns contain action buttons which
+are&nbsp;enabled if the action the button is triggering is allowed
+for
+the current IDE state.&nbsp;</p>
+<p></p>
+<span style="font-weight: bold;"></span>
+<p>CS-Script
+Visual Studio tollbar contains&nbsp;buttons for
+launching the foolowing actions (v2.1):</p>
+<ul>
+<li><span style="font-weight: bold; font-style: italic;">Refresh
+project. <br>
+</span>To
+refresh CS-Script project without restaring Visual Studio. This can be
+handy way of updating project structure after insertion of <span style="color: rgb(0, 0, 153);">//css_reference</span>
+or <span style="color: rgb(0, 0, 153);">//css_import</span>
+statements.<span style="font-weight: bold; font-style: italic;">&nbsp;</span></li>
+<li><span style="font-weight: bold; font-style: italic;">Precompiler.</span>
+<br>
+This
+button can be used to lounch precompiler. See&nbsp;<a href="dcg.html">Dynamic Code Generation</a>.&nbsp;&nbsp;</li>
+<li><span style="font-weight: bold; font-style: italic;">Explore.</span>
+<br>
+To open explorer with currently active file selected.</li>
+</ul>
+&nbsp;<br>
+<div style="text-align: center;"><img style="width: 252px; height: 48px;" alt="" src="Images/toolbar1.PNG"><br>
+</div>
+<p>Tollbar
+is implemented as not as Visual Studio Add-in but rather as a
+Visual Studio External Tool This way it can be installed on both full
+and express deitions of MS Visual Studio. If you press Insert button
+the tollbar will be inserted into the current layout: Visual Studio
+will retain all it's current settings. If you select Import <span style="font-style: italic;">cs-script\Lib\CSScript-Toolbar.vssettings</span>
+will be imoretd in the same way as if you do it manually
+"Tools"-&gt;"Import and Export Settings..." thus some of the
+current
+settings may be lost.</p>
+    <p>&nbsp;</p>
+    <p><strong>Note</strong>: Because of the VS2010 customization model limitations 
+        toolbar custom command buttons do not support images any more:&nbsp;
+        <a href="https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=511327&amp;wa=wsignin1.0">
+        https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=511327&amp;wa=wsignin1.0</a></p>
+<p></p>
+<p style="font-weight: bold;">CS-Script code snippets</p>
+The collection of the CS-script specific code snippets is located
+in&nbsp;<span style="font-style: italic;">cs-script\Lib\Code
+Snippets\Visual C# (CS-Script) </span>directory<span style="font-style: italic;">.</span> You can add,
+remove or modify any code snippet even after&nbsp;snippets
+installation.
+<p><span style="font-style: italic;"></span></p>
+<h4 class="dtH4">SearchDirs console</h4>
+<p>In addition to the ability to change <span style="font-style: italic;">SearchDirs</span> from the
+configuration console (<span style="font-style: italic;">Runtime
+options</span> page) you can manage the search directories from
+the specialised configuration console.&nbsp;</p>
+<div class="syntax"> css searchDirs&nbsp; </div>
+<span style="font-style: italic;">Alternatively it can be started from </span><a style="font-style: italic;" href="Config.html">Configuration Console</a><span style="font-style: italic;">.<br></span>The
+SearchDirs console offers
+advanced view of CS-Script search directories and allows you to add,
+remove and changetheir order in more convenient way.&nbsp;<br>
+<br>
+<div style="text-align: center;">
+<h4 style="text-align: center;" class="dtH4"><img style="width: 632px; height: 352px;" alt="" src="Images/config6.png"></h4>
+</div>
+<br>
+<p>It also allows adding new search directory from command-line:</p>
+<div class="syntax"> css searchDirs&nbsp;/add
+&lt;new directory&gt; </div>
+<p></p>
+</div>
+<span style="font-weight: bold;"></span> </div>
+<h4 class="dtH4">See Also&nbsp;</h4>
+<p><a href="Config.html">CS-Script settings</a>
+| <a href="shell_extensions.html">Advanced Shell Extension</a>&nbsp;</p>
+</div>
+</body></html>

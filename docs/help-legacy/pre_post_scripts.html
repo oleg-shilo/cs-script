@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Pre- and Post-execution scripts</title>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Pre- and
+Post-execution scripts</h1>
+</div>
+</div>
+<br>
+<div id="nstext">
+<p>Quite often it is desirable to perform certain actions before
+and/or
+after the script execution. Such actions can be virtually anything
+(copying files,&nbsp;executing certain
+applications,&nbsp;setting
+environment variables,&nbsp;interacting with user etc.).</p>
+CS-Script allows such actions to be specified directly in the code in a
+form of pre- and post-execution scripts. It means that, when composing
+the script (<span style="font-style: italic;">main script</span>),
+you can specify any other C# script to be executed prior to or after the<span style="font-style: italic;"> main script</span>
+execution.<br>
+Having the pre- and post-execution actions implemented as scripts (pre-
+and post-scripts) gives developers a great level of flexibility. These
+are just some a few&nbsp;examples of what you can do using this
+approach:<br>
+<ul>
+  <li>dynamically compose C# scripts, which are&nbsp;to be imported by the <span style="font-style: italic;">main script</span></li>
+  <li>import COM type library, which is to&nbsp;be used by the main script</li>
+  <li>prepare a fresh copy of the .cs file with the implementation
+of the C# class for accessing the Web Service</li>
+  <li>perform some cleanup after the main script execution</li>
+  <li>log&nbsp;execution start and finish time of the <span style="font-style: italic;">main script</span></li>
+  <li>set the environment variables to be accessed from the
+main script</li>
+</ul>
+The way how pre- and post-scripts are specified in the code is similar
+to the one used for imported scripts or referenced assemblies:<br>
+<div class="syntax">//css_prescript file([arg0][,
+arg1]..[,arg2])[ignore];<br>
+//css_postscript file([arg0][, arg1]..[,arg2])[ignore];</div>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">file</span> - script file
+(extension is optional)<br>
+</div>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">arg0..N</span> - script
+string arguments<br>
+<span style="font-weight: bold;">ignore</span> -
+continue execution of the <span style="font-style: italic;">main
+script</span> even in case of exception in the pre-/post-script<br>
+<br>
+</div>
+<div style="margin-left: 40px;">If the string&nbsp;<span style="font-style: italic;">$this</span> (or&nbsp;<span style="font-style: italic;">$this.name</span>)
+is specified as arg0..N it will be replaced at execution time with
+the&nbsp;<span style="font-style: italic;">main script</span>
+full name (or file name only).<br>The shorter alias directives <span style="font-style: italic; font-weight: bold;">//css_pre </span><span style="font-style: italic;"></span>and<span style="font-style: italic; font-weight: bold;"> //css_post</span>&nbsp;can&nbsp;be used in place&nbsp;of the <span style="font-style: italic; font-weight: bold;">//css_prescript </span><span style="font-style: italic;"></span>and <span style="font-style: italic; font-weight: bold;">//css_postscript</span> respectively.</div>
+<span style="font-style: italic; font-weight: bold;">Note:</span>
+<br>
+All pre- and post-scripts are executed within the same address space as
+the main script. <br>
+<br>
+The concept of pre- and post-script is the key component of the COM and
+Web Service "single-line access" implementation. This functionality of
+the CS-Script allows to interface the Web Services and COM objects with
+just a single line of code. No manual steps for importing type
+libraries or executing the <span style="font-style: italic;">wsdl.exe</span>
+are required. All can be done in the background as a pre-execution
+action (see <a href="Using_COM.html">Using COM</a>
+and&nbsp;<span style="text-decoration: underline;"></span><a href="ws.html"><span style="text-decoration: underline;">CS-Script
+and Web Services</span></a>&nbsp;for details).
+&nbsp;<br><br>Remember that you may need to escape some path characters that conflict with the //css_ delimiters. See <a href="Directives.html">Delimiters Escaping</a> section.
+<h4 class="dtH4">Example&nbsp;</h4>
+<p>This is the example of the script, which sets the environment
+variable<span style="color: rgb(51, 0, 153);"> greeting</span>
+to&nbsp;<span style="color: rgb(51, 0, 153);">"Hello!"</span>:</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(args.Length&nbsp;&gt;&nbsp;0)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Setting&nbsp;environment&nbsp;variable&nbsp;for&nbsp;"</font>+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.IO.Path.GetFileName(args[0])+<font color="#800000" size="2">"..."</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Environment.SetEnvironmentVariable(<font color="#800000" size="2">"greeting"</font>,&nbsp;<font color="#800000" size="2">"Hello!"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<p>Now the value of the environment variable <span style="color: rgb(51, 0, 153);">greeting&nbsp;</span>is&nbsp;available
+for any script, which uses <span style="font-style: italic;">setEV.cs
+</span>file as a pre-script. &nbsp;This is an example of such
+script (<span style="font-style: italic;">script.cs</span>):<br>
+</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_prescript&nbsp;setEV($this);<br>
+      </font></font><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(Environment.GetEnvironmentVariable(<font color="#800000" size="2">"greeting"</font>));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<h4 class="dtH4">Output&nbsp;</h4>
+<br>
+<p><img style="width: 485px; height: 181px;" alt="" src="Images/pre_post.PNG"></p>
+<br>
+<h4 class="dtH4">See Also&nbsp;</h4>
+<a href="Using_COM.html">Using COM</a>&nbsp;|&nbsp;<span style="text-decoration: underline;"></span><a href="ws.html"><span style="text-decoration: underline;">CS-Script
+and Web Services</span></a><br>
+<br>
+</div>
+</body></html>

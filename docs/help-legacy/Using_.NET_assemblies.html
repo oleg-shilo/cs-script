@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Using .NET assemblies</title>
+<xml></xml>
+<link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> <br>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Using .NET assemblies</h1>
+</div>
+</div>
+<div id="nstext">
+<p>CS-Script uses C# as a scripting language. Therefore, the
+scripting
+capabilities are largely based on the language itself. These
+capabilities can be extended by using external .NET assemblies (<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/win_ce/html/pwc_TheFrameworkClassLibrary.asp">FCL</a>
+or/and third-party assemblies).</p>
+<p>It is possible to instruct the script engine to load at
+execution time
+any assembly which is referenced within the code. This can be
+accomplished by any of the following approaches:</p>
+<ul>
+<li>
+<p><i>Implicit</i>: by placing "<font style="color: rgb(51, 0, 153);" color="#0000ff">using</font>"
+directive (native C# statement) for namespace directly in the code.</p>
+</li>
+<li>
+<p><i>Explicit</i>: by either placing "<font style="color: rgb(51, 0, 153);" color="#0000ff">//css_reference</font>"
+directive (CS-Script
+statement) as an explicit user request for loading the assembly or/and
+using <a href="Command-line_Interface.html"> command-line</a>
+parameter.</p>
+</li>
+</ul>
+<h4 class="dtH4"><br>
+Loading assembly implicitly</h4>
+<p><i>The assembly is loaded automatically as a result of
+the analysis of C# code by the script engine.</i></p>
+<p>The concept of loading the referenced assemblies automatically
+is quite
+simple. The script engine analyses all namespaces referenced in the
+code ("<font style="color: rgb(51, 0, 153);" color="#0000ff">using</font>"
+statement) and searches "local&nbsp;directories" (see&nbsp;<span style="font-style: italic;">File Location</span>
+section below) and Global
+Assembly Cache (GAC) for assemblies with the same name as the
+referenced namespace. If such assembly is found it is loaded at
+execution time.</p>
+<p>The approach is based on the fact that in a real life there is
+a strong
+correlation between the assembly name and the root namespace. For
+example, the namespace <font style="color: rgb(51, 0, 153);" color="#0000ff"> System.Windows.Forms</font> is
+implemented in the
+assembly <i>System.Windows.Forms</i>, and the namespace <font style="color: rgb(51, 0, 153);" color="#0000ff">
+System.XML</font> is
+implemented in the assembly <i> System.XML</i> . This is
+also applicable to the
+assembly file name, which is usually a DLL file with the same name as
+the assembly name.</p>
+<p>Thus, if script code has a statement "<font style="color: rgb(51, 0, 153);" color="#0000ff">using
+System.Windows.Forms;</font>" the <i>
+system.windows.forms.dll</i> will be automatically loaded
+(resolved) form
+GAC at execution time. If you need to make a use of <i>
+myLibrary.dll</i> in
+your script and it has a namespace <font style="color: rgb(51, 0, 153);" color="#0000ff">
+myLibrary</font> just put
+"<font style="color: rgb(51, 0, 153);" color="#0000ff">using
+myLibrary;</font>" in your code and assembly will be resolved.</p>
+<p>In any case&nbsp; explicit assembly loading has to be used
+is where
+there is no resemblance between a namespace in the assembly and a name
+of the assembly file (eg. the namespace <font style="color: rgb(51, 0, 153);" color="#0000ff">
+Steema</font> is implemented in
+<i>teechart.lite.dll</i>).</p>
+<h4 class="dtH4">Loading assembly explicitly</h4>
+<p><i>The as</i><i>sembly is loaded because of
+an explicit request
+either from the code or from the command-line.</i></p>
+<p>Information on loading the assembly from the command-line can
+be found in the <a href="Command-line_Interface.html">
+Command-line interface</a> section.</p>
+<p>This is the code directive to load the assembly at execution
+time:</p>
+<div class="syntax">//css_reference &lt;file&gt;;</div>
+<blockquote>
+<p><b>file</b>&nbsp;- name of the assembly
+file. Assembly names may&nbsp;be&nbsp;enclosed&nbsp;in
+double quotation
+marks.&nbsp;Non-searchable assembly names should
+be&nbsp;enclosed&nbsp;in double quotation marks (see
+explanations below).&nbsp;Try to avoid using the absolute path
+because it can create difficulties when isolating scripts for
+deployment.</p>
+<p>The shorter alias directive <span style="font-style: italic; font-weight: bold;">//css_ref</span>&nbsp;can&nbsp;be
+used in place&nbsp;of the <span style="font-style: italic; font-weight: bold;">//css_reference</span>.
+</p>
+</blockquote>
+<h4 class="dtH4">Note:</h4>
+The &lt;file&gt; parameter can&nbsp;contain environement variable mask
+which would be expanded at runtime. The file extension in the
+file name is optional for non-GAC assemblies.&nbsp; <br>
+<br>
+If the name is enclosed to the quotation marks the engine does not
+search for this assembly and passes the assembly name to the compiler
+as it is (in this case the CLR compiler is responsible for the assembly
+search). This approach is used to run the scripts on MONO where all GAC
+(non-searchable) assemblies have to be specified explicitly from code. <br>
+<br>
+<p></p>
+<h4 class="dtH4">File location</h4>
+<p>The assembly to be loaded must be from one of the following
+locations (the order indicates the assembly search priority):</p>
+<ul>
+<li>
+<p>the absolute or relative path to assembly directory<br>
+</p>
+</li>
+<li>
+<p>Default Script Library directory <a href="Script_library.html">Script Library</a> (<span style="font-style: italic;">%CSSCRIPT_DIR%\Lib</span>)</p>
+</li>
+<li>
+<p>Custom Script Library directory(s) (specified&nbsp;in
+the&nbsp;configuration console <a href="Config.html">SearchDirs</a>)</p>
+</li>
+<li>GAC<br></li>
+</ul>Remember that you may need to escape some path characters that conflict with the //css_ delimiters. See <a href="Directives.html">Delimiters Escaping</a> section.
+<h4 class="dtH4">Example</h4>
+<p>The assembly<i> math.dll</i> contains
+implementation of class <font style="color: rgb(51, 0, 153);" color="#0000ff"> Calculator</font>
+(which belongs to the namespace <font style="color: rgb(51, 0, 153);" color="#0000ff">Math</font>).
+This class has the method
+<font style="color: rgb(51, 0, 153);" color="#0000ff">Add(int
+a, int b)</font>.<br>
+<br>
+The following code explicitly loads two assemblies: <i> math.dll</i>
+and <i>system.windows.forms.dll</i>.</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_reference&nbsp;math.dll;</font></font><font face="Courier New" size="2"><font color="#0000ff" size="2"><br>
+using</font>&nbsp;System;<br>
+<font color="#0000ff" size="2">using</font>&nbsp;System.Windows.Forms;<br>
+<br>
+<font color="#0000ff" size="2">class</font>&nbsp;Test&nbsp;<br>
+{&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(Math.Calculator.Add(1,2).ToString());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+</tr>
+</tbody>
+</table>
+<h4 class="dtH4"><br>
+</h4>
+<h4 class="dtH4"><a id="_css_ref_hints" name="_css_ref_hints">Hints And Tips</a></h4>
+<p><a id="_css_ref_hints" name="_css_ref_hints">When you need to reference many assemblies (and particularly
+when
+these assemblies are commonly used) it is convenient to combine all <span style="color: rgb(51, 0, 153);">//css_reference</span>
+statements into single file containing no code and
+include&nbsp;this file into your primary script.&nbsp;</a></p>
+<p></p>
+<p>
+<a id="_css_ref_hints" name="_css_ref_hints">The following code includes <span style="font-style: italic;">linq.includes.cs</span>
+file containing references to all assemblies required for programming
+against LINQ:</a></p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_include linq.includes.cs;</font></font><font face="Courier New" size="2"><font color="#0000ff" size="2"><br>
+using</font>&nbsp;System;<br>
+<br>
+<font color="#0000ff" size="2">class</font>&nbsp;Test&nbsp;<br>
+{&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+....</font></td>
+</tr>
+</tbody>
+</table>
+<p><a id="_css_ref_hints" name="_css_ref_hints">This is the content of the <span style="font-style: italic;">linq.includes.cs</span>
+file:</a></p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_ref System.Core;<br>
+//css_ref System.Data.ComponentModel;<br>
+//css_ref System.Data.DataSetExtensions;<br>
+//css_ref System.Xml;<br>
+//css_ref System.Xml.Linq;<br>
+</font></font></td>
+</tr>
+</tbody>
+</table>
+<a id="_css_ref_hints" name="_css_ref_hints"><br>
+</a><a href="Script_library.html">Script Library</a>&nbsp;already&nbsp;
+contains some predefined "include" scripts (e.g. <span style="font-style: italic;">linq.includes.cs, wwf.includes.cs</span>
+and <span style="font-style: italic;">wpf.includes.cs</span>).<br>
+<h4 class="dtH4">&nbsp;</h4>
+<h4 class="dtH4">See Also</h4>
+<p> <a href="Command-line_Interface.html">Command-line
+interface</a> |&nbsp;<a href="Config.html">CS-Script
+settings</a> | <a href="Using_COM_tutorial.html">
+Using COM (Tutorial)</a>&nbsp;</p>
+<p> &nbsp;</p>
+<p> &nbsp;</p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"> <param name="Keyword" value="Using Assemblies">
+</object></div>
+</body></html>

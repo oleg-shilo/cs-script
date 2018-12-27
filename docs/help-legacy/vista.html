@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+  <title>Vista/Win7</title>
+
+  
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+
+  
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+
+  <xml></xml>
+  
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+
+</head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">CS-Script on Vista/Win7</h1>
+</div>
+</div>
+
+<br>
+
+<div id="nstext">CS-Script can work on any OS as long as it has .NET
+installed. This is the nature of the managed code&nbsp;execution under
+CLR. The .NET assemblies (C# script exists in a form of assembly
+during the execution)&nbsp;are generally neutral with respect to the OS
+they are running on. This is why all versions of CS-Script
+can virtually run on any OS. However in&nbsp;case of Vista/Win7 the
+default CS-Script functionality is not sufficient to support x64 and
+UAC
+execution scenarios.<br>
+<br>
+Version 2.0 and all subsequent versions of CS-Script are able to handle
+such scenarios.<br>
+<br>
+<span style="font-weight: bold;">x64 specific scenarios</span><br>
+<br>
+Under x64 CLR all loaded assemblies (including scripts being executed)
+belong to the x64 execution context. It means that such script can not
+access/load x32 resources directly. Here&nbsp;is an example that
+illustrates this:<br>
+<br>
+<font face="Arial" size="2"><span></span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">[<span style="color: rgb(51, 51, 255);"></span></font><font face="Courier New" size="2"><font color="#0000ff" size="2">DllImport</font></font><font face="Courier New" size="2"><span style="color: rgb(51, 51, 255);"></span>(</font><font face="Courier New" size="2"><font color="#800000" size="2">"aspell-15.dll"</font></font><font face="Courier New" size="2">)]<br>
+internal&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">extern</font>&nbsp;IntPtr&nbsp;new_aspell_config();<br>
+      <br>
+...&nbsp;&nbsp;&nbsp; <br>
+      <br>
+IntPtr&nbsp;config&nbsp;=&nbsp;new_aspell_config();</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The code above will produce "<span style="font-style: italic;">An
+attempt was made to load a program with an incorrect format.</span>"
+error if executed on x64 OS. The reason for this&nbsp;error is that <span style="font-style: italic;">aspell-15.dll</span>
+is a x32 binary and x64 CLR just can not load it. Note this problem is
+common for any managed code execution not only for C# scripts.<br>
+<br>
+Usually .NET assembly is indifferent with respect to the CPU type. It
+always accepts the CPU type of the operating system. This is the reason
+why the code above will always fail on WinXP-64 and will always work on
+WinXP-32. So what can you do to overcome the problem? Well, it is not
+possible to execute the above&nbsp;script on Vista/Win7,
+however&nbsp;it is
+possible to compile it into an executable for the specific CPU type
+(x32)
+and run that executable instead of running the script. Thus,
+if&nbsp;the
+script name is <span style="font-style: italic;">aspell.cs</span> you
+can compile it into the x32 executable in the following&nbsp;way:<br>
+<br>
+<div style="margin-left: 40px;" class="syntax"> &nbsp;cscs /e
+/co:/platform:x86 aspell.cs </div>
+<p style="font-weight: bold;"> </p>
+<p style="font-weight: bold;">UAC scenarios</p>
+<p><br>
+An important part of UAC is&nbsp;<span style="font-style: italic;">Process
+Elevation.</span>&nbsp;Any
+process, which requires assessing the privileged resources
+(e.g. LM registry) has to be started within the Administrator
+account&nbsp;
+context. Note:&nbsp;even if the current user belongs to the
+Administrators user group, process elevation still needs to occur.
+Another important thing is that a given process cannot elevate itself.
+It can only restart itself with elevated rights requested. And this is
+exactly what CS-Script does when the script execution
+requires&nbsp;process elevation. You can do it in the one of the
+following ways:</p>
+<ul>
+  <li>from command-prompt with <span style="font-style: italic;">startElevated.cs</span>
+script:<br>
+    <div style="margin-left: 40px;" class="syntax"> &nbsp;cscs
+startElevated myScript.cs </div>
+Or with <span style="font-style: italic;">startElevated</span> alias <span style="font-style: italic;">asadmin</span>:
+    <div style="margin-left: 40px;" class="syntax"> &nbsp;cscs asadmin
+myScript.cs </div>
+  </li>
+  <li>from the script code by calling elevation routine<br>
+    <br>
+    <table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_include&nbsp;vista.cs;<br>
+          </font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+          <font color="#0000ff" size="2">using</font>&nbsp;System.Windows.Forms;<br>
+          <br>
+          <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(VistaCSS.RestartElevated())<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>;<br>
+          <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<font color="#800000" size="2">"Hello!"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+  </li>
+  <li>from the script code having the script engine directive //css_pre<br>
+    <br>
+    <table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Arial" size="2"><span></span></font>
+          <font face="Courier New" size="2"><font color="#008000" size="2">//css_pre&nbsp;elevate();<br>
+          </font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+          <font color="#0000ff" size="2">using</font>&nbsp;System.Windows.Forms;<br>
+          <br>
+          <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<font color="#800000" size="2">"Hello!"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+All elevation examples can be found in the <span style="font-style: italic;">cs-script/Samples/Vista</span> directory.<br>
+  </li>
+</ul>
+<span style="font-style: italic;"><br>
+</span>Interestingly enough, the CS-Script process elevation
+mechanism&nbsp;works on WindowsXP too, thus it can be used
+to&nbsp;force the script execution with administrative privileges the
+same way as on Vista/Win7.<br>
+<br>
+Another important thing about UAC and CS-Script is that
+changing&nbsp;the script engine&nbsp;configuration settings now
+requires
+process&nbsp;elevation. Of course you can start the configuration
+console (<span style="font-style: italic;">config.cs</span> script) in
+elevated &nbsp;mode by any of the techniques described above, however
+it may be quite inconvenient if you&nbsp;change the&nbsp;settings
+often. To simplify access to the configuration console a special
+console
+launcher (<span style="font-style: italic;">css_config.exe</span>) has
+been created.
+After executing the launcher you have an option to start the
+configuration
+console with elevation<span style="font-style: italic;"> </span>(full-access
+mode) or without one (restricted
+mode).<br>
+<br>
+<div style="text-align: center;"><img style="width: 195px; height: 135px;" alt="" src="Images/config3.png"></div>
+<span style="font-style: italic;">
+</span>
+<h4 class="dtH4">See Also<br>
+</h4>
+<a href="scriptAliases.html">Script Aliases</a> |&nbsp;<a href="Script_library.html">Script Library</a>&nbsp;<br>
+<br>
+<a href="ws.html"><span style="text-decoration: underline;">
+</span></a></div>
+
+</body></html>

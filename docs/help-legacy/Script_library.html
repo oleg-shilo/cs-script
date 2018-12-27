@@ -1,0 +1,569 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Script library</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Script library</h1>
+</div>
+</div>
+<div id="nstext">
+<p><span style="font-style: italic;">Note that starting from v3.5
+script library split on the default set of samples, which is
+distributed by default with the CS-Script suite and extended set of
+samples, which can be downloaded as part of theExtension Pack from CS-Script Home Page. </span>&nbsp; &nbsp; <br style="font-style: italic;"><br>The script library is located in the <i>cs-script/Lib</i>
+folder&nbsp;(see <a href="Integration_with_OS.html">
+Integration with OS</a> for details). It contains
+a number of assemblies and scripts required for CS-Script to function
+properly (e.g.
+allow script debugging) and the scripts that are just useful for being
+imported by other scripts. All scripts from the <i> cs-script/Lib</i>
+folder
+are automatically available for importing (see <a href="Importing_scripts.html"> Importing scripts</a> )
+and
+execution from command prompt.</p>
+<p>The installation package also contains the sample script
+library
+(<i>cs-script/Samples</i> folder). This library is just a
+collection of the
+very simple script samples.</p>
+<p>For script usage information execute the following command in
+command prompt:</p>
+<div class="syntax">cscs &lt;script name&gt;
+/?&nbsp;
+</div>
+<div style="text-align: center;"><span style="font-weight: bold;"></span><br>
+<span style="font-weight: bold;"></span></div>
+<h4 class="dtH4"><span style="font-weight: bold;">
+</span><i>cs-script/Lib:</i></h4>
+<p><i>Note: the number of scripts may very from version to
+version</i><span style="font-weight: bold;"><br>
+</span></p>
+<div class="tablediv">
+<table class="dtTABLE" cellspacing="0">
+  <tbody>
+    <tr valign="top">
+      <th style="width: 167px;">Script file</th>
+      <th style="width: 649px;">Description</th>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">code.cs</td>
+      <td style="width: 649px;"> Executes C# statement
+with optional referenced namespaces.&nbsp;<br>
+Example:<font color="#000080"> cscs code
+MessageBox.Show(\"test\")</font></td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">cutFile.cs</td>
+      <td style="width: 649px;"> Cuts file in pieces and
+prepares a batch file to reassemble the original file.<br>
+Note: No script is required to reassemble the original file.</td>
+    </tr>
+    <tr>
+      <td>SimpleEncryption.cs</td>
+      <td> This script contains handy encrypting routines and
+can be imported to assist with implementation of any
+encryption/decryption tasks.<br>
+The original file was kindly provided by DotNetThis and can be
+downloaded from <a href="http://www.codeproject.com/dotnet/dotnetcrypto.asp">
+http://www.codeproject.com/dotnet/dotnetcrypto.asp</a>.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">encrypt.cs</td>
+      <td style="width: 649px;"> Encrypts/Decrypts('/d')
+content of the file and saves it to another file.</td>
+    </tr>
+    <tr>
+      <td>scramble.cs</td>
+      <td>Shifts all bytes in the file. This is a very primitive
+form of file obfuscation.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">smtpMailTo.cs</td>
+      <td style="width: 649px;"> Sends e-mail to the
+specified address (use "" for local SMTP server).<br>
+Example: <font color="#000080"> cscs "" user@domain "Test
+subject" "This mail was sent by CS-Script."</font>&nbsp;</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">feedback.cs</td>
+      <td style="width: 649px;"> Prepares feedback e-mail
+and loads it into default e-mail client.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">bug.cs</td>
+      <td style="width: 649px;"> Prepares the bug report
+e-mail and loads it into default e-mail client.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">isolate.cs</td>
+      <td style="width: 649px;"> Isolates the script and
+all it's dependencies in the separate folder for further deployment.<br>
+Converts the script into standalone Visual Studio 2003 C# solution.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">verify.cs</td>
+      <td style="width: 649px;"> Verifies if the script
+file can be compiled.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">who.cs</td>
+      <td style="width: 649px;">Prints information about
+current login session. Can be used even from services.<br>
+This is an example of the use of Terminal server API from C# code.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">debug#D.cs</td>
+      <td style="width: 649px;"> Loads the C# script file
+into the temporary SharpDevelop project and opens it.<br>
+Installs/Uninstalls ShartDevelop shell extension.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">debugCLR.cs</td>
+      <td style="width: 649px;"> Loads the C# script file
+into the temporary MS CLR Debugger (DbgCLR.exe) project and opens it.<br>
+Installs/Uninstalls CLR Debugger shell extension.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">debugVS7.1.cs</td>
+      <td style="width: 649px;"> Loads the C# script file
+into the temporary VS 7.1 C# project and opens it.<br>
+Installs/Uninstalls VS 7.1 shell extension.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">debugVS8.0.cs</td>
+      <td style="width: 649px;"> Loads the C# script file
+into the temporary VS 8.0 C# project and opens it.<br>
+Installs/Uninstalls VS 8.0 shell extension.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">libhelp.cs&nbsp;</td>
+      <td style="width: 649px;">Prints help for all C#
+scripts (.cs files) in the
+cs-script\lib and cs-script\samples
+directory.</td>
+    </tr>
+    <tr>
+      <td>help.cs</td>
+      <td>Displays the CS-Script Help.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">cmdShell.cs</td>
+      <td style="width: 649px;"> Creates a shell extension
+"Cmd". This extension allows to
+open command-prompt pointing to the directory where 'right-clocked'
+file is.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">credentials.cs</td>
+      <td style="width: 649px;"> Prompts and collects the
+user login information.</td>
+    </tr>
+    <tr>
+      <td>config.cs</td>
+      <td>This script displays CS-Script configuration console.</td>
+    </tr>
+    <tr>
+      <td>configFile.cs</td>
+      <td>This script displays CS-Script configuration file
+editor.</td>
+    </tr>
+    <tr>
+      <td>CSSCodeProvider.cs</td>
+      <td>This script contains implementation of the alternative
+CodeDomProvider. It
+is to be used (in form of compiled assembly CSSCodeProvider.dll) with
+CS-Script engine to provide alternative code compilers to run non-C#
+scripts.</td>
+    </tr>
+    <tr>
+      <td>cfbuild</td>
+      <td>Compiles script file into executable for Pocket PC.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">update.cs</td>
+      <td style="width: 649px;"> Checks for available
+update on the CS-Script home page.</td>
+    </tr>
+    <tr>
+      <td>which.cs</td>
+      <td>Verifies which copy of the executable file would
+be&nbsp;executed if invoked from command-prompt.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">print.cs</td>
+      <td style="width: 649px;">This script contains
+general purpose printing routines and can be
+imported to assist with implementation of any printing tasks.</td>
+    </tr>
+    <tr>
+      <td>com.cs</td>
+      <td>Converterts type library of the COM Server to assembly.</td>
+    </tr>
+    <tr>
+      <td>wsdl.cs</td>
+      <td>This script generates C# code for Web Service client
+from the given Web Service URL. </td>
+    </tr>
+    <tr>
+      <td>css2ws.cs</td>
+      <td>This script converts the C# script into WebService on
+the local WebServer. </td>
+    </tr>
+    <tr>
+      <td>ccs2cs.cs</td>
+      <td>This script converts the cassless C# into standard C#.</td>
+    </tr>
+    <tr>
+      <td>clearCache.cs</td>
+      <td>Deletes all compiled script files (.csc) from the
+ScriptLibrary directory.&nbsp;Use this script if version of of
+target
+CLR&nbsp;is changed.</td>
+    </tr>
+    <tr>
+      <td>ver.cs</td>
+      <td>Prints version of the OS, CLR CS-script environment.</td>
+    </tr>
+    <tr>
+      <td>runas.cs</td>
+      <td>Starts process as a specified (user is prompted for password) user.</td>
+    </tr>
+    <tr>
+      <td>nkill.cs</td>
+      <td>Terminates processes specified as arguments</td>
+    </tr>
+    <tr>
+      <td>netpath.cs</td>
+      <td>Sets %WINDOWS%\\Microsoft.NET\\Framework\\&lt;current version&gt; to the system PATH for the current process.</td>
+    </tr>
+    <tr>
+      <td>shortName.cs&nbsp;</td>
+      <td>Convert and prints 8.3 version of the path.</td>
+    </tr>
+    <tr>
+      <td>createShortcut.cs</td>
+      <td>Creates execution shortcut to the script file.</td>
+    </tr>
+    <tr>
+      <td>clearTemp.cs</td>
+      <td>Deletes all temporary files created by the script
+engine.</td>
+    </tr>
+    <tr>
+      <td>lib.cs</td>
+      <td>Shows Script Library content.</td>
+    </tr>
+    <tr>
+      <td>CSSCodeProvider.cs</td>
+      <td>Source code for the custom compiler <span style="font-style: italic;">CSSCodeProvider.dll</span></td>
+    </tr>
+    <tr>
+      <td>soapsuds.cs</td>
+      <td>Generates C# code for WebServiceClient</td>
+    </tr>
+    <tr>
+      <td>searchDirs.cs</td>
+      <td>This script displays list of the CS-Script search
+directories for script file and assembly probing. It also allows adding
+the search directory from command-prompt.</td>
+    </tr>
+    <tr>
+      <td>elevate.cs</td>
+      <td>This script is to be used as a pre-script in the primary script code to ensure elevated execution. Example: //css_pre elevate();</td>
+    </tr>
+    <tr>
+      <td>startElevated.cs</td>
+      <td>Starts script as an elevated process.</td>
+    </tr>
+    <tr>
+      <td>asadmin.cs&nbsp;</td>
+      <td><span style="font-style: italic;">script alias for startElevated.cs</span></td>
+    </tr>
+    <tr>
+      <td>Vista.cs</td>
+      <td>This script is to be imported/included by other scripts. To resturt the script execution as an elevated process .</td>
+    </tr>
+    <tr>
+      <td>debug2005.csl</td>
+      <td><span style="font-style: italic;">script alias for debugVS8.0.cs</span></td>
+    </tr>
+    <tr>
+      <td>cache.cs</td>
+      <td>Opens the cahce directory for a given C# script file.</td>
+    </tr>
+    <tr>
+      <td>verify2.cs</td>
+      <td>Verifies if script file can be compiled. Allows for reverification without stopping the script execution.</td>
+    </tr>
+    <tr>
+      <td>linq.includes.cs</td>
+      <td>This script contains&nbsp;references to all assemblies
+required for programming against LINQ. This script allows reference
+multiple assemblies from the primary script with a single line
+statement (e.g. //css_includelinq.includes.cs;).&nbsp; </td>
+    </tr>
+    <tr><td>res.cs</td><td>Generates .resources file.</td></tr><tr><td>silvelight.cs</td><td>Silverlight XAP file viewer.</td></tr><tr><td>noCache.cs</td><td>Executes script without using script cache even if it is available.</td></tr><tr><td>fkille.cs</td><td>Deletes (kills) file(s). If file is locked by some process it will wait until file is released and than kill it</td></tr><tr>
+      <td>wwf.includes.cs</td>
+      <td>This script contains&nbsp;references to all assemblies required for
+programming against WWF. This script allows reference multiple
+assemblies from the primary script with a single line statement (e.g.
+//css_include wwf.includes.cs;).&nbsp;</td>
+    </tr>
+    <tr>
+      <td>wpf.includes.cs</td>
+      <td>This script contains&nbsp;references to all assemblies required for
+programming against WPF. This script allows reference multiple
+assemblies from the primary script with a single line statement (e.g.
+//css_include wpf.includes.cs;).&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h4 class="dtH4"></h4>
+<h4 class="dtH4"><i>cs-script/Samples:</i></h4>
+<p><i>
+Note: the number of scripts may very from version to version<br>
+</i></p>
+<div class="tablediv">
+<table class="dtTABLE" cellspacing="0">
+  <tbody>
+    <tr valign="top">
+      <th style="width: 168px;">Script file</th>
+      <th style="width: 648px;">Description</th>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">cutFile.cs</td>
+      <td style="width: 648px;"> Cuts the file into pieces
+and prepares the batch file to reassemble the original file.<br>
+Note: No script is required to reassemble the original file.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">exportData.cs</td>
+      <td style="width: 648px;"> Exports data from the SQL
+Server table to the specified file.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">importData.cs</td>
+      <td style="width: 648px;"> Imports data from the
+specified file to the SQL Server
+table. First row in the file is a list of filed names.&nbsp;</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">getOptusUsage.cs</td>
+      <td style="width: 648px;"> Gets Optus (<a href="http://www.optusnet.com.au">www.optusnet.com.au</a>)
+data usage. Optionally connects with the proxy authentication.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">geturl.cs</td>
+      <td style="width: 648px;"> Saves the URL text to a
+file. Optionally the proxy authentication can be used.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">google.cs</td>
+      <td style="width: 648px;"> Performs online search by
+using the Google search engine. <br>
+The original file was provided by Brian Delahunty article "Introduction
+to Mono<br>
+- Your first Mono app" (<a href="http://www.codeproject.com/cpnet/introtomono1.asp">http://www.codeproject.com/cpnet/introtomono1.asp</a>).</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">hello.cs</td>
+      <td style="width: 648px;">The canonical "Hello
+world!" script.</td>
+    </tr>
+    <tr>
+      <td>hello.cpp</td>
+      <td>The&nbsp;"Hello
+world!" script (C++/CLI syntax).</td>
+    </tr>
+    <tr><td>hello.js</td><td>The&nbsp;"Hello
+world!" script (JavaScript syntax).</td></tr><tr valign="top">
+      <td style="width: 168px;">importTickScript.cs</td>
+      <td style="width: 648px;"> Imports and executes
+'tick.cs' script.&nbsp;</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">tick.cs</td>
+      <td style="width: 648px;"> Counts a specified number
+of seconds (default is 5 sec). This script is used in the
+importTickScript sample.&nbsp;</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">nkill.cs&nbsp;</td>
+      <td style="width: 648px;"> Terminates specified
+processes.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">print.cs</td>
+      <td style="width: 648px;"> This script contains
+general purpose printing routines and can
+be imported to assist with implementation of any printing tasks.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">printScreen.cs</td>
+      <td style="width: 648px;"> Captures a screen image
+and saves it to a file (default file: screen.gif).&nbsp;</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">progressbar.cs</td>
+      <td style="width: 648px;"> Shows 'continuous'
+progressbar. This is an example how to draw in GDI+ without flickering.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">reflect.cs</td>
+      <td style="width: 648px;"> Prints assembly
+reflection info.</td>
+    </tr>
+    <tr><td>ErrorLevelTester.cs</td><td>Demonstrates how to set <span style="font-style: italic;">errorlevel</span> from the script and interprete it from the batch file.<br><span style="font-style: italic;">The example contributed by Sten Frostholm.</span></td></tr><tr>
+      <td>msxml.cs</td>
+      <td>This is the example of using a COM server (MS XML
+Parser)
+from the C# script.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">runScript.cs</td>
+      <td style="width: 648px;"> Runs another script in a
+background.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">smtpMailTo.cs</td>
+      <td style="width: 648px;"> Sends e-mail to the
+specified address (use "" for local SMTP server).<br>
+Example: <font color="#000080"> cscs "" user@domain "Test
+subject" "This mail was sent by CS-Script."</font></td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">synTime.cs</td>
+      <td style="width: 648px;"> Gets time from <a href="http://tycho.usno.navy.mil/cgi-bin/timer.pl">
+http://tycho.usno.navy.mil/cgi-bin/timer.pl</a> and synchronises
+PC system time.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">winForm.cs</td>
+      <td style="width: 648px;"> The primitive example
+that demonstrates how to create a WinForm application.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">sysFindConfig.cs</td>
+      <td style="width: 648px;"> Displays a configuration
+console to adjust system
+'FindInFile' options on WindowsXP. This is the work around for
+WindowsXP BUG described in MSDN articles Q309173 'Using the 'A Word or
+Phrase in the File' Search Criterion May Not Work'.</td>
+    </tr>
+    <tr>
+      <td>setEV.cs</td>
+      <td>This script allows&nbsp;setting environment variable permanently by using <span style="color: rgb(0, 0, 153);">WScript.Shell</span> COM object usually available from VBScript. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ReflectScript.cs<br>
+      </td>
+      <td style="vertical-align: top;">Example of how in the script to obtain the information about the script itself (e.g. script file name).<br>
+      </td>
+    </tr>
+<tr>
+      <td style="vertical-align: top;">unsafe_keyword.cs<br>
+      </td>
+      <td style="vertical-align: top;">Example of using keyword "unsafe", which requires special value to be passed to the C# compiler.<br>
+      </td>
+    </tr>
+<tr>
+      <td>googleWebService.cs</td>
+      <td>Script that performs Google search using Google API
+(WebService).</td>
+    </tr>
+    <tr>
+      <td>WCF\service.cs</td>
+      <td>Script which implements WCF&nbsp;(.NET 3.0) service server.</td>
+    </tr>
+    <tr>
+      <td>WCF\service.cs.config</td>
+      <td>App.config file for running&nbsp;WCF\service.cs</td>
+    </tr>
+    <tr>
+      <td>WCF\client.cs</td>
+      <td>Script which implements WCF service client.</td>
+    </tr>
+    <tr>
+      <td>WPF\Hello.cs</td>
+      <td>The "Hello
+world!" script which utilizes WPF functionality (.NET 3.0).</td>
+    </tr>
+    <tr>
+      <td>WPF\Hello.xaml</td>
+      <td>The "Hello
+world!" script XAML file, which is requiered for running WPF\Hello.cs.</td>
+    </tr>
+    <tr><td>Resources\script.cs</td><td>Demonstrates how to embedd binary file into the script assembly</td></tr><tr>
+      <td>Remoting\server.cs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      <td>Script which implements .NET Remoting&nbsp;server.</td>
+    </tr>
+    <tr>
+      <td>Remoting\ClientConsole.cs&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      <td>Script which implements .NET Remoting console client.</td>
+    </tr>
+    <tr>
+      <td>Remoting\ClientForm.cs&nbsp;&nbsp;&nbsp;&nbsp;</td>
+      <td>Script which implements .NET Remoting WinForm client.</td>
+    </tr>
+    <tr>
+      <td>Vista\VistaUAC_code.cs</td>
+      <td>Example of Vista process elevation&nbsp;from the script code by calling the elevation routine. </td>
+    </tr>
+    <tr>
+      <td>Vista\VistaUAC_command-line.cs</td>
+      <td>Example of Vista process elevation&nbsp;from command-prompt.</td>
+    </tr>
+    <tr>
+      <td>Vista\VistaUAC_pre-script.cs</td>
+      <td>Example of Vista process elevation&nbsp;from the script code by having the script engine directive //css_pre.</td>
+    </tr><tr><td>linq.cs</td><td>Example of using LINQ in scripts</td></tr><tr><td>Hosting\HostingSimplified\Hello.cs<span style="font-style: italic;">&nbsp;&nbsp; 
+&nbsp;<br></span><span style="font-style: italic;"></span><span style="font-style: italic;"></span></td><td><span style="font-style: italic;">HelloWorld</span> style example of script&nbsp;hosting.</td></tr><tr><td>Hosting\HostingSimplified\Host.cs<br><span style="font-style: italic;"></span><span style="font-style: italic;"></span></td><td>Example of the host application for&nbsp;two-way communication between the host and the script&nbsp;hosting scenario.&nbsp;<span style="font-style: italic;"></span>Type implemented by script is accessed with Reflection.</td></tr><tr><td>Hosting\HostingSimplified\Script.cs</td><td>Example of the script for&nbsp;two-way communication between the host and the script&nbsp;hosting scenario.&nbsp;<span style="font-style: italic;"></span>Type implemented by script is accessed with Reflection.</td></tr><tr><td>Hosting\InterfaceAlignment\Host.cs</td><td>Example host application using&nbsp;Interface Alignment (DuckTyping) technique.</td></tr><tr><td>Hosting\InterfaceAlignment\HelloScript.cs</td><td>Example&nbsp;script using&nbsp;Interface Alignment (DuckTyping) technique.</td></tr><tr><td>Hosting\HostingWithInterfaces\Host.cs<br><span style="font-style: italic;"></span><span style="font-style: italic;"></span></td><td>Example of the host application for&nbsp;two-way communication between the script and the host scenario.&nbsp;<span style="font-style: italic;"></span>Type implemented by script is&nbsp;accessed through an interface.</td></tr><tr><td>Hosting\HostingWithInterfaces\Script.cs</td><td>Example of the script for&nbsp;two-way communication between the host and the script&nbsp;hosting scenario.&nbsp;<span style="font-style: italic;"></span>Type implemented by script is&nbsp;accessed through an interface.</td></tr><tr>
+      <td style="vertical-align: top;">Hosting\CompileErrors.cs</td>
+      <td style="vertical-align: top;">Example of retrieving the detailsed information about the script compiletion error(s). <br>
+      </td>
+    </tr>
+    <tr>
+<td style="vertical-align: top;">Hosting\RuntimeErrors.cs</td>
+<td style="vertical-align: top;">Example of retrieving the detailsed information about the script runtime error(s). <br>
+</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Hosting\Older versions of CLR<br>
+      </td>
+      <td style="vertical-align: top;">Example of VS2008 project for the application osting the script engine built for .NET 3.5<br>
+      </td>
+    </tr>
+<tr>
+
+</tr><tr><td>Hosting\Referencing\Host.cs</td><td>Example&nbsp;demonstrating
+how to specify&nbsp;assembly referenced by the script from the host
+application (host application code)</td></tr><tr><td>Hosting\Referencing\Script.cs</td><td>Example demonstrating how to specify&nbsp;assembly referenced by the script from the host application (script code)</td></tr><tr><td>Hosting\Referencing\ExternalAsm.cs</td><td>Example
+demonstrating how to specify&nbsp;assembly referenced by the script
+from the host application (referenced assembly&nbsp;code)</td></tr><tr><td>Macros\script_simple.cs</td><td>Example of&nbsp;script using C++ style macro ("full property" macro)  <span style="font-style: italic;"> </span><span style="font-style: italic;"></span></td></tr><tr><td>Macros\script.cs</td><td>Example of&nbsp;script using C++ style macros ("full property", "New", "StringEnum" macros)  </td></tr><tr><td>Macros\precompile.cs</td><td>Example of&nbsp;script using C++ style macros (macros definitions)</td></tr><tr><td>WWF\HelloWorld.cs&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</td><td>Example of a <span style="font-style: italic;">HelloWorld</span> style&nbsp;WWF script application (application code)</td></tr><tr><td>WWFMsgBoxActivity.cs</td><td>Example of a <span style="font-style: italic;">HelloWorld</span> style&nbsp;WWF script application (WWF Activity code)</td></tr><tr><td>Hosting\Classless.cs</td><td>Script hosting sample, which demonstrates invoking&nbsp;classless (method definition only) scripts. </td></tr><tr><td>Hosting\MethodSignatures.cs</td><td>Script hosting sample, which demonstrates different script invoking techniques.</td></tr><tr><td>Hosting\Performance.cs</td><td>Script sample, which demonstrates performance aspects of various script hosting scenarious.</td></tr><tr><td>Hosting\TypeSafety.cs</td><td>Script sample, which demonstrates type safety aspects of various script hosting scenarious.</td></tr><tr><td>Hosting\ConditionalCompilation.cs</td><td>Demonstrates how to implement conditional compilation using compiler symbols definitions</td></tr><tr><td><span style="font-style: italic;"> </span>Hosting\CompilerErrors.cs<span style="font-style: italic;"> </span></td><td>Demonstrates how to access detailed information about compiling errors in a script</td></tr><tr><td>Sandboxing\Host.cs</td><td>Example of sandboxed script hosting.</td></tr><tr><td>Sandboxing\Danger.cs</td><td>Script which accesses the local file. This script is used in sandboxing sample Host.cs</td></tr><tr><td>Sandboxing\HostSimlified.cs </td><td>Demonstrates the simplified syntax for executing code with specified permissions</td></tr><tr><td>PostSharp\Script.cs </td><td>Demonstrates how to inject PostSharp aspects into scripts</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+<p>&nbsp;</p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"> <param name="Keyword" value="Script Library">
+</object>
+</body></html>

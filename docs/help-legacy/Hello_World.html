@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Hello World</title>
+
+
+		
+		
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+		
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<xml></xml>
+		
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body class="dtBODY" id="divID">
+		
+<div id="nsbanner">
+			
+<div id="bannerrow1">
+				
+<table class="bannerparthead" cellspacing="0">
+					<tbody>
+						<tr id="hdr">
+							<td class="runninghead">
+								
+      <p align="left">CS-Script 3.27.0</p>
+							</td>
+							<td class="product">
+							<br>
+</td>
+						</tr>
+					
+  </tbody>
+				
+</table>
+			</div>
+			
+<div id="TitleRow">
+				
+<h1 class="dtH1" align="left">Hello World!</h1>
+			</div>
+		</div>
+		
+<div id="nstext">
+			
+<h4 class="dtH4">Step-by-step tutorial</h4>
+			
+<p><br>
+				The following tutorial shows how to create and execute a simple script.</p>
+			
+<ol>
+				<li>
+					
+    <p class="syntax">By using any text editor (eg. Notepad.exe) create file hello.cs 
+						that contains the following code:<br>
+    </p>
+    <table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+          <font color="#0000ff" size="2">using</font>&nbsp;System.Windows.Forms;&nbsp;<br>
+          <br>
+          <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Hello&nbsp;World!"</font>&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<font color="#800000" size="2">"Hello&nbsp;World!"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="syntax"><em>Click here to obtain full&nbsp; </em><a href="Tutorial/Hello.cs" designtimeurl="Tutorial/Hello.cs">
+						<em>listing of hello.cs</em></a>
+				</p>
+  </li>
+  <li>
+				Open command prompt. Make sure current directory is the directory where 
+				Hello.cs is located.
+				</li>
+  <li>
+					Execute the following command in command prompt:
+				</li>
+			
+</ol>
+			
+<div style="width: 830px;" class="syntax">
+				&nbsp;cscs hello
+			</div>
+			
+<p>
+			</p>
+			
+<h4 class="dtH4">Output</h4>
+			
+<dl>
+				<dt>The script will print in command prompt "Hello World!". It will also display 
+					"Hello World!" MessageBox.
+					</dt>
+  <dd>
+    <div style="text-align: center;">
+						
+    </div>
+    <div style="text-align: center;"><font face="Arial" size="2"><img style="width: 470px; height: 224px;" alt="" src="Images/hello.PNG"></font></div>
+    <p align="center">
+						</p>
+
+					</dd>
+			
+</dl>
+			
+<h4 class="dtH4">Code discussion</h4>
+			
+<p>In this example the script makes the use of FCL class MessageBox that resides in 
+				assembly System.Windows.Forms.dll. The script engine dynamically identifies 
+				what assemblies are required and loads them at run-time.<br>
+			</p>
+			
+<h4 class="dtH4">Hints and Tips</h4><br>
+<br>
+
+			
+<p>The easiest way to create the skeleton code for your script is to execute 
+				following command in command prompt:</p>
+			
+<div class="syntax" style="width: 830px; height: 24px;">
+				<span class="syntax">cscs /s &gt; hello.cs</span>
+			</div>
+			
+<p>This will instruct script engine to output sample code in a file in current 
+				directory (in this case hello.cs).</p>
+			
+<p>&nbsp;</p>
+			
+<h4 class="dtH4">See Also</h4>
+			
+<p>&nbsp;<font face="Arial" size="2"><a href="Tutorial.html" designtimeurl="Tutorial.html">CS-Script 
+						Tutorials </a>&nbsp;| <a href="Command-line_Interface.html" designtimeurl="Command-line_Interface.html">
+						Command-line interface</a>&nbsp;</font>
+			</p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="Hello World">
+</object> 
+		</div>
+	
+</body></html>

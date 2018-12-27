@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+		
+		
+  <title>ProgrammingReference</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+		
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<xml></xml>
+		
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+	<body id="bodyID" class="dtBODY">
+		
+<div id="nsbanner">
+			
+<div id="bannerrow1">
+				
+<table class="bannerparthead" cellspacing="0">
+					<tbody>
+						<tr id="hdr">
+							<td class="runninghead">
+								
+      <p align="left">CS-Script 3.27.0</p>
+							</td>
+							<td class="product">
+							</td>
+						</tr>
+					
+  </tbody>
+				
+</table>
+			</div>
+			
+<div id="TitleRow">
+				
+<h1 class="dtH1" align="left">Programming reference</h1>
+			</div>
+		</div>
+		
+<div id="nstext">
+			
+<p>Any C# code can be qualified as a script code if it meets the following 
+				requirements:
+			</p>
+			
+<ul>
+				<li>
+					
+    <p>Script must contain a valid (ECMA compliant ) C# code.</p>
+				</li>
+  <li>
+					
+    <p>C# code must contain a defined method static void Main() as a main entry point 
+						for scripting application. This is the same as for any CLR application.&nbsp;
+						<br>
+						NOTE: presence of static void Main() is optional when CS-Script is used for <a href="Extending_applications.html">
+							script hosting</a>.</p>
+				</li>
+  <li>
+					
+    <p>All assemblies that are referenced within the code should be nominated as such 
+						by any of the following techniques:</p>
+					
+    <ul>
+						<li>
+							
+        <p><b>using</b> statement&nbsp;
+								<br>
+								for automatic resolving at execution time.</p>
+						</li>
+      <li>
+							
+        <p><b>//css_reference</b> statement<br>
+								for explicit assembly loading from a script code.</p>
+						</li>
+      <li>
+							
+        <p><b>/r:</b> command-line switch
+								<br>
+								for explicit assembly loading from a command-line script string.</p>
+						</li>
+					
+    </ul>
+				</li>
+			
+</ul>
+			
+<p>
+				The script engine is implemented as both an executable and as a class library 
+				assembly (<i>CSScriptLibrary.dll</i>). CSScriptLibrary assembly may be used in 
+				any CLR application (see&nbsp;<a href="Extending_applications.html">script hosting</a>). It is an interface library of the script engine. The 
+				two major classes implemented in the CSScriptLibrary are:
+			</p>
+			
+<ul>
+				<li>
+					
+    <p><font color="navy">CSScript</font> - class that implements compiling script into 
+						assembly</p>
+				</li>
+  <li>
+					
+    <p><font color="navy">AsmHelper </font>- class which can be used to simplify 
+						assembly loading/unloading and assembly method browsing</p>
+				</li>
+			
+</ul>
+			
+<p>&nbsp;</p>
+			<!--some HTML editors changes the button handler--> <!--
+			<OBJECT type="application/x-oleobject" classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11">
+			  <PARAM name="Command" value="ShortCut">
+			  <PARAM name="Button" value="">
+			  <PARAM name="Item1" value=",CSScriptLibrary.chm">
+			  <PARAM name="Item2" value="">
+			</OBJECT>
+			&nbsp;CSScriptLibrary Help (cs-script/Docs/Help/CSScriptLibrary.chm)<BR>
+			-->
+			
+<p>Click the button below to see details of the CSScriptLibrary class library.
+</p>
+<p>
+			<OBJECT type="application/x-oleobject" classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11">
+			  <PARAM name="Command" value="ShortCut">
+			  <PARAM name="Button" value="">
+			  <PARAM name="Item1" value=",CSScriptLibrary.chm">
+			  <PARAM name="Item2" value="">
+			</OBJECT>
+			&nbsp;CSScriptLibrary Help (cs-script/Docs/Help/CSScriptLibrary.chm)<BR>			
+</p>
+<p>
+</p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="CSScriptLibrary">
+</object> 
+		</div>
+	
+</body>
+</html>
+

@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <title>What's new</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">What's New in&nbsp;CS-Script&nbsp;<br>
+</h1>
+</div>
+</div>
+<div id="nstext">
+<h4 class="dtH4"><a href="shell_extensions.html">Added Advanced Shell Extensions</a></h4>
+????? <br>
+<br>
+<br>
+//global search dirs<br>
+//"GetExecutingAssembly()" assembly for app.config files<br>
+//global resolve assembly routine<br>
+//added support for resolving&nbsp;&nbsp;.exe assemblies referenced by "using mnamespace" directives<br>
+//Script config file (css_config.xml) contains SearchDirs property
+instead of ExtraLibDir which is still supported but in a way obsolete<br>
+//fixed a but with loading assembly when compile only was executed (see bugs report.html)<br>
+<br>
+using System;<br>
+using System.Reflection;<br>
+using CSScriptLibrary;<br>
+<br>
+class Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;static public void Main(string[] args)<br>
+&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; CSScript.GlobalSettings.SearchDirs += ";"+Environment.CurrentDirectory;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; CSScript.AssemblyResolvingEnabled = true;<br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Assembly asm = Assembly.Load("GetExecutingAssembly()");<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Assembly asm1 = Assembly.Load("hello");<br>
+&nbsp;&nbsp;&nbsp; }<br>
+}<br>
+<br>
+<br>
+<br>
+<br>
+<h4 class="dtH4"><a href="Importing_scripts.html">Added <span style="font-style: italic;">//css_include</span> directive</a></h4>
+Added another aliases for&nbsp;<span style="font-weight: bold; font-style: italic;">//css_import</span> directive:<br>
+<span style="font-style: italic; font-weight: bold;">//css_include</span> and <span style="font-style: italic; font-weight: bold;">//css_inc</span><br>
+They are&nbsp;equivalents of <span style="font-style: italic;">//css_import &lt;file&gt;, preserve_main. </span>These directives are logically similar to the <span style="font-style: italic; font-weight: bold;">#include</span> in C++.<br style="font-style: italic;">
+<h4 class="dtH4"><a href="Embedded_Arguments.html">Added <span style="font-style: italic;">//css_args</span> directive</a></h4>
+Now you can&nbsp;specify script command-line arguments 
+directly from code. <br>
+<h4 class="dtH4"><a href="non_engine_directives.html">Added non-engine directive</a></h4>
+The <span style="font-style: italic;">//css_dbg</span>&nbsp;directive allows controlling how&nbsp;the script is loaded in VS2005/VS2005E at execution
+time. It includes type of the temporary project generated (console/winexe/library) and project debugging arguments.&nbsp;<br>
+<span style="font-style: italic;"></span>
+<h4 class="dtH4"><a href="Command-line_Interface.html">Changes in command-line interface<br>
+</a></h4>
+Added new command line argument: <br>
+<span style="font-style: italic;">/co:&lt;options&gt;<br>
+</span>
+<div style="margin-left: 40px;">Pass compiler options directly to the language compiler&nbsp;(eg. /co:/d:TRACE pass /d:TRACE option to C# compiler).</div>
+<h4 class="dtH4"><a href="Script_library.html">Added new scripts to the Script Library</a></h4>
+<span style="font-style: italic;">- css2cs.cs</span>&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;This script converts the cassless C# into standard C#.<br>
+<span style="font-style: italic;">- setEV.cs</span>&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;This script allows&nbsp;setting environment variable permanently by using <span style="color: rgb(0, 0, 153);">WScript.Shell</span> COM object usually available from VBScript<br>
+<span style="font-style: italic;">- createShortcut.cs</span><br>
+&nbsp; &nbsp;Creates execution shortcut to the script file.<br>
+<span style="font-style: italic;">- lib.cs</span><br>
+&nbsp; &nbsp; Shows Script Library content.
+<h4 class="dtH4"><a href="Config.html">Changes in the CS-Scrip environment configuration</a></h4>
+- The format and name of the CS-Script runtime settings file (<i>css_config.dat</i>) is changed. It is now xml file <i>css_config.xml</i><span style="font-style: italic;">.</span><br>
+- Added&nbsp;<span style="font-style: italic;">HideCompilerWrnings</span> option to control level of details in&nbsp;compiler output information.<br>
+- Added option for&nbsp;enabling /disabling the&nbsp;Advanced Shell Extensions from the  configuration console.<br>
+<span style="font-style: italic;">
+</span>
+<h4 class="dtH4"><a href="ProgrammingReference.html">Updated AsmHelper class</a></h4>
+<p>Added InvokeInst method to the <span style="font-style: italic;">AsmHelper</span> class to invoke instance methods. This functionality makes <span style="font-style: italic;">AsmHelper</span> capable of assisting in all possibles dynamic assembly loading/executing scenarios.<br>
+</p>
+<h4 class="dtH4">Changed CS-Script directory structure</h4>
+In order to simplify CS-Script deployment architecture Debug folder has
+been moved from the CS-Script&nbsp;root directory to the <span style="font-style: italic;">root/Lib</span>. <br>
+Note: If you are upgrading from any previous version of the CS-Script&nbsp;the content of the previous <span style="font-style: italic;">Debug</span> folder is&nbsp;moved to <span style="font-style: italic;">Lib/Debug/Backup.</span><br style="font-style: italic;">
+<span style="font-style: italic;"></span><span style="text-decoration: underline;"><span style="font-weight: bold;"></span></span>
+<h4 class="dtH4"></h4>
+<br>
+<h4 class="dtH4"></h4>
+<br>
+<div style="text-align: left;"><br>
+<span style="font-style: italic;"></span><br style="font-weight: bold;">
+<br>
+<br>
+<div style="margin-left: 40px;"><br>
+</div>
+<p>&nbsp;<br>
+</p>
+<p><br>
+<a href="Type_sharing_patern.html"></a></p>
+</div>
+<br>
+</div>
+<br>
+</body>
+</html>
+

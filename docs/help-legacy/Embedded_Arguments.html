@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  
+  <title>Embedded arguments</title><xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Embedded Script Arguments</h1>
+</div>
+</div>
+<div id="nstext">
+<p>Some times it is convenient to execute script every time with the
+same command-line arguments. In such&nbsp;case you can specify
+command-line arguments directly from code. Note that both&nbsp;script and script engine arguments are allowed except&nbsp;<span style="font-style: italic;">/noconfig</span> engine command-line switch.&nbsp;</p>
+This is the directive to use embedded parameters:
+<div class="syntax">&nbsp;//css_args arg0[,arg1]..[,argN];</div>
+<p><b>arg0..N </b>- script or script engine argument<br><br>Remember that you may need to escape some path characters that conflict with the //css_ delimiters. See <a href="Directives.html">Delimiters Escaping</a> section.<br>
+</p>
+<br>
+<h4 class="dtH4">Example &nbsp;</h4>
+<p>The file <span style="font-style: italic;">test.cs</span> contains the following code:</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_args&nbsp;/dbg,&nbsp;"Arg0,&nbsp;",&nbsp;Arg1;<br>
+      </font></font><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.Diagnostics.Debug.Assert(args.Length&nbsp;&gt;&nbsp;1);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(args[0]+args[1]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}&nbsp;</font></td>
+    </tr>
+  </tbody>
+</table>
+<p>The script&nbsp;will always print in console window "Arg0, Arg1". Also note that it will be executed in debug mode. &nbsp;</p>
+<p>The directive <span style="font-style: italic; color: rgb(0, 0, 153);">//css_args /dbg, "Arg0, ", Arg1;</span> is an equivalent of the following&nbsp;command prompt command:<br>
+</p>
+<div class="syntax" style="margin-left: 40px;">&nbsp;cscs /dbg test.cs "Arg0, " Arg1 </div>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"><param name="Keyword" value="Importing">
+</object>
+ </div>
+</body></html>

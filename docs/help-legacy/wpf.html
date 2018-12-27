@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>WPF</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<xml></xml>
+<link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> </td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">WPF/XAML</h1>
+</div>
+</div>
+<br>
+<div id="nstext"><font face="Arial" size="2"><span><span style="font-weight: bold;"></span></span></font>
+<h4 class="dtH4">Overview<br>
+</h4>
+WPF (<span style="font-style: italic;">Windows
+Presentation Foundation</span>)
+is a framework (first introduced in .NET3.0) for building rich dynamic
+GUI. Any C# script utilizing the
+WPF classes can be executed by CS-Script as any other scripts. It is
+possible because from the CLR point of view WPF classes are just
+ordinary CLR classes.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-style: italic;">That is it WPF
+is&nbsp;nothing else but a collection of CLR classes.</span><br>
+</div>
+<br>
+WPF is directly related to XAML -&nbsp;another part of .NET3.0+.<br>
+<br>
+XAML (<span style="font-style: italic;">Extensible
+Application Markup Language</span>)&nbsp;is
+a language for describing GUI layout and it's relationships with the
+business objects. XAML primarily used in conjunction with WPF. Usually
+it is used in a compiled form for&nbsp;initialization GUI layout at
+runtime and as
+such it does require it's own compiler. <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-style: italic;">It&nbsp;is
+important to note that XAML has nothing to do with CLR. This is the
+reason why scripts which are utilizing XAML has to be handled by the
+script engine in a special way. <span style="font-style: italic;"></span><br>
+WPF script which are not using XAML do not require any special
+treatment&nbsp;and&nbsp;can be executed normally.</span><br>
+<span style="font-style: italic;"></span></div>
+<br>
+Starting from version 1.9.0 CS-Script includes special edition of the
+C# compiler capable of processing XMAL files. The following code
+sample demonstrates how WPF script can use XAML:<br>
+<br>
+<span style="font-style: italic;">Samples\WPF\Hello.cs</span><font face="Arial" size="2"><span></span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_inc&nbsp;Hello.xaml;<br>
+</font><font color="#008000" size="2">//css_ref&nbsp;WindowsBase;<br>
+</font><font color="#008000" size="2">//css_ref&nbsp;PresentationCore;<br>
+</font><font color="#008000" size="2">//css_ref&nbsp;PresentationFramework;<br>
+</font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+<font color="#0000ff" size="2">using</font>&nbsp;System.Windows;<br>
+<br>
+<font color="#0000ff" size="2">public</font>&nbsp;partial&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;MainWindow&nbsp;:&nbsp;System.Windows.Window<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;MainWindow()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InitializeComponent();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;OnClick(<font color="#0000ff" size="2">object</font>&nbsp;sender,&nbsp;RoutedEventArgs&nbsp;e)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<font color="#800000" size="2">"Hello&nbsp;World!"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[STAThread]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MainWindow&nbsp;wnd&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;MainWindow();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wnd.ShowDialog();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+</tr>
+</tbody>
+</table>
+<br>
+<font face="Arial" size="2"><span></span></font><span style="font-style: italic;">Samples\WPF\Hello.xaml<br>
+</span>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">&lt;Window&nbsp;x:Class=<font color="#800000" size="2">"MainWindow"</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;xmlns=<font color="#800000" size="2">"http://schemas.microsoft.com/winfx/2006/xaml/presentation"</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;xmlns:x=<font color="#800000" size="2">"http://schemas.microsoft.com/winfx/2006/xaml"</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;Title=<font color="#800000" size="2">"Hello&nbsp;World&nbsp;Application"</font>&nbsp;Height=<font color="#800000" size="2">"117"</font>&nbsp;Width=<font color="#800000" size="2">"280"</font>&gt;<br>
+&nbsp;&nbsp;&lt;Grid&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Button&nbsp;Margin=<font color="#800000" size="2">"108,27,109,34"</font>&nbsp;Name=<font color="#800000" size="2">"button1"</font>&nbsp;Click=<font color="#800000" size="2">"OnClick"</font>&nbsp;&gt;Say&nbsp;Hello&lt;/Button&gt;<br>
+</font><font face="Courier New" size="2">&nbsp;&nbsp;&lt;/Grid&gt;<br>
+</font><font face="Courier New" size="2">&lt;/Window&gt;</font></td>
+</tr>
+</tbody>
+</table>
+<br>
+<font face="Arial" size="2"><span></span></font><span style="font-style: italic;"></span>The code above is a
+WPF multi-file "Hello World" script (<span style="font-style: italic;">Hello.cs + Hello.xaml</span>)
+from CS-Script samples library (Script Library). Xaml file can be
+included in the primary script as any other secondary script file: with
+directive
+<span style="color: rgb(51, 0, 153);">//css_import</span>
+or <span style="color: rgb(51, 0, 153);">//css_include</span>
+(in short form <span style="color: rgb(51, 0, 153);">//css_imp</span>
+or <span style="color: rgb(51, 0, 153);">//css_in</span>c).<span style="font-style: italic;"><br>
+</span><span style="font-style: italic;"></span><br>
+<ul style="font-style: italic;">
+</ul>
+<span style="font-weight: bold;">Limitations<br>
+</span><br>
+Unfortunately MS did not provide XAML compiler as a stand-alone
+application. Instead MS has merged XAML compiler with<span style="font-style: italic;"> MSBuild.exe</span> and in
+this form it is used by CS-Script custom compiler <span style="font-style: italic;">CSSCodeProvider.dll</span>.
+&nbsp;<br>
+Such
+approach is inconsistent with the way how&nbsp;C# code is usually
+processed
+by CS-Script. And that is why implementation of the XAML support may
+change in future depending on&nbsp;MS decision to
+ship&nbsp;stand-alone
+version of&nbsp;XAML&nbsp;compiler.<br>
+<br>
+You may also notice that WPF scripts and executables produces from the
+scripts sometimes demonstrates slight startup-delay. This is a .NET
+bag, which was already reported to MS
+(https://connect.microsoft.com/feedback/ViewFeedback.aspx?FeedbackID=273495&amp;SiteID=212).<br>
+<br>
+<h4 class="dtH4"><span style="font-style: italic;"></span><span style="font-weight: bold;">Silverlight </span>
+<a id="_silverlight" name="_silverlight"></a>
+<br>
+</h4>
+Silverlight is a subset of WPF and as such does not require any special
+technique to be executed as a script: you just need to reference
+appropriate assemblies and&nbsp;include code-behind and XAML files
+(this can change in the future). However CS-Script offers an
+interesting technique for viewing Silverlight content without a
+browser: Silverlight Player script (&lt;cs-script&gt;\Lib\silverlight.cs).<br><br>Execute the following command in command to playback XAP file (e.g. <span style="font-style: italic;">myApp.xap</span>): 
+<div class="syntax">cscs silverlight myApp.xap</div>
+Silverlight Player is a viewer for&nbsp;XAP (compressed Silverlight
+content) files. Silverlight Player is capable not only rendering
+Silverlight content but also generating self-sufficient executable from
+XAP file.<br>
+<br>Thus you can convert XAP file into WinForm executable which can be
+executed on any Windows PC having Silverlight runtime installed. It
+does not require any other files to be distributed or even temporary
+created on target PC at runtime as it &nbsp;hosts it's own built-in
+Web server, IE Web browser and contains XAP file as embedded
+resource.&nbsp; <br><br>Execute the following command in command prompt to convert XAP file into self-sufficient executable (e.g. <span style="font-style: italic;">myApp.xap</span> -&gt; <span style="font-style: italic;">myApp.exe</span>): 
+<div class="syntax">cscs silverlight /exe myApp.xap</div>To allow
+using&nbsp;Silverlight Player by right clicking&nbsp;XAP files in
+Windows Explorer the "View" and "Convert to EXE" shell extensions have
+been made available. They can be installed by executing corresponding
+batch files from&nbsp;&lt;cs-script&gt;\Samples\Silverlight directory.<br><br><img style="width: 510px; height: 180px;" alt="" src="Images/silverlight_menu.png"><br><br>Silverlight Player script was inspired by Tamir Khason effort&nbsp;described here: <a href="http://blogs.microsoft.co.il/blogs/tamir/archive/2008/05/02/stand-alone-multiplatform-silverlight-application.aspx">http://blogs.microsoft.co.il/blogs/tamir/archive/2008/05/02/stand-alone-multiplatform-silverlight-application.aspx</a>.<br>
+<br>
+Silverlight content sample (BookPages.xap) is taken from <a href="http://www.switchonthecode.com">SOTC: programming and
+development tutorial blog</a>.<br>
+<h4 class="dtH4">See Also<br>
+</h4>
+<a href="Alternative_Compilers.html">Alternative
+compilers</a> |&nbsp;<a href="Script_library.html">Script
+Library</a> | <a href="Importing_scripts.html">Importing
+scripts</a><br>
+<br>
+<a href="ws.html"><span style="text-decoration: underline;">
+</span></a></div>
+</body></html>
+

@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <title>Passing custom type between script and host</title><xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            </td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Passing custom type between script and host</h1>
+      </div>
+    </div>
+<div id="nstext">
+<p>
+Passing custom type between the script and the host is a particular
+case of the "type sharing" pattern. The script and the host
+applications can pass run-time objects in both directions.</p>
+<p align="center"><img src="Images/custom_type.PNG" border="0" height="116" width="164"></p>
+<p>Because the script and the host need to pass (or access) objects of a
+custom type between each other this type has to be implemented in the
+common (shared) assembly.</p>
+<p>Strictly speaking this scenario is not different to the described in
+the previous section ("<i>Passing well-known type...</i>") at all. In the
+"well-known" scenario the shared assembly were registered in GAC
+whereas for the "custom type" the shared assembly is just a local
+assembly.</p>
+<p>
+Hosting the script engine with a shared local assembly is very simple
+from deployment point of view as no registration in GAC is required.
+Thus, deployment approach is just a simple XCOPY distribution. However,
+it introduces the following constraint when using some IDEs.</p>
+<blockquote>
+  <p><b>The same shared assembly that was used to compile the host application has to be loaded in all involved AppDomains at run-time.</b></p>
+  <p><i>The above statement sounds obvious, but some IDEs (e.g. VS7.1/8.0) load
+the <b>copies</b> of the referenced assemblies at run-time. Therefore some
+extra attention might be required. The problem may arise because the
+shared assembly for the script will be always loaded from the same
+directory where the script is, but IDE may force the host application
+to load a different copy of dll.</i></p>
+  <p><i>A simple way to overcome this problem is described in&nbsp; <a href="Image_processor.html">Image
+Processor tutorial</a> . In this tutorial the host application is
+implemented in a single file which can be either compiled into
+executable (VS7.1 IDE) or executed as a script. In the both cases
+assembly confusion is avoided (even when using the same codebase).&nbsp;</i></p>
+</blockquote>
+<p>As virtually there is no difference between passing/accessing the
+"well-known" and custom types all code samples from the <a href="Passing_well-known_type_between_script_and_host.html"> previous topic</a>
+are applicable. The only difference is that for the "custom type"
+examples the <i> translators.dll</i> would not be registered in GAC.</p><p><a href="simplified_hosting.html"><span style="font-style: italic;">Simplified Hosting Model</span></a> from another hand is a specific implementation of the "type
+sharing" pattern. When executing the script from the host application
+(according these simplified model) all the types implemented in the
+host assembly and in any of the dependency assemblies are automatically
+available/accessible from the script.</p><p style="text-align: center;"><img style="width: 244px; height: 171px;" alt="" src="Images/custom_type2.PNG"></p><p><span style="font-style: italic;">Simplified Hosting Model</span> can be activated by setting <span style="font-style: italic; color: rgb(0, 0, 153);">CSScriptLibrary.CSScript.ShareHostRefAssemblies</span>
+to true and it is active by&nbsp;default. In practice it means that you
+can access from the script even any public type implemented in the host
+without any extra effort. T</p><h4 class="dtH4">
+<br>
+See Also</h4>
+<p><a href="ProgrammingReference.html">Reference</a>&nbsp;| <a href="Image_processor.html">Tutorial (Image
+Processor)</a></p>
+<p>&nbsp;</p>
+<p>&nbsp;
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="Advanced Script Hosting">
+</object> 
+    </p>
+</div>
+</body></html>
+

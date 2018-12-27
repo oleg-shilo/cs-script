@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Autoclass</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<xml></xml>
+<link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> <br>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Autoclass</h1>
+</div>
+</div>
+<div id="nstext">
+<p><span style="font-weight: bold;">/autoclass</span>&nbsp;or
+<span style="font-weight: bold;">/ac</span> -&nbsp;generates wrapper class if the script does not define any type<br>
+</p>
+<div style="margin-left: 40px;">In this mode the script
+engine automatically generates wrapper class if the script does not define any class of its own. <br><br>This feature is a light weight flavor of the <a href="Classless.html"><span style="font-style: italic;">Classless Scripts</span></a> support. The important difference is that&nbsp;<span style="font-style: italic;">Autoclass</span> support&nbsp;is a native (embedded) feature of the script engine and does not require any external file to work (<span style="font-style: italic;">Clssless Scripts</span> require <span style="font-style: italic;">Alternative Compiler</span> implemented as a separate assembly).<br><div class="syntax">cscs /autoclass script.cs</div>
+<font face="Arial" size="2"><span></span></font><span style="font-style: italic;">&nbsp;&nbsp;&nbsp; &nbsp;</span><font face="Arial" size="2"><span><br>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"></font><font face="Courier New" size="2"><font color="#0000ff" size="2">using </font></font><font face="Courier New" size="2">System;</font><font face="Courier New" size="2"><br><br style="color: rgb(153, 153, 153);"><span style="color: rgb(153, 153, 153);">public class ScriptClass</span><br style="color: rgb(153, 153, 153);"><span style="color: rgb(153, 153, 153);">{</span><br></font><font face="Courier New" size="2"><font color="#0000ff" size="2">&nbsp; &nbsp; <span style="color: rgb(153, 153, 153);">static</span></font><span style="color: rgb(153, 153, 153);"> public </span><font color="#0000ff" size="2">void</font> Main()<br>
+&nbsp; &nbsp; {<br>
+&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; Console.WriteLine(</font><font face="Courier New" size="2"><font color="#800000" size="2">"Hello World!"</font></font><font face="Courier New" size="2">);<br>
+&nbsp; &nbsp; }<br><span style="color: rgb(153, 153, 153);">}</span></font></td>
+    </tr>
+  </tbody>
+</table><span style="font-weight: bold;"><br></span><strong></strong><span style="font-style: italic;"></span><font face="Arial" size="2"><span></span></font><strong>Note: </strong>the <span style="font-style: italic;">/autoclass</span> switch does not interfire with execution of normal&nbsp;class containing scripts.<br><br>
+<br>The acceptable alternative entry point signatures are:<br><br><font face="Courier New" size="2"><font color="#0000ff" size="2">void</font> main()<br></font><font face="Courier New" size="2"><font color="#0000ff" size="2">int</font> main()</font><br><font face="Courier New" size="2"><font color="#0000ff" size="2">void</font> main(</font><font face="Courier New" size="2"><font color="#0000ff" size="2">string</font></font><font face="Courier New" size="2">[] args)<br></font><font face="Courier New" size="2"><font color="#0000ff" size="2">int</font> main(</font><font face="Courier New" size="2"><font color="#0000ff" size="2">string</font></font><font face="Courier New" size="2">[] args)</font>&nbsp;<br><br>You may find that the most convenient way of enabling the <span style="font-style: italic;">autoclass</span> mode is from the script istelf. In oder to do so you need to&nbsp;place <span style="font-weight: bold;">/ac</span> argument as part of the&nbsp;<span style="font-style: italic;">script arguments</span> directive at start of the script code:<br><span style="font-style: italic;"> &nbsp;</span><font face="Arial" size="2"><span><br>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+
+<span style="font-size: 10pt; font-family: &quot;Courier New&quot;; color: green;">//css_args /ac</span><br><font face="Courier New" size="2"><font color="#0000ff" size="2">using </font></font><font face="Courier New" size="2">System;</font><font face="Courier New" size="2"><br>...<br style="color: rgb(153, 153, 153);"><span style="color: rgb(153, 153, 153);"></span></font></td></tr></tbody></table></div><br><h4 class="dtH4">See Also</h4>
+<p> <a href="Command-line_Interface.html">Command-line
+interface</a> |&nbsp;<a href="Classless.html">Classless Scripts</a></p>
+<p> &nbsp;</p>
+</div>
+</body></html>

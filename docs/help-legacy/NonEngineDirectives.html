@@ -1,0 +1,300 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+
+
+
+
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  <title>Script Engine Directives</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+
+
+
+
+
+  
+  
+  
+  
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+
+
+
+
+
+  <xml></xml>
+  
+  
+  
+  
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+
+
+<body id="divID" class="dtBODY">
+
+
+
+
+
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+
+
+
+
+
+  <tbody>
+
+
+
+
+
+    <tr id="hdr">
+
+
+
+
+
+      <td class="runninghead">
+      
+      
+      
+      
+      <p align="left">CS-Script 3.27.0</p>
+
+
+
+
+
+      </td>
+
+
+
+
+
+      <td class="product"> </td>
+
+
+
+
+
+    </tr>
+
+
+
+
+
+  
+  
+  
+  
+  </tbody>
+</table>
+
+
+
+
+
+</div>
+
+
+
+
+
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Non-Engine
+Directives</h1>
+
+
+
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
+<br>
+
+
+
+
+
+<div id="nstext"><font face="Arial" size="2"><span><span style="font-weight: bold;"></span></span></font>In
+addition to the directives for the script engine there is also another
+type of directives, which if present in code can affect the way how
+script is executed. The se directives are handled not by the engine but
+by other CS-Script framework components. Currently there is only one
+such directive but it can be more of them in the future releases.<br>
+<br>
+
+
+
+
+
+
+
+
+<p>This is the code directive to control how&nbsp;the script is loaded in VS2005/VS2005E assembly at execution
+time:</p>
+
+
+
+
+
+
+
+
+<div class="syntax">//css_debug [/t:&lt;targer&gt;] [/args:"[arg0] [argN]"];</div>
+
+
+
+
+
+
+
+
+<blockquote>
+  
+  
+  
+  
+  
+  
+  
+  <p><b>/t</b> - Visual Studio project type</p>
+  <div style="margin-left: 40px;">/t:exe&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Console Executable&nbsp;<br>
+/t:winexe - &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Windows Executable<br>
+/t:library&nbsp; - &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Class Library<br>
+  </div>
+  <p><b>/args</b> - arguments to be passed to the script application when running undre Visual Studio</p>
+</blockquote>
+&nbsp;a&nbsp;language specific comment in order
+to have no impact on compilation by this language compiler. For example
+for VB&nbsp;preface the directive with VB comment token:<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<pre class="code">Imports System<br>Imports System.Windows.Forms<br><br>' //css_reference "System.dll";<br>' //css_reference "System.Windows.Forms.dll";<br><br>Module Module1<br><br>    Sub Main()<br>	MessageBox.Show("Hello World!")<br>    End Sub<br><br>End Module</pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;"><span style="color: rgb(0, 0, 153);"></span><br>
+
+
+
+
+
+</span></div>
+
+
+
+
+
+<font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font><br>
+
+
+
+
+
+<h4 class="dtH4">See Also</h4>
+
+
+
+
+
+<br>
+
+
+
+
+
+<a href="Alternative_Compilers.html"></a><a href="Importing_scripts.html">Importing&nbsp;scripts</a>&nbsp;|&nbsp;<a href="Using_.NET_assemblies.html">Using&nbsp;.NET&nbsp;assemblies</a> | <a href="pre_post_scripts.html">Pre-&nbsp;and&nbsp;Postscripts</a>&nbsp;| <a href="Using_Resources.html">Using Resources</a><br>
+
+
+
+
+<br>
+
+
+
+
+<a href="ws.html"><span style="text-decoration: underline;">
+</span></a></div>
+
+
+
+
+
+</body>
+</html>

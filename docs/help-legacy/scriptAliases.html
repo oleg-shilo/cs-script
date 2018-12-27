@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <title>Script Aliases</title>
+  <meta content="text/html; charset=Windows-1252" http-equiv="Content-Type">
+  <meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+  <xml></xml>
+  <link href="MSDN.css" type="text/css" rel="stylesheet">
+</head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Script Aliases</h1>
+</div>
+</div>
+<br>
+<div id="nstext"><font face="Arial" size="2"><span><span style="font-weight: bold;"></span></span></font>Script
+alias is a script file which does not contain any C# code but only
+information about&nbsp;the actual C# script file to be invoked.
+&nbsp;Script alias is a logical equivalent of a file shortcut&nbsp;on
+Windows. The analogy with Windows shortcuts is nearly perfect as you
+can specify the command line arguments and even point to another alias instead
+of the actual script file:<br>
+<br>
+<span style="font-style: italic;">SayHelloNow.cs (script alias)</span><br>
+<table style="text-align: left; width: 710px; height: 29px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_include SayHello.cs;<br>
+//css_args "Hello there!";<br>
+      </font></font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<span style="font-style: italic;">SayHello.cs (script alias)</span><br>
+<table style="text-align: left; width: 710px; height: 29px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_include Hello.cs;<br>
+      </font></font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<span style="font-style: italic;">Hello.cs (actual script)</span><br>
+<table style="text-align: left; width: 710px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.Windows.Forms;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(args.Length&nbsp;&gt;&nbsp;0)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(args[0]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">else</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<font color="#800000" size="2">"&lt;empty&gt;"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<font face="Courier New" size="2"><font color="#008000" size="2"><br>
+</font></font>You can use <span style="font-style: italic;">.csl</span> file extension to distinguish between the scripts and script aliases, however it is entirely optional. <br>
+<br>
+Using script aliases can be useful when you want to introduce a new
+naming identity for the already existing script. &nbsp;CS-Script is
+distributed with the <span style="font-style: italic;">debugVS8.0.cs</span>
+script for debugging&nbsp;scripts in VisualStudio 8.0 (VS2005). To make
+development more convenient, CS-Script distribution also includes&nbsp;<span style="font-style: italic;">Lib/Debug2005.csl</span> which is nothing else but an alias to the <span style="font-style: italic;">debugVS8.0.cs</span>.&nbsp; <br>
+<br>
+<span style="font-style: italic;">Lib/Debug2005.csl</span><br>
+<table style="text-align: left; width: 710px; height: 29px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_include debugVS8.0.cs;<br>
+      </font></font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+It meas that if you want to run <span style="font-style: italic;">debugVS8.0.cs</span> script you can execute the following command in the command prompt:
+<div class="syntax">
+				&nbsp;cscs debug2005
+			</div>
+Script aliases can also be used as a fixed collection of assembly
+references and importable scripts. For example, if you have a number
+of&nbsp;<span style="font-style: italic;">Interop</span> assemblies to
+work with the MS Office products you can combine corresponding references
+into&nbsp;a single file and use it as a single "include statement" from your
+client&nbsp;script.<br>
+<br>
+<span style="font-style: italic;">MSOffice.cs (script alias)</span>
+			
+<table style="text-align: left; width: 710px; height: 29px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_ref interop.Word.dll;<br>
+      </font></font><font face="Courier New" size="2"><font color="#008000" size="2">//css_ref interop.PowerPoint.dll;<br>
+      </font></font><font face="Courier New" size="2"><font color="#008000" size="2">//css_ref interop.Access.dll;<br>
+      </font></font><font face="Courier New" size="2"><font color="#008000" size="2">//css_ref interop.Excel.dll;</font></font><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p></p>
+<span style="font-style: italic;">CreateSpreadseet.cs (client script)</span>
+			
+<table style="text-align: left; width: 710px; height: 29px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_inc MSOffice.cs;<br>
+      </font></font><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2"></font><br>
+      <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#0000ff" size="2">.....</font></font><br>
+      <font face="Courier New" size="2"><font color="#008000" size="2"></font></font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<h4 class="dtH4">See Also<br>
+</h4>
+<a href="Using_.NET_assemblies.html">Using .NET assemblies</a> |&nbsp;<a href="Script_library.html">Script
+Library</a> | <a href="Importing_scripts.html">Importing
+scripts</a><br>
+<br>
+<a href="ws.html"><span style="text-decoration: underline;">
+</span></a></div>
+</body>
+</html>
+

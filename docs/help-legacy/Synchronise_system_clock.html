@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Synchronise system clock</title>
+  
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            <br>
+</td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Synchronising system clock from WEB source</h1>
+      </div>
+    </div>
+<div id="nstext">
+<p>Step-by-step tutorial&nbsp;</p>
+<p>
+This tutorial will guide you through preparation steps for the script
+(<span style="font-style: italic;">SynTime.cs</span>) which gets time from US Naval Observatory Time Server (<a href="http://tycho.usno.navy.mil/cgi-bin/timer.pl">http://tycho.usno.navy.mil/cgi-bin/timer.pl</a>) and synchronises the PC clock.&nbsp;</p>
+<p>This tutorial demonstrates how to:&nbsp;</p>
+<ul>
+  <li>retrieve content of a WEB page&nbsp;</li>
+  <li>perform simple text file manipulations&nbsp;</li>
+  <li>invoke WIN32 API functions from C# code&nbsp;<br>
+    <br>
+  </li>
+</ul>
+<p style="font-style: italic;">
+NOTE: Only the important code fragments from SynTime.cs will be discussed here.&nbsp;</p>
+<ol>
+  <li>By using any text editor (eg. <span style="font-style: italic;">Notepad.exe</span>) create file <span style="font-style: italic;">SynTime.cs</span> that
+contains the code form <span style="font-style: italic;">Tutorial/synTime.cs</span> script or just copy the whole the script file.</li>
+  <li>Open command prompt. Make sure current directory is the directory where <span style="font-style: italic;">SynTime.cs</span> is located.&nbsp;</li>
+  <li>Execute the following command in command-prompt:<br>
+    <div style="width: 720px;" class="syntax">cscs synTime</div>
+If your proxy server requires authentication (quite usual for corporate
+networks), provide the user name and password as command-line parameters (e.g. user - "bart" and password "carramba"):<br>
+    <div style="width: 720px;" class="syntax">cscs synTime bart:carramba</div>
+  </li>
+</ol>
+<p> </p>
+<h4 class="dtH4">Output&nbsp;</h4>
+<p>The script will produce the output similar to one below: <br>
+</p>
+<p style="text-align: center;"><img style="width: 509px; height: 212px;" alt="" src="Images/syntime.PNG"></p>
+<h4 class="dtH4">
+Code discussion&nbsp;</h4>
+<p>The main method in the script is <span style="color: rgb(51, 51, 255);">GetHTML(...)</span>.
+It downloads and returns
+the content of a web page, which is specified as the "url" method
+parameter. The GlobalProxySelection is adjusted with provided
+credentials if proxy authentication is requested.&nbsp;</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;GetHTML(<font color="#0000ff" size="2">string</font>&nbsp;url,&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;proxyUser,&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;proxyPw)<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;StringBuilder&nbsp;sb&nbsp;&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;StringBuilder();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;byte[]&nbsp;buf&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;byte[8192];<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;HttpWebRequest&nbsp;&nbsp;request&nbsp;&nbsp;=&nbsp;(HttpWebRequest)WebRequest.Create(url);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(proxyUser&nbsp;!=&nbsp;null)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GlobalProxySelection.Select.Credentials&nbsp;=<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;NetworkCredential(proxyUser,&nbsp;proxyPw);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;HttpWebResponse&nbsp;response&nbsp;=&nbsp;(HttpWebResponse)request.GetResponse();<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;Stream&nbsp;resStream&nbsp;=&nbsp;response.GetResponseStream();<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;tempString&nbsp;=&nbsp;null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">int</font>&nbsp;count&nbsp;=&nbsp;0;<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">while</font>&nbsp;(0&nbsp;&lt;&nbsp;(count&nbsp;=&nbsp;resStream.Read(buf,&nbsp;0,&nbsp;buf.Length)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tempString&nbsp;=&nbsp;Encoding.ASCII.GetString(buf,&nbsp;0,&nbsp;count);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sb.Append(tempString);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;sb.ToString();<br>
+}&nbsp;</font></td>
+    </tr>
+  </tbody>
+</table>
+<p></p>
+The WEB page line, which contains "UTC" time is extracted and converted in the DateTime.<br>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">....<br>
+      <br>
+      <font color="#008000" size="2">//strMyDateTime&nbsp;is&nbsp;something&nbsp;like:&nbsp;Oct.&nbsp;08,&nbsp;04:13:14&nbsp;UTC<br>
+      </font><br>
+strMyDateTime&nbsp;=&nbsp;strMyDateTime.Insert(strMyDateTime.IndexOf(<font color="#800000" size="2">","</font>)&nbsp;+&nbsp;1,&nbsp;GetCurrentYear()&nbsp;+&nbsp;<font color="#800000" size="2">","</font>);<br>
+CultureInfo&nbsp;en&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;CultureInfo(<font color="#800000" size="2">"en-US"</font>);<br>
+DateTime&nbsp;myDateTime&nbsp;=&nbsp;DateTime.Parse(strMyDateTime,&nbsp;en);<br>
+      <br>
+...</font></td>
+    </tr>
+  </tbody>
+</table>
+&nbsp; 
+<p>
+After that DateTime is converted to native WIN32 SYSTEMTIME structure and the system clock are adjusted with new time.</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">....<br>
+      <br>
+[DllImport(<font color="#800000" size="2">"kernel32.dll"</font>,&nbsp;SetLastError=<font color="#0000ff" size="2">true</font>)]&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">extern</font>&nbsp;<font color="#0000ff" size="2">int</font>&nbsp;SetSystemTime(ref&nbsp;SYSTEMTIME&nbsp;lpSystemTime);<br>
+      <br>
+...<br>
+      <br>
+SYSTEMTIME&nbsp;st&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;SYSTEMTIME(dateTime);<br>
+SetSystemTime(ref&nbsp;st);<br>
+      <br>
+...</font></td>
+    </tr>
+  </tbody>
+</table>
+<p></p>
+<h4 class="dtH4">See Also </h4>
+<p><a href="Tutorial.html">CS-Script tutorials</a></p>
+<br>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="WEB access">
+</object> 
+</div>
+</body></html>

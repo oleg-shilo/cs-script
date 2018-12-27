@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Using Precompilers</title>
+
+  
+
+  
+  
+  <meta content="text/html; charset=Windows-1252" http-equiv="Content-Type">
+
+  
+  <meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+
+  <xml></xml>
+  
+  <link href="MSDN.css" type="text/css" rel="stylesheet"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Using Precompilers</h1>
+</div>
+</div>
+
+<br>
+
+<div id="nstext"><font face="Arial" size="2"><span><span style="font-weight: bold;"></span></span></font><br>
+CS-Script is capable of preprocessing the scripts before the execution.
+Preprocessing algorithm can be implemented either as another script
+file or as an assembly. The more details about it can be found in the <a href="precompilers.html">Precompilers</a> chapter.<br>
+<br>
+<p>This is the directive to process the script with a precompiller:</p>
+<div style="width: 830px;" class="syntax">&nbsp;//css_precompiler
+&lt;file0&gt;[, &lt;fileN&gt;];</div>
+<p><b>file </b>- name of the script or assembly file containing the precompiler implementation</p>
+<p>The shorter alias directive <span style="font-style: italic; font-weight: bold;">//css_pc</span> can&nbsp;be
+used in place&nbsp;of the <span style="font-style: italic; font-weight: bold;">//css_precompiler</span></p><p><br>Remember that you may need to escape some path characters that conflict with the //css_ delimiters. See <a href="Directives.html">Delimiters Escaping</a> section.</p>
+<br>
+The following&nbsp;is the example which demonstrates how to configure the script to use autoclass.cs precompiler.<br>
+<br>
+<table style="width: 850px; text-align: left; height: 108px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_precompiler autoclass.cs;<br>
+</font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2"></font><br>
+      <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font> Program<br>
+{<br>
+&nbsp; ....</font></td>
+    </tr>
+  </tbody>
+</table>
+<br><br>
+<br>
+<br>
+<h4 class="dtH4">See Also<br>
+</h4>
+<a href="precompilers.html">Precompiler</a>
+<a href="ws.html"><span style="text-decoration: underline;"></span></a></div>
+
+</body></html>

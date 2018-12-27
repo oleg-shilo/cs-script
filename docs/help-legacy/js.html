@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <title>J# scripts</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">J# scripts</h1>
+</div>
+</div>
+<br>
+<div id="nstext">Among other programming languages
+CS-Script supports J#/JScript.<br>
+<div style="margin-left: 40px;"><br>
+<span style="font-style: italic;">There is some ambiguity
+about
+the&nbsp;name of the language. MS usually refers Java based syntax
+for
+CLR as J#. However MS compiler for this syntax is implemented in
+Microsoft.JScript.dll. For the purpose of this article the terms
+JScript and J# are interchangeable.<br>
+<br>
+</span></div>
+The&nbsp;J# script compiler is implemented as a pluggable custom
+compiler (see
+<a href="Alternative_Compilers.html">Alternative compilers</a>).&nbsp;JScript
+script compiler assembly is deployed and
+enabled at the time of the CS-Script installation/upgrade.<br>
+<br>
+The
+script code below is an example of the complete&nbsp;J#
+script&nbsp;<span style="font-style: italic;">Hello.js</span>
+from the&nbsp;<a href="non_cs_compilers.html">Implementing
+non-C# compilers</a> tutorial.<font face="Arial" size="2"><span><br>
+</span></font><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font>
+<pre class="code"></pre>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_reference&nbsp;"System.dll";<br>
+      </font><font color="#008000" size="2">//css_reference&nbsp;"System.Windows.Forms.dll";<br>
+      </font></font><font face="Courier New" size="2">import&nbsp;System;<br>
+import&nbsp;System.Windows.Forms;<br>
+      <br>
+      <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Class1&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;function&nbsp;Main()&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Hello&nbsp;World!&nbsp;(JScript)"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<font color="#800000" size="2">"Hello&nbsp;World!&nbsp;(JScript)"</font>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<font face="Arial" size="2"><span></span></font><span style="font-weight: bold;"></span><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font><span style="font-weight: bold;">Note</span>: <i>System.dll</i> and <i>System.Windows.Forms.dll</i>
+are
+referenced with <font color="#000080">//css_reference</font>
+statement directly
+from the code. Because automatic assembly loading is not available&nbsp;for non-C#
+scripts (see <a href="Alternative_Compilers.html">Alternative
+Compilers</a> for limitation details).&nbsp;
+<h4 class="dtH4">See Also</h4>
+<a href="Alternative_Compilers.html">Alternative compilers</a>&nbsp;|&nbsp;<a href="non_cs_compilers.html">Implementing
+non-C# compilers</a><a href="non_cs_compilers.html"></a><br>
+<a href="ws.html"><span style="text-decoration: underline;"><br>
+</span></a></div>
+</body>
+</html>
+

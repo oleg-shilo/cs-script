@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Compiler Options Directories</title>
+<xml></xml>
+<link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> <br>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Compiler Options</h1>
+</div>
+</div>
+<div id="nstext">
+<p>It is possible to pass come compiler&nbsp; options directly to the code compiler (e.g. Microsoft C# compiler <span style="font-style: italic;">csc.exe</span>) directly from the script code:</p>
+<div style="width: 830px;" class="syntax">//css_co &lt;options&gt;;</div>
+<blockquote>
+<p><b>options</b> - compiler options as per csc.exe compiler command line interface.
+</p>
+</blockquote><h4 class="dtH4">Sample</h4>
+The following example demonstrates how to define a compiler compiler symbol to be used for the conditional compilation.<br><br><table style="text-align: left; width: 844px; height: 268px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#0000ff" size="2">&nbsp;static</font>&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;code&nbsp;=&nbsp;@<font color="#800000" size="2">"using&nbsp;System;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;Script<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;Print(string&nbsp;greeting)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#if&nbsp;USE_TIMESTAMP&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.Write(DateTime.Now.ToString()&nbsp;+&nbsp;"</font><font color="#800000" size="2">":"</font><font color="#800000" size="2">");<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#endif&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(greeting);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"<br>&nbsp;<span style="color: black;">...</span><br><br></font></font><font face="Courier New" size="2"><font color="#008000" size="2">&nbsp;//executing&nbsp;code&nbsp;with&nbsp;USE_TIMESTAMP&nbsp;defined<br></font>&nbsp;Print&nbsp;=&nbsp;CSScript.LoadCode(<font color="#800000" size="2">"//css_co&nbsp;/define:USE_TIMESTAMP;\n"</font>&nbsp;+&nbsp;code)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetStaticMethod();</font></td></tr></tbody></table><br><br>
+<p>&nbsp;</p>
+<p> &nbsp;</p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"> <param name="Keyword" value="Using Assemblies">
+</object></div>
+</body></html>

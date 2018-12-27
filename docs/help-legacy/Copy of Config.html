@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>CS-Script settings</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<xml></xml>
+<link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.8.8</p>
+</td>
+<td class="product"> </td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">CS-Script settings</h1>
+</div>
+</div>
+<div id="nstext">
+<p>Script execution can be controlled/adjusted through
+the&nbsp;engine runtime settings. These&nbsp;settings can be
+viewed/edited with a configuration console. &nbsp;</p>
+<p>The configuration console is the utility, which allows to do
+variety of script engine administrative tasks
+(installation/uninstallation, enabling shell extensions,
+&nbsp;enabling integration with Visual Studio, changing
+runtime behavior, accessing the documentation...).</p>
+To start the console execute the following command in command
+prompt:
+<div class="syntax"> css_config&nbsp; </div>
+<div style="text-align: center;">
+<div style="text-align: left;"><span style="font-weight: bold;"></span>After
+the&nbsp;console is displayed you can modify any of the CS-Script
+settings. <br>
+<br>
+The
+all settings are divided into&nbsp;three major categories which are
+represented on the corresponding tabs. In addition to the normal
+controls (e.g. checkboxes, buttons) you can find LinkLabels which are
+used to launch external utilities to allow changes of the advanced
+settings like Advanced Shell Extension.&nbsp; <br>
+<h4 class="dtH4">General</h4>
+<br>
+<div style="text-align: center;">_cs_v_3&lt;a
+id="_cs_v_3" name="_cs_v_3"&gt;&lt;/a&gt;<br>
+<img style="width: 449px; height: 454px;" alt="" src="Images/config.PNG"></div>
+<p><span style="font-style: italic;">Target CLR
+version</span><br>
+This combo-box allows you to select specific version of the CLR from
+the
+list of the installed runtimes. The target version of the CLR for the
+script execution is controlled by content of the corresponding .config
+files (eg. cscs.exe.config).&nbsp; The "default" means the CLR with
+the
+highest version known at the time of CS-Script release. See <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/gnconSupportedRuntimeElement.asp">MSDN</a>
+for details on how to edit .config files. You should be careful when
+working with multiple versions of CLR as it can imply some
+compatibility restrictions (see <a href="Compatibility.html">CS-Script
+version compatibility</a> for details).&nbsp;</p><p>dsfds</p>
+<br>
+<span style="font-weight: bold;">.NET 3.0 and .NET 3.5</span><br>
+<br>
+Because of the Microsoft decision to separate CLR version from the
+compiler version CS-Script support for C#3.0 cannot be enabled by
+changing the Target CLR Version setting. It has to be done by setting
+UseAlternativeCompiler option on the Runtime Options page to
+%CSSCRIPT_DIR%\Lib\CSSCodeProvider.v3.5.dll (see corresponding section
+latter in the document).<br>
+<br>
+When hosting the script engine (CSSScriptLibrary.dll) an alternative
+compiler needs to be set at runtime:<br>
+<p style="margin-left: 40px;"><font face="Courier New" size="2">CSScript.GlobalSettings.UseAlternativeCompiler&nbsp;=&nbsp;<font color="#800000" size="2">"CSSCodeProvider.v3.5.dll";<br><br>
+</font></font></p><p>If you want
+to avoid
+setting the
+alternative compiler at runtime you can use special version of the
+script engine class library (CSScriptLibrary.v3.5.dll). It was built
+with C#3.0 compiler (.NET 3.5) and as such can execute C# 3.0 scripts
+natively. However this assembly cannot be hosted by any earlier
+versions of CLR (e.g. host application compiled under .NET 1.1).</p>
+<span style="font-style: italic;"><br>
+Deactivate<br>
+</span>This
+button is used to remove CS-Script from the system.<br><br><span style="font-style: italic;">
+<br>
+Repair<br>
+</span>This
+button is visible only if the CS-Script file association is broken
+(e.g. after installation of Visual Studio). You can restore the file
+association by pressing this button. Note that the file association is
+not required for CS-Script to work. It rather creates more convenient
+development environment.<br><br>
+<span style="font-style: italic;"><br>
+Advanced Shell Extension Tab</span><br>
+<p>This
+tab displays Advanced shell extensions layout. You can find out more
+about what this Shell Extension&nbsp;is and how it is different to
+the
+explorer Simplified Context Menu in the <a href="shell_extensions.html">Advanced Shell Extension chapter</a>.<span style="font-style: italic;"></span></p>
+<p style="margin-left: 40px;"><span style="font-style: italic;">Use</span><span style="font-style: italic;"> Advanced Shell Extensions</span><br>
+Use this&nbsp;check box to enable or disable Advanced Shell
+Extension.&nbsp;</p>
+<p style="margin-left: 40px; font-style: italic;"><br>
+Configure Shell Extension</p>
+<p style="margin-left: 40px;">This LinkLabel is used to
+launch the <a href="ConfigUtils.html">Advanced Shell
+Extension configuration utility</a>.
+This utility allows you to enable/disable particular Shell Extension
+menu item, edit menu command and change the menu items order.</p><p style="margin-left: 40px;"></p>
+<span style="font-style: italic;">Open<br>
+</span>By specifying shell command in the text box you can
+associate script
+file (.cs)&nbsp;double-click/open event with specific command.
+&nbsp;Such command can be as simple as&nbsp;<span style="font-style: italic;">notepad.exe "%1"</span>.
+However any more sophisticated (syntax-aware) text editor would be more
+appropriate as an editing tool for scripts. The following are examples
+of the shell commands for using VS Express and Notepad++:
+<div style="font-style: italic;">
+<ul>
+<li>"C:\Program Files\Microsoft Visual Studio
+8\Common7\IDE\VCSExpress.exe" "%1" /Edit &nbsp;</li>
+<li>"C:\Program Files\npp.3.3\notepad++.exe" "%1"</li>
+</ul>
+</div>
+<p><span style="font-style: italic;"><br>
+Visual Studio 2005 integration</span></p>
+<p>This LinkLabel is used to launch the <a href="ConfigUtils.html">Visual Studio
+Integration&nbsp;configuration utility</a>.
+This utility allows you to enable/disable or adjust&nbsp;the level
+of
+the CS-Script&nbsp;integration with MS Visual Studio IDE(s)
+installed
+on your PC.<span style="font-style: italic;"></span></p>
+<h4 style="text-align: center;" class="dtH4"><img style="width: 449px; height: 454px;" alt="" src="Images/config.a.png"></h4>
+<p><br>
+<span style="font-style: italic;">Simplified Context Menu
+Tab</span><br>
+In this list of supported simplified explorer Context
+Menus&nbsp;you
+can enable/disable particular one depending on
+you&nbsp;preferences.&nbsp;</p>
+</div>
+<div style="text-align: left;">
+<h4 class="dtH4">Runtime options </h4>
+<p style="text-align: center;"><span style="font-style: italic;"><img style="width: 491px; height: 454px;" alt="" src="Images/config1.PNG"></span></p>
+<p><span style="font-style: italic;"></span></p>
+<p><span style="font-style: italic;"></span></p>
+<p><span style="font-style: italic;">CleanupShellCommand</span><br>
+Shell command that is executed in order to cleanup any temporary files
+created by the script engine. &nbsp;This command is entirely
+optional.
+Basically it is a custom action triggered by the script engine when
+number of consecutive runs (<span style="font-style: italic;">DoCleanupAfterNumberOfRuns</span>)
+reached. If this&nbsp;command is set the script engine is not
+required
+to do any cleanup thus it does the execution in the current AppDomain.
+This means that the script can be executed faster (however the fastest
+execution can be achieved only with <a href="CompileAssembly.html">/c</a>
+switch). &nbsp;You can use <span style="font-style: italic;">clearTemp.cs</span>
+script from the&nbsp;<a href="Script_library.html">Script
+Library</a>&nbsp;as a&nbsp;basic cleanup command
+("csws.exe clearTemp.cs"). &nbsp;</p>
+<p><span style="font-style: italic;"><br>
+DoCleanupAfterNumberOfRuns</span><br>
+The number of consecutive runs before <span style="font-style: italic;">CleanupShellCommand&nbsp;</span>would
+be invoked.</p>
+<p><span style="font-style: italic;"><br>
+SerachDirs</span><br>
+Scripts from the&nbsp;<a href="Script_library.html">Script
+Library</a> can be executed&nbsp;or imported&nbsp;by the
+script engine without specifying the full script path. You also can
+nominate
+additional folders which will be used by the script engine
+in&nbsp;the same way. It is just a custom version of the "Script
+Libraries". All assemblies from&nbsp;<span style="font-style: italic;">SerachDirs</span> are
+automatically available for runtime
+for&nbsp;loading&nbsp;(see&nbsp;<a href="Using_.NET_assemblies.html">Using .NET assemblies</a>
+for details). Multiple search directories should be separated by
+semicolon (;) the same way as it is done for the environment variable
+PATH. Another, more convenient way of managing Search directories is to
+do this with Search Directories utility. you can launch it by clicking
+the LinkLabel Manage SearchDirs.&nbsp; &nbsp;</p>
+<p><span style="font-style: italic;"><br>
+UseAlternativeCompiler</span></p>
+<p><span style="font-style: italic;"></span>Set
+this property to the location of the&nbsp;<a href="Alternative_Compilers.html">alternative compiler</a>
+CodeProvider&nbsp;assembly if you want to use non-C# syntax.</p>
+<p><span style="font-style: italic;"><br>
+DefaultApartmentState</span><br>
+You can control the type of threading model of the the script being
+executed by using <font color="#0000ff"><span style="color: rgb(51, 0, 153);">[STAThread]</span></font>
+or&nbsp;<font color="#0000ff"><span style="color: rgb(51, 0, 153);">[MTAThread] </span> </font>attributes
+in the script code. If the threading model is not specified in the code
+it is set to the DefaultApartmentState value of the runtime settings.<br>
+</p>
+<p><span style="font-style: italic;">DefaultArguments</span><br>
+This value contains default command line switches. For example if <a href="CompileAssembly.html"> /c</a> ("cached" mode)
+switch is specified as a default argument, all scripts will be executed
+with this switch even if the switch is omitted from the command-prompt
+command.<br>
+</p>
+<p><span style="font-style: italic;"><br>
+HideAutoGeneratedFiles</span><br>
+By using this setting you can&nbsp; completely (or partially)
+remove
+auto-generated files&nbsp;from the script directory. This option
+(if
+used) allows you to maintain very
+clean script directories with script files only. All temporary files
+(imported scripts, dynamically generated wrappers, script cache) in
+this case are
+stored in the specially dedicated temp folder. The possible values for
+this setting are:</p>
+<p style="margin-left: 40px;"><span style="font-style: italic;">DoNotHide</span>
+-&nbsp; Do not hide any auto-generated files.&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;</p>
+<p style="margin-left: 40px;"><span style="font-style: italic;">HideMostFiles</span> -
+Hide the most of the auto-generated&nbsp;files (cache and
+"imported" files).</p>
+<p style="margin-left: 40px;"><span style="font-style: italic;">HideAll</span> - Hide all
+auto-generated files including the files generated by pre/post scripts.<br>
+</p>
+<p><span style="font-style: italic;"><br>
+HideCompilerWarningss</span><br>
+If this value is set to&nbsp;<font color="#0000ff"><span style="color: rgb(51, 0, 153);">True</span></font>
+all compiler warnings are&nbsp;not displayed. This may simplify
+navigation in the compiler output.</p>
+<p></p>
+<p><span style="font-style: italic;">InMemoryAssembly</span><br>
+If this value is set to&nbsp;<font color="#0000ff"><span style="color: rgb(51, 0, 153);">True </span></font>the&nbsp;compiled
+script is loaded for the execution not from the
+assembly file&nbsp;but rather from it's in-memory copy. This allows
+avoiding locking the script&nbsp;assembly file during the
+execution.
+This
+may be usefully in some circumstances, for example&nbsp;if you want
+to
+delete the compiled script before it's execution is completed. Be
+careful when using this setting as&nbsp;your script assembly at
+runtime
+will have&nbsp;<span style="font-style: italic;">Location</span>
+property set to empty string (<span style="font-style: italic;">Assembly.GetExecutingAssembly().Location</span>).&nbsp;
+Also this value should be set to <span style="color: rgb(51, 0, 153);">False</span>
+if for execution of C++ scripts of WWF scripts as CLR expects the
+assembly to be present in form of file for this type of applications.</p>
+<p></p>
+<p><span style="font-style: italic;">ReportDetailedErrorInfo</span><br>
+If this value is set to&nbsp;<font color="#0000ff"><span style="color: rgb(51, 0, 153);">True</span></font>
+all errors, which the script engine displays to the user,&nbsp;will
+be reported with the&nbsp;exception stack messages. Otherwise, only
+the top level exception message is reported.&nbsp;</p>
+<p></p>
+<span style="font-style: italic;">Manage SearchDirs</span><br>
+This LinkLabel is used to launch the&nbsp;<a href="ConfigUtils.html">SearchDirs configuration utility</a>.
+This utility allows you to add, remove or change the order of the
+search (probing) directories.<br>
+<p style="font-weight: bold;"><span style="font-style: italic;">Note</span></p>
+<p><span style="font-style: italic;"></span>The
+settings are stored in the <i>css_config.xml</i><span style="font-style: italic;"> </span>file&nbsp;in
+the CS-Script home directory.<br>
+</p>
+Strictly speaking the location of the&nbsp;<i>css_config</i><em>.xml</em>
+file has to be the same as location of the runtime executable. In case
+of script execution from the command-prompt it is a CS-Script home
+directory, however for script hosting it is a directory where the host
+application is.<br>
+If you want to restore default settings just
+delete&nbsp;the <i>css_config.xml</i> file. <br>
+<h4 class="dtH4">About</h4>
+<h4 style="text-align: center;" class="dtH4"><img style="width: 491px; height: 454px;" alt="" src="Images/config2.PNG"></h4>
+<p><span style="font-style: italic;">Update</span><br>
+Press Update button to check if any update for CS-Script is available.</p>
+<p>Updating process is automated, what
+eliminates&nbsp;necessity&nbsp;for manual downloading and
+configuration. Always review the settings in the&nbsp;"Runtime
+options"
+tab
+as in result of the&nbsp;"settings migration" they
+may&nbsp;contain
+invalid
+values (etc. absolute paths).</p>
+<p><br style="font-style: italic;">
+</p>
+<p><span style="font-style: italic;">Support/Help</span><br>
+Click corresponding link to access specific documentation resources or
+send feedback emails.</p>
+<br>
+</div>
+<span style="font-weight: bold;"></span> </div>
+<h4 class="dtH4">See Also&nbsp;</h4>
+<p><a href="Alternative_Compilers.html">Alternative
+compilers</a> |&nbsp;<a href="Command-line_Interface.html">Command-line
+interface</a> | <a href="Compatibility.html">CS-Script
+version compatibility</a> | <a href="Using_.NET_assemblies.html"> Using .NET assemblies</a></p>
+<p></p>
+</div>
+</body></html>

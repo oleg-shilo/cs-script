@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <title>Importing script Tutorial</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            </td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Printing (importing script)&nbsp; &nbsp;</h1>
+      </div>
+    </div>
+<div id="nstext">
+<h4 class="dtH4">Step-by-step tutorial&nbsp;</h4>
+<p>The following tutorial shows how to create and execute the script
+that
+allows users to print any text string to the default printer with print
+preview. This is an example of multiple scripts application.&nbsp;</p>
+<ol>
+  <li>By using any text editor (eg. <span style="font-style: italic;">Notepad.exe</span>) create file
+    <span style="font-style: italic;">printText.cs</span>, which contains the following code:<br>
+    <table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_import&nbsp;print;</font></font><font face="Courier New" size="2"><font color="#0000ff" size="2"><br>
+using</font>&nbsp;System;<br>
+          <font color="#0000ff" size="2">using</font>&nbsp;System.Text;<br>
+          <font color="#0000ff" size="2">using</font>&nbsp;Scripting;<br>
+          <br>
+          <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(args.Length&nbsp;!=&nbsp;0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SimplePrinting&nbsp;printer&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;SimplePrinting();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printer.Print(args[0],&nbsp;<font color="#0000ff" size="2">true</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+Click here to obtain full <a style="font-style: italic;" href="Tutorial/PrintText.cs">listing of PrintText.cs</a><span style="font-style: italic;">&nbsp;</span></li>
+  <li>Open command prompt. Make sure current directory is the directory where <span style="font-style: italic;">printText</span><i>.cs</i> located.&nbsp;</li>
+  <li>Execute the following command in command-prompt:<br>
+    <div class="syntax">cscs printText "Printing from script..." </div>
+  </li>
+</ol>
+<h4 class="dtH4">Output&nbsp;</h4>
+<p>The script will show the following dialog.&nbsp;&nbsp;</p>
+<p style="text-align: center;"><img style="width: 413px; height: 338px;" alt="" src="Images/Printint_tutorial.PNG"></p>
+<p>Now you start printing by pressing 'print' button.</p>
+<h4 class="dtH4">Code discussion&nbsp;</h4>
+<p>You probably noticed special directive <span style="color: rgb(51, 0, 153);">//css_import print;</span> just before
+class declaration. This directive instructs the script engine to load at runtime another script ('<span style="font-style: italic;">print.cs</span>'). This script is located in
+<span style="font-style: italic;">cs-script/Lib</span>, however the same result would be achieved if it was in the same directory with <span style="font-style: italic;">PrintText.cs</span>. <span style="font-style: italic;">Print.cs</span> script contains
+implementation of<span style="color: rgb(51, 0, 153);"> SimplePrinting</span> class which belongs to namespace Scripting (this is why "<span style="color: rgb(51, 0, 153);">using Scripting;</span>" was placed in the code). The
+usage of the class SimplePrinting is the same as if it was implemented in the main script file (<span style="font-style: italic;">PrintText.cs</span>).&nbsp;&nbsp;</p>
+<p></p>
+<h4 class="dtH4">
+See Also </h4>
+<p><a href="Tutorial.html">CS-Script tutorials</a> | <a href="Importing_scripts.html">Importing scripts</a> &nbsp;</p>
+<br>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="Importing script tutorial">
+</object> 
+</div>
+</body>
+</html>
+

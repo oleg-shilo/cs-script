@@ -1,0 +1,526 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+
+
+		
+		
+  
+  
+  <title>Text processor</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+
+
+		
+  
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+
+
+		<xml></xml>
+		
+  
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+
+
+<body id="bodyID" class="dtBODY">
+
+
+		
+<div id="nsbanner">
+			
+<div id="bannerrow1">
+				
+<table class="bannerparthead" cellspacing="0">
+
+
+					<tbody>
+
+
+						<tr id="hdr">
+
+
+							<td class="runninghead">
+								
+      
+      <p align="left">CS-Script 3.8.2</p>
+
+
+							</td>
+
+
+							<td class="product">
+							</td>
+
+
+						</tr>
+
+
+					
+  
+  </tbody>
+				
+</table>
+
+
+			</div>
+
+
+			
+<div id="TitleRow">
+				
+<h1 class="dtH1" align="left">Text Processor</h1>
+
+
+			</div>
+
+
+		</div>
+
+
+		
+<div id="nstext">
+			
+<h4 class="dtH4">Step-by-step tutorial&nbsp;</h4>
+
+
+			
+<p>This tutorial will demonstrate how create the simple "text editor" application (<span style="font-style: italic;">Text 
+					Processor</span>), which uses user entered C# code for&nbsp;text 
+				manipulations. The <a href="Type_sharing_patern.html">"type sharing" pattern</a>
+				in this tutorial is implemented with passing well-known type between the script 
+				host and the actual script. This tutorial also contains implementation of <span style="font-style: italic;">
+					Local</span> and <span style="font-style: italic;">Remote</span> <a href="Dynamic_assembly_loading.html">
+					dynamic assembly loading</a>.</p>
+
+
+			
+<p>Only the code, which logically belongs to the script hosting implementation will 
+				be discussed here. To accomplish this tutorial you will need to download <a style="font-style: italic;" href="Tutorial/TextProcessor/TextProcessor.zip">
+					TextProcessor1.zip</a> file. Then extract the content of the zip file in the 
+				convenient location.</p>
+
+
+			
+<p>The host application for this tutorial comes in two flavors: C# script (<span style="font-style: italic;">textprocessor.cs</span>) 
+				and Visual Studio 2003 (VS7.1) project (content of extracted&nbsp;<span style="font-style: italic;">textprocessor</span>
+				folder). All code snippets in this tutorial are taken from <a href="Tutorial/TextProcessor/textprocessor.cs">
+					<span style="font-style: italic;">textprocessor.cs</span></a> script, 
+				however they are applicable to the VS7.1 project to the same degree.</p>
+
+
+			
+<p>This tutorial demonstrates how to:</p>
+
+
+			
+<ul>
+
+
+				<li>
+				execute C# script (C# code) from the application&nbsp;
+				</li>
+
+  <li>
+				pass and retrieve&nbsp; well-known type (String) to and from C# script&nbsp;
+				</li>
+
+  <li>
+					load/unload script assembly to the application&nbsp;&nbsp;</li>
+
+
+			
+</ul>
+
+
+			
+<p>Firstly let's see the <span style="font-style: italic;">Text Processor</span> in 
+				action:<br>
+
+
+			</p>
+
+
+			
+<ol>
+
+
+				<li>
+					Open command prompt. Make sure current directory is the directory where content 
+					of <span style="font-style: italic;">TextProcessor.zip</span>
+				extracted.
+				</li>
+
+  <li>
+					Start <span style="font-style: italic;">Text Processor</span> by executing the 
+					following command in command prompt:<br>
+
+
+					
+    
+    <div class="syntax">cscs textprocessor&nbsp;</div>
+
+
+				</li>
+
+
+			
+</ol>
+
+
+			
+<p>
+				<br>
+
+
+			</p>
+
+
+			
+<h4 class="dtH4">
+				Output&nbsp;</h4>
+
+
+			
+<p></p>
+
+
+			
+<p>The script will create and show the following dialog.&nbsp;&nbsp;</p>
+
+
+			
+<div style="text-align: center;"><img style="width: 577px; height: 406px;" alt="" src="Images/textprocessor.PNG"></div>
+
+
+			
+<p></p>
+
+
+			
+<p>The top panel (script panel) contains a C# code (script) template for 
+				implementation of the text manipulation routine. The default C# script inserts 
+				a TAB character at the start of the text in the bottom panel (text panel).</p>
+
+
+			
+<p>If you press "Process" button it will modify the text this way:</p>
+
+
+			
+<p style="text-align: center;"><img style="width: 577px; height: 116px;" alt="" src="Images/textprocessor1.PNG"></p>
+
+
+			
+<p></p>
+
+
+			
+<p>
+				Now change the script code to do replacing all space characters with underscore 
+				as following:</p>
+
+
+			
+<pre class="code">using System;<br><br>public class Script<br>{<br>    static public string Process(string text)<br>    {<br>        return text.Replace(" ", "_");<br>    }<br>}</pre>
+
+
+			
+<p></p>
+
+
+			
+<p>If you now press "Undo" and then "Process" buttons it will modify text this way:</p>
+
+
+			
+<p style="text-align: center;"><img style="width: 574px; height: 112px;" alt="" src="Images/textprocessor2.PNG"></p>
+
+
+			
+<p>
+				<br>
+
+
+			</p>
+
+
+			
+<h4 class="dtH4">Code discussion&nbsp;</h4>
+
+
+			
+<p style="font-style: italic;">Calling static methods</p>
+
+
+			
+<p>The method ExecuteProcessLocaly() in <span style="font-style: italic;">textprocessor.cs</span>
+				contains actual implementation of loading and executing the script.&nbsp; 
+				Calling <span style="color: rgb(51, 0, 153);">CSScript.LoadCode</span> is the most 
+				important part of the method.&nbsp;</p>
+
+
+			
+<pre class="code">void ExecuteProcessLocaly()<br>{<br>   try<br>   {<br>        Assembly scriptAsm = CSScript.LoadCode(textBoxScript.Text, null, true);<br>        AsmHelper helper = new AsmHelper(scriptAsm);<br><br>        textBoxText.Text=<br>                (string)helper.Invoke("Script.Process", textBoxText.Text);<br>   }<br>   catch (Exception ex)<br>   {<br>       MessageBox.Show(ex.ToString());<br>   }<br>}</pre>
+
+
+			
+<p></p>
+
+
+			
+<p>
+				LoadCode takes the string of C# script code, compiles it into assembly, loads 
+				the assembly to the current <span style="color: rgb(51, 0, 153);">AppDomain</span> 
+				and returns the loaded assembly. Now we can instantiate any public type or call 
+				any public static method implemented in this assembly. You can use either <span style="color: rgb(51, 0, 153);">
+					Reflection</span> or <span style="color: rgb(51, 0, 153);">AsmHelper</span> class 
+				from the <span style="color: rgb(51, 0, 153);">CSScriptLibrary</span> for this 
+				purpose. This class is just a simple utility class, which simplifies assembly 
+				browsing.
+				<br>
+
+
+				<br>
+
+
+				Code in the script panel defines type <span style="color: rgb(51, 0, 153);">Script</span>
+				and its static method <span style="color: rgb(51, 0, 153);">Process(string)</span>. 
+				Thus, you may invoke this method by calling method <span style="color: rgb(51, 51, 255);">
+					Invoke</span> of the corresponding AsmHelper instance. In our example we 
+				pass content of the text panel for conversion and assign it back when 
+				conversion is complete.</p>
+
+
+			
+<pre class="code">textBoxText.Text = (string)helper.Invoke("Script.Process", textBoxText.Text);</pre>
+
+
+			<br>
+
+
+			
+<p style="font-style: italic;">Creating objects</p>
+
+
+			
+<p>Now let's instantiate a type implemented in a script. The only type in our 
+				script is the class <span style="color: rgb(51, 0, 153);">Script</span>. It can be 
+				instantiated either with <span style="color: rgb(51, 0, 153);">Assembly.CreateInstance()</span>
+				or <span style="color: rgb(51, 0, 153);">AsmHelper.CreateObject()</span> methods. 
+				Both methods return an instance of <span style="color: rgb(51, 0, 153);">Object</span>
+				type,&nbsp; which has to be type casted to the actual type you want to use. The 
+				only problem with this is that the type Script is not known by the host 
+				application. In fact it cannot be known because the code for class <span style="color: rgb(51, 0, 153);">
+					Script</span> did not exist at the time the host application was 
+				written/compiled. This restriction is not applicable for well-known types 
+				(e.g.&nbsp; <span style="color: rgb(51, 0, 153);">String</span>). That is why we 
+				can inherit our Script class from some interface of GAC in order to make it 
+				possible for the host application to understand it. The advantages of using 
+				well-known types are discussed in the&nbsp;<a href="Passing_well-known_type_between_script_and_host.html">"Passing 
+					well-known type..."</a>&nbsp; section.</p>
+
+
+			
+<p>
+				Let's implement in our script some class that can be used for sorting 
+				operations (the type must implement <span style="color: rgb(51, 0, 153);">IComparable</span>
+				interface).</p>
+
+
+			
+<pre class="code">using System;<br>using System.Windows.Forms;<br><br>public class Script : IComparable<br>{<br>    public int CompareTo(object obj)<br>    {<br>        MessageBox.Show("Doing comparison...");<br>        return 0;<br>    }<br>}</pre>
+
+
+			
+<p></p>
+
+
+			
+<p>The implementation simulates actual comparison by showing the MessageBox.</p>
+
+
+			
+<p style="text-align: center;"><img style="width: 573px; height: 363px;" alt="" src="Images/textprocessor3.PNG"></p>
+
+
+			
+<p>
+				<br>
+
+
+				This is how Script type is instantiated in the event handler for the "Compare" 
+				button.&nbsp;</p>
+
+
+			
+<pre class="code">Assembly scriptAsm = CSScript.LoadCode(textBoxScript.Text, null , true);<br>AsmHelper helper = new AsmHelper(scriptAsm);<br><br>IComparable comparer = (IComparable)helper.CreateObject("Script" );<br>comparer.CompareTo(textBoxText.Text);</pre>
+
+
+			<br>
+
+
+			
+<p>Of course the same can be done by using pure Reflection but in this case 
+				readability of the code would suffer dramatically.&nbsp;</p>
+
+
+			
+<p></p>
+
+
+			
+<p style="font-style: italic;">
+				Loading/Unloading the script assembly</p>
+
+
+			
+<p>Another interesting point to discuss is the way how the compiled script is 
+				loaded. In the <span style="color: rgb(51, 0, 153);">ExecuteProcessLocaly()</span> 
+				method discussed above the script was compiled and loaded into current 
+				AppDomain. The code snippet below is the implementation of the 
+				ExecuteProcessRemotely(). This method is called when button the "Process" is 
+				pressed and the "Unload when done"&nbsp;check box is checked.&nbsp;</p>
+
+
+			
+<pre class="code">void ExecuteProcessRemotely()<br>{<br>   try<br>   {<br>       string asmFile = CSScript.CompileCode(textBoxScript.Text, null , true); <br>       using (AsmHelper helper = new AsmHelper(asmFile, "", true))<br>       {<br>           textBoxText.Text =<br>                   (string) helper.Invoke("Script.Process" , textBoxText.Text);<br>       }<br>    }<br>    catch(Exception ex)<br>    {<br>        MessageBox.Show(ex.ToString());<br>    }<br>} </pre>
+
+
+			
+<p>&nbsp;</p>
+
+
+			
+<p>In this code AsmHelper loads the compiled script assembly (<span style="color: rgb(51, 0, 153);">asmFile</span>) 
+				to a new temporary AppDomain (remote loading). After execution of
+				<br>
+
+
+				the "Script.Process" method the instance of AsmHelper disposed. When<span style="color: rgb(51, 51, 255);">
+					<span style="color: rgb(51, 0, 153);">AsmHelper</span></span> is being 
+				disposed it also unloads the whole temporary AppDomain with all its 
+				assemblies.&nbsp;</p>
+
+
+			
+<p>
+				How AsmHelper will load assembly depends on which constructor was used to 
+				instantiate this type (see <a href="ProgrammingReference.html">CSScriptLibrary 
+					reference</a>):</p>
+
+
+			
+<p style="margin-left: 40px;"><span style="color: rgb(51, 0, 153);">public 
+					AsmHelper(Assembly asm)</span> - loading to the current AppDomain.</p>
+
+
+			
+<p style="margin-left: 40px;"><span style="color: rgb(51, 0, 153);">public AsmHelper(string 
+					asmFile, string domainName, bool deletOnExit)</span> - loading to the 
+				temporary AppDomain</p>
+
+
+			
+<p style="margin-left: 40px;"></p>
+
+
+			
+<p>
+				This is done in order to overcome the limitation of the CLR with respect to 
+				loaded assemblies:</p>
+
+
+			
+<p style="font-weight: bold; margin-left: 40px; font-style: italic;"><span style="font-weight: normal;">Once 
+					the assembly loaded it cannot be unloaded any more.</span><br>
+
+
+			</p>
+
+
+			
+<p>
+				Use the remote loading carefully as it introduces important constraint on the 
+				types implemented in your script:</p>
+
+
+			
+<p style="font-weight: bold; margin-left: 40px; font-style: italic;">
+				The type, which is to cross AppDomain boundaries must be either serializable or 
+				inherited from MarshalByRefObject.</p>
+
+
+			
+<p>
+				Thus, if you repeat the test for creating <span style="color: rgb(51, 0, 153);">IComparable</span>
+				object with the "Unload when done" check box checked, you will have an 
+				exception because class Script is neither serializable nor <span style="color: rgb(51, 51, 255);">
+					<span style="color: rgb(51, 0, 153);">MarshalByRefObject</span></span>.
+				<br>
+
+
+			</p>
+
+
+			
+<div style="text-align: center;"><img style="width: 482px; height: 134px;" alt="" src="Images/textprocessor4.PNG"></div>
+
+
+			
+<p><br>
+
+
+			</p>
+
+
+			
+<h4 class="dtH4">
+				Summary&nbsp;</h4>
+
+
+			
+<p>In this tutorial almost all possible execution scenarios were implemented just 
+				to demonstrate all available implementation options. However it is unlikely you 
+				would need to implement all of them in real development. The next tutorial (<a href="Image_processor.html">Image 
+					Processor</a>) is an example of more practical/simple approach where the 
+				host application is implemented according "<a href="Script_hosting_guideline_.html">Script 
+					hosting guideline</a>".
+				<br>
+
+
+			</p>
+
+
+			
+<p></p>
+
+
+			
+<h4 class="dtH4">See Also
+			</h4>
+
+
+			
+<p><a href="Tutorial.html">CS-Script tutorials</a>&nbsp;| <a href="Type_sharing_patern.html">
+					"Type sharing" pattern</a> | <a href="Dynamic_assembly_loading.html">Dynamic 
+					assembly loading&nbsp;</a></p>
+
+
+			<span style="text-decoration: underline;">
+				<br>
+
+
+				<br>
+
+
+			</span>
+			<object style="display: none;" type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true">
+				<param name="Keyword" value="Script Hosting tutorial">
+			</object>
+		</div>
+
+
+	
+</body>
+</html>

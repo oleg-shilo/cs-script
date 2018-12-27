@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Image processor</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            <br>
+</td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Image Processor</h1>
+      </div>
+    </div>
+<div id="nstext">
+<h4 class="dtH4">Step-by-step tutorial&nbsp;</h4>
+<p>
+This tutorial will demonstrate how to create a simple "image editor"
+application (<span style="font-style: italic;">Image Processor</span>), which uses collection of C# script files for image manipulations. <a href="Type_sharing_patern.html">"Type sharing" pattern</a>&nbsp; in this
+tutorial is implemented with passing custom type between the script
+host and the actual script.&nbsp;</p>
+<p>It is highly advisable to read the "<a href="Passing_custom_type_between_script_and_host.html">Passing custom type...</a>" section before starting this tutorial.</p>
+<p>This&nbsp; tutorial as an example of balanced approach for implementing
+the script host application. This approach is based on the general script hosting concept described in the "<a href="Script_hosting_guideline_.html">Script hosting guideline</a>" section.&nbsp;</p>
+<p>Only the code, which logically belongs to the script hosting
+implementation will be discussed here. To accomplish this tutorial you will need to download <a href="Tutorial/ImageProcessor/ImageProcessor.zip"><span style="font-style: italic;">ImageProcessor.zip</span></a> file. Then extract the content of the zip file in the convenient location.</p>
+<p>The host application for this tutorial comes in two flavors: C# script
+(<span style="font-style: italic;">imageprocessor.cs</span>) and Visual Studio 2003 (VS7.1) project (content of extracted folder imageprocessor ). All code snippets in
+this tutorial are taken from the <a href="Tutorial/ImageProcessor/imageprocessor.cs"><span style="font-style: italic;">imageprocessor.cs</span></a> script however they are applicable to the VS7.1 project to the same degree.</p>
+<p>This tutorial demonstrates how to:</p>
+<ul>
+  <li>load and execute C# script file from the application&nbsp;</li>
+  <li>pass and retrieve custom type between the C# script and the host application&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+</ul>
+<p>Firstly let's see the <span style="font-style: italic;">Image Processor</span> action:<br>
+</p>
+<ol>
+  <li>Open command prompt. Make sure current directory is the directory where content of <span style="font-style: italic;">ImageProcessor.zip</span> is extracted.&nbsp;</li><li>Start <span style="font-style: italic;">Image Processor</span> by executing the following command in command prompt:<br>
+    <div style="width: 720px;" class="syntax">csws imageprocessor&nbsp;&nbsp;&nbsp; <br>
+    </div>
+  </li>
+</ol>
+<p>
+<br>
+</p>
+<h4 class="dtH4">Output</h4>
+<p>The script will create and show the following dialog.&nbsp;</p>
+<p style="text-align: center;"><img style="width: 524px; height: 252px;" alt="" src="Images/imageprocessor.PNG"></p>
+<p>&nbsp;<br>
+The right panel (script panel) contains names of the C# script files
+from the ImageProcessor/Scripts folder. These files contain some image
+manipulation routine. If you double-click on the item in a script list
+the corresponding script will be executed. Script execution means
+passing the image (left panel) to the script and
+retrieving it back with some modifications. This is the result of
+execution the "RedOff" script (it removes the red color component from
+every pixel in the image):</p>
+<p style="text-align: center;"><img style="width: 524px; height: 252px;" alt="" src="Images/imageprocessor1.PNG"></p>
+<p>
+<br>
+</p>
+<h4 class="dtH4">Code discussion</h4>
+<p></p>
+<p style="font-style: italic;">Application design considerations</p>
+<p>The following are the rules that affect application design:</p>
+<ul>
+  <li>
+The valid script file is a file containing C# code with implementation of public class <span style="color: rgb(51, 0, 153);">ImageEditorScript.</span></li>
+  <li>The class <span style="color: rgb(51, 0, 153);">ImageEditorScript </span>must have&nbsp;<span style="color: rgb(51, 0, 153);">public static&nbsp;</span>method: <span style="color: rgb(51, 0, 153);">Image Modify (Image)</span>;</li>
+</ul><br><p>This is an example of a very simple class that implements <span style="color: rgb(51, 0, 153);">rendering of watermark</span> (<span style="font-style: italic;">Watermark.cs</span>):</p>
+<br>
+<table style="width: 742px; text-align: left; height: 348px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System.Drawing;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.Drawing.Imaging;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.Drawing.Drawing2D;<br>
+      <font color="#0000ff" size="2"></font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <br>
+      <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;ImageEditorScript<br>{<br>
+&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;Image&nbsp;Modify(Image&nbsp;image)&nbsp;<br>
+&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bitmap&nbsp;newBitmap&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;Bitmap(image.Width,&nbsp;image.Height,&nbsp;PixelFormat.Format32bppArgb);<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">using</font>&nbsp;(Graphics&nbsp;g&nbsp;=&nbsp;Graphics.FromImage(newBitmap))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g.DrawImage(image,&nbsp;0.0f,&nbsp;0.0f);&nbsp;<font color="#008000" size="2">//draw&nbsp;original&nbsp;image<br>
+      </font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g.DrawString(&nbsp;<font color="#800000" size="2">"Watermark"</font>,&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;Font(<font color="#800000" size="2">"Arial"</font>,&nbsp;30),&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;SolidBrush(Color.FromArgb(90,&nbsp;255,&nbsp;255,&nbsp;255)),&nbsp;20,&nbsp;20);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;newBitmap;<br>
+&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<p></p>
+<p>The host application contains class&nbsp;<span style="color: rgb(51, 0, 153);">Script</span> which manages
+compiling and loading the script file. It loads the script file by
+using&nbsp;<span style="color: rgb(51, 0, 153);">CSScript.LoadCode()</span> method.&nbsp;</p>
+<table style="text-align: left; width: 748px; height: 33px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">CSScript.Load(file,&nbsp;null,&nbsp;<font color="#0000ff" size="2">true</font>);</font></td>
+    </tr>
+  </tbody>
+</table>
+<p>Class <span style="color: rgb(51, 0, 153);">Script</span> has the method <span style="color: rgb(0, 0, 153);">Modify</span>, which "borrows" the implementation from the associated script file. This is how it is used in the <br>
+host:</p><br><table style="text-align: left; width: 752px; height: 124px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">public</font>&nbsp;Image&nbsp;Modify(Image&nbsp;image)<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;</font><font face="Courier New" size="2"><font color="#0000ff" size="2">var</font></font><font face="Courier New" size="2"> Modify&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;CSScript.Load(file,&nbsp;null,&nbsp;<font color="#0000ff" size="2">true</font>)<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;.GetStaticMethod</font><font face="Courier New" size="2">(<font color="#800000" size="2">"*.Modify"</font>,&nbsp;image)</font><font face="Courier New" size="2">; </font><font face="Courier New" size="2"><font color="#008000" size="2">//or just GetStaticMethod()</font></font><br><font face="Courier New" size="2"><br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;(Image)</font><font face="Courier New" size="2">Modify</font><font face="Courier New" size="2">(<font color="#800000" size="2"></font>image);<br>}</font></td></tr></tbody></table>
+<p>Note that it is possible to cache compiled script in this class
+(Script) however&nbsp;CSScript can do it for you. Regardless how many
+times you call CSScript.Load()&nbsp;it compiles script only if it was changed since the last execution.</p>
+<h4 class="dtH4">See Also&nbsp;</h4>
+<p><a href="Tutorial.html">CS-Script tutorials</a>&nbsp;| <a href="Type_sharing_patern.html">"Type sharing" pattern</a> |&nbsp;<a href="Passing_custom_type_between_script_and_host.html">Passing custom type...</a>&nbsp;|&nbsp;<a href="Script_hosting_guideline_.html">Script hosting guideline</a>&nbsp;</p>
+<p></p>
+<br>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="Script Hosting tutorial">
+</object>
+</div>
+</body></html>

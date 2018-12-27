@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Using CS-Script with NAnt</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<xml></xml>
+<link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> <br>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Using CS-Script with
+NAnt</h1>
+</div>
+</div>
+<br>
+<div id="nstext"><font face="Arial" size="2"><span><span style="font-weight: bold;"></span></span></font>
+<h4 class="dtH4">Overview<br>
+</h4>NAnt is a&nbsp;is a free and open source software tool for
+automating software build processes. &nbsp;It uses its own XML based
+syntax for defining business logic of the build process. The native
+functionality of NAnt can be extended with custom <span style="font-style: italic;">Tasks </span>implemented
+as an external .NET assemblies. However in some cases when you do not
+want to develop a full scale assembly for the task that is frequently
+changes&nbsp;or not to be reused it might be preferable to specify an
+assembly in a form of C#&nbsp;script file or even embedded C# code
+(CDATA). In fact if you can even use other (non-C#) .NET languages if
+supported.<br><br><div style="margin-left: 40px;">Thus CS-Script extends NAnt functionality and logically&nbsp;this article should belong to <a style="font-style: italic;" href="Extending_applications.html">Extending Applications with Scripting</a>
+chapter but it is represented here as the majority of developers would
+expect any information about &nbsp;NAnt to be placed in the <span style="font-style: italic;">Development Tools</span> chapter.</div><br>This
+functionality is similar, in some degree, to the NAnt &lt;script&gt;
+task. However CS-Script implementation allows&nbsp;unrestricted
+bi-directional data exchange between NAnt runtime and&nbsp;CS-Script
+script code and also execution o the standalone C# files which can be
+developed ans maintained outside of the NAnt environment if required.<br><br>CS-Script task can be defined in NAnt script by its name&nbsp;<font style="color: rgb(0, 0, 153);" face="Courier New" size="2">&lt;CSScript /&gt;</font>:<br><br><table style="text-align: left; width: 706px; height: 172px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2">&lt;?xml&nbsp;version=<font color="#800000" size="2">"1.0"</font>?&gt;<br>&lt;project&nbsp;name=<font color="#800000" size="2">"MyProject"</font>&nbsp;<font color="#0000ff" size="2">default</font>=<font color="#800000" size="2">"build"</font>&nbsp;basedir=<font color="#800000" size="2">"."</font>&gt;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;loadtasks&nbsp;assembly=<font color="#800000" size="2">"CSScript.Tasks.dll"</font>/&gt;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;target&nbsp;name=<font color="#800000" size="2">"scriptTest"</font>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;CSScript&nbsp;file=<font color="#800000" size="2">"script.cs"</font>&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/target&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>...</font></td></tr></tbody></table><br>CSScript task interface is very simple and supports only a few attributes:<table style="width: 707px; height: 244px;" class="dtTABLE" cellspacing="0"><tbody><tr valign="top">
+      <th>Attribute</th>
+      <td style="background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Type</span></td><th style="width: 649px;">Description</th><td style="background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Context</span></td><td style="background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Required</span></td>
+    </tr>
+    <tr valign="top">
+      <td>file</td>
+      <td style="text-align: center;">string</td><td style="width: 649px;">Absolute or relative path of the script file to execute.&nbsp;<br><font color="#000080"></font></td><td>No embedded C# code (CDATA) specified.</td><td>false</td>
+    </tr>
+    <tr valign="top">
+      <td>method</td>
+      <td>bool</td><td style="width: 649px;">Indicates if the embedded script code is a method definition only (true) or a full script (false).&nbsp;</td><td>Embedded C# code (CDATA) specified.</td><td>false</td>
+    </tr>
+    <tr>
+      <td>entryPoint</td>
+      <td>string</td><td>Defines static entry point (method name) of the script code.</td><td>Embedded C# code (CDATA) specified.</td><td>false</td>
+    </tr>
+    <tr valign="top">
+      <td>verbose</td>
+      <td>bool</td><td style="width: 649px;">
+           Determines whether the task should report detailed build log messages. The default is <b>false</b>.</td><td><br>
+</td><td>false</td>
+    </tr>
+    </tbody></table><br><i>Note: </i><span style="font-style: italic;">CSScript task interface&nbsp;</span><i>may very from version to
+version.</i><br><span style="font-weight: bold;"></span><h4 class="dtH4">Executing C# script files from NAnt script<br>
+</h4>You can execute&nbsp;C# file by specifying its path as the <span style="font-style: italic;">file </span>attribute value. The C# script (as any other CS-Script script) needs to have traditional CLR assembly entry point "static Main".<br><br><span style="font-weight: bold; font-style: italic;">Executing C# script file in isolation<br></span><br><span style="font-style: italic;">NAnt script:</span><br><table style="text-align: left; width: 707px; height: 156px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2">&lt;?xml&nbsp;version=<font color="#800000" size="2">"1.0"</font>?&gt;<br>&lt;project&nbsp;name=<font color="#800000" size="2">"CSScriptTest"</font>&nbsp;<font color="#0000ff" size="2">default</font>=<font color="#800000" size="2">"build"</font>&nbsp;basedir=<font color="#800000" size="2">"."</font>&gt;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;loadtasks&nbsp;assembly=<font color="#800000" size="2">"CSScript.Tasks.dll"</font>/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;target&nbsp;name=<font color="#800000" size="2">"ioTest"</font>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;CSScript&nbsp;file=<font color="#800000" size="2">"script.cs"</font>&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/target<br>...</font></td></tr></tbody></table><br><span style="font-style: italic;"></span><span style="font-style: italic;">C# script (script.cs):</span><br><table style="text-align: left; width: 704px; height: 156px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br><br><font color="#0000ff" size="2">class</font>&nbsp;Script<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Hi there"</font>);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</font></td></tr></tbody></table><br><span style="font-weight: bold; font-style: italic;"></span><br><span style="font-weight: bold; font-style: italic;">Reading and writing project properties from the script</span><br>In the following code sample demonstrates how&nbsp;NAnt project property&nbsp;<font face="Courier New" size="2"><font color="#800000" size="2">strData</font></font> can be&nbsp;accessed from&nbsp;the C# script. The C# script also adds a new property <font face="Courier New" size="2"><font color="#800000" size="2">data.out.value</font></font> to the NAnt project.<br><br><span style="font-style: italic;">NAnt script:</span><br><table style="text-align: left; width: 704px; height: 108px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2">&lt;property&nbsp;name=<font color="#800000" size="2">"strData"</font>&nbsp;value=<font color="#800000" size="2">"Hi&nbsp;there"</font>/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&lt;target&nbsp;name=<font color="#800000" size="2">"ioTest"</font>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;CSScript&nbsp;file=<font color="#800000" size="2">"script.data.io.cs"</font>&nbsp;/&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;echo&nbsp;message=<font color="#800000" size="2">"Data&nbsp;returned&nbsp;by&nbsp;the&nbsp;task:&nbsp;${data.out.value}"</font>&nbsp;/&gt;<br>&lt;/target&gt;<br></font></td></tr></tbody></table><br><span style="font-style: italic;">C# script (script.data.io.cs):</span><br><table style="text-align: left; width: 703px; height: 172px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br><font color="#0000ff" size="2"></font><br><font color="#0000ff" size="2">class</font>&nbsp;Script<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"strData&nbsp;=&nbsp;"</font>&nbsp;+&nbsp;NAntRuntime.Project.Properties[<font color="#800000" size="2">"strData"</font>]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NAntRuntime.Project.Properties[<font color="#800000" size="2">"data.out.value"</font>]&nbsp;=&nbsp;<font color="#800000" size="2">"test&nbsp;return&nbsp;data"</font>;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</font></td></tr></tbody></table><br><span style="font-weight: bold; font-style: italic;">Returning an error from the script</span><br>If
+you want to return an error from the C# script you just need to throw
+an exception and it will be propagated to the NAnt runtime as a task
+error:<br><br><table style="text-align: left; width: 700px; height: 156px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br><br><font color="#0000ff" size="2">class</font>&nbsp;Script<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">throw</font>&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;Exception(<font color="#800000" size="2">"The&nbsp;script&nbsp;file&nbsp;has&nbsp;raised&nbsp;an&nbsp;error."</font>);<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</font></td></tr></tbody></table><br><h4 class="dtH4">Executing C# code&nbsp;from NAnt script<br>
+</h4><span style="font-style: italic;"><br><span style="font-weight: bold;">Executing a single C# method</span></span><br>You
+can execute&nbsp;C# code embedded as CDATA into NAnt script. With
+embedded code you have an option of specifying a single method or full
+scale script. <br><br>The following is an example of a single method embedded script:<br><br><table style="text-align: left; width: 700px; height: 172px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2">&lt;target&nbsp;name=<font color="#800000" size="2">"methodTest"</font>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;CSScript&nbsp;method=<font color="#800000" size="2">"true"</font>&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;![CDATA[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Task()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Hello&nbsp;World&nbsp;(from&nbsp;method)"</font>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;]]&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/CSScript&gt;<br>&lt;/target&gt;<br></font></td></tr></tbody></table><br>Note
+that name of the method is irrelevant as long as it is static void
+method with no arguments it will be found and executed by CSScript task.<br><br><span style="font-style: italic; font-weight: bold;">Executing a full C# script&nbsp;with custom entry point</span><br>If
+you need to execute complete C# script with the class infrastructure
+you can choose what static method to execute by specifying the <span style="font-style: italic;">entryPoint</span> attribute value:<br><br><table style="text-align: left; width: 699px; height: 316px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2">&lt;target&nbsp;name=<font color="#800000" size="2">"codeTest"</font>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;CSScript&nbsp;entryPoint=<font color="#800000" size="2">"Task"</font>&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;![CDATA[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">using</font>&nbsp;System;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Script<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Task()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SayHello(<font color="#800000" size="2">"Hello&nbsp;World&nbsp;(from&nbsp;'Task'&nbsp;method)"</font>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;SayHello(<font color="#0000ff" size="2">string</font>&nbsp;greeting)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(greeting);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;]]&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/CSScript&gt;<br>&lt;/target&gt;<br></font></td></tr></tbody></table><br><span style="font-style: italic; font-weight: bold;">Executing a full C# script&nbsp;with standard entry point<br></span>Should you decide to use the usual CLR assembly entry point you do not need to specify any task attributes:<br><br><table style="text-align: left; width: 698px; height: 332px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2">&lt;target&nbsp;name=<font color="#800000" size="2">"codeTest"</font>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;CSScript&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;![CDATA[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">using</font>&nbsp;System;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Script<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SayHello(<font color="#800000" size="2">"Hello&nbsp;World&nbsp;(from&nbsp;code)"</font>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;SayHello(<font color="#0000ff" size="2">string</font>&nbsp;greeting)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(greeting);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;]]&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/CSScript&gt;<br>&lt;/target&gt;<br></font></td></tr></tbody></table><br><span style="font-style: italic; font-weight: bold;">Reading project properties from&nbsp;C# script<br></span>You can access NAnt project variables through&nbsp;<span style="font-style: italic;">NAntRuntime.Project.Properties</span>
+as in one of the examples above but if you need only to read property
+value from the script you can specify it directly in the C# code in the
+traditional NAnt way:<br><br><table style="text-align: left; width: 698px; height: 204px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2">&lt;property&nbsp;name=<font color="#800000" size="2">"strData"</font>&nbsp;value=<font color="#800000" size="2">"Hi&nbsp;there"</font>/&gt;<br><br></font><font face="Courier New" size="2">&lt;target&nbsp;name=<font color="#800000" size="2">"codeTest"</font>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;CSScript&nbsp;method=<font color="#800000" size="2">"true"</font>&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;![CDATA[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Task()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"${strData}"</font>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;]]&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/CSScript&gt;<br>&lt;/target&gt;<br></font></td></tr></tbody></table><br><br><span style="font-weight: bold; font-style: italic;">Debugging C# scripts</span><br>You
+can trigger attaching the system CLR debugger to C# script being
+executed by placing an Assert statement directly into the embedded
+code: <br><br><table style="text-align: left; width: 697px; height: 188px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2">&lt;target&nbsp;name=<font color="#800000" size="2">"debugTest"</font>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;CSScript&nbsp;method=<font color="#800000" size="2">"true"</font>&nbsp;&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;![CDATA[<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Task()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.Diagnostics.Debug.Assert(<font color="#0000ff" size="2">false</font>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(NAntRuntime.Project.Properties[<font color="#800000" size="2">"strData"</font>]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;]]&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/CSScript&gt;<br>&lt;/target&gt;<br></font></td></tr></tbody></table><br><br><span style="font-style: italic;">The all samples above are taken from&nbsp;&lt;cs-script&gt;\Samples\NAnt\default.build&nbsp;NAnt script file. </span><br><br><br><br>
+<a href="ws.html"><span style="text-decoration: underline;">
+</span></a></div>
+</body></html>

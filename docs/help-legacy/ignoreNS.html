@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Ignoring Namespaces</title>
+
+
+  
+  <meta content="text/html; charset=Windows-1252" http-equiv="Content-Type">
+  <meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+  <xml></xml>
+  <link href="MSDN.css" type="text/css" rel="stylesheet"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Ignoring Namespaces</h1>
+</div>
+</div>
+<br>
+<div id="nstext"><font face="Arial" size="2"><span><span style="font-weight: bold;"></span></span></font><br>
+CS-Script is capable of&nbsp;resolving referenced in code namespaces (with <span style="font-style: italic;">using</span>
+statements) into assembly file names and loading these assemblies
+automatically. However in some cases such resolving needs to be
+suppressed. The typical example of such scenario is a case when two
+versions of the assembly implementing the same namespace are present on
+PC in such case there is no warranty which one the script engine will
+find first. For such situations you may consider disabling resolving of
+a particular namespace and loading it's assembly explicitly. <br>
+<br>
+<p>This is the directive to ignore namespace during namespace-to-assembly resolving:</p>
+<div style="width: 830px;" class="syntax">&nbsp;//css_ignore_namespace &lt;namespace&gt;;</div>
+<p><b>namespace </b>- name of the namespace&nbsp;to be ignored</p>
+<p>The shorter alias directive&nbsp;<span style="font-weight: bold; font-style: italic;">//css_ignore_ns</span> can&nbsp;be used in 
+place&nbsp;of the <span style="font-weight: bold; font-style: italic;">//css_ignore_namespace</span>.</p>
+<br>
+The following&nbsp;is the example which demonstrates how to prevent CS-Script from using default <span style="font-style: italic;">CSScriptLibrary.dll</span> assembly and load different version of it<span style="font-style: italic;"> CSScriptLibrary.v3.5.dll</span>.<br>
+<br>
+<table style="width: 850px; text-align: left; height: 140px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_reference&nbsp;CSScriptLibrary.v3.5.dll;&nbsp;<br>
+      </font><font color="#008000" size="2">//css_ignore_ns&nbsp;CSScriptLibrary;&nbsp;<br>
+      </font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2"></font><font color="#0000ff" size="2">using</font>&nbsp;CSScriptLibrary;<br>
+      <br>
+      <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Host<br>
+{<br>
+&nbsp; ....</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+It <span style="color: rgb(0, 0, 153);">//css_ignore_ns</span> was not present in the code the script engine would resolve<span style="color: rgb(0, 0, 153);"> </span><span style="font-style: italic; color: rgb(0, 0, 153);">using CSScriptLibrary</span>&nbsp;into <span style="font-style: italic;">CSScriptLibrary.dll. </span><span style="color: rgb(0, 0, 153);">//css_ignore_ns</span><span style="font-style: italic;"> </span>directive simply excludes <span style="font-style: italic; color: rgb(0, 0, 153);">CSScriptLibrary</span> namespace from resolving and allows developer to load desired assembly explicitly (<span style="color: rgb(0, 0, 153);">//css_reference CSScriptLibrary.v3.5.dll;</span>). <br><br><span style="font-weight: bold;">Note:</span> a single '<span style="color: rgb(0, 0, 153);">//css_ignore_ns *</span>' directive completle disables any resolving of name spaces.<br>
+<br>
+<br>
+<h4 class="dtH4">See Also<br>
+</h4>
+<a href="Using_.NET_assemblies.html">Using .NET assemblies</a>
+<a href="ws.html"><span style="text-decoration: underline;">
+</span></a></div>
+</body></html>

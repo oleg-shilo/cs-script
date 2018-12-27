@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Script Engine Directives</title>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="divID" class="dtBODY">
+<div id="nstext">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</div><font face="Arial" size="2"><span><span style="font-weight: bold;"></span></span></font>The way how a script file&nbsp;processed at the execution time is controlled by the <a href="Config.html">scripting engine runtime settings</a>, <a href="Command-line_Interface.html">command line parameters</a> and Script Engine Directives. <br>
+<span style="font-style: italic;">Directives</span> are special instructions for the script engine,&nbsp;which can be specified in the script code. <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-style: italic;">The
+set of CS-Script directives is the foundation for achieving the
+advanced level of functionality with scripting. They are the technical
+base for the implementation of the multi-file scripts, seamless access
+to COM, WebService, Remoting and initial support for .NET3.0.</span><br>
+</div>
+<br>
+It is important to remember that&nbsp;CS-Script&nbsp;is a&nbsp;system
+based on the&nbsp;ECMA-compliant C#. This means that&nbsp;CS-Script
+engine does not allow any code in the script which does not comply with
+C# official syntax. That is why all <span style="font-style: italic;">directives</span>
+are&nbsp;implemented as code comments. This way&nbsp;script code is
+not polluted with text, which can prevent compilation with the C#
+compiler. <br>
+<br>
+The convention is that all <span style="font-style: italic;">directives</span> start with <span style="font-style: italic;">//css</span>. &nbsp;And currently there are only 4 directives supported (subject of changes for the future versions):<br>
+<ul>
+  <li><a href="Importing_scripts.html">//css_import&nbsp;</a></li>
+  <li><a href="Using_.NET_assemblies.html">//css_reference</a></li>
+  <li><a href="pre_post_scripts.html">//css_prescript and //css_postscript</a> </li>
+  <li><a href="Using_Resources.html">//css_resource</a></li>
+  <li><a href="Embedded_Arguments.html">//css_args</a></li><li><a href="Adding_Searchdirs.html">//css_searchdir&nbsp;</a></li><li><a href="ignoreNS.html">//css_ignore_namespace</a></li>
+  <li><a href="precompiler_directive.html">//css_precompiler</a></li><li><a href="script_nugets.html">//css_nuget</a></li>
+
+</ul>
+<div style="margin-left: 40px;"><span style="font-style: italic;">The full description of a particular directive can be found in the corresponding article (follow the directive links).</span><br>
+</div>
+<br>
+All directives are duplicated with corresponding shorter aliases (etc. //css_reference and //css_ref). <br>
+<br>
+Any directive is interpreted&nbsp;by C# compiler&nbsp;as a comment.
+&nbsp;In order to shield it from the C# compiler a given single directive has
+to be written as a single line. It also must be placed before any
+namespace or class declaration.<br>
+<br>
+If you need to use <span style="font-style: italic;">directives</span>&nbsp;in
+non-C# language specify it as a&nbsp;language specific comment in order
+to have no impact on compilation by this language compiler. For example
+for VB&nbsp;preface the directive with VB comment token:<br>
+<br>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">' //css_reference&nbsp;"System.dll";<br>
+      </font></font><font face="Courier New" size="2"><font color="#008000" size="2">' //css_reference&nbsp;"System.Windows.Forms.dll";</font></font><br>
+      <font face="Courier New" size="2">Imports&nbsp;System<br>
+Imports&nbsp;System.Windows.Forms<br>
+      <font color="#800000" size="2"><br>
+      </font></font><font face="Courier New" size="2">Module&nbsp;Module1<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;Sub&nbsp;Main()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</font><font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;</font><font face="Courier New" size="2">MessageBox.Show(<font color="#800000" size="2">"Hello&nbsp;World!"</font>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;End&nbsp;Sub<br>
+      <br>
+End&nbsp;Module<br>
+      </font></td>
+    </tr>
+  </tbody>
+</table><br><h4 class="dtH4">Delimiters Escaping</h4>All //css_*
+directives should escape any internal CS-Script delimiters by doubling
+the delimiter character. For example //css_include for
+'script(today).cs' should escape brackets as they are the directive
+delimiters. Thus the correct syntax would be as follows '//css_include
+script((today)).cs;'<br>The delimiters characters are
+';,(){}'.&nbsp;However you should always check
+CSharpParser.DirectiveDelimiters for the accurate list of the all
+delimiters.<br>
+
+<font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span></span></font><br>
+<h4 class="dtH4">See Also</h4>
+<br>
+<a href="Alternative_Compilers.html"></a><a href="Importing_scripts.html">Importing&nbsp;scripts</a>&nbsp;|&nbsp;<a href="Using_.NET_assemblies.html">Using&nbsp;.NET&nbsp;assemblies</a> | <a href="pre_post_scripts.html">Pre-&nbsp;and&nbsp;Postscripts</a>&nbsp;| <a href="Using_Resources.html">Using Resources</a><br>
+<br>
+<a href="ws.html"><span style="text-decoration: underline;">
+</span></a></div>
+</body></html>

@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>shell extension</title>
+  
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            <br>
+</td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Creating shell extension</h1>
+      </div>
+    </div>
+<div id="nstext">
+<h4 class="dtH4">Step-by-step tutorial&nbsp;</h4>
+<p>Throughout the documentation many of samples require execution of
+some
+commands from command-prompt. It would be more convenient if there was
+a way to open the command prompt window with a specific directory set as
+a current directory.</p>
+<p>The following tutorial shows how to create and execute script that
+creates shell extension 'Cmd'. This extension allows to
+open&nbsp;command-prompt pointing to the directory where
+'right-clocked' file is.</p>
+<ol>
+  <li>By using any text editor (eg. <span style="font-style: italic;">Notepad.exe</span>) create file <span style="font-style: italic;">cmdShell.cs</span> that contains the following code:<br>
+    <br>
+    <table style="width: 655px; text-align: left; height: 524px;" border="1" cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+          <font color="#0000ff" size="2">using</font>&nbsp;Microsoft.Win32;<br>
+          <br>
+          <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>&nbsp;[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(args.Length&nbsp;==&nbsp;1)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(args[0].ToLower()&nbsp;==&nbsp;<font color="#800000" size="2">"/u"</font>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">try</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Registry.ClassesRoot.DeleteSubKeyTree(@<font color="#800000" size="2">"*\shell\Cmd"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Shell&nbsp;extension&nbsp;'Cmd'&nbsp;has&nbsp;been&nbsp;removed."</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">catch</font>&nbsp;(Exception&nbsp;ex)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(ex);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">else</font>&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(args[0].ToLower()&nbsp;==&nbsp;<font color="#800000" size="2">"/i"</font>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RegistryKey&nbsp;shell&nbsp;= <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Registry.ClassesRoot.CreateSubKey(@<font color="#800000" size="2">"*\shell\Cmd\command"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shell.SetValue(<font color="#800000" size="2">""</font>,&nbsp;<font color="#800000" size="2">"cmd.exe"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shell.Close();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Shell&nbsp;extension&nbsp;'Cmd'&nbsp;has&nbsp;been&nbsp;created."</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Click here to obtain full&nbsp;<a style="font-style: italic;" href="Tutorial/CmdShell.cs">listing of cmdShell.cs.</a>
+  </p>
+  </li>
+  <li>Open command prompt. Make sure current directory is the directory where <span style="font-style: italic;">cmdShell.cs</span> is located.</li>
+  <li>Execute the following command in command-prompt:<br>
+    <div style="width: 720px;" class="syntax">cscs cmdShell /i</div>
+  </li>
+</ol>
+<h4 class="dtH4">Output/Result&nbsp;</h4>
+<p>Now you can open command-prompt in a directory of your choice just by
+right clicking any file in that directory and selecting item 'Cmd' from the context menu.<br>
+</p>
+<p style="text-align: center;"><img style="width: 159px; height: 166px;" alt="" src="Images/CmdShellMenu.PNG"></p>
+<p></p>
+<h4 class="dtH4">
+ Code discussion&nbsp;</h4>
+<p>Usually context menu items for file/folder right-click event (so called
+Shell Extensions) are implemented as COM servers. However in some cases the same result can be achieved with much simpler
+implementation. In this case context menu is created by modifying the registry.&nbsp;</p>
+<p>
+Code itself is straightforward. The script uses <span style="color: rgb(51, 0, 153);">Registry</span> class which
+belongs to <span style="color: rgb(51, 0, 153);">Microsoft.Win32</span> namespace to create/delete the registry key.&nbsp;</p>
+<p></p>
+<h4 class="dtH4">See Also </h4>
+<p><a href="Tutorial.html">CS-Script tutorials</a> &nbsp;</p>
+<p></p>
+<br>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="shell extension">
+</object>
+</div>
+
+</body></html>

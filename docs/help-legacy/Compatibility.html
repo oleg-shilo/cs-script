@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Compatibility</title>
+
+
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">CS-Script version compatibility</h1>
+</div>
+</div>
+<div id="nstext">
+<p>One of the CS-Script runtime settings is&nbsp;<span style="font-style: italic;">Target CLR
+version</span>.&nbsp;This&nbsp;setting
+controls&nbsp;the version of CLR&nbsp;used to run script on a particular
+PC. Basically it means that if different versions of CLR are installed
+on the PC you can specify which one should be used.&nbsp;</p>
+<p>CS-Script version compatibilty concept is in fact the very same concept which all CLR applications follow.&nbsp;</p>
+<p style="margin-left: 40px; font-style: italic;">CLR usually can execute any assembly built for previous CLR version (however run&nbsp;time behaviour isn't garanteed).</p>
+<p style="margin-left: 40px; font-style: italic;">CLR cannot execute assembly built for CLR versions higher than the current one&nbsp;</p>
+<p>This implays some practical limitations. For example if you want to
+execute a script on&nbsp;PC with CLR v1.1 and v2.0 installed and
+CS-Script is configured to use v1.1 as a <span style="font-style: italic;">target CLR version,</span> you will not
+be able to load any assembly, which was build using .NET 2.0. &nbsp; </p>
+<p></p>
+<p><span style="font-weight: bold;">Note:</span> The CS-Script itself does not implement the compatibility
+concept as such. It is CLR who restricts or allows execution on the
+base of the particular assembly&nbsp;(including the script engine
+executable).</p>
+<p></p>
+<p>The following table describes all possible "start script" and "load
+assembly" scenarios for&nbsp;PC, which has CLR v1.1 and v2.0&nbsp;
+installed.&nbsp;&nbsp;<code class="ce"><br>
+</code></p>
+<div style="text-align: center;" class="tablediv">
+<div style="text-align: center;">
+</div>
+<table class="dtTABLE" style="text-align: left; width: 689px; height: 235px;" cellspacing="0">
+  <tbody>
+    <tr valign="top">
+      <th style="width: 167px; text-align: center; vertical-align: top;">Target CLR<br>
+version</th>
+      <td style="text-align: center; background-color: rgb(204, 204, 204); font-weight: bold;">CS-Script engine <br>
+(built using .NET version)</td>
+      <td style="text-align: center; background-color: rgb(204, 204, 204); font-weight: bold;">External assembly<br>
+(built using .NET version)</td>
+      <td style="text-align: center; background-color: rgb(204, 204, 204); font-weight: bold;">Possibility<br>
+to run <br>
+CS-Script engine?</td>
+      <td style="text-align: center; background-color: rgb(204, 204, 204); font-weight: bold;">Possiblilty<br>
+to reference <br>
+external assembly <br>
+from<br>
+script?</td>
+    </tr>
+    <tr valign="top">
+      <td style="text-align: center; width: 167px;">1.1</td>
+      <td style="text-align: center;">1.1</td>
+      <td style="text-align: center;">1.1</td>
+      <td style="text-align: center;">Yes</td>
+      <td style="text-align: center;">Yes</td>
+    </tr>
+    <tr valign="top">
+      <td style="text-align: center; width: 167px;">1.1</td>
+      <td style="text-align: center;">1.1</td>
+      <td style="text-align: center;">2.0</td>
+      <td style="text-align: center;">Yes</td>
+      <td style="text-align: center;">No</td>
+    </tr>
+    <tr valign="top">
+      <td style="text-align: center; width: 167px;">2.0</td>
+      <td style="text-align: center;">1.1</td>
+      <td style="text-align: center;">1.1</td>
+      <td style="text-align: center;">Yes</td>
+      <td style="text-align: center;">Yes</td>
+    </tr>
+    <tr valign="top">
+      <td style="text-align: center; width: 167px;">2.0</td>
+      <td style="text-align: center;">1.1</td>
+      <td style="text-align: center;">2.0</td>
+      <td style="text-align: center;">Yes</td>
+      <td style="text-align: center;">Yes</td>
+    </tr>
+    <tr valign="top">
+      <td style="text-align: center; width: 167px;">1.1</td>
+      <td style="text-align: center;">2.0</td>
+      <td style="text-align: center;">1.1</td>
+      <td style="text-align: center;">No</td>
+      <td style="text-align: center;">N/A</td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">1.1</td>
+      <td style="text-align: center;">2.0</td>
+      <td style="text-align: center;">2.0</td>
+      <td style="text-align: center;">No</td>
+      <td style="text-align: center;">N/A</td>
+    </tr>
+    <tr valign="top">
+      <td style="text-align: center; width: 167px;">2.0</td>
+      <td style="text-align: center;">2.0</td>
+      <td style="text-align: center;">1.1</td>
+      <td style="text-align: center;">Yes</td>
+      <td style="text-align: center;">Yes</td>
+    </tr>
+    <tr valign="top">
+      <td style="text-align: center; width: 167px;">2.0</td>
+      <td style="text-align: center;">2.0</td>
+      <td style="text-align: center;">2.0</td>
+      <td style="text-align: center;">Yes</td>
+      <td style="text-align: center;">Yes</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<br>
+<div style="text-align: left;"><br>
+You can see now why the currently released version of CS-Script is buit
+using .NET 1.1. It is because this build can run on both .NET 1.1 and
+.NET
+2.0. &nbsp;It is possible because the script engine is implemented
+without using any version specific CLR features. This approach will be
+used in the future as long as the latest&nbsp;released version of .NET
+does not break it's backward compatibility.<br>
+<span style="font-weight: bold;"></span></div>
+<h4 class="dtH4"><br>
+</h4>
+<p><span style="font-weight: bold;">Note:</span> selecting specific
+version of CLR a s <span style="font-style: italic;">Target CLR
+version </span>does not make your script to be executed under the
+selected CLR but only compiled. If you want your script to be fully
+hosted under a specific CLR you need to use the hosating control
+directive (<a href="hosting_control.html">//css_host</a>) in your script.</p>
+<span style="font-style: italic;"></span>
+<h4 class="dtH4">See Also&nbsp;</h4>
+
+<p><a href="Alternative_Compilers.html"></a><a href="Config.html">CS-Script settings</a></p>
+</div>
+<br>
+</body></html>

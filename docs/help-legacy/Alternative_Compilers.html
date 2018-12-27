@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+  <title>Alternative compilers</title><meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Alternative Compilers</h1>
+</div>
+</div>
+<div id="nstext">
+<div>CS-Script&nbsp;supports&nbsp;C# and some other CLR languages (currently JScript, VB.NET, &nbsp;C++/CLI and CC#).
+<p>Support for non-C# languages is provided by the means of plug'n'play compilers
+(code
+providers) implemented as an external assembly. It means that you can
+implement your own compiler for non-C# syntax or use any existing one.</p>
+<p>The current version of CS-Script code is distributed
+with&nbsp;the <span style="font-style: italic;">cs-script/Lib/CSSCodeProvider.dll
+</span>assembly which&nbsp;provides access to Microsoft
+JScript,&nbsp;VB.NET and C++/CLI compilers.&nbsp;See <a href="non_cs_compilers.html">Implementing
+non-C# compilers</a> tutorial for details.</p>
+<p> If you want to use <span style="font-style: italic;">CSSCodeProvider.dl&nbsp;</span>you
+will need to specify it's location as a value for the <span style="font-style: italic;">UseAlternativeCompiler</span>
+property in the <a href="Config.html">CS-Script
+configuration</a> console.</p>
+<p>When the alternative compiler (<span style="font-style: italic;">CSSCodeProvider.dll</span>
+) is enabled, script files are always
+compiled by&nbsp;the specific language compiler depending on the
+script file extension (g.e. <span style="color: rgb(51, 0, 153);">.vb</span>
+- VisualBasic, <span style="color: rgb(51, 0, 153);">.js</span>
+- Java, <span style="color: rgb(51, 0, 153);">.cs</span>
+- C#, <span style="color: rgb(51, 0, 153);">cpp</span>
+- C++).</p>
+<p>Some of the script engine features are not available for
+non-C#
+scripts. These limitations are in fact very similar to the limitations
+associated with&nbsp;running&nbsp; <a href="CS-Script_on_Mono.html">CS-Script on Mono</a>:</p>
+<ul>
+  <li>
+    <p><b>Restriction</b>: The assemblies referenced
+in the code cannot be loaded automatically. <br>
+    <b>Cause</b> : The script engine analyses only C# <span style="color: rgb(51, 0, 153);">using</span>
+statements in code.<br>
+    <b>Work around</b>: Instruct the engine to load
+assemblies explicitly.&nbsp;Make sure&nbsp;all GAC assemblies
+are
+specified as non-searchable (see <a href="Using_.NET_assemblies.html">Using .NET assemblies</a>
+for details).</p>
+  </li>
+  <li>
+    <p><b>Restriction</b>: AppartmentState cannot be
+set from the code. <br>
+    <b>Cause</b> : The script engine analyses only C# <span style="color: rgb(51, 0, 153);">[STAThread]</span>
+statements in code.<br>
+    <b>Work around</b>: Use&nbsp;<a href="Config.html">css_config.xml</a> file to specify
+AppartmentState value.</p>
+  </li>
+  <li>
+    <p><b>Restriction</b>: If the script is specified
+in command-prompt without the file extension it will be handled as a C#
+script. <br>
+    <b>Cause</b>: N/A<br>
+    <b>Work around</b>: Always use the file extension for
+non-C# scripts (e.g. <i>cscs hello.vb, cscs hello.js</i>).</p>
+  </li>
+  <li>
+    <p><b>Restriction</b>: No integration with the
+operating system is available (debugging under IDE, running with
+right-click from explorer...).<br>
+    <b>Cause</b>: N/A <br>
+    <b>Work around</b>: Always use command-prompt or batch
+files.</p>
+  </li>
+</ul>
+<br>
+<h4 class="dtH4">See Also</h4>
+<p> <a href="Command-line_Interface.html">Command-line
+interface</a> | <a href="Config.html">CS-Script
+configuration</a>&nbsp;|&nbsp;<a href="non_cs_compilers.html">Implementing non-C# compilers</a></p>
+</div>
+</div>
+<p>&nbsp;</p>
+</body></html>
+

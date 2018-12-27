@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <title>Dynamic assembly loading</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            </td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Dynamic script-assembly loading&nbsp;</h1>
+      </div>
+    </div>
+<div id="nstext">
+<p>Every time the script is executed it is always compiled into an
+assembly and after that the assembly is loaded to a particular
+AppDomain for further execution. Once assembly is loaded it cannot be
+unloaded any more. This is the limitation of CLR, which is important to
+remember when hosting the script engine. </p>
+<p>In fact the script engine itself has to handle this problem as well
+(e.g. when executing the script from command prompt) . It does this by
+relying on the fact that it is possible to unload the entire AppDomain
+with all loaded assembles. </p>
+<blockquote>
+  <p><i>
+The script-assembly (compiled script) is never loaded into current
+AppDomain. Instead, the new temporary AppDomain is created and the
+assembly is loaded into it. After execution the temporary AppDomain is
+unloaded. Thus, it is possible for the script engine to clear (delete)
+the script assembly when not needed (which otherwise would be locked
+until the script process is completed). &nbsp;The only exclusion from this rule is when the script is executed with <a href="CompileAssembly.html">/c</a> switch or&nbsp;</i><span style="font-style: italic;"><a href="Config.html">CleanupShellCommand</a> in configuration is set. In this case&nbsp;</span><i>script-assembly is&nbsp;loaded into current
+AppDomain because there is no need to do any cleanup.</i> </p>
+</blockquote>
+<p>AsmHelper class, which assists with assembly loading and browsing, supports two assembly loading modes: </p>
+<ul>
+  <li>
+    <p><b>Local</b><br>
+AsmHelper instance has to be created with a constructor receiving the
+already loaded assembly (e.g. to the current AppDomain) as a parameter.
+It will use this assembly for further method invocations.</p>
+  </li>
+  <li>
+    <p><b>Remote</b><br>
+AsmHelper instance has to be created with a constructor receiving the
+assembly file name as a parameter. It would create temporary AppDomain
+and load the assembly file into it during the first call to the
+assembly method. When AsmHelper instance is disposed the temporary
+AppDomain is unloaded.<br>
+    <br>
+While the functionality of&nbsp; the AsmHelper class in the local mode
+is very simple the remote mode is more interesting as it can be quite
+useful for working with dynamic assemblies even outside of the script
+related tasks.</p>
+  </li>
+</ul>
+<p>
+<br>
+The tutorial <a href="Text_processor.html">Text Processor</a> shows how to use both Local and Remote script-assembly loading techniques. </p>
+<p>&nbsp; </p>
+<h4 class="dtH4">
+See Also </h4>
+<p><a href="ProgrammingReference.html">Reference</a> |&nbsp;<a href="Text_processor.html">Tutorial (Text Processor)</a> </p>
+<p>&nbsp; </p>
+<p>&nbsp; </p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="dynamic loading">
+</object>
+    </div>
+</body>
+</html>
+

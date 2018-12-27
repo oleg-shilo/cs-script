@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="ProgId" content="Word.Document">
+<meta name="Generator" content="Microsoft Word 14">
+<meta name="Originator" content="Microsoft Word 14">
+<link rel="File-List" href="What_is_new_files/filelist.xml">
+<link rel="Edit-Time-Data" href="What_is_new_files/editdata.mso"><title>What's new</title>
+
+<link rel="themeData" href="What_is_new_files/themedata.thmx">
+<link rel="colorSchemeMapping" href="What_is_new_files/colorschememapping.xml">
+<link rel="Stylesheet" type="text/css" media="all" href="MSDN.css">
+<style>
+</style>
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"></head>
+<body id="divID" style="background-color: white;" lang="EN-AU" link="blue" vlink="blue">
+<div class="WordSection1">
+<table class="MsoNormalTable" style="border: medium none ; background: rgb(153, 204, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 100%; border-collapse: collapse;" border="1" cellpadding="0" cellspacing="0" width="100%">
+<tbody>
+<tr style="">
+<td style="border: 1pt solid rgb(153, 153, 153); padding: 1.5pt 0cm 0cm 3pt; background: transparent none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial;">
+<i><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;"><p align="left">CS-Script 3.27.0</p></span></i>
+</td>
+<td style="border-style: solid solid solid none; border-color: rgb(153, 153, 153) rgb(153, 153, 153) rgb(153, 153, 153) -moz-use-text-color; border-width: 1pt 1pt 1pt medium; padding: 1.5pt 3.75pt 0cm; background: transparent none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial;"></td>
+</tr>
+</tbody>
+</table>
+<div id="TitleRow">
+<p class="MsoNormal" style="margin: 0cm 0cm 2.4pt -13.5pt; background: rgb(153, 204, 255) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial;"><b><span style="font-size: 10pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;">What's
+New in&nbsp;CS-<span class="GramE">Script</span>&nbsp;<o:p></o:p></span></b></p>
+</div>
+<div id="nstext">
+<h4 style="margin-left: -13.5pt;"><i><span style="font-size: 8.5pt; color: black;">This is the combined
+list of changes in
+v.3.4.0-3.9.4</span></i></h4>
+<h4 style="margin-left: -13.5pt;"><span style="font-size: 8.5pt; color: black;"><a href="https://csscriptnpp.codeplex.com/">Implemented full
+integration with Notepad++</a><o:p></o:p></span></h4>
+Implemented dedicated Notepad++ pluging for developing and executing
+CS-SCript scripts.<br>
+<br>
+<img style="width: 596px; height: 496px;" alt="CodePlex project home page" src="http://csscript.net/npp/css_npp.gif">&nbsp;&nbsp;
+<br>
+<br>
+<br>
+<h4 style="margin-left: -13.5pt;"><span style="font-size: 8.5pt; color: black;"><a href="script_nugets.html">Referencing NuGet packages from
+script</a><o:p></o:p></span></h4>
+It is now possible to reference NuGet packages from the script with
+automatic downloading the pacjkages from the official NuGet repository.<br>
+<p>This is the example&nbsp;of using the <a href="https://www.nuget.org/packages/DotNetZip/">DotNetZip</a>
+library form NuGet.org&nbsp;</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="font-family: Consolas; font-size: 13px; color: black;"><span style="color: green;">//css_nuget&nbsp;dotnetzip</span><br><span style="color: blue;">using</span>&nbsp;Ionic.Zip;<br><span style="color: blue;">using</span>&nbsp;System;<br><span style="color: blue;"></span> <br><span style="color: blue;">class</span>&nbsp;<span style="color: rgb(43, 145, 175);">Script</span><br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">static</span>&nbsp;<span style="color: blue;">public</span>&nbsp;<span style="color: blue;">void</span>&nbsp;Main(<span style="color: blue;"></span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">using</span>(ZipFile&nbsp;zip&nbsp;=&nbsp;<span style="color: blue;">new</span>&nbsp;ZipFile())<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zip.AddFile(<span style="color: rgb(163, 21, 21);">"app.exe"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zip.AddFile(<span style="color: rgb(163, 21, 21);">"readme.exe"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zip.Save(<span style="color: rgb(163, 21, 21);">"app.zip"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</pre>
+</td>
+</tr>
+</tbody>
+</table>
+<h4 class="dtH4">&nbsp;</h4>
+<h4 style="margin-left: -13.5pt;"><span style="font-size: 8.5pt; color: black;">CS-Script on
+Chocolatey<span class="SpellE"></span><o:p></o:p></span></h4>
+<span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;">Chocolatey is the repository for the Windows software packages. </span><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;">Chocolatey NuGet is a Machine Package Manager, somewhat like apt-get, but built with Windows in mind. <br>It is also the source repository of the OneGet package manager of Windows 10.<br><br>CS-Script can be installed with the following command:<br>
+<div class="nuget-badge-small"><code style="border: 4px solid rgb(192, 192, 192); padding: 15px; float: left; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 1.25em; font-family: consolas,'andale mono','lucida console',monospace; line-height: 0.9em; color: rgb(226, 226, 226); overflow: auto; width: 450px; background-color: rgb(32, 32, 32);"><span>C:\&gt;<span class="Apple-converted-space">&nbsp;</span></span>choco
+install cs-script</code></div>
+<br>
+<br>
+&nbsp;<br><br><br>Read more on Chocolatey and how to enable it on your version of windows here: <a href="https://chocolatey.org/">https://chocolatey.org/</a>&nbsp;<a href="http://nuget.codeplex.com/"><span class="SpellE"></span></a><br>
+<br>
+</span>
+<h4 style="margin-left: -13.5pt;"><span style="font-size: 8.5pt; color: black;">API Changes</span></h4>
+Implemented a nomber of small API improvements: <br>
+<ul>
+<li><font face="Verdana" size="2">Added
+setting additional includes from precompilers<span style="font-size: small;"><span style="font-size: small;"><span style="font-size: small;"><span style="font-size: small;"><span style="font-size: small;"></span></span></span></span></span></font><br>
+<pre style="font-family: Consolas; font-size: 13px; color: black;">&nbsp;<span style="color: blue;">static</span>&nbsp;<span style="color: blue;">public</span>&nbsp;<span style="color: blue;">bool</span>&nbsp;Compile(<span style="color: blue;">ref</span>&nbsp;<span style="color: blue;">string</span>&nbsp;content,&nbsp;<span style="color: blue;">string</span>&nbsp;scriptFile,&nbsp;<span style="color: blue;">bool</span>&nbsp;IsPrimaryScript,&nbsp;<span style="color: rgb(43, 145, 175);">Hashtable</span>&nbsp;context)<br>&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">if</span>&nbsp;(!IsPrimaryScript)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">return</span>&nbsp;<span style="color: blue;">false</span>;<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">var</span>&nbsp;newIncludes&nbsp;=&nbsp;(<span style="color: rgb(43, 145, 175);">List</span>&lt;<span style="color: blue;">string</span>&gt;)context[<span style="color: rgb(163, 21, 21);">"NewIncludes"</span>];<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newIncludes.Add(<span style="color: rgb(43, 145, 175);">Path</span>.Combine(<span style="color: rgb(43, 145, 175);">Path</span>.GetDirectoryName(scriptFile),&nbsp;<span style="color: rgb(163, 21, 21);">"Utils.cs"</span>));<br></pre>
+</li>
+<li><font face="Verdana" size="2">Extended
+support for AutoClasses to handle lower-case 'main' entry points.As
+well as different signatures<span style="font-size: small;"><span style="font-size: small;"><span style="font-size: small;"><span style="font-size: small;"><span style="font-size: small;"></span></span></span></span></span></font><br>
+<pre style="font-family: Consolas; font-size: 13px; color: black;">&nbsp;<span style="color: green;">//css_args&nbsp;/ac</span><br><span style="color: blue;"> using</span>&nbsp;System;<br> <br><span style="color: blue;"> void</span>&nbsp;main()<br> {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: rgb(43, 145, 175);"> Console</span>.WriteLine(<span style="color: rgb(43, 145, 175);">Environment</span>.Version);<br> }<br><br><span style="font-style: italic;"> Other acceptable signatures:</span><br> <span style="color: blue;">int</span>&nbsp;main() <br> <span style="color: blue;">int</span>&nbsp;main(<span style="color: blue;">string</span>[] args) <br> <span style="color: blue;">void</span>&nbsp;main(<span style="color: blue;">string</span>[] args)&nbsp;<br></pre>
+</li>
+<li><font face="Verdana" size="2">Added
+compiling/loading script code to strongly typed delegate
+LoadDelegate&lt;T&gt;<br>
+</font>
+<pre style="font-family: Consolas; font-size: 13px; color: black;"><span style="color: blue;"> var</span>&nbsp;Add&nbsp;=&nbsp;<span style="color: rgb(43, 145, 175);">CSScript</span>.LoadDelegate&lt;<span style="color: rgb(43, 145, 175);">Func</span>&lt;<span style="color: blue;">int</span>,&nbsp;<span style="color: blue;">int</span>,&nbsp;<span style="color: blue;">int</span>&gt;&gt;(<span style="color: rgb(163, 21, 21);">@"int&nbsp;Add(int&nbsp;a,&nbsp;int&nbsp;b)&nbsp;{&nbsp;return&nbsp;a&nbsp;+&nbsp;b;&nbsp;}"</span>); <span style="color: rgb(0, 102, 0);">//you can also use similar CSScript.Evaluator.LoadDelegate </span> <br>&nbsp;<span style="color: blue;">int</span>&nbsp;result&nbsp;=&nbsp;Add(5,6);</pre>
+</li>
+</ul>
+&nbsp;
+<h4 style="margin-left: -13.5pt;"><span style="font-size: 8.5pt; color: black;"><a href="evaluator.html">New script hosting engine based on
+Mono "compiler as service"</a><o:p></o:p></span></h4>
+It is finally here. CS-Script now allow script execution in the caller
+AppDomain without necessity to unload the script assembly. All this is
+possible due to the integration with the Mono&nbsp;"compiler as
+service". The hosting API is largely consistent with
+the&nbsp;CodeDOM
+based API: <br>
+<span style="font-style: italic;"> </span><br>
+<span style="font-style: italic;"></span><font face="Arial" size="2"><span>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="background: transparent none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; font-family: Consolas; font-size: 13px; color: black;"><span style="color: blue;">dynamic</span>&nbsp;script&nbsp;=&nbsp;<span style="color: rgb(43, 145, 175);">CSScript</span>.Evaluator<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.LoadCode(<span style="color: rgb(163, 21, 21);">@"using&nbsp;System;</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;Script</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Sum(int&nbsp;a,&nbsp;int&nbsp;b)</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;a+b;</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"</span>);<br><span style="color: blue;">int</span>&nbsp;result&nbsp;=&nbsp;script.Sum(1,&nbsp;2);</pre>
+</td>
+</tr>
+</tbody>
+</table>
+<span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;">
+</span>
+<h4 style="margin-left: -13.5pt;"><span style="font-size: 8.5pt; color: black;">New CS-Script suite
+deployment model<o:p></o:p></span></h4>
+Over the time CS-Script has grown into the full scale application
+framework. The intensive CS-Script feature set has become heterogeneous
+and sometimes not entirely consistent. Thus the necessity to separate
+main stream features (and samples) from the experimental ones has
+arisen. Starting from v3.5 CS-Script default distro includes only the
+most practical features. This dramatically simplifies the deployment
+and the navigation within the installed components. <br>
+<br>
+From another hand all other non-min stream features are still available
+as a dedicated <span style="font-style: italic;">Extension
+Pack</span> from the CS-Script Home Page. &nbsp; &nbsp;<br>
+&nbsp;&nbsp;<span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;">
+</span>
+<h4 style="margin-left: -13.5pt;"><span style="font-size: 8.5pt; color: black;"><a href="CS-Script_on_Mono.html">Full support
+for Mono/Linux</a><o:p></o:p></span></h4>
+<p class="MsoNormal" style="margin-bottom: 12pt;"><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;">CS-Script
+now has full support on Linux. While even before this release
+it was possible to execute the C# scripts on Mono only from this
+version the
+script engine implementation has been reworked to <span class="SpellE">to</span>
+bring the same level of support as on Windows.&nbsp; <br>
+</span><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;"><img id="_x0000_i1028" src="Images/Linux.png" border="0" height="543" width="973"></span><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;"><br>
+<br style="">
+<!--[if !supportLineBreakNewLine]--><br style="">
+<!--[endif]--><o:p></o:p></span></p>
+<h4 style="margin-left: -13.5pt;"><span style="font-size: 8.5pt; color: black;">CS-Script with
+Visual Studio 2012<o:p></o:p></span></h4>
+<p class="MsoNormal" style="margin-bottom: 12pt;"><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;">Added
+support for Visual Studio 2012. <br>
+CS-Script Visual Studio 2012 Extension is updated to allow automatic
+loading
+the script file on �Debug Script� shell-extension&nbsp;<a name="OLE_LINK1"><span style=""><span style="">invocation</span></span></a>.<o:p></o:p></span></p>
+<h4 style="margin-left: -13.5pt;"><span style="font-size: 8.5pt; color: black;">Workaround for
+Windows 8 / Visual Studio 2012
+Shell Extension incompatibility<o:p></o:p></span></h4>
+<p class="MsoNormal" style="margin-bottom: 12pt;"><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;">On
+Windows 8 with Visual Studio 2012 right-click menu
+configuration may conflict with the CS-Script "<em><span style="font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;;">Simplified
+Context Menu</span></em>", "<em><span style="font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;;">Advanced Shell
+Extension" </span></em>and
+<em><span style="font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;;">"Open
+Action"</span></em>
+may not work correctly in result. In such cases it is still possible to
+use
+CS-Script <em><span style="font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;;">Advanced Shell
+Extension</span></em> as long as it configured for the "<em><span style="font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;;">Use for all
+file extensions</span></em>".<br>
+<br>
+</span><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;"><img id="_x0000_i1027" src="Images/shell_ext_incompatibility.png" border="0" height="217" width="426"></span><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;"><o:p></o:p></span></p>
+<h4 style="margin-left: -13.5pt;"><span style="font-size: 8.5pt; color: black;">CS-Script on <span class="SpellE">NuGet</span><o:p></o:p></span></h4>
+<p class="MsoNormal" style="margin-bottom: 12pt;"><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;">CS-Script
+just has been published on <a href="http://nuget.codeplex.com/"><span class="SpellE">NuGet</span></a> <br>
+</span><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;"><img id="_x0000_i1026" src="Images/nuget.png" border="0" height="455" width="572"></span><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;"><o:p></o:p></span></p>
+<p class="MsoNormal" style="margin-bottom: 12pt;"><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;"><file><o:p></o:p></file></span></p>
+</div>
+<p class="MsoNormal" style="margin-bottom: 12pt;"><span style="font-size: 8.5pt; font-family: &quot;Verdana&quot;,&quot;sans-serif&quot;; color: black;"><o:p>&nbsp;</o:p></span></p>
+</div>
+</body></html>

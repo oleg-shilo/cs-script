@@ -1,0 +1,326 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+<meta content="text/html; charset=Windows-1252" http-equiv="Content-Type">
+<meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema"><title>Evaluator</title>
+
+<xml></xml>
+<link href="MSDN.css" type="text/css" rel="stylesheet"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> </td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Evaluator - Compiler
+As Service&nbsp;</h1>
+</div>
+</div>
+<div id="nstext">
+<h4 class="dtH4">Background</h4>
+<p>All versions of CS-Script prior v3.5 offered script engine
+built around .NET CodeDOM. CodeDOM has reasonably "comfortable" and
+intuitive API and it is fully suitable for the the standalone script
+execution. From another hand CodeDOM is not as suitable for the script
+hosting scenarios. The problem is that CodeDOM is&nbsp;a&nbsp;fake
+"compiler as service". While API makes an impression that the compiler
+(e.g. <span style="color: rgb(51, 51, 153);">CSharpCodeProvider</span>)
+compiles the source code in memory it is in fact saving the code into
+temporary file and&nbsp;feeding it to the conventional external compiler
+process (e.g. <span style="font-style: italic;">csc.exe</span>).
+Thus the script compilation is a relatively slow process. &nbsp;</p>
+<p><br>
+Another problem is related to the execution stage. There is this
+notorious CLR design flaw, which does not allow unloading any assembly
+once it is loaded. It is a problem because the script when it is
+compiled is an assembly and it is loaded in the current <span style="color: rgb(51, 51, 153);">AppDomain</span> thus
+if one is not careful the <span style="font-style: italic;">Memory
+Leak</span> condition can arise.</p>
+<p><br>
+CS-Script offer a&nbsp;"work around" for the both problems.
+Compiling can be in many cases completely eliminated by CS-Script
+caching. And for the unloading assembly CS-Script offers <span style="color: rgb(51, 51, 153);">AsmHelper</span>
+class, which allows execution&nbsp;of the script in the temporary <span style="color: rgb(51, 51, 153);">AdppDomain</span> and
+unloading this temp&nbsp;<span style="color: rgb(51, 51, 153);">AdppDomain</span>
+with the loaded complied script automatically after the script
+execution.&nbsp;</p>
+<p><br>
+However the caching is&nbsp;the most advantages for the standalone
+execution (not hosting). And the script execution in a separate <span style="color: rgb(51, 51, 153);">AdppDomain</span>&nbsp;requires
+all types being passed in&nbsp;and out to be serializable. It
+attracts some performance penalty associated with the crossing the
+<span style="color: rgb(51, 51, 153);">AppDomain</span> boundaries and more importantly in many cases it imposes the very
+strong and unnecessary design constraint (serialization). The constraint,
+which sometimes even impossible to satisfy to (e.g. non-serializable
+third-party sealed classes cannot be made serializable).&nbsp;</p>
+<p><br>
+All these problems could be solved only by a proper "compiler as
+service" solution. However .NET does not have one out of box.
+The&nbsp;Roslyng project is a good candidate to base the hosting
+model on. However certain technical decisions Roslyn team made
+ragarding the product functionality made it impossible to use Roslyng
+for the C# scripting. Read in details <a href="http://www.csscript.net/Roslyn.html">here</a>. </p>
+<p><br>
+From another hand Mono had "compiler as service" for some time. Its API
+is not very conventional and it also has some limitations (see further
+in the text) but it works. Thus in CS-Script v3.5 new script hosting
+model based on&nbsp;the Mono "compiler as service" (<span style="font-style: italic;">Mono.CSharp.dll</span>)
+was introduced.&nbsp;&nbsp;</p>
+<p><br>
+</p>
+<h4 class="dtH4">Hosting CS-Script Evaluator</h4>
+When hosting the CS-Script engine in the applications developers have
+two options: to use .NET CodeDOM compiler or to use Evaluator based on
+Mono "compiler as service".&nbsp;Evaluator is a preferred choice as
+it offers a better compiling performance and superior memory
+management. Evaluator is in fact the only solution, which finally solves the
+CLR <span style="font-style: italic;">Memory Leak</span>
+problem allowing same <span style="color: rgb(51, 51, 153);">AppDomain&nbsp;</span>script
+execution without any class design&nbsp;constraints. <br>
+<br>
+<div style="margin-left: 40px;">Mono "compiler as service"
+(<span style="font-style: italic;">Mono.CScript.dll</span>).
+Always loads compiled&nbsp;C#&nbsp;code (script) into the
+caller <span style="color: rgb(51, 51, 153);">AppDomain</span>
+thus it is not immune to the&nbsp;CLR <span style="font-style: italic;">Memory Leak</span> problem
+at all. The same applys to the Loaded/Referenced third-party
+assemblies. In fact Mono completely ignores the problem and does not
+even offer any work around as CS-Script does. However there is a vary
+specific scenario, which allows Mono executing the full scale C# code
+without constantly growing memory footprint and number of loaded
+assemblies. <br>
+<br>
+Thus if the various C# code snippets define the same set of types (even
+with the different implementations) are compiled with the <span style="color: rgb(51, 51, 153);">Mono.CScript.Evaluator.Compile()</span>&nbsp;the
+compiler emits only a single <span style="font-weight: bold;">dynamic</span>
+assembly regardless of how many times <span style="color: rgb(51, 51, 153);">Compile</span> is
+called. Unfortunately all other hosting scenarios lead to the Memory
+Leaks (see&nbsp;<span style="font-style: italic;">Samples\Hosting\CompilerAsService\MemoryManagement.cs</span>
+sample).</div>
+<br>
+The Mono "compiler as service" API is tightly coupled to the other Mono
+modules and highly specialized for the use in Mono tools. Also it is
+not very convenient for the real live hosting scenarios (e.g. compiling of
+the invalid C# code never return&nbsp;any error nor
+throw the exception but creates the log entry
+instead).&nbsp;Thus CS-Script implements the API adapter (<span style="color: rgb(51, 51, 153);">CSScript.Evaluator</span>),
+which not only makes the API more consistent with the CS-Script hosting
+API model but also automates the many routine script&nbsp;setup tasks
+(e.g. assembly auto-referencing, error handling).&nbsp; &nbsp;
+&nbsp; <br>
+<br>
+It is very easy to distinguish in the written hosting code if CodeDOM
+or Evaluator is used for the script execution. All <span style="color: rgb(51, 51, 153);">CSScript.Evaluator.*</span>
+compile/load calls are passing&nbsp;the scripts to the "compiler as
+service" and all <span style="color: rgb(51, 51, 153);">CSScript.*
+</span>ones&nbsp;to the CodeDOM compiler.&nbsp; <br>
+&nbsp;&nbsp;&nbsp; <br>
+The following are the fragments from the <span style="font-style: italic;">&lt;cs-script&gt;\Samples\Hosting\CompilerAsService\HostingScenarios.cs</span>&nbsp;sample,
+which demonstrates the all possible hosting scenarios in details.<br>
+<br>
+<span style="font-style: italic;">Loading a script class: </span><br>
+<span style="font-style: italic;"></span><font face="Arial" size="2"><span>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="background: transparent none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; font-family: Consolas; font-size: 13px; color: black;"><span style="color: blue;">dynamic</span>&nbsp;script&nbsp;=&nbsp;<span style="color: rgb(43, 145, 175);">CSScript</span>.Evaluator<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.LoadCode(<span style="color: rgb(163, 21, 21);">@"using&nbsp;System;</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;Script</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Sum(int&nbsp;a,&nbsp;int&nbsp;b)</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;a+b;</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"</span>);<br><span style="color: blue;">int</span>&nbsp;result&nbsp;=&nbsp;script.Sum(1,&nbsp;2);</pre>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+<span style="font-style: italic;">Loading a script class
+and aligning it to the interface. Note the script class doesn't have to
+inherit from the interface. <br>
+Though if the script class indeed inherits from the interface then a simple type casting is
+preferred ( var calc = (ICalc)CSScript.Evaluator.LoadCode(...)). </span><br>
+<span style="font-style: italic;"></span><font face="Arial" size="2"><span>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="background: transparent none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; font-family: Consolas; font-size: 13px; color: black;"><span style="color: rgb(43, 145, 175);">ICalc</span>&nbsp;calc&nbsp;=&nbsp;<span style="color: rgb(43, 145, 175);">CSScript</span>.Evaluator<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.LoadCode&lt;<span style="color: rgb(43, 145, 175);">ICalc</span>&gt;(<span style="color: rgb(163, 21, 21);">@"using&nbsp;System;</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;Script</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;Sum(int&nbsp;a,&nbsp;int&nbsp;b)</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;a+b;</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }"</span>);<br><span style="color: blue;">int</span>&nbsp;result&nbsp;=&nbsp;calc.Sum(1,&nbsp;2);</pre>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+<span style="font-style: italic;">Loading a classless
+script: </span><br>
+<span style="font-style: italic;"></span><font face="Arial" size="2"><span>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="background: transparent none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; font-family: Consolas; font-size: 13px; color: black;"><span style="color: blue;">dynamic</span>&nbsp;script&nbsp;=&nbsp;<span style="color: rgb(43, 145, 175);">CSScript</span>.Evaluator<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.LoadMethod(<span style="color: rgb(163, 21, 21);">@"int&nbsp;Product(int&nbsp;a,&nbsp;int&nbsp;b)</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;a&nbsp;*&nbsp;b;</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"</span>);<br><span style="color: blue;">int</span>&nbsp;result&nbsp;=&nbsp;script.Product(1,&nbsp;2);</pre>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+<span style="font-style: italic;">Passing the host type
+reference to the script: </span><br>
+<span style="font-style: italic;"></span><font face="Arial" size="2"><span>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="background: transparent none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; font-family: Consolas; font-size: 13px; color: black;"><span style="color: blue;">public</span>&nbsp;<span style="color: blue;">class</span>&nbsp;<span style="color: rgb(43, 145, 175);">HostApp</span><br>{<br>    <span style="color: blue;">public</span>&nbsp;<span style="color: blue;">string</span>&nbsp;Name;<span style="color: blue;"> </span><br> <br><span style="color: blue;">    public</span>&nbsp;<span style="color: blue;">void</span>&nbsp;Test()<br>    {<span style="color: blue;"> <br>        dynamic</span>&nbsp;script&nbsp;=&nbsp;<span style="color: rgb(43, 145, 175);">CSScript</span>.Evaluator<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.LoadMethod(<span style="color: rgb(163, 21, 21);">@"void&nbsp;Print(HostApp&nbsp;host)</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    &nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(host.Name);</span><br><span style="color: rgb(163, 21, 21);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;}"</span>);<br><span style="color: blue;">       this</span>.Name&nbsp;=&nbsp;<span style="color: rgb(163, 21, 21);">"ScriptHost"</span>;<br>       script.Print(<span style="color: blue;">this</span>);<br>   }<br>}</pre>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<font face="Arial" size="2"><span><br>
+</span></font><br>
+Evaluating the C# statement. This is arguably the most canonical <span style="font-style: italic;">Eval</span> sample, at the
+same time it is the list practical one. The reason is that it is not
+possible to directly pass any arguments to the script (statement).<span style="font-style: italic;"> <br>
+</span><br>
+<span style="font-style: italic;"></span><font face="Arial" size="2"><span>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="background: transparent none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; font-family: Consolas; font-size: 13px; color: black;"><span style="color: blue;"></span><span style="color: blue;">int</span>&nbsp;result&nbsp;=&nbsp;(<span style="color: blue;"></span><span style="color: blue;">int</span><span style="color: blue;"></span>)<span style="color: rgb(43, 145, 175);">CSScript</span>.Evaluator.Evaluate(<span style="color: rgb(163, 21, 21);">"1 + 2;"</span>);<br></pre>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<font face="Arial" size="2"><span><br>
+<span style="font-weight: bold;">Limitations<br>
+<br>
+</span>When using <span style="color: rgb(51, 51, 153);">CSScript.Evaluator</span> some special considerations
+should be taken into account. In order to avoid <span style="font-style: italic;">Memory Leaks a</span>
+minor code design constraint should be satisfied. Thus
+when&nbsp;invoking LoadCode/LoadFile you should try to reuse the
+same top level class name to avoid emitting unnecessary
+assemblies. This technique is enforced when&nbsp;</span></font><font face="Arial" size="2"><span>LoadMethod</span></font><font face="Arial" size="2"><span>
+is&nbsp;invoked. See&nbsp;<span style="font-style: italic;">&lt;cs-script&gt;\Samples\Hosting\CompilerAsService\MemoryManagement.cs</span>
+for the details on haw script code structure affect the memory
+consumption.<br>
+<br>
+There is also another limitation (rather a quality) of the hosting with
+"compiler as service". Debugging of the script code is impossible.
+This is because of the very nature of the </span></font><font face="Arial" size="2"><span>"compiler as
+service" engine, which does not save the script code to the file and in
+result there is no possibility for the debugger to map the IL
+instruction to the C# statement.</span></font><font face="Arial" size="2"><span> <br>
+<br>
+</span></font>
+<div style="margin-left: 40px;"><font face="Arial" size="2"><span>Interestingly enough there are a few
+posts on Mono forums asking if there any way to overcome this Mono
+limitation. Sadly these posts have no single response:<br>
+&nbsp; &nbsp; &nbsp;<a href="http://www.thebirdietoldme.com/userActions/thread/Question.aspx?id=11816467">http://www.thebirdietoldme.com/userActions/thread/Question.aspx?id=11816467<br>
+</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://stackoverflow.com/questions/11816467/debugging-code-compiled-using-the-mono-csharp-evaluator">http://stackoverflow.com/questions/11816467/debugging-code-compiled-using-the-mono-csharp-evaluator</a><br>&nbsp; &nbsp; &nbsp;...<br>
+&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span></font><br>
+<font face="Arial" size="2"><span></span></font></div>
+<font face="Arial" size="2"><span></span></font><br>
+Note that this does not mean that it is not possible to compile the
+script as DEBUG. It is in fact quite simple:<br>
+<br>
+<span style="font-style: italic;"></span><font face="Arial" size="2"><span>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="background: transparent none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; font-family: Consolas; font-size: 13px; color: black;"><span style="color: blue;"></span><span style="color: rgb(43, 145, 175);">CSScript</span>.Evaluator.Configuration&nbsp;=&nbsp;BuildConfiguration.Debug;<br></pre>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+However this will only enforce&nbsp;DEBUG and TRACE conditional
+symbols but will not yield a proper PDB file. The technique is demonstrated in
+Evaluator_Debug method of the&nbsp;<span style="font-style: italic;">&lt;cs-script&gt;\Samples\Hosting\CompilerAsService\HostingScenarios.cs</span>
+sample. Thus&nbsp;if the full scale debugging is vital then it is
+recommended to do the temporary switch to CodeDOM compiler to do the
+debugging as it is demonstrated in the CodeDOM_Debug() method of the
+same sample file.<br>
+<pre style="background: white none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; font-family: Consolas; font-size: 13px; color: black;">&nbsp; <br></pre>
+<font face="Arial" size="2"><span>The
+following table contains brief comparison of the script hosting
+features of CodeDOM and Evaluator hosting model. The table is
+largely&nbsp; composed on the&nbsp;runtime data collected whith&nbsp;</span></font><font face="Arial" size="2"><span><span style="font-style: italic;">&lt;cs-script&gt;\Samples\Hosting\CompilerAsService\MemoryManagement.cs.</span></span></font><font face="Arial" size="2"><span> While&nbsp;<span style="font-style: italic;">Evaluator</span>
+("compiler as service") is the recommended approach the table
+below may help you to make your own decision on the choice of the
+hosting model. &nbsp; <br>
+</span></font><br><span style="font-style: italic;">The data was collected for Mono.CSharp.dll of Mono v3.2.3</span><br style="font-style: italic;">
+<table style="text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td><small><span style="font-weight: bold;">Fearure</span></small></td>
+<td><small><span style="font-weight: bold;">CodeDOM</span></small></td>
+<td><small><span style="font-weight: bold;">Evaluator</span></small></td>
+</tr>
+<tr>
+<td><small>Compiling performance</small></td>
+<td><small>slower&nbsp;</small></td>
+<td><small>faster</small></td>
+</tr>
+<tr>
+<td><small>Runtime performance</small></td>
+<td><small>fast</small></td>
+<td><small>fast</small></td>
+</tr>
+<tr>
+<td><small>Avoiding Memory Leaks in the same
+AppDomain scenarios for the fixed class name script </small></td>
+<td><small>impossible</small></td>
+<td><small>possible*</small></td>
+</tr>
+<tr>
+<td><small>Avoiding Memory Leaks in the same
+AppDomain scenarios for the variable class name script </small></td>
+<td><small>impossible</small></td>
+<td><small>impossible</small></td>
+</tr>
+<tr>
+<td><small>"No Memory Leaks" mode constraints</small></td>
+<td><small>remote AppDomain is required</small></td>
+<td><small>fixed class name</small></td>
+</tr>
+<tr>
+<td><small>Debugging</small></td>
+<td><small>possible</small></td>
+<td><small>impossible</small></td>
+</tr>
+</tbody>
+</table>
+<small><br>*There were a couple of the reports&nbsp; describing&nbsp;<span style="color: rgb(51, 51, 153);">Mono.CScript.Evaluator.Compile()</span></small><small> still leaking when used for scaled up scenarios from CompilerAsService\MemoryManagement.cs.<br>
+</small>
+<pre style="background: white none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; font-family: Consolas; font-size: 13px; color: black;"><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br></small><font face="Arial" size="2"><span>It is highly recommended that you carefully investigate the following code samples: <br></span></font></pre>
+<ul>
+<li><font face="Arial" size="2"><span><span style="font-style: italic;">&lt;cs-script&gt;\Samples\Hosting\CompilerAsService\MemoryManagement.cs
+<br>
+</span>Demonstrates runtime memory and performance
+implications&nbsp;depending on the chosen hosting API.&nbsp;</span></font></li>
+<li><span style="font-style: italic;">&lt;cs-script&gt;\Samples\Hosting\CompilerAsService\HostingScenarios.cs<br>
+</span>Demonstrates usage of CSScript.Evaluator in all
+possible (supported) hosting scenarios.<span style="font-style: italic;"> </span></li>
+</ul>
+<font face="Arial" size="2"><span><br>Be also aware that because of the true "in-memory" nature of&nbsp;<span style="color: rgb(51, 51, 153);">CSScript.Evaluator</span> assembly hosting there is no any sort of caching&nbsp;simmilar to CS-Script caching for CodeDOM.</span></font><br>
+<p>&nbsp; </p>
+<p>&nbsp; </p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"> <param name="Keyword" value="dynamic loading">
+</object> </div>
+</body></html>

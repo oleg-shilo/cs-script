@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <title>WCF</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">WCF</h1>
+</div>
+</div>
+<br>
+<div id="nstext">WCF (Windows Communication Foundation) is a generic
+framework&nbsp;(first introduced in .NET3.0) for solving a wide range
+of communication problems. Any C# script utilizing the WCF classes can
+be executed by CS-Script as any other scripts.<br>
+<br>
+WCF has signifficant overlaps with .NET Remoting, what is no surprise
+as WCF programming model unifies Web Services, .NET Remoting,
+Distributed Transactions, and Message Queues into a single
+Service-oriented programming model.<br>
+<br>
+From this prospective C# scripts using WCF functionality are organised very similar to the&nbsp;<a href="remoting.html">.NET Remoting scripts</a>.<br>
+<br>
+The samples below are from the CS-Script samples library (<a href="Script_library.html">Script Library</a>).<font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span><br>
+</span></font><span style="font-style: italic;"><br>
+</span><span style="font-weight: bold;">Servive </span>(<span style="font-style: italic;">Samples\WCF\service.cs</span>)<br>
+<table style="text-align: left; width: 710px; height: 508px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.ServiceModel;<br>
+      <br>
+      <font color="#0000ff" size="2">namespace</font>&nbsp;HelloService<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;program<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Uri&nbsp;baseUri&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;Uri(<font color="#800000" size="2">"http://localhost/hello"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ServiceHost&nbsp;hService&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;ServiceHost(typeof(HelloService),&nbsp;baseUri);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hService.AddServiceEndpoint(typeof(HelloService),&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;BasicHttpBinding(),&nbsp;baseUri);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hService.Open();<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Service&nbsp;started..."</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.ReadKey();<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hService.Close();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;[ServiceContract]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;HelloService<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OperationContract]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;SayHello()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;(<font color="#800000" size="2">"Hello!"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<span style="font-weight: bold;"><br>
+Service&nbsp;config file </span>(<span style="font-style: italic;">Samples\WCF\service.cs.config</span>)<font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span><br>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">&lt;?xml&nbsp;version=<font color="#800000" size="2">"1.0"</font>&nbsp;encoding=<font color="#800000" size="2">"utf-8"</font>&nbsp;?&gt;<br>
+&lt;configuration&gt;<br>
+&nbsp;&nbsp;&lt;system.serviceModel&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;services&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;service&nbsp;name=<font color="#800000" size="2">"HelloService.HelloService"</font>&nbsp;behaviorConfiguration=<font color="#800000" size="2">"HelloService.HelloService"</font>&nbsp;</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<span style="font-weight: bold;">
+Client </span>(<span style="font-style: italic;">Samples\WCF\client.cs</span>)<font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span><br>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_prescript&nbsp;wsdl(http://localhost/hello?wsdl,&nbsp;HelloService,&nbsp;/new);<br>
+      </font><font color="#008000" size="2">//css_include&nbsp;HelloService;<br>
+      </font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.Xml;<br>
+      <br>
+      <font color="#0000ff" size="2">namespace</font>&nbsp;HelloClient<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Program<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HelloService&nbsp;p&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;HelloService();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(p.SayHello());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The major difference between WCF and Remoting scripts is the usage of the <a href="AppConfig.html"><span style="font-style: italic;">script.config</span></a> file. It is an equivalent of <span style="font-style: italic;">app.config</span> file but for the script applications. In order to process script config files the script engine has to be executed with <a href="Command-line_Interface.html">/sconfig</a> parameter (script engine alway uses this paremeter by default).<br>
+<br>
+The code is trivial and of course it does not demonstrates all aspects
+of WCF programming model. It implements WCF service HelloService
+fclient application accesses the service and excercises it's method
+SayHello().<br>
+<br>
+Interestingly client.cs uses MS wsdl.exe utility to is capable of
+producing C# file (proxy) implementing the type exposed by the WCF
+service (HelloClient). CS-Script can prepare such file as a script
+pre-execution step, so you do not need to do mit manually. This is
+exactly what the code below does:<br>
+<br>
+<font face="Arial" size="2"><span></span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_prescript&nbsp;wsdl(http://localhost/hello?wsdl,&nbsp;HelloService,&nbsp;/new);&nbsp;</font></font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+And after the file with proxy class (<span style="font-style: italic;">HelloService.cs</span>) is prepared it is referenced by the client script as any other C# file: <br>
+<br>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_include&nbsp;HelloService;</font></font></td>
+    </tr>
+  </tbody>
+</table>
+<font face="Arial" size="2"><span></span></font>
+<div style="text-align: center;">
+<div style="text-align: left;">
+<div><br>
+</div>
+</div>
+</div>
+<h4 class="dtH4">See Also</h4>
+<a href="Script_library.html">Script Library</a> |&nbsp;<a href="remoting.html">.NET Remoting scripts</a><font face="Arial" size="2"><span> </span></font>|&nbsp;<a href="pre_post_scripts.html">Pre- and Post-execution scripts</a><br>
+<a href="Importing_scripts.html"></a><a href="ws.html"><span style="text-decoration: underline;">
+</span></a></div>
+</body>
+</html>
+

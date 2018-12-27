@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <title>Simplified Hosting Model</title><xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Simplified Hosting
+Model</h1>
+</div>
+</div>
+<div id="nstext">
+<p><span style="font-style: italic;">Simplified
+Hosting Model&nbsp;</span>is a
+specific implementation of the&nbsp;"type sharing" pattern for&nbsp;for 2-way host-script
+communication scenarios.
+&nbsp;When some&nbsp;script is executed according this model it
+has access to all loaded assemblies of the host application (including
+the host application&nbsp;itself). This model is
+enabled by default but can be disabled if required by&nbsp;setting <span style="font-style: italic; color: rgb(0, 0, 153);">CSScriptLibrary.CSScript.ShareHostRefAssemblies</span>
+to <span style="color: rgb(0, 0, 153);">false</span>.</p>
+<p><span style="font-style: italic;">Simplified
+Hosting Model </span>offers
+huge benefits for
+both&nbsp;compiling and loading stages of the script execution by
+placing the responsibility for location the required referenced
+assemblies on the script engine .
+The following is a typical script hosting&nbsp;sample, which follows <span style="font-style: italic;">Simplified Scripting Model</span>:</p>
+<p><span style="font-style: italic; color: black;">Samples\Hosting\HostingSimplified\Hello.cs</span>
+&nbsp;</p>
+<table style="text-align: left; width: 698px; height: 380px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;CSScriptLibrary;<br>
+      <br>
+      <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Host<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;greeting&nbsp;=&nbsp;<font color="#800000" size="2">"Hello&nbsp;World!"</font>;<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AsmHelper&nbsp;scriptAsm&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(CSScript.LoadCode(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@<font color="#800000" size="2">"using&nbsp;System;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;Script<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;SayHello()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(Host.greeting);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"</font>));<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scriptAsm.Invoke(<font color="#800000" size="2">"Script.</font></font><font face="Courier New" size="2"><font color="#800000" size="2">SayHello</font></font><font face="Courier New" size="2"><font color="#800000" size="2">"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+      </font></td>
+    </tr>
+  </tbody>
+</table>
+<span style="font-weight: bold;"><br>
+</span>Note that the script code does not even references the
+host application assembly and yet script engine is capable to resolve
+this assembly for the MS C# compiler at compile time and for the CLR at
+runtime.<br>
+<br>
+<p style="font-weight: bold;">Referencing external
+assemblies </p>
+It is actually hard to imagine a scenario when&nbsp;<span style="font-style: italic;">Simplified Hosting Model </span>would
+be insufficient. That is why all hosting samples (<span style="font-style: italic;">Samples\Hosting</span>)
+are following the <span style="font-style: italic;">Simplified
+Hosting Model</span>. In a way this model is a "one size fits
+all" answer for all hosting scenarios. &nbsp;Newer the less, it is
+possible that your script needs to access some types which are
+implemented in an external assembly, which is not a dependency assembly
+of the host application and does not belong to GAC. &nbsp;<span style="font-style: italic;">Host.cs</span> script from
+<span style="font-style: italic;">Samples\Hosting\Referencing</span>
+is an example of such runtime scenario. It accesses the type <span style="color: rgb(0, 0, 153);">ExternalClass</span>
+implemented in <span style="font-style: italic;">ExternalAsm.dll
+</span>and this assembly is not loaded by the host application (<span style="font-style: italic;">Host.cs</span>)<span style="font-style: italic;">.</span>&nbsp;
+<p>It is important to remember that when you host the script
+engine the script&nbsp;execution is not much different from the
+standalone script execution (from command-prompt). Thus when executing
+the&nbsp;the script from application you can express
+script&nbsp;dependencies (on some external assemblies) in the
+standard way through <span style="font-style: italic;">"//css_reference"</span>
+and <span style="font-style: italic;">"using"</span>
+statements (see <a href="Using_.NET_assemblies.html">Using
+.NET Assemblies</a>). &nbsp; &nbsp;</p>
+However when hosting the script engine you have an additional
+referencing mechanism, which can be more convenient in some cases.
+Almost all script compiling/loading methods of the&nbsp;<span style="color: rgb(0, 0, 153);">AsmHelper</span> class
+can accept path to the referenced assemblies. Thus you can explicitly
+indicate which assemblies the script is referencing&nbsp; from the
+host code. <br>
+<br>
+<table style="text-align: left; width: 698px; height: 44px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">string</font>&nbsp;refAssembly&nbsp;=&nbsp;Path.GetFullPath(<font color="#800000" size="2">"ExternalAsm.dll"</font>);<br>
+      <font color="#0000ff" size="2">string</font>&nbsp;compiledScript&nbsp;=&nbsp;CSScript.Compile(script,&nbsp;refAssembly);</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h4 class="dtH4">
+See Also </h4>
+<p><a href="Script_hosting_guideline_.html">Script&nbsp;Hosting Guideline</a> </p>
+<br>
+&nbsp;
+</div>
+</body></html>
+

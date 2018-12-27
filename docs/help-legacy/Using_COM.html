@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  
+  <title>Using COM</title><xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Using COM</h1>
+</div>
+</div>
+<div id="nstext">
+<p>Existing COM components are valuable resources for using in
+the managed
+code. There is almost no difference between using the COM components
+and managed assemblies in C# script. This is because the COM component
+is always accessed from the managed code through the type library
+assembly (which is just an ordinary assembly) prepared with Type
+Library Importer utility. This utility is a part of <a href="Platform_SDK.html"> .NET Platform
+SDK</a>.
+When the type library assembly is prepared it can be used just as any
+other assembly (see <a href="Using_COM_tutorial.html">
+Using COM tutorial</a>).&nbsp;</p>
+<p>Note that&nbsp;importing the type library can be automated
+with <a href="pre_post_scripts.html">pre-script directive</a>
+("<span style="font-style: italic;">Single-line COM access</span>").
+What practically means that by having a single line //css_... directive
+in the script code you can gain access to the specified COM object with
+no extra development cost.</p>
+<br>
+The following script sample illustrates how COM server&nbsp;<span style="font-style: italic; color: rgb(0, 0, 153);">WScript.Shell</span> can be used to set&nbsp;<span style="font-weight: bold;">permanently</span> an environment variable. Note that <span style="font-style: italic; color: rgb(0, 0, 153);">WScript.Shell</span> is&nbsp;available on any Windows platform as part of the VBScript. <br>
+<br>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_pre&nbsp;com(WScript.Shell,&nbsp;swshell.dll);<br>
+      </font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;swshell;<br>
+      <br>
+      <font color="#0000ff" size="2">namespace</font>&nbsp;Scripting<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">object</font>&nbsp;envType&nbsp;=&nbsp;<font color="#800000" size="2">"SYSTEM"</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IWshEnvironment&nbsp;wshSysEnv&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;WshShellClass().get_Environment(ref&nbsp;envType);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wshSysEnv[<font color="#800000" size="2">"TEST"</font>]&nbsp;=&nbsp;<font color="#800000" size="2">"MyDirectory"</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table><br><br><span style="font-weight: bold; font-style: italic;"></span>There
+is a very special COM client scripting scenario when&nbsp;you may need
+to make a call to CoInitializeSecurity. The problem is that this call
+must be one of done before any COM calls. Unfortunately&nbsp; when the
+script is&nbsp;loaded for the execution it is already too late.
+Thus&nbsp;CoInitializeSecurity must be invoked&nbsp;from the script
+engine even befor the script is loaded<br><br>CS-Script allows doing this with the dedicated //css_init directive, which is currently dedicated only for the COM scenarios:
+<div class="syntax">
+&nbsp;//css_init CoInitializeSecurity[(&lt;dwImpLevel&gt;, &lt;dwCapabilities&gt;)];</div>
+<p><b>
+dwImpLevel </b> -&nbsp;dwImpLevel parameter of CoInitializeSecurity function (see MSDN for sdetails)<br><span style="font-weight: bold;">dwCapabilities </span>- dwCapabilities parameter of CoInitializeSecurity function (see MSDN for sdetails)<br>&nbsp;</p><p><span style="font-weight: bold;">Note</span>: Currently //css_init directive has no affect if <a href="hosting_control.html">//css_host</a> directive is used.<br></p> <span style="font-style: italic;"><span style="color: rgb(0, 0, 153);"></span></span> 
+<h4 class="dtH4">See Also </h4>
+<p><a href="Using_.NET_assemblies.html">Using .NET
+assemblies</a></p>
+<p>&nbsp; </p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"> <param name="Keyword" value="COM">
+</object>
+</div>
+</body></html>

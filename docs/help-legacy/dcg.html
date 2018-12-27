@@ -1,0 +1,487 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Dynamic Code Generation</title>
+
+
+
+
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Dynamic Code
+Generation</h1>
+</div>
+</div>
+<div id="nstext">
+<div style="text-align: center;">
+<div style="text-align: left;">
+<h4 class="dtH4">Background</h4>
+Dynamic
+Code Generation (DCG) is the ability of a&nbsp;runtime or
+a&nbsp;development&nbsp;framework to automatically generate and update
+the source code before&nbsp;compilation/execution. DCG is used to produce business logic
+independent code fragments. On a contrary to the code generating wizards,
+which are one-off activities, DCG ensures that produced code is
+consistent with the runtime environment by re-emitting the fresh version of a code on every compilation/execution.<br>
+<br>
+DCG, in one or another form,
+is part of&nbsp;many development platforms. Macros, importing type
+libraries, and compilation of IDL files are all examples of DCG
+available in C++. In some cases DCG is handled by a language compiler
+(e.g. macros) and others some external utilities are responsible for
+the actual code generation. But there are a few aspects that are
+common for all DCG cases. One of these aspects&nbsp;is that DCG is used for
+automatic generation of the source code,&nbsp;based on some very strict
+rules/instructions (e.g. macro definition). Another commonality is
+that DCG allows to avoid polluting the source code with extensive,
+repetitive routines, which dramatically decrease code readability and
+maintainability.
+<h4 class="dtH4">Dynamic Code Generation in CS-Script<br>
+</h4>
+From the very
+early versions, CS-Script was capable of dynamically generating
+dependency assemblies. The typical example is the callable wrappers for COM
+server(s) during execution of&nbsp;scripts accessing the server at
+the runtime (<a href="Using_COM.html">Using COM</a>).<br>
+<big style="font-style: italic;"><big><br>
+<small><small><span style="color: red;">The technique described in this
+section is based on the Pre-/Post-execution scripts. However the latest
+edition of CS-Script has native support for a specialized light weight
+type of pre-execution scripts - "Precomilers". Precompiler in most of
+the cases can offer a simpler and more maintainable solution for DCG
+comparing to the full scale pre-execution scripts. Thus you may want to
+read the </span></small></small></big></big><big><small><span style="color: red;"><a href="precompilers.html">Precompilers</a> chapter as well. </span></small></big><big style="font-style: italic;"><big><small><span style="color: red;">&nbsp; &nbsp; &nbsp;  </span></small></big></big><br>
+<br>
+The ability&nbsp;of generating runtime components
+just before the execution is a simple and yet very powerful/flexible concept.
+Particularly because the component, responsible for such code generation,
+is a script too. Such code emitting scripts can be set up&nbsp;with a <span style="font-style: italic;">//css_prescript</span> directive (<a href="pre_post_scripts.html">Pre- and Post-execution scripts</a>). In case of generating COM
+callable wrappers, <span style="font-style: italic;">//css_prescript</span> launches the <span style="font-style: italic;">com.cs</span> script, which simply
+runs <span style="font-style: italic;">TlbImp.exe</span> (part of .NET Framework) in order to produce the
+required assembly. The truth is that it does not have to be an assembly,
+it can also be the plain C# code. The execution under CS-Script has this
+"luxury" of consuming non-compiled C# code. Thus the auto-generated code can
+be a part of the main script codebase.<br>
+<br>
+A&nbsp;very similar approach is
+used by <span style="font-style: italic;">MSBuild.exe</span>, which takes&nbsp;<span style="font-style: italic;">xaml</span> file and generates the missing C#
+code prior to&nbsp; compilation of the WPF application. The difference with
+CS-Script is that you have&nbsp;full control over how the C# code is
+generated. <br>
+<br>
+Below is a&nbsp;<span style="font-style: italic;">generator.cs</span> script, which generates the code required for the script <span style="font-style: italic;">test.cs</span> to run:<br>
+<br>
+<table style="width: 722px; text-align: left; height: 316px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.IO;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">using</font>&nbsp;(StreamWriter&nbsp;sw&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;StreamWriter(@<font color="#800000" size="2">"C:\test.part.cs"</font>))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sw.Write(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@<font color="#800000" size="2">"using&nbsp;System;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;partial&nbsp;class&nbsp;Test<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;void&nbsp;SayHello()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("</font><font color="#800000" size="2">"Hello"</font><font color="#800000" size="2">");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+And this is the <span style="font-style: italic;">test.cs</span> script, which utilises the auto-generated <span style="font-style: italic;">test.part.cs</span> file:<br>
+<br>
+<table style="width: 721px; text-align: left; height: 188px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_prescript&nbsp;generator();<br>
+      </font><font color="#008000" size="2">//css_include&nbsp;C:\test.part.cs;<br>
+      </font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <br>
+partial&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Test<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SayHello();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The
+example above is very simple&nbsp;and not particularly useful. However, it
+demonstrates a potential, which can be used to achieve simple
+maintenance even for the very complex code modules. <span style="font-weight: bold;"></span>
+<h4 class="dtH4">C++ style macros in CS-Script</h4>
+The ability&nbsp;to generate code
+dynamically,&nbsp;described in the section above,&nbsp;is the basis for&nbsp;C++ style macros support available
+in CS-Script begining from v2.1.0.<br>
+<br>
+C++
+macros is a technique for reducing the amount of code by automatically
+generating some of its fragments just before passing it on to the
+compiler. This very powerful technique despite some obvious
+advantages, is commonly recognised as a frequent cause of programming
+mistakes. The problem is that&nbsp; macros are nothing else but a "textual
+substitution" and as such it can lead to the unpredictable code:<br>
+<br>
+<table style="width: 726px; text-align: left; height: 268px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">#define</font>&nbsp;NORMALIZE(x)&nbsp;((x&nbsp;==&nbsp;0)&nbsp;?&nbsp;0&nbsp;:&nbsp;(x&nbsp;&gt;&nbsp;0)&nbsp;?&nbsp;1&nbsp;:&nbsp;-1)<br>
+      <br>
+      <font color="#0000ff" size="2">int</font>&nbsp;OpenFile()<br>
+{</font><small style="font-style: italic;"><span style="font-weight: bold;"></span></small><br>
+      <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;printf(<font color="#800000" size="2">"opening&nbsp;file...\n"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;1;<br>
+}<br>
+      <br>
+      <font color="#0000ff" size="2">int</font>&nbsp;_tmain(<font color="#0000ff" size="2">int</font>&nbsp;argc,&nbsp;_TCHAR*&nbsp;argv[])<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">int</font>&nbsp;i&nbsp;=&nbsp;1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">int</font>&nbsp;result&nbsp;=&nbsp;NORMALIZE(i);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;NORMALIZE(OpenFile());&nbsp;<font color="#008000" size="2">//OpenFile()&nbsp;called&nbsp;twice<br>
+      </font>&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;0;<br>
+}<br>
+      </font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The&nbsp;NORMALIZE macro will work fine with the variable <span style="font-style: italic;">i</span> but if you apply it to <span style="font-style: italic;">OpenFile</span> you will notice that <span style="font-style: italic;">OpenFile</span> will be called twice.
+This is because the produced code by expending the macro will contain
+a call to <span style="font-style: italic;">OpenFile()</span> twice.<br>
+<br>
+Another problem is that the code&nbsp;with expended macros, which is
+passed to the compiler, is not&nbsp;visible to the developer.
+Thus, he/she can not possibly know what&nbsp;code the compiler is
+actually compiling. <br>
+<br>
+Because of these limitations, C++ macros did not make
+it into C#. CS-Script DCG however offers some opportunities for
+achieving a macros-like functionality but without&nbsp;limitations
+typical for C++ macros.<br>
+<br>
+The best way to describe the CS-Script&nbsp;macros is to do it by example. <br>
+<br>
+Imagine
+that you need to define a macro for generating a class property. If C++
+macros were available in C#, this could be accomplished as follows:<br>
+<br>
+<table style="width: 732px; text-align: left; height: 124px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">#define</font>&nbsp;DEFINE&nbsp;PROP(arg1,&nbsp;arg2,&nbsp;arg3,&nbsp;arg4)&nbsp;\<br>
+arg1 public&nbsp;arg2&nbsp;arg3&nbsp;\<br>
+{&nbsp;\<br>
+&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;{ return&nbsp;<font color="#0000ff" size="2"></font>m_##arg3;&nbsp;}&nbsp;\<br>
+&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;{&nbsp;m_##arg3&nbsp;=&nbsp;value;&nbsp;}&nbsp;\<br>
+} \<br>
+      </font><font face="Courier New" size="2">arg1 private arg2 m_##arg3 = arg4;&nbsp;</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+And this is how the macro would be used:<br>
+<br>
+<table style="width: 727px; text-align: left; height: 76px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">class</font>&nbsp;MyData<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PROP(<font color="#0000ff" size="2">static</font>, <font color="#0000ff" size="2">string</font>, Description,&nbsp;</font><font face="Courier New" size="2"><font color="#800000" size="2">"MyData class"</font></font><font face="Courier New" size="2">)<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The code above would be interpreted by the compiler as follows:<br>
+<br>
+<table style="width: 724px; text-align: left; height: 156px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">class</font>&nbsp;MyData<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">bool</font> Description<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;{&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;m_Description;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;{&nbsp;m_Description =&nbsp;value;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">private</font>&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;m_Description =&nbsp;</font><font face="Courier New" size="2"><font color="#800000" size="2">"MyData class"</font></font><font face="Courier New" size="2">;<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+C#
+does not support macros thus the&nbsp;scenario described above is&nbsp;not possible in
+raw C#. However, a very similar outcome can be achieved in CS-Script. <br>
+<br>
+This is a fragment of the code from <a href="Tutorial/Macros/script_simple.cs"><span style="font-style: italic;">script_simple.cs</span></a> using C# script macros:<br>
+<br>
+<table style="width: 726px; text-align: left; height: 108px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">partial&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;MyData<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#008000" size="2">/*&nbsp;css_extend_class&nbsp;MyData<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROP(static,&nbsp;string,&nbsp;Description,&nbsp;"MyData class")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/</font><br>
+}<br>
+      <font color="#0000ff" size="2"></font></font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+And this is how to define the way the macro and its arguments should be expended (<a href="Tutorial/Macros/precompile.cs"><span style="font-style: italic;">precompile.cs</span></a>) by the macro expending routine:<br>
+<br>
+<table style="width: 795px; text-align: left; height: 284px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">CompileResult&nbsp;PROP(<font color="#0000ff" size="2">string</font>[]&nbsp;args,&nbsp;Context&nbsp;cx)<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;modifier&nbsp;=&nbsp;args[0];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;type&nbsp;=&nbsp;args[1];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;name&nbsp;=&nbsp;args[2];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;initialVal&nbsp;=&nbsp;args[3];<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;code&nbsp;=<br>
+&nbsp;&nbsp;&nbsp; <font color="#800000" size="2">"&nbsp;&nbsp;&nbsp;&nbsp;"</font>&nbsp;+&nbsp;modifier&nbsp;+&nbsp;<font color="#800000" size="2">"&nbsp;private&nbsp;"</font>&nbsp;+&nbsp;type&nbsp;+&nbsp;<font color="#800000" size="2">"&nbsp;"</font>&nbsp;+&nbsp;name.ToLower()&nbsp;+&nbsp;<font color="#800000" size="2">"&nbsp;=&nbsp;"</font>&nbsp;+&nbsp;initialVal&nbsp;+&nbsp;<font color="#800000" size="2">";\r\n"</font>&nbsp;+<br>
+&nbsp;&nbsp;&nbsp; <font color="#800000" size="2">"&nbsp;&nbsp;&nbsp;&nbsp;"</font>&nbsp;+&nbsp;modifier&nbsp;+&nbsp;<font color="#800000" size="2">"&nbsp;public&nbsp;"</font>&nbsp;+&nbsp;type&nbsp;+&nbsp;<font color="#800000" size="2">"&nbsp;"</font>&nbsp;+&nbsp;name&nbsp;+&nbsp;<font color="#800000" size="2">"\r\n"</font>&nbsp;+<br>
+&nbsp;&nbsp;&nbsp; <font color="#800000" size="2">"&nbsp;&nbsp;&nbsp;&nbsp;{\r\n"</font>&nbsp;+<br>
+&nbsp;&nbsp;&nbsp; <font color="#800000" size="2">"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;{&nbsp;return&nbsp;"</font>&nbsp;+&nbsp;name.ToLower()&nbsp;+&nbsp;<font color="#800000" size="2">";&nbsp;}\r\n"</font>&nbsp;+<br>
+&nbsp;&nbsp;&nbsp; <font color="#800000" size="2">"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;{&nbsp;"</font>&nbsp;+&nbsp;name.ToLower()&nbsp;+&nbsp;<font color="#800000" size="2">"&nbsp;=&nbsp;value;&nbsp;}\r\n"</font>&nbsp;+<br>
+&nbsp;&nbsp;&nbsp; <font color="#800000" size="2">"&nbsp;&nbsp;&nbsp;&nbsp;}"</font>;<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;CompileResult(code,&nbsp;InsertionPosition.ClassBody);<br>
+}<br>
+      </font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The
+important point in this example&nbsp;is that&nbsp;CS-Script ensures
+that the PROP macro is expended into the C# code just before the
+compilation/execution and this auto-generated C# code is written into
+the
+file, which can be examined by the developer. Thus, there is no
+question&nbsp;what is going into the C# compiler. If you open your
+script in
+Visual Studio, you will notice that the auto-generated code (<span style="font-style: italic;">script_simple.g.cs</span>) is included into the Visual Studio project. <br>
+<img style="width: 245px; height: 119px;" alt="" src="Images/dcg.PNG"><small style="font-style: italic;"><span style="font-weight: bold;"></span></small><br>
+<br>
+ The macros expansion&nbsp;is nothing else but a string
+manipulation routine. This routine is invoked for you by the CS-Script
+engine just before passing the code on to the C# compiler. This routine is
+under your full control. You can change it, define the new one or you can
+even debug it if you want to see in details how the macro is expended.
+You can start&nbsp;debugging the macros from the same IDE where your
+primary script is loaded. CS-Script comes with&nbsp;<a href="ConfigUtils.html">CS-Script Visual Studio toolbar</a>, which has a <span style="font-style: italic;">Precompile</span> button for launching the macro expending routine&nbsp;under the debugger. <br>
+<br>
+<img style="width: 229px; height: 52px;" alt="" src="Images/dcg1.PNG"><br>
+<br>
+<div style="text-align: left;"><img style="width: 823px; height: 483px;" alt="" src="Images/dcg2.PNG"><br>
+</div>
+<br>
+Because the macro expending routine is an ordinary C# code you can
+also benefit from all coding assistance tools available
+in Visual Studio (e.g. intellisense&nbsp;). As you can see the CS-Script macros
+do not have any flaws typical for their C++ equivalent. <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-style: italic;">You
+may have noticed that the macro has been used in the code as a comment.
+This is because
+the C# compiler is still unfamiliar with a PROP code token, therefore the
+compiler will not
+compile&nbsp;this token unless it is disguised as a comment. &nbsp;You
+may have also noticed that the macro is surrounded by a comment
+block with a start marker
+"css_extend_class MyData". This marker allows the CS-Script engine to
+distinguish&nbsp;between&nbsp;ordinary comments and CS-Script macros.<br>
+<br>
+Note
+that in the single macros comment block you may have as many macros as
+you wish as long the&nbsp;single macro&nbsp;occupies the single line.&nbsp;</span></div>
+<br>
+The
+most important aspect of CS-Script macros support is that, as
+a&nbsp;concept, it is&nbsp;not a built-in functionality of the script engine
+but a special macros processing script (<span style="font-style: italic;">Lib\precompile.part.cs</span>)
+and as such it is&nbsp;completely open for any modifications. This is
+something that is entirely impossible for C++ macros. The scripting
+nature of macros processing makes it possible to bring C# macros even to
+the non-scripting environments. e.g.&nbsp;a project created when you
+open the script containing macros in Visual Studio. While you are
+editing, compiling or debugging your code&nbsp;under IDE it is just an
+ordinary C# VS project and yet it supports the concept of macros.<br>
+<br>
+The earlier code sample demonstrated how to define a single macro PROP.
+The CS-Script standard installation comes with a more
+comprehensive example of macros usage (<span style="font-style: italic;">Samples\Macros\script.cs</span>). This sample script contains the following macros examples: &nbsp; <br>
+<br>
+<span style="font-weight: bold;"><span style="font-style: italic;">NEW</span><br>
+</span>Defines a static instantiation method New() to mimic the Ruby style type instantiation. <br>
+<br>
+<span style="font-weight: bold;"><span style="font-style: italic;">PROP</span><br>
+</span>Defines a class property with a default value. <span style="font-weight: bold;"><br>
+</span><br>
+<table style="width: 769px; text-align: left; height: 285px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><small style="font-style: italic;"><span style="font-weight: bold;">definition:</span></small><br>
+      <font face="Courier New" size="2">partial&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;MyData<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#008000" size="2">/*&nbsp;css_extend_class&nbsp;MyData<br>
+&nbsp;&nbsp;&nbsp;&nbsp;NEW()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PROP(static,&nbsp;bool, &nbsp; Direction,&nbsp;false)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PROP(, &nbsp; &nbsp; &nbsp; string,&nbsp;Text, &nbsp; &nbsp; &nbsp;"test")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*/</font><br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;override&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;ToString()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;Direction&nbsp;+&nbsp;<font color="#800000" size="2">",&nbsp;"</font>&nbsp;+&nbsp;Text;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+      <br>
+      </font><small style="font-style: italic;"><span style="font-weight: bold;">usage:</span></small><font face="Courier New" size="2"><font color="#008000" size="2">&nbsp;</font></font><font face="Courier New" size="2"><font color="#008000" size="2">&nbsp;&nbsp;&nbsp;<br>
+      </font>Console.WriteLine(MyData.New().ToString())</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<span style="font-weight: bold;"><span style="font-style: italic;">VALUE<br>
+</span></span>Defines&nbsp;the <span style="font-style: italic;">Enum</span> value. The special aspect of the&nbsp;<span style="font-style: italic;">Enum</span> declaration is that it is&nbsp;<span style="font-style: italic;">String Enumeration</span>.&nbsp;<span style="font-style: italic;">String Enumeration </span>is a concept (not available in C#), which many developers had tried&nbsp;to implement (e.g. this <a href="http://www.codeproject.com/KB/cs/stringenum.aspx">CodeProject article</a>). CS-Script macros allow to accomplish this task in a quite simple way.<br>
+<br>
+<table style="width: 766px; text-align: left; height: 254px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2"><span style="color: black;"></span></font></font><small style="font-style: italic;"><span style="font-weight: bold;">definition:</span></small><font face="Courier New" size="2"><font color="#008000" size="2"><span style="color: black;"><span style="text-decoration: underline;"></span></span><br style="text-decoration: underline;">
+      </font><font color="#008000" size="2">/*&nbsp;css_extend_str_enum&nbsp;public&nbsp;Numbers<br>
+VALUE(One,&nbsp;"One&nbsp;unit")<br>
+VALUE(Two,&nbsp;"Two&nbsp;units")<br>
+VALUE(Tree,&nbsp;"Three&nbsp;units")<br>
+*/</font><br>
+      <br>
+      </font><small style="font-style: italic;"><span style="font-weight: bold;">usage:</span></small><font face="Courier New" size="2"><font color="#008000" size="2">&nbsp;<br>
+      </font><font color="#0000ff" size="2">foreach</font>&nbsp;(Numbers&nbsp;num&nbsp;in&nbsp;Enum.GetValues(typeof(Numbers)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(num.ToString() + </font><font face="Courier New" size="2"><font color="#800000" size="2">" -&nbsp;" </font></font><font face="Courier New" size="2">+&nbsp;num.ToStringEx());<br>
+      <br>
+      </font><small style="font-style: italic;"><span style="font-weight: bold;">output:</span></small><font face="Courier New" size="2"><font color="#008000" size="2">&nbsp;<br>
+      </font><font color="#0000ff" size="2"></font>One -&nbsp;One unit<br>
+Two -&nbsp;Two units<br>
+Tree -&nbsp;Three units</font><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h4 style="text-align: left;" class="dtH4">Conclusion</h4>
+CS-Script macros&nbsp;is only one of the possible DCG applications. The&nbsp;<span style="font-style: italic;">dynamic</span>
+code can be generated not only on the basis of instructions extracted
+from the source code (e.g. macros). These instructions can also be
+obtained from another file (e.g. XML file), database schema, runtime
+environment state, state of the files system etc.. But&nbsp;this particular DCG implementation (macros) can deliver
+dramatic improvements to the code maintainability. This&nbsp;is a practical
+example of the difference that can be make by defining the&nbsp;<span style="font-style: italic;">Dependency
+Properties</span> as&nbsp;macros in a WWF activity class:<br>
+<br>
+<table style="width: 767px; text-align: left; height: 1006px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><small style="font-style: italic;"><span style="font-weight: bold;">with macros:</span></small><font face="Courier New" size="2"><font color="#008000" size="2">&nbsp;</font></font><br>
+      <font face="Courier New" size="2"><font color="#0000ff" size="2">public</font>&nbsp;partial&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Init&nbsp;:&nbsp;Activity<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#008000" size="2">/*&nbsp;css_extend_class&nbsp;Init<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEPENDENCY_PROP(string,&nbsp;AxisId)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEPENDENCY_PROP(string,&nbsp;Port,&nbsp;Parameters)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEPENDENCY_PROP(string,&nbsp;Prefix,&nbsp;Parameters)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEPENDENCY_PROP(int,&nbsp;Address,&nbsp;Parameters)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEPENDENCY_PROP(int,&nbsp;HalfstepExponent,&nbsp;Parameters)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/<br>
+&nbsp; &nbsp; <span style="color: black;">....<br>
+      <br>
+      </span></font></font><small style="font-style: italic;"><span style="font-weight: bold;">without macros:</span></small><font face="Courier New" size="2"><font color="#008000" size="2">&nbsp;</font></font><br>
+      <font face="Courier New" size="2"><font color="#008000" size="2"><span style="color: black;">p</span></font></font><font face="Courier New" size="2">artial&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Init<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[System.ComponentModel.CategoryAttribute(<font color="#800000" size="2">"Misc"</font>)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[System.ComponentModel.BrowsableAttribute(<font color="#0000ff" size="2">true</font>)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;DependencyProperty&nbsp;AxisIdProperty;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;String&nbsp;AxisId<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;{&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;Convert.ToString(base.GetValue(AxisIdProperty));&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;{&nbsp;base.SetValue(AxisIdProperty,&nbsp;value);&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[System.ComponentModel.CategoryAttribute(<font color="#800000" size="2">"Parameters"</font>)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[System.ComponentModel.BrowsableAttribute(<font color="#0000ff" size="2">true</font>)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;DependencyProperty&nbsp;PortProperty;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;String&nbsp;Port<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;{&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;Convert.ToString(base.GetValue(PortProperty));&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;{&nbsp;base.SetValue(PortProperty,&nbsp;value);&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[System.ComponentModel.CategoryAttribute(<font color="#800000" size="2">"Parameters"</font>)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[System.ComponentModel.BrowsableAttribute(<font color="#0000ff" size="2">true</font>)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;DependencyProperty&nbsp;PrefixProperty;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;String&nbsp;Prefix<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;{&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;Convert.ToString(base.GetValue(PrefixProperty));&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;{&nbsp;base.SetValue(PrefixProperty,&nbsp;value);&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[System.ComponentModel.CategoryAttribute(<font color="#800000" size="2">"Parameters"</font>)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[System.ComponentModel.BrowsableAttribute(<font color="#0000ff" size="2">true</font>)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;DependencyProperty&nbsp;AddressProperty;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;Int32&nbsp;Address<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;{&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;Convert.ToInt32(base.GetValue(AddressProperty));&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;{&nbsp;base.SetValue(AddressProperty,&nbsp;value);&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[System.ComponentModel.CategoryAttribute(<font color="#800000" size="2">"Parameters"</font>)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[System.ComponentModel.BrowsableAttribute(<font color="#0000ff" size="2">true</font>)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;DependencyProperty&nbsp;HalfstepExponentProperty;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;Int32&nbsp;HalfstepExponent<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get&nbsp;{&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;Convert.ToInt32(base.GetValue(HalfstepExponentProperty));&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set&nbsp;{&nbsp;base.SetValue(HalfstepExponentProperty,&nbsp;value);&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp; &nbsp; ....<br>
+&nbsp;</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+</div>
+<span style="font-weight: bold;"></span> </div>
+<br>
+<h4 class="dtH4">See Also&nbsp;</h4>
+<a href="pre_post_scripts.html">Pre- and Post-execution scripts</a></div>
+</body></html>

@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Using Resources</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Using Resources</h1>
+</div>
+</div>
+<div id="nstext">
+<p>In the majority of the runtime scripting scenarios there is no need to
+use&nbsp;resources beacuse of the dynamic nature of scripting a s such. However in some cases it cannot be avoided. Th
+CS-Script
+supports special <span style="font-style: italic;">directive</span>
+for loading compiled resource file. Thus you can specify directly in
+script code what resource file should be loaded at execution
+time:</p>
+<div style="width: 750px;" class="syntax">//css_resource &lt;file&gt;;</div>
+<blockquote>
+  <p><b>file</b>&nbsp;- name of the resource file. The resource file is a compiler managed resource file (XML .resx or compiled .resources file)</p>
+  <p>The shorter alias directive <span style="font-style: italic; font-weight: bold;">//css_res</span>&nbsp;can&nbsp;be
+used in place&nbsp;of the <span style="font-style: italic; font-weight: bold;">//css_resource</span>.
+  </p>
+</blockquote>
+<h4 class="dtH4">File location</h4>
+<p>The resource file to be loaded must be from one of the following
+locations (the order indicates the file search priority):</p>
+<ul>
+  <li>
+    <p>absolute or relative path to the directory with the resource file</p>
+  </li>
+  <li>
+    <p>Default Script Library directory <a href="Script_library.html">Script Library</a> (<span style="font-style: italic;">%CSSCRIPT_DIR%\Lib</span>)</p>
+  </li>
+  <li>
+    <p>Custom Script Library directory(s) (specified&nbsp;in
+the&nbsp;configuration console <a href="Config.html">SearchDirs</a>)</p>
+  </li>
+</ul>
+
+<p>Remember that you may need to escape some path characters that conflict with the //css_* delimiters. See <a href="Directives.html">Delimiters Escaping</a> section.<br></p><p>The following code&nbsp;loads <span style="font-style: italic;">Scripting.Form1.resources</span> resource file at execution time thus code in the Form1 implementation can access any resources from this file.<br>
+</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_res&nbsp;Scripting.Form1.resources;<br>
+      </font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.Windows.Forms;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;Test&nbsp;<br>
+{&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; Application.Run(<font color="#0000ff" size="2">new</font>&nbsp;Form1());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+      <br>
+      <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Form1&nbsp;:&nbsp;System.Windows.Forms.Form<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;....<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Of course a managed resource file represents some value of it's own
+but also it is a "must have" runtime component of some types&nbsp;for the managed
+applications.&nbsp;
+<p></p>
+<p>For example XAML applications (.NET3.0) retrieve compiled XAML file
+(BAML) from the application resources. This can be changed in the final
+release of the .NET3.0 but currently all standard&nbsp;XAML application
+created with WPF relay on&nbsp;use of managed resources.&nbsp;</p>
+<p>Another example is a WinForm application with ActiveX controls.
+Technically speaking you do not need to have managed resources in you
+application for this. However if your script application is created with the
+Visual Studio wizard it will always use managed resources to initialise
+ActiveX control at startup. It is possible to remove such
+initialization from the <span style="color: rgb(0, 0, 144);">InitializeComponent()</span> and run the code as a script but you may want to preserve <span style="color: rgb(0, 0, 144);"> InitializeComponent()</span> from any modifications (as it can break a form designer).
+In this case you script will need to load resources. Thus if your
+Visual Studio project produces <span style="font-style: italic;">obj\Debug\MyApp.MyForm.resource</span> file it
+needs to be included in your script.<br>
+<br>
+</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_res&nbsp;MyApp.MyForm.resources;<br>
+      </font><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.Windows.Forms;<br>
+      <br>
+namspace&nbsp;MyApp&nbsp;<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;MyForm&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.....</font></td>
+    </tr>
+  </tbody>
+</table>
+<p><br>
+The interesting things is that it actually does not matter what
+resource file is used, ActiveX will be initialized successfully with
+any valid resource file. That is why for all scripts with ActiveX
+controls you can specify&nbsp;the same resource file. However this dummy resource file has to be appropriately named. :<br>
+<br>
+</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_pre&nbsp;com(/ax,&nbsp;MSCAL.Calendar,&nbsp;AxInterop.MSACAL.dll);<br>
+      </font><font color="#008000" size="2">//css_ref&nbsp;AxInterop.MSACAL.dll;<br>
+      </font><font color="#008000" size="2">//css_res&nbsp;Scripting.Form1.resources;<br>
+      </font><br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.Drawing;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.Windows.Forms;<br>
+      <br>
+      <font color="#0000ff" size="2">namespace</font>&nbsp;Scripting<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Form1&nbsp;:&nbsp;System.Windows.Forms.Form<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;......</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<p>The first two lines produce a managed wrapper for MS Calendar
+ActiveX and instruct CS-Script to referenced&nbsp;produced wrapper
+assembly. The next line indicates that&nbsp;the&nbsp;CS-Script engine&nbsp;needs to&nbsp;load this resource file at execution time. </p>&nbsp;<br>If
+it is required to generate not dummy but a real&nbsp;resources file you
+may generate it on fly from the XML resx file. This is what typically
+Visual Studio does for you when the project conteins .resx files.<br><br><table style="text-align: left; width: 705px; height: 316px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#008000" size="2">//css_res
+Resources.resx;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;</font><br><font color="#0000ff" size="2">using</font>&nbsp;System;<br><font color="#0000ff" size="2">using</font>&nbsp;System.IO;<br><font color="#0000ff" size="2"></font><font color="#0000ff" size="2">using</font>&nbsp;System.Reflection;<br><font color="#0000ff" size="2">using</font>&nbsp;System.Resources;<br><br><font color="#0000ff" size="2">class</font>&nbsp;Script<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2"></font>)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">var</font> res =&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;ResourceManager(<font color="#800000" size="2">"Resources"</font>,&nbsp;Assembly.GetExecutingAssembly());<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine(<font color="#800000" size="2">"String1=\"{0}\""</font>, res.GetObject</font><font face="Courier New" size="2">(<font color="#800000" size="2">"String1"</font></font><font face="Courier New" size="2">));<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</font></td></tr></tbody></table><br>
+<h4 class="dtH4">See Also</h4>
+<p> <a href="Script_library.html">Script Library</a> | <a href="Using_COM_tutorial.html">
+Using COM (Tutorial)</a>&nbsp;</p>
+<p> &nbsp;</p>
+<p> &nbsp;</p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"> <param name="Keyword" value="Using Assemblies">
+</object></div>
+</body></html>

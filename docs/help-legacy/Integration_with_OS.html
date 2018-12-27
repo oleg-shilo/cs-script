@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <title>Integration with OS</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            </td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Integration with OS</h1>
+      </div>
+    </div>
+<div id="nstext">
+<p>
+The script engine application is self-sufficient and doesn't need to be
+integrated with OS in any way in order to execute a script. However
+during the installation some level of integration is achieved: </p>
+<ul>
+  <li>
+    <p>
+PATH system environment variable is updated with the location of the script engine.<br>
+    Thus, the script engine file name in a command-line can be specified without directory part.</p>
+  </li>
+  <li>
+    <p>
+CSSCRIPT_DIR system environment variable is created.<br>
+    Thus scripts from the <a href="Script_library.html"> Script Library</a> folder (<span style="font-style: italic;">%CSSCRIPT_DIR%/Lib</span> ) can be referenced from another scripts (see
+    <a href="Importing_scripts.html"> Script importing</a>).</p>
+  </li>
+  <li>
+    <p>
+Shell extension "Run as script" is installed.<br>
+Thus, script can be run with a mouse right-click action.</p>
+  </li>
+  <li>
+    <p>Shell extension(s) "Open as script" is installed (when appropriate).<br>
+Thus, script can be opened in appropriate IDE with a mouse right-click action (see
+    <a href="Development_tools.html"> Development tools</a>).</p>
+  </li>
+</ul>
+<i>Note: the level of CS-Script integration with OS may very from <font style="background-color: rgb(49, 106, 197);" color="#ffffff">version to version</font></i>
+<h4 class="dtH4">See Also</h4>
+<p><a href="Installation.html">Installation</a> | <a href="Importing_scripts.html"> Importing C# scripts</a> |
+<a href="Development_tools.html"> Development tools&nbsp;</a></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="Installation">
+</object>
+    </div>
+</body>
+</html>
+

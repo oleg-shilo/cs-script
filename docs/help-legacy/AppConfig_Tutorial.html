@@ -1,0 +1,332 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <title>Accessing Script Config File Tutorial</title>
+
+
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+
+</head>
+
+
+<body id="divID" class="dtBODY">
+
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+
+  <tbody>
+
+    <tr id="hdr">
+
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+
+      </td>
+
+      <td class="product"> </td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+</div>
+
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Accessing Script
+Config File&nbsp;Tutorial&nbsp; &nbsp;</h1>
+
+</div>
+
+</div>
+
+<div id="nstext">
+<h4 class="dtH4">Step-by-step tutorial&nbsp;</h4>
+
+<p>The following tutorial shows how to access script application
+settings stored in the &lt;scriptName&gt;.config or any other
+compatible configuration file.</p>
+
+<p> create and execute the
+script
+that
+allows users to print any text string to the default printer with print
+preview. This is an example of multiple scripts application.&nbsp;</p>
+
+<ol>
+
+  <li>By using any text editor (eg. Notepad.exe) create file <span style="font-style: italic;">AppSettings.cs</span> that
+contains the following code:<br>
+
+    <br>
+
+    <table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+      <tbody>
+
+        <tr>
+
+          <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+
+          <font color="#0000ff" size="2">using</font>&nbsp;System.Configuration;<br>
+
+          <font color="#0000ff" size="2">using</font>&nbsp;System.Xml;<br>
+
+          <font color="#0000ff" size="2">using</font>&nbsp;System.Collections;<br>
+
+          <font color="#0000ff" size="2">using</font>&nbsp;System.Collections.Specialized;<br>
+
+          <font color="#0000ff" size="2">using</font>&nbsp;CSScriptLibrary;<br>
+
+          <font color="#0000ff" size="2">using</font>&nbsp;csscript;<br>
+
+          <br>
+
+          <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+
+{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">try</font><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Script&nbsp;file:&nbsp;"</font>&nbsp;+&nbsp;CSSEnvironment.ScriptFile);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Config&nbsp;file:&nbsp;"</font>&nbsp;+&nbsp;CSSEnvironment.ConfigFile);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"---------"</font>);<br>
+
+          <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDictionary&nbsp;values&nbsp;=&nbsp;(IDictionary)CSSEnvironment.GetConfig(<font color="#800000" size="2">"testSection"</font>);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"testSection.value0&nbsp;=&nbsp;"</font>&nbsp;+&nbsp;(<font color="#0000ff" size="2">string</font>)values[<font color="#800000" size="2">"value0"</font>]);<br>
+
+          <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"greeting0&nbsp;=&nbsp;"</font>&nbsp;+&nbsp;CSSEnvironment.AppSettings[<font color="#800000" size="2">"greeting0"</font>]);<br>
+
+          <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NameValueCollection&nbsp;values1&nbsp;=&nbsp;(NameValueCollection)CSSEnvironment.GetConfig(<font color="#800000" size="2">"appSettings"</font>);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"greeting1&nbsp;=&nbsp;"</font>&nbsp;+&nbsp;values1[<font color="#800000" size="2">"greeting1"</font>]);<br>
+
+          <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CSSEnvironment.ConfigFile&nbsp;=&nbsp;CSSEnvironment.ConfigFile+<font color="#800000" size="2">".bak"</font>;<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Config&nbsp;file:&nbsp;"</font>&nbsp;+&nbsp;CSSEnvironment.ConfigFile);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"---------"</font>);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"greeting0&nbsp;=&nbsp;"</font>&nbsp;+&nbsp;CSSEnvironment.AppSettings[<font color="#800000" size="2">"greeting0"</font>]);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">catch</font>&nbsp;(Exception&nbsp;e)<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(e);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+
+}</font></td>
+
+        </tr>
+
+      </tbody>
+    </table>
+
+    <em></em><a style="font-style: italic;" href="Tutorial/PrintText.cs"><br>
+
+    </a> <span style="font-style: italic;"></span><em>Click
+here to obtain full&nbsp;</em><a style="font-style: italic;" href="Tutorial/AppSettings/AppSettings.cs">listing
+of&nbsp;<span style="font-style: italic;">AppSettings.cs</span></a><span style="font-style: italic;"></span></li>
+
+  <li><em></em><span style="font-style: italic;"></span>Create
+the configuration file&nbsp;<span style="font-style: italic;">AppSettings.cs</span>
+that contains the following data:<br>
+
+    <br>
+
+    <table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+      <tbody>
+
+        <tr>
+
+          <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">&lt;?xml&nbsp;version=<font color="#800000" size="2">"1.0"</font>&nbsp;encoding=<font color="#800000" size="2">"utf-8"</font>&nbsp;?&gt;<br>
+
+&lt;configuration&gt;<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;configSections&gt;<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;section&nbsp;name=<font color="#800000" size="2">"testSection"</font>&nbsp;type=<font color="#800000" size="2">"System.Configuration.SingleTagSectionHandler,&nbsp;System,&nbsp;Version=1.0.5000.0,&nbsp;Culture=neutral,PublicKeyToken=b77a5c561934e089"</font>&gt;<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;</font></td>
+
+        </tr>
+
+      </tbody>
+    </table>
+
+    <a style="font-style: italic;" href="Tutorial/PrintText.cs"><br>
+
+    </a> <span style="font-style: italic;"></span><em>Click
+here to obtain full&nbsp;</em><a style="font-style: italic;" href="Tutorial/AppSettings/AppSettings.cs.config">listing
+of&nbsp;<span style="font-style: italic;">AppSettings.cs.config</span></a></li>
+
+  <li>Make a copy of the <span style="font-style: italic;">AppSettings.cs.config</span>
+and name it <span style="font-style: italic;">AppSettings.cs.config.bak.
+    </span>In the&nbsp;<span style="font-style: italic;">AppSettings.cs.config.bak
+    </span>change a few values (eg. as this&nbsp;<a style="font-style: italic;" href="Tutorial/AppSettings/AppSettings.cs.config.bak"><span style="font-style: italic;">AppSettings.cs.config.bak</span></a>).</li>
+
+  <li>Open command prompt. Make sure current directory is the
+directory where <span style="font-style: italic;">AppSettings</span><i>.cs</i>
+located.&nbsp;</li>
+
+  <li value="5">Execute the following command in
+command-prompt:<br>
+
+    <div class="syntax">cscs AppSettings.cs</div>
+
+  </li>
+
+</ol>
+
+<h4 class="dtH4">Output&nbsp;</h4>
+
+<p>The script will produce the following output: </p>
+
+<p style="text-align: center;"><img style="width: 661px; height: 224px;" alt="" src="Images/AppSettings.PNG"><br>
+
+</p>
+
+<h4 class="dtH4">Code discussion&nbsp;</h4>
+
+<p>The code from this tutorial demonstrates the use of
+the&nbsp;<span style="color: rgb(51, 51, 153);">CSSEnvironment</span>
+class.&nbsp;</p>
+
+<p> The first section of the application output
+contains&nbsp;names of
+the script file being executed and default script configuration file
+containing the application settings.</p>
+
+<br>
+
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+  <tbody>
+
+    <tr>
+
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">...<br>
+
+Console.WriteLine(<font color="#800000" size="2">"Script&nbsp;file:&nbsp;"</font>&nbsp;+&nbsp;CSSEnvironment.ScriptFile);<br>
+
+Console.WriteLine(<font color="#800000" size="2">"Config&nbsp;file:&nbsp;"</font>&nbsp;+&nbsp;CSSEnvironment.ConfigFile);<br>
+
+...</font></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<br>
+
+The second section of the output contains values of the <span style="font-style: italic;">greeting0</span> and <span style="font-style: italic;">greeting1</span> fields
+from the <span style="font-style: italic;">AppSettings</span>
+section and field <span style="font-style: italic;">value0</span>
+from the <span style="font-style: italic;">testSection</span>
+section. The code associated with this output demonstrates various
+techniques of accessing the configuration file fields.<br>
+
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+  <tbody>
+
+    <tr>
+
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">...<br>
+
+IDictionary&nbsp;values&nbsp;=&nbsp;(IDictionary)CSSEnvironment.GetConfig(<font color="#800000" size="2">"testSection"</font>);<br>
+
+Console.WriteLine(<font color="#800000" size="2">"testSection.value0&nbsp;=&nbsp;"</font>&nbsp;+&nbsp;(<font color="#0000ff" size="2">string</font>)values[<font color="#800000" size="2">"value0"</font>]);<br>
+
+      <br>
+
+Console.WriteLine(<font color="#800000" size="2">"greeting0&nbsp;=&nbsp;"</font>&nbsp;+&nbsp;CSSEnvironment.AppSettings[<font color="#800000" size="2">"greeting0"</font>]);<br>
+
+      <br>
+
+NameValueCollection&nbsp;values1&nbsp;=&nbsp;(NameValueCollection)CSSEnvironment.GetConfig(<font color="#800000" size="2">"appSettings"</font>);<br>
+
+Console.WriteLine(<font color="#800000" size="2">"greeting1&nbsp;=&nbsp;"</font>&nbsp;+&nbsp;values1[<font color="#800000" size="2">"greeting1"</font>]);<br>
+
+...</font></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<p></p>
+
+<p> The third section of the output contains value of the <span style="font-style: italic;">greeting0</span>
+field from custom&nbsp;script configuration file.
+&nbsp;The&nbsp;code
+associated with this section also demonstrates how to instruct the
+CS-Script engine to use non-default (custom)script configuration
+file.&nbsp;</p>
+
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+  <tbody>
+
+    <tr>
+
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">...<br>
+
+CSSEnvironment.ConfigFile&nbsp;=&nbsp;CSSEnvironment.ConfigFile+<font color="#800000" size="2">".bak"</font>;<br>
+
+...<br>
+
+Console.WriteLine(<font color="#800000" size="2">"greeting0&nbsp;=&nbsp;"</font>&nbsp;+&nbsp;CSSEnvironment.AppSettings[<font color="#800000" size="2">"greeting0"</font>]);<br>
+
+...</font></td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<h4 class="dtH4">
+See Also </h4>
+
+<p><a href="Tutorial.html">CS-Script tutorials</a>
+|&nbsp;<a href="Environment.html">CS-Script Runtume
+Environment</a>
+&nbsp;|&nbsp;<a href="AppConfig.html">CS-Script
+application configuration</a>
+&nbsp;</p>
+
+<br>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"> <param name="Keyword" value="Importing script tutorial">
+</object>
+ </div>
+
+</body>
+</html>

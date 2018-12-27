@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <title>Advanced scripting</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Advanced scripting</h1>
+</div>
+</div>
+<br>
+<div id="nstext"><font face="Arial" size="2"><span><span style="font-weight: bold;">Background</span><br>
+Some CS-Script users&nbsp;asked about execution of the classless scripts.<br>
+<br>
+</span></font>
+<div style="margin-left: 40px;"><span style="font-style: italic; color: rgb(0, 0, 153);">...I know many other scripting languages (JS, python, etc) don't require 
+class </span><span style="font-style: italic; color: rgb(0, 0, 153);">and function declarations, yet still allow them if so desired. 
+&nbsp;Could </span><span style="font-style: italic;"><span style="color: rgb(0, 0, 153);">your engine do the same?...<br>
+</span><br>
+</span></div>
+<font face="Arial" size="2"><span>There is a big difference between Python/JS 
+and CS-Script as development systems. CS-Script is entirely based on the 
+existing language (ECMA C#). In a way CS-Script is an extension&nbsp;of the C# and as 
+such it follows all C# and CLR patterns and constraints. This</span></font><font face="Arial" size="2"><span> approach</span></font><font face="Arial" size="2"><span> offers a lot of benefits:</span></font><br>
+<div>
+<ul>
+  <li><font face="Arial" size="2"><span><span>no need to develop any special C# compiler</span></span></font>
+  </li>
+  <li><font face="Arial" size="2"><span><span></span></span></font><font face="Arial" size="2"><span>script code is interchangeable (any existing usual C# 
+code&nbsp;can be taken and executed as a script)</span></font>
+  </li>
+  <li><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span>compiled scripts can be referenced as&nbsp;class libraries (because they are) 
+by other CLR modules</span></font>
+  </li>
+  <li><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span>developers do not need to remember any syntactical differences 
+between C# and C# script (because </span></font><font face="Arial" size="2"><span>there are none)</span></font>
+  </li>
+  <li><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span>very small footprint due to usage of existing 
+compilers</span></font>
+  </li>
+  <li><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span><span>no need to develop any new IDEs (any existing&nbsp;IDE for C#&nbsp;can 
+be used)</span></span></font>
+  </li>
+  <li><font face="Arial" size="2"><span><span>......<br>
+    </span></span></font></li>
+</ul>
+</div>
+<font face="Arial" size="2"><span>Of course it is possible&nbsp;for the 
+script engine to&nbsp;execute <span class="st0" id="st" name="st">classless</span>
+(free-style) C# code.&nbsp;Even&nbsp;very
+simple text manipulation&nbsp;with the classless C# code (inserting the
+code in the empty&nbsp;class declaration) allows to create a standard C#
+code and execute it. However it would ultimately require&nbsp;creating and
+maintaining specially designed IDE and/or code editors, special compiler message translators etc. With classless
+scripts no third-party tools can be used&nbsp;to assists with&nbsp;development. </span></font><font face="Arial" size="2"><span>In other words,&nbsp;all benefits listed above would be 
+diminished.<br>
+</span></font><font face="Arial" size="2"><span>Having said&nbsp;that, it is impossible to ignore the fact that in some situations it would be desirable to have 
+very light scripts with working code only and no code infrastructure. Fortunately, this can 
+be accomplished by extending CS-Script without changing it's core 
+implementation. And this has already been partially&nbsp;done in the earlier versions with the&nbsp;<span style="font-style: italic;">code.cs</span> script&nbsp;(see <a href="Script_library.html">Script Library</a>). This script&nbsp;allows&nbsp;execution of the&nbsp;C# code statements&nbsp;from the command-line 
+without having&nbsp;any script file at all. <br>
+<br>
+The current version of the CS-Script comes with <span style="font-style: italic;">CSSCodeProvider.dll</span> assembly. It is an <a href="Alternative_Compilers.html">alternative compiler</a>, which can handle C#, VB, JScript and C# (classless C#) syntax. </span></font><font face="Arial" size="2"><span>This&nbsp;compiler makes decision which particular parser to engage at
+run time on the base of the script file extension. The extension <span style="font-style: italic;">.ccs</span> will always&nbsp;trigger the usage of the CC# parser.<br>
+<br>
+The CC# parser is a very&nbsp;</span></font><font face="Arial" size="2"><span>primitive parser, which analyses the code in order
+to detect
+if it is written in&nbsp;classless or standard C# syntax. If&nbsp;the
+script code is a&nbsp;classless C#&nbsp;it is injected into an empty class declaration and
+obtained code is executed, otherwise the script is executed as usual. </span></font><font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span><br>
+<br>
+Every thing what can be achieved in standard C# can be done with classless C# too.&nbsp;</span></font><font face="Arial" size="2"><span>As with standard C# scripts you can <a href="Importing_scripts.html">import</a> other scripts from you code. The important
+thing to remember, when doing this,&nbsp;is that compiler
+automatically adds namespace and class to the imported script. </span></font><font face="Arial" size="2"><span>Inserted namespace is the imported script file name without extension and the class name is always&nbsp;"Script". </span></font><font face="Arial" size="2"><span>Thus if
+you import the following script (<span style="font-style: italic;">imp.ccs</span>):<br>
+</span></font>
+<pre class="code">public static void Print(string text)<br>{<br>    Console.WriteLine(text);<br>}</pre>
+t<font face="Arial" size="2"><span>he compiler will interpret it as following: <br>
+</span></font>
+<pre class="code">using System;<br><br>namespace imp<br>{<br>    public class Script<br>    {<br>        public static void Print(string text)<br>        {<br>            Console.WriteLine(text);<br>        }<br>    }<br>}</pre>
+<font face="Arial" size="2"><span>
+So if you need to import <span style="font-style: italic;">imp.ccs</span> file it would need to be done this way (<span style="font-style: italic;">impTest.ccs</span>): <br>
+</span></font>
+<pre class="code">//css_import imp.ccs;<br><br>imp.Script.Print("test");</pre>
+<br>
+<span style="font-weight: bold; font-style: italic;">Note:<br>
+</span>
+<ul style="font-style: italic;">
+  <li>Any .ccs file can import both&nbsp;.cs and .ccs scripts, however .cs can do only another .cs files.</li>
+  <li>
+Remember the usage of&nbsp;namespaces can help to avoid any naming colisions.</li>
+  <li>You can use ccs2cs.cs (<a href="Script_library.html">Script Library</a>) script to do conversion of any CC# script to the standard C# script.</li>
+</ul>
+<span style="font-weight: bold;">Limitations</span><br>
+<font face="Arial" size="2"><span>Classless C# syntax implies some
+restrictions and limitations. Thus any file which contains classless C# must
+consist of the following parts:</span></font><font face="Arial" size="2"><span><br>
+</span></font>
+<ul>
+  <li><span style="font-style: italic;">Optional&nbsp;header</span><br style="font-style: italic;">
+contains C# and CS-Script &nbsp;directives (e.g. <span style="color: rgb(51, 0, 153);">using System.IO; //css_reference CSScriptLibrary.dll;</span>)</li>
+</ul>
+<font face="Arial" size="2"><span></span></font>
+<ul>
+  <li><span style="font-style: italic;">Body</span><br style="font-style: italic;">
+contains a free standing C# code without any class declarations</li>
+</ul>
+<font face="Arial" size="2"><span></span></font>
+<ul>
+  <li><span style="font-style: italic;">Optional footer <br>
+    </span>contains additional class declarations and method definitions<span style="color: rgb(51, 0, 153); font-style: italic;"></span></li>
+</ul>
+<font face="Arial" size="2"><span>Because it is not possible to predict
+future changes in the standard C# syntax or even due to the
+implementation limitations it is possible that CC# parser may produce
+incorrect outcome. For such cases special CC#</span></font><font face="Arial" size="2"><span> code markers&nbsp;</span></font><font face="Arial" size="2"><span>can be&nbsp;used to insure correct parsing. Such markers are used to indicate the start and the end of the </span></font><font face="Arial" size="2"><span>CC# </span></font><font face="Arial" size="2"><span>code <span style="font-style: italic;">Body</span> part&nbsp;and they are:<br>
+<span style="font-style: italic;">
+&nbsp;&nbsp;&nbsp; </span></span></font><span style="color: rgb(51, 0, 153); font-style: italic;"><span style="font-style: italic;"> </span></span><span style="color: rgb(51, 0, 153);">//css_begin;</span><span style="color: rgb(51, 0, 153); font-style: italic;"><br>
+</span><font style="font-style: italic;" face="Arial" size="2"><span>&nbsp;&nbsp;&nbsp; </span></font><span style="color: rgb(51, 0, 153); font-style: italic;"> </span><span style="color: rgb(51, 0, 153);">//css_end;</span><br>
+<font face="Arial" size="2"><span>The usage of these markers can be illustrated with the following code:<br>
+</span></font>
+<pre class="code">using System;<br></pre>
+<font face="Arial" size="2"><span></span></font><span style="color: rgb(51, 0, 153); font-style: italic;"> //css_begin;</span>
+<pre class="code">Print("test");<br></pre>
+<span style="color: rgb(51, 0, 153);">//css_end;</span>
+<pre class="code">static void Print(string text)<br>{<br>    Console.WriteLine(text);<br>}</pre>
+<font face="Arial" size="2"><span>
+</span></font>
+<h4 class="dtH4">Examples</h4>
+<div style="text-align: center;">
+<div style="text-align: left;">
+<div><font face="Arial" size="2"><span>This is an example of the script, which sets </span></font><font face="Arial" size="2"><span>a Read-Only attribute to </span></font><font face="Arial" size="2"><span>all files from the current directory&nbsp;.</span></font>
+<pre class="code">using System.IO;<br>using System.Windows.Forms;<br> <br><br>string msg = "Do you want to make all files in "+Environment.CurrentDirectory+" Read-Only?";<br> <br>if (DialogResult.Yes == MessageBox.Show(msg, "CS-Script", MessageBoxButtons.YesNo))<br>    foreach (string file in Directory.GetFiles(Environment.CurrentDirectory))<br>        File.SetAttributes(file, FileAttributes.ReadOnly);</pre>
+<p></p>
+<font face="Arial" size="2"><span>This is a different edition of the same script. Now&nbsp;the classless C# code contains method definition</span></font><font face="Arial" size="2"><span>.</span></font>
+<pre class="code">using System.IO;<br>using System.Windows.Forms;<br><br> <br>string dir = Environment.CurrentDirectory;<br>string msg = "Do you want to make all files in "+dir+" Read-Only?";<br> <br>if (DialogResult.Yes == MessageBox.Show(msg, "CS-Script", MessageBoxButtons.YesNo))<br>    SetReadOnly(dir);<br><br><br>static void SetReadOnly(string dir)<br>{<br>    foreach (string file in Directory.GetFiles(dir))<br>        File.SetAttributes(file, FileAttributes.ReadOnly);<br>}</pre>
+<p></p>
+<font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span>This
+is an example of the script </span></font><font face="Arial" size="2"><span>(the&nbsp;simplest possible)</span></font><font face="Arial" size="2"><span>, which prints the names of all <span style="font-style: italic;">.exe </span>files
+from the current directory. This script does not have any <span style="font-style: italic; color: rgb(51, 0, 153);">using</span> directives at all (<span style="color: rgb(51, 0, 153);">using System</span>; is always assumed for all classless scripts).</span></font>
+<pre class="code">foreach (string file in System.IO.Directory.GetFiles(Environment.CurrentDirectory, "*.exe"))<br>    Console.WriteLine(file);</pre>
+<font face="Arial" size="2"><span></span></font><font face="Arial" size="2"><span><br>
+This
+is another version of the script above, which illustrates the usage of classes in the classless scripts.</span></font><font face="Arial" size="2"><span></span></font>
+<pre class="code">new Executables().Print();<br><br>class Executables<br>{<br>    public void Print()<br>    {<br>        foreach (string file in  System.IO.Directory.GetFiles(Environment.CurrentDirectory, "*.exe" ))<br>            Console.WriteLine(file);<br>    }<br>}</pre>
+</div>
+</div>
+</div>
+<h4 class="dtH4">See Also</h4>
+<br>
+<a href="Alternative_Compilers.html">Alternative
+compilers</a> |&nbsp;<a href="Script_library.html">Script Library</a> | <a href="Importing_scripts.html">Importing scripts</a><a href="ws.html"><span style="text-decoration: underline;"><br>
+</span></a></div>
+</body>
+</html>
+

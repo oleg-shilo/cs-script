@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <title>Support for Compact Framework</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Support for Compact
+Framework</h1>
+</div>
+</div>
+<div id="nstext">
+<p>One of the most frequently asked questions about the CS-script
+is a question about running the script engine on PocketPC.</p>
+<p>Unfortunately Compact Framework (CF) is not ready yet for
+running dynamically loaded/compiled&nbsp;managed code.</p>
+<p>The reason for this is that CF does not have implementation of
+the
+C# ICodeCompiler. Another words the following code would not compile:<br>
+</p>
+<pre class="code">ICodeCompiler compiler = (new CSharpCodeProvider()).CreateCompiler();<br></pre>
+<span style="font-style: italic;"></span>If, in any
+future version of
+CF, Microsoft includes the CSharpCodeProvider implementation the
+CS-Script will work on such platform.<br>
+<br>
+Starting from version 1.3 CS-Script supports <a href="Alternative_Compilers.html">pluggable custom compilers</a>.
+It means that if you have third-party&nbsp;implementation of the
+CLR
+compiler that can work on CF it can be&nbsp;used instead of
+Microsoft
+compiler and CS-Script engine will be able to run C# scripts under CF.<br>
+<br>
+Basically you need any workable C# compiler either managed or native
+that would work on CF. <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-style: italic;">I have tried to resolve the
+problem by isolating the compiler from </span><span style="font-weight: bold; font-style: italic;">full</span><span style="font-style: italic;">
+version of .NET Framework&nbsp;and bringing it on CF but did not
+succeeded. Also I was trying to use third-party compilers (after all it
+does not matter what software does the conversion C#-&gt;IL).
+&nbsp;The
+</span><a href="http://weblogs.asp.net/pleloup/archive/2004/06/09/151853.aspx">Pocket
+C# compiler</a><span style="font-style: italic;">
+looked promising but I could not get it working. Even despite the fact that I have
+seen some reports dated 2004 that it actually did work. </span><br>
+</div>
+<br>
+However CS-Script provides some very limited support for CF. It
+comes&nbsp;in a form of <span style="font-style: italic;">cfbuild.cs</span>
+script, which allows building a CF compatible managed executable from
+any appropriate the C# script. <br>
+<br>
+You can compile&nbsp;the "Hello-World" script (<span style="font-style: italic;">hello.cs</span>) into executable for
+WinCE5.0 with the following command: <br>
+<div class="syntax">//cscs cfbuild hello</div>
+This is the content of the <span style="font-style: italic;">hello.cs</span>:<br>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;System.Windows.Forms;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<font color="#800000" size="2">"Just&nbsp;a&nbsp;test!"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The produced executable can be run on the MS Device emulator or real
+PocketPC.<br>
+<br>
+MS Device emulator:<br>
+<div style="text-align: center;"><img style="width: 346px; height: 585px;" alt="" src="Images/CF1.PNG"><br>
+</div>
+<br>
+PocketPC:<br>
+<div style="text-align: center;"><img style="width: 258px; height: 435px;" alt="" src="Images/CF2.PNG"><br>
+</div>
+<br>
+You can also use <span style="font-style: italic;">cfbuild.cs</span>
+to install/uninstall the shell extensions for building CF based
+executables from the scripts:
+<div class="syntax">//cscs cfbuild /i</div>
+<div style="text-align: center;"><span style="font-style: italic;"></span><img style="width: 345px; height: 264px;" alt="" src="Images/CFMenu.PNG"><br>
+<br>
+</div>
+Note: when you execute <span style="font-style: italic;">cfbuild.cs</span>
+for the first time you will be asked to specify the location of the CF
+installed on your PC. You have to do it only once (<span style="font-style: italic;">cfbuild.cs </span>will
+remember CF location for the next sessions.<br>
+<br>
+<h4 class="dtH4">See Also&nbsp;</h4>
+<p><a href="Alternative_Compilers.html">Alternative
+Compilers</a></p>
+</div>
+<br>
+</body>
+</html>
+

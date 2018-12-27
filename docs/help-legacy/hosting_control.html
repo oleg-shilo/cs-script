@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+
+
+
+
+
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+
+  
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Hosting Control</title>
+  
+
+  
+  <xml></xml>
+  
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Hosting control</h1>
+</div>
+</div>
+
+<div id="nstext">
+<p>The choice of the CLR (version, CPU architecture), which hosts the
+the script at runtime is simple: it is the CLR of the script host
+application. If the script engine is hosted by the custom application
+the script will be executed by the same CLR, which the host
+appliocation was built against. The same is applicable for the
+standalone script execution when the script engine is hosted by the
+dedicated "engine" aplication (<span style="font-style: italic;">cscs.exe/csws.exe</span>).</p>
+<p>Such a nature of CLR sometimes refered as "sticky": once loaded by
+the process CLR cannot be unloaded or replaced by another version of
+CLR. Another side of the same coin is that only one CLR can be loaded
+by process.<br>
+</p>
+<p>All this has certain impact on the CS-Script hosting model for
+standalone script execution. <br>
+</p>
+<p>Consider this: the script to be executed
+on x64 OS needs to interact with the x32 native DLL. To complicate the things the
+script needs to be executed under CLR v2.0 (while the script engine
+cscs.exe is compiled for CLR v4.0). The immediate answer to the problem
+would be to set  <a href="Config.html"><span style="font-style: italic;">TargetFramework</span></a> to "v2.0" and specify C# compiler option <a href="Command-line_Interface.html">/platform:x86</a> (as a command-line argument or <a href="CompilerOptionsDirective.html">directly from the script</a>).
+Well this would work only if you are using CS-Script to produce exe or
+dll from the script. However CLR will not be able to execut such a
+script. Why? The reason is simple: while the compiled script is indeed
+built for CLR v2.0 and x86 the host application (cscs.exe) is built
+for AnyCPU and CLR v4.0 thus the CLR version incompatible with the
+script assembly will be loaded first.</p>
+
+<p><br>
+</p>
+<p style="margin-left: 40px; font-style: italic;">Note: While possible
+in may cases the backwords compatibility (e.g. assembly built for CLR
+v2.0 to be executed on CLR v4.0) is not guaranteed. <br>
+For example calling the Microsoft.SqlServer.Management.Common.BeginTransaction from
+Microsoft.SqlServer.ConnectionInfo.dll (built for CLR v2.0) will throw
+the following exception if executed under CLR v4.0:<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; "Mixed mode assembly is built against version
+'v2.0.50727' of the runtime and can not be loaded in the 4.0 runtime
+without additional configuration information."<br>
+</p>
+<br>
+Therefore setting <a href="Config.html"><span style="font-style: italic;">TargetFramework</span></a> in the configuratipn console has very limited practical application (e.g. building executables from a script file).<br>
+<br>
+The actual solution to the problem is the using the <span style="color: rgb(0, 0, 153);">//css_host</span> directive in the script. <br>
+<br>
+<div style="width: 830px;" class="syntax">
+&nbsp;//css_host [/version:&lt;CLR_Version&gt;] [/platform:&lt;CPU&gt;];</div>
+<p><b>CLR_Version</b> - specifies the version of CLR the script should be execute on (e.g. 2.0).<br>
+<span style="font-weight: bold;">CPU</span> - indicates which platforms the script should be run on: x86, Itanium, x64, or anycpu.</p><br>
+<p>These directive is used to execute script from a surrogate host
+process. The script engine application (cscs.exe or csws.exe) launches
+the script execution as a separate process, which is specifically built
+for the required version of CLR and OS CPU architecture.</p><br>
+<p>The surrogate process is a "mini" version of CS-Script engine itself
+stripped off all scripting functionality an capable of only hosting the
+compiled script assembly. <br>
+</p>
+
+<br>
+<span style="font-style: italic;"></span><br>
+<br>
+<div style="text-align: center;"><img style="width: 313px; height: 86px;" alt="" src="Images/DefaultExecutionModel.png"><br>
+<br>
+<span style="font-style: italic;">Default Execution Model</span><br>
+<span style="font-style: italic;"></span></div>
+<span style="font-style: italic;"><br>
+</span><span style="font-style: italic;"></span><br>
+<p style="text-align: center;"><img style="width: 432px; height: 161px;" alt="" src="Images/SurrogateExecutionModel.png"><br>
+</p>
+<p style="text-align: center;"><span style="font-style: italic;">"Surrogate" Execution Model</span></p>
+<br>
+<p>Because of the very light nature the surrogate process many CS-Script
+runtime features cannot be accessed from the script being executed
+(e.g. CSSEnvironment). Also the <span style="font-style: italic;">entry assembly</span> of the script process is no longer the <span style="font-style: italic;">cscs.exe/csws.exe</span> thus it cannot be used to obtain the information about the application/current directory. Also the all <span style="font-style: italic;"><a href="Config.html">DefaultRefAssemblies</a>&nbsp;</span>are
+ignored. The reason for this limitation is very practical. The default
+assemblies are not warranteed may be valid in the surrogate host
+environment (e.g. System.Linq.dll fo the host prosess of v2.0 .NET).</p><br><span style="font-style: italic;">Note:
+Even if you can supply the version of the CLR to be used for surrogate
+process it may not be the best choice for hosting. //css_host directive
+is primarily designed to handle x86 vs x64 cases it will not prevent
+your assembly references identified by the&nbsp;script engine (of the
+latest CLR) being supplied to the older CLR surrogate host process. It
+may just work as some assemblies are not changed between the CLR
+versions. However if you are changing the version (not only the CPU
+architecture) the best practice is to use the corresponding build of
+the script engine. The builds for the older versions of CLR are in the
+&lt;cs-script&gt;\Lib\Bin folder.</span>
+
+<br>
+<p><b>
+</b><span style="font-style: italic;">This feature was not in the original design of CS-Script but was added
+due to users demand.</span></p>
+<p><span style="font-style: italic;"><br>
+</span></p>
+
+
+<h4 class="dtH4">Example &nbsp;</h4>
+<p>
+The following are example
+(&lt;cs-script&gt;\Samples\SurrogateHostScript.cs) demonstrates how to
+force the script to be compiled and executed against legacy CLR and
+alternative CPU architecture on Windows x64:</p>
+<p><small><br>
+
+</small></p>
+
+<table style="width: 695px; text-align: left; height: 208px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+      <pre style="font-family: consolas;"><small><span style="font-family: Lucida Sans; font-size: 12px; color: green;">//css_host&nbsp;/version:v2.0&nbsp;/platform:x86;</span><br><span style="color: blue;">using</span>&nbsp;System;&nbsp;&nbsp;<br><span style="color: blue;">using</span>&nbsp;System.Runtime.InteropServices;&nbsp;<br> <br><span style="color: blue;">class</span>&nbsp;<span style="color: rgb(43, 145, 175);">Script</span><br>{&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">static</span>&nbsp;<span style="color: blue;">public</span>&nbsp;<span style="color: blue;">void</span>&nbsp;Main(<span style="color: blue;">string</span>&nbsp;[]&nbsp;args)&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: rgb(43, 145, 175);">Console</span>.WriteLine(<span style="color: rgb(163, 21, 21);">"TragetFramework:&nbsp;"</span>&nbsp;+&nbsp;<span style="color: rgb(43, 145, 175);">Environment</span>.Version);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: rgb(43, 145, 175);">Console</span>.WriteLine(<span style="color: rgb(163, 21, 21);">"Platform:&nbsp;"</span>&nbsp;+&nbsp;((<span style="color: rgb(43, 145, 175);">Marshal</span>.SizeOf(<span style="color: blue;">typeof</span>(<span style="color: rgb(43, 145, 175);">IntPtr</span>))&nbsp;==&nbsp;8)&nbsp;?&nbsp;<span style="color: rgb(163, 21, 21);">"x64"</span>&nbsp;:&nbsp;<span style="color: rgb(163, 21, 21);">"x32"</span>));<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</small><br></pre>
+<font face="Courier New" size="2"></font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+</div></body></html>

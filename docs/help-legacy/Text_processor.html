@@ -1,0 +1,288 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Text processor</title>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Text Processor</h1>
+</div>
+</div>
+<div id="nstext">
+<h4 class="dtH4">Step-by-step tutorial&nbsp;</h4>
+<p>This tutorial will demonstrate how create the simple "text
+editor" application (<span style="font-style: italic;">Text
+Processor</span>), which uses user entered C# code
+for&nbsp;text manipulations. The <a href="Type_sharing_patern.html">"type sharing" pattern</a>
+in this tutorial is implemented with passing well-known type between
+the script host and the actual script. This tutorial also contains
+implementation of <span style="font-style: italic;"> Local</span>
+and <span style="font-style: italic;">Remote</span>
+<a href="Dynamic_assembly_loading.html"> dynamic assembly
+loading</a>.</p>
+<p>Only the code, which logically belongs to the script hosting
+implementation will be discussed here. To accomplish this tutorial you
+will need to download <a style="font-style: italic;" href="Tutorial/TextProcessor/TextProcessor.zip">
+TextProcessor.zip</a> file. Then extract the content of the zip
+file in the convenient location.</p>
+<p>The host application for this tutorial comes in two flavors:
+C# script (<span style="font-style: italic;">textprocessor.cs</span>)
+and Visual Studio 2003 (VS7.1) project (content of extracted&nbsp;<span style="font-style: italic;">textprocessor</span>
+folder). All code snippets in this tutorial are taken from <a href="Tutorial/TextProcessor/textprocessor.cs"> <span style="font-style: italic;">textprocessor.cs</span></a>
+script, however they are applicable to the VS7.1 project to the same
+degree.</p>
+<p>This tutorial demonstrates how to:</p>
+<ul>
+  <li> execute C# script (C# code) from the application&nbsp;
+  </li>
+  <li> pass and retrieve&nbsp; well-known type (String) to
+and from C# script&nbsp; </li>
+  <li> load/unload script assembly to the
+application&nbsp;&nbsp;</li>
+</ul>
+<p>Firstly let's see the <span style="font-style: italic;">Text
+Processor</span> in action:<br>
+</p>
+<ol>
+  <li> Open command prompt. Make sure current directory is the
+directory where content of <span style="font-style: italic;">TextProcessor.zip</span>
+extracted. </li>
+  <li> Start <span style="font-style: italic;">Text
+Processor</span> by executing the following command in command
+prompt:<br>
+    <div style="width: 720px;" class="syntax">cscs textprocessor&nbsp;</div>
+  </li>
+</ol>
+<p> <br>
+</p>
+<h4 class="dtH4"> Output&nbsp;</h4>
+<p></p>
+<p>The script will create and show the following
+dialog.&nbsp;&nbsp;</p>
+<div style="text-align: center;"><img style="width: 586px; height: 490px;" alt="" src="Images/textprocessor.PNG"><br></div>
+<p></p>
+<p>The top panel (script panel) contains a C# code (script)
+template for implementation of the text manipulation routine. The
+default C# script inserts a TAB character at the start of the text in
+the bottom panel (text panel).</p>
+<p>If you press "Process" button it will modify the text this way:</p>
+<p style="text-align: center;"><img style="width: 577px; height: 116px;" alt="" src="Images/textprocessor1.PNG"></p>
+<p></p>
+<p> Now change the script code to do replacing all space
+characters with underscore as following:</p>
+<p><span class="code"></span><span class="code"></span>
+</p>
+<table style="text-align: left; width: 821px; height: 156px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <br>
+      <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;Process(<font color="#0000ff" size="2">string</font>&nbsp;text)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;text.Replace(<font color="#800000" size="2">"&nbsp;"</font>,&nbsp;<font color="#800000" size="2">"_"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<p>If you now press "Undo" and then "Process" buttons it will
+modify text this way:</p>
+<p style="text-align: center;"><img style="width: 574px; height: 112px;" alt="" src="Images/textprocessor2.PNG"></p>
+<p> <br>
+</p>
+<h4 class="dtH4">Code discussion&nbsp;</h4>
+<p style="font-style: italic;">Calling instance and static&nbsp;methods</p>
+<p>The method ExecuteProcessTextLocaly() in <span style="font-style: italic;">textprocessor.cs</span>
+contains actual implementation of loading and executing the
+script.&nbsp; Calling <span style="color: rgb(51, 0, 153);">CSScript.LoadCode</span>
+is the most important part of the method.&nbsp;</p>
+<table style="text-align: left; width: 759px; height: 556px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">interface</font>&nbsp;ITextProcessor<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;Process(<font color="#0000ff" size="2">string</font>&nbsp;str);<br>}<br>......<br></font><font face="Courier New" size="2"><font color="#0000ff" size="2">void</font>&nbsp;ExecuteProcessTextLocaly()<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">try</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br></font><font face="Courier New" size="2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(defClasslessButton.Checked)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font  color="#008000" size="2">//script&nbsp;contains&nbsp;only&nbsp;one&nbsp;static&nbsp;method&nbsp;so&nbsp;no&nbsp;need&nbsp;to&nbsp;deal&nbsp;with&nbsp;interfaces,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//typecasting...&nbsp;<br></font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">var</font>&nbsp;Process&nbsp;=&nbsp;CSScript.LoadMethod(textBoxScript.Text)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetStaticMethod();<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;textBoxText.Text&nbsp;=&nbsp;(<font color="#0000ff" size="2">string</font>)Process(textBoxText.Text);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">else</font><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br></font><font face="Courier New" size="2"><font color="#008000" size="2">&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;//We&nbsp;cannot&nbsp;typecase&nbsp;to&nbsp;ITextProcessor&nbsp;as&nbsp;the&nbsp;Script&nbsp;class&nbsp;does&nbsp;not&nbsp;implement&nbsp;it.<br></font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#008000" size="2">//But&nbsp;we&nbsp;can&nbsp;use&nbsp;InterfaceAlignment&nbsp;(DuckTyping)</font></font><br><font face="Courier New" size="2"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;ITextProcessor&nbsp;script&nbsp;=&nbsp;CSScript.LoadCode(textBoxScript.Text)<br>&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;</font><font face="Courier New" size="2">.CreateObject(<font color="#800000" size="2">"Script"</font>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font face="Courier New" size="2">&nbsp; &nbsp; &nbsp; &nbsp; </font><font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.AlignToInterface&lt;ITextProcessor&gt;();<br><br></font><font face="Courier New" size="2">&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; </font><font face="Courier New" size="2">textBoxText.Text&nbsp;=&nbsp;script.Process(textBoxText.Text);<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;}<br></font><font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">catch</font>&nbsp;(Exception&nbsp;ex)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(ex.ToString());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<p></p>
+<p> LoadCode takes the string of C# script code, compiles it into
+assembly, loads the assembly to the current <span style="color: rgb(51, 0, 153);">AppDomain</span> and
+returns the loaded assembly. Now we can instantiate any public type or
+call any public method implemented in this assembly. You can use
+either <span style="color: rgb(51, 0, 153);"> Reflection</span>,&nbsp;<span style="color: rgb(51, 0, 153);">AsmHelper</span>, Dynamic Method&nbsp;or Interface Alignment (DuckTyping)&nbsp;from the <span style="color: rgb(51, 0, 153);">CSScriptLibrary</span>
+for this purpose.&nbsp;</p><p>AsmHelper&nbsp;is
+just a simple utility class, which
+simplifies assembly browsing. Basically it is a Reflection helper. This
+is how AsmHelper can be used in to call static method:&nbsp;</p>
+<span class="code"></span><span class="code"></span>
+<table style="text-align: left; width: 710px; height: 31px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2">Assembly scriptAsm = CSScript.LoadCode(textBoxScript.Text);<br>AsmHelper helper = new AsmHelper(scriptAsm);<br><br>textBoxText.Text&nbsp;=&nbsp;(<font color="#0000ff" size="2">string</font>)helper.Invoke(<font color="#800000" size="2">"Script.Process"</font>,&nbsp;textBoxText.Text);</font></td>
+    </tr>
+  </tbody>
+</table>
+<p>However in our example we use for calling static methods Dynamic Method emitted by CS-Script engine (<font face="Courier New" size="2">GetStaticMethod)&nbsp;</font>and Interface Alignment for calling instance methods (<font face="Courier New" size="2">AlignToInterface</font>).</p>Note: Dynamic Methods and Interface Alignents demonstrate superior performance comparing to any Reflection based execution.<p></p><p style="font-style: italic;">Creating objects and typecasting to&nbsp;interface</p>
+<p>Now let's instantiate a type implemented in a script. The only
+type in our script is the class <span style="color: rgb(51, 0, 153);">Script</span>. It can
+be instantiated either with <span style="color: rgb(51, 0, 153);">Assembly.CreateInstance()</span>
+or <span style="color: rgb(51, 0, 153);">AsmHelper.CreateObject()</span>
+methods. Both methods return an instance of <span style="color: rgb(51, 0, 153);">Object</span>
+type,&nbsp; which has to be type casted to the actual type you want
+to use. The only problem with this is that the type Script is not known
+by the host application. In fact it cannot be known because the code
+for class <span style="color: rgb(51, 0, 153);"> Script</span>
+did not exist at the time the host application was written/compiled.
+This restriction is not applicable for well-known types (e.g.&nbsp;
+<span style="color: rgb(51, 0, 153);">String</span>).
+That is why we can inherit our Script class from some interface (defined in any GAC or the host assembly)
+in order to make it possible for the host application to understand it.
+The advantages of using well-known types are discussed in the&nbsp;<a href="Passing_well-known_type_between_script_and_host.html">"Passing
+well-known type..."</a>&nbsp; section.</p>
+<p> Let's implement in our script some class that can be used for capitalizing operations (the type must implement&nbsp;<span style="color: rgb(51, 0, 153);">ITextCapitalizer</span>
+interface).</p><br><span style="font-style: italic;">Host:</span>
+<table style="text-align: left; width: 706px; height: 92px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">interface</font>&nbsp;ITextCapitalizer<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;ToUpper(<font color="#0000ff" size="2">string</font>&nbsp;text);<br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;ToLower(<font color="#0000ff" size="2">string</font>&nbsp;text);<br>}</font></td></tr></tbody></table><p><span style="font-style: italic;"></span></p><p><span style="font-style: italic;">Script:</span></p>
+<span class="code"></span><span class="code"></span>
+<table style="text-align: left; width: 710px; height: 188px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br><br><font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Script&nbsp;:&nbsp;MarshalByRefObject,&nbsp;ITextCapitalizer<br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;ToUpper(<font color="#0000ff" size="2">string</font>&nbsp;text)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;text.ToUpper();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;ToLower(<font color="#0000ff" size="2">string</font>&nbsp;text)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;text.ToLower();<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</font></td>
+    </tr>
+  </tbody>
+</table>
+<br><p> <br>
+This is how Script type is instantiated in the event handler for the
+"ToUpper/ToLower" button.&nbsp;</p>
+<table style="text-align: left; width: 707px; height: 92px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2">Assembly&nbsp;scriptAsm&nbsp;=&nbsp;CSScript.LoadCode(textBoxScript.Text,&nbsp;null,&nbsp;<font color="#0000ff" size="2">true</font>);<br>
+AsmHelper&nbsp;helper&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(scriptAsm);<br>
+      <br>
+var capitalizer =&nbsp;(ITextCapitalizer)helper.CreateObject(<font color="#800000" size="2">"Script"</font>);<br>
+textBoxText.Text = capitalizer.ToLower(textBoxText.Text);</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Of course the same can be done by using pure Reflection but in
+this case readability of the code would suffer dramatically.&nbsp;
+<p></p>
+<p style="font-style: italic;"> Loading/Unloading the
+script assembly</p>
+<p>Another interesting point to discuss is the way how the
+compiled script is loaded. In the <span style="color: rgb(51, 0, 153);">ExecuteProcessLocaly()</span>
+method discussed above the script was compiled and loaded into current
+AppDomain. The code snippet below is the implementation of the toUpperBtn_Click(). This method is called when button the
+"ToUpper" is pressed and the "Unload when done"&nbsp;check box is
+checked.&nbsp;</p>
+<table style="text-align: left; width: 707px; height: 364px;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><font face="Courier New" size="2"><font color="#0000ff" size="2">void</font> toUpperBtn_Click()<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">try</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br></font><font face="Courier New" size="2"><font color="#0000ff" size="2">&nbsp; &nbsp; &nbsp; &nbsp; if</font></font><font face="Courier New" size="2"> (remoteCheckBox.Checked)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; <font color="#0000ff" size="2">string</font>&nbsp;asmFile&nbsp;=&nbsp;CSScript.CompileCode(textBoxScript.Text,&nbsp;null,&nbsp;<font color="#0000ff" size="2">true</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#0000ff" size="2">&nbsp; &nbsp; using</font>&nbsp;(AsmHelper&nbsp;script&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(asmFile,&nbsp;<font color="#0000ff" size="2">null</font></font><font face="Courier New" size="2">,</font><font face="Courier New" size="2"><font color="#0000ff" size="2"> true</font>))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp; &nbsp; var capitalizer = (ITextCapitalizer)script.CreateObject(</font><font face="Courier New" size="2"><font color="#800000" size="2">"Script"</font></font><font face="Courier New" size="2">);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+textBoxText.Text = capitalizer.ToUpper(textBoxText.Text);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; }<br>&nbsp; &nbsp; &nbsp; &nbsp; }<br>&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</font><font face="Courier New" size="2"><font color="#0000ff" size="2">else</font><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</font><br><font face="Courier New" size="2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;.....<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">catch</font>&nbsp;(Exception&nbsp;ex)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(ex.ToString());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>In this code AsmHelper loads the compiled script assembly (<span style="color: rgb(51, 0, 153);">asmFile</span>) to a
+new temporary AppDomain (remote loading). After execution of <br>
+the "Script.Process" method the instance of AsmHelper disposed. When<span style="color: rgb(51, 51, 255);"> <span style="color: rgb(51, 0, 153);">AsmHelper</span></span>
+is being disposed it also unloads the whole temporary AppDomain with
+all its assemblies.&nbsp;</p>
+<p> How AsmHelper will load assembly depends on which constructor
+was used to instantiate this type (see <a href="ProgrammingReference.html">CSScriptLibrary reference</a>):</p>
+<p style="margin-left: 40px;"><span style="color: rgb(51, 0, 153);">public AsmHelper(Assembly
+asm)</span> - loading to the current AppDomain.</p>
+<p style="margin-left: 40px;"><span style="color: rgb(51, 0, 153);">public AsmHelper(string
+asmFile, string domainName, bool deletOnExit)</span> - loading to
+the temporary AppDomain</p>
+<p style="margin-left: 40px;"></p>
+<p> This is done in order to overcome the limitation of the CLR
+with respect to loaded assemblies:</p>
+<p style="font-weight: bold; margin-left: 40px; font-style: italic;"><span style="font-weight: normal;">Once the assembly loaded it
+cannot be unloaded any more.</span><br>
+</p>
+<p> Use the remote loading carefully as it introduces important
+constraint on the types implemented in your script:</p>
+<p style="font-weight: bold; margin-left: 40px; font-style: italic;">
+The type, which is to cross AppDomain boundaries must be either
+serializable or inherited from MarshalByRefObject.</p>
+<p> Thus, if you repeat the test for creating&nbsp;<span style="color: rgb(51, 0, 153);">ITextCapitalizer</span>
+object with the "Unload when done" check box checked and Script class not being derived from&nbsp;<span style="color: rgb(51, 51, 255);"><span style="color: rgb(51, 0, 153);">MarshalByRefObject</span></span> you will have the following exception<span style="color: rgb(51, 51, 255);"></span>.
+<br>
+</p>
+<div style="text-align: center;"><img style="width: 482px; height: 134px;" alt="" src="Images/textprocessor4.PNG"></div>
+<p><br>
+</p>
+<h4 class="dtH4"> Summary&nbsp;</h4>
+<p>In this tutorial almost all possible execution scenarios were
+implemented just to demonstrate all available implementation options.
+However it is unlikely you would need to implement all of them in real
+development. The next tutorial (<a href="Image_processor.html">Image
+Processor</a>) is an example of more practical/simple approach
+where the host application is implemented according "<a href="Script_hosting_guideline_.html">Script hosting
+guideline</a>". <br>
+</p>
+<p></p>
+<h4 class="dtH4">See Also </h4>
+<p><a href="Tutorial.html">CS-Script tutorials</a>&nbsp;|
+<a href="Type_sharing_patern.html"> "Type sharing" pattern</a>
+| <a href="Dynamic_assembly_loading.html">Dynamic
+assembly loading&nbsp;</a></p>
+<span style="text-decoration: underline;"> <br>
+<br>
+</span> <object style="display: none;" type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true">
+				<param name="Keyword" value="Script Hosting tutorial">
+			</object>
+			</div>
+</body></html>

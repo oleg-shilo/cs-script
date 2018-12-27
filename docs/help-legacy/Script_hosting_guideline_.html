@@ -1,0 +1,1260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+    <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+    <title>Script hosting guideline</title>
+
+    <xml></xml>
+    <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+
+<body class="dtBODY" id="divID">
+    <div id="nsbanner">
+        <div id="bannerrow1">
+            <table class="bannerparthead" cellspacing="0">
+                <tbody>
+                    <tr id="hdr">
+                        <td class="runninghead">
+                            <p align="left">CS-Script 3.28.9</p>
+                        </td>
+                        <td class="product"> <br>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="TitleRow">
+            <h1 class="dtH1" align="left">Script Hosting
+                Guideline</h1>
+        </div>
+    </div>
+    <div id="nstext">
+        <p>Script hosting can be as simple as a single line call or it
+            can be
+            a more&nbsp;complex solution,&nbsp;requiring design, deployment
+            and code
+            maintenance considerations. In most cases a success would depend on how
+            correctly the hosting model was chosen. </p>
+        <p>"Isolated execution" is straightforward and does not really
+            require any&nbsp;special consideration. </p>
+        <p>However the "type sharing" model can lead to some run-time and
+            code
+            maintenance problems if not implemented correctly.&nbsp;</p>
+        <p></p>
+        <p style="font-weight: bold; font-style: italic; margin-left: 40px;">Note
+            that the majority of the topics discussed in this chapter are quite
+            generic but some of them are specific to the hosting
+            engine&nbsp;CodeDOM vs. Evaluator ("compiler as service"). While
+            all
+            examples here are based on the CodeDOM code snippets it is strongly
+            recommended that you also read the <a href="evaluator.html">Evaluator
+                - Compiler As Service</a> chapter describing
+            this&nbsp;hosting approach in details. &nbsp; &nbsp;
+            &nbsp;&nbsp;</p>
+        <br>
+        <p><span style="font-weight: bold; font-style: italic;"></span></p>
+        <p><span style="font-weight: bold; font-style: italic;">Remote
+                vs. Local loading</span><span style="font-weight: bold; font-style: italic;"></span><a id="_interfaceAlignment"
+                name="_remote_vs_local"></a></p>
+        <p><span style="font-weight: bold; font-style: italic;"></span><span style="font-weight: bold;"></span><span
+                style="font-style: italic;"></span></p>
+        <p><span style="font-style: italic;">Note: this
+                section is applicable to CodeDOM based hosting only.</span> </p>
+        <p></p>
+        <p>Probably e<span style="color: rgb(0, 0, 153);"><span style="color: black;">veryone
+                    who worked with dynamically loaded assemblies is aware about the
+                    important .NET limitation: once loaded assembly cannot be unloaded.
+                    This is it, if the script is compiled and loaded in the <span style="color: rgb(0, 0, 153);">AppDomain</span>
+                    for
+                    the execution it cannot be unloaded. Microsoft has acknowledged this a
+                    s a design flaw and even confirmed this to be a major "head ache"
+                    in
+                    the implementation of the ASP.NET runtime. <br>
+                    <br>
+                    The only work around is to load the script in the temporary </span></span><span style="color: rgb(0, 0, 153);">AppDomain</span><span
+                style="color: rgb(0, 0, 153);"><span style="color: black;">,
+                    execute
+                    the require script method and unload the </span></span><span style="color: rgb(0, 0, 153);">AppDomain</span><span
+                style="color: rgb(0, 0, 153);"><span style="color: black;">.
+                    This is
+                    exactly what </span></span><span style="color: rgb(0, 0, 153);">AsmHelper
+            </span><span style="color: rgb(0, 0, 153);"><span style="color: black;">does.
+                    It allows you to work with the script in two different loading modes:</span></span></p>
+        <p><span style="color: rgb(0, 0, 153);"><span style="color: black;"><span style="font-style: italic;">Local</span></span></span></p>
+        <p><span style="color: rgb(0, 0, 153);"><span style="color: black;">&nbsp;&nbsp; Script is loaded
+                    in the<span style="font-style: italic;"> Current AppDomain
+                    </span>and stays
+                    loaded after the execution. To set up the </span></span><span style="color: rgb(0, 0, 153);"></span><span
+                style="color: rgb(0, 0, 153);">AsmHelper</span><span style="color: rgb(0, 0, 153);"></span> to work in
+            this
+            mode
+            instantiate it with the constructor that takes the loaded assembly as a
+            parameter <br>
+        </p>
+        <p><span style="color: rgb(0, 0, 153);"><span style="color: black;"><span style="font-style: italic;">Remote</span></span></span></p>
+        <p><span style="color: rgb(0, 0, 153);"><span style="color: black;">&nbsp;&nbsp; Script is loaded
+                    in the<span style="font-style: italic;"> </span>temporary<span style="font-style: italic;">
+                        AppDomain </span>and
+                    unloaded after the
+                    execution. To set up the </span></span><span style="color: rgb(0, 0, 153);"></span><span style="color: rgb(0, 0, 153);">AsmHelper</span><span
+                style="color: rgb(0, 0, 153);"></span> to work in this
+            mode
+            instantiate it with the constructor that takes the assembly file name
+            as a parameter <br>
+        </p>
+        <p><span style="font-style: italic;">See </span><a style="font-style: italic;" href="Advanced_scripting.html">Advanced
+                Scripting</a><span style="font-style: italic;"> for
+                details.</span></p>
+        <p><br>
+        </p>
+        While <span style="font-style: italic;">Remote Loading</span>
+        is more
+        flexible (in terms of memory management) than <span style="font-style: italic;">Local Loading</span> it
+        does introduce a
+        few significant practical constrains: <br>
+        - all types to be passed cross AppDomain boundaries must be either
+        serialization or inherited from <span style="color: rgb(0, 0, 153);">MarshalByRefObject</span>.<br>
+        <p>- <span style="color: rgb(0, 0, 153);">AppDomain</span>
+            initialization and unloading as well as&nbsp; types serialization
+            can
+            yield some significant performance penalties. <br>
+        </p>
+        <br>
+        <span style="font-style: italic;">Remote Loading </span>also
+        requires proper object lifetime management. The technique is
+        demonstrated in <span style="font-style: italic;">&lt;cs-script&gt;\Samples\Hosting\LifetimeManagement.cs</span>
+        sample. <br>
+        <br>
+        <p>The script-assembly loading approach is not as critical as it
+            seams. Even if with the <span style="font-style: italic;">Local
+                Loading</span>
+            the compiled script cannot be unloaded it is still the preferred option
+            when the number of the script to be executed by the host application is
+            a finite number as it introduces no constraints whatsoever. However if
+            the number of scripts to be executed by the host application is unknown
+            and potentially infinite the <span style="font-style: italic;">Local
+                Loading</span> can effectively lead to the memory leaks thus the <span style="font-style: italic;">Remote
+                Loading</span>
+            becomes an unpleasant
+            but the only adequate choice.</p>
+        <br>
+        <span style="font-weight: bold; font-style: italic;">Performance
+            considerations</span><br>
+        <span style="color: rgb(0, 0, 153);"></span>The
+        performance is one of
+        the most important aspact of any scripting system. While the runtime
+        performance is discussed in one or another form quite often in this
+        documantation it is still worth to recapture the major poins in this
+        section.<br>
+        <br>
+        CS-Script engine runs&nbsp;compiled (not interpreted
+        scripts) and as such it offers the fastest possible (under CLR)
+        execution. Meaning that C# script code runs with the speed completely
+        identical to the compiled code loaded/executed from the dependency
+        assembly.<br>
+        <br>
+        Saying that it is important to understand that such a
+        remarcable performance comes with the price: a one off overhead
+        associated with the script compilation. In the wast majority of the
+        cases this overhead is fully compensated by the script caching. <br>
+        <br>
+        Caching
+        mechanizm was inspired by the similar feature in Python. The concept is
+        very simple. If the script file was not modified since trhe last
+        execution the compilation is not performed and the previous comilation
+        result (assembly) is used instead. This ensures that the relatively
+        expensive script recompilation is performed only if it is really
+        required.<br>
+        <br>
+        <div style="margin-left: 40px;"><span style="font-style: italic;">If
+                the script is never to be&nbsp;modified after it is created it will
+                ever be compiled only once (on the first execution) regardless how many
+                times it is executed in the future. </span><br>
+        </div>
+        <br>
+        But what
+        constitutes the "change"? The "change" is not only the change in the
+        timestamp of the script file but also the changes in any dependecy
+        resources:&nbsp;referenced assemblies or dependency scripts.<br>
+        <br>
+        Caching
+        mechanizm works the same way for the script standalone execution (e.g.
+        from command prompt) and for the execution with the hosted script
+        engine. Cahing is also applicable for the hosted file-less scripts
+        execution (e.g. <span style="font-style: italic;">CSScript.LoadCode</span>).
+        In this case the script engine uses string hashing to monitor and
+        detect the script code&nbsp;changes. But of course the file-less
+        scripts cache only valid within a giveen&nbsp;hosting session.
+        &nbsp;<br>
+        <br>
+        Cahing
+        with hosted scenarios is very flexible. It even allows user defining
+        the custom "IsOutOfDateAlgorithm" for testing script file for changes:<br>
+        <br>
+        <table style="text-align: left; width: 756px; height: 88px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <pre style="background: rgb(255, 255, 204) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; font-family: Consolas; font-size: 13px; color: black;"><span style="color: blue;">class </span><span style="color: rgb(43, 145, 175);">CSScript</span> <br>{<br> ...<br> <span style="color: blue;">public </span><span style="color: blue;">static</span>&nbsp;<span style="color: rgb(43, 145, 175);">IsOutOfDateResolver</span>&nbsp;IsOutOfDateAlgorithm;</pre>
+                        <font face="Courier New" size="2"> </font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <span style="font-style: italic;"></span>
+        <pre style="background: white none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; font-family: Consolas; font-size: 13px; color: black;"> <br></pre>
+        <span style="font-weight: bold; font-style: italic;">Reflect
+            or not to
+            Reflect</span><br>
+        <p><span style="color: rgb(0, 0, 153);">AsmHelper</span>
+            if used on its
+            own offers only <span style="color: rgb(0, 0, 153);">Reflection</span>
+            base invocation mechanism, which attracts some performance penalties.
+            Another less obvious draw back is the code maintenance difficulties
+            associated with <span style="color: rgb(0, 0, 153);">Reflection</span>.
+            <br>
+        </p>
+        <p>The greatest performance benefits
+            can be achieved when using interfaces as the types to be passed between
+            the host and the script. Another benefit of the interfaces is that
+            they enforce good
+            implementation/interface separation.&nbsp;&nbsp; </p>
+        <p>Whereas the remote loading obviously is the most powerful
+            model it
+            does not gives any significant advantage, but introduces some
+            significant design constrains. Thus use the following as a general
+            guideline: </p>
+        <blockquote>
+            <p><b>Use interfaces when you can and remote loading when
+                    you have to.</b> </p>
+        </blockquote>
+        <p><span style="font-style: italic;">Samples\Hosting\HostingWithInterfaces</span>
+            folder contains example of script hosting with using interfaces. This
+            is an&nbsp;example of a balanced usage of
+            scripting. It uses local loading and allows unrestricted data exchange
+            between the script and the host using an ordinary C# coding technique.
+            &nbsp;</p>
+        <p>There is also another advantage of using interfaces. By using
+            interfaces you can&nbsp;avoid using less-friendly
+            coding techniques (pure reflection)
+            in the implementation of the host application. The following code
+            sample demonstrates the technique:<br>
+        </p>
+        <p style="font-style: italic;"><br>
+            Host: interface definition code</p>
+        <table style="text-align: left; width: 756px; height: 135px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <font face="Courier New" size="2">
+                            <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">interface</font>&nbsp;IWordProcessor<br>
+                            {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;CreateDocument();<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;CloseDocument();<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;OpenDocument(<font
+                                color="#0000ff" size="2">string</font>&nbsp;file);<br>
+                        </font>
+                        <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                        <font face="Courier New" size="2">
+                            <font color="#0000ff" size="2">void</font>&nbsp;SaveDocument(<font color="#0000ff" size="2">string</font>&nbsp;file);<br>
+                            }<br>
+                        </font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>&nbsp;</p>
+        <span style="font-style: italic;">Script: interface
+            implementation code</span>
+        <table style="text-align: left; width: 754px; height: 127px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <font face="Courier New" size="2">
+                            <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;WordProcessor:&nbsp;IWordProcessor<br>
+                            {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff"
+                                size="2">void</font>&nbsp;CreateDocument()&nbsp;{
+                            ... }<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff"
+                                size="2">void</font>&nbsp;CloseDocument()
+                        </font>
+                        <font face="Courier New" size="2">&nbsp;{ ... }</font><br>
+                        <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font
+                                color="#0000ff" size="2">void</font>&nbsp;OpenDocument(<font color="#0000ff" size="2">string</font>&nbsp;file)</font>
+                        <font face="Courier New" size="2">&nbsp;{ ... }</font>
+                        <font face="Courier New" size="2"><br>
+                        </font>
+                        <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                        <font face="Courier New" size="2">
+                            <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;SaveDocument(<font
+                                color="#0000ff" size="2">string</font>&nbsp;file)
+                        </font>
+                        <font face="Courier New" size="2">&nbsp;{ ... }</font>
+                        <font face="Courier New" size="2"><br>
+                            }</font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="font-style: italic;"> Host: script usage code</p>
+        <table style="text-align: left; width: 754px; height: 139px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <font face="Courier New" size="2">AsmHelper&nbsp;helper&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(CSScript.Load(</font>
+                        <font face="Courier New" size="2">
+                            <font color="#800000" size="2">"script.cs"</font>
+                        </font>
+                        <font face="Courier New" size="2">,&nbsp;null,&nbsp;<font color="#0000ff" size="2">true</font>));<br>
+                            <br>
+                        </font>
+                        <font face="Courier New" size="2">
+                            <font color="#008000" size="2">//the only reflection based
+                                call&nbsp;</font>
+                        </font><br>
+                        <font face="Courier New" size="2">IWordProcessor&nbsp;proc&nbsp;=&nbsp;</font>
+                        <font face="Courier New" size="2">(IWordProcessor)helper.CreateObject(<font color="#800000"
+                                size="2">"WordProcessor"</font>);</font><br>
+                        <font face="Courier New" size="2">
+                            <font color="#008000" size="2"><br>
+                                //no&nbsp;reflection,&nbsp;just&nbsp;direct&nbsp;calls&nbsp;<br>
+                            </font>proc.CreateDocument();<br>
+                            proc.SaveDocument(<font color="#800000" size="2">"MyDocument.cs"</font>);
+                        </font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p><span style="font-weight: bold; font-style: italic;"></span></p>
+        <p><span style="font-weight: bold; font-style: italic;"></span><span style="color: rgb(0, 0, 153);"><span style="color: black;"></span></span><span
+                style="color: rgb(0, 0, 153);"><br>
+            </span></p>
+        <p><span style="font-weight: bold; font-style: italic;">Interface
+                Alignment</span><a id="_interfaceAlignment" name="_interfaceAlignment"></a></p>
+        <p>In version 2.3.3 CS-Script introduces new script hosting model
+            <span style="font-weight: bold; font-style: italic;">Interface
+                Alignment</span>,
+            which is an
+            attractive alternative to the interface inheritance while
+            loading/accessing scripts&nbsp;through interfaces.&nbsp;</p>
+        <p><br>
+            This model allows manipulation with the&nbsp;the script by
+            "aligning"
+            it to the appropriate interface (<span style="font-style: italic;">DuckTyping</span>).
+            Important aspect of this approach is&nbsp;that the script execution
+            is
+            completely typesafe (as with any script accessed through an interface)
+            but even more importantly the script does not have to implement the
+            interface being used by the host application.&nbsp;</p>
+        <div style="margin-left: 40px;"><span style="font-style: italic;">In
+                a way Interface Alignment is a forcible typecasting: typecast to
+                interface is possible as long as the object has all methods defined in
+                the interface . &nbsp;</span><br>
+        </div>
+        <p>This promising technique
+            allows high level of decoupling between the host and the script
+            business logic without any&nbsp;type safety
+            compromise.&nbsp;&nbsp;<br>
+        </p>
+        <p>The core implementation of the&nbsp;<span style="font-style: italic;">Interface
+                Alignment</span> is based on the <a href="http://www.codeproject.com/KB/dotnet/ObjectToInterfaceCaster.aspx">ObjectCaster
+                by Ruben Hakopian</a>, which is a subject of this <a href="ObjectCasterLicence.html">Copyright</a>. </p>
+        <p><br>
+            <span style="font-style: italic;">Example of the Interface
+                Alighnment:</span><br>
+        </p>
+        <table style="text-align: left; width: 742px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <dl>
+                            <dd>
+                                <font face="Courier New" size="2">
+                                    <font color="#0000ff" size="2">using</font>
+                                </font>
+                                <font face="Courier New" size="2">&nbsp;CSScriptLibrary;</font><br>
+                                <br>
+                                <font face="Courier New" size="2">
+                                    <font color="#0000ff" size="2">public interface</font>
+                                </font>
+                                <font face="Courier New" size="2"> IScript</font><br>
+                                <font face="Courier New" size="2">{</font><br>
+                                <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;
+                                    void Hello(string greeting);</font><br>
+                                <font face="Courier New" size="2">}</font><br>
+                                <br>
+                                <font face="Courier New" size="2">
+                                    <font color="#0000ff" size="2">class</font>
+                                </font>
+                                <font face="Courier New" size="2">&nbsp;Host</font><br>
+                                <font face="Courier New" size="2">{</font><br>
+                                <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                                <font face="Courier New" size="2">
+                                    <font color="#0000ff" size="2">static void</font>
+                                </font>
+                                <font face="Courier New" size="2"> Main()</font><br>
+                                <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;
+                                    {</font><br>
+                                <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    var script = CSScript.Load(</font>
+                                <font face="Courier New" size="2">
+                                    <font color="#800000" size="2">"HelloScript.cs"</font>
+                                </font>
+                                <font face="Courier New" size="2">)</font><br>
+                                <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    .CreateInstance(</font>
+                                <font face="Courier New" size="2">
+                                    <font color="#800000" size="2">"Script"</font>
+                                </font>
+                                <font face="Courier New" size="2">)</font><br>
+                                <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    .AlignToInterface&lt;IScript&gt;();</font><br>
+                                <br>
+                                <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    script.Hello(</font>
+                                <font face="Courier New" size="2">
+                                    <font color="#800000" size="2">"Hi there..."</font>
+                                </font>
+                                <font face="Courier New" size="2">);</font><br>
+                                <font face="Courier New" size="2">&nbsp;&nbsp;&nbsp;
+                                    }&nbsp;&nbsp;&nbsp;&nbsp;</font><br>
+                                <font face="Courier New" size="2">}</font>
+                            </dd>
+                        </dl>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <span style="font-style: italic;">HelloScript.cs</span><br>
+        <div style="width: 720px;" class="syntax">using
+            System;<br>
+            <br>
+            public class Script<br>
+            { &nbsp;<br>
+            &nbsp; &nbsp; public void Hello(string griting)<br>
+            &nbsp; &nbsp; {<br>
+            &nbsp; &nbsp; &nbsp; &nbsp;
+            &nbsp;Console.WriteLine(greeting);<br>
+            &nbsp; &nbsp; }<br>
+            &nbsp; &nbsp; <br>
+            &nbsp; &nbsp;&nbsp;void SomeOtherMethod()<br>
+            &nbsp; &nbsp; {<br>
+            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ...<br>
+            &nbsp; &nbsp; }<br>
+            }<br>
+        </div>
+        <span style="font-weight: bold; font-style: italic;"></span><span style="font-weight: bold;">Note:</span> <span
+            style="font-style: italic;">ObjectCaster</span>
+        is an IL-emmitting engine on its own. And because it doesn't have
+        any&nbsp;dependency discovery (assembly probing)
+        mechanism&nbsp;you
+        need to supply any dependency information with one of the <span style="font-style: italic;">AlignToInterface</span>
+        overloads. The easiest way is to pass <span style="font-style: italic;">true</span> to allow <span style="font-style: italic;">ObjectCaster
+        </span>to
+        reference any AppDomain already loaded assemblies:<br>
+        <pre style="color: rgb(34, 34, 34); font-size: 13px; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; text-align: start; text-indent: 0px; text-transform: none; word-spacing: 0px; background-color: rgb(255, 255, 255); font-family: Consolas;"><span style="color: rgb(43, 145, 175);">IProcess</span>&nbsp;script&nbsp;=&nbsp;instance.<wbr style="">AlignToInterface&lt;<span style="color: rgb(43, 145, 175);">IProcess</span>&gt;(true);<br></pre>
+        Alternativelly you can pass the exact location of the dependency
+        assembly:<br>
+        <pre style="color: rgb(34, 34, 34); font-size: 13px; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; text-align: start; text-indent: 0px; text-transform: none; word-spacing: 0px; background-color: rgb(255, 255, 255); font-family: Consolas;"><pre style="font-size: 13px; font-family: Consolas;"><span style="color: rgb(43, 145, 175);">IProcess</span>&nbsp;script&nbsp;=&nbsp;instance.<wbr style="">AlignToInterface&lt;<span style="color: rgb(43, 145, 175);">IProcess</span>&gt;(&lt;dependency assembly path&gt;<span style="font-size: 13px;">);</span></pre>
+        </pre>
+        <br style="font-weight: bold; font-style: italic;">
+        If you need to align remote object (TransparentProxy) created in the
+        different AppDomain you need to use AsmHelper to do actual alignment
+        and in the appropriate AppDomain context (<span style="font-style: italic;">see
+            &lt;cs-script&gt;\Samples\Hosting\InterfaceAlignment samples</span>):<br>
+        <br>
+        <table style="text-align: left; width: 741px; height: 124px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <font face="Courier New" size="2">
+                            <font color="#008000" size="2">//Note&nbsp;using&nbsp;helper.CreateAndAlignToInterface&lt;IScript&gt;("Script")&nbsp;is&nbsp;also&nbsp;acceptable<br>
+                            </font>
+                            <font color="#0000ff" size="2">using</font>&nbsp;(<font color="#0000ff" size="2">var</font>&nbsp;helper&nbsp;=&nbsp;<font
+                                color="#0000ff" size="2">new</font>&nbsp;AsmHelper(CSScript.CompileCode(code),&nbsp;null,&nbsp;<font
+                                color="#0000ff" size="2">false</font>))<br>
+                            {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;IScript&nbsp;script&nbsp;=&nbsp;helper.CreateAndAlignToInterface&lt;IScript&gt;(<font
+                                color="#800000" size="2">"*"</font>);<br>
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;script.Hello(<font color="#800000" size="2">"Hi&nbsp;there..."</font>);<br>
+                            }
+                        </font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <h4 class="dtH4">Script hosting considerations
+            <a id="_performance" name="_performance"></a></h4>
+        As almost with any other programming task script hosting can be a
+        simple maintainable solution or it can lead to bloated unstable system,
+        which is hard to maintain or test. As usual it all depends on design
+        and implementation decisions. Decisions, which are easier to make if
+        you consider the following hosting aspects.<span style="font-weight: bold;"><br>
+        </span><br>
+        <span style="font-weight: bold; font-style: italic;">How
+            to invoke script methods?</span><br style="font-weight: bold; font-style: italic;">
+        Strictly speaking you do not need any special framework to exercice
+        script methods. The script assembly is (the primary output of the
+        script
+        engine) is an ordinary assembly and you can use Reflection to work with
+        it as you would with any other assembly. &nbsp;But the problem is
+        that reflection&nbsp;based code is harder to read and maintain. <span style="color: rgb(0, 0, 153);">AsmHelper</span>
+        is a
+        CS-Script class, which significantly simplifies working with
+        dynamically loaded assemblies. You can find various&nbsp;invocation
+        samples in <span style="font-style: italic;">cs-script\Samples\Hosting\MethodSignatures.cs.</span>
+        &nbsp;<br>
+        <br>
+        <table style="text-align: left; width: 743px; height: 204px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <font face="Courier New" size="2">Assembly&nbsp;assembly&nbsp;=&nbsp;CSScript.LoadCode(<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@<font color="#800000"
+                                size="2">"using&nbsp;System;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;Calculator<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;public&nbsp;int&nbsp;Add(int&nbsp;a,&nbsp;int&nbsp;b)<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;a&nbsp;+&nbsp;b;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"</font>);<br>
+                            <br>
+                            AsmHelper&nbsp;calc&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(assembly);<br>
+                            <font color="#0000ff" size="2">int</font>&nbsp;sum&nbsp;=&nbsp;
+                        </font>
+                        <font face="Courier New" size="2">calc.Invoke</font>
+                        <font face="Courier New" size="2">(</font>
+                        <font face="Courier New" size="2">
+                            <font color="#800000" size="2">"Calculator.Add", </font>
+                        </font>
+                        <font face="Courier New" size="2">1,&nbsp;2);&nbsp;<font color="#008000" size="2">//sum&nbsp;==&nbsp;3;&nbsp;</font>
+                        </font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <span style="color: rgb(0, 0, 153);">AsmHelper</span>
+        implements Dispatch invokation pattern by resolving user specified
+        method names into actual method runtime type information. An
+        alternative approach is to generate dynamic delegate for each
+        method&nbsp;you are going to execute and work with these delegates
+        instead of <span style="color: rgb(0, 0, 153);">AsmHelper</span>
+        directly.&nbsp; <br>
+        <br>
+        <table style="text-align: left; width: 740px; height: 108px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <font face="Courier New" size="2">...<br>
+                            AsmHelper&nbsp;calc&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(assembly);<br>
+                            var&nbsp;Add&nbsp;=&nbsp;calc.GetMethodInvoker(<font color="#800000" size="2">"Calculator.Add"</font>,&nbsp;0,&nbsp;0);<br>
+                            <br>
+                            <font color="#008000" size="2">//pass&nbsp;null&nbsp;because&nbsp;Calculator.Add&nbsp;is&nbsp;a&nbsp;static&nbsp;method&nbsp;otherwise&nbsp;pass&nbsp;class&nbsp;instance<br>
+                            </font>
+                            <font color="#0000ff" size="2">int</font>&nbsp;sum&nbsp;=&nbsp;Add(null,&nbsp;1,&nbsp;2);&nbsp;<font
+                                color="#008000" size="2">//sum&nbsp;==&nbsp;3;&nbsp;</font>
+                        </font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        Note: that you can use wild card for method names (e.g. "*.Add"). <br>
+        <br>
+        <span style="color: rgb(0, 0, 153);">AsmHelper</span>
+        also has&nbsp;specialized method emitters GetStaticMethod() and
+        GetMethod(), which return delegate for static or instance method, thus
+        you do not need to pass instance value:<br>
+        <span style="color: rgb(0, 0, 153);"></span><br>
+        <table style="text-align: left; width: 732px; height: 204px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <font face="Courier New" size="2">Assembly&nbsp;assembly&nbsp;=&nbsp;CSScript.LoadCode(<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@<font color="#800000"
+                                size="2">"</font>
+                        </font>
+                        <font face="Courier New" size="2">
+                            <font color="#800000" size="2">using&nbsp;System;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;Calculator<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;public&nbsp;int&nbsp;Add(int&nbsp;a,&nbsp;int&nbsp;b)<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;a&nbsp;+&nbsp;b;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</font>
+                        </font>
+                        <font face="Courier New" size="2">
+                            <font color="#800000" size="2">"</font>);<br>
+                            <br>
+                        </font>
+                        <font face="Courier New" size="2">var&nbsp;Add</font>
+                        <font face="Courier New" size="2">&nbsp;=&nbsp;</font>
+                        <font face="Courier New" size="2">
+                            <font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(assembly)
+                        </font>
+                        <font face="Courier New" size="2">.GetStaticMethod();<br>
+                        </font>
+                        <font face="Courier New" size="2">
+                            <font color="#0000ff" size="2">int</font>&nbsp;sum&nbsp;=&nbsp;Add(1,&nbsp;2);
+                        </font><br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <span style="font-style: italic;">In the example above
+            GetStaticMethod() is used without any parameters, what is an equivalent
+            of&nbsp;GetStaticMethod("*.*"). &nbsp;Meaning any method of any
+            type from the specified assembly.</span> <br>
+        <br>
+        <span style="font-weight: bold; color: red;"></span><span style="color: red;">Note
+            that CLR does not support delegates serialization thus GetMethod,
+            GetStaticMethod and GetMethodInvoker cannot be used with the </span><span style="font-style: italic; color: red;">remote
+            execution</span><span style="color: red;"> mode.</span><br>
+        <br>
+        Another
+        alternative is to use interfaces (see previous section code sample).
+        When using interfaces a simple typecasting automatically maps entire
+        set of class methods and properties into runtime object. <br>
+        <br>
+        <span style="font-weight: bold; font-style: italic;">How
+            important performance is</span><span style="font-weight: bold;">?</span><br style="font-weight: bold; font-style: italic;">
+        <span style="color: rgb(0, 0, 153);">AsmHelper</span>
+        operates through Reflection (<span style="color: rgb(0, 0, 153);">MethodInfo</span>)
+        and this is the reason why if you have to invoke some script methods
+        multiple times you will pay some performance penalties. The work around
+        this is to avoid using Reflection and rather work&nbsp;with
+        interfaces&nbsp;or delegates emitted by <span style="color: rgb(0, 0, 153);">AsmHelper</span>
+        (see&nbsp;sections above).<br>
+        <br>
+        Interfaces and emitted delegates are about 100 faster than Reflection
+        &nbsp;You can find detailed information about ways of improving
+        performance in&nbsp;<span style="font-style: italic;">cs-script\Samples\Hosting\performance.cs</span>
+        sample (<span style="color: rgb(0, 0, 153);">TestMethodDelegates()</span>
+        method). <br>
+        <span style="font-weight: bold; font-style: italic;"></span><span style="color: rgb(0, 0, 153);"><br>
+        </span>
+        <span style="font-weight: bold; font-style: italic;">How
+            type safe your code&nbsp;is</span><span style="font-weight: bold;">?</span><br>
+        Dispatch pattern for method invocation is (Reflection) is error prone
+        as it cannot be checked at by compiler. Thus if you want to achieve
+        stronger typed code you need to use either dynamic (emitted) delegates
+        or better yet to use interfaces. See&nbsp;<span style="font-style: italic;">cs-script\Samples\Hosting\TypeSafety.cs</span>
+        for samples.<br>
+        <br>
+        <span style="font-weight: bold; font-style: italic;">How
+            readable&nbsp;your code&nbsp;is</span><span style="font-weight: bold;">?</span>
+        <a id="_readability" name="_readability"></a><br>
+        Code readability (and&nbsp;maintainability in general) is something
+        the you should invest in generously. Usage of extension methods is one
+        of the&nbsp;possibilities for&nbsp;code improvements. CS-Script
+        class
+        library comes with a few extension methods which allow to minimize code
+        footprint for script hosting routines. In the code samples below
+        Assembly class extended with <span style="color: rgb(0, 0, 153);">GetStaticMethod</span>
+        and <span style="color: rgb(0, 0, 153);">CreateObject</span>
+        method extensions, which allow in the presented context completely
+        avoid usage of <span style="color: rgb(0, 0, 153);">AsmHelper.</span><br>
+        <br>
+        <table style="text-align: left; width: 742px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <font face="Courier New" size="2">var&nbsp;SayHello&nbsp;=&nbsp;CSScript.LoadMethod(<br>
+                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp;@<font color="#800000" size="2">"public&nbsp;static&nbsp;void&nbsp;SayHello(string&nbsp;greeting)<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp; {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp; &nbsp; Console.WriteLine(greeting);<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"</font>)<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.GetStaticMethod();<br>
+                            <br>
+                            SayHello(<font color="#800000" size="2">"Hello&nbsp;World!"</font>);</font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <table style="text-align: left; width: 742px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <font face="Courier New" size="2">var&nbsp;myCollection&nbsp;=&nbsp;CSScript.LoadCode(<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@<font
+                                color="#800000" size="2">"using&nbsp;System;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;using&nbsp;System.Collections;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;MyCollection&nbsp;:&nbsp;IEnumerator<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;IEnumerator&nbsp;GetEnumerator()&nbsp;{&nbsp;return&nbsp;null;&nbsp;}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;object&nbsp;Current&nbsp;{&nbsp;get&nbsp;{&nbsp;return&nbsp;null;&nbsp;}&nbsp;}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;bool&nbsp;MoveNext()&nbsp;{&nbsp;return&nbsp;false;&nbsp;}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;Reset()&nbsp;{&nbsp;}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"</font>)<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.CreateObject(<font
+                                color="#800000" size="2">"*"</font>)&nbsp;as&nbsp;IEnumerator;<br>
+                            <br>
+                        </font>
+                        <font face="Courier New" size="2">myCollection.MoveNext();</font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <span style="color: rgb(0, 0, 153);">GetStaticMethod </span>has
+        some
+        obvious limitations as it returns the following delegate <span style="color: blue;">object</span> <span style="color: rgb(43, 145, 175);">MethodDelegate</span>(<span
+            style="color: blue;">params</span> <span style="color: blue;">object</span>[]&nbsp;paramters).
+        Thus it is not possible to use neither <span style="font-style: italic;">out</span> nor <span style="font-style: italic;">ref</span>
+        parameters. But
+        nevertheless
+        GetStaticMethod can be a usefull addition to the full bodied scripts.<br>
+        <br>
+
+
+        eeeeeeeeeeeeeeeeeeeeeeeeee
+        <br>
+        <span style="font-weight: bold; font-style: italic;">"How
+            much" scripting do you need</span><span style="font-weight: bold;">?</span><br>
+        The default scripting unit is a C# module containing type
+        definition(s). &nbsp;However it is possible to have a script which
+        defines&nbsp;just a
+        single method with no class (classless). <br>
+        <br>
+        <table style="text-align: left; width: 754px; height: 156px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <font face="Courier New" size="2">Assembly&nbsp;assembly&nbsp;=&nbsp;CSScript.LoadCode(<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@<font color="#800000"
+                                size="2">"static&nbsp;public&nbsp;void&nbsp;PrintSum(int&nbsp;a,&nbsp;int&nbsp;b)<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(a&nbsp;+&nbsp;b);<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"</font>);<br>
+                            <br>
+                            var&nbsp;PrintSum&nbsp;=&nbsp;</font>
+                        <font face="Courier New" size="2">
+                            <font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(assembly)
+                        </font>
+                        <font face="Courier New" size="2">.GetStaticMethod();<br>
+                            <br>
+                            PrintSum(1,&nbsp;2);</font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        Note that you can have multiple methods implementations in the
+        classless script code. You can also specify namespaces at the beginning
+        of the code:<br>
+        <br>
+        <table style="text-align: left; width: 754px; height: 332px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <font face="Courier New" size="2">var&nbsp;script&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(CSScript.LoadMethod(<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@<font color="#800000"
+                                size="2">"using&nbsp;System.Windows.Forms;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;SayHello(string&nbsp;greeting)<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBoxSayHello(greeting);<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ConsoleSayHello(greeting);<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;MessageBoxSayHello(string&nbsp;greeting)<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(greeting);<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;ConsoleSayHello(string&nbsp;greeting)<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(greeting);<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}"</font>));<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                            script.Invoke(<font color="#800000" size="2">"*.SayHello"</font>,&nbsp;<font color="#800000"
+                                size="2">"Hello&nbsp;World!"</font>);</font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        See&nbsp;<span style="font-style: italic;">cs-script\Samples\Hosting\Classless.cs</span>
+        sample for details.
+        <h4 class="dtH4">Assembly and Script Probing scenarios</h4>
+        <span style="font-weight: bold;"><br>
+        </span>When implementing particular hosting scenario you may get
+        into
+        the situation when your host, script and script dependencies required
+        to be located in different places.&nbsp;Such requirement
+        sometimes is hard to meet and it is a common issue for dynamic assembly
+        loading.<br>
+        <br>
+        It is important to recognize that a part from the dealing with
+        the&nbsp;common<span style="font-weight: bold;">&nbsp;</span><span style="font-style: italic;"><span style="font-weight: bold;"></span>assembly&nbsp;probing</span>
+        problems developers also have to face <span style="font-style: italic;">script
+            probing</span>
+        issues. <br>
+        <div style="margin-left: 40px;"><span style="font-style: italic;">assembly
+                probing </span>-
+            the way how CLR locates assemblies.<br>
+            <span style="font-style: italic;">script probing</span>
+            - the way how CS-Script engine locates scripts.<br>
+        </div>
+        <p>Also it is worth to mention that script execution consist of
+            two
+            logical stages and they are affected by the probing problems
+            in&nbsp;different degree:</p>
+        <p style="margin-left: 40px;">Script compilation
+            -&nbsp;involves a<span style="font-style: italic;">ssembly
+                and script probing</span><br>
+            Compiled script (assembly) execution - involves a<span style="font-style: italic;">ssembly&nbsp;probing
+                only</span></p>
+
+        <p>Fortunately CS-Script can assist with solving
+            all&nbsp;probing
+            problems. &nbsp;In general, the&nbsp;way of solving the
+            assembly
+            probing problems is&nbsp;to nominate probing
+            directories (search directories)&nbsp;before executing the script.
+            This
+            can be done globally for all scripts&nbsp;or on the script by
+            script
+            base. An alternative approach is to use <span style="font-style: italic;">Simplified Hosting Model</span>.
+            In most of the cases&nbsp;<span style="font-style: italic;">Simplified
+                Hosting Model </span>would
+            be sufficient to handle all possible script probing problems, however
+            in some rare cases you may need to set probing directories by yourself.</p>
+        <p><span style="font-weight: bold;">&nbsp;</span></p>
+        <p><span style="font-weight: bold;">NOTE:</span> In
+            some cases you may find that you need to have a complete control over
+            assembly and script probing mechanism. In such cases the host
+            application can supply the custom probing algorithm (ResolveAssemblyAlgorithm/ResolveSourceAlgorithm).
+            &nbsp;The code
+            sample below shows how to implement custom probing for the assembly
+            referenced by alias 'forms' (e.g. '<span style="font-style: italic; color: rgb(51, 0, 153);">//css_ref
+                forms</span>')&nbsp;</p>
+        <table style="text-align: left; width: 698px; height: 172px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <pre style="background: rgb(255, 255, 204) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; font-family: Consolas; font-size: 13px; color: black;"><span style="color: blue;">var</span>&nbsp;findAsm&nbsp;=&nbsp;<span style="color: rgb(43, 145, 175);">CSScript</span>.ResolveAssemblyAlgorithm;<br><br><span style="color: rgb(43, 145, 175);">CSScript</span>.ResolveAssemblyAlgorithm&nbsp;=&nbsp;(name,&nbsp;searchDirs)&nbsp;=&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">if</span>&nbsp;(name&nbsp;==&nbsp;<span style="color: rgb(163, 21, 21);">"forms"</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">return</span>&nbsp;<span style="color: blue;">new</span>[]&nbsp;{&nbsp;<span style="color: blue;">typeof</span>(System.Windows.Forms.<span style="color: rgb(43, 145, 175);">Form</span>).Assembly.Location&nbsp;};<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">else</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">return</span>&nbsp;findAsm(name,&nbsp;searchDirs);<br>&nbsp;&nbsp;&nbsp;&nbsp;};<br><br></pre>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>This technique allows ultimate flexibility. You can generate the
+        source file on fly, download the assembly from the Internet, check the
+        integrity (or even decrypt) of the user supplied&nbsp;C# file or even
+        implement license-based access to the specific assemblies.<br>See&nbsp;<span style="font-style: italic;">cs-script\Samples\Hosting\CustomProbing.cs</span>
+        sample for details.
+        <p>&nbsp;</p>
+        <p></p>
+
+        <span style="font-weight: bold; font-style: italic;">Simplified
+            Hosting Model probing directories<br>
+        </span><br>
+        The simplest way to solve probing problems is to use <a href="simplified_hosting.html"><span style="font-style: italic;">Simplified
+                Hosting Model</span></a>.
+        The main advantage of this approach is that CS-Script engine
+        automatically includes directories of all loaded assemblies of the
+        host&nbsp;application
+        (including the application assembly itself) into the list of searchable
+        directories. And because <span style="font-style: italic;">Simplified
+            Hosting Model</span>
+        is enabled by default in most of the cases you do not have to do
+        anything special about the script probing in your code. For example if
+        your script is located in the different directory with respect to the
+        host application and the script is accessing the host application
+        type(s) you do not have to express host/script dependency in any
+        special way: the script engine will do it for you.<br>
+        <br>
+        <table style="text-align: left; width: 698px; height: 172px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <font face="Courier New" size="2">
+                            <font color="#008000" size="2">//Host.cs<br>
+                            </font>
+                            <font color="#0000ff" size="2">class</font>&nbsp;Host<br>
+                            {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Process()<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;{<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AsmHelper&nbsp;helper&nbsp;=&nbsp;<font
+                                color="#0000ff" size="2">new</font>&nbsp;AsmHelper(CSScript.Load(@<font color="#800000"
+                                size="2">"Scripts\MyScript.cs"</font>));<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;helper.Invoke(<font color="#800000" size="2">"*.Process"</font>,&nbsp;<font
+                                color="#0000ff" size="2">this</font>);<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                            }<br>
+                        </font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <table style="text-align: left; width: 698px; height: 92px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <font face="Courier New" size="2">
+                            <font color="#008000" size="2">//MyScript.cs<br>
+                            </font>
+                            <font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font
+                                color="#0000ff" size="2">void</font>&nbsp;Process(Host&nbsp;host)<br>
+                            {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;......<br>
+                            }
+                        </font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <br>
+        <br>
+        <span style="font-weight: bold; font-style: italic;">Global
+            probing directories</span>
+        <p>Another way of solving the&nbsp;probing problems
+            is&nbsp;to nominate probing
+            directories globally.&nbsp;Such approach is the simplest however it
+            does have
+            some limitations.</p>
+        The first line of the code below adds <span style="font-style: italic;">Lib</span>
+        directory to
+        the list of the
+        probing directories. These directories are used for probing at&nbsp;<span style="font-style: italic;">compiling</span>
+        stage (<span style="font-style: italic; color: rgb(51, 0, 153);">CSScript.Load</span>)
+        and also at execution stage (<span style="font-style: italic; color: rgb(51, 0, 153);">helper.Invoke</span>).
+        <br>
+        <br>
+        <table style="text-align: left; width: 711px; height: 92px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <font face="Courier New" size="2">CSScript.GlobalSettings.AddSearchDir(Path.GetFullPath(<font
+                                color="#800000" size="2">"Lib"</font>));<br>
+                            CSScript.AssemblyResolvingEnabled&nbsp;=&nbsp;<font color="#0000ff" size="2">true</font>;&nbsp;<br>
+                            <br>
+                            AsmHelper&nbsp;helper&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(CSScript.Load(<font
+                                color="#800000" size="2">"script.cs"</font>));<br>
+                            helper.Invoke(<font color="#800000" size="2">"Script.Report"</font>,&nbsp;<font color="#800000"
+                                size="2">"Hello!"</font>);</font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p><br>
+            Note that assembly resolving at the execution stage is forced to use
+            the same global probing directories by setting&nbsp;<span style="font-style: italic; color: rgb(51, 0, 153);">AssemblyResolvingEnabled&nbsp;</span>to<span
+                style="font-style: italic; color: rgb(51, 0, 153);">&nbsp;true</span>.
+            If&nbsp;<span style="font-style: italic; color: rgb(51, 0, 153);">AssemblyResolvingEnabled&nbsp;</span>is
+            <span style="font-style: italic; color: rgb(51, 0, 153);">false&nbsp;</span>you
+            have to set probing directories for script execution explicitly by
+            modifying the <span style="font-style: italic; color: rgb(51, 0, 153);">AsmHelper</span>'s
+            object <span style="font-style: italic; color: rgb(51, 0, 153);">ProbingDirs</span>
+            property.&nbsp;<br>
+        </p>
+        <table style="text-align: left; width: 710px;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <font face="Courier New" size="2">CSScript.GlobalSettings.AddSearchDir(Path.GetFullPath(<font
+                                color="#800000" size="2">"Lib"</font>));<br>
+                            <br>
+                            AsmHelper&nbsp;helper&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(CSScript.Load(<font
+                                color="#800000" size="2">"script.cs"</font>));<br>
+                            helper.ProbingDirs&nbsp;=&nbsp;CSScript.GlobalSettings.SearchDirs.Split(<font color="#800000"
+                                size="2">';'</font>);<br>
+                            helper.Invoke(<font color="#800000" size="2">"Script.Report"</font>,&nbsp;<font color="#800000"
+                                size="2">"Hello!"</font>);</font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        Using <span style="color: rgb(51, 0, 153); font-style: italic;">GlobalSettings</span>
+        is convenient but it will not work with the remote script execution.
+        Remote execution model implies that the script assembly
+        after&nbsp;execution is unloaded. In order to do this the script
+        assembly is executed in a different AppDomain thus even if&nbsp;<span style="font-style: italic; color: rgb(51, 0, 153);">GlobalSettings.SearchDirs</span>
+        is set it's value&nbsp;will be different in the actual execution
+        domain. The following code will produce the error if <span style="font-style: italic;">script.cs</span> uses
+        any
+        assembly form the <span style="font-style: italic;">Lib</span>
+        directory.<br>
+        <span style="font-style: italic; color: rgb(51, 0, 153);"></span><br>
+        <table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <font face="Courier New" size="2">CSScript.GlobalSettings.AddSearchDir(Path.GetFullPath(<font
+                                color="#800000" size="2">"Lib"</font>));<br>
+                            CSScript.AssemblyResolvingEnabled&nbsp;=&nbsp;<font color="#0000ff" size="2">true</font>;&nbsp;&nbsp;<br>
+                            <br>
+                            <font color="#0000ff" size="2">string</font>&nbsp;asmFile&nbsp;=&nbsp;CSScript.Compile(<font
+                                color="#800000" size="2">"script.cs"</font>,&nbsp;null,&nbsp;<font color="#0000ff" size="2">false</font>);<br>
+                            <font color="#0000ff" size="2">using</font>&nbsp;(AsmHelper&nbsp;helper&nbsp;=&nbsp;<font
+                                color="#0000ff" size="2">new</font>&nbsp;AsmHelper(asmFile,&nbsp;<font color="#800000"
+                                size="2">"tempDomain"</font>,&nbsp;<font color="#0000ff" size="2">true</font>))<br>
+                            {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;helper.Invoke(<font color="#800000" size="2">"Script.Report"</font>,&nbsp;<font
+                                color="#800000" size="2">"Hello!"</font>);&nbsp;<font color="#008000" size="2">//ERROR<br>
+                            </font>
+                        </font>
+                        <font face="Courier New" size="2">}</font><br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        In order to fix the problem the code has to be modified as following:<br>
+        <br>
+        <table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <font face="Courier New" size="2">CSScript.GlobalSettings.AddSearchDir(Path.GetFullPath(<font
+                                color="#800000" size="2">"Lib"</font>));<br>
+                        </font>
+                        <font face="Courier New" size="2"><br>
+                        </font>
+                        <font face="Courier New" size="2">
+                            <font color="#0000ff" size="2">string</font>&nbsp;asmFile&nbsp;=&nbsp;CSScript.Compile(<font
+                                color="#800000" size="2">"script.cs"</font>,&nbsp;null,&nbsp;<font color="#0000ff" size="2">false</font>);<br>
+                            <font color="#0000ff" size="2">using</font>&nbsp;(AsmHelper&nbsp;helper&nbsp;=&nbsp;<font
+                                color="#0000ff" size="2">new</font>&nbsp;AsmHelper(asmFile,&nbsp;<font color="#800000"
+                                size="2">"tempDomain"</font>,&nbsp;<font color="#0000ff" size="2">true</font>))<br>
+                            {<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;helper.ProbingDirs&nbsp;=&nbsp;CSScript.GlobalSettings.SearchDirs.Split(<font
+                                color="#800000" size="2">';'</font>);<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;helper.Invoke(<font color="#800000" size="2">"Script.Report"</font>,&nbsp;<font
+                                color="#800000" size="2">"Hello!"</font>);<br>
+                            }
+                        </font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <span style="font-weight: bold; font-style: italic;">Script
+            specific&nbsp;probing directories</span><br>
+        <br>
+        As an alternative to the <span style="color: rgb(51, 0, 153); font-style: italic;">GlobalSettings</span>&nbsp;approach
+        you may specify probing directories for particular script only. This
+        can be accomplished by passing <span style="color: rgb(51, 0, 153); font-style: italic;">Settings</span>
+        object to the script compiler and setting the <span style="font-style: italic; color: rgb(51, 0, 153);">AsmHelper</span>.<span
+            style="font-style: italic; color: rgb(51, 0, 153);">ProbingDirs</span>
+        property.<br>
+        <br>
+        <table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+                        <font face="Courier New" size="2">Settings&nbsp;settings&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;Settings();<br>
+                            settings.AssSearchDir(Path.GetFullPath(<font color="#800000" size="2">"Lib"</font>));<br>
+                            <br>
+                            <font color="#0000ff" size="2">string</font>&nbsp;asmFile&nbsp;=&nbsp;CSScript.CompileWithConfig(<font
+                                color="#800000" size="2">"script.cs"</font>,&nbsp;null,&nbsp;<font color="#0000ff" size="2">false</font>,&nbsp;settings,&nbsp;<font
+                                color="#800000" size="2">""</font>);<br>
+                            <br>
+                            AsmHelper&nbsp;helper&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;
+                        </font>
+                        <font face="Courier New" size="2">AsmHelper</font>
+                        <font face="Courier New" size="2">(Assembly.LoadFrom(asmFile));<br>
+                            helper.ProbingDirs&nbsp;=&nbsp;settings.SearchDirs.Split(<font color="#800000" size="2">';'</font>);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+                            helper.Invoke(<font color="#800000" size="2">"Script.Report"</font>,&nbsp;<font color="#800000"
+                                size="2">"Hello!"</font>);</font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        The code above will work with remote script execution too.
+        <p> <span style="font-weight: bold; font-style: italic;"></span><span style="font-weight: bold; font-style: italic;"></span></p>
+        <p><span style="font-weight: bold; font-style: italic;">PInvoke&nbsp;probing
+                directories</span></p>
+        <p>When using PInvoke to call&nbsp;unmanaged functions that
+            are
+            implemented in a DLL CLR searches the DLLs in the local (with respect
+            to main application) directory and in all directories of the system
+            PATH environment variables. CS-Script automatically adds all SearchDirs
+            to the system PATH thus native DLL probing directories can be managed
+            in the same way as assembly probingdirectories. &nbsp; </p>
+        <p><span style="font-weight: bold; font-style: italic;"></span><br>
+        </p>
+        <p><span style="font-weight: bold; font-style: italic;">Script
+                caching</span></p>
+        <p>
+            Script caching is available durings script execution from the
+            command-prompt (see <a href="CompileAssembly.html">/c</a>
+            switch). The same script caching mechanism is&nbsp;engaged
+            while&nbsp;executing by the engine hosted by an other
+            application.&nbsp;You can enable/disable the caching by setting the
+            <span style="color: rgb(51, 51, 255);">CSScript.CacheEnabled</span>
+            property (<span style="color: rgb(51, 51, 255);">true</span>
+            by default). Practically it means that if you are executing the script
+            from the application it will not be recompiled&nbsp;every time
+            unless it
+            is changes since the last execution.</p>
+        <br>
+        <span style="font-weight: bold; font-style: italic;">Script
+            Compiling
+            Errors</span><br style="font-weight: bold; font-style: italic;">
+        If the script to be executed generated compiling it is possible now to
+        extract the detailed information about the
+        error. The iformation is stored in the <span style="color: rgb(0, 0, 153);">Data</span> dictionary
+        of&nbsp;<span style="color: rgb(0, 0, 153);">CompilerException</span>&nbsp;<span style="color: rgb(1, 0, 1);"></span>class.
+        This
+        technique is also
+        useful when it is required to distinguish compiling Errors and Warnings.<br>
+        <br>
+        <br>
+        <table style="text-align: left; width: 712px; font-family: monospace; height: 316px;" border="1" cellpadding="2"
+            cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <p style="margin: 0px;"><span style="color: blue;">try</span></p>
+                        <p style="margin: 0px;">{</p>
+                        <span style="color: rgb(43, 145, 175);">&nbsp;
+                            &nbsp; CSScript</span>.<span style="color: rgb(1, 0, 1);">LoadCode</span>(<span style="color: rgb(1, 0, 1);">code</span>);
+                        <p style="margin: 0px;">}</p>
+                        <p style="margin: 0px;"><span style="color: blue;">catch</span>
+                            (<span style="color: rgb(43, 145, 175);">CompilerException</span>
+                            <span style="color: rgb(1, 0, 1);">e</span>)</p>
+                        <p style="margin: 0px;">{</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            <span style="color: rgb(43, 145, 175);">CompilerErrorCollection</span>
+                            <span style="color: rgb(1, 0, 1);">errors</span>
+                            = (<span style="color: rgb(43, 145, 175);">CompilerErrorCollection</span>)<span style="color: rgb(1, 0, 1);">e</span>.<span
+                                style="color: rgb(1, 0, 1);">Data</span>[<span style="color: rgb(163, 21, 21);">"Errors"</span>];</p>
+                        <p style="margin: 0px;">&nbsp;</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            <span style="color: blue;">foreach</span> (<span style="color: rgb(43, 145, 175);">CompilerError</span>
+                            <span style="color: rgb(1, 0, 1);">err</span> <span style="color: blue;">in</span> <span
+                                style="color: rgb(1, 0, 1);">errors</span>)</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            {</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; <span style="color: rgb(43, 145, 175);">Console</span>.<span style="color: rgb(1, 0, 1);">WriteLine</span>(<span
+                                style="color: rgb(163, 21, 21);">"{0}({1},{2}): {3} {4}: {5}"</span>,</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(1, 0, 1);">err</span>.<span
+                                style="color: rgb(1, 0, 1);">FileName</span>,</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(1, 0, 1);">err</span>.<span
+                                style="color: rgb(1, 0, 1);">Line</span>,</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(1, 0, 1);">err</span>.<span
+                                style="color: rgb(1, 0, 1);">Column</span>,</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(1, 0, 1);">err</span>.<span
+                                style="color: rgb(1, 0, 1);">IsWarning</span> ? <span style="color: rgb(163, 21, 21);">"warning"</span>
+                            : <span style="color: rgb(163, 21, 21);">"error"</span>,</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(1, 0, 1);">err</span>.<span
+                                style="color: rgb(1, 0, 1);">ErrorNumber</span>,</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(1, 0, 1);">err</span>.<span
+                                style="color: rgb(1, 0, 1);">ErrorText</span>);</p>
+                        <p style="margin: 0px;">&nbsp;&nbsp;&nbsp;
+                            }</p>
+                        <p style="margin: 0px;">}</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <span style="font-weight: bold; font-style: italic;">Concurrency
+            Control<br>
+        </span>It is important to understand implications of concurrent
+        script
+        execution. The script execution is always tyhread-unsafe and it is (as
+        with any dynamically loaded assembly) a resoponsibility of the host
+        application to synchronise access to the sharted resources. However the
+        script Loading/Compiling is always thread-safe. <br>
+        <br>
+        The fine/precise control over the concurrency is possible with the
+        runtime setting <span style="font-style: italic;">OptimisticConcurrencyModel</span>.&nbsp;
+        it is set to true (default value) the script loading (not the
+        execution) is globally thread-safe. If it is set to false the script
+        loading is thread-safe only among loading operations for the same
+        script file.<span style="font-family: Tahoma; color: black; font-size: 7pt;">
+            <font face="Verdana" size="2"><br>
+            </font>
+        </span><span style="font-style: italic;"></span><br>
+        <table style="text-align: left; width: 711px; font-family: monospace; height: 59px;" border="1" cellpadding="2"
+            cellspacing="2">
+            <tbody>
+                <tr>
+                    <td style="background-color: rgb(255, 255, 204); white-space: nowrap;">
+                        <o:span style="color: rgb(43, 145, 175);">CSScript</o:span>.GlobalSettings.OptimisticConcurrencyModel
+                        = <o:span style="color: blue;">false</o:span>;<br>
+                        <o:pre style="font-family: consolas;">
+                            <o:span style="color: rgb(43, 145, 175);">AsmHelper</o:span>
+                            script = <o:span style="color: blue;">new</o:span>
+                            <o:span style="color: rgb(43, 145, 175);">AsmHelper</o:span>(<o:span style="color: rgb(43, 145, 175);">CSScript</o:span>.Load(<o:span
+                                style="color: rgb(163, 21, 21);">"myScript.cs")</o:span>);
+                        </o:pre><br>
+                        ...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        This setting is to be used with the caution. While it can bring some
+        performance benefits when the list of probing directories is large it
+        also may be wrong to assume that if the assembly in not found in a
+        particular directory it still will not be there if the probing is
+        repeated. <br>
+        <br>
+        Note: standalone script engine (cece.exe/csws.exe) always internally
+        sets CacheProbingResults to true before the execution as it is safe to
+        assume no chages in the assembly locations during a single script
+        execution. <br>
+        <h4 class="dtH4">
+            See Also </h4>
+        <p><a href="ProgrammingReference.html">Reference</a>
+            | <a href="Text_processor.html">Tutorial (Text Processor)</a>
+            | <a href="Image_processor.html">Image Processor</a>
+        </p>
+        <p>&nbsp; </p>
+        <p>&nbsp; </p>
+        <object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true"
+            style="display: none;">
+            <param name="Keyword" value="Script Hosting">
+        </object>
+    </div>
+</body>
+
+</html>

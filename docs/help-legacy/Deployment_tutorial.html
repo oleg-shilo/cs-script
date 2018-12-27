@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <title>Deployment tutorial</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body style="color: rgb(0, 0, 0);" id="divID" class="dtBODY" alink="#ee0000" link="#0000ee" vlink="#551a8b">
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e">
+	<param name="Keyword" value="Deployment">
+</object>
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Deployment tutorial</h1>
+</div>
+</div>
+<div id="nstext">
+<p>Deployment of C# script applications is a simple XCOPY style
+distribution. Just copy your script(s) to the system that have <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=262D25E3-F589-4842-8157-034D1E7CF3A3&amp;displaylang=en">.NET
+run-time</a>&nbsp; and CS-Script installed and script is
+ready to run. </p>
+<p>It is important to remember that&nbsp;<a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=262D25E3-F589-4842-8157-034D1E7CF3A3&amp;displaylang=en">.NET
+run-time</a> is the only "must-be-installed" software component
+for success running CS-Script scripts. </p>
+<p>If you want to run your script on the system that does not
+have
+CS-Script engine installed, you do not have to complete full
+installation of CS-Script. It is enough just to copy the script engine
+executable (<span style="font-style: italic;">cscs.exe/csws.exe</span>)
+along with the script(s).</p>
+<p>if you want to distribute your script application in a binary
+form
+and without the script engine you can generate self-sufficient
+executable from the script(s). Just run your script with <a href="Compile.html">/e</a> switch and required .exe
+file (e.g. <span style="font-style: italic;">myScript.exe</span>)
+will be generated for you.</p>
+<div class="syntax">cscs /e myScript</div>
+<p>When preparing the script application for deployment it is
+important
+to identify all its dependencies (if any). The Script Library contains
+script isolate.cs which can automatically collect all required
+distributable files. If you have script myScript.cs and want to prepare
+the distributable package for it, run the following command from
+command prompt:</p>
+<div class="syntax">cscs isolate myScript</div>
+<p>This will create new folder myScript and all dependent files
+including .cs(s) and dll(s) will be copied there along with the main
+script file (<span style="font-style: italic;">myScript.cs</span>).
+The deployment of the myScript.cs now is the matter of the copying the
+content of entire <span style="font-style: italic;">myScript</span>
+folder on the target system. </p>
+<p>The <span style="font-style: italic;">isolate.cs</span>
+script has
+another interesting flavor. The following command will prepare the
+same package as described above and on top of it will create Visual
+Studio 2003 project for compiling your script into executable.&nbsp;</p>
+<div class="syntax">cscs isolate myScript /vs7</div>
+<p>And similarly for Visual Studio 2005:&nbsp;
+</p>
+<div class="syntax">cscs isolate myScript /vs8</div>
+<br>
+<p>This mode of <span style="font-style: italic;">isolate.cs</span>
+is particularly useful when you need to share your code with someone
+else in a form of Visual Studio project.</p>
+<p></p>
+<h4 class="dtH4">See Also</h4>
+<p><a href="Command-line_Interface.html">Command-line
+interface</a> | <a href="Script_library.html">Script
+Library</a> | <a href="Installation.html">Installation</a>
+</p>
+<p><br>
+</p>
+<br>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e">
+	<param name="Keyword" value="Deployment tutorial">
+</object>
+</div>
+</body>
+</html>
+

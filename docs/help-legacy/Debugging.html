@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Debugging</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Debugging</h1>
+</div>
+</div>
+<div id="nstext">
+<h4 class="dtH4">Debugging</h4>
+<p>
+If you need to debug your script firstly make sure you have a CLR
+compatible debugger installed. Almost any CLR IDE can be used as such a
+debugger.&nbsp;</p>
+<p>You can start debugging by using one of the these possible
+approaches:&nbsp;</p>
+<ul>
+  <li>Run script with <a href="Command-line_Interface.html">//x</a>
+switch as the last parameter. This switch&nbsp;is similar to '//x' switch for Microsoft's <span style="font-style: italic;">cscript.exe </span>(VBScript, JScript engine).</li>
+  <li>Right-click script file in Explorer and select "Open&nbsp;(...)". <br>
+This will open your script in the debugger (or IDE depending on what
+you have installed). Now you can start the script under debugger.<br>
+    <br>
+    <span style="font-style: italic;">Currently supported
+debuggers/IDEs are: </span><br style="font-style: italic;">
+    <span style="font-style: italic;">&nbsp;&nbsp;
+.NET Visual Studio 7.1 </span><br style="font-style: italic;">
+    <span style="font-style: italic;">&nbsp;&nbsp;
+.NET Visual Studio 8.0 </span><br style="font-style: italic;">
+    <span style="font-style: italic;">&nbsp;&nbsp;
+SharpDevelop&nbsp;</span><br style="font-style: italic;">
+    <span style="font-style: italic;">&nbsp;&nbsp;
+MS CLR Debugger&nbsp;<br>
+    <br>
+    </span></li>
+  <li>Put in your code the following string: <span style="color: rgb(51, 0, 153);">System.Diagnostics.Debug.Assert(false);</span><br>
+Use <a href="Command-line_Interface.html">/dbg</a>&nbsp;
+switch when you execute your script. <br>
+This will bring the Assertion dialog at run-time and you will be able
+to continue execution under the debugger of your choice.</li>
+  <li>Run script with <a href="Command-line_Interface.html">/dbg</a>
+switch. During this execution run your debugger
+and attach it to the running process (e.g. cscs.exe) by usual means. Of
+course this approach can be used only if your debugger supports "attach
+to process" debugging.</li>
+</ul>
+<h4 class="dtH4">Using system CLR&nbsp;debugger </h4>
+This is the simplest way of debugging&nbsp;scripts.&nbsp;The switch  <a href="Command-line_Interface.html">//x</a>, if present
+as the last parameter in the command line,&nbsp;will always launch the
+"Select Just-In-Time Debugger" dialog to allow attaching to the script
+engine process. After appropriate&nbsp;debugger selected&nbsp;you can
+start debugging. &nbsp;Press F10 (<span style="font-style: italic;">'Step over'</span> command on most for the MS debuggers) and debugger will stop at&nbsp;the first line of the script.<br><br><span style="font-style: italic;">Note: The Visual Studio debugging option
+"Enable Just My Code (Managed only)" must be turned on in order for
+the F10 key to step you to the first line of your script. If this option is
+turned off, you will need to manually load your script and set a breakpoint on
+the first line, then hit F5.</span><br>
+<br>
+Alternatively right-click the script file in explorer and select "Debug
+Script". It will append //x to your script command automatically. The
+corresponding shell extension can be enabled/disabled from the
+configuration console. <br>
+<span style="font-style: italic;"><br>
+Note: if you are debugging under .NET 1.1, you will need to open the
+source file (script)&nbsp;in the debugger manually, before pressing
+F10. The problem&nbsp;was addressed&nbsp;by MS in .NET2.0.</span>
+<h4 class="dtH4">Changing default script debugger </h4>
+<p>
+If you want to change the debugger associated with the right-click
+context-menu you can do it from the configuration console. It will
+allow you to enable particular debugger a list of supported/available
+debuggers (see&nbsp; <a href="Config.html">CS-Script settings</a>).<br>
+</p>
+<div style="text-align: center;"><img style="width: 449px; height: 483px;" alt="" src="Images/debugger.PNG"><br>
+</div>
+<p style="text-align: center;"><br>
+</p>
+<br>
+<h4 class="dtH4"> Tracing</h4>Sometimes it is very useful to know&nbsp;runtime settings&nbsp;during the script execution. You can use <span style="font-style: italic;">/verbose</span> command-line switch to to print this information&nbsp;into console output:
+<div class="syntax">C:\cs-script\Samples&gt;cscs.exe /verbose hello.cs arg1 arg2 arg3<br>C# Script execution engine. Version 2.3.0.0<br>Copyright (C) 2004-2008 Oleg Shilo.<br><br>&gt; ----------------<br>&nbsp; CurrentDirectory: C:\cs-script\Samples<br>&nbsp; Executing: C:\cs-script\Samples\hello.cs<br>&nbsp; Arguments:<br>&nbsp;&nbsp;&nbsp; 0 - arg1<br>&nbsp;&nbsp;&nbsp; 1 - arg2<br>&nbsp;&nbsp;&nbsp; 2 - arg3<br>&nbsp; SearchDirectories:<br>&nbsp;&nbsp;&nbsp; 0 - C:\cs-script\Samples<br>&nbsp;&nbsp;&nbsp; 1 - C:\cs-script\Lib<br>&nbsp;&nbsp;&nbsp; 2 - C:\cs-script\Dev<br>&nbsp;&nbsp;&nbsp; 3 - C:\Documents and Settings\&lt;user&gt;\Local Settings\Temp\CSSCRIPT\Cache\-1582419629<br>&gt; ----------------<br><br>Hello World!<br></div>
+<p>Also it can be very useful to use Trace statements in your code in
+order
+to
+output some run-time information (/dbg switch must be used to enable
+tracing). Such technique is especially suitable for situations
+where you do not want to use a debugger. Just run your "trace listener"
+and it will catch all trace outputs from you script. You can
+download CLR "trace listener" applications from the Internet. In the
+example below TraceMonitor (<a href="http://www.szurgot.net/projects">http://www.szurgot.net/projects</a>)
+was used as a "trace listener". Alternatively you can use&nbsp;<a href="http://technet.microsoft.com/en-us/sysinternals/bb896647.aspx">DebugView</a> from Sysinternals.</p>
+<p></p>
+<p style="font-weight: bold;">Example:</p>
+<ol>
+  <li>Put a trace statement in the script code (e.g. <span style="color: rgb(51, 0, 153);">System.Diagnostics.Trace.WriteLine("Hello
+World!");</span> in <span style="font-style: italic;">Hello.cs</span>)&nbsp;</li>
+  <li>Run the "trace listener" (e.g. <span style="font-style: italic;">TraceMonitor.exe</span>)&nbsp;</li>
+  <li>Run the script (e.g. <span style="font-style: italic;">Hello.cs</span>)&nbsp;&nbsp;<br>
+    <div class="syntax">cscs /dbg hello</div>
+&nbsp; <br>
+  </li>
+</ol>
+<p>
+This is the trace output caught by TraceMonitor.</p>
+<p style="text-align: center;"><img style="width: 548px; height: 227px;" alt="" src="Images/TraceMonitor.PNG"></p>
+<p>&nbsp;<br>
+</p>
+<h4 class="dtH4">See Also</h4>
+<p><a href="Command-line_Interface.html">Command-line
+interface</a> | <a href="Script_library.html">Script
+Library</a> &nbsp;</p>
+<p></p>
+<p></p>
+<br>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"> <param name="Keyword" value="Debugging">
+</object></div>
+</body></html>

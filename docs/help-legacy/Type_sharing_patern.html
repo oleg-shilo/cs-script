@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <title>Type sharing patern</title><xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            </td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">"Type sharing" pattern</h1>
+      </div>
+    </div>
+<div id="nstext">
+<p>
+"Type sharing" pattern represents the most common execution scenario.
+According to this pattern the host application (host) and the script
+have some knowledge about each other. Such knowledge is expressed in
+ability to pass and handle run-time objects between the host and the
+script in one or both directions.</p>
+<p>During script execution the host application compiles the script into
+assembly on fly, loads it and calls some public method(s) of the
+script. This is what distinguishes this execution pattern from
+"isolated execution" where <font style="color: rgb(51, 0, 153);" color="#0000ff"> static void Main()</font> is always called.</p>
+<p>The script engine class library (<i>CSScriptLibrary.dll</i>) provides two classes to assist with the script hosting:</p>
+<ul>
+  <li>
+    <p><font style="color: rgb(51, 0, 153);" color="#0000ff">CSScript</font> - class for compiling scripts into assemblies</p>
+  </li>
+  <li>
+    <p><font style="color: rgb(51, 0, 153);" color="#0000ff">AsmHelper</font> - class for simplifying assembly loading/unloading. This
+class also assists with calling the type methods and creating the type
+instances. The use of this class is entirely optional because the
+assembly produced by CSScript is just an ordinary assembly and can be
+handled in numerous ways (see Reflection in MSDN).</p>
+  </li>
+</ul>
+<p>&nbsp;</p>
+<p>
+Implementation of the "type sharing" pattern can be as simple as two lines of code:</p>
+<blockquote style="color: rgb(0, 0, 153);">
+  <p>Array dataList= ...<br>
+   Assembly script =
+CSScript.Load("scripts/comparer.cs", null, true);&nbsp;<br>
+ IComparer
+customComparer = (IComparer) script.CreateInstance("DataComparer"); <br>
+  Array.Sort(dataList, customComparer);</p>
+</blockquote>
+<p>or</p>
+<blockquote style="color: rgb(0, 0, 153);">
+  <p>AppData data = ... <br>
+  AppDataEx newData;<br>
+  <font style="color: rgb(0, 0, 153);">
+AsmHelper script = new AsmHelper(CSScript.Load("scripts/datamap.cs"));&nbsp;<br>
+ </font><font style="color: rgb(0, 0, 153);">newData = (</font>AppDataEx<font style="color: rgb(0, 0, 153);">)</font>script.Invoke("DataMapper.Remap", data);</p>
+</blockquote>
+<p>
+But of course the complexity may vary depending on a particular development task.</p>
+<p>The execution flow for "type sharing" scenario is not different to any
+other case when an external assembly is dynamically loaded and it's
+methods are called. The key difference is that such assembly is created
+on fly from the script file. That is why execution of script shares the
+same logical constrains as the execution of any dynamically loaded
+assemblies.</p>
+<p>Such constrains are:</p>
+<ul>
+  <li>
+    <p>
+The types used in both loaded assembly and the client application have to be either:</p>
+    <ul>
+      <li>
+        <p>"well-known" types (primitives or GAC types)</p>
+      </li>
+      <li>
+        <p>implemented in the assembly which is referenced in both the client application&nbsp;and the loaded assembly</p></li><li>implemented in the host application assembly itself or in one of its dependency assemblies when using&nbsp;<a href="simplified_hosting.html">Simplified Hosting Model</a></li>
+    </ul>
+  </li>
+  <li>
+    <p>Assembly loaded to the current application domain cannot be unloaded.<br>
+    <i>Loading to the different&nbsp; application domain can be used to make
+it assembly unloading possible. However, extra care should be taken in
+this case about types which are crossing the boundaries of application
+domains.<br>
+    </i></p>
+  </li>
+</ul>
+<p><i><b>Again, these constrains are not specific to the CS-Script but rather
+inherited from the nature of interaction between any dynamically loaded
+assemblies with the client application under CLR.</b></i></p>
+<p>&nbsp;</p>
+<h4 class="dtH4">
+In This Section</h4>
+<p><a href="Passing_well-known_type_between_script_and_host.html">Passing "well-known" type between script and host</a>&nbsp;&nbsp;&nbsp; <br>
+Information about script execution, which involves passing
+objects of a primitive/GAC type between the script and the host
+application.<br>
+<br>
+<a href="Passing_custom_type_between_script_and_host.html">
+Passing custom type between script and host</a>&nbsp;&nbsp;&nbsp; <br>
+Information about script execution, which involves passing
+objects of a custom type between the script and the host application.<br>
+<br>
+<a href="Dynamic_assembly_loading.html">
+Dynamic assembly loading</a><br>
+Read about the ways of dynamic assembly loading.&nbsp;</p>
+<p><a href="simplified_hosting.html">Simplified Hosting Model</a></p>
+<p>Read about <span style="font-style: italic;">Simplified Hosting Model</span>, which offers effortless &nbsp;solution for script/assembly probing problems.</p><p></p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="Advanced Script Hosting">
+</object> 
+    </div>
+</body></html>
+

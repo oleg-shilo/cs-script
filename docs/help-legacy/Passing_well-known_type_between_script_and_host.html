@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Passing well-known type between script and host</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            <br>
+</td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Passing well-known type between script and host</h1>
+      </div>
+    </div>
+<div id="nstext">
+<p>
+Passing (or accessing) "well-known" type between the script and the
+host is a particular case of the "type sharing"&nbsp; pattern. Script
+and host applications can pass run-time objects in both directions.</p>
+<p align="center"><img src="Images/well-known_type.PNG" border="0" height="37" width="199"></p>
+<p>Because the script and the host do not share any local assembly the
+only way for them to understand each other is to only pass the objects
+implemented in GAC assemblies. These types can be strings, datasets,
+images etc.</p>
+<h4 class="dtH4">Example</h4>
+<p><i>Calling static methods</i></p>
+<p>
+Let's assume we have the script <i> translator.cs</i>, which contains the
+implementation of translating from English to Spanish and vice versa.
+The translator class has two methods <font color="#0000ff"> <span style="color: rgb(51, 0, 153);">ToSpanish</span></font><span style="color: rgb(51, 0, 153);"> </span>and
+<font color="#0000ff"> <span style="color: rgb(51, 0, 153);">ToEnglish</span></font>, which are
+the word conversion to upper and lower case (to simulate the
+translation).</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;EngSpanTranslator<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;ToSpanish(<font color="#0000ff" size="2">string</font>&nbsp;word)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;word.ToLower();&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;ToEnglish(<font color="#0000ff" size="2">string</font>&nbsp;word)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;word.ToUpper();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<br>
+The host application can pass and receive strings to and from the
+script because string is a type which is implemented in the <i> System.dll</i>
+assembly and this assembly belongs to the GAC.</p>
+<p>The following is an example of how the host application can call script's static methods:</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">AsmHelper&nbsp;script&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(CSScript.Load(<font color="#800000" size="2">"scripts/translator.cs"</font>,&nbsp;null,&nbsp;<font color="#0000ff" size="2">true</font>));<br>
+      <br>
+      <font color="#0000ff" size="2">string</font>&nbsp;engWord&nbsp;&nbsp;=&nbsp;<font color="#800000" size="2">"HELLO"</font>;<br>
+      <font color="#0000ff" size="2">string</font>&nbsp;spanWord&nbsp;=&nbsp;(<font color="#0000ff" size="2">string</font>)&nbsp;script.Invoke(<font color="#800000" size="2">"EngSpanTranslator.ToSpanish"</font>,&nbsp;engWord);&nbsp;</font></td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>
+In the code above the value of the <font color="#0000ff"> <span style="color: rgb(51, 0, 153);">spanWord</span></font> variable after the script execution would be "hello".</p>
+<p>
+The completely functional example of calling the script static methods is described in the tutorial
+<a href="Text_processor.html"> Text Processor</a>.</p>
+<p>&nbsp;</p>
+<p><i>Calling instance methods</i></p>
+<p>Let's assume now that the translator class have only the instance methods.</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;EngSpanTranslator<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;ToSpanish(<font color="#0000ff" size="2">string</font>&nbsp;word)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;word.ToLower();&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      <br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;ToSpanish(<font color="#0000ff" size="2">string</font>&nbsp;word)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;word.ToUpper();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;<br>
+}&nbsp;</font></td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<br>
+The starting point of any script hosting is compilation of the script
+into assembly (<font style="color: rgb(51, 0, 153);" color="#0000ff">CSScript.Load</font>). After that it is possible to use
+Reflection for this assembly to create the type instance and call it's
+methods. However, it can be quite painful to maintain such code.
+Instead you may inherit your class from the well-known suitable
+interface. In our example it would be <font style="color: rgb(51, 0, 153);" color="#0000ff"> IEngSpanTranslator</font>&nbsp;implemented in <i> translators.dll</i>, which is registered with GAC. In fact
+it can be any interface from FCL (<font style="color: rgb(51, 0, 153);" color="#0000ff">IComparer</font>, <font style="color: rgb(51, 0, 153);" color="#0000ff"> IComponent</font>,
+<font color="#0000ff">
+<span style="color: rgb(51, 0, 153);">IPropertyBrowser</span></font> etc.).</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">namespace</font>&nbsp;Translators<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">interface</font>&nbsp;IEngSpanTranslator<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;ToSpanish(<font color="#0000ff" size="2">string</font>&nbsp;word);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;</font><font face="Courier New" size="2">ToEnglish</font><font face="Courier New" size="2">(<font color="#0000ff" size="2">string</font>&nbsp;word);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;<br>
+The script in this case should be modified like this:&nbsp;</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <font color="#0000ff" size="2">using</font>&nbsp;Translators;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;EngSpanTranslator&nbsp;:&nbsp;IEngSpanTranslator<br>
+.....</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<p>
+This is how the host application can call the script's instance methods:</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">AsmHelper&nbsp;script&nbsp;=&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;AsmHelper(CSScript.Load(<font color="#800000" size="2">"scripts/translator.cs"</font>,&nbsp;null,&nbsp;<font color="#0000ff" size="2">true</font>));<br>
+IEngSpanTranslator&nbsp;translator&nbsp;= <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (IEngSpanTranslator)&nbsp;script.CreateObject(<font color="#800000" size="2">"EngSpanTranslator"</font>);<br>
+      <br>
+      <font color="#0000ff" size="2">string</font>&nbsp;engWord&nbsp;&nbsp;=&nbsp;<font color="#800000" size="2">"HELLO"</font>;<br>
+      <font color="#0000ff" size="2">string</font>&nbsp;spanWord&nbsp;=&nbsp;translator.ToSpanish(engWord);</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<p>
+As you can see only the instantiation of the type is something unusual. Calling the type methods is just as for any C# code.</p>
+<blockquote>
+  <p><b><i>
+Using interfaces can be very beneficial because it enforces proper
+separation between a service provider (script) and a service consumer
+(host).</i></b></p>
+</blockquote>
+<p>A completely functional example of calling the script instance methods is described in the tutorial
+<a href="Text_processor.html">Text Processor</a>. <br>
+</p>
+<h4 class="dtH4">
+See Also</h4>
+<p><a href="ProgrammingReference.html">Reference&nbsp;</a> | <a href="Text_processor.html">Tutorial
+(Text Processor)</a>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;
+    </p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="Advanced Script Hosting">
+</object> 
+</div>
+</body></html>

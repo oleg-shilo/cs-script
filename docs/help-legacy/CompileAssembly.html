@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>CompileAssembly</title>
+
+
+
+		
+		
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+		
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<xml></xml>
+		
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="bodyID" class="dtBODY">
+		
+<div id="nsbanner">
+			
+<div id="bannerrow1">
+				
+<table class="bannerparthead" cellspacing="0">
+					<tbody>
+						<tr id="hdr">
+							<td class="runninghead">
+								
+      <p align="left">CS-Script 3.27.0</p>
+							</td>
+							<td class="product">
+							<br>
+</td>
+						</tr>
+					
+  </tbody>
+				
+</table>
+			</div>
+			
+<div id="TitleRow">
+				
+<h1 class="dtH1" align="left">Compile to assembly (use pre-compiled)&nbsp;</h1>
+			</div>
+		</div>
+		
+<div id="nstext">
+			
+<p><span style="font-weight: bold;">/c</span> - use compiled (pre-compiled)
+				<br>
+			</p>
+			
+<div style="margin-left: 40px;">In this mode the script engine stores a compiled 
+				script file (assembly) in the same location as the script file and executes it 
+				next time instead of compiling the script again if the script has not changed 
+				since last execution. This mode&nbsp;is used to improve runtime performance.
+				<br>
+				<br>
+				
+<div style="margin-left: 40px; font-style: italic;">The script&nbsp;caching 
+					mechanism is based on sophisticated algorithm for analysing if the script is 
+					changed. It includes analyse&nbsp; of the timestamps of the script file and all 
+					it's dependencies (imported scripts and referenced assemblies)
+					<br>
+				</div>
+				<br>
+				The compiled script file is an assembly file with the same name as the script 
+				file and extension <span style="font-style: italic;">.compiled</span>.&nbsp;
+				<br>
+				<br>
+				The script engine searches the script file directory for corresponding .csc 
+				file at start up. If file found and it has the same timestamp as the 
+				corresponding .cs file the engine loads it and executes without any compiling. 
+				Otherwise script engine compiles .cs file into .csc first and only after that 
+				loads and executes it.<br>
+				<br>
+				The compiled script file stays along with the script file after script 
+				execution.</div>
+			
+<div style="margin-left: 40px;" class="syntax">
+				cscs /c test
+			</div>
+			
+<p style="margin-left: 40px;">The command above executes the<i> test.cs</i> script 
+				in a "use compiled" mode.&nbsp;</p>
+<p style="margin-left: 80px;">
+				<font style="font-style: italic;">The performance improvement in 
+					this mode can be quite significant. In general, the overall performance is 
+					influenced by two components: startup delay and runtime performance. The 
+					runtime performance&nbsp;of the script is absolutely the same as the equivalent 
+					executable. &nbsp;However startup delay has to be longer for a script as it 
+					involves script engine initialization, script analysis and compilation... 
+					Running scripts with /c switch is like running Web browser in cached mode. The 
+					measurements of startup delay for a script on the average PC (P4 2.8GHz 1G of 
+					RAM) shows about 45-60 ms overhead comparing to a standalone executable. 
+					&nbsp;Thus measured execution time for the&nbsp; standard hello.cs script was 
+					consistently around 110 ms.<br>
+</font><span style="font-style: italic;">Note: performance figures </span><span style="font-style: italic; font-weight: bold;"></span><span style="font-style: italic;">may vary from version to version.</span><br>
+</p>
+			
+			
+<p style="margin-left: 40px;"><strong>Note:&nbsp;</strong>Because .csc
+file is just an assembly it is guaranteed to be valid only within the
+environment it is compiled on. It means that if you copy the script and
+it's .csc file on another PC with different .csc may not be valid
+there. Proper .config files will solve the problem in most of the cases
+(CS-Script is deployed with .config files for all script engine
+executables). If problem cannot be solved for what ever reason just
+delete .csc file and it will be generated correctly with the next script
+execution.&nbsp; </p>
+			
+			
+<p>
+				<br>
+				<span style="font-weight: bold;">/ca</span> - compiles the script file into 
+				assembly (.csc)&nbsp;</p>
+			
+<div style="margin-left: 40px;" class="syntax">
+				cscs /ca test
+			</div>
+			
+<div style="margin-left: 40px;">The command above compiles the t<i>est.cs</i> script 
+				into compiled assembly <i>test.csc</i> without actual execution.&nbsp;&nbsp;
+				<br>
+			</div>
+			
+<p>
+				<br>
+				<span style="font-weight: bold;">/cd</span> - compiles the script file into 
+				assembly (.dll)&nbsp;</p>
+			
+<div style="margin-left: 40px;" class="syntax">
+				cscs /cd test
+			</div>
+			
+<p style="margin-left: 40px;">
+				The command above compiles the <i>test.cs </i>script into compiled assembly<i> test.dll</i>
+				without actual execution. This mode is logically identical to /ca . It differs 
+				only in the file extension. This mode is useful for converting a script to the 
+				assembly form for use in other applications (as any other class library 
+				assembly).&nbsp;&nbsp;</p>
+			
+<p></p>
+			
+<h4 class="dtH4">See Also</h4>
+			
+<p>
+				<a href="Command-line_Interface.html">Command-line interface</a></p>
+			
+<p>
+				&nbsp;</p>
+		</div>
+	
+</body></html>

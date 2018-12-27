@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Scripts and NuGet</title>
+
+<xml></xml>
+<link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> </td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Referencing NuGet packages</h1>
+</div>
+</div>
+<div id="nstext">
+<p>Very often assemblies, which&nbsp;are&nbsp;referenced
+by&nbsp;script can be sourced from NuGet - global repository for
+the .NET libraries. Prior version v3.8.13 CS-Script users had to
+download NuGet packages manually and reference extracetd package
+assemblies explicitly from the script. However the later releases of
+CS-Script allow automating this task. Thus CS-Script provides the
+developer experience similar to the offerd by Visual Studio. The NuGet
+package referencing is&nbsp;implemented with the dedicated script
+directive&nbsp;<span style="font-style: italic; font-weight: bold;">//css_nuget</span>.&nbsp;<br>
+</p>
+<div class="syntax">
+&nbsp;//css_nuget [-noref] [-ng:&lt;nuget arguments&gt;] &lt;package&gt;[,package];</div>
+<p><b>
+package </b>- name of the NuGet package to be referenced. It is
+the official name o the package as it is published on www.nuget.org.<br>
+<span style="font-weight: bold;">noref </span>-
+a flag indicating that automatic assemly referencing (after
+downloading/installing the package) should be suppressed.</p><p><span style="font-weight: bold;">ng </span>-
+List of command line arguments to be passed to the nuget.exe for&nbsp;an&nbsp;individual package.</p>
+<p><br>
+It
+is important to understand differences in handling NuGet packages in
+CS-Script and Visual Studio. These differences are due to the
+conceptual differences of scripted and compiled execution.</p>
+<p>Thus the <span style="font-style: italic;">//css_nuget</span>
+directive will instruct CS-Script to&nbsp;download the package
+and&nbsp;extrat (install) it's content into the CS-Script cache
+directory for NuGet
+packages (e.g. <span style="font-style: italic;">C:\ProgramData\CS-Script\nuget</span>).
+The script engine downloads the package only once. Thus if during the
+script (any script) execution the the the script engine detects
+dependency on the NuGet package it will check first if th epackage is
+already available locally and only if it's not downloading from the
+official NuGet repository will be attempted.</p>
+<p>After downloading and
+extracting (installing) the package into the NuGet cache the script
+engine analyses the package content and automatically referenecs the
+all compatible assemblies. Compatible in this cas means "assemblies
+targeting the same or lower CLR version". This is to avouid double
+referencing as the package often contain multiple builds of the same
+assemlies.</p><p><span style="font-weight: bold; font-style: italic;">Limitations</span><br>NuGet directives are not supported on Linux and .NET v1.&nbsp;</p><p></p>
+<h4 class="dtH4">Example &nbsp;</h4><p>This is the example&nbsp;of using the <a href="https://www.nuget.org/packages/DotNetZip/">DotNetZip</a> library form NuGet.ORG.&nbsp;</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="font-family: Consolas; font-size: 13px; color: black;"><span style="color: green;">//css_nuget&nbsp;dotnetzip</span><br><span style="color: blue;">using</span>&nbsp;Ionic.Zip;<br><span style="color: blue;">using</span>&nbsp;System;<br><span style="color: blue;"></span> <br><span style="color: blue;">class</span>&nbsp;<span style="color: rgb(43, 145, 175);">Script</span><br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">static</span>&nbsp;<span style="color: blue;">public</span>&nbsp;<span style="color: blue;">void</span>&nbsp;Main(<span style="color: blue;"></span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">using</span>(ZipFile&nbsp;zip&nbsp;=&nbsp;<span style="color: blue;">new</span>&nbsp;ZipFile())<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zip.AddFile(<span style="color: rgb(163, 21, 21);">"app.exe"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zip.AddFile(<span style="color: rgb(163, 21, 21);">"readme.exe"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zip.Save(<span style="color: rgb(163, 21, 21);">"app.zip"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</pre>
+</td>
+</tr>
+</tbody>
+</table>
+<h4 class="dtH4">
+&nbsp;<br>
+Note</h4>
+<p>
+If for whatever reason you want to avoid automatic referencing
+then you should use <span style="font-style: italic;">-noref</span> argument and provide the explicit referencing with //css_ref .&nbsp; 
+</p><p><span style="font-style: italic;">Instead of auto referencing:&nbsp;</span>
+</p><table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="font-family: Consolas; font-size: 13px; color: black;"><span style="color: green;">//css_nuget&nbsp;dotnetzip</span><span style="color: green;"></span><br><span style="color: blue;">using</span>&nbsp;Ionic.Zip;<br><span style="color: blue;">...</span></pre>
+</td>
+</tr>
+</tbody>
+</table><p><span style="font-style: italic;">Reference assembly explicitly:</span>&nbsp;</p><table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+<pre style="font-family: Consolas; font-size: 13px; color: black;"><span style="color: green;">//css_nuget&nbsp;-noref dotnetzip<br></span><span style="color: green;">//css_ref&nbsp;%css_nuget%\dotnetzip\DotNetZip.1.9.3\lib\net20\Ionic.Zip.dll</span><br><span style="color: blue;">using</span>&nbsp;Ionic.Zip;<br><span style="color: blue;"></span>...</pre></td></tr></tbody></table><p> </p>
+<p>
+</p>
+<h4 class="dtH4">
+See also</h4>
+<p><a href="Directives.html">Script Engine Directives</a></p>
+<p>&nbsp;</p>
+<p><br>
+</p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"> <param name="Keyword" value="Importing">
+</object> </div>
+</body></html>

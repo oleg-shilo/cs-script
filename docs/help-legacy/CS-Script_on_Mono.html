@@ -1,0 +1,332 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>CS-Script on Mono</title>
+
+
+
+
+		
+		
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+		
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<xml></xml>
+		
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="bodyID" class="dtBODY">
+		
+<div id="nsbanner">
+			
+<div id="bannerrow1">
+				
+<table class="bannerparthead" cellspacing="0">
+					<tbody>
+						<tr id="hdr">
+							<td class="runninghead">
+								
+      <p align="left">CS-Script 3.27.0</p>
+							</td>
+							<td class="product">
+							<br>
+</td>
+						</tr>
+					
+  </tbody>
+				
+</table>
+			</div>
+			
+<div id="TitleRow">
+				
+<h1 class="dtH1" align="left">CS-Script on Mono</h1>
+			</div>
+		</div>
+		
+<div id="nstext">
+			
+
+			
+<p><a href="http://www.mono-project.com/Main_Page"> Mono</a> is an Open
+Source implementation of CLR. It is a cross-platform runtime, which is
+available for Android, BSD, iOS, Linux, Mac OS X, Windows, Solaris, and
+Unix operating systems. While CS-Script was designed to run on .NET (on
+Windows) it can run on on Mono on Linux as well.</p><br>
+<p>CS-Script on Windows is all about integration with the operating
+system and the development tools. However on Linux it is all about
+simplicity, light weight&nbsp; and ease of use. Thus if you want to run
+C# scripts on Linux all you need to do is just a single CS-Script
+engine file. The following is a very brief demonstration of how you can
+set and run CS-Script on Linux:<br>
+</p>
+<br>
+<span style="font-weight: bold; font-style: italic;">Deploying CS-Script</span><br>
+<p>First of all you need to copy the script engine file (<span style="font-style: italic;">cscs.exe</span>)
+to the location of your choice on your Linux file system. Starting from
+version 3.0 CS-Script engine has full built-in support for Mono and the
+file (<span style="font-style: italic;">cscs.exe</span>)
+can be taken from the root directory of the CS-Script distributables.
+However if you are trying to run CS-Script on earlier version of Mono
+you may need to use corresponding cscs.exe file form <span style="font-style: italic;">&lt;cs-script&gt;/Lib/Bin</span>.<br>
+</p><br>
+<p style="font-style: italic;">The script engine v3.0 was tested under
+Mono v2.6.7 on Linux (Ubuntu 11.04). This version of Mono is an
+equivalent of MS.NET v3.5 thus the script engine file was taken from
+&lt;cs-script&gt;/Lib/Linux in the distributables (the same executable as in &lt;cs-script&gt;/Lib/Bin/NET 3.5).<br>
+</p>
+
+			
+<br>
+<p><span style="font-weight: bold; font-style: italic;">Running CS-Script  </span><br>
+</p>The script engine (<span style="font-style: italic;">cscs.exe</span>) is a  managed application and as such it can be run on Linux providing it is loaded on the Mono environment. <br>
+First check if Mono is installed and it is equal or higher than version 2.6.7. <br>
+<br>
+In the terminal execute the following command to check the version: <br>
+<div class="syntax">
+				mono -V</div>
+
+			
+<p style="font-style: italic;">Note: Ubuntu 11.04 comes with Mono 2.6.7 preinstalled.</p>
+<br>
+Now check if you can run CS-Script. <br>
+In the terminal execute the following command to check CS-Script version: <br>
+<div class="syntax">
+				mono ./cscs.exe -v</div>
+
+
+			
+<p style="font-style: italic;">or<br>
+
+</p>
+<div class="syntax">./cscs.exe -v</div>
+<p style="font-style: italic;">Note: you can omit command "mono" as the
+shell is smart enough to understand that cscs.exe is a n executable
+targeting Mono and&nbsp; it will load the executable into Mono
+environment even if you did not requested it in the command line. <br>
+</p>
+<p style="font-style: italic;">Also note that all command-line switches
+on Linux should be specified with prefix '-' in contrary to the Windows
+environment where the prefix is character is '/'.<br>
+</p>
+This is the expected output:<br>
+<img style="width: 648px; height: 297px;" alt="" src="Images/mono2.png"><br>
+<p><span style="font-style: italic;">Note: if CSCSRIPT_DIR environment variable is not set the "Home dir" value is reported as "&lt;not integrated&gt;".</span><br>
+</p>
+<p> <br>
+</p>
+<p style="font-weight: bold; font-style: italic;">Running C# script</p>
+<p>The easiest way of preparing the C# script is to execute script
+engine with "-s" parameter (print sample script) and redirect output in
+the file.</p>
+<p>In the terminal execute the following command: <br>
+
+</p>
+<div class="syntax">
+				./cscs.exe -s &gt; hello.cs</div>
+
+
+
+			
+<span style="font-style: italic;"><br>
+</span>This will yield <span style="font-style: italic;">hello.cs</span> file with the following content:<br>
+<span style="font-style: italic;"></span><font face="Arial" size="2"><span><br>
+</span></font>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+      <pre style="background: rgb(255, 255, 204) none repeat scroll 0% 50%; font-family: Consolas; font-size: 13px; color: black; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;"><span style="color: green;">//css_reference&nbsp;System.Windows.Forms;</span><br><span style="color: blue;">using</span>&nbsp;System;<br><span style="color: blue;">using</span>&nbsp;System.Windows.Forms;<br> <br><span style="color: blue;">class</span>&nbsp;<span style="color: rgb(43, 145, 175);">Script</span><br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">static</span>&nbsp;<span style="color: blue;">public</span>&nbsp;<span style="color: blue;">void</span>&nbsp;Main(<span style="color: blue;">string</span>[]&nbsp;args)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">for</span>&nbsp;(<span style="color: blue;">int</span>&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;args.Length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: rgb(43, 145, 175);">Console</span>.WriteLine(args[i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<span style="color: rgb(163, 21, 21);">"Just&nbsp;a&nbsp;test!"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</pre>
+
+<font face="Courier New" size="2"></font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<p>Now you can execute the script with the following command: <br>
+
+</p>
+
+<div class="syntax">
+				./cscs.exe hello.cs</div>
+
+
+
+
+			
+If you want to suppress printing CS-Script logo ("-nl" - <span style="font-style: italic;">nologo</span> switch) and pass some test arguments to the script the command should look like this:<span style="font-style: italic;"><br>
+</span><br>
+
+
+
+
+<div class="syntax">
+				./cscs.exe -nl hello.cs arg1 arg2<br>
+</div>
+
+<br>
+This is the expected output: <br>
+<br>
+<img style="width: 666px; height: 271px;" alt="" src="Images/mono3.png"><br>
+<br>
+<span style="font-style: italic;">Note: Depending on the Linux distro
+Mono libraries may or may not be installed by default. Thus for the
+hello.cs sample apart from the Mono minimal installation you will need
+to have at least two following libraries:<br>
+</span>libmono-system-runtime2.0-cil
+<br>
+libmono-winforms2.0-cil<span style="font-style: italic;"><br>
+<br>
+</span><br>
+Installing the proper prerequisites
+solves the problem. It's just that Ubuntu and various other distributions have broken
+mono up into minimal pieces whereas the original distribution is one big bundle.<br>
+<br>
+<span style="font-style: italic;"></span>
+<p>
+</p>
+It is also possible to load the script in MonoDevelop for debugging:<span style="font-style: italic;"><br>
+</span><br>
+
+
+
+
+
+<div class="syntax">
+				./cscs.exe debug hello.cs<br>
+</div>
+
+
+<br>
+This will create a MonoDevelop solution on-fly and laod it into IDE.
+Just make sure that when you copied the script engine on Linux from
+&lt;cs-script&gt;/Lib/Linux you also copied the <span style="font-style: italic;">debug</span> file.<br>
+<br>
+<br>
+
+<p style="font-weight: bold; font-style: italic;">Changing the way C# scripts run<br>
+</p>
+
+<p>You probably noticed that the sample script produced in the previous step contains a template for the <span style="font-style: italic;">hashbang</span>.&nbsp;
+If you update the template with the proper path to the script engine
+you will be able to execute the script without specifying the path to
+the script engine.</p>
+<p>Another useful execution option is a possibility to execute scripts
+containing no class definition (classless scripts). You can enable this
+functionality by specifying "-ac" (<a href="AutoClass.html">autoclass</a>) parameter. <br>
+</p>
+<p>You can combine these two useful execution options: <br>
+</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+      <pre style="background: rgb(255, 255, 204) none repeat scroll 0% 50%; font-family: Consolas; font-size: 13px; color: black; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">#!/home/oleg/Desktop/cs-script/cscs.exe&nbsp;-nl&nbsp;-ac&nbsp;<br><span style="color: green;"></span><span style="color: blue;">using</span>&nbsp;System;<br><br><span style="color: blue;">void</span>&nbsp;Main()<br>{<br>    Console.WriteLine(<span style="color: rgb(163, 21, 21);">"Hello&nbsp;World!"</span>);<br>}<br></pre>
+
+</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<p>This would produce the following output:<br>
+</p>
+<p><img style="width: 526px; height: 130px;" alt="" src="Images/mono4.png"><br>
+</p>
+<br>
+The <a href="AutoClass.html">autoclass</a> feature is implemented as an embedded (in <span style="font-style: italic;">cscs.exe</span>) precompiler. <a href="precompilers.html">Precompilers</a>
+are extremely flexible very simple to implement and they offer almost
+endless opportunities for the customization. By slightly modifying the
+default <span style="font-style: italic;">autoclass precompiler</span> you can achieve not only classless script but even a free-style script without any structure at all:<br>
+ <br>
+
+
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);">
+      <pre style="background: rgb(255, 255, 204) none repeat scroll 0% 50%; font-family: Consolas; font-size: 13px; color: black; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">#!/home/oleg/Desktop/cs-script/cscs.exe&nbsp;-nl&nbsp;-precompiler:custom_autoclass.cs&nbsp;<br><span style="color: green;"></span><span style="color: blue;"><br>using</span>&nbsp;System;<br><br><span style="color: blue;"></span>Console.WriteLine(<span style="color: rgb(163, 21, 21);">"Hello&nbsp;World! - from free-style script"</span>);<br><br></pre>
+
+</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+ 
+<p>And of course virtually all features available on Windows are also
+available on Linux (e.g. referencing another scripts or assembly,
+converting to executable). Thus for example conversion of the script
+into executable is as simple as a trivial execution command one extra
+parameter:<br>
+</p>
+
+
+
+
+
+<div class="syntax">
+				./cscs.exe -e hello.cs<br>
+
+</div>
+
+
+<p>The parameter "-e" instructs the script engine to produce the <span style="font-style: italic;">hello.exe </span>executable instead of executing the script. Note that <span style="font-style: italic;">hello.exe</span> is just a normal managed executable but not a script launcher containing embedded script engine and the script itself. <br>
+</p>
+<br>
+<br>
+<br>
+<span style="font-weight: bold; font-style: italic;">Limitations</span><br>
+
+			
+<p>Yes, CS-Script can be run on Mono, however some functionality may not be 
+				available (depending on the Mono version):</p>
+			
+<p>&nbsp;</p>
+			
+<ul>
+				<li>
+					
+    <p><b>Restriction</b>: The referenced in the code assemblies cannot be loaded 
+						automatically.
+						<br>
+						<b>Cause</b>: This is because <i>fusion.dll</i> is not available on Mono. This 
+						COM dll is used to resolve the namespace to the assembly. This is unlikely to 
+						be changed in the future unless Mono developers provide alternative means for 
+						namespace-to-assembly resolving.<br>
+						<b>Work around</b>: Instruct the engine to load assemblies explicitly. Make sure&nbsp;all GAC assemblies are specified as non-searchable (see <a href="Using_.NET_assemblies.html">Using .NET assemblies</a> for details).</p>
+				</li>
+  
+			
+</ul>
+			
+<p><br>
+</p>
+			
+<p><span style="font-weight: bold; font-style: italic;">Acknowledgments</span><br>
+</p>
+<p style="font-style: italic;">The initial work on testing/adopting CS-Script on Linux was done by Alexander Prokopyev (<a href="http://www.aulix.com/mono-vb-net-scripting-host">http://www.aulix.com/mono-vb-net-scripting-host</a>).
+Because of his enthusiasm and the initiative I decided to
+rework the script engine and embed Linux support by default.</p>
+
+<p><span style="font-style: italic;">Oleg Shilo</span></p>
+<p><span style="font-style: italic;"></span><br>
+<span></span></p>
+<font face="Arial" size="2"><span></span></font><span style="font-style: italic;"></span><h4 class="dtH4">
+				See Also</h4>
+			
+<p> <a href="Command-line_Interface.html">Command-line
+interface</a> | <a href="AutoClass.html">Autoclass</a> | <a href="precompilers.html">Precompilers</a> </p>
+<p>
+			</p>
+			
+<p>&nbsp;</p>
+			
+<p>&nbsp;</p>
+<object style="display: none;" type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true">
+				<param name="Keyword" value="Mono">
+			</object>
+		</div>
+	
+</body></html>

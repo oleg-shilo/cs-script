@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Command-line Interface</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            <br>
+</td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Command-line interface</h1>
+      </div>
+    </div>
+<div id="nstext">
+<p>This is the general pattern of usage command-line parameters with a CS-Script engine executable (eg. csc.exe):&nbsp; <br>
+<br>
+</p>
+<div class="syntax">cscs.exe [&lt;switch1&gt;] [&lt;switch2&gt;] &lt;file&gt; [params] [//x] </div>
+<br>
+<ul>
+  <li><span style="font-weight: bold;">file</span> - is a fully qualified name of the script file to be executed. File
+    extension can be omitted if it is a '.cs'.&nbsp;</li>
+  <li>
+    <span style="font-weight: bold;">params</span> - are optional command-line parameters to be passed to the
+script. They are received in&nbsp;<span class="code">static void Main(string[] args)</span> of
+the script.</li>
+  <li> <span style="font-weight: bold;">switch1</span> and <span style="font-weight: bold;">switch2</span> are command-line switches</li>
+  <li><span style="font-weight: bold;">//x</span> &nbsp;is a special
+command-line switch, which is similar to '//x' switch for MS cscript.exe. It&nbsp;forces&nbsp;the engine to launch debugger
+just before starting the script so it can be executed under debugger (see&nbsp;<a href="Debugging.html">Debugging</a> for details)</li>
+</ul>
+<span style="font-weight: bold;"><br>
+<br>
+</span>
+<h4 class="dtH4">Use one of the following command-line switches <code class="ce">(switch1)<br>
+</code></h4>
+<div class="tablediv">
+<table class="dtTABLE" cellspacing="0">
+  <tbody>
+    <tr valign="top">
+      <th style="width: 167px;">Command line switch&nbsp;</th>
+      <th style="width: 649px;">Description</th>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;">
+/? or /help</td>
+      <td style="width: 649px;">Display help info.
+ </td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;"><a href="Compile.html">/e</a></td>
+      <td style="width: 649px;">Compiles script into console application executable.&nbsp;</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;"><a href="Compile.html">/ew</a></td>
+      <td style="width: 649px;">Compiles script into Windows application executable.&nbsp;</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;"><a href="CompileAssembly.html">/c</a>
+      </td>
+      <td style="width: 649px;">Use compiled file (.compiled) if found (to improve performance).&nbsp;</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;"><a href="CompileAssembly.html">/ca</a></td>
+      <td style="width: 649px;">Pre-compiles script file into assembly (.compiled).&nbsp;</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;"><a href="CompileAssembly.html">/cd</a></td>
+      <td style="width: 649px;">Compiles script file into assembly (.dll).&nbsp;</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 167px;"><a href="Sample_script.html">/s</a></td>
+      <td style="width: 649px;">Prints content of sample script (eg. csc.exe /s &gt; sample.cs).</td>
+    </tr><tr><td><a href="AutoClass.html">/autoclass</a> or <a href="AutoClass.html">/ac</a></td><td>Automatically generates wrapper class if the script does not define any class.</td></tr>
+  </tbody>
+</table>
+</div>
+<h4 class="dtH4">&nbsp;<span style="font-weight: bold;">Note</span></h4>
+If the script engine executable is launched with <span style="font-style: italic;">help</span>&nbsp;
+parameter it will be interpreted as a help.cs script file file and the CS-Script Help(<span style="font-style: italic;">CSScript.chm</span>) will be opened.<br>
+<h4 class="dtH4">Use any combination of the following command-line&nbsp;switches <code class="ce">(switch2)<br>
+</code></h4>
+<div class="tablediv">
+<table class="dtTABLE" cellspacing="0">
+  <tbody>
+    <tr valign="top">
+      <th style="width: 168px;">Command line switch&nbsp;</th>
+      <th style="width: 648px;">Description</th>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">
+/nl</td>
+      <td style="width: 648px;">
+No logo mode: No banner will be shown at execution time.
+      </td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;">/dbg or /d</td>
+      <td style="width: 648px;">Forces compiler to include debug information.
+      </td>
+    </tr>
+    <tr>
+      <td>/l</td>
+      <td>'Local' switch, which forces script to start in the same directory where it is.</td>
+    </tr>
+    <tr><td>/verbose</td><td>Prints runtime information during the script execution (applicable for console clients only)</td></tr><tr>
+      <td style="vertical-align: top;">/v<br>
+      </td>
+      <td style="vertical-align: top;">Prints CS-Script version information<br>
+      </td>
+    </tr>
+<tr>
+      <td>/noconfig[:&lt;file&gt;]</td>
+      <td>Do not use default config file (css_config.xml) or use alternative one.<br>
+Example:&nbsp;cscs.exe /noconfig sample.cs; cscs.exe /noconfig:c:\cs-script\css_VB.xml sample.vb</td>
+    </tr>
+    <tr>
+      <td>/sconfig[:&lt;file&gt;]</td>
+      <td>Use script config file or custom config file as a .NET application configuration file.</td>
+    </tr>
+    <tr valign="top">
+      <td style="width: 168px;"><a href="Load_assemblies.html">/r</a></td>
+      <td style="width: 648px;">Forces the script engine to load explicitly referenced assembly </td>
+    </tr>
+    <tr><td><a href="add_searchdir_cmd.html">/dir</a></td><td>&nbsp;Adds path(s) to the assembly probing directory list. &nbsp;(eg. cscs.exe /r:C:\MyLibraries myScript.cs).</td></tr><tr>
+      <td>/co:&lt;options&gt;</td>
+      <td>&nbsp;Passes compiler options directy to the language compiler.<br>
+&nbsp;(eg. /co:/d:TRACE pass /d:TRACE option to C# compiler).</td>
+    </tr><tr>
+      <td style="vertical-align: top;">/precompiler<br>
+      </td>
+      <td style="vertical-align: top;">Specifies custom precompiler file(s). This can be either script or assembly file (see <a href="precompilers.html">Precompilers</a> for details).<br>
+      </td>
+    </tr>
+
+  </tbody>
+</table>
+</div>
+<br>
+<p></p>
+<h4 class="dtH4"><span style="font-weight: bold;">Note:</span></h4>
+<p>
+<br>
+<span style="font-weight: bold; font-style: italic;">Executable aliases</span></p>
+<p>CS-Script engine executable comes in two different forms:</p>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">
+<i>
+cscs.exe</i></span> - console application</div>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">
+<i>
+csws.exe</i></span> - windows application</div>
+<p><br>
+In all command line examples throughout this document "<span style="font-weight: bold;"><i>cscs.exe</i></span>" is referred as "<span style="font-weight: bold;"><i>cscs</i></span>".</p>
+<p></p>
+<p><span style="font-weight: bold; font-style: italic;">CS-Script engine launcher</span></p>
+<p>For convenience you can use&nbsp;special the CS-Script engine launcher <span style="font-style: italic; font-weight: bold;">css.exe</span>. If it is used from command prompt it acts exactly&nbsp;as&nbsp;<span style="font-weight: bold; font-style: italic;">cscs.exe</span>.
+However, if it is executed not from command-prompt (eg. Start-&gt;Run),
+it hides the console application window&nbsp;thus it acts as <span style="font-weight: bold; font-style: italic;">csws.exe</span>.
+Please note that&nbsp;if it happens that during the execution the
+script does some console output (eg. Console.WriteLine(...)), <span style="font-weight: bold; font-style: italic;">css.exe</span> will detect it and will display&nbsp;the console window if it was hidden.&nbsp;</p>
+<p></p>
+<p><span style="font-weight: bold; font-style: italic;">CS-Script Help</span></p>
+<p>If the script engine executable is launched with <span style="font-style: italic;">help</span>&nbsp;parameter it will be interpreted as a help.cs script file file and the CS-Script Help fill be opened:<br>
+</p>
+<div class="syntax">cscs help </div>
+<h4 class="dtH4">See Also</h4>
+<p>
+        <a href="fundamantals.html">CS-Script fundamentals</a> | <a href="Integration_with_OS.html">Integration with OS</a></p>
+<p>
+        &nbsp;</p>
+<p><span style="text-decoration: underline;"></span></p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="Command-line">
+</object>
+    </div>
+</body></html>

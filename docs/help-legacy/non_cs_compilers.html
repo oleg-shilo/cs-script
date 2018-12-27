@@ -1,0 +1,241 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Alternative compilers</title>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="keywords" content="ATEST, ATEST1" lang="en-us">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Alternative compilers</h1>
+</div>
+</div>
+<div id="nstext">
+<div>
+<h4 class="dtH4">Step-by-step tutorial&nbsp;</h4>
+<p>The following tutorial shows how to create an assembly which
+can be used by the script engine to provide access to additional CLR
+compilers. In this tutorial you will create <i>CSSCodeProvider.dll</i>,
+which will allow the script engine to execute C#, VB and JScript
+scripts depending on the script file extension.</p>
+<ol>
+  <li>By using any text editor (eg. <span style="font-style: italic;">Notepad.exe</span>) create
+file <i>CSSCodeProvider</i><span style="font-style: italic;">.cs</span>, which contains
+the following code:<br>
+    <table style="width: 693px; text-align: left; height: 444px;" border="1" cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+          <font color="#0000ff" size="2">using</font>&nbsp;System.IO;<br>
+          <font color="#0000ff" size="2">using</font>&nbsp;System.CodeDom.Compiler;<br>
+          <font color="#0000ff" size="2">using</font>&nbsp;Microsoft.JScript;<br>
+          <br>
+          <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;CSSCodeProvider<br>
+{&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;ICodeCompiler&nbsp;CreateCompiler(<font color="#0000ff" size="2">string</font>&nbsp;sourceFile)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;errMsg&nbsp;=&nbsp;<font color="#800000" size="2">"Alternative&nbsp;compiler&nbsp;for&nbsp;file&nbsp;extension&nbsp;"</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
++ Path.GetExtension(sourceFile) + <font color="#800000" size="2">"&nbsp;cannot&nbsp;be&nbsp;created."</font>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">try</font><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(Path.GetExtension(sourceFile).ToLower()&nbsp;==&nbsp;<font color="#800000" size="2">".cs"</font>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;(<font color="#0000ff" size="2">new</font>&nbsp;Microsoft.CSharp.CSharpCodeProvider()).CreateCompiler();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">else</font>&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(Path.GetExtension(sourceFile).ToLower()&nbsp;==&nbsp;<font color="#800000" size="2">".vb"</font>)&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;(<font color="#0000ff" size="2">new</font>&nbsp;Microsoft.VisualBasic.VBCodeProvider()).CreateCompiler();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">else</font>&nbsp;<font color="#0000ff" size="2">if</font>&nbsp;(Path.GetExtension(sourceFile).ToLower()&nbsp;==&nbsp;<font color="#800000" size="2">".js"</font>)&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;(<font color="#0000ff" size="2">new</font>&nbsp;Microsoft.JScript.JScriptCodeProvider()).CreateCompiler();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">catch</font>&nbsp;(Exception&nbsp;ex)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">throw</font>&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;Exception(errMsg,&nbsp;ex);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">throw</font>&nbsp;<font color="#0000ff" size="2">new</font>&nbsp;Exception(errMsg);&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+        </tr>
+      </tbody>
+    </table>
+&nbsp; </li>
+  <li>Open command prompt. Make sure the current directory is the
+directory where <i>CSSCodeProvider</i><i>.cs</i>
+located.&nbsp; </li>
+  <li>Execute the following command in command-prompt:
+    <div style="width: 720px;" class="syntax">cscs /cd CSSCodeProvider </div>
+    <p>This command will create <i>CSSCodeProvider</i><i>.dll</i>
+    </p>
+  </li>
+  <li>Use <a href="Config.html">Config console</a>
+to instruct the script engine to use <i>CSSCodeProvider</i><i>.dll
+    </i>for creation of the alternative compiler.&nbsp; </li>
+  <li>By using any text editor (eg. <span style="font-style: italic;">Notepad.exe</span>) create
+file <i>hello</i><span style="font-style: italic;">.vb</span>,
+which contains the following code:<br>
+    <table style="width: 697px; text-align: left; height: 188px;" border="1" cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">' //css_reference&nbsp;System.dll;<br>
+          </font></font><font face="Courier New" size="2"><font color="#008000" size="2">' //css_reference&nbsp;System.Windows.Forms.dll;</font></font><br>
+          <font face="Courier New" size="2">Imports&nbsp;System<br>
+Imports&nbsp;System.Windows.Forms<br>
+          <br>
+Module&nbsp;Module1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Sub&nbsp;Main()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Hello&nbsp;World!&nbsp;(VB)"</font>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<font color="#800000" size="2">"Hello&nbsp;World!&nbsp;(VB)"</font>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;End&nbsp;Sub<br>
+End&nbsp;M</font></td>
+        </tr>
+      </tbody>
+    </table>
+    <pre class="code"></pre>
+  </li>
+  <li>Execute the following command in command-prompt:
+    <div style="width: 720px;" class="syntax">cscs hello.vb </div>
+  </li>
+</ol>
+<h4 class="dtH4">Output&nbsp;</h4>
+<dl>
+  <dt>The script will print in command prompt "Hello World!
+(VB)". It will also display a corresponding MessageBox. </dt>
+  <dd>
+    <p align="center"><font face="Arial" size="2"><img style="width: 589px; height: 235px;" alt="" src="Images/hello_vb.PNG"><br>
+    </font> </p>
+  </dd>
+</dl>
+<h4 class="dtH4">Code discussion</h4>
+<p><font color="#000080">CSSCodeProvider</font>
+can create and return
+an instance of either C#, VB or JScript compiler. Why these compilers?
+The answer is
+very simple: these three compilers are guaranteed to be available on
+any PC with
+.NET runtime installed. However, if on a particular PC&nbsp;the
+other CLR compilers
+are installed (C++, Delphi...), they can also&nbsp;be used with
+CS-Script.&nbsp; You would
+only need to modify the code of <i>CSSCodeProvider</i><span style="font-style: italic;">.cs
+</span>and compile it again.&nbsp; </p>
+<p>In fact, it does not have to be an existing compiler. You can
+implement any compiler by yourself if you
+wish. Any compilers can be used with CS-Script as long as they
+support&nbsp; <font color="#000080">ICodeCompiler</font>
+interface. </p>
+<p>Note that <i>System.dll</i> and <i>System.Windows.Forms.dll</i>
+are
+referenced with <font color="#000080">//css_reference</font>
+statement directly
+from the code. Because automatic assembly loading is not available&nbsp;for non-C#
+scripts (see <a href="Alternative_Compilers.html">Alternative
+Compilers</a> for limitation details).&nbsp; </p>
+<p>The same approach can be used to execute&nbsp;the J#/JScript
+"Hello world!" script. The
+command in command-prompt in this case&nbsp;will look&nbsp;as
+follows: </p>
+<div style="width: 720px;" class="syntax">cscs hello.js </div>
+<p>Where hello.js file contains the following code: </p>
+<pre class="code"></pre>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_reference&nbsp;System.dll;<br>
+      </font><font color="#008000" size="2">//css_reference&nbsp;System.Windows.Forms.dll;<br>
+      </font></font><font face="Courier New" size="2">import&nbsp;System;<br>
+import&nbsp;System.Windows.Forms;<br>
+      <br>
+      <font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Class1&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;function&nbsp;Main()&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(<font color="#800000" size="2">"Hello&nbsp;World!&nbsp;(JScript)"</font>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<font color="#800000" size="2">"Hello&nbsp;World!&nbsp;(JScript)"</font>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table><br>
+Note that the custom (alternative) compiler described in this tutorial
+is not&nbsp; very useful for the hosting scenarios.&nbsp; The first
+reason is that the compiler is implemented as a separate assembly and
+it means that it has to be deployed separatelly from the script engine
+and the host application itself. The second reason is more important:
+the compiler relies on the file extension (e.g. *.vb) in order to make
+the decision on the script syntax. This is a problem as hosted script
+may not have a file but be just an in-memory code. In this case the
+custom compiler can be implemented in the host application. And it can
+be as simple as a single instanmtiation statement for the corresponding
+third-party compiler. The example of such a compiler for VB.NET syntax
+can be found in the samples folder:
+&lt;cs-script&gt;\Samples\Hosting\HostVBScript.cs. <br>
+<br>
+<span style="font-style: italic;">VB.NET compiler implementation in the host application:</span><br>
+<br>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2"></font></font><font face="Courier New" size="2"><font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">class</font> </font><font face="Courier New" size="2">CSSCodeProvider<br>
+{<br>
+&nbsp;&nbsp;&nbsp; </font><font face="Courier New" size="2"><font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">static</font></font><font face="Courier New" size="2"> ICodeCompiler CreateCompiler(string sourceFile) <br>
+&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </font><font face="Courier New" size="2"><font color="#0000ff" size="2">return new</font></font><font face="Courier New" size="2"> Microsoft.VisualBasic.VBCodeProvider().CreateCompiler();<br>
+&nbsp;&nbsp;&nbsp; }<br>
+}<br>
+      </font></td></tr></tbody>
+</table>
+<br>
+<br><span style="font-style: italic;">Using the host-compiler:<br>
+</span><br style="font-style: italic;">
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody><tr><td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><span style="color: rgb(51, 51, 255);">public interface</span> IScript<br>
+{<br>
+&nbsp;&nbsp;&nbsp; <span style="color: rgb(51, 51, 255);">void</span> Main();<br>
+}<br>
+...<br>
+      </font><font face="Courier New" size="2"><font color="#008000" size="2">//indicate that the CS-Script engine should use custom (VB.NET) compiler</font></font><br>
+      <font face="Courier New" size="2">CSScript.GlobalSettings.UseAlternativeCompiler = Assembly.GetExecutingAssembly().Location; <br>
+...<br>
+      <span style="color: rgb(51, 51, 255);"></span></font><font face="Courier New" size="2"><font color="#0000ff" size="2">string</font></font><font face="Courier New" size="2"> code = </font><font face="Courier New" size="2"><font color="#800000" size="2">@"Imports System<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Imports System.Windows.Forms<br>
+      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Public Class Script<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Public Sub Main()<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+MessageBox.Show(""Hello World!"")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; End Sub<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; End Class"</font></font><font face="Courier New" size="2">;<br>
+      <br>
+      <br>
+      </font><font face="Courier New" size="2">IScript</font><font face="Courier New" size="2"> script = CSScript.LoadCode(code) <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.CreateObject(</font><font face="Courier New" size="2"><font color="#800000" size="2">"Script"</font></font><font face="Courier New" size="2">")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+.AlignToInterface&lt;</font><font face="Courier New" size="2">IScript</font><font face="Courier New" size="2">&gt;();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+      <br>
+script.Main();<br>
+      </font></td></tr></tbody>
+</table>
+<br>
+<br>
+&nbsp;  
+<h4 class="dtH4">
+See Also </h4>
+<p><a href="Alternative_Compilers.html">Alternative
+Compilers</a> | <a href="Command-line_Interface.html">Command-line
+interface</a> </p>
+<p>&nbsp;</p>
+</div>
+</div>
+</body></html>

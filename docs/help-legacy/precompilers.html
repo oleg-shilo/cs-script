@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Precompilers</title>
+
+
+
+
+
+
+
+  
+
+  
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+
+  
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+
+  <xml></xml>
+  
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+  <tbody>
+    <tr id="hdr">
+      <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+      </td>
+      <td class="product"> <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Precompilers</h1>
+</div>
+</div>
+
+<br>
+
+<div id="nstext">
+<p>The idea of performing certain actions prior to the script execution
+is an frequent scenario. The example of such scenario is altering the
+script code just before passing it to the C# compiler (for compilation
+and further execution). Such a scenario is called <span style="font-style: italic;">Precompilation</span> and CS-Script has a build-in functionality for to support it. This CS-Script functionality is called <span style="font-style: italic;">Precompilers</span> and this section will provides an overview of it as well as some code samples.<br>
+</p><br>
+A typical <span style="font-style: italic;">precompiler</span> is a C#
+script (or a compiled assembly) which is capable of analyzing the C#
+code and altering it if required. Such script/assembly must have very
+specific interface in order to interact with the CS-Script engine.<br>
+<br>
+Precompilation can also be implemented with <a style="font-style: italic;" href="pre_post_scripts.html">pre-execution scripts</a>. While this indeed possible such an implementation will not be very elegant nor maintainable. But nevertheless p<span style="font-style: italic;">recompilers</span> conceptually are nothing else but specialized <span style="font-style: italic;">pre-execution scripts</span>. That is it, while everything that can be done with <span style="font-style: italic;">precompilers</span> can also be done with <span style="font-style: italic;">pre-execution scripts</span> use of <span style="font-style: italic;">precompilers </span>offers much simple syntax what leads to the more "comfortable" development/maintenance. <br>
+<br>The best way to explain <span style="font-style: italic;">precompilers</span> is to have a close look at one. The following is an example of a very light <span style="font-style: italic;">precompiler</span>.<br>
+<br>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2"></font></font>
+      <pre style="background: rgb(255, 255, 204) none repeat scroll 0% 50%; font-family: Consolas; font-size: 13px; color: black; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;"><span style="color: blue;">public class</span> <span style="color: rgb(43, 145, 175);">Precompiler</span><br>{<br>&nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span>&nbsp;<span style="color: blue;">static</span>&nbsp;<span style="color: blue;">bool</span>&nbsp;Compile(<span style="color: blue;">ref</span>&nbsp;<span style="color: blue;">string</span>&nbsp;code,&nbsp;<span style="color: blue;">string</span>&nbsp;scriptFile,&nbsp;<span style="color: blue;">bool</span> isPrimaryScript,&nbsp;<span style="color: rgb(43, 145, 175);">Hashtable</span>&nbsp;context)<br>&nbsp;&nbsp;&nbsp; {<br>&nbsp;&nbsp;&nbsp;&nbsp;    <span style="color: blue;">if</span>&nbsp;(code.StartsWith(<span style="color: rgb(163, 21, 21);">"#!"</span>))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    code&nbsp;=&nbsp;<span style="color: rgb(163, 21, 21);">"//"</span>&nbsp;+&nbsp;code;&nbsp;<span style="color: green;">//comment&nbsp;the&nbsp;Linux&nbsp;hashbang&nbsp;line&nbsp;to&nbsp;keep&nbsp;C#&nbsp;compiler&nbsp;happy<br><br></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color: blue;">return</span>&nbsp;<span style="color: blue;">true</span>; <span style="color: green;">//true as the code has been modified</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color: blue;">return</span>&nbsp;<span style="color: blue;">false</span>; <span style="color: green;">//false as the code has not been modified</span><br>&nbsp;&nbsp;&nbsp; }<br>}</pre>
+</td></tr></tbody>
+</table>
+<span style="color: blue;"></span> <span style="color: blue;"></span><span style="color: rgb(43, 145, 175);"></span><span style="color: blue;"></span><span style="color: blue;"></span><span style="color: blue;"></span><span style="color: blue;"></span><span style="color: blue;"></span><span style="color: blue;"></span><span style="color: blue;"></span><span style="color: rgb(43, 145, 175);"></span><br>
+This particular <span style="font-style: italic;">precompiler</span>
+comments the very top hashbang (shebang/"magic line") line of the
+script. This allows using hashbang string in the C# scripts on Linux
+without upsetting the C# compiler any yet without interfering with the shell handling
+the hashbang string in a traditional Linux way. <br>
+&nbsp;<br>
+There are a few thing that make the code above a <span style="font-style: italic;">precompiler</span>:<br>
+<ul>
+  <li>public class with the name ending with "Precompiler"</li>
+  <li>public static method Compile with the following signature:<br>
+    <pre style="background: white none repeat scroll 0% 50%; font-family: Consolas; font-size: 13px; color: black; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;"><span style="color: blue;"></span><span style="color: blue;">bool</span>&nbsp;Compile(<span style="color: blue;">ref</span>&nbsp;<span style="color: blue;">string</span>&nbsp;code,&nbsp;<span style="color: blue;">string</span>&nbsp;scriptFile,&nbsp;<span style="color: blue;">bool</span>&nbsp;IsPrimaryScript,&nbsp;<span style="color: rgb(43, 145, 175);">Hashtable</span>&nbsp;context)</pre></li>
+  <li><span style="font-style: italic;">Boolean</span> return value, which indicates if the script code has been modified&nbsp;  <br>
+  </li>
+
+</ul><br>
+Now let's see what this particular precompiler does at runtime.<br>
+<br>
+Just
+before executing the script the script engine loads the precompiler and
+calls its Campile method for the script being executed (<span style="font-style: italic;">primary script</span>)
+as well as for the scripts being included/imported by the primary
+script. The script engine passes the script content (parameter <span style="font-style: italic;">code</span>) of the script to be precompiled and it is up to the precompiler what to do with the script content.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-style: italic;">Note
+that because you can specify multiple precompilers the code parameter
+may contain the code already modified by one of the precompilers.</span><br>
+</div>
+&nbsp;  <br>
+The rest of the parameters of the <span style="font-style: italic;">Compile()</span> method is an additional information about the execution context:<br>
+<ul>
+  <li><span style="font-style: italic;">scriptFile - </span>name of the script file which is being precompiled</li>
+  <li><span style="font-style: italic;">isPrimaryScript </span>- flag indicating if the script being precompiled is a <span style="font-style: italic;">primary </span>script or an <span style="font-style: italic;">included/imported </span>script.</li>
+  <li>context - a free-style dictionary containing information about various aspects of the runtime and compilation context. <br>
+    <span style="font-weight: bold; font-style: italic;">This parameter can be useful only in very rare cases for "advanced precompiling"</span><span style="font-style: italic;">. </span><br>
+  </li>
+  <ul>
+    <li>context[<span style="color: rgb(163, 21, 21);">"NewDependencies"</span>] - <span style="font-style: italic;">List&lt;string&gt;</span> <br>
+Collection of file names that should be checked for the modification
+every time the primary script is executed and the decision needs to be
+made whether to load the script from the cache or compile it from the
+sources if any source file (dependency) has been modified since the
+last execution.<br>
+      <br>
+    </li>
+    <li>context[<span style="color: rgb(163, 21, 21);">"NewSearchDirs"</span>]   - <span style="font-style: italic;">List&lt;string&gt; </span> <br>
+Collection of extra directories that should be used for assembly and
+script probing during actual script compilation after precompilation is
+done.<br>
+      <br>
+    </li>
+    <li>context[<span style="color: rgb(163, 21, 21);">"NewReferences"</span>]   - <span style="font-style: italic;">List&lt;string&gt; <br>
+      </span>Collection of extra referenced assemblies
+that should be used for assembly and script probing during actual
+script compilation after precompilation is done.<br>
+      <br>
+    </li>
+    <li>context[<span style="color: rgb(163, 21, 21);">"SearchDirs"</span>] - <span style="font-style: italic;">string[]<br>
+      </span>Collection of directories that are used for assembly and
+script probing during actual script compilation after precompilation is
+done. This is a fixed collection, which is defined by the global CS-Script configuration. <br>
+      <br>
+</li>
+    <li>context[<span style="color: rgb(163, 21, 21);">"CompilerOptions"</span>] - <span style="font-style: italic;">string<br>
+      String containing compiler options that are passed to the C# compiler during the compilation of the primary script</span>. <br>
+<br>
+    </li>
+
+  </ul>
+</ul>
+<br style="font-style: italic;">The example above is the precompiler
+which is embedded in the script engine and by default applied for all
+scripts being executed.<br>
+<br>
+There are a few ways of configuring/engaging precompilers for a particular script:<br>
+<span style="font-weight: bold; font-style: italic;"><br>
+</span><span style="font-style: italic;">Command-line argument:</span><br>
+<div class="syntax">cscs /precompiler[:&lt;file 1&gt;,&lt;file N&gt;] script.cs
+			</div>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">file</span> - precompiler (script or assembly)<br>
+</div>
+
+<div style="margin-left: 40px;"><span style="font-weight: bold;"></span><span style="font-weight: bold;"></span><br>
+</div>
+
+<div style="margin-left: 40px;">Specifies custom precompiler file(s). If no file(s) specified prints the code template for the custom precompiler. <br>
+There is a special reserved word 'nodefault' to be used as a file name.
+It instructs script engine to prevent loading any built-in precompilers.<span style="font-style: italic;"><br>
+</span></div>
+<span style="font-style: italic;"><br>
+<br>
+</span><span style="font-style: italic;">CS-Script directives</span><span style="font-style: italic;"> in the script:</span><br>
+<div class="syntax">//css_precompiler &lt;file 1&gt;,&lt;file 2&gt;;</div>
+
+<div style="margin-left: 40px;"><span style="font-weight: bold;"></span><span style="font-weight: bold;">file</span> - precompiler (script or assembly)
+</div>
+
+<div style="margin-left: 40px;"><span style="font-weight: bold;"></span><br>
+</div>
+
+<div style="margin-left: 40px;">It is a logical equivalent of the command line argument <span style="font-weight: bold; font-style: italic;">/precompiler</span><span style="font-style: italic;">.</span><br>
+You can also use the directive alias <span style="font-style: italic; font-weight: bold;">//css_pc</span>.</div>
+
+<h4 class="dtH4">Tutorial&nbsp;</h4>
+<p>This is the tutorial we will create the prcecompiler, which would
+allow execution of a free-style C# code containing no class nor method
+definition.<br>
+<span style="font-style: italic;"><br>
+The tutorial is based on the &lt;cs-script&gt;\Samples\Precompilers\Script.cs sample.</span></p>
+<p> <span style="font-style: italic;">The subject of this tutorial is related to the "<a href="Classless.html">classless scripts</a>" and "<a href="AutoClass.html">autoclass</a>" features.</span><br>
+<br>
+</p>
+
+<ol>
+  <li>Create free-style script <span style="font-style: italic;">script.cs</span> containing the loop iterating through script arguments and statement for displaying a message:<br>
+    <br>
+
+  
+
+    <table style="width: 710px; text-align: left; background-color: rgb(255, 255, 204);" border="1" cellpadding="2" cellspacing="2">
+
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap;">
+      <pre style="font-family: Consolas; font-size: 13px; color: black; background-image: none; background-repeat: repeat; background-attachment: scroll; background-position: 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;"><span style="color: green;">//css_precompiler&nbsp;freestyle</span><br><span style="color: blue;">using</span>&nbsp;System.Windows.Forms;<br> <br><span style="color: blue;">for</span>&nbsp;(<span style="color: blue;">int</span>&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;args.Length;&nbsp;i++)<br>   Console.WriteLine(args[i]);<br> <br>MessageBox.Show(<span style="color: rgb(163, 21, 21);">"Hello&nbsp;World!"</span>);</pre>
+</td>
+    </tr>
+  </tbody>
+    </table>
+    <br>
+Note that the script is configured to be precompiled with the precompiler script<span style="font-style: italic;"> freestyle.cs</span>.<br>
+    <br>
+ <span style="color: rgb(51, 0, 153);"></span></li>
+  <li>Execute from command prompt the following command which creates the precompiler template with the name <span style="font-style: italic;">freestyle.cs</span>:<br>
+    <span style="font-style: italic;"></span><br>
+
+    <div class="syntax">cscs /precompiler &gt; freestyle.cs
+			</div>
+
+    <span style="font-weight: bold;"></span>This will create the precompiler skeleton:<br>
+&nbsp;  <br>
+    <table style="width: 710px; text-align: left; background-color: rgb(255, 255, 204);" border="1" cellpadding="2" cellspacing="2">
+<tbody><tr><td style="white-space: nowrap;"><pre style="font-family: Consolas; font-size: 13px; color: black; background-image: none; background-repeat: repeat; background-attachment: scroll; background-position: 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;"><span style="color: blue;">using</span>&nbsp;System;<br><span style="color: blue;">using</span>&nbsp;System.Collections;<br> <br><span style="color: blue;">public</span>&nbsp;<span style="color: blue;">class</span>&nbsp;<span style="color: rgb(43, 145, 175);">Sample_Precompiler</span>&nbsp;<span style="color: green;">//precompiler&nbsp;class&nbsp;name&nbsp;must&nbsp;end&nbsp;with&nbsp;'Precompiler'</span><br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">public</span>&nbsp;<span style="color: blue;">static</span>&nbsp;<span style="color: blue;">bool</span>&nbsp;Compile(<span style="color: blue;">ref</span>&nbsp;<span style="color: blue;">string</span>&nbsp;scriptCode,&nbsp;<span style="color: blue;">string</span>&nbsp;scriptFile,&nbsp;<span style="color: blue;">bool</span>&nbsp;isPrimaryScript,&nbsp;<span style="color: rgb(43, 145, 175);">Hashtable</span>&nbsp;context)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: green;">//if&nbsp;scriptCode&nbsp;needs&nbsp;to&nbsp;be&nbsp;altered&nbsp;assign&nbsp;scriptCode&nbsp;the&nbsp;new&nbsp;value&nbsp;and&nbsp;return&nbsp;true.&nbsp;Otherwise&nbsp;return&nbsp;false</span><br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: green;">//scriptCode&nbsp;=&nbsp;"code&nbsp;after&nbsp;precompilation";</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: green;">//return&nbsp;true;</span><br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">return</span>&nbsp;<span style="color: blue;">false</span>;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}<br></pre>
+</td></tr></tbody>
+    </table>
+    <br>
+    <span style="color: rgb(51, 0, 153);"><span style="color: black;"></span></span></li>
+  <li>Modify the precompiler as follows<br>
+    <br>
+    <table style="width: 710px; text-align: left; background-color: rgb(255, 255, 204);" border="1" cellpadding="2" cellspacing="2">
+<tbody><tr><td style="white-space: nowrap;"><pre style="font-family: Consolas; font-size: 13px; color: black; background-image: none; background-repeat: repeat; background-attachment: scroll; background-position: 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;"><span style="color: blue;"></span><span style="color: blue;"></span><span style="color: blue;">using</span>&nbsp;System;<br><span style="color: blue;">using</span>&nbsp;System.Collections;<br><span style="color: blue;">using</span>&nbsp;System.Text;<br><span style="color: blue;">using</span>&nbsp;System.IO;<br> <br><span style="color: blue;">public</span>&nbsp;<span style="color: blue;">class</span> <span style="color: rgb(43, 145, 175);">FreestyleScriptPrecompiler</span><br>{<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">static</span>&nbsp;<span style="color: blue;">public</span>&nbsp;<span style="color: blue;">bool</span>&nbsp;Compile(<span style="color: blue;">ref</span>&nbsp;<span style="color: blue;">string</span>&nbsp;content,&nbsp;<span style="color: blue;">string</span>&nbsp;scriptFile,&nbsp;<span style="color: blue;">bool</span> isPrimaryScript,&nbsp;<span style="color: rgb(43, 145, 175);">Hashtable</span>&nbsp;context)<br>&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">if</span>&nbsp;(!isPrimaryScript)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">return</span>&nbsp;<span style="color: blue;">false</span>;<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color: blue;">var</span><span style="color: blue;"></span><span style="color: rgb(43, 145, 175);"></span> code&nbsp;=&nbsp;<span style="color: blue;">new</span>&nbsp;<span style="color: rgb(43, 145, 175);">StringBuilder</span>(4096);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.AppendLine(<span style="color: rgb(163, 21, 21);">"//Auto-generated&nbsp;file"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.AppendLine(<span style="color: rgb(163, 21, 21);">"using&nbsp;System;"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.AppendLine(<span style="color: rgb(163, 21, 21);">"using&nbsp;System.IO;"</span>);<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">bool</span>&nbsp;headerProcessed&nbsp;=&nbsp;<span style="color: blue;">false</span>;<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">string</span>&nbsp;line;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">using</span>&nbsp;(<span style="color: blue;">var</span><span style="color: blue;"></span> sr&nbsp;=&nbsp;<span style="color: blue;">new</span>&nbsp;<span style="color: rgb(43, 145, 175);">StringReader</span>(content))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">while</span>&nbsp;((line&nbsp;=&nbsp;sr.ReadLine())&nbsp;!=&nbsp;<span style="color: blue;">null</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">if</span>&nbsp;(!headerProcessed&nbsp;&amp;&amp;&nbsp;!line.TrimStart().StartsWith(<span style="color: rgb(163, 21, 21);">"using&nbsp;"</span>))&nbsp;<span style="color: green;">//not&nbsp;using...;&nbsp;statement&nbsp;of&nbsp;the&nbsp;file&nbsp;header  </span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">if</span>&nbsp;(!line.StartsWith(<span style="color: rgb(163, 21, 21);">"//"</span>)&nbsp;&amp;&amp;&nbsp;line.Trim()&nbsp;!=&nbsp;<span style="color: rgb(163, 21, 21);">""</span>)&nbsp;<span style="color: green;">//not&nbsp;comments&nbsp;or&nbsp;empty&nbsp;line</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;headerProcessed&nbsp;=&nbsp;<span style="color: blue;">true</span>;<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.AppendLine(<span style="color: rgb(163, 21, 21);">"&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;ScriptClass"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.AppendLine(<span style="color: rgb(163, 21, 21);">"&nbsp;&nbsp;&nbsp;{"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.AppendLine(<span style="color: rgb(163, 21, 21);">"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;public&nbsp;int&nbsp;Main(string[]&nbsp;args)"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.AppendLine(<span style="color: rgb(163, 21, 21);">"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.Append(line);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.Append(<span style="color: rgb(43, 145, 175);">Environment</span>.NewLine);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.AppendLine(<span style="color: rgb(163, 21, 21);">"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.AppendLine(<span style="color: rgb(163, 21, 21);">"&nbsp;&nbsp;&nbsp;}"</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code.AppendLine(<span style="color: rgb(163, 21, 21);">"}"</span>);<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content&nbsp;=&nbsp;code.ToString();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">return</span>&nbsp;<span style="color: blue;">true</span>;<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}<br></pre>
+</td></tr></tbody>
+    </table>
+    <br>
+The implementation of the precompiler is fairly simple as it simply
+wraps the content of the script file being executed into the class
+definition with some extra "using" statements.<br>
+    <br>
+  </li>
+  <li>Execute the script <span style="font-style: italic;">script.cs </span>as any normal script<span style="font-style: italic;">:</span><br>
+
+
+    <div class="syntax">cscs script.cs
+			</div>
+During the execution the precompiler will modify the content of the
+script file by injecting the missing declaration parts just before
+passing the content to the C# compiler. The injected code is indicated
+with the gray color in the following listing:<br>
+
+    <br>
+
+
+  
+
+    <table style="width: 710px; text-align: left; background-color: rgb(255, 255, 204);" border="1" cellpadding="2" cellspacing="2">
+
+
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap;">
+      <pre style="font-family: Consolas; font-size: 13px; color: black; background-image: none; background-repeat: repeat; background-attachment: scroll; background-position: 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;"><span style="color: silver;">//Auto-generated&nbsp;file</span><br style="color: silver;"><span style="color: silver;">using&nbsp;System;</span><br style="color: silver;"><span style="color: silver;">using&nbsp;System.IO;</span><br style="color: rgb(102, 102, 102);"><span style="color: green;">//css_precompiler&nbsp;freestyle</span><br><span style="color: blue;">using</span>&nbsp;System.Windows.Forms;<br> <br><span style="color: silver;">public&nbsp;class&nbsp;ScriptClass</span><br style="color: silver;"><span style="color: silver;">{</span><br style="color: silver;"><span style="color: silver;">&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;public&nbsp;int&nbsp;Main(string[]&nbsp;args)</span><br style="color: silver;"><span style="color: silver;">&nbsp;&nbsp;&nbsp;&nbsp;{</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue;">for</span>&nbsp;(<span style="color: blue;">int</span>&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;args.Length;&nbsp;i++)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: rgb(43, 145, 175);">Console</span>.WriteLine(args[i]);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(<span style="color: rgb(163, 21, 21);">"Hello&nbsp;World!"</span>);<br> <br style="color: rgb(153, 153, 153);"><span style="color: rgb(153, 153, 153);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: silver;">return&nbsp;0;</span></span><br style="color: silver;"><span style="color: silver;">&nbsp;&nbsp;&nbsp;&nbsp;}</span><br style="color: silver;"><span style="color: silver;">}</span></pre>
+</td>
+    </tr>
+  </tbody>
+    </table>
+
+    <br>
+  </li>
+</ol>
+<br>
+<h4 class="dtH4">Conclusion&nbsp;</h4>
+<br>
+<p>Precompilers is a powerful feature , which opens almost unlimited scripting opportunities. Replacing the <span style="font-style: italic;">magic string</span>
+is just a very simple example but precompiling can do so much more. For
+example with precompiling you can easy implement C++ style <span style="color: rgb(0, 0, 153);">#define</span> for C# (even <span style="color: rgb(0, 0, 153);">#define</span> is a controversial feature). It is even possible to implement Domain Specific Language of a sort.</p><br>
+<p>You can find more <span style="font-style: italic;">Precompilers</span> samples in the <span style="font-style: italic;">&lt;cs-script&gt;\Samples\Precompilers</span> directory.  These samples doe not have very high practical value but they do show the idea.</p>
+<br>
+<h4 class="dtH4">See Also</h4>
+
+<p> <a href="Command-line_Interface.html">Command-line
+interface</a> |&nbsp;<a href="Classless.html">Classless Scripts</a></p>
+
+<br>
+
+<a href="Using_COM.html"></a></div></body></html>

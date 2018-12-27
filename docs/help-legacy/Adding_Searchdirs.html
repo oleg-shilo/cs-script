@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Adding Search Directories</title>
+<xml></xml>
+<link rel="stylesheet" type="text/css" href="MSDN.css"></head>
+<body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> </td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Adding Search
+Directories</h1>
+</div>
+</div>
+<div id="nstext"><p>Instead of having&nbsp;script/assembly probing directories specified in global config file
+(<span style="font-style: italic;">css_config.xm</span>l) you can add them only for a&nbsp;particular script execution.
+This can be achieved by placing a special <span style="font-style: italic;">directive</span>
+in the script file. Thus you can specify directly in
+script code where the CS-Script engine should search for files to be loaded at runtime:</p>
+<div class="syntax">//css_searchdir &lt;path&gt;;</div>
+<blockquote>
+<p><b>path</b> - absolute or relative path of the
+directory to be added to the CS-Script search directories.</p>
+<p>The shorter alias directive <span style="font-style: italic; font-weight: bold;">//css_dir</span><span style="font-style: italic;"><span style="font-weight: bold;"> </span></span>can&nbsp;be
+used in place&nbsp;of the <span style="font-style: italic; font-weight: bold;">//css_searchdir</span>.
+</p>
+</blockquote>
+<h4 class="dtH4">Note:</h4>
+The &lt;path&gt; parameter can&nbsp;contain environment
+variable mask which would be expanded at runtime.<br>Remember that you may need to escape some path characters that conflict with the //css_ delimiters. See <a href="Directives.html">Delimiters Escaping</a> section.<br>
+<h4 class="dtH4">Sample</h4>
+The following example demonstrates how you can include <span style="font-style: italic;">MyAssemblies</span> and <span style="font-style: italic;">CommonAssemblies</span>
+directories into script and assembly probing.<span style="font-style: italic;"></span> <br>
+<br>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><span style="color: rgb(0, 102, 0);">//css_dir ..\..\MyAssemblies;</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);"></span><span style="color: rgb(0, 102, 0);">//css_dir C:\CommonAssemblies;</span><br style="color: rgb(0, 153, 0);">
+</font><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+<br>
+</font><font face="Courier New" size="2"><font color="#0000ff" size="2">class</font> Script <br>
+{&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(&nbsp;<font color="#0000ff" size="2">string</font>&nbsp;[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+</tr>
+</tbody>
+</table>
+<br>
+<p>&nbsp;</p>
+<p> &nbsp;</p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;"> <param name="Keyword" value="Using Assemblies">
+</object></div>
+</body></html>

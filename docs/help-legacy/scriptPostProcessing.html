@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Script Post-Processing</title>
+
+
+<meta content="text/html; charset=Windows-1252" http-equiv="Content-Type">
+<meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+<xml></xml>
+<link href="MSDN.css" type="text/css" rel="stylesheet"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> <br>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Script Post-Processing</h1>
+</div>
+</div>
+<br>
+<div id="nstext"><font face="Arial" size="2"><span><span style="font-weight: bold;"></span></span></font>Sometimes
+it is desirable to do certain&nbsp;manipulations with the compiled
+script assembly just after it has been compiled but before it is
+executed. CS-Script allows such manipulations by allowing the user to
+specifying the external <span style="font-style: italic;">Post-Processor</span>
+assembly, which is capable of conducting such manipulations. Such
+assembly must have very specific interface&nbsp;and it can be specified in
+the <a href="Config.html">Configuration Console</a>. <br><br>The interface of <span style="font-style: italic;">Post-Processor </span>assembly is quite simple. The following code snippet demonstrates the an example of&nbsp;simple <span style="font-style: italic;">Post-Processor</span>&nbsp;implementation:<br><br>
+<span style="font-style: italic;"></span><br>
+<table style="text-align: left; width: 618px; height: 268px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2"></font></font><span style="color: blue; font-family: monospace;">public</span><span style="font-family: monospace;"> </span><span style="color: blue; font-family: monospace;">class</span><span style="font-family: monospace;"> </span><span style="color: rgb(43, 145, 175); font-family: monospace;">CSSPostProcessor</span>
+<p style="margin: 0px; font-family: monospace;">{</p>
+<p style="margin: 0px; font-family: monospace;">&nbsp;&nbsp;&nbsp; <span style="color: gray;">///</span><span style="color: green;"> </span><span style="color: gray;">&lt;summary&gt;</span></p>
+<p style="margin: 0px; font-family: monospace;">&nbsp;&nbsp;&nbsp; <span style="color: gray;">///</span><span style="color: green;"> Processes the specified script assembly before its execution.</span></p>
+<p style="margin: 0px; font-family: monospace;">&nbsp;&nbsp;&nbsp; <span style="color: gray;">///</span><span style="color: green;"> </span><span style="color: gray;">&lt;/summary&gt;</span></p>
+<p style="margin: 0px; font-family: monospace;">&nbsp;&nbsp;&nbsp; <span style="color: gray;">///</span><span style="color: green;"> </span><span style="color: gray;">&lt;param name="assemblyPath"&gt;</span><span style="color: green;"> <br>
+</span></p>
+      <p style="margin: 0px; font-family: monospace;"><span style="color: green;">&nbsp;&nbsp;&nbsp; </span><span style="color: gray;">/// </span><span style="color: green;">The compiled script assembly to</span><span style="color: green;"> </span><span style="color: gray;"></span><span style="color: green;">be processed.</span><span style="color: gray;">&lt;/param&gt;</span></p>
+
+<p style="margin: 0px; font-family: monospace;">&nbsp;&nbsp;&nbsp; <span style="color: gray;">///</span><span style="color: green;"> </span><span style="color: gray;">&lt;param name="refAssemblies"&gt;</span><span style="color: green;"> <br>
+</span></p>
+      <p style="margin: 0px; font-family: monospace;"><span style="color: green;">&nbsp;&nbsp;&nbsp; </span><span style="color: gray;">///</span><span style="color: green;"> The assemblies referenced by </span><span style="color: gray;"></span><span style="color: green;">the script.</span><span style="color: gray;">&lt;/param&gt;</span></p>
+
+<p style="margin: 0px; font-family: monospace;">&nbsp;&nbsp;&nbsp; <span style="color: gray;">///</span><span style="color: green;"> </span><span style="color: gray;">&lt;param name="probingDirs"&gt;</span><span style="color: green;">The assembly probing directories.</span><span style="color: gray;">&lt;/param&gt;</span></p>
+<p style="margin: 0px; font-family: monospace;">&nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> <span style="color: blue;">static</span> <span style="color: blue;">void</span> <span style="color: rgb(1, 0, 1);">Process</span>(<span style="color: blue;">string</span> <span style="color: rgb(1, 0, 1);">assemblyPath</span>, <span style="color: blue;">string</span>[] <span style="color: rgb(1, 0, 1);">refAssemblies</span>,</p>
+      <p style="margin: 0px; font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span style="color: blue;">string</span>[] <span style="color: rgb(1, 0, 1);">probingDirs</span>)</p>
+
+<p style="margin: 0px; font-family: monospace;">&nbsp;&nbsp;&nbsp; {</p>
+<p style="margin: 0px; font-family: monospace;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: green;">//process (modify) the assembly at the assemblyPath</span>&nbsp;&nbsp;&nbsp;&nbsp;</p><p style="margin: 0px; font-family: monospace;">&nbsp; &nbsp; }</p><p style="margin: 0px;"><span style="font-family: monospace;">}</span></p></td></tr></tbody></table><br>The
+Process method is called by the CS-Script engine when the script being
+executed is compiled into assembly and is about to be loaded and
+invoked. The name of the assembly file is irrelevant<br>&nbsp;<br>The possible applications of the script assembly <span style="font-style: italic;">Post-Processing</span> is obfuscation or aspect injection. Thus starting from v2.6 CS-Script comes <span style="font-style: italic;">Lib/CSSPostSharp.dll</span> assembly for injecting <a href="http://www.postsharp.org/">PostSharp</a> aspects. The example can be found in&nbsp;Samples\PostSharp directory (read<span style="font-style: italic;"> readme.txt</span> file for the details).<br><br>The
+following is the example of injecting PostSharp aspect for logging all
+method invocations of the types defined in System.Threading namespace<br><br><table style="text-align: left; width: 615px; height: 598px; font-family: monospace;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="background-color: rgb(255, 255, 204); white-space: nowrap;"><p><small><span style="color: green;"><big>//css_ref PostSharp.Public.dll;</big></span></small><big>
+<br></big><span style="color: green;">//css_ref PostSharp.Laos.dll;</span><big>
+<br></big><span style="color: blue;">using</span> <span style="color: rgb(1, 0, 1);">System</span>;<big>
+<br></big><span style="color: blue;">using</span> <span style="color: rgb(1, 0, 1);">PostSharp</span>.<span style="color: rgb(1, 0, 1);">Laos</span>;<big>
+<br></big><span style="color: blue;">using</span> <span style="color: rgb(1, 0, 1);">System</span>.<span style="color: rgb(1, 0, 1);">Threading</span>;<big>
+<br></big>&nbsp;<big>
+<br></big>[<span style="color: blue;">assembly</span>: <span style="color: rgb(1, 0, 1);">PostSharp</span>.<span style="color: rgb(1, 0, 1);">Laos</span>.<span style="color: rgb(1, 0, 1);">Test</span>.<span style="color: rgb(1, 0, 1);">MyOnMethodInvocationAspect</span>(<big>
+<br></big>&nbsp;&nbsp;&nbsp; <span style="color: rgb(1, 0, 1);">AttributeTargetAssemblies</span> = <span style="color: rgb(163, 21, 21);">"mscorlib"</span>, <big><br></big>&nbsp;&nbsp;&nbsp; <span style="color: rgb(1, 0, 1);">AttributeTargetTypes</span> = <span style="color: rgb(163, 21, 21);">"System.Threading.*"</span>)]<big>
+<br></big>&nbsp;<big>
+<br></big><span style="color: blue;">namespace</span> <span style="color: rgb(1, 0, 1);">PostSharp</span>.<span style="color: rgb(1, 0, 1);">Laos</span>.<span style="color: rgb(1, 0, 1);">Test</span><big>
+<br></big>{<big>
+<br></big>&nbsp;&nbsp;&nbsp; <span style="color: blue;">class</span> <span style="color: rgb(43, 145, 175);">Program</span><big>
+<br></big>&nbsp;&nbsp;&nbsp; {<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">static</span> <span style="color: blue;">void</span> <span style="color: rgb(1, 0, 1);">Main</span>(<span style="color: blue;">string</span>[] <span style="color: rgb(1, 0, 1);">args</span>)<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(43, 145, 175);">Console</span>.<span style="color: rgb(1, 0, 1);">WriteLine</span>(<span style="color: rgb(163, 21, 21);">"Main is executed"</span>);<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(43, 145, 175);">Thread</span>.<span style="color: rgb(1, 0, 1);">Sleep</span>(1000);<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(43, 145, 175);">Console</span>.<span style="color: rgb(1, 0, 1);">ReadLine</span>();<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<big>
+<br></big>&nbsp;&nbsp;&nbsp; }<big>
+<br></big><big><br></big>&nbsp;&nbsp;&nbsp; [<span style="color: rgb(43, 145, 175);">Serializable</span>]<big>
+<br></big>&nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> <span style="color: blue;">class</span> <span style="color: rgb(43, 145, 175);">MyOnMethodInvocationAspect</span> : <span style="color: rgb(1, 0, 1);">OnMethodInvocationAspect</span><big>
+<br></big>&nbsp;&nbsp;&nbsp; {<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: blue;">public</span> <span style="color: blue;">override</span> <span style="color: blue;">void</span> <span style="color: rgb(1, 0, 1);">OnInvocation</span>(<span style="color: rgb(1, 0, 1);">MethodInvocationEventArgs</span> <span style="color: rgb(1, 0, 1);">context</span>)<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(43, 145, 175);">Console</span>.<span style="color: rgb(1, 0, 1);">WriteLine</span>(<span style="color: rgb(163, 21, 21);">"Calling {0}"</span>, <span style="color: rgb(1, 0, 1);">context</span>.<span style="color: rgb(1, 0, 1);">Delegate</span>.<span style="color: rgb(1, 0, 1);">Method</span>);<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="color: rgb(1, 0, 1);">context</span>.<span style="color: rgb(1, 0, 1);">Proceed</span>();<big>
+<br></big>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<big>
+<br></big>&nbsp;&nbsp;&nbsp; }<big>
+<br></big>}</p>
+</td></tr></tbody></table><br>
+<a href="ws.html"><span style="text-decoration: underline;">
+</span></a></div>
+</body></html>

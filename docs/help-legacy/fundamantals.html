@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+  <title>fundamantals</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css">
+</head>
+<body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.27.0</p>
+            </td>
+            <td class="product">
+            </td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">CS-Script fundamentals</h1>
+      </div>
+    </div>
+<div id="nstext">
+<p style="font-weight: bold;">Architecture</p>
+<p>CS-Script is a scripting system. This is how scripting (scripting language) is defined in
+      <a href="http://en.wikipedia.org/wiki/scripting_programming_language">Wikipedia</a>: </p>
+<blockquote>
+  <p> <i>Scripting languages are computer-programming languages
+designed for "scripting" the operation of a computer. Early script
+languages were often called batch languages or job control languages. A
+script is more usually interpreted than compiled, but not always.&nbsp;</i> </p>
+      </blockquote>
+<p> In other words, starting point of a scripting application is a text
+file (script file) whereas with non-scripting application is a binary
+file (usually .exe).&nbsp;</p>
+<p>
+CS-Script fits this definition very well. The language used for the
+CS-Script is a ECMA-compliant C#. The core component of CS-Script
+system is a script engine (cscs.exe/csws.exe). The script engine plays
+the role of an execution manager rather than an executor.&nbsp;
+      </p>
+<p style="text-align: center;"><img style="width: 326px; height: 369px;" alt="" src="Images/architecture.PNG"></p>
+<br>
+<p> &nbsp; </p>
+<p> Basically, script execution looks like this: user runs the script
+engine application and specifies a script file to be executed (as a <a href="Command-line_Interface.html">command-line parameter</a>).
+The script file is just a file with C# code. Such code must have
+defined static method Main(...). The engine compiles the script into an
+assembly and executes a well-known entry point in this assembly: Main.
+Note: requirements to have static method Main(...) as the main entry
+point in assembly is the same as for any CLR application written in any
+CLR language.</p>
+<p>CLR is a main worker during the script execution. It performs
+script compilation and also byte-code execution (preparation of the
+native CPU execution instructions).&nbsp;</p>
+<p>This explains why the script engine does not require any changes
+when targeting a different CLR version . Thus originally script engine
+was build on and for .NET1.1. However it can successfully execute
+scripts under .NET2.0. This applies even for future versions of .NET.
+*In order to do effective development in CS-Scripts no extra
+programming knowledge is required but at least basic background in C#.
+This is because the script is just a C# code and the C# programming
+practice is applicable to script development as well. However there is
+a small <a href="ProgrammingReference.html"> set of formal requirements</a> that should be met by C# code in order for to be qualified as a C# script.</p>
+<p>The script engine comes in two forms: "WinForm" and console
+application (csws.exe and cscs.exe correspondingly). Depending on choice
+of the engine, the scripting application will be either a Windows or a
+console application.</p>
+<p>The script engine can load the assemblies referenced within the code at execution time either implicitly or explicitly (see
+      <a href="Using_.NET_assemblies.html">  Using .NET assemblies</a>).&nbsp;</p>
+<p>In order to run a script you need either to install CS-Script or
+just have thew script engine file only. This is the essence of
+deployment requirements (see <a href="Deployment.html">Deployment</a>).</p>
+<p>The lightest development toolset is a text editor (eg.
+Notepad.exe), however most common IDEs offer more convenient
+development environment (see <a href="Development_tools.html"> Development tools</a>).</p>
+<p></p>
+<p style="font-weight: bold;">Performance</p>
+<p>The script engine demonstrates&nbsp;remarkable performance. C#
+script execution is the execution of the CLR applications
+by&nbsp;nature. That
+is why there is no&nbsp;difference&nbsp;between the run-time
+performance
+of the C# script and the standalone executable equivalent.&nbsp; The
+only
+difference is the time required for the script to be compiled and
+loaded, however this may be required only at startup and does not
+contribute into run-time performance at all.</p>
+<p>Also, the startup delay itself is very insignificant under normal
+conditions.&nbsp;The measurement of the startup delay for&nbsp;script executed in
+a cashed mode (<a href="Command-line_Interface.html">with '/c' switch</a>)
+on the average PC (P4 2.8GHz 1G of RAM) shows about 45-60 ms overhead
+compared to a standalone executable equivalent. Thus the measured
+execution time for the standard hello.cs script was consistently around
+110 ms.<br>
+</p>
+<p>In other words, the script application will take a bit longer to start
+(about 50 ms) but will perform with the same speed as it's standalone
+executable equivalent.
+</p>
+<span style="font-style: italic;">Note: performance figures </span><span style="font-weight: bold; font-style: italic;"></span><span style="font-style: italic;">may vary from version to version.</span><br>
+<br>
+<h4 class="dtH4"><br>
+      See Also </h4>
+<p> <a href="ProgrammingReference.html">Programming Reference</a> | <a href="Command-line_Interface.html"> Command-line Interface</a> |
+      <a href="Extending_scripting_system.html"> Extending scripting system</a></p>
+<p><br>
+ </p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+	<param name="Keyword" value="Overview">
+</object> 
+    </div>
+</body>
+</html>
+

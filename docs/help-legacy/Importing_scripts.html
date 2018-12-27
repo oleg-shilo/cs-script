@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5"><title>Importing scripts</title>
+  <xml></xml>
+  <link rel="stylesheet" type="text/css" href="MSDN.css"></head><body id="bodyID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+          <tbody>
+    <tr id="hdr">
+            <td class="runninghead">
+      <p align="left">CS-Script 3.28.2</p>
+            </td>
+            <td class="product">
+            <br>
+</td>
+          </tr>
+  </tbody>
+</table>
+      </div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">Importing scripts</h1>
+      </div>
+    </div>
+<div id="nstext">
+<p>
+Many of scripting tasks can be implemented within a singe file
+containing C# code. Such approach is the most stable and simple with
+respect to code maintenances and distribution. However under some
+circumstances having the whole code in a single file may not be very
+practical (even for the sake of simplicity of a single file
+deployment). Whatever development reasons are, CS-Script allows
+execution of the multiple script files.</p>
+<p>
+This means that if the script A needs to use some code routine that is
+already implemented in the script B it can do this by importing the
+script B at execution time. In fact the script B does not have to be a
+script. It can be any valid C# code. The instruction for the script
+engine to import some script has to be placed directly in the code of
+the master script. This way script importing can be nested (script A
+imports script B which imports script C... ).</p>
+<p>
+This is the directive to import a script:</p>
+<div class="syntax">
+&nbsp;//css_import &lt;file&gt;[, preserve_main][, rename_namespace(&lt;oldName&gt;, &lt;newName&gt;)];</div>
+<p><b>
+file </b> - name of a script file to be imported (if file extension omitted '.cs' is assumed).<br>
+<span style="font-weight: bold;">preserve_main </span>- do not rename 'static Main' in the imported script<br>
+<b>oldName</b> - name of a namespace to be renamed during importing<br>
+<b>
+newName </b> - new name of a namespace to be renamed during importing</p>
+<p>The shorter alias directive <span style="font-style: italic; font-weight: bold;">//css_imp</span> can&nbsp;be used in place&nbsp;of the <span style="font-style: italic; font-weight: bold;">//css_import</span>.</p>
+<p>Another aliases are <span style="font-style: italic; font-weight: bold;">//css_include</span>&nbsp;and <span style="font-style: italic; font-weight: bold;">//css_inc</span>. They&nbsp;are equivalents of&nbsp;<span style="font-style: italic; font-weight: bold;">//css_import &lt;file&gt;, preserve_main</span><span style="font-style: italic;"></span>.</p>
+<p>If the string&nbsp;<span style="font-style: italic;">$this</span> (or&nbsp;<span style="font-style: italic;">$this.name</span>)
+is specified as a part of &lt;file&gt;&nbsp;it will be replaced at execution time with
+the&nbsp;<span style="font-style: italic;">main script</span>
+full name (or file name only).</p>
+<p>
+This feature was not in the original design of CS-Script but was added due to users demand.</p>
+<h4 class="dtH4">File location</h4>
+<p>
+In the import statement the file to be imported can be specified with
+relative or absolute path. Try to avoid using the absolute path because
+it can create difficulties when isolating scripts for deployment.</p>
+<p>
+If the script to be imported is specified only by the name without the
+path, the script file must be located in one of the following folders:</p>
+<ul>
+  <li>
+    <p>
+the absolute or relative path to the script directory</p>
+  </li>
+  <li>
+    <p>Default Script Library directory <a href="Script_library.html">Script Library</a> (<span style="font-style: italic;">%CSSCRIPT_DIR%\Lib</span>)</p>
+  </li>
+  <li>
+    <p>Custom Script Library directory (specified&nbsp;in the&nbsp;configuration console&nbsp;<a href="Config.html">SearchDirs</a>)</p>
+  </li>
+</ul>
+<ul>
+  <li>
+    <p>system PATH directories.</p></li>
+</ul>If a relative file path is specified with single-dot prefix it
+will be automatically converted into the absolute path with respect to
+the location of the file containing the directive being resolved.
+Otherwise it will be resolved with respect to the process current directory.
+<br>
+<br>
+If for whatever reason it is preferred to always resolve path expression with respect to the parent script location you can configure the script engine to do it with the following command:
+<br>
+<br>
+<font face="Courier New" size="2">
+  &nbsp;&nbsp;&nbsp;cscs -config:set:ResolveRelativeFromParentScriptLocation=true
+</font>
+
+
+<h4 class="dtH4">Note:</h4>
+The &lt;file&gt; parameter can&nbsp;contain environment variable mask which would be expanded at runtime.<br>Remember that you may need to escape some path characters that conflict with the //css_ delimiters. See <a href="Directives.html">Delimiters Escaping</a> section.
+<h4 class="dtH4">
+Example &nbsp;</h4>
+<p>
+The file math.cs contains the following code:</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <br>
+      <font color="#0000ff" size="2">namespace</font>&nbsp;MathUtils<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">class</font>&nbsp;Calculator&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">int</font>&nbsp;Add(<font color="#0000ff" size="2">int</font>&nbsp;a,&nbsp;<font color="#0000ff" size="2">int</font>&nbsp;b)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">return</font>&nbsp;a+b;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+&nbsp;
+<p>
+The following are examples of using the method 'Add' of a math.cs in another C# script:</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_import&nbsp;math;</font></font><font face="Courier New" size="2"><font color="#0000ff" size="2"><br>
+using</font>&nbsp;System;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>&nbsp;[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(MathUtils.Calculator.Add(1,2));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<p><br>
+It is highly advisable to have namespaces declared in dependent
+scripts. Thus it would be possible to resolve naming conflicts should
+they arise.&nbsp;</p>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#008000" size="2">//css_import&nbsp;math,&nbsp;rename_namespace(MathUtils,&nbsp;MyMath);</font></font><br>
+      <font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+      <br>
+      <font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>&nbsp;[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(MyMath.Calculator.Add(1,2));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}</font></td>
+    </tr>
+  </tbody>
+</table>
+<h4 class="dtH4">
+&nbsp;<br>
+Note</h4>
+<p>
+It is important to remember that the concept of importing a script is
+different from what is called "include" in C++. Dependant script
+(script B) code cannot be just "appended" to the master script (script
+A) as this may produce C# code where static void Main()&nbsp; is
+defined more than once. That is why the script engine always
+imports/injects adjusted copy of the dependent script into master
+script. 'Adjusted' means that if the script to be imported contains
+static void Main(..) it will be always renamed to i_Main.</p>
+<p>
+<br>
+The only case when the importing is a logical equivalent of "include"
+is when importable script does not have static void Main() (non-runable
+script) and no namespace renaming is requested (no <span style="font-style: italic;">rename_namespace</span> parameter) or when renaming is disabled with&nbsp;<span style="font-style: italic;">preserve_main</span> parameter.</p>
+<p>
+</p>
+<h4 class="dtH4">
+See also</h4>
+<p><a href="Script_library.html">Script Library</a> | <a href="Integration_with_OS.html"> Integration with OS</a> |
+<a href="Importing_script_Tutorial.html"> Script Importing (Tutorial)</a></p>
+<p>&nbsp;</p>
+<p><br>
+</p>
+<object type="application/x-oleobject" classid="clsid:1e2a7bd0-dab9-11d0-b93a-00c04fc99f9e" viewastext="true" style="display: none;">
+    <param name="Keyword" value="Importing">
+</object> 
+    </div>
+</body></html>

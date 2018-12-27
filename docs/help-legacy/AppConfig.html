@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>CS-Script application configuration</title>
+
+<meta content="text/html; charset=Windows-1252" http-equiv="Content-Type">
+<meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+<xml></xml>
+<link href="MSDN.css" type="text/css" rel="stylesheet"></head><body id="divID" class="dtBODY">
+<div id="nsbanner">
+<div id="bannerrow1">
+<table class="bannerparthead" cellspacing="0">
+<tbody>
+<tr id="hdr">
+<td class="runninghead">
+<p align="left">CS-Script 3.27.0</p>
+</td>
+<td class="product"> <br>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="TitleRow">
+<h1 class="dtH1" align="left">CS-Script application
+configuration</h1>
+</div>
+</div>
+<div id="nstext">
+<h4 class="dtH4">Background</h4>
+<p style="font-style: italic;"><span style="font-weight: bold;">Application
+Settings vs. Script Application Settings</span></p>
+<p>One of the possible ways of maintaining an application
+settings is a
+Configuration File. This is how MSDN describes the configuration
+files:</p>
+<p style="font-style: italic; margin-left: 40px;">The .NET
+Framework
+gives developers control and flexibility over the way applications run.
+Developers can put settings in configuration files, eliminating the
+need to recompile an application every time a setting
+changes.&nbsp;Application configuration files contain settings
+specific
+to an application.&nbsp;</p>
+<p style="font-style: italic; margin-left: 40px;">Configuration
+files are XML files that can be changed as needed.</p>
+Typically the application configuration file is in the same directory
+as the application. The name of the configuration file is the name of
+the application with a .config extension (<font style="font-weight: bold;" class="messagecontent">app.config</font>).
+For example, an application called <span style="font-style: italic;">myApp.exe</span>
+can be associated with a configuration file called <span style="font-style: italic;">myApp.exe.config</span>. <br>
+<br>
+<font class="messagecontent">Unfortunately
+such configuration file cannot be used to store the <span style="font-weight: bold;">script</span>
+application settings.&nbsp;This is because all the
+scripts share the same executable and in result they have to share the
+same app.config. The solution to the problem&nbsp;is to use
+different
+config file, associated with the script but not with the application
+executable (<span style="font-weight: bold;">script.config</span>).&nbsp;</font>For
+example, a script&nbsp;called <span style="font-style: italic;">myScript.cs</span>
+has to be associated with a configuration file called&nbsp;<span style="font-style: italic;">myScript.cs.config</span>.
+<br>
+<div style="margin-left: 40px;"><br>
+</div>
+<div style="margin-left: 40px;"><br>
+</div>
+<span style="font-weight: bold; font-style: italic;">Custom
+config file</span><br>
+.NET Framework provides classes for working with configuration files.
+One of them is<span style="color: rgb(51, 51, 153);"> </span><font style="color: rgb(51, 51, 153);" class="messagecontent">System.Configuration.ConfigurationSettings.AppSettings</font>,
+which&nbsp;makes reading the <span style="font-weight: bold;">app.config</span>
+file effortless. <font class="messagecontent">Unfortunately
+this class&nbsp;cannot be used
+for&nbsp;</font><font class="messagecontent"><span style="font-weight: bold;">script.config</span> as
+there is no simple/adequate way to force it to read anything else but <span style="font-weight: bold;">app.config</span>.&nbsp;
+</font><br>
+<font class="messagecontent">
+</font><br>
+There are plenty of articles/code samples dedicated to solving the
+custom config file&nbsp;problem.&nbsp; Approaches are different
+and
+usually they are based on the custom config file reader. &nbsp;The
+same
+approach is used for CS-Script. However one of the simplest and most
+reliable approaches is to access&nbsp;configuration file
+from&nbsp;some
+temporary domain (<span style="font-style: italic;">TempDomain
+approach</span>).
+In this case you can use all existing .NET classes for working with
+configuration files.&nbsp; The approach is based on the fact that
+you
+can specify what config file temporary domain should use. The
+advantages of such approach are obvious:<br>
+<ul>
+<li>Simplicity: the only extra code you need to do is the
+creation of a new AppDomain.</li>
+<li>Consistency: actual configuration accessing routine is the
+same as for standard <span style="font-style: italic;">app.config</span>.</li>
+<li>Reliability: <span style="font-style: italic;">app.config</span><span style="font-weight: bold; font-style: italic;">&nbsp;</span>readers/writers
+are part of the .NET Framework, well tested and maintained by MS.</li>
+</ul>
+The example of such approach is the following script: <a href="Tutorial/AppSettings/CustomAppSettings.zip">Tutorial/AppSettings/CustomAppSettings.cs</a>.<br>
+<br>
+However there is always a catch. Crossing the domain boundaries
+introduces some performance penalties (which are in real life often
+negligible). <br>
+<br>
+<span style="font-style: italic;"></span>
+<h4 class="dtH4"><a id="_sconfig_exe_vs_cs" name="_sconfig_exe_vs_cs">Script AppConfig file support</a></h4>
+<a id="_sconfig_exe_vs_cs" name="_sconfig_exe_vs_cs">The described above&nbsp;algorithm is used
+for&nbsp;implementation of the&nbsp;support for&nbsp;<span style="font-style: italic;">app.config</span>
+file associated with the script application?<br>
+<br>
+Starting from version &nbsp;1.7.0
+CS-Script&nbsp;supports&nbsp;true <span style="font-weight: bold;">application
+configuration files</span>. Practically
+it means that if you need to execute the script (<span style="font-style: italic;">client.cs</span>) written
+to access a configuration file,&nbsp;you need to create
+corresponding config
+file (<span style="font-style: italic;">client.cs.config</span>)
+and use command-line switch </a><a href="Command-line_Interface.html">/sconfig</a>.&nbsp;This
+switch will force the script engine to execute the script application
+in a separate AppDomain with&nbsp;<span style="font-style: italic;">client.cs.config or&nbsp; </span>as
+a config file. <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-style: italic;">Note that&nbsp;</span><a style="font-style: italic;" href="Command-line_Interface.html">/sconfig</a><span style="font-style: italic;"> is a
+default option for the script execution. Also be aware that&nbsp;</span><span style="font-style: italic;">the script engine will treat
+client.exe.config (if found) as a script config file&nbsp;</span><span style="font-style: italic;">in absence of</span><span style="font-style: italic;">&nbsp;client.cs.config.<br><br>Also
+you can specify custom name for the config file by using extended
+syntax for /sconfig command-line argument: /sconfig:MyApp.config.<br><br>See &lt;cs-script&gt;\Samples\ConfigFiles samples<br></span>
+</div>
+<br>
+The way of accessing the <span style="font-style: italic;">app.config
+</span>file values from script, when <a href="Command-line_Interface.html">/sconfig</a>&nbsp;option
+is used, is not different from accessing these values from the stand
+alone application. <br>
+<br>
+<table style="width: 708px; text-align: left; height: 332px;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2"><font color="#0000ff" size="2">using</font>&nbsp;System;<br>
+<font color="#0000ff" size="2">using</font>&nbsp;System.Windows.Forms;<br>
+<font color="#0000ff" size="2">using</font>&nbsp;System.Configuration;<br>
+<br>
+<font color="#0000ff" size="2">class</font>&nbsp;Script<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<font color="#0000ff" size="2">static</font>&nbsp;<font color="#0000ff" size="2">public</font>&nbsp;<font color="#0000ff" size="2">void</font>&nbsp;Main(<font color="#0000ff" size="2">string</font>[]&nbsp;args)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageBox.Show(ConfigurationManager.AppSettings[<font color="#800000" size="2">"greeting"</font>]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}<br>
+<br>
+....<br>
+</font><font face="Courier New" size="2"><br>
+&lt;?xml&nbsp;version=<font color="#800000" size="2">"1.0"</font>&nbsp;encoding=<font color="#800000" size="2">"utf-8"</font>&nbsp;?&gt;<br>
+&lt;configuration&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;appSettings&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;add&nbsp;key=<font color="#800000" size="2">"greeting"</font>&nbsp;value=<font color="#800000" size="2">"Hello!"</font>&nbsp;/&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/appSettings&gt;<br>
+&lt;/configuration</font><font face="Courier New" size="2"><br>
+</font></td>
+</tr>
+</tbody>
+</table>
+<br>
+The A<span style="font-style: italic;">ppCconfig</span>
+support is especially important with respect to
+the&nbsp;WPF and&nbsp;WCF applications,&nbsp;which
+relay heavily on the <span style="font-style: italic;">app.config</span>
+files.&nbsp;For such script applications&nbsp;<a href="Command-line_Interface.html">/sconfig</a> is a
+"must-have" option.<br>
+<br>
+Another interesting aspect of <span style="font-style: italic;">AppConfig</span>
+support is the concept of assembly
+aliases for&nbsp;configuration file ConfigSections. Assembly
+aliases mechanism is
+required for&nbsp;resolving problems caused by unpredictable nature
+of the&nbsp;assembly
+name of the compiled script. The following example will illustrate how
+to use assembly aliases in practice.<br>
+<br>
+Imagine that you have
+application&nbsp;<span style="font-style: italic;">MyApp.exe</span>
+which uses <span style="font-style: italic;">MyApp.exe.config</span>
+configuration file. The following XML&nbsp;is a fragment of the
+configSection of the&nbsp;<span style="font-style: italic;">MyApp.exe.config.<br>
+<br>
+</span>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">&lt;?xml&nbsp;version=<font color="#800000" size="2">"1.0"</font>&nbsp;encoding=<font color="#800000" size="2">"utf-8"</font>&nbsp;?&gt;<br>
+&lt;configuration&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;configSections&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;section&nbsp;name=<font color="#800000" size="2">"MyData"</font>&nbsp;type=<font color="#800000" size="2">"MyDataSection,&nbsp;MyApp"</font>&nbsp;</font></td>
+</tr>
+</tbody>
+</table>
+<br>
+As you can see from the code above section <span style="color: rgb(51, 0, 153);">MyData</span> is bound
+to the <span style="color: rgb(51, 0, 153);">MyDataSection</span>
+type implemented in the <span style="color: rgb(51, 0, 153);">MyApp</span>
+assembly.<br>
+<br>
+But what if you want to achieve the same in a script application. Let's
+assume that &nbsp;<span style="color: rgb(51, 0, 153);">MyDataSection</span>
+type is implemented in the script <span style="font-style: italic;">MyApp.cs</span>.
+However it is not possible to specify the assembly name in the
+app.config file as we do not have our assembly&nbsp;yet, we have
+only
+script. Well the problem can be handled quite easy. XML configuration
+file (<span style="font-style: italic;">MyApp.cs.config</span>)
+should contain assembly alias <span style="color: rgb(51, 0, 153);">GetExecutingAssembly()</span>.<br>
+<br>
+<table style="width: 710px; text-align: left;" border="1" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="white-space: nowrap; background-color: rgb(255, 255, 204);"><font face="Courier New" size="2">&lt;?xml&nbsp;version=<font color="#800000" size="2">"1.0"</font>&nbsp;encoding=<font color="#800000" size="2">"utf-8"</font>&nbsp;?&gt;<br>
+&lt;configuration&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;configSections&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;section&nbsp;name=<font color="#800000" size="2">"MyData"</font>&nbsp;type=<font color="#800000" size="2">"MyDataSection,&nbsp;GetExecutingAssembly()"</font></font></td>
+</tr>
+</tbody>
+</table>
+<span style="color: rgb(51, 0, 153);"><br>
+</span><span style="color: rgb(51, 0, 153);">
+GetExecutingAssembly()</span> is interpreted at runtime as an
+executing assembly (loaded script).
+Thus the only difference between executable and the script application
+is the assembly name field in the config file.<br>
+<br>
+<div style="margin-left: 40px; font-style: italic;">Similarly
+<span style="color: rgb(51, 0, 153);">GetEntryAssembly()</span>
+is mapped to the process executable assembly<span style="font-weight: bold;">.<br>
+</span></div><br>The actual working with the config file sections from the script is not
+that
+different comparing to the same scenario implemented in the stand alone
+application. The only diffrence is usage of <span style="color: rgb(51, 0, 153);">GetExecutingAssembly()</span>
+instead of the assembly name.<br>
+The full scale example&nbsp;for working with <span style="font-style: italic;">AppConfig</span> sections
+is the following script: <a href="Tutorial/AppSettings/AppConfigSections.zip">Tutorial/AppSettings/AppConfigSection.cs</a>.<br>
+<div style="margin-left: 40px; font-style: italic;"><span style="font-weight: bold;"></span></div>
+<h4 class="dtH4">See Also&nbsp;</h4>
+<p><a href="Command-line_Interface.html">Command-line_Interface</a></p>
+<p></p>
+<p></p>
+</div>
+</body></html>
