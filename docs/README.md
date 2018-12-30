@@ -6,7 +6,7 @@
 
 [![Chocolatey Version](http://img.shields.io/chocolatey/v/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![Chocolatey Downloads](http://img.shields.io/chocolatey/dt/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![NuGet version (CS-Script)](https://img.shields.io/nuget/v/CS-Script.svg?style=flat-square)](https://www.nuget.org/packages/CS-Script/)
 
-<sub>_The project has been migrated to GitHub from CodePlex: [CS-Script](http://csscriptsource.codeplex.com/)._</sub> 
+<sub>_[Legacy help pages](http://oleg-shilo.github.io/cs-script/help-legacy/root/) - help content of the pre-MIT releases_</sub> 
 
 CS-Script is a CLR (Common Language Runtime) based scripting system which uses ECMA-compliant C# as a programming language.
 
