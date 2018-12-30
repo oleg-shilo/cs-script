@@ -267,22 +267,21 @@ namespace CSScriptLib
         /// <returns>The compiled assembly.</returns>
         Assembly CompileCode(string scriptText);
 
-
         /// <summary>
         /// Compiles the specified script text without loading it into the AppDomain or
-        /// writing to the file system. 
+        /// writing to the file system.
         /// </summary>
         /// <example>
         ///<code>
-        /// try 
-        /// {  
+        /// try
+        /// {
         ///     CSScript.Evaluator
         ///             .Check(@"using System;
         ///                      public class Script
         ///                      {
         ///                          public int Sum(int a, int b)
         ///                          {
-        ///                              error 
+        ///                              error
         ///                              return a+b;
         ///                          }
         ///                      }");
@@ -319,6 +318,7 @@ namespace CSScriptLib
         /// <param name="outputFile">The path to the assembly file to be compiled.</param>
         /// <returns>The compiled assembly file path.</returns>
         string CompileAssemblyFromCode(string scriptText, string outputFile);
+
         /// <summary>
         /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing a single or multiple class definition(s).
         /// </summary>
@@ -434,8 +434,6 @@ namespace CSScriptLib
         /// <param name="args">The non default constructor arguments.</param>
         /// <returns>Instance of the class defined in the script.</returns>
         object LoadCode(string scriptText, params object[] args);
-
-
 
         /// <summary>
         /// Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
