@@ -55,7 +55,7 @@ void main()
     }
 }
 ```
-Execute script file directly in cmd-promt without building an executable assembly:
+Execute script file directly in cmd-prompt without building an executable assembly:
 ```
 C:\Temp>cscs mp4_retag.cs
 ```
