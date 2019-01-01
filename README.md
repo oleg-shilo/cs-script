@@ -1,22 +1,25 @@
 # CS-Script
 <img align="right" src="https://raw.githubusercontent.com/oleg-shilo/cs-script/master/Source/wiki/images/css_logo_codeplex_256x256_2.png" alt="" style="float:right">
 
-[![Build status](https://ci.appveyor.com/api/projects/status/jruj9dmf2dwjn5p3?svg=true)](https://ci.appveyor.com/project/oleg-shilo/cs-script)
-[![Chocolatey Version](http://img.shields.io/chocolatey/v/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![Chocolatey Downloads](http://img.shields.io/chocolatey/dt/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![NuGet version (CS-Script)](https://img.shields.io/nuget/v/CS-Script.svg?style=flat-square)](https://www.nuget.org/packages/CS-Script/)
+[![Build status](https://ci.appveyor.com/api/projects/status/jruj9dmf2dwjn5p3?svg=true)](https://ci.appveyor.com/project/oleg-shilo/cs-script) [![Chocolatey Version](http://img.shields.io/chocolatey/v/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![Chocolatey Downloads](http://img.shields.io/chocolatey/dt/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![NuGet version (CS-Script)](https://img.shields.io/nuget/v/CS-Script.svg?style=flat-square)](https://www.nuget.org/packages/CS-Script/)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://oleg-shilo.github.io/cs-script/Donation.html)
 
-<sub>_The project has been migrated to GitHub from CodePlex: [CS-Script](http://csscriptsource.codeplex.com/)._</sub> 
+CS-Script is a CLR based scripting system which uses ECMA-compliant C# as a programming language.
 
-CS-Script is a CLR (Common Language Runtime) based scripting system which uses ECMA-compliant C# as a programming language.
+CS-Script is one of the most mature C# scripting solutions. It became publicly available in 2004, just two years after the first release of .NET. And it was the first comprehensive scripting platform for .NET
 
-CS-Script is one of the most mature C# scripting solutions. It became publicly available in 2004, two years after the first release of .NET. 
-CS-Script supports both hosted and standalone execution model. It allows seamlessly switching underlying compiling technology without affecting the code base. Currently supported compilers are Mono, Roslyn and CodeDOM. It offers comprehensive integration with most common development tools: 
+CS-Script supports both hosted and standalone execution model. This makes it possible to use the script engine as a pure C# alternative for PowerShell. As well as extending .NET applications with C# scripts executed at runtime by the hosted script engine.
+
+CS-Script allows seamlessly switching underlying compiling technology without affecting the code base. Currently supported compilers are Mono, Roslyn and CodeDOM. 
+
+CS-Script also offers comprehensive integration with most common development tools: 
 [Visual Studio](https://github.com/oleg-shilo/CS-Script.VSIX), 
 [VSCode](https://github.com/oleg-shilo/cs-script.vscode), 
 [Sublime Text 3](https://github.com/oleg-shilo/cs-script-sublime), 
-[Notepad++](https://github.com/oleg-shilo/cs-script.npp). 
-It can be run on Win, Linux and Mac. And it is compatible with .NET, Mono and .NET Core (ongoing development). 
+[Notepad++](https://github.com/oleg-shilo/cs-script.npp).
+
+It can be run on Win, Linux and Mac. And it is compatible with .NET, Mono and .NET Core.
 
 Over the long history of CS-Script it has been downloaded through Notepad++ x86 plugin manager alone over ![](http://www.csscript.net/statistics/css.npp.count.jpeg) times.
 
