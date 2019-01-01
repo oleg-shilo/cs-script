@@ -104,3 +104,4 @@ var SayHello = CSScript.LoadMethod(
                          .GetStaticMethod("SayHello" , typeof(string));
 SayHello("Hello again!");
 ```
+_form docs_
