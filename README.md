@@ -73,7 +73,7 @@ dynamic script = CSScript.LoadCode(
                              {
                                  public void SayHello(string greeting)
                                  {
-                                     MessageBox.Show($""Greeting: {greeting}"");
+                                     MessageBox.Show(""Greeting: "" + greeting);
                                  }
                              }")
                              .CreateObject("*");
@@ -100,6 +100,6 @@ var SayHello = CSScript.LoadMethod(
                           {
                               Console.WriteLine(greeting);
                           }")
-                         .GetStaticMethod("SayHello" , typeof(string)); 
+                         .GetStaticMethod("*.SayHello" , ""); 
 SayHello("Hello again!");
 ``` 
