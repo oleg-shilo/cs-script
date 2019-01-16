@@ -16,6 +16,9 @@ namespace Scripting
         [STAThread]
         static public void Main(string[] args)
         {
+            System.Net.ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
             //Debug.Assert(false);
             if (args.Length == 0 || args[0].ToLower() == "-?" || args[0].ToLower() == "/?")
                 Console.WriteLine("Usage: cscscript wsdl url file [/opt: [wsdl_option_1]...[wsdl_option_N]] [/new] ...\n" +
