@@ -32,11 +32,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using csscript;
-using System.Diagnostics;
 
 namespace CSScriptLibrary
 {
@@ -44,7 +44,7 @@ namespace CSScriptLibrary
     {
         /// <summary>
         /// Global instance of <see cref="CSScriptLibrary.CodeDomEvaluator"/>. This object is to be used for
-        /// dynamic loading of the  C# code by using Roslyn "compiler as service".
+        /// dynamic loading of the  C# code by using CodeDom "compiler as service".
         /// <para>If you need to use multiple instances of th evaluator then you will need to call
         /// <see cref="CSScriptLibrary.IEvaluator"/>.Clone().
         /// </para>
@@ -65,7 +65,7 @@ namespace CSScriptLibrary
     }
 
     /// <summary>
-    /// A wrapper class that encapsulates the functionality of the Roslyn  evaluator (<see cref="N:Microsoft.CodeAnalysis.CSharp.Scripting"/>).
+    /// A wrapper class that encapsulates the functionality of the CodeDom evaluator (<see cref="N:Microsoft.CodeAnalysis.CSharp.Scripting"/>).
     /// </summary>
     public class CodeDomEvaluator : IEvaluator
     {
