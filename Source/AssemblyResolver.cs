@@ -108,7 +108,7 @@ namespace CSScriptLibrary
         {
             try
             {
-                if (asmFile.EndsWith(".cs"))
+                if (asmFile.EndsWith(".cs") || asmFile.EndsWith(".xml"))
                     return null;
 
                 AssemblyName asmName = AssemblyName.GetAssemblyName(asmFile);

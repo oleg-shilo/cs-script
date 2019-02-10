@@ -1317,7 +1317,11 @@ namespace csscript
         {
 #pragma warning disable 618
             var providerOptions = new Dictionary<string, string>();
-            providerOptions["CompilerVersion"] = options.TargetFramework;
+            //
+            // Should be always "v4.0" even for later .net frameworks.
+            // https://stackoverflow.com/questions/13253967/how-to-target-net-4-5-with-csharpcodeprovider
+            //
+            providerOptions["CompilerVersion"] = "v4.0";
             return new CSharpCodeProvider(providerOptions).CreateCompiler();
 #pragma warning restore 618
         }

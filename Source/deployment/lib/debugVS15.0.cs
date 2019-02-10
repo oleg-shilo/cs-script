@@ -1346,7 +1346,7 @@ namespace VS150 //Visual Studio 2017
                 try
                 {
                     //<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-                    ReplaceInFile(file, "<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>", "<TargetFrameworkVersion>" + target + "</TargetFrameworkVersion>");
+                    ReplaceInFile(file, "<TargetFrameworkVersion>v4.6</TargetFrameworkVersion>", "<TargetFrameworkVersion>" + target + "</TargetFrameworkVersion>");
                 }
                 catch (Exception e)
                 {
