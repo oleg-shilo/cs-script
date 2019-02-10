@@ -239,7 +239,6 @@
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>$(ProjectDir)projexport.bat $(TargetPath)</PostBuildEvent>
   </PropertyGroup>
 </Project>
