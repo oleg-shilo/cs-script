@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -213,21 +213,21 @@ partial class dbg
             relevant_types = x => x.MemberType == MemberTypes.Property;
 
         MemberInfo[] members = obj.GetType()
-                                      .GetMembers(BindingFlags.Public | BindingFlags.Instance)
-                                      .Where(relevant_types)
-                                      .OrderBy(x => x.Name)
-                                      .ToArray();
+                                  .GetMembers(BindingFlags.Public | BindingFlags.Instance)
+                                  .Where(relevant_types)
+                                  .OrderBy(x => x.Name)
+                                  .ToArray();
 
         var private_members = new MemberInfo[0];
 
         if (!publicOnly)
             private_members = obj.GetType()
-                                      .GetMembers(BindingFlags.NonPublic | BindingFlags.Instance)
-                                      .Where(relevant_types)
-                                      .OrderBy(x => x.Name)
-                                      .OrderBy(x => char.IsLower(x.Name[0]))
-                                      .OrderBy(x => x.Name.StartsWith("_"))
-                                      .ToArray();
+                                          .GetMembers(BindingFlags.NonPublic | BindingFlags.Instance)
+                                          .Where(relevant_types)
+                                          .OrderBy(x => x.Name)
+                                          .OrderBy(x => char.IsLower(x.Name[0]))
+                                          .OrderBy(x => x.Name.StartsWith("_"))
+                                          .ToArray();
 
         var items = members.Concat(private_members);
         return items.ToArray();

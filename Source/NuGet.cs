@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Diagnostics;
 
 namespace csscript
 {
@@ -82,10 +82,10 @@ namespace csscript
                     var candidates = Environment.GetEnvironmentVariable("PATH")
                                                 .Split(Utils.IsLinux ? ':' : ';')
                                                 .SelectMany(dir => new[]
-                                                                    {
-                                                                        Path.Combine(dir, "nuget"),
-                                                                        Path.Combine(dir, "nuget.exe")
-                                                                    });
+                                                                   {
+                                                                       Path.Combine(dir, "nuget"),
+                                                                       Path.Combine(dir, "nuget.exe")
+                                                                   });
 
                     foreach (string file in candidates)
                         if (File.Exists(file))

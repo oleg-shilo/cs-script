@@ -276,7 +276,7 @@ namespace CSScriptLibrary
                 {
                     string asmFile = Path.Combine(dir, name);
 
-                    //cannot just check Directory.Exists(dir) as "name" can contain sum subDir parts
+                    //cannot just check Directory.Exists(dir) as "name" can contain some subDir parts
                     if (Directory.Exists(Path.GetDirectoryName(asmFile)))
                     {
                         //test well-known assembly extensions first

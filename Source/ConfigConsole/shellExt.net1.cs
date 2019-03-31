@@ -1,12 +1,12 @@
-//css_dbg /t:winexe;  
+//css_dbg /t:winexe;
 using System;
-using System.Drawing;
-using System.Diagnostics;
-using System.IO;
 using System.Collections;
-using System.Windows.Forms;
-using System.Drawing.Imaging;
+using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Windows.Forms;
 
 namespace CSSScript
 {
@@ -26,15 +26,16 @@ namespace CSSScript
         private Button refreshBtn;
         private Button editBtn;
         public TreeViewEventHandler additionalOnCheckHandler;
+
         public ShellExForm(bool readOnlyMode)
         {
             this.readOnlyMode = readOnlyMode;
             InitializeComponent();
             upBtn.Text =
             downBtn.Text = "";
-            #if NET2
+#if NET2
             treeView1.DrawMode = TreeViewDrawMode.OwnerDrawText;
-            #endif
+#endif
         }
 
         public ShellExForm()
@@ -42,9 +43,9 @@ namespace CSSScript
             InitializeComponent();
             upBtn.Text =
             downBtn.Text = "";
-            #if NET2
+#if NET2
             treeView1.DrawMode = TreeViewDrawMode.OwnerDrawText;
-            #endif
+#endif
         }
 
         protected override void Dispose(bool disposing)
@@ -61,6 +62,7 @@ namespace CSSScript
         }
 
         #region Windows Form Designer generated code
+
         private void InitializeComponent()
         {
             this.treeView1 = new System.Windows.Forms.TreeView();
@@ -73,12 +75,12 @@ namespace CSSScript
             this.refreshBtn = new System.Windows.Forms.Button();
             this.editBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
-            // 
+            //
             // treeView1
-            // 
+            //
             this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+                           | System.Windows.Forms.AnchorStyles.Left)
+                           | System.Windows.Forms.AnchorStyles.Right)));
             this.treeView1.HideSelection = false;
             this.treeView1.Location = new System.Drawing.Point(12, 12);
             this.treeView1.Name = "treeView1";
@@ -86,9 +88,9 @@ namespace CSSScript
             this.treeView1.TabIndex = 0;
             this.treeView1.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterCheck);
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
-            // 
+            //
             // upBtn
-            // 
+            //
             this.upBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.upBtn.Location = new System.Drawing.Point(413, 23);
             this.upBtn.Name = "upBtn";
@@ -96,9 +98,9 @@ namespace CSSScript
             this.upBtn.TabIndex = 1;
             this.upBtn.Text = "Up";
             this.upBtn.Click += new System.EventHandler(this.upBtn_Click);
-            // 
+            //
             // downBtn
-            // 
+            //
             this.downBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.downBtn.Location = new System.Drawing.Point(413, 52);
             this.downBtn.Name = "downBtn";
@@ -106,9 +108,9 @@ namespace CSSScript
             this.downBtn.TabIndex = 1;
             this.downBtn.Text = "Down";
             this.downBtn.Click += new System.EventHandler(this.downBtn_Click);
-            // 
+            //
             // cancelBtn
-            // 
+            //
             this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancelBtn.Location = new System.Drawing.Point(413, 363);
@@ -117,9 +119,9 @@ namespace CSSScript
             this.cancelBtn.TabIndex = 2;
             this.cancelBtn.Text = "Cancel";
             this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
-            // 
+            //
             // okBtn
-            // 
+            //
             this.okBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.okBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.okBtn.Location = new System.Drawing.Point(413, 333);
@@ -128,9 +130,9 @@ namespace CSSScript
             this.okBtn.TabIndex = 2;
             this.okBtn.Text = "Ok";
             this.okBtn.Click += new System.EventHandler(this.okBtn_Click);
-            // 
+            //
             // browseBtn
-            // 
+            //
             this.browseBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.browseBtn.Location = new System.Drawing.Point(413, 114);
             this.browseBtn.Name = "browseBtn";
@@ -138,9 +140,9 @@ namespace CSSScript
             this.browseBtn.TabIndex = 2;
             this.browseBtn.Text = "Browse";
             this.browseBtn.Click += new System.EventHandler(this.browseBtn_Click);
-            // 
+            //
             // helpBtn
-            // 
+            //
             this.helpBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.helpBtn.Location = new System.Drawing.Point(413, 174);
             this.helpBtn.Name = "helpBtn";
@@ -148,7 +150,7 @@ namespace CSSScript
             this.helpBtn.TabIndex = 2;
             this.helpBtn.Text = "Help";
             this.helpBtn.Click += new System.EventHandler(this.helpBtn_Click);
-            // 
+            //
             // refreshBtn
             //
             this.refreshBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -158,9 +160,9 @@ namespace CSSScript
             this.refreshBtn.TabIndex = 3;
             this.refreshBtn.Text = "Refresh";
             this.refreshBtn.Click += new System.EventHandler(this.refreshBtn_Click);
-            // 
+            //
             // editBtn
-            // 
+            //
             this.editBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.editBtn.Location = new System.Drawing.Point(413, 144);
             this.editBtn.Name = "editBtn";
@@ -168,9 +170,9 @@ namespace CSSScript
             this.editBtn.TabIndex = 2;
             this.editBtn.Text = "Edit";
             this.editBtn.Click += new System.EventHandler(this.editBtn_Click);
-            // 
+            //
             // ShellExForm
-            // 
+            //
             this.AcceptButton = this.okBtn;
             this.CancelButton = this.cancelBtn;
             this.ClientSize = new System.Drawing.Size(503, 399);
@@ -190,15 +192,17 @@ namespace CSSScript
             this.Load += new System.EventHandler(this.Form1_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ShellExForm_KeyDown);
             this.ResumeLayout(false);
-
         }
-        #endregion
+
+        #endregion Windows Form Designer generated code
 
         private void button1_Click(object sender, System.EventArgs e)
         {
             this.Close();
         }
+
         public string baseDirectory = Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\Lib\ShellExtensions\CS-Script");
+
         private void Form1_Load(object sender, EventArgs e)
         {
             treeView1.CheckBoxes = true;
@@ -229,6 +233,7 @@ namespace CSSScript
                 this.location = path;
                 Refresh();
             }
+
             public void Refresh()
             {
                 string logicalPath = path;
@@ -246,6 +251,7 @@ namespace CSSScript
                 isConsole = !isDir && !isSeparator && path.EndsWith(".c.cmd");
                 level = path.Split(Path.DirectorySeparatorChar).Length - 1;
             }
+
             public override string ToString()
             {
                 if (isSeparator)
@@ -256,6 +262,7 @@ namespace CSSScript
                     return parts[parts.Length - 1].Substring(3).Replace(".c.cmd", "").Replace(".cmd", "").Replace(".disabled", "");
                 }
             }
+
             public string GetLogicalFileName()
             {
                 string retval = this.ToString();
@@ -276,10 +283,12 @@ namespace CSSScript
                     retval += ".disabled";
                 return retval;
             }
+
             public bool isDir;
             public bool isConsole;
             public bool isSeparator;
             bool enabled = false;
+
             public bool Enabled
             {
                 get { return enabled; }
@@ -295,11 +304,11 @@ namespace CSSScript
                     enabled = value;
                 }
             }
-            public string path;     //note this.path can be changed during the user operations 
+
+            public string path;     //note this.path can be changed during the user operations
             public string location; //original value of this.path
             public int level;
         }
-
 
         public void ReadShellExtensions(string path)
         {
@@ -361,7 +370,6 @@ namespace CSSScript
                         }
 
                         parentNode = parentNode.Parent;
-
                     } while (parentNode != null);
 
                     if (parentNode == null)
@@ -373,6 +381,7 @@ namespace CSSScript
             }
             treeView1.ExpandAll();
         }
+
         class Sorter : IComparer
         {
             static public Sorter instance = new Sorter();
@@ -401,7 +410,9 @@ namespace CSSScript
                     return 1;
             }
         }
+
         Brush treeViewBackBrush = null;
+
         Brush TreeViewBackBrush
         {
             get
@@ -411,6 +422,7 @@ namespace CSSScript
                 return treeViewBackBrush;
             }
         }
+
 #if NET2
         private void treeView1_DrawNode(object sender, DrawTreeNodeEventArgs e)
         {
@@ -451,10 +463,10 @@ namespace CSSScript
                 e.Graphics.DrawLine(Pens.Black, frame.Left + 4, frame.Top + frame.Height / 2, frame.Right - 4, frame.Top + frame.Height / 2);
             else
                 e.Graphics.DrawString(item.ToString(), treeView1.Font, b, e.Bounds.Left, e.Bounds.Top + 2);
-
         }
 #endif
         bool ignoreChecking = false;
+
         private void treeView1_AfterCheck(object sender, TreeViewEventArgs e)
         {
             if (!ignoreChecking)
@@ -490,6 +502,7 @@ namespace CSSScript
                     additionalOnCheckHandler(sender, e);
             }
         }
+
         private void upBtn_Click(object sender, EventArgs e)
         {
             TreeNode node = treeView1.SelectedNode;
@@ -526,6 +539,7 @@ namespace CSSScript
             }
             treeView1.Select();
         }
+
         private void downBtn_Click(object sender, EventArgs e)
         {
             TreeNode node = treeView1.SelectedNode;
@@ -564,6 +578,7 @@ namespace CSSScript
         }
 
         #region Images
+
         static Image DullImage(Image img)
         {
             Bitmap newBitmap = new Bitmap(img.Width, img.Height, PixelFormat.Format32bppArgb);
@@ -575,11 +590,14 @@ namespace CSSScript
                 int width = img.Width;
                 int height = img.Height;
 
-                float[][] colorMatrixElements = {   new float[] {1,  0,  0,  0, 0},        // red scaling factor of 1
-                                                    new float[] {0,  1,  0,  0, 0},        // green scaling factor of 1
-                                                    new float[] {0,  0,  1,  0, 0},        // blue scaling factor of 1
-                                                    new float[] {0,  0,  0,  1, 0},        // alpha scaling factor of 1
-                                                    new float[] {.05f, .05f, .05f, 0, 1}};    // three translations of 0.2
+                float[][] colorMatrixElements =
+                {
+                    new float[] {1,  0,  0,  0, 0},        // red scaling factor of 1
+                    new float[] {0,  1,  0,  0, 0},        // green scaling factor of 1
+                    new float[] {0,  0,  1,  0, 0},        // blue scaling factor of 1
+                    new float[] {0,  0,  0,  1, 0},        // alpha scaling factor of 1
+                    new float[] {.05f, .05f, .05f, 0, 1}    // three translations of 0.2
+                };
 
                 ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
 
@@ -587,8 +605,8 @@ namespace CSSScript
 
                 g.DrawImage(
                     img,
-                    new Rectangle(0, 0, width, height),  // destination rectangle 
-                    0, 0,        // upper-left corner of source rectangle 
+                    new Rectangle(0, 0, width, height),  // destination rectangle
+                    0, 0,        // upper-left corner of source rectangle
                     width,       // width of source rectangle
                     height,      // height of source rectangle
                     GraphicsUnit.Pixel,
@@ -596,16 +614,17 @@ namespace CSSScript
             }
             return newBitmap;
         }
+
         static Image CreateUpImage()
         {
             Image img = new Bitmap(25, 25);
             using (Graphics g = Graphics.FromImage(img))
             {
                 LinearGradientBrush lgb = new LinearGradientBrush(
-                     new Point(0, 0),
-                     new Point(25, 0),
-                     Color.YellowGreen,
-                     Color.DarkGreen);
+                    new Point(0, 0),
+                    new Point(25, 0),
+                    Color.YellowGreen,
+                    Color.DarkGreen);
 
                 int xOffset = -4;
                 int yOffset = -1;
@@ -622,23 +641,27 @@ namespace CSSScript
             }
             return img;
         }
+
         static Image CreateDownImage()
         {
             Image img = new Bitmap(CreateUpImage());
             img.RotateFlip(RotateFlipType.Rotate180FlipX);
             return img;
         }
+
         Image imgUp = CreateUpImage();
         Image imgDown = CreateDownImage();
         Image imgUpDisabled = DullImage(CreateUpImage());
         Image imgDownDisabled = DullImage(CreateDownImage());
-        #endregion
+
+        #endregion Images
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             upBtn.Image = upBtn.Enabled ? imgUp : imgUpDisabled;
             downBtn.Image = downBtn.Enabled ? imgDown : imgDownDisabled;
         }
+
         private void okBtn_Click(object sender, EventArgs e)
         {
             Cursor = Cursors.WaitCursor;
@@ -652,6 +675,7 @@ namespace CSSScript
                 Cursor = Cursors.Default;
             }
         }
+
         void RemoveEmptyChildDirs(string path)
         {
             int iterator = 0;
@@ -671,6 +695,7 @@ namespace CSSScript
                 if (Directory.Exists(dir) && IsDirEmpty(dir))
                     Directory.Delete(dir, true);
         }
+
         bool IsDirEmpty(string path)
         {
             int iterator = 0;
@@ -714,6 +739,7 @@ namespace CSSScript
                 File.Move(shellEx.location, newPath);
             }
         }
+
         void ProcessDirNode(TreeNodeCollection nodes)
         {
             ArrayList dirs = new ArrayList();
@@ -732,6 +758,7 @@ namespace CSSScript
         {
             Process.Start("explorer.exe", "/e, \"" + Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_DIR%\Lib\ShellExtensions\CS-Script") + "\"");
         }
+
         private void helpBtn_Click(object sender, EventArgs e)
         {
             Process.Start(Environment.ExpandEnvironmentVariables(@"%windir%\System32\rundll32.exe"),
