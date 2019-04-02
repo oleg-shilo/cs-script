@@ -11,6 +11,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
@@ -207,11 +208,11 @@ namespace Config
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //
             // tabControl1
-            // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
@@ -221,9 +222,9 @@ namespace Config
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(433, 243);
             this.tabControl1.TabIndex = 1;
-            // 
+            //
             // tabPage1
-            // 
+            //
             this.tabPage1.Controls.Add(this.integrateST3);
             this.tabPage1.Controls.Add(this.doubleClickAction);
             this.tabPage1.Controls.Add(this.configureShellExt);
@@ -238,9 +239,9 @@ namespace Config
             this.tabPage1.Size = new System.Drawing.Size(425, 217);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
-            // 
+            //
             // integrateST3
-            // 
+            //
             this.integrateST3.Location = new System.Drawing.Point(235, 183);
             this.integrateST3.Name = "integrateST3";
             this.integrateST3.Size = new System.Drawing.Size(165, 19);
@@ -248,9 +249,9 @@ namespace Config
             this.integrateST3.TabStop = true;
             this.integrateST3.Text = "Sublime Text Integration";
             this.integrateST3.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.integrateST3_LinkClicked);
-            // 
+            //
             // doubleClickAction
-            // 
+            //
             this.doubleClickAction.FormattingEnabled = true;
             this.doubleClickAction.Location = new System.Drawing.Point(13, 119);
             this.doubleClickAction.Name = "doubleClickAction";
@@ -259,9 +260,9 @@ namespace Config
             this.doubleClickAction.SelectedIndexChanged += new System.EventHandler(this.doubleClickAction_SelectedIndexChanged);
             this.doubleClickAction.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             this.doubleClickAction.Click += new System.EventHandler(this.doubleClickAction_Click);
-            // 
+            //
             // configureShellExt
-            // 
+            //
             this.configureShellExt.Location = new System.Drawing.Point(13, 154);
             this.configureShellExt.Name = "configureShellExt";
             this.configureShellExt.Size = new System.Drawing.Size(146, 13);
@@ -270,9 +271,9 @@ namespace Config
             this.configureShellExt.Text = "Configure Context Menu";
             this.toolTip1.SetToolTip(this.configureShellExt, "Open Advanced Shell Extensions management console");
             this.configureShellExt.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.configureShellExt_LinkClicked);
-            // 
+            //
             // integrateNpp
-            // 
+            //
             this.integrateNpp.Location = new System.Drawing.Point(235, 154);
             this.integrateNpp.Name = "integrateNpp";
             this.integrateNpp.Size = new System.Drawing.Size(165, 19);
@@ -280,9 +281,9 @@ namespace Config
             this.integrateNpp.TabStop = true;
             this.integrateNpp.Text = "Notepad++ Integration";
             this.integrateNpp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.integrateNpp_LinkClicked);
-            // 
+            //
             // integrateVS
-            // 
+            //
             this.integrateVS.Location = new System.Drawing.Point(13, 183);
             this.integrateVS.Name = "integrateVS";
             this.integrateVS.Size = new System.Drawing.Size(134, 19);
@@ -291,11 +292,11 @@ namespace Config
             this.integrateVS.Text = "Visual Studio Integration";
             this.toolTip1.SetToolTip(this.integrateVS, "Open VS integration console");
             this.integrateVS.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.integrateVS_LinkClicked);
-            // 
+            //
             // groupBox4
-            // 
-            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox4.Controls.Add(this.tabControl2);
             this.groupBox4.Location = new System.Drawing.Point(198, 213);
@@ -305,9 +306,9 @@ namespace Config
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Explorer context menu:";
             this.groupBox4.Visible = false;
-            // 
+            //
             // tabControl2
-            // 
+            //
             this.tabControl2.Controls.Add(this.tabPage4);
             this.tabControl2.Location = new System.Drawing.Point(56, 29);
             this.tabControl2.Name = "tabControl2";
@@ -315,20 +316,20 @@ namespace Config
             this.tabControl2.Size = new System.Drawing.Size(232, 82);
             this.tabControl2.TabIndex = 14;
             this.tabControl2.Visible = false;
-            // 
+            //
             // tabPage4
-            // 
+            //
             this.tabPage4.Controls.Add(this.checkedListBox1);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(224, 56);
             this.tabPage4.TabIndex = 0;
             this.tabPage4.Text = "Simplified Context Menu";
-            // 
+            //
             // checkedListBox1
-            // 
-            this.checkedListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.checkedListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.checkedListBox1.CausesValidation = false;
             this.checkedListBox1.CheckOnClick = true;
@@ -339,10 +340,10 @@ namespace Config
             this.toolTip1.SetToolTip(this.checkedListBox1, "Select menu items you wnt to appear in the Explorer context menu");
             this.checkedListBox1.Click += new System.EventHandler(this.checkedListBox1_Click);
             this.checkedListBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.checkedListBox1_KeyPress);
-            // 
+            //
             // groupBox1
-            // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.iconPictureBox);
             this.groupBox1.Controls.Add(this.changeIconButton);
@@ -358,17 +359,17 @@ namespace Config
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Active CS-Script installation";
-            // 
+            //
             // iconPictureBox
-            // 
+            //
             this.iconPictureBox.Location = new System.Drawing.Point(9, 46);
             this.iconPictureBox.Name = "iconPictureBox";
             this.iconPictureBox.Size = new System.Drawing.Size(41, 36);
             this.iconPictureBox.TabIndex = 7;
             this.iconPictureBox.TabStop = false;
-            // 
+            //
             // changeIconButton
-            // 
+            //
             this.changeIconButton.Location = new System.Drawing.Point(59, 52);
             this.changeIconButton.Name = "changeIconButton";
             this.changeIconButton.Size = new System.Drawing.Size(79, 23);
@@ -376,9 +377,9 @@ namespace Config
             this.changeIconButton.Text = "Change Icon";
             this.changeIconButton.Visible = false;
             this.changeIconButton.Click += new System.EventHandler(this.changeIconButton_Click);
-            // 
+            //
             // updateNuGetBtn
-            // 
+            //
             this.updateNuGetBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.updateNuGetBtn.Location = new System.Drawing.Point(160, 51);
             this.updateNuGetBtn.Name = "updateNuGetBtn";
@@ -389,9 +390,9 @@ namespace Config
         "uGet.olg for the latest nuget.exe version.\r\nDownload and replace the local copy " +
         "if the update is found.");
             this.updateNuGetBtn.Click += new System.EventHandler(this.updateNuGetBtn_Click);
-            // 
+            //
             // repareBtn
-            // 
+            //
             this.repareBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.repareBtn.Location = new System.Drawing.Point(259, 51);
             this.repareBtn.Name = "repareBtn";
@@ -400,9 +401,9 @@ namespace Config
             this.repareBtn.Text = "Repair";
             this.toolTip1.SetToolTip(this.repareBtn, "Update all CS-Script settings with the current values");
             this.repareBtn.Click += new System.EventHandler(this.repareBtn_Click);
-            // 
+            //
             // deactivateBtn
-            // 
+            //
             this.deactivateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.deactivateBtn.Location = new System.Drawing.Point(337, 51);
             this.deactivateBtn.Name = "deactivateBtn";
@@ -411,39 +412,39 @@ namespace Config
             this.deactivateBtn.Text = "Deactivate";
             this.toolTip1.SetToolTip(this.deactivateBtn, "Deactivate current CS-Script installation");
             this.deactivateBtn.Click += new System.EventHandler(this.deactivateBtn_Click);
-            // 
+            //
             // textBox1
-            // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox1.Location = new System.Drawing.Point(95, 18);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(314, 20);
             this.textBox1.TabIndex = 4;
-            // 
+            //
             // label2
-            // 
+            //
             this.label2.Location = new System.Drawing.Point(120, 53);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(102, 13);
             this.label2.TabIndex = 3;
             this.label2.Text = "Target CLR version:";
             this.label2.Visible = false;
-            // 
+            //
             // label1
-            // 
+            //
             this.label1.Location = new System.Drawing.Point(6, 21);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(83, 13);
             this.label1.TabIndex = 2;
             this.label1.Text = "Home directiory:";
-            // 
+            //
             // comboBox1
-            // 
-            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox1.Location = new System.Drawing.Point(276, 92);
             this.comboBox1.Name = "comboBox1";
@@ -453,17 +454,17 @@ namespace Config
             this.toolTip1.SetToolTip(this.comboBox1, "Select target CLR version");
             this.comboBox1.Visible = false;
             this.comboBox1.TextChanged += new System.EventHandler(this.comboBox1_TextChanged);
-            // 
+            //
             // label4
-            // 
+            //
             this.label4.Location = new System.Drawing.Point(10, 103);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(147, 13);
             this.label4.TabIndex = 2;
             this.label4.Text = "Open (double-click action):";
-            // 
+            //
             // tabPage2
-            // 
+            //
             this.tabPage2.Controls.Add(this.manageSearchDirs);
             this.tabPage2.Controls.Add(this.propertyGrid1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
@@ -471,9 +472,9 @@ namespace Config
             this.tabPage2.Size = new System.Drawing.Size(425, 217);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Runtime options";
-            // 
+            //
             // manageSearchDirs
-            // 
+            //
             this.manageSearchDirs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.manageSearchDirs.Location = new System.Drawing.Point(3, 189);
             this.manageSearchDirs.Name = "manageSearchDirs";
@@ -483,11 +484,11 @@ namespace Config
             this.manageSearchDirs.Text = "Manage SearchDirs (probing directories)";
             this.toolTip1.SetToolTip(this.manageSearchDirs, "Open Search Directories management console");
             this.manageSearchDirs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.manageSearchDirs_LinkClicked);
-            // 
+            //
             // propertyGrid1
-            // 
-            this.propertyGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.propertyGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.propertyGrid1.LineColor = System.Drawing.SystemColors.ScrollBar;
             this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
@@ -496,9 +497,9 @@ namespace Config
             this.propertyGrid1.TabIndex = 1;
             this.propertyGrid1.ToolbarVisible = false;
             this.propertyGrid1.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid1_PropertyValueChanged);
-            // 
+            //
             // tabPage3
-            // 
+            //
             this.tabPage3.Controls.Add(this.pictureBox1);
             this.tabPage3.Controls.Add(this.donateBtn);
             this.tabPage3.Controls.Add(this.textBox4);
@@ -512,26 +513,26 @@ namespace Config
             this.tabPage3.Size = new System.Drawing.Size(425, 217);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "About";
-            // 
+            //
             // pictureBox1
-            // 
+            //
             this.pictureBox1.Location = new System.Drawing.Point(336, 13);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(75, 75);
             this.pictureBox1.TabIndex = 10;
             this.pictureBox1.TabStop = false;
-            // 
+            //
             // donateBtn
-            // 
+            //
             this.donateBtn.Location = new System.Drawing.Point(336, 131);
             this.donateBtn.Name = "donateBtn";
             this.donateBtn.Size = new System.Drawing.Size(66, 64);
             this.donateBtn.TabIndex = 9;
             this.donateBtn.Text = "Donate";
             this.donateBtn.Click += new System.EventHandler(this.donateBtn_Click_1);
-            // 
+            //
             // textBox4
-            // 
+            //
             this.textBox4.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox4.Location = new System.Drawing.Point(8, 17);
@@ -541,9 +542,9 @@ namespace Config
             this.textBox4.Size = new System.Drawing.Size(321, 73);
             this.textBox4.TabIndex = 7;
             this.textBox4.Text = "CS-Script\r\n\r\nC# script execution engine. \r\n\r\nCopyright (C) 2004-2019 Oleg Shilo.";
-            // 
+            //
             // groupBox3
-            // 
+            //
             this.groupBox3.Controls.Add(this.linkLabel11);
             this.groupBox3.Controls.Add(this.linkLabel9);
             this.groupBox3.Controls.Add(this.linkLabel8);
@@ -555,9 +556,9 @@ namespace Config
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Resources";
-            // 
+            //
             // linkLabel11
-            // 
+            //
             this.linkLabel11.Location = new System.Drawing.Point(8, 26);
             this.linkLabel11.Name = "linkLabel11";
             this.linkLabel11.Size = new System.Drawing.Size(121, 20);
@@ -566,9 +567,9 @@ namespace Config
             this.linkLabel11.Tag = "https://github.com/oleg-shilo/cs-script/issues";
             this.linkLabel11.Text = "Support/Feedback";
             this.linkLabel11.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
-            // 
+            //
             // linkLabel9
-            // 
+            //
             this.linkLabel9.Location = new System.Drawing.Point(160, 3);
             this.linkLabel9.Name = "linkLabel9";
             this.linkLabel9.Size = new System.Drawing.Size(187, 13);
@@ -578,9 +579,9 @@ namespace Config
             this.linkLabel9.Text = "Online Samples";
             this.linkLabel9.Visible = false;
             this.linkLabel9.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
-            // 
+            //
             // linkLabel8
-            // 
+            //
             this.linkLabel8.Location = new System.Drawing.Point(135, 29);
             this.linkLabel8.Name = "linkLabel8";
             this.linkLabel8.Size = new System.Drawing.Size(116, 13);
@@ -589,9 +590,9 @@ namespace Config
             this.linkLabel8.Tag = "https://github.com/oleg-shilo/cs-script/wiki";
             this.linkLabel8.Text = "Online Documentation";
             this.linkLabel8.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
-            // 
+            //
             // linkLabel7
-            // 
+            //
             this.linkLabel7.Location = new System.Drawing.Point(202, 16);
             this.linkLabel7.Name = "linkLabel7";
             this.linkLabel7.Size = new System.Drawing.Size(113, 13);
@@ -601,9 +602,9 @@ namespace Config
             this.linkLabel7.Text = "CSScriptLibrary Help";
             this.linkLabel7.Visible = false;
             this.linkLabel7.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel6_LinkClicked);
-            // 
+            //
             // linkLabel6
-            // 
+            //
             this.linkLabel6.Location = new System.Drawing.Point(87, 3);
             this.linkLabel6.Name = "linkLabel6";
             this.linkLabel6.Size = new System.Drawing.Size(187, 13);
@@ -613,9 +614,9 @@ namespace Config
             this.linkLabel6.Text = "CS-Script Help";
             this.linkLabel6.Visible = false;
             this.linkLabel6.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel7_LinkClicked);
-            // 
+            //
             // button5
-            // 
+            //
             this.button5.Location = new System.Drawing.Point(215, 93);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(75, 23);
@@ -624,25 +625,25 @@ namespace Config
             this.button5.Text = "Update";
             this.toolTip1.SetToolTip(this.button5, "Check for update");
             this.button5.Click += new System.EventHandler(this.button5_Click);
-            // 
+            //
             // textBox3
-            // 
+            //
             this.textBox3.Location = new System.Drawing.Point(107, 96);
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
             this.textBox3.Size = new System.Drawing.Size(98, 20);
             this.textBox3.TabIndex = 4;
-            // 
+            //
             // label6
-            // 
+            //
             this.label6.Location = new System.Drawing.Point(7, 98);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(94, 18);
             this.label6.TabIndex = 3;
             this.label6.Text = "Current version:";
-            // 
+            //
             // linkLabel2
-            // 
+            //
             this.linkLabel2.Location = new System.Drawing.Point(328, 93);
             this.linkLabel2.Name = "linkLabel2";
             this.linkLabel2.Size = new System.Drawing.Size(94, 18);
@@ -651,9 +652,9 @@ namespace Config
             this.linkLabel2.Tag = "http://www.cs-script.net";
             this.linkLabel2.Text = "www.cs-script.net";
             this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
-            // 
+            //
             // closeBtn
-            // 
+            //
             this.closeBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.closeBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.closeBtn.Location = new System.Drawing.Point(178, 261);
@@ -662,9 +663,9 @@ namespace Config
             this.closeBtn.TabIndex = 2;
             this.closeBtn.Text = "&Close";
             this.closeBtn.Click += new System.EventHandler(this.button1_Click);
-            // 
+            //
             // button2
-            // 
+            //
             this.button2.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.button2.Enabled = false;
             this.button2.Location = new System.Drawing.Point(97, 261);
@@ -673,9 +674,9 @@ namespace Config
             this.button2.TabIndex = 2;
             this.button2.Text = "&Ok";
             this.button2.Click += new System.EventHandler(this.OkButton_Click);
-            // 
+            //
             // button3
-            // 
+            //
             this.button3.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.button3.Enabled = false;
             this.button3.Location = new System.Drawing.Point(259, 261);
@@ -684,9 +685,9 @@ namespace Config
             this.button3.TabIndex = 2;
             this.button3.Text = "&Apply";
             this.button3.Click += new System.EventHandler(this.ApplyButton_Click);
-            // 
+            //
             // ConfigForm
-            // 
+            //
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.CancelButton = this.closeBtn;
             this.ClientSize = new System.Drawing.Size(433, 298);
@@ -716,7 +717,6 @@ namespace Config
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
-
         }
 
         static void InitEnvVars()
@@ -788,7 +788,7 @@ namespace Config
         [STAThread]
         static public void Main(string[] args)
         {
-            // Debug.Assert(false);
+            Debug.Assert(false);
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(ResolveAsm);
             main(args);
         }
@@ -1743,7 +1743,6 @@ namespace Config
             string scHomeDir = GetEnvironmentVariable("CSSCRIPT_DIR");
 
             //collect IDE info
-            string[] ideInfo;
             ArrayList availableIDE = new ArrayList();
 
             // availableIDE.AddRange(VS90.Script.VS90IDE.GetAvailableIDE()); //Visual Studio 2008
@@ -1868,9 +1867,100 @@ namespace Config
             return GetEnvironmentVariable("CSSCRIPT_DIR") != null;
         }
 
+        internal static string UninstallShelExtensionsIfPresent()
+        {
+            //C:\ProgramData\CS-Script\ShellExtension\3.28.4.0\CS-Script
+            var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"CS-Script\ShellExtension");
+            var deploymentDir = Directory.GetDirectories(root)
+                .Select(x => new
+                {
+                    Version = new Version(Path.GetFileName(x)),
+                    Path = x
+                })
+                .OrderByDescending(x => x.Version)
+                .FirstOrDefault()?.Path;
+
+            if (deploymentDir != null)
+            {
+                var x32Dll = Path.Combine(deploymentDir, @"CS-Script\ShellExt.cs.{25D84CB0-7345-11D3-A4A1-0080C8ECFED4}.dll");
+                var x64Dll = Path.Combine(deploymentDir, @"CS-Script\ShellExt64.cs.{25D84CB0-7345-11D3-A4A1-0080C8ECFED4}.dll");
+
+                var is64OS = Directory.Exists(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64"));
+
+                if (is64OS)
+                {
+                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32"), "/u /s \"" + x64Dll + "\"");
+                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64\regsvr32"), "/u /s \"" + x32Dll + "\"");
+                }
+                else
+                {
+                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32"), "/u /s \"" + x32Dll + "\"");
+                }
+                return Path.Combine(deploymentDir, "CS-Script");
+            }
+            return null;
+        }
+
+        static void CopyToShellX(string sourceDir, string fileExtension)
+        {
+            var destDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                       @"shell-x\" + fileExtension);
+            Directory.CreateDirectory(destDir);
+
+            File.WriteAllText(Path.Combine(destDir, "01.separator"), "");
+            File.WriteAllText(Path.Combine(destDir, "02.separator"), "");
+
+            try
+            {
+                var resources = new ResourceManager("images", Assembly.GetExecutingAssembly());
+                var logo = (Icon)resources.GetObject("css_logo.ico");
+
+                using (var fs = new FileStream(Path.Combine(destDir, "01.CS-Script.ico"), FileMode.Create))
+                    logo.Save(fs);
+            }
+            catch { }
+
+            destDir = Path.Combine(destDir, "01.CS-Script");
+
+            Directory.CreateDirectory(destDir);
+
+            //Now Create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
+                Directory.CreateDirectory(dirPath.Replace(sourceDir, destDir));
+
+            //Copy all the files & Replaces any files with the same name
+            foreach (string newPath in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
+            {
+                // ignore com servers and install.bat and uninstall.bat
+                if (!newPath.EndsWith("A4A1-0080C8ECFED4}.dll") && !newPath.EndsWith(".bat"))
+                {
+                    var destPath = newPath.Replace(sourceDir, destDir);
+                    var newFilehLogicalName = Path.GetFileName(destPath).Split(".".ToCharArray(), 2).Last(); //00.Open with VS2017.cmd
+
+                    if (Directory.GetFiles(Path.GetDirectoryName(destPath), "*" + newFilehLogicalName).Any())
+                        continue; // do not override the existing file with the same logical name
+
+                    File.Copy(newPath, destPath);
+                }
+            }
+        }
+
+        static public void ConfigureShellExtensions()
+        {
+            var localDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            var oldConfigDir = UninstallShelExtensionsIfPresent();
+            var newConfigDir = Path.Combine(localDir, @"..\ShellExtensions\Template\CS-Script");
+            var fileExtension = "csx";
+
+            if (oldConfigDir != null)
+                CopyToShellX(oldConfigDir, fileExtension);
+            else
+                CopyToShellX(newConfigDir, fileExtension);
+        }
+
         public void Install()
         {
-            // Install shel-X config here // zos
             // System.Diagnostics.Debug.Assert(false);
 
             string path = "";
@@ -1896,6 +1986,8 @@ namespace Config
             int dwResult = 0;
             bool bResult = SendMessageTimeout((System.IntPtr)HWND_BROADCAST, WM_SETTINGCHANGE, 0, "Environment", SMTO_ABORTIFHUNG, 5000, dwResult);
             justInstalled = true;
+
+            ConfigureShellExtensions();
 
             EnsureRoslynShadowCopy();
         }

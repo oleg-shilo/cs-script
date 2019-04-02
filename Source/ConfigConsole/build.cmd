@@ -1,5 +1,5 @@
-echo off 
-cscs.exe /verbose /l /dbg /ew ConfigConsole.cs
+echo off
+cscs.exe /l /dbg /ew ConfigConsole.cs
 del *.resx
 del *.resources
 pause
