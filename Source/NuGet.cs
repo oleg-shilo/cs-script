@@ -119,6 +119,14 @@ namespace csscript
         {
             // Debug.Assert(false);
 
+            // check if custom sources are specified
+            // `//css_nuget -source source1;`
+            var source = packages.Where(x => x.StartsWith("-source"))
+                                 .Select(x => x.Substring("-source".Length).Trim())
+                                 .LastOrDefault();
+
+            packages = packages.Where(x => !x.StartsWith("-source")).ToArray();
+
             List<string> assemblies = new List<string>();
 
             bool promptPrinted = false;
@@ -232,12 +240,16 @@ namespace csscript
 
                             try
                             {
-                                if (packageVersion != "")
+                                if (!string.IsNullOrEmpty(packageVersion))
                                     nugetArgs = "-version \"" + packageVersion + "\" " + nugetArgs;
+
+                                if (!string.IsNullOrEmpty(source))
+                                    nugetArgs = "-source \"" + source + "\" " + nugetArgs;
+
                                 var sw = new Stopwatch();
                                 sw.Start();
 
-                                Run(NuGetExe, "install " + package + " " + nugetArgs + " -OutputDirectory " + packageDir);
+                                Run(NuGetExe, string.Format("install {0} {1} -OutputDirectory \"{2}\"", package, nugetArgs, packageDir));
                                 newPackageWasInstalled = true;
                                 sw.Stop();
                             }
@@ -500,6 +512,8 @@ namespace csscript
         {
             //http://stackoverflow.com/questions/38118548/how-to-install-nuget-from-command-line-on-linux
             //on Linux native "nuget" app doesn't play nice with std.out redirected
+
+            Console.WriteLine("NuGet shell command: \n{0} {1}\n", exe, args);
 
             if (Utils.IsLinux)
             {

@@ -788,7 +788,7 @@ namespace Config
         [STAThread]
         static public void Main(string[] args)
         {
-            Debug.Assert(false);
+            // Debug.Assert(false);
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(ResolveAsm);
             main(args);
         }
@@ -1485,7 +1485,9 @@ namespace Config
             if (oldVersionInstalled)
             {
                 oldHomeDir = GetEnvironmentVariable("CSSCRIPT_DIR");
+
                 string executingEngineDir = CSScriptInstaller.GetExecutingEngineDir();
+
                 if (executingEngineDir == null || Path.GetFullPath(oldHomeDir) == Path.GetFullPath(executingEngineDir))
                 {
                     oldVersionInstalled = false;
@@ -1512,6 +1514,7 @@ namespace Config
             }
 
             string scHomeDir = GetEnvironmentVariable("CSSCRIPT_DIR");
+
             if (scHomeDir == null)
             {
                 if (restrictedMode)
@@ -1951,7 +1954,7 @@ namespace Config
 
             var oldConfigDir = UninstallShelExtensionsIfPresent();
             var newConfigDir = Path.Combine(localDir, @"..\ShellExtensions\Template\CS-Script");
-            var fileExtension = "csx";
+            var fileExtension = "cs";
 
             if (oldConfigDir != null)
                 CopyToShellX(oldConfigDir, fileExtension);
