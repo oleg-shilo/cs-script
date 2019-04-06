@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace csscript
@@ -134,77 +135,29 @@ namespace csscript
             {
                 // //css_nuget -noref -ng:"-IncludePrerelease –version 1.0beta" cs-script
                 // //css_nuget -noref -ver:"4.1.0-alpha1" -ng:"-Pre" NLog
+                string[] packageArgs = item.SplitCommandLine();
 
-                string package = item;
-                string nugetArgs = "";
-                string packageVersion = "";
+                string packageName = packageArgs.FirstOrDefault(x => !x.StartsWith("-"));
 
-                bool suppressReferencing = item.StartsWith("-noref");
-                if (suppressReferencing)
-                    package = item.Replace("-noref", "").Trim();
+                bool suppressReferencing = packageArgs.Contains("-noref");
+                string nugetArgs = packageArgs.ArgValue("-ng");
+                string packageVersion = packageArgs.ArgValue("-ver");
+                string preferredRuntime = packageArgs.ArgValue("-rt");
+                string forceTimeoutString = packageArgs.ArgValue("-force");
 
-                bool forceDownloading = item.StartsWith("-force");
+                bool forceDownloading = (forceTimeoutString != null);
                 uint forceTimeout = 0;
+                uint.TryParse(forceTimeoutString, out forceTimeout); //'-force:<seconds>'
 
-                if (forceDownloading)
+                var packageInfo = new PackageInfo
                 {
-                    if (item.StartsWith("-force:")) //'-force:<seconds>'
-                    {
-                        var pos = item.IndexOf(" ");
-                        if (pos != -1)
-                        {
-                            var forceStatement = item.Substring(0, pos);
-                            package = item.Replace(forceStatement, "").Trim();
+                    Name = packageName,
+                    PreferredRuntime = preferredRuntime,
+                    Version = packageVersion
+                };
+                // var package_info = FindPackage(package, packageVersion);
 
-                            string timeout = forceStatement.Replace("-force:", "");
-                            forceTimeout = 0;
-                            uint.TryParse(timeout, out forceTimeout);
-                        }
-                        else
-                        {
-                            //the syntax is wrong; let it fail
-                        }
-                    }
-                    else
-                    {
-                        package = item.Replace("-force", "").Trim();
-                    }
-                }
-
-                if (package.StartsWith("-ver:"))
-                {
-                    package = package.Replace("-ver:", "");
-                    int argEnd = package.IndexOf(" ");
-
-                    if (package.StartsWith("\""))
-                    {
-                        package = package.Substring(1, package.Length - 1);
-                        argEnd = package.IndexOf("\"");
-                    }
-                    if (argEnd != -1)
-                    {
-                        packageVersion = package.Substring(0, argEnd).Trim();
-
-                        if (package[argEnd] == '"')
-                            package = package.Substring(argEnd + 1).Trim();
-                        else
-                            package = package.Substring(argEnd).Trim();
-                    }
-                }
-
-                int nameStart = package.LastIndexOf(" ");
-                if (nameStart != -1)
-                {
-                    if (package.StartsWith("-ng:"))
-                    {
-                        nugetArgs = package.Substring(0, nameStart).Replace("-ng:", "").Trim();
-                        if (nugetArgs.StartsWith("\"") && nugetArgs.EndsWith("\""))
-                            nugetArgs = nugetArgs.Substring(1, nugetArgs.Length - 2);
-                    }
-                    package = package.Substring(nameStart).Trim();
-                }
-
-                string packageDir = Path.Combine(NuGetCache, package);
+                string packageDir = Path.Combine(NuGetCache, packageName);
 
                 if (Directory.Exists(packageDir) && forceDownloading)
                 {
@@ -217,7 +170,7 @@ namespace csscript
                 {
                     //it is OK if the package is not downloaded (e.g. N++ Intellisense)
                     if (!suppressReferencing && IsPackageDownloaded(packageDir, packageVersion))
-                        assemblies.AddRange(GetPackageLibDlls(package, packageVersion));
+                        assemblies.AddRange(GetPackageLibDlls(packageInfo));
                 }
                 else
                 {
@@ -249,7 +202,7 @@ namespace csscript
                                 var sw = new Stopwatch();
                                 sw.Start();
 
-                                Run(NuGetExe, string.Format("install {0} {1} -OutputDirectory \"{2}\"", package, nugetArgs, packageDir));
+                                Run(NuGetExe, string.Format("install {0} {1} -OutputDirectory \"{2}\"", packageName, nugetArgs, packageDir));
                                 newPackageWasInstalled = true;
                                 sw.Stop();
                             }
@@ -264,10 +217,10 @@ namespace csscript
                     }
 
                     if (!IsPackageDownloaded(packageDir, packageVersion))
-                        throw new ApplicationException("Cannot process NuGet package '" + package + "'");
+                        throw new ApplicationException("Cannot process NuGet package '" + packageName + "'");
 
                     if (!suppressReferencing)
-                        assemblies.AddRange(GetPackageLibDlls(package, packageVersion));
+                        assemblies.AddRange(GetPackageLibDlls(packageInfo));
                 }
             }
 
@@ -377,7 +330,14 @@ namespace csscript
             return packages;
         }
 
-        static public string[] GetPackageLibDirs(string package, string version)
+        public class PackageInfo
+        {
+            public string Version;
+            public string PreferredRuntime;
+            public string Name;
+        }
+
+        static public string[] GetPackageLibDirs(PackageInfo package)
         {
             List<string> result = new List<string>();
 
@@ -386,41 +346,40 @@ namespace csscript
             //C:\ProgramData\CS-Script\nuget\WixSharp\WixSharp.1.0.30.4
             //C:\ProgramData\CS-Script\nuget\WixSharp\WixSharp.bin.1.0.30.4
 
-            string packageDir = Path.Combine(NuGetCache, package);
+            string packageDir = Path.Combine(NuGetCache, package.Name);
 
-            result.AddRange(GetSinglePackageLibDirs(package, version));
+            result.AddRange(GetSinglePackageLibDirs(package));
 
-            foreach (string dependency in GetPackageDependencies(packageDir, package))
-                result.AddRange(GetSinglePackageLibDirs(dependency, "", packageDir)); //do not assume the dependency has the same version as the major package; Get the latest instead
+            foreach (string dependency in GetPackageDependencies(packageDir, package.Name))
+                result.AddRange(GetSinglePackageLibDirs(new PackageInfo { Name = dependency }, packageDir)); //do not assume the dependency has the same version as the major package; Get the latest instead
 
             return result.ToArray();
         }
 
-        static public string[] GetSinglePackageLibDirs(string package, string version)
+        static public string[] GetSinglePackageLibDirs(PackageInfo package)
         {
-            return GetSinglePackageLibDirs(package, version, null);
+            return GetSinglePackageLibDirs(package, null);
         }
 
         /// <summary>
         /// Gets the single package library dirs.
         /// </summary>
         /// <param name="package">The package.</param>
-        /// <param name="version">The version.</param>
         /// <param name="rootDir">The root dir.</param>
         /// <returns></returns>
-        static public string[] GetSinglePackageLibDirs(string package, string version, string rootDir)
+        static public string[] GetSinglePackageLibDirs(PackageInfo package, string rootDir)
         {
             List<string> result = new List<string>();
 
-            string packageDir = rootDir ?? Path.Combine(NuGetCache, package);
+            string packageDir = rootDir ?? Path.Combine(NuGetCache, package.Name);
 
             string requiredVersion;
 
-            if (!string.IsNullOrEmpty(version))
-                requiredVersion = Path.Combine(packageDir, Path.GetFileName(package) + "." + version);
+            if (!string.IsNullOrEmpty(package.Version))
+                requiredVersion = Path.Combine(packageDir, Path.GetFileName(package.Name) + "." + package.Version);
             else
                 requiredVersion = Directory.GetDirectories(packageDir)
-                                           .Where(x => IsPackageDir(x, package))
+                                           .Where(x => IsPackageDir(x, package.Name))
                                            .OrderByDescending(x => x)
                                            .FirstOrDefault();
 
@@ -432,6 +391,9 @@ namespace csscript
             string compatibleVersion = null;
             if (Directory.GetFiles(lib, "*.dll").Any())
                 result.Add(lib);
+
+            if (package.PreferredRuntime.HasText())
+                return Directory.GetDirectories(lib, package.PreferredRuntime);
 
             var libVersions = Directory.GetDirectories(lib, "net*");
 
@@ -462,6 +424,18 @@ namespace csscript
                 if (compatibleVersion == null)
                     compatibleVersion = libVersions.FirstOrDefault(x => compatibleWith(Path.GetFileName(x), "netstandard"));
 
+                if (compatibleVersion == null)
+                {
+                    // It's the last chance to find the compatible version. Basically pick any...
+                    compatibleVersion = libVersions.OrderBy(x =>
+                                                            {
+                                                                int ver = 0;
+                                                                int.TryParse(Regex.Match(x, @"\d+").Value, out ver);
+                                                                return ver;
+                                                            }).First();
+                    result.Add(compatibleVersion);
+                }
+
                 if (compatibleVersion != null)
                     result.Add(compatibleVersion);
             }
@@ -469,10 +443,10 @@ namespace csscript
             return result.ToArray();
         }
 
-        static string[] GetPackageLibDlls(string package, string version)
+        static string[] GetPackageLibDlls(PackageInfo package)
         {
             List<string> dlls = new List<string>();
-            foreach (string dir in GetPackageLibDirs(package, version))
+            foreach (string dir in GetPackageLibDirs(package))
                 dlls.AddRange(Directory.GetFiles(dir, "*.dll"));
 
             List<string> assemblies = new List<string>();

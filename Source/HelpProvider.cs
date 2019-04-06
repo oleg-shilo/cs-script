@@ -387,7 +387,7 @@ namespace csscript
                             "The assembly must be in GAC, the same folder with the script file or in the 'Script Library' folders (see 'CS-Script settings').",
                             section_sep, //------------------------------------
                             " ",
-                            "//css_nuget [-source] [-noref] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>] package0[,package1]..[,packageN]|sourceUrl ;",
+                            "//css_nuget [-source] [-noref] [-rt:<runtime>] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>] package0[,package1]..[,packageN]|sourceUrl ;",
                             " ",
                             "Downloads/Installs the NuGet package. It also automatically references the downloaded package assemblies.",
                             "Note: The directive switches need to be in the order as above.",
@@ -405,6 +405,7 @@ namespace csscript
                             "                       ${<==}'-force:3600' will delay it for one hour. This option is useful for preventing frequent download interruptions during active script development.",
                             " -ver:<version>      - ${<==}switch to download/reference a specific package version.",
                             " -ng:<args>          - ${<==}switch to pass NuGet arguments for every individual package.",
+                            " -rt:<runtime>  - ${<==}switch to use specific runtime binaries (e.g. '-rt:netstandard1.3').",
                             " -source <sourceUrl> - ${<==}specifies the package source.",
                             "                       ${<==}If '-source' switch is used then no other switches are allowed in the directive.",
                             "                       ${<==}If '-source' is not specified then the default NuGet sources will be used.",

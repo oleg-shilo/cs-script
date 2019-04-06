@@ -618,7 +618,7 @@ namespace csscript
 
                         string script = args[firstScriptArg];
                         List<string> dirs = new List<string>();
-                        string libDir = Environment.ExpandEnvironmentVariables("%CSSCRIPT_DIR%" + Path.DirectorySeparatorChar + "lib");
+                        string libDir = Environment.ExpandEnvironmentVariables("%CSSCRIPT_ROOT%" + Path.DirectorySeparatorChar + "lib");
                         if (!libDir.StartsWith("%"))
                             dirs.Add(libDir);
 

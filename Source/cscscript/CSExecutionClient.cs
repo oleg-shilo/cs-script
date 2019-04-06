@@ -33,16 +33,17 @@
 #endregion Licence...
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
-using System.Collections;
-using System.Linq;
 
 namespace csscript
 {
@@ -267,14 +268,17 @@ namespace csscript
 
             var script = Path.Combine(Path.GetDirectoryName(tmp), "css_load.cs");
 
-            try { File.WriteAllText(script, @"using System;
+            try
+            {
+                File.WriteAllText(script, @"using System;
                                                   class Script
                                                   {
                                                       static public void Main(string[] args)
                                                       {
                                                         Console.WriteLine(""Compiler is loaded..."");
                                                       }
-                                                  }"); }
+                                                  }");
+            }
             catch { }
 
             return args.Where(x => x != "-preload").Concat(new[] { "-c:0", script }).ToArray();

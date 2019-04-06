@@ -32,11 +32,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace csscript
 {
@@ -63,7 +63,7 @@ namespace csscript
         }
 
         public static IEnumerable<string> Split(this string str,
-                                                    Func<char, bool> controller)
+                                                     Func<char, bool> controller)
         {
             int nextPiece = 0;
 
@@ -79,7 +79,7 @@ namespace csscript
             yield return str.Substring(nextPiece);
         }
 
-        public static IEnumerable<string> SplitCommandLine(this string commandLine)
+        public static string[] SplitCommandLine(this string commandLine)
         {
             bool inQuotes = false;
             bool isEscaping = false;
@@ -93,7 +93,7 @@ namespace csscript
 
                 isEscaping = false;
 
-                return !inQuotes && Char.IsWhiteSpace(c)/*c == ' '*/;
+                return !inQuotes && char.IsWhiteSpace(c)/*c == ' '*/;
             })
             .Select(arg => arg.Trim().TrimMatchingQuotes('\"').Replace("\\\"", "\""))
             .Where(arg => !string.IsNullOrEmpty(arg))
@@ -103,6 +103,11 @@ namespace csscript
 
     internal static class GenericExtensions
     {
+        public static bool HasText(this string text)
+        {
+            return !string.IsNullOrEmpty(text);
+        }
+
         public static bool IsDirSectionSeparator(this string text)
         {
             return text != null && text.StartsWith(Settings.dirs_section_prefix) && text.StartsWith(Settings.dirs_section_suffix);
@@ -113,6 +118,14 @@ namespace csscript
             if (!items.Contains(item))
                 items.Add(item);
             return items;
+        }
+
+        public static string ArgValue(this string[] arguments, string prefix)
+        {
+            return (arguments.FirstOrDefault(x => x.StartsWith(prefix + ":"))
+                              ?.Substring(prefix.Length + 1).TrimMatchingQuotes('"'))
+
+                    ?? arguments.Where(x => x == prefix).Select(x => "").FirstOrDefault();
         }
 
         public static Exception CaptureExceptionDispatchInfo(this Exception ex)
