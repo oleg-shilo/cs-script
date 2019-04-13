@@ -385,6 +385,12 @@ namespace csscript
                             "",
                             "This directive is used to reference assemblies required at run time.",
                             "The assembly must be in GAC, the same folder with the script file or in the 'Script Library' folders (see 'CS-Script settings').",
+                            " ",
+                            "Note if you use wildcard in the referenced assembly name (e.g. socket.*.dll) the directive will only reference from the first " +
+                            "probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.dll' as they may lead to " +
+                            "unpredictable behavior. For example they may match everything from the very first probing directory, which is typically a current " +
+                            "directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.dll', '*Helper.dll', './*.dll')",
+                            " ",
                             section_sep, //------------------------------------
                             " ",
                             "//css_nuget [-source] [-noref] [-rt:<runtime>] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>] package0[,package1]..[,packageN]|sourceUrl ;",

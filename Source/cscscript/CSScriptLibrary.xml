@@ -674,7 +674,7 @@
         </member>
         <member name="F:csscript.CSharpParser.ImportInfo.ResolveRelativeFromParentScriptLocation">
             <summary>
-            <para> When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.
+            <para> When importing/referencing dependencies with '//css_include', '//css_import' or '//css_reference' you can use relative path.
             Resolving relative path is typically done with respect to the <c>current directory</c>.
             </para>
             <para>

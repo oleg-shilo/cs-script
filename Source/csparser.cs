@@ -40,17 +40,18 @@
 #endregion Licence...
 
 using System;
-using System.IO;
 using System.Collections;
 
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Text;
-using System.Globalization;
+using System.Threading;
 using CSScriptLibrary;
-using System.Diagnostics;
 
 namespace csscript
 {
@@ -216,7 +217,7 @@ namespace csscript
         public class ImportInfo
         {
             /// <summary>
-            /// <para> When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.
+            /// <para> When importing/referencing dependencies with '//css_include', '//css_import' or '//css_reference' you can use relative path.
             /// Resolving relative path is typically done with respect to the <c>current directory</c>.
             /// </para>
             /// <para>
@@ -571,9 +572,9 @@ namespace csscript
 
             // analyse assembly references
             foreach (string statement in GetRawStatements("//css_reference", endCodePos))
-                refAssemblies.Add(statement.NormaliseAsDirectiveOf(file));
+                refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file)).Select(x => x.file));
             foreach (string statement in GetRawStatements("//css_ref", endCodePos))
-                refAssemblies.Add(statement.NormaliseAsDirectiveOf(file));
+                refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file)).Select(x => x.file));
 
             // analyse precompilers
             foreach (string statement in GetRawStatements("//css_precompiler", endCodePos))
