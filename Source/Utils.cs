@@ -31,23 +31,23 @@
 #endregion Licence...
 
 using System;
-using System.IO;
-using System.Reflection;
+using System.CodeDom.Compiler;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Lifetime;
 
 using System.Text;
-using CSScriptLibrary;
-using System.Runtime.InteropServices;
-using System.CodeDom.Compiler;
-using Microsoft.CSharp;
-using System.Globalization;
-using System.Threading;
-using System.Collections;
 using System.Text.RegularExpressions;
-using System.Diagnostics;
+using System.Threading;
 using System.Xml;
-using System.Runtime.Remoting.Lifetime;
+using Microsoft.CSharp;
+using CSScriptLibrary;
 
 namespace csscript
 {
@@ -133,7 +133,7 @@ namespace csscript
             var text = CSharpParser.UnescapeDirectiveDelimiters(statement);
 
             if (text.Length > 1 && (text[0] == '.' && text[1] != '.')) //just a single-dot start dir
-                text = Path.Combine(Path.GetDirectoryName(parentScript), text);
+                text = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(parentScript), text));
 
             return Environment.ExpandEnvironmentVariables(text).Trim();
         }
@@ -170,7 +170,7 @@ namespace csscript
                                    else
                                        return x;
                                })
-                        .Distinct().ToArray();
+                       .Distinct().ToArray();
         }
 
         public static string[] RemoveDuplicates(this string[] list)
