@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace csscript
 {
@@ -116,6 +117,138 @@ namespace csscript
 
         public static bool newPackageWasInstalled = false;
 
+        static IEnumerable<PackageInfo> ResolveDependenciesFor(IEnumerable<PackageInfo> packages)
+        {
+            var result = new List<PackageInfo>();
+            var map = new Dictionary<string, List<PackageInfo>>();
+
+            foreach (var p in packages)
+                foreach (var nupkg in Directory.GetFiles(p.SpecFile.GetDirName().GetDirName(), "*.nupkg", SearchOption.AllDirectories))
+                {
+                    var info = ExtractPackageInfo(nupkg);
+
+                    if (!map.ContainsKey(info.Name))
+                        map[info.Name] = new List<PackageInfo>();
+
+                    map[info.Name].Add(info);
+                }
+
+            foreach (var key in map.Keys)
+            {
+                result.Add(map[key].OrderByDescending(x => Version.Parse(x.Version)).FirstOrDefault());
+            }
+
+            return result.Where(x => x != null).ToArray();
+        }
+
+        static IEnumerable<PackageInfo> ResolveDependenciesFor_NUSPEC(IEnumerable<PackageInfo> packages)
+        {
+            var result = new List<PackageInfo>(packages);
+            var queue = new Queue<PackageInfo>(packages);
+
+            while (queue.Any())
+            {
+                PackageInfo item = queue.Dequeue();
+
+                IEnumerable<XElement> dependencyPackages;
+
+                var dependenciesSection = XElement.Parse(File.ReadAllText(item.SpecFile))
+                                                  .FindDescendants("dependencies")
+                                                  .FirstOrDefault();
+
+                if (dependenciesSection == null)
+                    continue;
+
+                // <dependencies>
+                //   <group targetFramework=".NETStandard2.0">
+                //     <dependency id="Microsoft.Extensions.Logging.Abstractions" version="2.1.0" exclude="Build,Analyzers" />
+                var frameworks = dependenciesSection.FindDescendants("group");
+                if (frameworks.Any())
+                {
+                    IEnumerable<XElement> frameworkGroups = dependenciesSection.FindDescendants("group");
+
+                    dependencyPackages = GetCompatibleTargetFramework(frameworkGroups, item)
+                                             ?.FindDescendants("dependency")
+                                             ?? new XElement[0];
+                }
+                else
+                    dependencyPackages = dependenciesSection.FindDescendants("dependency");
+
+                foreach (var element in dependencyPackages)
+                {
+                    var newPackage = new PackageInfo
+                    {
+                        Name = element.Attribute("id").Value,
+                        Version = element.Attribute("version").Value,
+                        PreferredRuntime = item.PreferredRuntime
+                    };
+
+                    newPackage.SpecFile = NuGetCache.PathJoin(newPackage.Name, newPackage.Version, newPackage.Name + ".nuspec");
+
+                    if (!result.Any(x => x.Name == newPackage.Name) && File.Exists(newPackage.SpecFile))
+                    {
+                        queue.Enqueue(newPackage);
+                        result.Add(newPackage);
+                    }
+                }
+            }
+
+            return result.ToArray();
+        }
+
+        static PackageInfo ExtractPackageInfo(string specPpath)
+        {
+            // Discord.Net.WebSocket.2.0.1.nupkg
+
+            var parts = Path.GetFileNameWithoutExtension(specPpath).Split('.');
+
+            var pkgVer = string.Join(".", parts.Where(y => y.All(char.IsDigit)).ToArray());
+            var pkgName = string.Join(".", parts.Where(y => !y.All(char.IsDigit)).ToArray());
+
+            return new PackageInfo
+            {
+                SpecFile = specPpath,
+                Version = pkgVer,
+                Name = pkgName
+            };
+        }
+
+        static PackageInfo FindPackage(string name, string version)
+        {
+            var packageInfoFile = "*.nuspec";
+            packageInfoFile = "*.nupkg"; // raw nuget.exe does not extract  nuspec (dotnet does)
+
+            return Directory.GetDirectories(NuGetCache)
+                            .SelectMany(x => Directory.GetFiles(x, packageInfoFile, SearchOption.AllDirectories)
+                                                      .Select(ExtractPackageInfo))
+
+                            .OrderByDescending(x => x.Version)
+                            .Where(x => x != null)
+                            .FirstOrDefault(x => x.Name == name && (version.IsEmpty() || version == x.Version));
+
+            // nuspec based algorithm from cs-script.core
+            // return Directory.GetDirectories(NuGetCache)
+            //                 .SelectMany(x => Directory.GetFiles(x, "*.nuspec", SearchOption.AllDirectories)
+            //                                           .Select(spec =>
+            //                                            {
+            //                                                if (spec != null)
+            //                                                {
+            //                                                    var doc = XDocument.Load(spec);
+            //                                                    return new PackageInfo
+            //                                                    {
+            //                                                        SpecFile = spec,
+            //                                                        Version = doc.SelectFirst("package/metadata/version")?.Value,
+            //                                                        Name = doc.SelectFirst("package/metadata/id")?.Value
+            //                                                    };
+            //                                                }
+            //                                                return null;
+            //                                            }))
+
+            //                 .OrderByDescending(x => x.Version)
+            //                 .Where(x => x != null)
+            //                 .FirstOrDefault(x => x.Name == name && (version.IsEmpty() || version == x.Version));
+        }
+
         static public string[] Resolve(string[] packages, bool suppressDownloading, string script)
         {
             // Debug.Assert(false);
@@ -129,6 +262,7 @@ namespace csscript
             packages = packages.Where(x => !x.StartsWith("-source")).ToArray();
 
             List<string> assemblies = new List<string>();
+            var all_packages = new List<PackageInfo>();
 
             bool promptPrinted = false;
             foreach (string item in packages)
@@ -149,19 +283,13 @@ namespace csscript
                 uint forceTimeout = 0;
                 uint.TryParse(forceTimeoutString, out forceTimeout); //'-force:<seconds>'
 
-                var packageInfo = new PackageInfo
-                {
-                    Name = packageName,
-                    PreferredRuntime = preferredRuntime,
-                    Version = packageVersion
-                };
-                // var package_info = FindPackage(package, packageVersion);
+                var packageInfo = FindPackage(packageName, packageVersion);
 
                 string packageDir = Path.Combine(NuGetCache, packageName);
 
-                if (Directory.Exists(packageDir) && forceDownloading)
+                if (packageInfo != null && forceDownloading)
                 {
-                    var age = DateTime.Now.ToUniversalTime() - Directory.GetLastWriteTimeUtc(packageDir);
+                    var age = DateTime.Now.ToUniversalTime() - File.GetLastWriteTimeUtc(packageInfo.SpecFile);
                     if (age.TotalSeconds < forceTimeout)
                         forceDownloading = false;
                 }
@@ -169,12 +297,15 @@ namespace csscript
                 if (suppressDownloading)
                 {
                     //it is OK if the package is not downloaded (e.g. N++ Intellisense)
-                    if (!suppressReferencing && IsPackageDownloaded(packageDir, packageVersion))
-                        assemblies.AddRange(GetPackageLibDlls(packageInfo));
+                    if (!suppressReferencing && packageInfo != null)
+                    {
+                        packageInfo.PreferredRuntime = preferredRuntime;
+                        all_packages.Add(packageInfo);
+                    }
                 }
                 else
                 {
-                    if (forceDownloading || !IsPackageDownloaded(packageDir, packageVersion))
+                    if (forceDownloading || packageInfo == null)
                     {
                         bool abort_downloading = Environment.GetEnvironmentVariable("NUGET_INCOMPATIBLE_HOST") != null;
 
@@ -203,6 +334,7 @@ namespace csscript
                                 sw.Start();
 
                                 Run(NuGetExe, string.Format("install {0} {1} -OutputDirectory \"{2}\"", packageName, nugetArgs, packageDir));
+                                packageInfo = FindPackage(packageName, packageVersion);
                                 newPackageWasInstalled = true;
                                 sw.Stop();
                             }
@@ -216,15 +348,92 @@ namespace csscript
                         }
                     }
 
-                    if (!IsPackageDownloaded(packageDir, packageVersion))
+                    if (packageInfo == null)
                         throw new ApplicationException("Cannot process NuGet package '" + packageName + "'");
 
                     if (!suppressReferencing)
-                        assemblies.AddRange(GetPackageLibDlls(packageInfo));
+                        all_packages.Add(packageInfo);
                 }
             }
 
+            foreach (PackageInfo package in ResolveDependenciesFor(all_packages))
+            {
+                assemblies.AddRange(GetCompatibleAssemblies(package));
+            }
+
             return Utils.RemovePathDuplicates(assemblies.ToArray());
+        }
+
+        static XElement GetCompatibleTargetFramework(IEnumerable<XElement> freameworks, PackageInfo package)
+        {
+            // https://docs.microsoft.com/en-us/dotnet/standard/frameworks
+            // netstandard?.?
+            // net?? | net???
+            // Though packages use Upper case with '.' preffix: '<group targetFramework=".NETStandard2.0">'
+
+            XElement findMatch(Predicate<string> matchTest)
+            {
+                var items = freameworks.Select(x => new { Name = x.Attribute("targetFramework").Value, Element = x })
+                            .OrderByDescending(x => x.Name)
+                            .ToArray();
+
+                return items.FirstOrDefault(x => matchTest(x.Name ?? ""))?.Element;
+            }
+
+            if (package.PreferredRuntime != null)
+            {
+                // by requested runtime
+                return findMatch(x => x.Contains(package.PreferredRuntime));
+            }
+            else
+            {
+                // by .NET full as there is no other options
+                return findMatch(x => (x.StartsWith("net") || x.StartsWith(".net"))
+                                       && !x.Contains("netcore")
+                                       && !x.Contains("netstandard"))
+                       ?? findMatch(x => x.Contains("netstandard"));
+            }
+        }
+
+        /// <summary>
+        /// Gets the package compatible library. Similar to `GetCompatibleTargetFramework` but relies on file structure
+        /// </summary>
+        /// <param name="package">The package.</param>
+        /// <returns></returns>
+        static string GetPackageCompatibleLib(PackageInfo package)
+        {
+            var libDir = package.SpecFile.GetDirName().PathJoin("lib");
+
+            if (!Directory.Exists(libDir))
+                return null;
+
+            var frameworks = Directory.GetDirectories(package.SpecFile.GetDirName().PathJoin("lib"))
+                                      .OrderByDescending(x => x)
+                                      .Select(x => new { Runtime = Path.GetFileName(x), Path = x });
+
+            if (package.PreferredRuntime != null)
+            {
+                return frameworks.FirstOrDefault(x => x.Runtime.EndsWith(package.PreferredRuntime))?.Path;
+            }
+            else
+            {
+                return (frameworks.FirstOrDefault(x => x.Runtime.StartsWith("net")
+                                                       && !x.Runtime.StartsWith("netcore")
+                                                       && !x.Runtime.StartsWith("netstandard"))
+                        ?? frameworks.FirstOrDefault(x => x.Runtime.StartsWith("netstandard")))?.Path;
+            }
+        }
+
+        static string[] GetCompatibleAssemblies(PackageInfo package)
+        {
+            var lib = GetPackageCompatibleLib(package);
+            if (lib != null)
+                return Directory.GetFiles(GetPackageCompatibleLib(package), "*.dll")
+                    .Where(item => !item.EndsWith(".resources.dll", StringComparison.OrdinalIgnoreCase))
+                    .Where(x => Utils.IsRuntimeCompatibleAsm(x))
+                    .ToArray();
+            else
+                return new string[0];
         }
 
         public static void InstallPackage(string packageNameMask)
@@ -335,6 +544,7 @@ namespace csscript
             public string Version;
             public string PreferredRuntime;
             public string Name;
+            public string SpecFile;
         }
 
         static public string[] GetPackageLibDirs(PackageInfo package)
@@ -441,27 +651,6 @@ namespace csscript
             }
 
             return result.ToArray();
-        }
-
-        static string[] GetPackageLibDlls(PackageInfo package)
-        {
-            List<string> dlls = new List<string>();
-            foreach (string dir in GetPackageLibDirs(package))
-                dlls.AddRange(Directory.GetFiles(dir, "*.dll"));
-
-            List<string> assemblies = new List<string>();
-
-            foreach (var item in dlls)
-            {
-                //official NuGet documentation states that .resources.dll is not references so we do the same
-                if (!item.EndsWith(".resources.dll", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (Utils.IsRuntimeCompatibleAsm(item))
-                        assemblies.Add(item);
-                }
-            }
-
-            return assemblies.ToArray();
         }
 
         static Thread StartMonitor(StreamReader stream)

@@ -34,18 +34,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-
-using System.Threading;
-using System.Xml;
-using System.Drawing.Design;
 
 using System.ComponentModel;
-using System.Text;
-using System.Windows.Forms;
-using System.Reflection;
-using System.Linq;
 using System.Diagnostics;
+using System.Drawing.Design;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+
+using System.Threading;
+using System.Windows.Forms;
+using System.Xml;
 
 namespace csscript
 {
@@ -61,6 +61,7 @@ namespace csscript
         internal const string code_dirs_section = dirs_section_prefix + "dirs from code" + dirs_section_suffix;
         internal const string config_dirs_section = dirs_section_prefix + "dirs from config" + dirs_section_suffix;
         internal const string internal_dirs_section = dirs_section_prefix + "cs-script special dirs" + dirs_section_suffix;
+        internal const string nuget_dirs_section = dirs_section_prefix + "dirs from nuget store" + dirs_section_suffix;
 
         internal static bool ProbingLegacyOrder
         {
@@ -634,8 +635,8 @@ namespace csscript
         /// typically require assembly <c>Location</c> member being populated with the valid path.</para>
         /// </summary>
         [Category("RuntimeSettings"),
-         Description("Indicates the script assembly is to be loaded by CLR as an in-memory byte stream instead of the file. " +
-                      "Note this settings can affect the use cases requiring the loaded assemblies to have non empty Assembly.Location.")]
+        Description("Indicates the script assembly is to be loaded by CLR as an in-memory byte stream instead of the file. " +
+            "Note this settings can affect the use cases requiring the loaded assemblies to have non empty Assembly.Location.")]
         public bool InMemoryAssembly
         {
             get { return inMemoryAsm; }

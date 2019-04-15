@@ -37,6 +37,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Xml.Linq;
 
 namespace csscript
 {
@@ -113,11 +114,44 @@ namespace csscript
             return text != null && text.StartsWith(Settings.dirs_section_prefix) && text.StartsWith(Settings.dirs_section_suffix);
         }
 
+        public static string PathJoin(this string path, params object[] parts)
+        {
+            var allParts = new[] { path ?? "" }.Concat(parts.Select(x => x?.ToString() ?? ""));
+            return Path.Combine(allParts.ToArray());
+        }
+
         public static List<T> AddIfNotThere<T>(this List<T> items, T item)
         {
             if (!items.Contains(item))
                 items.Add(item);
             return items;
+        }
+
+        public static XElement SelectFirst(this XContainer element, string path)
+        {
+            string[] parts = path.Split('/');
+
+            var e = element.Elements()
+                           .Where(el => el.Name.LocalName == parts[0])
+                           .GetEnumerator();
+
+            if (!e.MoveNext())
+                return null;
+
+            if (parts.Length == 1) //the last link in the chain
+                return e.Current;
+            else
+                return e.Current.SelectFirst(path.Substring(parts[0].Length + 1)); //be careful RECURSION
+        }
+
+        public static IEnumerable<XElement> FindDescendants(this XElement element, string localName)
+        {
+            return element.Descendants().Where(x => x.Name.LocalName == localName);
+        }
+
+        public static bool Contains(this string text, string pattern, bool ignoreCase = false)
+        {
+            return text.IndexOf(pattern, ignoreCase ? StringComparison.OrdinalIgnoreCase : default(StringComparison)) != -1;
         }
 
         public static string ArgValue(this string[] arguments, string prefix)

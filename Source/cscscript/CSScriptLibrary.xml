@@ -43,6 +43,13 @@
             His `SplitLexicallyWithoutTakingNewLineIntoAccount` is taken/used practically without any change.
             </summary>
         </member>
+        <member name="M:csscript.NuGet.GetPackageCompatibleLib(csscript.NuGet.PackageInfo)">
+            <summary>
+            Gets the package compatible library. Similar to `GetCompatibleTargetFramework` but relies on file structure
+            </summary>
+            <param name="package">The package.</param>
+            <returns></returns>
+        </member>
         <member name="M:csscript.NuGet.GetSinglePackageLibDirs(csscript.NuGet.PackageInfo,System.String)">
             <summary>
             Gets the single package library dirs.

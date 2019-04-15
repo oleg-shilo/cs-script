@@ -132,7 +132,7 @@ namespace csscript
         {
             var text = CSharpParser.UnescapeDirectiveDelimiters(statement);
 
-            if (text.Length > 1 && (text[0] == '.' && text[1] != '.')) //just a single-dot start dir
+            if (text.Length > 1 && (text[0] == '.' && text[1] != '.')) // just a single-dot start dir
                 text = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(parentScript), text));
 
             return Environment.ExpandEnvironmentVariables(text).Trim();

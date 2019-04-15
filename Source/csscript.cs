@@ -33,22 +33,22 @@
 #endregion Licence...
 
 using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Text;
-using CSScriptLibrary;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.CodeDom.Compiler;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 //using System.Windows.Forms;
 using System.Globalization;
-using System.Diagnostics;
-using Microsoft.CSharp;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
 using System.Windows.Forms;
-using System.Collections;
+using Microsoft.CSharp;
+using CSScriptLibrary;
 
 namespace csscript
 {
@@ -630,7 +630,6 @@ namespace csscript
                         string[] searchDirs = dirs.ToArray();
                         script = FileParser.ResolveFile(script, searchDirs);
 
-
                         if (options.customConfigFileName == "")
                         {
                             using (var reader = new StreamReader(script)) //quickly check if the app.config was specified in the code as -sconfig argument
@@ -647,9 +646,9 @@ namespace csscript
                                         if (line.StartsWith("//css_args"))
                                         {
                                             var custom_app_config = line.Substring("//css_args".Length)
-                                                               .SplitCommandLine()
-                                                               .FirstOrDefault(x=>x.StartsWith("-"+ AppArgs.sconfig + ":") 
-                                                                               || x.StartsWith("/" + AppArgs.sconfig + ":"));
+                                                                    .SplitCommandLine()
+                                                                    .FirstOrDefault(x => x.StartsWith("-" + AppArgs.sconfig + ":")
+                                                                                    || x.StartsWith("/" + AppArgs.sconfig + ":"));
 
                                             if (custom_app_config != null)
                                             {
@@ -728,15 +727,15 @@ namespace csscript
         static void ComInitSecurity(int RpcImpLevel, int EoAuthnCap)
         {
             int hr = CoInitializeSecurity(
-                               IntPtr.Zero,
-                               -1,
-                               IntPtr.Zero,
-                               IntPtr.Zero,
-                               0, //RpcAuthnLevel.Default
-                               3, //RpcImpLevel.Impersonate,
-                               IntPtr.Zero,
-                               0x40, //EoAuthnCap.DynamicCloaking
-                               IntPtr.Zero);
+                                IntPtr.Zero,
+                                -1,
+                                IntPtr.Zero,
+                                IntPtr.Zero,
+                                0, //RpcAuthnLevel.Default
+                                3, //RpcImpLevel.Impersonate,
+                                IntPtr.Zero,
+                                0x40, //EoAuthnCap.DynamicCloaking
+                                IntPtr.Zero);
             //if (hr != 0)
             //    System.Windows.Forms.MessageBox.Show("CoInitializeSecurity failed. [" + hr + "]", "CS-Script COM Initialization");
             //else
@@ -939,7 +938,7 @@ namespace csscript
                         //it is possible that there are fully compiled/cached and up to date script but no host compiled yet
                         string host = ScriptLauncherBuilder.GetLauncherName(assemblyFileName);
                         bool surrogateHostMissing = (options.useSurrogateHostingProcess &&
-                                                    (!File.Exists(host) || !CSSUtils.HaveSameTimestamp(host, assemblyFileName)));
+                                                     (!File.Exists(host) || !CSSUtils.HaveSameTimestamp(host, assemblyFileName)));
 
                         // --- COMPILE ---
                         if (options.buildExecutable || !options.useCompiled || (options.useCompiled && assemblyFileName == null) || options.forceCompile || surrogateHostMissing)
@@ -1560,7 +1559,10 @@ namespace csscript
 
             //add assemblies referenced from code
             foreach (string asmName in parser.ResolvePackages())
+            {
                 requestedRefAsms.AddAssembly(asmName);
+                options.AddSearchDir(asmName.GetDirName(), Settings.nuget_dirs_section);
+            }
 
             AssemblyResolver.ignoreFileName = Path.GetFileNameWithoutExtension(parser.ScriptPath) + ".dll";
 
@@ -1933,11 +1935,12 @@ namespace csscript
                     string[] refAsms = new string[compilerParams.ReferencedAssemblies.Count];
                     compilerParams.ReferencedAssemblies.CopyTo(refAsms, 0);
 
-                    postProcessor.Invoke(null, new object[] {
-                                            compilerParams.OutputAssembly,
-                                            refAsms,
-                                            options.searchDirs
-                                            });
+                    postProcessor.Invoke(null, new object[]
+                    {
+                        compilerParams.OutputAssembly,
+                        refAsms,
+                        options.searchDirs
+                    });
                 }
                 catch (Exception e)
                 {
@@ -1960,20 +1963,20 @@ namespace csscript
                 {
                     if (options.autoClass)
                         ex = CompilerException.Create(
-                                              "Auto-class cannot have method `main(...)` with static modifier. Fix it by declaring the `main(...)` as an instance member.",
-                                              scriptFileName,
-                                              ex);
+                                               "Auto-class cannot have method `main(...)` with static modifier. Fix it by declaring the `main(...)` as an instance member.",
+                                               scriptFileName,
+                                               ex);
                 }
 
                 //error CS0121: The call is ambiguous between the following methods or properties: 'dbg_extensions.print<T>(T, params object[])' and 'dbg_extensions.print<T>(T, params object[])'
                 if (ex.Message.Contains("error CS0121:") && ex.Message.Contains("dbg_extensions.print<T>(T"))
                 {
                     ex = CompilerException.Create(
-                                          "The problem most likely is caused by the referenced assemblies being compiled with CS-Script and `EnableDbgPrint` set to `true`. " +
-                                          "The easiest way to fix the problem is to compile the assemblies with `-dbgprint:0` argument passed either from the command line or " +
-                                          "directly from the script code (e.g. `//css_args -dbgprint:0`).",
-                                          scriptFileName,
-                                          ex);
+                                           "The problem most likely is caused by the referenced assemblies being compiled with CS-Script and `EnableDbgPrint` set to `true`. " +
+                                           "The easiest way to fix the problem is to compile the assemblies with `-dbgprint:0` argument passed either from the command line or " +
+                                           "directly from the script code (e.g. `//css_args -dbgprint:0`).",
+                                           scriptFileName,
+                                           ex);
                 }
 
                 if (options.syntaxCheck)
