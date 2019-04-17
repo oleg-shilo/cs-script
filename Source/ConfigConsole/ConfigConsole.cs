@@ -1874,14 +1874,16 @@ namespace Config
         {
             //C:\ProgramData\CS-Script\ShellExtension\3.28.4.0\CS-Script
             var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"CS-Script\ShellExtension");
-            var deploymentDir = Directory.GetDirectories(root)
+            var match = Directory.GetDirectories(root)
                 .Select(x => new
                 {
                     Version = new Version(Path.GetFileName(x)),
                     Path = x
                 })
                 .OrderByDescending(x => x.Version)
-                .FirstOrDefault()?.Path;
+                .FirstOrDefault();
+
+            var deploymentDir = match != null ? match.Path : null;
 
             if (deploymentDir != null)
             {

@@ -37,6 +37,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace csscript
@@ -114,10 +115,16 @@ namespace csscript
             return text != null && text.StartsWith(Settings.dirs_section_prefix) && text.StartsWith(Settings.dirs_section_suffix);
         }
 
-        public static string PathJoin(this string path, params object[] parts)
+        public static string PathJoin(this string path, params string[] parts)
         {
-            var allParts = new[] { path ?? "" }.Concat(parts.Select(x => x?.ToString() ?? ""));
+            var allParts = new[] { path ?? "" }.Concat(parts.Select(x => x ?? ""));
+#if net35
+            foreach (var item in parts)
+                path = Path.Combine(path, item ?? "");
+            return path;
+#else
             return Path.Combine(allParts.ToArray());
+#endif
         }
 
         public static List<T> AddIfNotThere<T>(this List<T> items, T item)
@@ -149,17 +156,18 @@ namespace csscript
             return element.Descendants().Where(x => x.Name.LocalName == localName);
         }
 
-        public static bool Contains(this string text, string pattern, bool ignoreCase = false)
+        public static bool Contains(this string text, string pattern, bool ignoreCase)
         {
             return text.IndexOf(pattern, ignoreCase ? StringComparison.OrdinalIgnoreCase : default(StringComparison)) != -1;
         }
 
         public static string ArgValue(this string[] arguments, string prefix)
         {
-            return (arguments.FirstOrDefault(x => x.StartsWith(prefix + ":"))
-                              ?.Substring(prefix.Length + 1).TrimMatchingQuotes('"'))
+            var match = arguments.FirstOrDefault(x => x.StartsWith(prefix + ":"));
 
-                    ?? arguments.Where(x => x == prefix).Select(x => "").FirstOrDefault();
+            return (arguments.FirstOrDefault(x => x.StartsWith(prefix + ":")) != null)
+                    ? match.Substring(prefix.Length + 1).TrimMatchingQuotes('"')
+                    : arguments.Where(x => x == prefix).Select(x => "").FirstOrDefault();
         }
 
         public static Exception CaptureExceptionDispatchInfo(this Exception ex)

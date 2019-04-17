@@ -31,6 +31,7 @@ namespace csscript
                 if (nuGetCache == null)
                 {
                     var folder = Environment.SpecialFolder.CommonApplicationData;
+
                     if (Utils.IsLinux)
                         folder = Environment.SpecialFolder.ApplicationData;
 
@@ -135,7 +136,7 @@ namespace csscript
 
             foreach (var key in map.Keys)
             {
-                result.Add(map[key].OrderByDescending(x => Version.Parse(x.Version)).FirstOrDefault());
+                result.Add(map[key].OrderByDescending(x => new Version(x.Version)).FirstOrDefault());
             }
 
             return result.Where(x => x != null).ToArray();
@@ -163,13 +164,15 @@ namespace csscript
                 //   <group targetFramework=".NETStandard2.0">
                 //     <dependency id="Microsoft.Extensions.Logging.Abstractions" version="2.1.0" exclude="Build,Analyzers" />
                 var frameworks = dependenciesSection.FindDescendants("group");
+
                 if (frameworks.Any())
                 {
                     IEnumerable<XElement> frameworkGroups = dependenciesSection.FindDescendants("group");
 
-                    dependencyPackages = GetCompatibleTargetFramework(frameworkGroups, item)
-                                             ?.FindDescendants("dependency")
-                                             ?? new XElement[0];
+                    var match = GetCompatibleTargetFramework(frameworkGroups, item);
+                    dependencyPackages = match != null
+                                         ? match.FindDescendants("dependency")
+                                         : new XElement[0];
                 }
                 else
                     dependencyPackages = dependenciesSection.FindDescendants("dependency");
@@ -220,7 +223,7 @@ namespace csscript
 
             return Directory.GetDirectories(NuGetCache)
                             .SelectMany(x => Directory.GetFiles(x, packageInfoFile, SearchOption.AllDirectories)
-                                                      .Select(ExtractPackageInfo))
+                                                      .Select(y => ExtractPackageInfo(y)))
 
                             .OrderByDescending(x => x.Version)
                             .Where(x => x != null)
@@ -265,6 +268,7 @@ namespace csscript
             var all_packages = new List<PackageInfo>();
 
             bool promptPrinted = false;
+
             foreach (string item in packages)
             {
                 // //css_nuget -noref -ng:"-IncludePrerelease –version 1.0beta" cs-script
@@ -290,6 +294,7 @@ namespace csscript
                 if (packageInfo != null && forceDownloading)
                 {
                     var age = DateTime.Now.ToUniversalTime() - File.GetLastWriteTimeUtc(packageInfo.SpecFile);
+
                     if (age.TotalSeconds < forceTimeout)
                         forceDownloading = false;
                 }
@@ -371,14 +376,15 @@ namespace csscript
             // net?? | net???
             // Though packages use Upper case with '.' preffix: '<group targetFramework=".NETStandard2.0">'
 
-            XElement findMatch(Predicate<string> matchTest)
-            {
-                var items = freameworks.Select(x => new { Name = x.Attribute("targetFramework").Value, Element = x })
-                            .OrderByDescending(x => x.Name)
-                            .ToArray();
+            Func<Predicate<string>, XElement> findMatch = (Predicate<string> matchTest) =>
+                {
+                    var items = freameworks.Select(x => new { Name = x.Attribute("targetFramework").Value, Element = x })
+                                .OrderByDescending(x => x.Name)
+                                .ToArray();
 
-                return items.FirstOrDefault(x => matchTest(x.Name ?? ""))?.Element;
-            }
+                    var match = items.FirstOrDefault(x => matchTest(x.Name ?? ""));
+                    return match != null ? match.Element : null; ;
+                };
 
             if (package.PreferredRuntime != null)
             {
@@ -413,20 +419,25 @@ namespace csscript
 
             if (package.PreferredRuntime != null)
             {
-                return frameworks.FirstOrDefault(x => x.Runtime.EndsWith(package.PreferredRuntime))?.Path;
+                var match = frameworks.FirstOrDefault(x => x.Runtime.EndsWith(package.PreferredRuntime));
+
+                return match != null ? match.Path : null;
             }
             else
             {
-                return (frameworks.FirstOrDefault(x => x.Runtime.StartsWith("net")
-                                                       && !x.Runtime.StartsWith("netcore")
-                                                       && !x.Runtime.StartsWith("netstandard"))
-                        ?? frameworks.FirstOrDefault(x => x.Runtime.StartsWith("netstandard")))?.Path;
+                var match = frameworks.FirstOrDefault(x => x.Runtime.StartsWith("net")
+                                                      && !x.Runtime.StartsWith("netcore")
+                                                      && !x.Runtime.StartsWith("netstandard"))
+                        ?? frameworks.FirstOrDefault(x => x.Runtime.StartsWith("netstandard"));
+
+                return match != null ? match.Path : null;
             }
         }
 
         static string[] GetCompatibleAssemblies(PackageInfo package)
         {
             var lib = GetPackageCompatibleLib(package);
+
             if (lib != null)
                 return Directory.GetFiles(GetPackageCompatibleLib(package), "*.dll")
                     .Where(item => !item.EndsWith(".resources.dll", StringComparison.OrdinalIgnoreCase))
@@ -444,6 +455,7 @@ namespace csscript
             if (int.TryParse(packageNameMask, out index))
             {
                 var all_packages = GetLocalPackages();
+
                 if (0 < index && index <= all_packages.Count())
                     packages = new string[] { all_packages[index - 1] };
                 else
@@ -464,7 +476,9 @@ namespace csscript
         public static void ListPackages()
         {
             Console.WriteLine("Repository: " + NuGetCache);
+
             int i = 0;
+
             foreach (string name in GetLocalPackages())
                 Console.WriteLine((++i) + ". " + name);
         }
@@ -483,9 +497,11 @@ namespace csscript
             //WixSharp.bin.1.0.30.4-HotFix
             int i = 0;
             char? prev = null;
+
             for (; i < result.Length; i++)
             {
                 char current = result[i];
+
                 if ((prev.HasValue && prev == '.') && char.IsDigit(current))
                 {
                     i = i - 2; //-currPos-prevPos
@@ -599,6 +615,7 @@ namespace csscript
                 return result.ToArray();
 
             string compatibleVersion = null;
+
             if (Directory.GetFiles(lib, "*.dll").Any())
                 result.Add(lib);
 
@@ -660,6 +677,7 @@ namespace csscript
                 try
                 {
                     string line = null;
+
                     while (null != (line = stream.ReadLine()))
                     {
                         Console.WriteLine(line);

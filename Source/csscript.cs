@@ -727,15 +727,16 @@ namespace csscript
         static void ComInitSecurity(int RpcImpLevel, int EoAuthnCap)
         {
             int hr = CoInitializeSecurity(
-                                IntPtr.Zero,
-                                -1,
-                                IntPtr.Zero,
-                                IntPtr.Zero,
-                                0, //RpcAuthnLevel.Default
-                                3, //RpcImpLevel.Impersonate,
-                                IntPtr.Zero,
-                                0x40, //EoAuthnCap.DynamicCloaking
-                                IntPtr.Zero);
+                IntPtr.Zero,
+                -1,
+                IntPtr.Zero,
+                IntPtr.Zero,
+                0, //RpcAuthnLevel.Default
+                3, //RpcImpLevel.Impersonate,
+                IntPtr.Zero,
+                0x40, //EoAuthnCap.DynamicCloaking
+                IntPtr.Zero);
+
             //if (hr != 0)
             //    System.Windows.Forms.MessageBox.Show("CoInitializeSecurity failed. [" + hr + "]", "CS-Script COM Initialization");
             //else
