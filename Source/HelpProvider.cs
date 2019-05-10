@@ -688,7 +688,7 @@ namespace csscript
 
             syntaxHelp += Environment.NewLine + syntaxDetails;
 
-            if (Utils.IsWin)
+            if (Runtime.IsWin)
                 syntaxHelp = syntaxHelp.Replace("{$css_host}",
                                                 fromLines(
                                                     "//css_host [-version:<CLR_Version>] [-platform:<CPU>]",
@@ -851,7 +851,7 @@ namespace csscript
         static string CSharp7_Sample()
         {
             StringBuilder builder = new StringBuilder();
-            if (Utils.IsLinux)
+            if (Runtime.IsLinux)
             {
                 builder.AppendLine("// #!/usr/local/bin/cscs");
                 builder.AppendLine("//css_ref System.Windows.Forms;");
@@ -887,7 +887,7 @@ namespace csscript
         static string DefaultSample()
         {
             StringBuilder builder = new StringBuilder();
-            if (Utils.IsLinux)
+            if (Runtime.IsLinux)
             {
                 builder.AppendLine("#!<cscs.exe path> " + CSSUtils.Args.DefaultPrefix + "nl ");
                 builder.AppendLine("//css_ref System.Windows.Forms;");
@@ -955,7 +955,7 @@ namespace csscript
 
             string dotNetVer = null;
 
-            if (Utils.IsWin)
+            if (Runtime.IsWin)
                 dotNetVer = GetDotNetVersion.Get45PlusFromRegistry();
 
             builder.Append(AppInfo.appLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script)\n");

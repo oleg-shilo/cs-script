@@ -32,7 +32,7 @@ namespace csscript
                 {
                     var folder = Environment.SpecialFolder.CommonApplicationData;
 
-                    if (Utils.IsLinux)
+                    if (Runtime.IsLinux)
                         folder = Environment.SpecialFolder.ApplicationData;
 
                     nuGetCache = Environment.GetEnvironmentVariable("css_nuget") ??
@@ -83,7 +83,7 @@ namespace csscript
                 if (Environment.GetEnvironmentVariable("NUGET_INCOMPATIBLE_HOST") == null)
                 {
                     var candidates = Environment.GetEnvironmentVariable("PATH")
-                                                .Split(Utils.IsLinux ? ':' : ';')
+                                                .Split(Runtime.IsLinux ? ':' : ';')
                                                 .SelectMany(dir => new[]
                                                                    {
                                                                        Path.Combine(dir, "nuget"),
@@ -441,7 +441,7 @@ namespace csscript
             if (lib != null)
                 return Directory.GetFiles(GetPackageCompatibleLib(package), "*.dll")
                     .Where(item => !item.EndsWith(".resources.dll", StringComparison.OrdinalIgnoreCase))
-                    .Where(x => Utils.IsRuntimeCompatibleAsm(x))
+                    .Where(x => Runtime.IsRuntimeCompatibleAsm(x))
                     .ToArray();
             else
                 return new string[0];
@@ -631,13 +631,13 @@ namespace csscript
                     return x.StartsWith(y, StringComparison.OrdinalIgnoreCase) || x.IndexOf(y, StringComparison.OrdinalIgnoreCase) != -1;
                 };
 
-                if (Utils.IsNet45Plus())
+                if (Runtime.IsNet45Plus())
                     compatibleVersion = libVersions.FirstOrDefault(x => compatibleWith(Path.GetFileName(x), "net45"));
 
-                if (compatibleVersion == null && Utils.IsNet40Plus())
+                if (compatibleVersion == null && Runtime.IsNet40Plus())
                     compatibleVersion = libVersions.FirstOrDefault(x => compatibleWith(Path.GetFileName(x), "net40"));
 
-                if (compatibleVersion == null && Utils.IsNet20Plus())
+                if (compatibleVersion == null && Runtime.IsNet20Plus())
                 {
                     compatibleVersion = libVersions.FirstOrDefault(x => compatibleWith(Path.GetFileName(x), "net35"));
 
@@ -696,7 +696,7 @@ namespace csscript
 
             Console.WriteLine("NuGet shell command: \n{0} {1}\n", exe, args);
 
-            if (Utils.IsLinux)
+            if (Runtime.IsLinux)
             {
                 Process.Start(exe, args).WaitForExit();
             }

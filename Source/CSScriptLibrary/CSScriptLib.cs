@@ -34,21 +34,21 @@
 #endregion Licence...
 
 using System;
-using System.IO;
-using System.Text;
-using System.Reflection;
-using System.Diagnostics;
+using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using csscript;
-using System.Threading;
-using System.CodeDom.Compiler;
+using System.Reflection;
+using System.Runtime.Remoting.Lifetime;
 using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
+using System.Text;
+using System.Threading;
 using System.Windows.Forms;
-using System.Runtime.Remoting.Lifetime;
+using csscript;
 
 namespace CSScriptLibrary
 {
@@ -1049,7 +1049,7 @@ namespace CSScriptLibrary
         {
             var scriptPath = Path.GetFullPath(script);
 
-            if (!Utils.IsLinux)
+            if (!Runtime.IsLinux)
                 scriptPath = scriptPath.ToLower();
 
             switch (HostingConcurrencyControl)

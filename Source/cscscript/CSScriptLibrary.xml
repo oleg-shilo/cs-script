@@ -1245,53 +1245,6 @@
             Repository for application specific data
             </summary>
         </member>
-        <member name="T:cscscript.Resources">
-            <summary>
-              A strongly-typed resource class, for looking up localized strings, etc.
-            </summary>
-        </member>
-        <member name="P:cscscript.Resources.ResourceManager">
-            <summary>
-              Returns the cached ResourceManager instance used by this class.
-            </summary>
-        </member>
-        <member name="P:cscscript.Resources.Culture">
-            <summary>
-              Overrides the current thread's CurrentUICulture property for all
-              resource lookups using this strongly typed resource class.
-            </summary>
-        </member>
-        <member name="P:cscscript.Resources.dbg">
-             <summary>
-               Looks up a localized string similar to using System;
-            using System.Collections;
-            using System.IO;
-            using System.Reflection;
-            
-            class dbg
-            {
-                public static bool publicOnly = false;
-                public static bool propsOnly = false;
-                public static int depth = 1;
-            
-                int level = 0;
-                string indent = &quot;  &quot;;
-            
-                TextWriter writer = Console.Out;
-            
-                public static void print(object o)
-                {
-                    new dbg().WriteObject(o);
-                }
-            
-                string Indent
-                {
-                    get { return new string(&apos;0&apos;, level).Replace(&quot;0&quot;, indent); }
-                }
-            
-                [rest of string was truncated]&quot;;.
-             </summary>
-        </member>
         <member name="T:CSScriptLibrary.AssemblyResolver">
             <summary>
             Class for resolving assembly name to assembly file

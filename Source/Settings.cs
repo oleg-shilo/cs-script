@@ -414,13 +414,13 @@ namespace csscript
         string InitDefaultRefAssemblies()
         {
 #if net4
-            if (Utils.IsMono)
+            if (Runtime.IsMono)
             {
                 return "System; System.Core;";
             }
             else
             {
-                if (Utils.IsNet45Plus())
+                if (Runtime.IsNet45Plus())
                     return "System; System.Core; System.Linq;";
                 else
                     return "System; System.Core;";
@@ -654,7 +654,7 @@ namespace csscript
         {
             get
             {
-                if (concurrencyControl == ConcurrencyControl.HighResolution && Utils.IsMono)
+                if (concurrencyControl == ConcurrencyControl.HighResolution && Runtime.IsMono)
                     concurrencyControl = ConcurrencyControl.Standard;
                 return concurrencyControl;
             }
@@ -906,7 +906,7 @@ namespace csscript
                     string asm_path = Assembly.GetExecutingAssembly().Location;
                     if (!string.IsNullOrEmpty(asm_path))
                     {
-                        if (Utils.IsMono)
+                        if (Runtime.IsMono)
                         {
                             var monoFileName = Path.Combine(Path.GetDirectoryName(asm_path), "css_config.mono.xml");
                             if (File.Exists(monoFileName))

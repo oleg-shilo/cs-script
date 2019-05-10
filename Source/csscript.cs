@@ -956,7 +956,7 @@ namespace csscript
 
                             //no need to act on lockedByCompiler/lockedByHost as Compile(...) will throw the exception
 
-                            if (!options.inMemoryAsm && Utils.IsWin)
+                            if (!options.inMemoryAsm && Runtime.IsWin)
                             {
                                 // wait for other EXECUTION to complete (if any)
                                 bool lockedByHost = !executingFileLock.Wait(1000);
@@ -1253,7 +1253,7 @@ namespace csscript
 
             if (asmFileName == null || asmFileName == "")
             {
-                var asmExtension = Utils.IsMono && Utils.IsLinux ? ".dll" : ".compiled";
+                var asmExtension = Runtime.IsMono && Runtime.IsLinux ? ".dll" : ".compiled";
                 // asmExtension = ".dll"; // testing
 
                 asmFileName = options.hideTemp != Settings.HideOptions.DoNotHide ? Path.Combine(CSExecutor.ScriptCacheDir, Path.GetFileName(scripFileName) + asmExtension) : scripFileName + ".c";
@@ -1545,7 +1545,7 @@ namespace csscript
 
             if (options.enableDbgPrint)
             {
-                if (Utils.IsNet40Plus() && !Utils.IsMono)
+                if (Runtime.IsNet40Plus() && !Runtime.IsMono)
                 {
                     addByAsmName("System.Linq"); // Implementation of System.Linq namespace
                     addByAsmName("System.Core"); // dependency of System.Linq namespace assembly
@@ -1779,7 +1779,7 @@ namespace csscript
                 {
                     var cachedAsmExtension = ".compiled";
 
-                    if (Utils.IsMono)
+                    if (Runtime.IsMono)
                         cachedAsmExtension = ".dll"; // mono cannot locate the symbols file (*.mbd) unless the assembly file is a .dll one
 
                     if (options.DLLExtension)
@@ -2017,18 +2017,18 @@ namespace csscript
                     Utils.FileDelete(symbFileName);
 
                     // Roslyn always generates pdb files, even under Mono
-                    if (Utils.IsMono)
+                    if (Runtime.IsMono)
                         Utils.FileDelete(pdbFileName);
                 }
                 else
                 {
-                    if (Utils.IsMono)
+                    if (Runtime.IsMono)
                     {
                         // Do not do conversion if option 'pdbonly' was specified on Linux. In this case PDB is portable and Linux an
                         // Mono debugger can process it.
                         bool isPdbOnlyMode = compilerParams.CompilerOptions.Contains("debug:pdbonly");
 
-                        if (!Utils.IsLinux || (!File.Exists(symbFileName) && !isPdbOnlyMode))
+                        if (!Runtime.IsLinux || (!File.Exists(symbFileName) && !isPdbOnlyMode))
                         {
                             // Convert pdb into mdb
                             var process = new Process();
@@ -2036,7 +2036,7 @@ namespace csscript
                             {
                                 process.StartInfo.Arguments = "\"" + assemblyFileName + "\"";
 
-                                if (!Utils.IsLinux)
+                                if (!Runtime.IsLinux)
                                 {
                                     // hide terminal window
                                     process.StartInfo.FileName = "pdb2mdb.bat";
@@ -2178,7 +2178,7 @@ namespace csscript
             string cacheDir;
             string directoryPath = Path.GetDirectoryName(Path.GetFullPath(file));
             string dirHash;
-            if (!Utils.IsLinux)
+            if (!Runtime.IsLinux)
             {
                 //Win is not case-sensitive so ensure, both lower and capital case path yield the same hash
                 dirHash = CSSUtils.GetHashCodeEx(directoryPath.ToLower()).ToString();

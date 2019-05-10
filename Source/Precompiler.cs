@@ -1,10 +1,10 @@
-using System.IO;
-using System.Text;
-using System.Collections.Generic;
 using System;
 using System.Collections;
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace csscript
 {
@@ -55,6 +55,10 @@ namespace csscript
         /// Collection of the process assembly and script probing directories.
         /// </summary>
         public string[] SearchDirs = new string[0];
+
+        public string Content;
+        public string scriptFile;
+        public bool IsPrimaryScript;
     }
 
     internal class DefaultPrecompiler
@@ -204,7 +208,6 @@ namespace csscript
                     line += result.BodyInjectedLineCount;
                     if (result.FooterInjectedLine != -1 && result.FooterInjectedLine <= originalLine)
                         line += result.FooterInjectedLineCount;
-
                 }
                 position = GetPos(result.Content, line, originalCol);
             }
@@ -339,10 +342,9 @@ namespace csscript
 
                                 tempText += "static void Main(string[] args) { " + setConsoleEncoding + " main_impl(args); } ///CS-Script auto-class generation" + Environment.NewLine;
 
-                                //"#line" must be injected before the method name. Injecting into the first line in body does not work. probably related to JIT 
+                                //"#line" must be injected before the method name. Injecting into the first line in body does not work. probably related to JIT
                                 tempText += "#line " + (lineCount) + " \"" + scriptFile + "\"" + Environment.NewLine;
                                 tempText += "static public void main_impl(string[] args) { ///CS-Script auto-class generation" + Environment.NewLine;
-
                                 result.BodyInjectedLine = lineCount;
                                 result.InjectionLength += tempText.Length;
                                 result.BodyInjectedLineCount = 3;
@@ -364,7 +366,6 @@ namespace csscript
 
                     if (!autoCodeInjected && entryPointInjectionPos != -1 && !Utils.IsNullOrWhiteSpace(line))
                     {
-
                         bracket_count += lineText.Split('{').Length - 1;
                         bracket_count -= lineText.Split('}').Length - 1;
 
@@ -401,7 +402,7 @@ namespace csscript
 
                                     // point to the next line
                                     entryPointDefinition += "///CS-Script auto-class generation" + Environment.NewLine +
-                                                            "#line " + (lineCount + 1) + " \"" + scriptFile + "\"";
+                                                             "#line " + (lineCount + 1) + " \"" + scriptFile + "\"";
                                     // if (injectBreakPoint)
                                     //     insertBreakpointAtLine = lineCount + 1;
                                     result.BodyInjectedLine = lineCount;
@@ -420,7 +421,7 @@ namespace csscript
                                     }
 
                                     string entryPointDefinition = "///CS-Script auto-class generation" + Environment.NewLine +
-                                                                  "#line " + (lineCount + 1) + " \"" + scriptFile + "\"";
+                                               "#line " + (lineCount + 1) + " \"" + scriptFile + "\"";
 
                                     result.BodyInjectedLine = lineCount;
                                     result.BodyInjectedLineCount = 2;

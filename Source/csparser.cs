@@ -243,9 +243,6 @@ namespace csscript
 
             internal static ImportInfo[] ResolveStatement(string statement, string parentScript, string[] probinghDirs)
             {
-                if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
-                    statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
-
                 if (statement.Contains("*") || statement.Contains("?"))
                 {
                     //e.g. resolve ..\subdir\*.cs into multiple concrete imports
@@ -275,7 +272,12 @@ namespace csscript
                     return result.ToArray();
                 }
                 else
-                    return new ImportInfo[] { new ImportInfo(statement, parentScript) };
+                {
+                    if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
+                        statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
+
+                    return new[] { new ImportInfo(statement, parentScript) };
+                }
             }
 
             /// <summary>
@@ -587,7 +589,7 @@ namespace csscript
             foreach (string statement in GetRawStatements("//css_co", endCodePos))
                 compilerOptions.Add(statement.NormaliseAsDirective());
 
-            if (!Utils.IsLinux)
+            if (!Runtime.IsLinux)
                 foreach (string statement in GetRawStatements("//css_host", endCodePos))
                     hostOptions.Add(statement.NormaliseAsDirective());
 

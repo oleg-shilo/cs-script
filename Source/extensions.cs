@@ -368,6 +368,10 @@ namespace csscript
             return result.ToArray();
         }
 
+        public static string GetFileName(this string path) => Path.GetFileName(path);
+
+        public static string GetFullPath(this string path) => Path.GetFullPath(path);
+
         static string[] SplitLexicallyWithoutTakingNewLineIntoAccount(this string str, int desiredChunkLength)
         {
             return SplitLexicallyWithoutTakingNewLineIntoAccount(str, desiredChunkLength, desiredChunkLength);
