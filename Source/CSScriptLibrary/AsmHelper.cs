@@ -1305,7 +1305,7 @@ namespace CSScriptLibrary
 
         public T AlignToInterface<T>(object obj) where T : class
         {
-            Debug.Assert(false);
+            //Debug.Assert(false);
 
             var retval = CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils.ObjectCaster<T>.As(obj);
 
