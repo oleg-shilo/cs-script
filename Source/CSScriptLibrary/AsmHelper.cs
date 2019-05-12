@@ -32,18 +32,18 @@
 #endregion Licence...
 
 using System;
-using System.IO;
-using System.Text;
-using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using CSScriptLibrary;
-using csscript;
-using System.Runtime.Remoting.Lifetime;
-using System.Threading;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.Remoting.Lifetime;
+using System.Text;
+using System.Threading;
+using csscript;
+using CSScriptLibrary;
 
 /// <summary>
 /// Method extensions for
@@ -358,7 +358,6 @@ public static class CSScriptLibraryExtensionMethods
     /// <returns>Returns <see cref="T:System.Runtime.Remoting.LifetimeClientSponsor" />  object.</returns>
     /// <exception cref="System.Exception">MethodDelegate doesn't seem to be owned by the transparent proxy connected to the remote AppDomain object. +
     ///                  You don't need to extend life local objects.</exception>
-
     public static ClientSponsor ExtendLifeFromMinutes(this MethodDelegate method, int minutes)
     {
         var owner = method.GetOwnerObject<MarshalByRefObject>();
@@ -1305,8 +1304,6 @@ namespace CSScriptLibrary
 
         public T AlignToInterface<T>(object obj) where T : class
         {
-            //Debug.Assert(false);
-
             var retval = CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils.ObjectCaster<T>.As(obj);
 
             if (retval == null)
@@ -1355,7 +1352,7 @@ namespace CSScriptLibrary
 
             foreach (MemberInfo info in obj.GetType().GetMembers())
                 retval.Add(string.Format("MemberType:{0};Name:{1};DeclaringType:{2};Signature:{3}",
-                                    info.MemberType, info.Name, info.DeclaringType.FullName, info.ToString()));
+                                  info.MemberType, info.Name, info.DeclaringType.FullName, info.ToString()));
 
             return retval.ToArray();
         }

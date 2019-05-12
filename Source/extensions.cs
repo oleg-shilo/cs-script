@@ -81,6 +81,25 @@ namespace csscript
             yield return str.Substring(nextPiece);
         }
 
+        public static string JoinBy(this IEnumerable<string> lines, string separator)
+        {
+            return string.Join(separator, lines);
+        }
+
+        public static string TrimSingle(this string text, params char[] trimChars)
+        {
+            if (text.IsEmpty())
+                return text;
+
+            var startOffset = trimChars.Contains(text[0]) ? 1 : 0;
+            var endOffset = (trimChars.Contains(text.Last()) ? 1 : 0);
+
+            if (startOffset != 0 || endOffset != 0)
+                return text.Substring(startOffset, (text.Length - startOffset) - endOffset);
+            else
+                return text;
+        }
+
         public static string[] SplitCommandLine(this string commandLine)
         {
             bool inQuotes = false;

@@ -556,9 +556,12 @@ namespace csscript
                             "options - options string.",
                             " ",
                             "This directive is used to pass compiler options string directly to the language specific CLR compiler.",
+                            "Note: `;` in compiler options interferes with `//css_...` directives so try to avoid it. Thus " +
+                            "use `-d:DEBUG -d:NET4` instead of `-d:DEBUG;NET4`",
                             " Example: //css_co /d:TRACE pass /d:TRACE option to C# compiler",
                             "          //css_co /platform:x86 to produce Win32 executable\n",
                             section_sep, //------------------------------------
+                            "{$css_init}",
                             "//css_ignore_namespace <namespace>;",
                             " ",
                             "Alias - //css_ignore_ns",
@@ -669,11 +672,42 @@ namespace csscript
                             " Project Website: https://github.com/oleg-shilo/cs-script",
                             " ");
 
+            if (Runtime.IsWin)
+                syntaxDetails = syntaxDetails.Replace("{$css_host}",
+                                              fromLines(
+                                                  "//css_host [-version:<CLR_Version>] [-platform:<CPU>]",
+                                                  " ",
+                                                  "CLR_Version - version of CLR the script should be execute on (e.g. //css_host /version:v3.5)",
+                                                  "CPU - indicates which platforms the script should be run on: x86, Itanium, x64, or anycpu.",
+                                                  "Sample: //css_host /version:v2.0 /platform:x86;",
+                                                  " ",
+                                                  "Note this directive only supported on Windows due to the fact that on Linux the x86/x64 hosting implemented via runtime launcher 'mono'.",
+                                                  " ",
+                                                  "These directive is used to execute script from a surrogate host process. The script engine application (cscs.exe or csws.exe) launches the script",
+                                                  "execution as a separate process of the specified CLR version and CPU architecture.",
+                                                  section_sep))
+                                    .Replace("{$css_init}",
+                                        fromLines("//css_init CoInitializeSecurity[(<level>, <capabilities>)];",
+                                            " ",
+                                                "level - dwImpLevel parameter of CoInitializeSecurity function (see MSDN for sdetails)",
+                                                "capabilities - dwCapabilities parameter of CoInitializeSecurity function(see MSDN for sdetails) ",
+                                                " ",
+                                                "This is a directive for special COM client scripting scenario when you may need to call ",
+                                                "CoInitializeSecurity. The problem is that this call must be done before any COM-server invoke calls. ",
+                                                "Unfortunately when the script is loaded for the execution it is already too late. Thus ",
+                                                "CoInitializeSecurity must be invoked from the script engine even befor the script is loaded.",
+                                                section_sep))
+                                        .Replace("$(csscript_roslyn)", "");
+            else
+                syntaxDetails = syntaxDetails.Replace("{$css_host}", "")
+                                             .Replace("{$css_init}", "")
+                                             .Replace("$(csscript_roslyn)", fromLines(
+                                                      " 'CSSCRIPT_ROSLYN' - a shadow copy of Roslyn compiler files. ",
+                                                      "It's created during setup in order to avoid locking deployment directories because of the running Roslyn binaries."));
+
             var directives = syntaxDetails.Split('\n')
                                           .Where(x => x.StartsWith("//css_"))
-                                          .Select(x => " - " + x.TrimEnd())
-                                          .ToArray()
-                                          ;
+                                          .Select(x => "- " + x.TrimEnd());
 
             syntaxHelp = fromLines(
                          "**************************************",
@@ -681,33 +715,11 @@ namespace csscript
                          "**************************************",
                          "Engine directives:",
                          " ",
-                         string.Join(Environment.NewLine, directives),
+                         directives.JoinBy(Environment.NewLine),
                          " ",
-                         section_sep //------------------------------------
-                                  );
+                         section_sep);
 
             syntaxHelp += Environment.NewLine + syntaxDetails;
-
-            if (Runtime.IsWin)
-                syntaxHelp = syntaxHelp.Replace("{$css_host}",
-                                                fromLines(
-                                                    "//css_host [-version:<CLR_Version>] [-platform:<CPU>]",
-                                                    " ",
-                                                    "CLR_Version - version of CLR the script should be execute on (e.g. //css_host /version:v3.5)",
-                                                    "CPU - indicates which platforms the script should be run on: x86, Itanium, x64, or anycpu.",
-                                                    "Sample: //css_host /version:v2.0 /platform:x86;",
-                                                    " ",
-                                                    "Note this directive only supported on Windows due to the fact that on Linux the x86/x64 hosting implemented via runtime launcher 'mono'.",
-                                                    " ",
-                                                    "These directive is used to execute script from a surrogate host process. The script engine application (cscs.exe or csws.exe) launches the script",
-                                                    "execution as a separate process of the specified CLR version and CPU architecture.",
-                                                    section_sep))
-                                       .Replace("$(csscript_roslyn)", "");
-            else
-                syntaxHelp = syntaxHelp.Replace("{$css_host}", "")
-                                       .Replace("$(csscript_roslyn)", fromLines(
-                                           " 'CSSCRIPT_ROSLYN' - a shadow copy of Roslyn compiler files. ",
-                                           "It's created during setup in order to avoid locking deployment directories because of the running Roslyn binaries."));
 
             #endregion SyntaxHelp
         }
