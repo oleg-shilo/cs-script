@@ -356,7 +356,7 @@ namespace csscript
             const string section_sep = "------------------------------------"; // section_sep separator
 
             var syntaxDetails = fromLines(
-                    "Engine directives can be controlled (enabled/disabled) with compiler conditional symbols" +
+                    "Engine directives can be controlled (enabled/disabled) with compiler conditional symbols " +
                     "and environment variables via the inline `#if` syntax:",
                     "  //css_include #if DEBUG debug_utils.cs",
                     "  //css_dir #if (DEBUG) .\\bin\\Debug",

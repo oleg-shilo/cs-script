@@ -1319,6 +1319,7 @@ partial class dbg
                     }
                     else if (Args.Same(arg, AppArgs.dbg, AppArgs.d)) // -dbg -d
                     {
+                        Environment.SetEnvironmentVariable("DEBUG", "true");
                         options.DBG = true;
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.l, out argValue)) // -l:<1|0>
