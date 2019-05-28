@@ -1977,12 +1977,7 @@ partial class dbg
                         }
                         else
                         {
-                            foreach (string dir in CSExecutor.options.searchDirs)
-                            {
-                                dependencyFile = Path.Combine(dir, item.file); //assembly should be in the same directory with the script
-                                if (File.Exists(dependencyFile))
-                                    break;
-                            }
+                            dependencyFile = FileParser.ResolveFile(item.file, CSExecutor.options.searchDirs, false);
                         }
                     }
                     else
