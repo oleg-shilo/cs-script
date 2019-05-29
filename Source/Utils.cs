@@ -1968,25 +1968,13 @@ partial class dbg
 
                 foreach (MetaDataItem item in depInfo.items)
                 {
-                    if (item.assembly)
+                    if (item.assembly && Path.IsPathRooted(item.file)) //is absolute path
                     {
-                        if (Path.IsPathRooted(item.file)) //is absolute path
-                        {
-                            dependencyFile = item.file;
-                            CSExecutor.options.AddSearchDir(Path.GetDirectoryName(item.file), Settings.internal_dirs_section);
-                        }
-                        else
-                        {
-                            foreach (string dir in CSExecutor.options.searchDirs)
-                            {
-                                dependencyFile = Path.Combine(dir, item.file); //assembly should be in the same directory with the script
-                                if (File.Exists(dependencyFile))
-                                    break;
-                            }
-                        }
+                        dependencyFile = item.file;
+                        CSExecutor.options.AddSearchDir(Path.GetDirectoryName(item.file), Settings.internal_dirs_section);
                     }
-                    else
-                        dependencyFile = FileParser.ResolveFile(item.file, CSExecutor.options.searchDirs, false);
+
+                    dependencyFile = FileParser.ResolveFile(item.file, CSExecutor.options.searchDirs, false);
 
                     if (!File.Exists(dependencyFile) || File.GetLastWriteTimeUtc(dependencyFile) != item.date)
                     {
