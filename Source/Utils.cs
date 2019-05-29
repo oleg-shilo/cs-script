@@ -1973,8 +1973,8 @@ partial class dbg
                         dependencyFile = item.file;
                         CSExecutor.options.AddSearchDir(Path.GetDirectoryName(item.file), Settings.internal_dirs_section);
                     }
-
-                    dependencyFile = FileParser.ResolveFile(item.file, CSExecutor.options.searchDirs, false);
+                    else
+                        dependencyFile = FileParser.ResolveFile(item.file, CSExecutor.options.searchDirs, false);
 
                     if (!File.Exists(dependencyFile) || File.GetLastWriteTimeUtc(dependencyFile) != item.date)
                     {
