@@ -127,6 +127,7 @@ namespace csscript
                 foreach (var nupkg in Directory.GetFiles(p.SpecFile.GetDirName().GetDirName(), "*.nupkg", SearchOption.AllDirectories))
                 {
                     var info = ExtractPackageInfo(nupkg);
+                    info.PreferredRuntime = p.PreferredRuntime;
 
                     if (!map.ContainsKey(info.Name))
                         map[info.Name] = new List<PackageInfo>();
