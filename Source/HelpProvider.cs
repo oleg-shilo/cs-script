@@ -969,16 +969,18 @@ namespace csscript
         public static string BuildVersionInfo()
         {
             StringBuilder builder = new StringBuilder();
+            var corlib = "".GetType().Assembly.Location;
 
             string dotNetVer = null;
 
-            if (Runtime.IsWin)
-                dotNetVer = GetDotNetVersion.Get45PlusFromRegistry();
+            if (Runtime.IsWin && !corlib.Contains("mono"))
+                dotNetVer = DotNetVersion.Get45PlusFromRegistry();
 
             builder.Append(AppInfo.appLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script)\n");
             builder.Append("\n");
             builder.Append("   CLR:             " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : "") + "\n");
             builder.Append("   System:          " + Environment.OSVersion + "\n");
+            builder.Append("   Corlib:          " + "".GetType().Assembly.Location + "\n");
 #if net4
             builder.Append("   Architecture:    " + (Environment.Is64BitProcess ? "x64" : "x86") + "\n");
 #endif
@@ -1024,45 +1026,6 @@ namespace csscript
 
             //builder.Append("   Engine:         " + Assembly.GetExecutingAssembly().Location + "\n");
             return builder.ToString();
-        }
-
-        public class GetDotNetVersion
-        {
-            public static string Get45PlusFromRegistry()
-            {
-#if net4
-                var subkey = @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\";
-                using (var ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(subkey))
-                {
-                    if (ndpKey != null && ndpKey.GetValue("Release") != null)
-                        return CheckFor45PlusVersion((int)ndpKey.GetValue("Release"));
-                    else
-                        return null;
-                }
-#else
-                    return null;
-#endif
-            }
-
-            // Checking the version using >= will enable forward compatibility.
-            static string CheckFor45PlusVersion(int releaseKey)
-            {
-                if (releaseKey >= 394802)
-                    return "4.6.2 or later";
-                if (releaseKey >= 394254)
-                    return "4.6.1";
-                if (releaseKey >= 393295)
-                    return "4.6";
-                if ((releaseKey >= 379893))
-                    return "4.5.2";
-                if ((releaseKey >= 378675))
-                    return "4.5.1";
-                if ((releaseKey >= 378389))
-                    return "4.5";
-                // This code should never execute. A non-null release key should mean
-                // that 4.5 or later is installed.
-                return "No 4.5 or later version detected";
-            }
         }
     }
 }
