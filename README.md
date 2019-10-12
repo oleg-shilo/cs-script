@@ -1,6 +1,7 @@
 # CS-Script
 <img align="right" src="https://raw.githubusercontent.com/oleg-shilo/cs-script/master/Source/wiki/images/css_logo_codeplex_256x256_2.png" alt="" style="float:right">
 
+ 
 [![Build status](https://ci.appveyor.com/api/projects/status/jruj9dmf2dwjn5p3?svg=true)](https://ci.appveyor.com/project/oleg-shilo/cs-script) [![Chocolatey Version](http://img.shields.io/chocolatey/v/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![Chocolatey Downloads](http://img.shields.io/chocolatey/dt/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![NuGet version (CS-Script)](https://img.shields.io/nuget/v/CS-Script.svg?style=flat-square)](https://www.nuget.org/packages/CS-Script/)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://oleg-shilo.github.io/cs-script/Donation.html)
@@ -21,7 +22,7 @@ CS-Script also offers comprehensive integration with most common development too
 
 It can be run on Win, Linux and Mac. And it is compatible with .NET, Mono and .NET Core.
 
-Over the long history of CS-Script it has been downloaded through Notepad++ x86 plugin manager alone over ![](http://www.csscript.net/statistics/css.npp.count.jpeg) times.
+Over the long history of CS-Script it has been downloaded ([see stats](https://www.cs-script.net/cs-script/download.stats/daily_downloads.html)) through Notepad++ x86 plugin manager alone over ![](https://raw.githubusercontent.com/oleg-shilo/cs-script/master/docs/download.stats/css.npp.count.jpeg) times.
 
 \* _statistics does not include x64 downloads nor downloads after Notepad++ discontinued shiping editor with the plugin manager x86 included_ 
 
