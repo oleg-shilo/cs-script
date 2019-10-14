@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CS-Script.lib</id>
-<version>3.29.0.0</version>
+<version>3.30.0.0</version>
         <title>CS-Script Class Library (CSScriptLibrary.dll)</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -14,12 +14,19 @@
 This package distributes only the raw CS-Script engine so you can use it (if required) with untested dependencies (e.g. any version of Roslyn).</description>
         <summary>This is the minimal package for referencing CS-Script engine from .NET (full) applications. It contains only the CS-Script class library CSScriptLibrary.dll.</summary>
         <releaseNotes>
-- Implemented NuGet dependencies discovery
-- Added support for wildcards in //css_ref directive (e.g. //css_ref ./*.dll).
-- Added support for -rt:&lt;runtime&gt; switch in //css_nuget directive
-- Added support for //css_nuget source &lt;url&gt;
-- Added migration of old shell extension configuration to Shell-X deployment
-- Issue #149: Suggesting to normalize paths in CompilingInfo.Input
+- Issue #25: Feature request to support conditional directives
+- Issue #160: Compatibility with old script syntax
+- Issue #161: Assembly is (tried to be) loaded from GAC instead of local dir
+- Triggered by issue #172: CsvHelper loads the wrong ValueTuple version in CSScript?
+- Issue #173: C# script installation on Window10 / WSL linux does not work
+- Added support for _gitignore_ syntax in `//css_` directives (e.g. `//css_ref .\**\Release\*.dll`)
+- Added processing precompilers output for `-proj` option
+- Added debugVS2019.cs
+- Improved version info output
+- Fixed all urls pointing to the old web hosting
+- Added support for PreferredRuntime of the dependency packages when resolving them.
+- Added VB samples for NuGet package (partial solution for #155)
+- Added syntax help output info
 
     </releaseNotes>
         <copyright>Copyright (C) 2004-2019 Oleg Shilo</copyright>
