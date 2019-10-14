@@ -1,5 +1,6 @@
-cs-script (3.28.8.0) stable; urgency=medium
+cs-script (3.28.9.0) stable; urgency=medium
 
-  * Added support for free style classless scripts.
+  * Initial Release.
+  * Second Release.
 
- -- Oleg Shilo (Oleg Shilo) <oshilo@gmail.com>  Fri, 7 Sep 2018 10:30:15 +1000
+ -- Oleg Shilo (Oleg Shilo) <oshilo@gmail.com>  Sun, 16 Jun 2019 10:19:09 +1000 

@@ -7,7 +7,7 @@ class Script
 {
     static public void Main()
     {
-        var version = "3.28.8.0";
+        var version = "3.28.9.0";
 
         var src_dir = Path.GetFullPath(@"..\..\..\..\..\..\Releases\v" + version + @"\bin\lib\Bin\Linux");
         var dest_dir = $"cs-script_{version}";
@@ -51,5 +51,5 @@ class Script
         Console.WriteLine("The build folder '.\\..\\build.zip' is ready.");
     }
 
-    static string editor = @"C:\Program Files\Sublime Text 3\sublime_text.exe";
+    static string editor = @"E:\Program Files\Sublime Text 3\sublime_text.exe";
 }

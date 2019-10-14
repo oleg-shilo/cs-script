@@ -24,17 +24,18 @@ namespace Caliburn.Micro
             bs.onstartup = onstartup;
             app.Run();
         }
-        
+
         static public void Run(System.Action onstartup)
         {
+            var app = new Application();
+
             var bs = new SimpleBootstrapper();
             bs.onstartup = onstartup;
-            
-            var app = new Application();
+
             app.Run();
         }
-        
-        
+
+
         static public Window LoadWindow(string xamlFile)
         {
              using (var s = new FileStream(xamlFile, FileMode.Open))
@@ -45,7 +46,7 @@ namespace Caliburn.Micro
     public class SimpleBootstrapper : BootstrapperBase
     {
         public System.Action onstartup;
-        
+
         public SimpleBootstrapper()
         {
             Initialize();
