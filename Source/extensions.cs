@@ -83,7 +83,18 @@ namespace csscript
 
         public static string JoinBy(this IEnumerable<string> lines, string separator)
         {
+#if net35
+            var buffer = new StringBuilder();
+            foreach (var line in lines)
+            {
+                buffer.Append(line);
+                buffer.Append(separator);
+            }
+
+            return buffer.ToString();
+#else
             return string.Join(separator, lines);
+#endif
         }
 
         public static string TrimSingle(this string text, params char[] trimChars)
@@ -387,9 +398,15 @@ namespace csscript
             return result.ToArray();
         }
 
-        public static string GetFileName(this string path) => Path.GetFileName(path);
+        public static string GetFileName(this string path)
+        {
+            return Path.GetFileName(path);
+        }
 
-        public static string GetFullPath(this string path) => Path.GetFullPath(path);
+        public static string GetFullPath(this string path)
+        {
+            return Path.GetFullPath(path);
+        }
 
         static string[] SplitLexicallyWithoutTakingNewLineIntoAccount(this string str, int desiredChunkLength)
         {

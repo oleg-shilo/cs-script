@@ -1,4 +1,4 @@
-C# Script execution engine. Version 3.29.0.0.
+C# Script execution engine. Version 3.30.0.0.
 Copyright (C) 2004-2018 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -222,24 +222,31 @@ Script specific syntax
 **************************************
 Engine directives:
  
- - //css_include <file>;
- - //css_reference <file>;
- - //css_nuget [-source] [-noref] [-rt:<runtime>] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>]
+- //css_include <file>;
+- //css_reference <file>;
+- //css_nuget [-source] [-noref] [-rt:<runtime>] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>]
 package0[,package1]..[,packageN]|sourceUrl ;
- - //css_args arg0[ arg1]..[ argN];
- - //css_searchdir <directory>;
- - //css_autoclass [style]
- - //css_precompiler <file 1>,<file 2>;
- - //css_resource <file>[, <out_file>];
- - //css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];
- - //css_co <options>;
- - //css_ignore_namespace <namespace>;
- - //css_prescript file([arg0][,arg1]..[,argN])[ignore];
- - //css_postscript file([arg0][,arg1]..[,argN])[ignore];
+- //css_args arg0[ arg1]..[ argN];
+- //css_searchdir <directory>;
+- //css_autoclass [style]
+- //css_precompiler <file 1>,<file 2>;
+- //css_resource <file>[, <out_file>];
+- //css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];
+- //css_co <options>;
+- //css_init CoInitializeSecurity[(<level>, <capabilities>)];
+- //css_ignore_namespace <namespace>;
+- //css_prescript file([arg0][,arg1]..[,argN])[ignore];
+- //css_postscript file([arg0][,arg1]..[,argN])[ignore];
+- //css_host [-version:<CLR_Version>] [-platform:<CPU>]
  
 ------------------------------------
+Engine directives can be controlled (enabled/disabled) with compiler conditional symbols and environment variables via
+the inline `#if` syntax:
+  //css_include #if DEBUG debug_utils.cs
+  //css_dir #if (DEBUG) .\bin\Debug
+  //css_reference #if PRODUCTION_PC d:\temp\build\certificates.dll
+------------------------------------
 //css_include <file>;
- 
 Alias - //css_inc
 file - name of a script file to be included at compile-time.
  
@@ -443,8 +450,20 @@ another one.'Rename' clause can appear in the directive multiple times.
 options - options string.
  
 This directive is used to pass compiler options string directly to the language specific CLR compiler.
+Note: `;` in compiler options interferes with `//css_...` directives so try to avoid it. Thus use `-d:DEBUG -d:NET4`
+instead of `-d:DEBUG;NET4`
  Example: //css_co /d:TRACE pass /d:TRACE option to C# compiler
           //css_co /platform:x86 to produce Win32 executable
+------------------------------------
+//css_init CoInitializeSecurity[(<level>, <capabilities>)];
+ 
+level - dwImpLevel parameter of CoInitializeSecurity function (see MSDN for sdetails)
+capabilities - dwCapabilities parameter of CoInitializeSecurity function(see MSDN for sdetails) 
+ 
+This is a directive for special COM client scripting scenario when you may need to call 
+CoInitializeSecurity. The problem is that this call must be done before any COM-server invoke calls. 
+Unfortunately when the script is loaded for the execution it is already too late. Thus 
+CoInitializeSecurity must be invoked from the script engine even befor the script is loaded.
 ------------------------------------
 //css_ignore_namespace <namespace>;
  

@@ -894,7 +894,9 @@ partial class dbg
         }
 
         public static Regex WildCardToRegExp(this string pattern)
-            => new Regex(pattern.WildCardToRegExpPattern(), Runtime.IsWin ? RegexOptions.IgnoreCase : RegexOptions.None);
+        {
+            return new Regex(pattern.WildCardToRegExpPattern(), Runtime.IsWin ? RegexOptions.IgnoreCase : RegexOptions.None);
+        }
 
         //Credit to MDbg team: https://github.com/SymbolSource/Microsoft.Samples.Debugging/blob/master/src/debugger/mdbg/mdbgCommands.cs
         public static string WildCardToRegExpPattern(this string simpleExp)
@@ -2345,8 +2347,15 @@ partial class dbg
         }
     }
 
+    /// <summary>
+    /// Helper for retrieving currently installed .NET version
+    /// </summary>
     public class DotNetVersion
     {
+        /// <summary>
+        /// Returns the exact full version of the installed .NET 4.5
+        /// </summary>
+        /// <returns></returns>
         public static string Get45PlusFromRegistry()
         {
 #if net4

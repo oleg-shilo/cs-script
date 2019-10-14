@@ -988,7 +988,7 @@ namespace csscript
             }
 
             return retval
-                .Select(ProcessConditionalSymbols)
+                .Select(x => ProcessConditionalSymbols(x))
                 .Where(x => x.HasText())
                 .ToArray();
         }
