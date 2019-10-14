@@ -27,13 +27,13 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //----------------------------------------------
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using System.Text;
-using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace csscript
 {
@@ -52,7 +52,7 @@ namespace csscript
         /// </summary>
         static void Main(string[] rawArgs)
         {
-            Utils.SetMonoRootDirEnvvar();
+            Runtime.SetMonoRootDirEnvvar();
 
             //Debug.Assert();
             for (int i = 0; i < rawArgs.Length; i++)
@@ -66,7 +66,7 @@ namespace csscript
                 Environment.SetEnvironmentVariable("windir", Environment.GetEnvironmentVariable("SystemRoot"));
             Environment.SetEnvironmentVariable("pid", Process.GetCurrentProcess().Id.ToString());
 
-            if (Utils.IsLinux)
+            if (Runtime.IsLinux)
             {
                 //because Linux shebang does not properly split arguments we need to take care of this
                 //http://www.daniweb.com/software-development/c/threads/268382

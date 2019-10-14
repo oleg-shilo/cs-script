@@ -270,7 +270,6 @@ ECHO Building CSSPostSharp.dll: >> ..\Build\build.log
 ECHO ------------ >> ..\Build\build.log
 
 copy CSSPostSharp.dll "%local_dev%\Lib\CSSPostSharp.dll"
-copy css.exe "%local_dev%\css.exe"
 copy runasm32.exe "%local_dev%\Lib\runasm32.exe"
 
 rem pause to allow all apps (ant-viruses, compilers) exit and release the temp files

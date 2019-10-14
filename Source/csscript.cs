@@ -33,22 +33,22 @@
 #endregion Licence...
 
 using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Text;
-using CSScriptLibrary;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.CodeDom.Compiler;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 //using System.Windows.Forms;
 using System.Globalization;
-using System.Diagnostics;
-using Microsoft.CSharp;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
 using System.Windows.Forms;
-using System.Collections;
+using Microsoft.CSharp;
+using CSScriptLibrary;
 
 namespace csscript
 {
@@ -618,7 +618,7 @@ namespace csscript
 
                         string script = args[firstScriptArg];
                         List<string> dirs = new List<string>();
-                        string libDir = Environment.ExpandEnvironmentVariables("%CSSCRIPT_DIR%" + Path.DirectorySeparatorChar + "lib");
+                        string libDir = Environment.ExpandEnvironmentVariables("%CSSCRIPT_ROOT%" + Path.DirectorySeparatorChar + "lib");
                         if (!libDir.StartsWith("%"))
                             dirs.Add(libDir);
 
@@ -629,7 +629,6 @@ namespace csscript
 
                         string[] searchDirs = dirs.ToArray();
                         script = FileParser.ResolveFile(script, searchDirs);
-
 
                         if (options.customConfigFileName == "")
                         {
@@ -647,9 +646,9 @@ namespace csscript
                                         if (line.StartsWith("//css_args"))
                                         {
                                             var custom_app_config = line.Substring("//css_args".Length)
-                                                               .SplitCommandLine()
-                                                               .FirstOrDefault(x=>x.StartsWith("-"+ AppArgs.sconfig + ":") 
-                                                                               || x.StartsWith("/" + AppArgs.sconfig + ":"));
+                                                                    .SplitCommandLine()
+                                                                    .FirstOrDefault(x => x.StartsWith("-" + AppArgs.sconfig + ":")
+                                                                                    || x.StartsWith("/" + AppArgs.sconfig + ":"));
 
                                             if (custom_app_config != null)
                                             {
@@ -728,15 +727,16 @@ namespace csscript
         static void ComInitSecurity(int RpcImpLevel, int EoAuthnCap)
         {
             int hr = CoInitializeSecurity(
-                               IntPtr.Zero,
-                               -1,
-                               IntPtr.Zero,
-                               IntPtr.Zero,
-                               0, //RpcAuthnLevel.Default
-                               3, //RpcImpLevel.Impersonate,
-                               IntPtr.Zero,
-                               0x40, //EoAuthnCap.DynamicCloaking
-                               IntPtr.Zero);
+                IntPtr.Zero,
+                -1,
+                IntPtr.Zero,
+                IntPtr.Zero,
+                0, //RpcAuthnLevel.Default
+                3, //RpcImpLevel.Impersonate,
+                IntPtr.Zero,
+                0x40, //EoAuthnCap.DynamicCloaking
+                IntPtr.Zero);
+
             //if (hr != 0)
             //    System.Windows.Forms.MessageBox.Show("CoInitializeSecurity failed. [" + hr + "]", "CS-Script COM Initialization");
             //else
@@ -939,7 +939,7 @@ namespace csscript
                         //it is possible that there are fully compiled/cached and up to date script but no host compiled yet
                         string host = ScriptLauncherBuilder.GetLauncherName(assemblyFileName);
                         bool surrogateHostMissing = (options.useSurrogateHostingProcess &&
-                                                    (!File.Exists(host) || !CSSUtils.HaveSameTimestamp(host, assemblyFileName)));
+                                                     (!File.Exists(host) || !CSSUtils.HaveSameTimestamp(host, assemblyFileName)));
 
                         // --- COMPILE ---
                         if (options.buildExecutable || !options.useCompiled || (options.useCompiled && assemblyFileName == null) || options.forceCompile || surrogateHostMissing)
@@ -956,7 +956,7 @@ namespace csscript
 
                             //no need to act on lockedByCompiler/lockedByHost as Compile(...) will throw the exception
 
-                            if (!options.inMemoryAsm && Utils.IsWin)
+                            if (!options.inMemoryAsm && Runtime.IsWin)
                             {
                                 // wait for other EXECUTION to complete (if any)
                                 bool lockedByHost = !executingFileLock.Wait(1000);
@@ -1253,7 +1253,7 @@ namespace csscript
 
             if (asmFileName == null || asmFileName == "")
             {
-                var asmExtension = Utils.IsMono && Utils.IsLinux ? ".dll" : ".compiled";
+                var asmExtension = Runtime.IsMono && Runtime.IsLinux ? ".dll" : ".compiled";
                 // asmExtension = ".dll"; // testing
 
                 asmFileName = options.hideTemp != Settings.HideOptions.DoNotHide ? Path.Combine(CSExecutor.ScriptCacheDir, Path.GetFileName(scripFileName) + asmExtension) : scripFileName + ".c";
@@ -1545,7 +1545,7 @@ namespace csscript
 
             if (options.enableDbgPrint)
             {
-                if (Utils.IsNet40Plus() && !Utils.IsMono)
+                if (Runtime.IsNet40Plus() && !Runtime.IsMono)
                 {
                     addByAsmName("System.Linq"); // Implementation of System.Linq namespace
                     addByAsmName("System.Core"); // dependency of System.Linq namespace assembly
@@ -1560,7 +1560,10 @@ namespace csscript
 
             //add assemblies referenced from code
             foreach (string asmName in parser.ResolvePackages())
+            {
                 requestedRefAsms.AddAssembly(asmName);
+                options.AddSearchDir(asmName.GetDirName(), Settings.nuget_dirs_section);
+            }
 
             AssemblyResolver.ignoreFileName = Path.GetFileNameWithoutExtension(parser.ScriptPath) + ".dll";
 
@@ -1776,7 +1779,7 @@ namespace csscript
                 {
                     var cachedAsmExtension = ".compiled";
 
-                    if (Utils.IsMono)
+                    if (Runtime.IsMono)
                         cachedAsmExtension = ".dll"; // mono cannot locate the symbols file (*.mbd) unless the assembly file is a .dll one
 
                     if (options.DLLExtension)
@@ -1933,11 +1936,12 @@ namespace csscript
                     string[] refAsms = new string[compilerParams.ReferencedAssemblies.Count];
                     compilerParams.ReferencedAssemblies.CopyTo(refAsms, 0);
 
-                    postProcessor.Invoke(null, new object[] {
-                                            compilerParams.OutputAssembly,
-                                            refAsms,
-                                            options.searchDirs
-                                            });
+                    postProcessor.Invoke(null, new object[]
+                    {
+                        compilerParams.OutputAssembly,
+                        refAsms,
+                        options.searchDirs
+                    });
                 }
                 catch (Exception e)
                 {
@@ -1960,20 +1964,20 @@ namespace csscript
                 {
                     if (options.autoClass)
                         ex = CompilerException.Create(
-                                              "Auto-class cannot have method `main(...)` with static modifier. Fix it by declaring the `main(...)` as an instance member.",
-                                              scriptFileName,
-                                              ex);
+                                               "Auto-class cannot have method `main(...)` with static modifier. Fix it by declaring the `main(...)` as an instance member.",
+                                               scriptFileName,
+                                               ex);
                 }
 
                 //error CS0121: The call is ambiguous between the following methods or properties: 'dbg_extensions.print<T>(T, params object[])' and 'dbg_extensions.print<T>(T, params object[])'
                 if (ex.Message.Contains("error CS0121:") && ex.Message.Contains("dbg_extensions.print<T>(T"))
                 {
                     ex = CompilerException.Create(
-                                          "The problem most likely is caused by the referenced assemblies being compiled with CS-Script and `EnableDbgPrint` set to `true`. " +
-                                          "The easiest way to fix the problem is to compile the assemblies with `-dbgprint:0` argument passed either from the command line or " +
-                                          "directly from the script code (e.g. `//css_args -dbgprint:0`).",
-                                          scriptFileName,
-                                          ex);
+                                           "The problem most likely is caused by the referenced assemblies being compiled with CS-Script and `EnableDbgPrint` set to `true`. " +
+                                           "The easiest way to fix the problem is to compile the assemblies with `-dbgprint:0` argument passed either from the command line or " +
+                                           "directly from the script code (e.g. `//css_args -dbgprint:0`).",
+                                           scriptFileName,
+                                           ex);
                 }
 
                 if (options.syntaxCheck)
@@ -2013,18 +2017,18 @@ namespace csscript
                     Utils.FileDelete(symbFileName);
 
                     // Roslyn always generates pdb files, even under Mono
-                    if (Utils.IsMono)
+                    if (Runtime.IsMono)
                         Utils.FileDelete(pdbFileName);
                 }
                 else
                 {
-                    if (Utils.IsMono)
+                    if (Runtime.IsMono)
                     {
                         // Do not do conversion if option 'pdbonly' was specified on Linux. In this case PDB is portable and Linux an
                         // Mono debugger can process it.
                         bool isPdbOnlyMode = compilerParams.CompilerOptions.Contains("debug:pdbonly");
 
-                        if (!Utils.IsLinux || (!File.Exists(symbFileName) && !isPdbOnlyMode))
+                        if (!Runtime.IsLinux || (!File.Exists(symbFileName) && !isPdbOnlyMode))
                         {
                             // Convert pdb into mdb
                             var process = new Process();
@@ -2032,7 +2036,7 @@ namespace csscript
                             {
                                 process.StartInfo.Arguments = "\"" + assemblyFileName + "\"";
 
-                                if (!Utils.IsLinux)
+                                if (!Runtime.IsLinux)
                                 {
                                     // hide terminal window
                                     process.StartInfo.FileName = "pdb2mdb.bat";
@@ -2174,7 +2178,7 @@ namespace csscript
             string cacheDir;
             string directoryPath = Path.GetDirectoryName(Path.GetFullPath(file));
             string dirHash;
-            if (!Utils.IsLinux)
+            if (!Runtime.IsLinux)
             {
                 //Win is not case-sensitive so ensure, both lower and capital case path yield the same hash
                 dirHash = CSSUtils.GetHashCodeEx(directoryPath.ToLower()).ToString();

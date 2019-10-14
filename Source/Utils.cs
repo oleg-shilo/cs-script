@@ -31,26 +31,117 @@
 #endregion Licence...
 
 using System;
-using System.IO;
-using System.Reflection;
+using System.CodeDom.Compiler;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Lifetime;
 
 using System.Text;
-using CSScriptLibrary;
-using System.Runtime.InteropServices;
-using System.CodeDom.Compiler;
-using Microsoft.CSharp;
-using System.Globalization;
-using System.Threading;
-using System.Collections;
 using System.Text.RegularExpressions;
-using System.Diagnostics;
+using System.Threading;
 using System.Xml;
-using System.Runtime.Remoting.Lifetime;
+using Microsoft.CSharp;
+using Microsoft.Win32;
+using CSScriptLibrary;
 
 namespace csscript
 {
+    class Runtime
+    {
+        public static bool IsNet45Plus()
+        {
+            // Class "ReflectionContext" exists from .NET 4.5 onwards.
+            return Type.GetType("System.Reflection.ReflectionContext", false) != null;
+        }
+
+        public static bool IsNet40Plus()
+        {
+            return Environment.Version.Major >= 4;
+        }
+
+        public static bool IsNet20Plus()
+        {
+            return Environment.Version.Major >= 2;
+        }
+
+        public static bool IsRuntimeCompatibleAsm(string file)
+        {
+            try
+            {
+                System.Reflection.AssemblyName.GetAssemblyName(file);
+                return true;
+            }
+            catch { }
+            return false;
+        }
+
+        public static bool IsWin
+        {
+            get { return !IsLinux; }
+        }
+
+        public static bool IsLinux
+        {
+            get
+            {
+                // Note it is not about OS being exactly Linux but rather about OS having Linux type of file system.
+                // For example path being case sensitive
+                return (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
+            }
+        }
+
+        static bool isMono = (Type.GetType("Mono.Runtime") != null);
+
+        public static bool IsMono
+        {
+            get { return isMono; }
+        }
+
+        internal static void SetMonoRootDirEnvvar()
+        {
+            if (Environment.GetEnvironmentVariable("MONO") == null && isMono)
+                Environment.SetEnvironmentVariable("MONO", MonoRootDir);
+        }
+
+        public static string MonoRootDir
+        {
+            get
+            {
+                var runtime = Type.GetType("Mono.Runtime");
+                if (runtime != null)
+                    try
+                    {
+                        // C:\Program Files(x86)\Mono\lib\mono\4.5\*.dll
+                        // C:\Program Files(x86)\Mono\lib\mono
+                        return Path.GetDirectoryName(Path.GetDirectoryName(runtime.Assembly.Location));
+                    }
+                    catch { }
+                return null;
+            }
+        }
+
+        public static string[] MonoGAC
+        {
+            get
+            {
+                try
+                {
+                    // C:\Program Files(x86)\Mono\lib\mono\gac
+                    var gacDir = Path.Combine(MonoRootDir, "gac");
+                    return Directory.GetDirectories(gacDir).Select(x => Path.GetFileName(x)).ToArray();
+                }
+                catch { }
+                return new string[0];
+            }
+        }
+    }
+
     internal class CurrentDirGuard : IDisposable
     {
         string currentDir = Environment.CurrentDirectory;
@@ -107,6 +198,40 @@ namespace csscript
 
     internal static class Utils
     {
+        public static char[] LineWhiteSpaceCharacters = " \t\v".ToCharArray();
+        public static char[] WhiteSpaceCharacters = " \t\r\n\v".ToCharArray();
+
+        public static void TunnelConditionalSymbolsToEnvironmentVariables(this string directive)
+        {
+            // "/define:DEBUG"
+            // "/d:DEBUG"
+            // "-define:DEBUG"
+            // "-d:DEBUG"
+            // "-d:DEBUG;NET4 -d:PRODUCTION"
+
+            // Need to handle both `-` and  `/`prefixes as older compilers use
+            // `/`
+
+            // `;` in compiler options interferes with `//css_...` directives so try to avoid it.
+            // Use `-d:DEBUG -d:NET4` instead of `-d:DEBUG;NET4`
+
+            var symbols = directive.Split(' ')
+                                   .Where(x => x.HasText() &&
+                                               (x.StartsWith("-d:") ||
+                                                x.StartsWith("/d:") ||
+                                                x.StartsWith("-define:") ||
+                                                x.StartsWith("/define:")))
+                                   .Select(x => x.Split(':').Last())
+                                   .SelectMany(x => x.Split(';'))
+                                   .ToArray();
+
+            foreach (string item in symbols)
+            {
+                if (Environment.GetEnvironmentVariable(item) == null)
+                    Environment.SetEnvironmentVariable(item, "true");
+            }
+        }
+
         public static Exception ToNewException(this Exception ex, string message, bool encapsulate)
         {
             var topLevelMessage = message;
@@ -132,8 +257,8 @@ namespace csscript
         {
             var text = CSharpParser.UnescapeDirectiveDelimiters(statement);
 
-            if (text.Length > 1 && (text[0] == '.' && text[1] != '.')) //just a single-dot start dir
-                text = Path.Combine(Path.GetDirectoryName(parentScript), text);
+            if (text.Length > 1 && (text[0] == '.' && text[1] != '.')) // just a single-dot start dir
+                text = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(parentScript), text));
 
             return Environment.ExpandEnvironmentVariables(text).Trim();
         }
@@ -170,7 +295,7 @@ namespace csscript
                                    else
                                        return x;
                                })
-                        .Distinct().ToArray();
+                       .Distinct().ToArray();
         }
 
         public static string[] RemoveDuplicates(this string[] list)
@@ -186,7 +311,7 @@ namespace csscript
         // Mono doesn't like referencing assemblies without dll or exe extension
         public static string EnsureAsmExtension(this string asmName)
         {
-            if (asmName != null && Utils.IsMono)
+            if (asmName != null && Runtime.IsMono)
             {
                 if (!asmName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) &&
                     !asmName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
@@ -260,7 +385,7 @@ namespace csscript
 
         public static bool IsSamePath(this string path1, string path2)
         {
-            return string.Compare(path1, path2, Utils.IsWin) == 0;
+            return string.Compare(path1, path2, Runtime.IsWin) == 0;
         }
 
         public static bool IsEmpty(this string text)
@@ -299,7 +424,7 @@ namespace csscript
         public static void SetEnvironmentVariable(string name, string value)
         {
             Environment.SetEnvironmentVariable(name, value);
-            if (Utils.IsWin)
+            if (Runtime.IsWin)
                 try { Win32.SetEnvironmentVariable(name, value); } catch { }
         }
 
@@ -444,93 +569,6 @@ namespace csscript
             }
         }
 
-        public static bool IsNet45Plus()
-        {
-            // Class "ReflectionContext" exists from .NET 4.5 onwards.
-            return Type.GetType("System.Reflection.ReflectionContext", false) != null;
-        }
-
-        public static bool IsNet40Plus()
-        {
-            return Environment.Version.Major >= 4;
-        }
-
-        public static bool IsNet20Plus()
-        {
-            return Environment.Version.Major >= 2;
-        }
-
-        public static bool IsRuntimeCompatibleAsm(string file)
-        {
-            try
-            {
-                System.Reflection.AssemblyName.GetAssemblyName(file);
-                return true;
-            }
-            catch { }
-            return false;
-        }
-
-        public static bool IsWin
-        {
-            get { return !IsLinux; }
-        }
-
-        public static bool IsLinux
-        {
-            get
-            {
-                // Note it is not about OS being exactly Linux but rather about OS having Linux type of file system.
-                // For example path being case sensitive
-                return (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
-            }
-        }
-
-        static bool isMono = (Type.GetType("Mono.Runtime") != null);
-
-        public static bool IsMono
-        {
-            get { return isMono; }
-        }
-
-        internal static void SetMonoRootDirEnvvar()
-        {
-            if (Environment.GetEnvironmentVariable("MONO") == null && isMono)
-                Environment.SetEnvironmentVariable("MONO", MonoRootDir);
-        }
-
-        public static string MonoRootDir
-        {
-            get
-            {
-                var runtime = Type.GetType("Mono.Runtime");
-                if (runtime != null)
-                    try
-                    {
-                        // C:\Program Files(x86)\Mono\lib\mono\4.5\*.dll
-                        // C:\Program Files(x86)\Mono\lib\mono
-                        return Path.GetDirectoryName(Path.GetDirectoryName(runtime.Assembly.Location));
-                    }
-                    catch { }
-                return null;
-            }
-        }
-
-        public static string[] MonoGAC
-        {
-            get
-            {
-                try
-                {
-                    // C:\Program Files(x86)\Mono\lib\mono\gac
-                    var gacDir = Path.Combine(MonoRootDir, "gac");
-                    return Directory.GetDirectories(gacDir).Select(x => Path.GetFileName(x)).ToArray();
-                }
-                catch { }
-                return new string[0];
-            }
-        }
-
         public static Assembly AssemblyLoad(string asmFile)
         {
             try
@@ -539,7 +577,7 @@ namespace csscript
             }
             catch (FileNotFoundException e)
             {
-                if (!Utils.IsMono)
+                if (!Runtime.IsMono)
                     throw e;
                 else
                     try
@@ -557,7 +595,7 @@ namespace csscript
 
         public static string DbgFileOf(string assemblyFileName)
         {
-            return DbgFileOf(assemblyFileName, IsMono);
+            return DbgFileOf(assemblyFileName, Runtime.IsMono);
         }
 
         internal static string DbgFileOf(string assemblyFileName, bool is_mono)
@@ -650,7 +688,7 @@ partial class dbg
             {
                 //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
                 //throw a nice informative exception.
-                if (!Utils.IsLinux)
+                if (!Runtime.IsLinux)
                     fileLock.Wait(1000);
 
                 var cache_dir = Path.Combine(CSExecutor.GetScriptTempDir(), "Cache");
@@ -680,7 +718,7 @@ partial class dbg
             {
                 //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
                 //throw a nice informative exception.
-                if (Utils.IsWin)
+                if (Runtime.IsWin)
                     fileLock.Wait(1000);
 
                 string code = string.Format("[assembly: System.Reflection.AssemblyDescriptionAttribute(@\"{0}\")]", scriptFileName);
@@ -821,9 +859,9 @@ partial class dbg
             {
                 bool useAllSubDirs = rootDir.EndsWith("**");
 
-                string pattern = ConvertSimpleExpToRegExp(useAllSubDirs ? rootDir.Remove(rootDir.Length - 1) : rootDir);
+                string pattern = WildCardToRegExpPattern(useAllSubDirs ? rootDir.Remove(rootDir.Length - 1) : rootDir);
 
-                Regex wildcard = new Regex(pattern, RegexOptions.IgnoreCase);
+                var wildcard = new Regex(pattern, Runtime.IsWin ? RegexOptions.IgnoreCase : RegexOptions.None);
 
                 int pos = rootDir.IndexOfAny(new char[] { '*', '?' });
 
@@ -855,8 +893,11 @@ partial class dbg
             return result.ToArray();
         }
 
+        public static Regex WildCardToRegExp(this string pattern)
+            => new Regex(pattern.WildCardToRegExpPattern(), Runtime.IsWin ? RegexOptions.IgnoreCase : RegexOptions.None);
+
         //Credit to MDbg team: https://github.com/SymbolSource/Microsoft.Samples.Debugging/blob/master/src/debugger/mdbg/mdbgCommands.cs
-        public static string ConvertSimpleExpToRegExp(string simpleExp)
+        public static string WildCardToRegExpPattern(this string simpleExp)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("^");
@@ -916,10 +957,7 @@ partial class dbg
             {
                 get
                 {
-                    if (Utils.IsLinux)
-                        return "-";
-                    else
-                        return "/";
+                    return Runtime.IsLinux ? "-" : "/";
                 }
             }
 
@@ -931,7 +969,7 @@ partial class dbg
                         if (arg.Length == pattern.Length + 1 && arg.IndexOf(pattern) == 1)
                             return true;
 
-                    if (Utils.IsWin && arg[0] == '/')
+                    if (Runtime.IsWin && arg[0] == '/')
                         if (arg.Length == pattern.Length + 1 && arg.IndexOf(pattern) == 1)
                             return true;
                 }
@@ -942,7 +980,7 @@ partial class dbg
             {
                 if (arg.StartsWith("-"))
                     return true;
-                if (Utils.IsWin)
+                if (Runtime.IsWin)
                     return (arg[0] == '/');
                 return false;
             }
@@ -951,7 +989,7 @@ partial class dbg
             {
                 if (arg.StartsWith("-"))
                     return arg.IndexOf(pattern) == 1;
-                if (Utils.IsWin)
+                if (Runtime.IsWin)
                     if (arg[0] == '/')
                         return arg.IndexOf(pattern) == 1;
                 return false;
@@ -1264,6 +1302,8 @@ partial class dbg
                     {
                         if (argValue != null)
                         {
+                            argValue.TunnelConditionalSymbolsToEnvironmentVariables();
+
                             //this one is accumulative
                             if (!options.compilerOptions.Contains(argValue))
                                 options.compilerOptions += " " + argValue;
@@ -1280,6 +1320,7 @@ partial class dbg
                     }
                     else if (Args.Same(arg, AppArgs.dbg, AppArgs.d)) // -dbg -d
                     {
+                        Environment.SetEnvironmentVariable("DEBUG", "true");
                         options.DBG = true;
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.l, out argValue)) // -l:<1|0>
@@ -1359,6 +1400,8 @@ partial class dbg
 
         delegate bool CompileMethod(ref string content, string scriptFile, bool IsPrimaryScript, Hashtable context);
 
+        delegate bool CompileMethodDynamic(object context);
+
         internal static PrecompilationContext Precompile(string scriptFile, string[] filesToCompile, ExecuteOptions options)
         {
             PrecompilationContext context = new PrecompilationContext();
@@ -1380,6 +1423,10 @@ partial class dbg
                 for (int i = 0; i < filesToCompile.Length; i++)
                 {
                     string content = File.ReadAllText(filesToCompile[i]);
+
+                    context.Content = content;
+                    context.scriptFile = filesToCompile[i];
+                    context.IsPrimaryScript = (filesToCompile[i] == scriptFile);
 
                     bool modified = false;
 
@@ -1440,7 +1487,7 @@ partial class dbg
 
             if (options.autoClass)
             {
-                bool canHandleCShar6 = (!string.IsNullOrEmpty(options.altCompiler) || Utils.IsLinux);
+                bool canHandleCShar6 = (!string.IsNullOrEmpty(options.altCompiler) || Runtime.IsLinux);
 
                 AutoclassPrecompiler.decorateAutoClassAsCS6 = (options.decorateAutoClassAsCS6 && options.enableDbgPrint && canHandleCShar6);
 
@@ -1600,7 +1647,7 @@ partial class dbg
         {
             try
             {
-                var asmExtension = Utils.IsMono ? ".dll" : ".compiled";
+                var asmExtension = Runtime.IsMono ? ".dll" : ".compiled";
                 string precompilerAsm = Path.Combine(CSExecutor.GetCacheDirectory(sourceFile), Path.GetFileName(sourceFile) + asmExtension);
 
                 using (Mutex fileLock = new Mutex(false, "CSSPrecompiling." + CSSUtils.GetHashCodeEx(precompilerAsm))) //have to use hash code as path delimiters are illegal in the mutex name
@@ -1922,22 +1969,10 @@ partial class dbg
 
                 foreach (MetaDataItem item in depInfo.items)
                 {
-                    if (item.assembly)
+                    if (item.assembly && Path.IsPathRooted(item.file)) //is absolute path
                     {
-                        if (Path.IsPathRooted(item.file)) //is absolute path
-                        {
-                            dependencyFile = item.file;
-                            CSExecutor.options.AddSearchDir(Path.GetDirectoryName(item.file), Settings.internal_dirs_section);
-                        }
-                        else
-                        {
-                            foreach (string dir in CSExecutor.options.searchDirs)
-                            {
-                                dependencyFile = Path.Combine(dir, item.file); //assembly should be in the same directory with the script
-                                if (File.Exists(dependencyFile))
-                                    break;
-                            }
-                        }
+                        dependencyFile = item.file;
+                        CSExecutor.options.AddSearchDir(Path.GetDirectoryName(item.file), Settings.internal_dirs_section);
                     }
                     else
                         dependencyFile = FileParser.ResolveFile(item.file, CSExecutor.options.searchDirs, false);
@@ -2307,6 +2342,43 @@ partial class dbg
                 }
 
             return result.ToString().TrimEnd() + Environment.NewLine;
+        }
+    }
+
+    public class DotNetVersion
+    {
+        public static string Get45PlusFromRegistry()
+        {
+#if net4
+            var subkey = @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\";
+            using (var ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(subkey))
+            {
+                if (ndpKey != null && ndpKey.GetValue("Release") != null)
+                    return CheckFor45PlusVersion((int)ndpKey.GetValue("Release"));
+                else
+                    return null;
+            }
+#else
+                    return null;
+#endif
+        }
+
+        // Checking the version using >= will enable forward compatibility.
+        static string CheckFor45PlusVersion(int releaseKey)
+        {
+            if (releaseKey >= 528040) return "4.8 or later";
+            if (releaseKey >= 461808) return "4.7.2";
+            if (releaseKey >= 461308) return "4.7.1";
+            if (releaseKey >= 460798) return "4.7";
+            if (releaseKey >= 394802) return "4.6.2";
+            if (releaseKey >= 394254) return "4.6.1";
+            if (releaseKey >= 393295) return "4.6";
+            if (releaseKey >= 379893) return "4.5.2";
+            if (releaseKey >= 378675) return "4.5.1";
+            if (releaseKey >= 378389) return "4.5";
+            // This code should never execute. A non-null release key should mean
+            // that 4.5 or later is installed.
+            return "No 4.5 or later version detected";
         }
     }
 }

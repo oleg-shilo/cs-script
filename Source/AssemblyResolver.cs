@@ -32,11 +32,11 @@
 #endregion Licence...
 
 using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
-using csscript;
 using System.Linq;
+using System.Reflection;
+using csscript;
 
 ////////////////////////////////////////////////////
 //
@@ -276,7 +276,7 @@ namespace CSScriptLibrary
                 {
                     string asmFile = Path.Combine(dir, name);
 
-                    //cannot just check Directory.Exists(dir) as "name" can contain sum subDir parts
+                    //cannot just check Directory.Exists(dir) as "name" can contain some subDir parts
                     if (Directory.Exists(Path.GetDirectoryName(asmFile)))
                     {
                         //test well-known assembly extensions first
@@ -304,15 +304,15 @@ namespace CSScriptLibrary
         {
             var retval = new List<string>();
 
-            if (Utils.IsMono)
+            if (Runtime.IsMono)
             {
-                if (Utils.MonoGAC.Contains(namespaceStr))
+                if (Runtime.MonoGAC.Contains(namespaceStr))
                 {
                     retval.Add(namespaceStr);
                 }
             }
 
-            if (!retval.Any() && Utils.IsWin)
+            if (!retval.Any() && Runtime.IsWin)
             {
                 try
                 {

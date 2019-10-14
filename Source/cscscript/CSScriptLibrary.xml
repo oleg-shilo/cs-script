@@ -43,12 +43,18 @@
             His `SplitLexicallyWithoutTakingNewLineIntoAccount` is taken/used practically without any change.
             </summary>
         </member>
-        <member name="M:csscript.NuGet.GetSinglePackageLibDirs(System.String,System.String,System.String)">
+        <member name="M:csscript.NuGet.GetPackageCompatibleLib(csscript.NuGet.PackageInfo)">
+            <summary>
+            Gets the package compatible library. Similar to `GetCompatibleTargetFramework` but relies on file structure
+            </summary>
+            <param name="package">The package.</param>
+            <returns></returns>
+        </member>
+        <member name="M:csscript.NuGet.GetSinglePackageLibDirs(csscript.NuGet.PackageInfo,System.String)">
             <summary>
             Gets the single package library dirs.
             </summary>
             <param name="package">The package.</param>
-            <param name="version">The version.</param>
             <param name="rootDir">The root dir.</param>
             <returns></returns>
         </member>
@@ -675,7 +681,7 @@
         </member>
         <member name="F:csscript.CSharpParser.ImportInfo.ResolveRelativeFromParentScriptLocation">
             <summary>
-            <para> When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.
+            <para> When importing/referencing dependencies with '//css_include', '//css_import' or '//css_reference' you can use relative path.
             Resolving relative path is typically done with respect to the <c>current directory</c>.
             </para>
             <para>

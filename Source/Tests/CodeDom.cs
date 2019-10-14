@@ -44,7 +44,7 @@ public class CodeDom : TestBase
         {
             var ex = Assert.Throws<CompilerException>(() =>
                          CSScript.CompileCode(classCode.Replace("public", "error_word")));
-            Assert.Contains("error CS0116: A namespace cannot directly contain", ex.Message);
+            Assert.Contains(" CS0116:", ex.Message);
         }
     }
 

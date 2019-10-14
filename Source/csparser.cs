@@ -40,17 +40,18 @@
 #endregion Licence...
 
 using System;
-using System.IO;
 using System.Collections;
 
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Text;
-using System.Globalization;
+using System.Threading;
 using CSScriptLibrary;
-using System.Diagnostics;
 
 namespace csscript
 {
@@ -216,7 +217,7 @@ namespace csscript
         public class ImportInfo
         {
             /// <summary>
-            /// <para> When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.
+            /// <para> When importing/referencing dependencies with '//css_include', '//css_import' or '//css_reference' you can use relative path.
             /// Resolving relative path is typically done with respect to the <c>current directory</c>.
             /// </para>
             /// <para>
@@ -242,14 +243,11 @@ namespace csscript
 
             internal static ImportInfo[] ResolveStatement(string statement, string parentScript, string[] probinghDirs)
             {
-                if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
-                    statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
-
                 if (statement.Contains("*") || statement.Contains("?"))
                 {
                     //e.g. resolve ..\subdir\*.cs into multiple concrete imports
                     string statementToParse = statement.Replace("($this.name)", Path.GetFileNameWithoutExtension(parentScript));
-                    statementToParse = statementToParse.Replace("\t", "").Trim();
+                    statementToParse = statementToParse.Replace("\t", "").Trim().Trim('"');
 
                     string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
 
@@ -274,7 +272,12 @@ namespace csscript
                     return result.ToArray();
                 }
                 else
-                    return new ImportInfo[] { new ImportInfo(statement, parentScript) };
+                {
+                    if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
+                        statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
+
+                    return new[] { new ImportInfo(statement, parentScript) };
+                }
             }
 
             /// <summary>
@@ -536,6 +539,14 @@ namespace csscript
             foreach (string statement in GetRawStatements("//css_autoclass", endCodePos))
                 autoClassMode = statement;
 
+            // analyse compiler options
+            foreach (string statement in GetRawStatements("//css_co", endCodePos))
+            {
+                var directive = statement.NormaliseAsDirective();
+                directive.TunnelConditionalSymbolsToEnvironmentVariables();
+                compilerOptions.Add(directive);
+            }
+
             //analyse 'pre' and 'post' script commands
             foreach (string statement in GetRawStatements("//css_pre", endCodePos))
                 cmdScripts.Add(new CmdScriptInfo(statement.Trim(), true, file));
@@ -571,9 +582,9 @@ namespace csscript
 
             // analyse assembly references
             foreach (string statement in GetRawStatements("//css_reference", endCodePos))
-                refAssemblies.Add(statement.NormaliseAsDirectiveOf(file));
+                refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file)).Select(x => x.file));
             foreach (string statement in GetRawStatements("//css_ref", endCodePos))
-                refAssemblies.Add(statement.NormaliseAsDirectiveOf(file));
+                refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file)).Select(x => x.file));
 
             // analyse precompilers
             foreach (string statement in GetRawStatements("//css_precompiler", endCodePos))
@@ -582,11 +593,7 @@ namespace csscript
             foreach (string statement in GetRawStatements("//css_pc", endCodePos))
                 precompilers.Add(statement.NormaliseAsDirectiveOf(file));
 
-            // analyse compiler options
-            foreach (string statement in GetRawStatements("//css_co", endCodePos))
-                compilerOptions.Add(statement.NormaliseAsDirective());
-
-            if (!Utils.IsLinux)
+            if (!Runtime.IsLinux)
                 foreach (string statement in GetRawStatements("//css_host", endCodePos))
                     hostOptions.Add(statement.NormaliseAsDirective());
 
@@ -979,7 +986,31 @@ namespace csscript
                 }
                 pos = codeToAnalyse.IndexOf(pattern, pos + 1);
             }
-            return retval.ToArray();
+
+            return retval
+                .Select(ProcessConditionalSymbols)
+                .Where(x => x.HasText())
+                .ToArray();
+        }
+
+        string ProcessConditionalSymbols(string text)
+        {
+            if (text.StartsWith("#if"))
+            {
+                var tokens = text.Split(Utils.LineWhiteSpaceCharacters, 3);
+                if (tokens.Count() == 3)
+                {
+                    if (tokens[0] == "#if")
+                    {
+                        var symbolName = tokens[1].TrimSingle('(', ')');
+                        if (Environment.GetEnvironmentVariable(symbolName) != null)
+                            return tokens[2];
+                        else
+                            return "";
+                    }
+                }
+            }
+            return text;
         }
 
         int[] AllRawIndexOf(string pattern, int startIndex, int endIndex) //all raw matches

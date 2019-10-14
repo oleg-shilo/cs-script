@@ -32,11 +32,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace csscript
 {
@@ -63,7 +65,7 @@ namespace csscript
         }
 
         public static IEnumerable<string> Split(this string str,
-                                                    Func<char, bool> controller)
+                                                     Func<char, bool> controller)
         {
             int nextPiece = 0;
 
@@ -79,7 +81,26 @@ namespace csscript
             yield return str.Substring(nextPiece);
         }
 
-        public static IEnumerable<string> SplitCommandLine(this string commandLine)
+        public static string JoinBy(this IEnumerable<string> lines, string separator)
+        {
+            return string.Join(separator, lines);
+        }
+
+        public static string TrimSingle(this string text, params char[] trimChars)
+        {
+            if (text.IsEmpty())
+                return text;
+
+            var startOffset = trimChars.Contains(text[0]) ? 1 : 0;
+            var endOffset = (trimChars.Contains(text.Last()) ? 1 : 0);
+
+            if (startOffset != 0 || endOffset != 0)
+                return text.Substring(startOffset, (text.Length - startOffset) - endOffset);
+            else
+                return text;
+        }
+
+        public static string[] SplitCommandLine(this string commandLine)
         {
             bool inQuotes = false;
             bool isEscaping = false;
@@ -93,7 +114,7 @@ namespace csscript
 
                 isEscaping = false;
 
-                return !inQuotes && Char.IsWhiteSpace(c)/*c == ' '*/;
+                return !inQuotes && char.IsWhiteSpace(c)/*c == ' '*/;
             })
             .Select(arg => arg.Trim().TrimMatchingQuotes('\"').Replace("\\\"", "\""))
             .Where(arg => !string.IsNullOrEmpty(arg))
@@ -103,9 +124,26 @@ namespace csscript
 
     internal static class GenericExtensions
     {
+        public static bool HasText(this string text)
+        {
+            return !string.IsNullOrEmpty(text);
+        }
+
         public static bool IsDirSectionSeparator(this string text)
         {
             return text != null && text.StartsWith(Settings.dirs_section_prefix) && text.StartsWith(Settings.dirs_section_suffix);
+        }
+
+        public static string PathJoin(this string path, params string[] parts)
+        {
+            var allParts = new[] { path ?? "" }.Concat(parts.Select(x => x ?? ""));
+#if net35
+            foreach (var item in parts)
+                path = Path.Combine(path, item ?? "");
+            return path;
+#else
+            return Path.Combine(allParts.ToArray());
+#endif
         }
 
         public static List<T> AddIfNotThere<T>(this List<T> items, T item)
@@ -113,6 +151,42 @@ namespace csscript
             if (!items.Contains(item))
                 items.Add(item);
             return items;
+        }
+
+        public static XElement SelectFirst(this XContainer element, string path)
+        {
+            string[] parts = path.Split('/');
+
+            var e = element.Elements()
+                           .Where(el => el.Name.LocalName == parts[0])
+                           .GetEnumerator();
+
+            if (!e.MoveNext())
+                return null;
+
+            if (parts.Length == 1) //the last link in the chain
+                return e.Current;
+            else
+                return e.Current.SelectFirst(path.Substring(parts[0].Length + 1)); //be careful RECURSION
+        }
+
+        public static IEnumerable<XElement> FindDescendants(this XElement element, string localName)
+        {
+            return element.Descendants().Where(x => x.Name.LocalName == localName);
+        }
+
+        public static bool Contains(this string text, string pattern, bool ignoreCase)
+        {
+            return text.IndexOf(pattern, ignoreCase ? StringComparison.OrdinalIgnoreCase : default(StringComparison)) != -1;
+        }
+
+        public static string ArgValue(this string[] arguments, string prefix)
+        {
+            var match = arguments.FirstOrDefault(x => x.StartsWith(prefix + ":"));
+
+            return (arguments.FirstOrDefault(x => x.StartsWith(prefix + ":")) != null)
+                    ? match.Substring(prefix.Length + 1).TrimMatchingQuotes('"')
+                    : arguments.Where(x => x == prefix).Select(x => "").FirstOrDefault();
         }
 
         public static Exception CaptureExceptionDispatchInfo(this Exception ex)
@@ -312,6 +386,10 @@ namespace csscript
             }
             return result.ToArray();
         }
+
+        public static string GetFileName(this string path) => Path.GetFileName(path);
+
+        public static string GetFullPath(this string path) => Path.GetFullPath(path);
 
         static string[] SplitLexicallyWithoutTakingNewLineIntoAccount(this string str, int desiredChunkLength)
         {

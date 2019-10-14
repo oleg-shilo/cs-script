@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using CSScriptLibrary;
 
+// The VB.NET samples can be found here: https://github.com/oleg-shilo/cs-script/tree/master/Source/NuGet/content/vb
+
 namespace CSScriptNativeApi
 {
     public class CodeDom_Roslyn
@@ -22,14 +24,13 @@ namespace CSScriptNativeApi
                                                          Console.WriteLine(tuple);
                                                      }
                                                      test();
-                                               
+
                                                      Console.WriteLine(greeting);
                                                  }")
                                    .GetStaticMethod();
 
             sayHello("Hello World!");
         }
-
         static string Root { get { return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); } }
 
         static string LocateRoslynCompilers()
@@ -38,7 +39,7 @@ namespace CSScriptNativeApi
             {
                 // Roslyn compilers are distributed as a NuGet package but the binaries are never copied into the output folder.
                 // Thus the path tho the compilers needs to be discovered dynamically.
-                // The algorithm below is simplistic and does not check for highest version if multiple packages are found.  
+                // The algorithm below is simplistic and does not check for highest version if multiple packages are found.
 
                 string packageDir = Path.Combine(Root, "..", "..", "..", "packages");
                 string roslynDir = Path.Combine(Directory.GetDirectories(packageDir, "Microsoft.Net.Compilers.*").First(), "tools");
@@ -54,6 +55,5 @@ namespace CSScriptNativeApi
         {
             return Path.Combine(Root, "CSSRoslynProvider.dll");
         }
-
     }
 }

@@ -6,26 +6,28 @@ using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Threading.Tasks;
 
-// Read in more details about all aspects of CS-Script hosting in applications 
+// The VB.NET samples can be found here: https://github.com/oleg-shilo/cs-script/tree/master/Source/NuGet/content/vb
+//
+// Read in more details about all aspects of CS-Script hosting in applications
 // here: http://www.csscript.net/help/Script_hosting_guideline_.html
 //
-// This file contains samples for the script hosting scenarios requiring asynchronous script execution as well as unloading the 
+// This file contains samples for the script hosting scenarios requiring asynchronous script execution as well as unloading the
 // scripts being executed.
 //  AsyncSamples
-//    Samples demonstrate the use of Async and Await mechanism available in C# 5 and higher. Note that the async method extensions 
-//    cover the complete set of CSScript.Evaluator methods. 
+//    Samples demonstrate the use of Async and Await mechanism available in C# 5 and higher. Note that the async method extensions
+//    cover the complete set of CSScript.Evaluator methods.
 //
-//  UnloadingSamples 
-//    Samples demonstrate the use of temporary AppDoamain for loading and executing dynamic C# code (script). It is the 
-//    only mechanism available for unloading dynamically loaded assemblies. This is a well known CLR design limitation that leads to 
+//  UnloadingSamples
+//    Samples demonstrate the use of temporary AppDoamain for loading and executing dynamic C# code (script). It is the
+//    only mechanism available for unloading dynamically loaded assemblies. This is a well known CLR design limitation that leads to
 //    memory leaks if the assembly/script loaded in the caller AppDomain. The problem affects all C# script engines (e.g. Roslyn, CodeDom)
-//    and it cannot be solved by the engine itself thus CS-Script provides a work around in form of the MethodExtensions for the 
+//    and it cannot be solved by the engine itself thus CS-Script provides a work around in form of the MethodExtensions for the
 //    CSScript.Evaluator methods that are compatible with the unloading mechanism.
 //
 //    Nevertheless you should try to avoid using remote AppDoamain unless you have to. It is very heavy and also imposes the serialization
-//    constrains.  
+//    constrains.
 //
-// All samples rely on the compiler agnostic CSScript.Evaluator API. 
+// All samples rely on the compiler agnostic CSScript.Evaluator API.
 namespace CSScriptEvaluatorExtensions
 {
     public class HostApp
@@ -88,8 +90,8 @@ namespace CSScriptEvaluatorExtensions
 
             public async void LoadCodeAsync()
             {
-                //This use-case uses Interface Alignment and this requires all assemblies involved to have 
-                //non-empty Assembly.Location 
+                //This use-case uses Interface Alignment and this requires all assemblies involved to have
+                //non-empty Assembly.Location
                 CSScript.GlobalSettings.InMemoryAssembly = false;
 
                 ICalc calc = await CSScript.Evaluator
@@ -175,37 +177,37 @@ namespace CSScriptEvaluatorExtensions
 
             public void LoadCodeRemotely()
             {
-                // Class Calc doesn't implement ICals interface. Thus the compiled object cannot be typecasted into 
-                // the interface and Evaluator will emit duck-typed assembly instead. 
-                // But Mono and Roslyn build file-less assemblies, meaning that they cannot be used to build 
+                // Class Calc doesn't implement ICals interface. Thus the compiled object cannot be typecasted into
+                // the interface and Evaluator will emit duck-typed assembly instead.
+                // But Mono and Roslyn build file-less assemblies, meaning that they cannot be used to build
                 // duck-typed proxies and CodeDomEvaluator needs to be used explicitly.
-                // Note class Calc also inherits from MarshalByRefObject. This is required for all object that 
+                // Note class Calc also inherits from MarshalByRefObject. This is required for all object that
                 // are passed between AppDomain: they must inherit from MarshalByRefObject or be serializable.
 
-                //This use-case uses Interface Alignment and this requires all assemblies involved to have 
-                //non-empty Assembly.Location 
+                //This use-case uses Interface Alignment and this requires all assemblies involved to have
+                //non-empty Assembly.Location
                 CSScript.GlobalSettings.InMemoryAssembly = false;
 
                 var script = CSScript.CodeDomEvaluator
                                      .LoadCodeRemotely<ICalc>(
                                                       @"using System;
                                                         public class Calc : MarshalByRefObject
-                                                        { 
+                                                        {
                                                             object t;
                                                             public int Sum(int a, int b)
                                                             {
                                                                 t = new Test();
                                                                 return a+b;
                                                             }
-                                                        }    
-                                                        
+                                                        }
+
                                                         class Test
                                                         {
                                                             ~Test()
                                                             {
                                                                 Console.WriteLine(""Domain is unloaded: ~Test()"");
                                                             }
-                                                        }                                         
+                                                        }
                                                         ");
 
                 Console.WriteLine("{0}: {1}", nameof(LoadCodeRemotely), script.Sum(15, 3));
@@ -215,18 +217,18 @@ namespace CSScriptEvaluatorExtensions
 
             public void LoadCodeRemotelyWithInterface()
             {
-                // Note class Calc also inherits from MarshalByRefObject. This is required for all object that 
+                // Note class Calc also inherits from MarshalByRefObject. This is required for all object that
                 // are passed between AppDomain: they must inherit from MarshalByRefObject or be serializable.
                 var script = CSScript.Evaluator
                                      .LoadCodeRemotely<ICalc>(
                                                       @"using System;
                                                         public class Calc : MarshalByRefObject, CSScriptEvaluatorExtensions.ICalc
-                                                        { 
+                                                        {
                                                             public int Sum(int a, int b)
                                                             {
                                                                 return a+b;
                                                             }
-                                                        }    
+                                                        }
                                                         ");
 
                 Console.WriteLine("{0}: {1}", nameof(LoadCodeRemotelyWithInterface), script.Sum(15, 3));
@@ -236,14 +238,14 @@ namespace CSScriptEvaluatorExtensions
 
             public void LoadMethodRemotely()
             {
-                // LoadMethodRemotely is essentially the same as LoadCodeRemotely. It just deals not with the 
-                // whole class definition but a single method(s) only. And the rest of the class definition is 
-                // added automatically by CS-Script. The auto-generated class declaration also indicates 
+                // LoadMethodRemotely is essentially the same as LoadCodeRemotely. It just deals not with the
+                // whole class definition but a single method(s) only. And the rest of the class definition is
+                // added automatically by CS-Script. The auto-generated class declaration also indicates
                 // that the class implements ICalc interface. Meaning that it will trigger compile error
                 // if the set of methods in the script code doesn't implement all interface members.
 
-                //This use-case uses Interface Alignment and this requires all assemblies involved to have 
-                //non-empty Assembly.Location 
+                //This use-case uses Interface Alignment and this requires all assemblies involved to have
+                //non-empty Assembly.Location
                 CSScript.GlobalSettings.InMemoryAssembly = false;
 
                 var script = CSScript.Evaluator
@@ -274,7 +276,7 @@ namespace CSScriptEvaluatorExtensions
                                                         }");
 
                 //Normally remote objects are disposed if they are not accessed withing a default timeout period.
-                //It is not even enough to keep transparent proxies or their wrappers (e.g. 'sum') referenced. 
+                //It is not even enough to keep transparent proxies or their wrappers (e.g. 'sum') referenced.
                 //To prevent GC collection in the remote domain use .NET ClientSponsor mechanism as below.
                 sumSponsor = sum.ExtendLifeFromMinutes(30);
             }

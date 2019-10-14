@@ -2,21 +2,21 @@ using CSScriptLibrary;
 using System;
 using System.Diagnostics;
 
-// Read in more details about all aspects of CS-Script hosting in applications 
+// Read in more details about all aspects of CS-Script hosting in applications
 // here: http://www.csscript.net/help/Script_hosting_guideline_.html
 //
 // This file contains samples for the script hosting scenarios relying on CS-Script Evaluator interface (API).
 // This API is a unified generic interface allowing dynamic switch of the underlying compiling services (Mono, Roslyn, CodeDom)
-// without the need for changing the hosting code. 
+// without the need for changing the hosting code.
 //
-// Apart from Evaluator (compiler agnostic) API CS-Script offers alternative hosting model: CS-Script Native, 
-// which relies solely on CodeDom compiler. CS-Script Native offers some features that are not available with CS-Script Evaluator 
-// (e.g. script unloading). 
-// 
-// The choice of the underlying compiling engine (e.g. Mono vs CodeDom) when using CS-Script Evaluator is always dictated by the 
-// specifics of the hosting scenario. Thanks to in-process compiler hosting, Mono and Roslyn demonstrate much better compiling 
-// performance comparing to CodeDom engine. However they don't allow  script debugging and caching easily supported with CodeDom. 
-// Mono and particularly Roslyn also leas create more memory pressure due to the higher volume of the temp assemblies loaded into 
+// Apart from Evaluator (compiler agnostic) API CS-Script offers alternative hosting model: CS-Script Native,
+// which relies solely on CodeDom compiler. CS-Script Native offers some features that are not available with CS-Script Evaluator
+// (e.g. script unloading).
+//
+// The choice of the underlying compiling engine (e.g. Mono vs CodeDom) when using CS-Script Evaluator is always dictated by the
+// specifics of the hosting scenario. Thanks to in-process compiler hosting, Mono and Roslyn demonstrate much better compiling
+// performance comparing to CodeDom engine. However they don't allow  script debugging and caching easily supported with CodeDom.
+// Mono and particularly Roslyn also leas create more memory pressure due to the higher volume of the temp assemblies loaded into
 // the hosting AppDomain. Roslyn (at least CSharp.Scripting-v1.2.0.0) also has very high initial loading overhead up to 4 seconds.
 //
 // One of the possible approaches would be to use EvaluatorEngine.CodeDom during the active development and later on switch to Mono/Roslyn.
@@ -27,7 +27,7 @@ namespace CSScriptEvaluatorApi
     {
         public static void Test()
         {
-            // Just in case clear AlternativeCompiler so it is not set to Roslyn or anything else by 
+            // Just in case clear AlternativeCompiler so it is not set to Roslyn or anything else by
             // the CS-Script installed (if any) on the host OS
             CSScript.GlobalSettings.UseAlternativeCompiler = null;
 
@@ -168,9 +168,9 @@ namespace CSScriptEvaluatorApi
             {
                 // LoadMethod compiles code and returns instance of a first class
                 // in the compiled assembly.
-                // LoadMethod is essentially the same as LoadCode. It just deals not with the 
-                // whole class definition but a single method(s) only. And the rest of the class definition is 
-                // added automatically by CS-Script. 
+                // LoadMethod is essentially the same as LoadCode. It just deals not with the
+                // whole class definition but a single method(s) only. And the rest of the class definition is
+                // added automatically by CS-Script.
                 // 'public' is optional as it will be injected if the code doesn't start with it.
                 dynamic script = CSScript.Evaluator
                                          .LoadMethod(@"using System;
@@ -186,14 +186,14 @@ namespace CSScriptEvaluatorApi
             {
                 // LoadMethod compiles code and returns instance of a first class
                 // in the compiled assembly.
-                // LoadMethod is essentially the same as LoadCode. It just deals not with the 
-                // whole class definition but a single method(s) only. And the rest of the class definition is 
-                // added automatically by CS-Script. The auto-generated class declaration also indicates 
+                // LoadMethod is essentially the same as LoadCode. It just deals not with the
+                // whole class definition but a single method(s) only. And the rest of the class definition is
+                // added automatically by CS-Script. The auto-generated class declaration also indicates
                 // that the class implements ICalc interface. Meaning that it will trigger compile error
                 // if the set of methods in the script code doesn't implement all interface members.
 
-                //This use-case uses Interface Alignment and this requires all assemblies involved to have 
-                //non-empty Assembly.Location 
+                //This use-case uses Interface Alignment and this requires all assemblies involved to have
+                //non-empty Assembly.Location
                 CSScript.GlobalSettings.InMemoryAssembly = false;
 
                 ICalc script = CSScript.Evaluator
@@ -230,8 +230,8 @@ namespace CSScriptEvaluatorApi
                 // 2- The script class doesn't implement host app interface but it can still be aligned to
                 // one as long at it implements the  interface members
 
-                //This use-case uses Interface Alignment and this requires all assemblies involved to have 
-                //non-empty Assembly.Location 
+                //This use-case uses Interface Alignment and this requires all assemblies involved to have
+                //non-empty Assembly.Location
                 CSScript.GlobalSettings.InMemoryAssembly = false;
 
                 ICalc script = CSScript.MonoEvaluator
@@ -266,7 +266,7 @@ namespace CSScriptEvaluatorApi
 
             public void DebugTest()
             {
-                //pops up an assertion dialog 
+                //pops up an assertion dialog
 
                 CSScript.EvaluatorConfig.DebugBuild = true;
                 CSScript.EvaluatorConfig.Engine = EvaluatorEngine.CodeDom;

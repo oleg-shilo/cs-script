@@ -33,16 +33,17 @@
 #endregion Licence...
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
-using System.Collections;
-using System.Linq;
 
 namespace csscript
 {
@@ -59,13 +60,12 @@ namespace csscript
         public static void Main(string[] rawArgs)
         {
             // Debug.Assert(false);
-            // Debugger.Break();
             main(rawArgs);
         }
 
         static void main(string[] rawArgs)
         {
-            Utils.SetMonoRootDirEnvvar();
+            Runtime.SetMonoRootDirEnvvar();
 
             if (rawArgs.Contains("-preload"))
                 rawArgs = SchedulePreloadCompiler(rawArgs);
@@ -90,7 +90,7 @@ namespace csscript
                 // if (args.Contains("-check"))
                 // Debug.Assert(false);
 
-                if (Utils.IsLinux)
+                if (Runtime.IsLinux)
                 {
                     //because Linux shebang does not properly split arguments we need to take care of this
                     //http://www.daniweb.com/software-development/c/threads/268382
@@ -114,7 +114,7 @@ namespace csscript
                     Utils.SetEnvironmentVariable("CSScriptRuntimeLocation", System.Reflection.Assembly.GetExecutingAssembly().Location);
                     Utils.SetEnvironmentVariable("cscs_exe_dir", Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
 
-                    if (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") == null && Utils.IsLinux)
+                    if (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") == null && Runtime.IsLinux)
                     {
                         // GetExecutingAssembly().Location may be empty even for the entry assembly
                         var cscs_exe_dir = Environment.GetEnvironmentVariable("cscs_exe_dir");
@@ -267,14 +267,17 @@ namespace csscript
 
             var script = Path.Combine(Path.GetDirectoryName(tmp), "css_load.cs");
 
-            try { File.WriteAllText(script, @"using System;
+            try
+            {
+                File.WriteAllText(script, @"using System;
                                                   class Script
                                                   {
                                                       static public void Main(string[] args)
                                                       {
                                                         Console.WriteLine(""Compiler is loaded..."");
                                                       }
-                                                  }"); }
+                                                  }");
+            }
             catch { }
 
             return args.Where(x => x != "-preload").Concat(new[] { "-c:0", script }).ToArray();

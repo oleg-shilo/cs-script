@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CS-Script</id>
-<version>3.28.7.0</version>
+<version>3.29.0.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -13,25 +13,20 @@
         <description>Class Library assembly for the CS-Script engine. CS-Script is a CLR (Common Language Runtime) based scripting system which uses ECMA-compliant C# as a programming language.</description>
         <summary>This is the complete package for hosting the script engine in .NET (full) applications. It also contains the samples demonstrating how to use all three available compilation engines (Roslyn, Mono and CodeDom) as well as the CS-Script legacy native interface.</summary>
         <releaseNotes>
-# Release v3.28.4.0
-
-* CS-Script v3.28.4.0
-  - Added resolving GAC assemblies on Mono (when running on Windows)
-  - Implemented resolving custom config file specified by file name only (local with respect to cscs.exe)
-  - Command `-stop` now stops syntaxer.exe as well
-
-* CS-Script.Core v1.0.1.0
-  - Implemented resolving `using` into assemblies from 'dotnet\shared' folder
-  - Issue #110: Compiling to Byte[]/File in .NET Standard
-  - Issue #106: Fix netstandard2 version to work in 4.6.1 and fix ReferenceDomainAssemblies
+- Implemented NuGet dependencies discovery
+- Added support for wildcards in //css_ref directive (e.g. //css_ref ./*.dll).
+- Added support for -rt:&lt;runtime&gt; switch in //css_nuget directive
+- Added support for //css_nuget source &lt;url&gt;
+- Added migration of old shell extension configuration to Shell-X deployment
+- Issue #149: Suggesting to normalize paths in CompilingInfo.Input
 
 
     </releaseNotes>
-        <copyright>Copyright (C) 2004-2017 Oleg Shilo</copyright>
+        <copyright>Copyright (C) 2004-2019 Oleg Shilo</copyright>
         <language>en-AU</language>
         <tags>C# Scripting Dynamic CS-Script csscript</tags>
         <dependencies>
-            <dependency id="CS-Script.bin" version="3.28.4.0" />
+            <dependency id="CS-Script.bin" version="3.29.0" />
         </dependencies>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="" />

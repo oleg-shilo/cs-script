@@ -1,4 +1,4 @@
-C# Script execution engine. Version 3.28.9.0.
+C# Script execution engine. Version 3.29.0.0.
 Copyright (C) 2004-2018 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -224,7 +224,8 @@ Engine directives:
  
  - //css_include <file>;
  - //css_reference <file>;
- - //css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];
+ - //css_nuget [-source] [-noref] [-rt:<runtime>] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>]
+package0[,package1]..[,packageN]|sourceUrl ;
  - //css_args arg0[ arg1]..[ argN];
  - //css_searchdir <directory>;
  - //css_autoclass [style]
@@ -267,9 +268,17 @@ file - name of the assembly file to be loaded at run-time.
 This directive is used to reference assemblies required at run time.
 The assembly must be in GAC, the same folder with the script file or in the 'Script Library' folders (see 'CS-Script
 settings').
+ 
+Note if you use wildcard in the referenced assembly name (e.g. socket.*.dll) the directive will only reference from the
+first probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.dll' as they may
+lead to unpredictable behavior. For example they may match everything from the very first probing directory, which is
+typically a current directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.dll',
+'*Helper.dll', './*.dll')
+ 
 ------------------------------------
  
-//css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];
+//css_nuget [-source] [-noref] [-rt:<runtime>] [-force[:delay]] [-ver:<version>] [-ng:<nuget arguments>]
+package0[,package1]..[,packageN]|sourceUrl ;
  
 Downloads/Installs the NuGet package. It also automatically references the downloaded package assemblies.
 Note: The directive switches need to be in the order as above.
@@ -281,23 +290,28 @@ be referenced.
 You should use '-noref' switch and reference assemblies manually for all other cases. For example multiple assemblies
 with the same file name that target different CLRs (e.g. v3.5 vs v4.0) in the same package.
 Switches:
- -noref         - switch for individual packages if automatic referencing isn't desired. 
-                  You can use 'css_nuget' environment variable for further referencing package content (e.g. //css_dir
-                  %css_nuget%\WixSharp\**)
- -force[:delay] - switch to force individual packages downloading even when they were already downloaded.
-                  You can optionally specify delay for the next forced downloading by number of seconds since last
-                  download.
-                  '-force:3600' will delay it for one hour. This option is useful for preventing frequent download
-                  interruptions during active script development.
- -ver:<version> - switch to download/reference a specific package version.
- -ng:<args>     - switch to pass NuGet arguments for every individual package.
+ -noref              - switch for individual packages if automatic referencing isn't desired. 
+                       You can use 'css_nuget' environment variable for further referencing package content (e.g.
+                       //css_dir %css_nuget%\WixSharp\**)
+ -force[:delay]      - switch to force individual packages downloading even when they were already downloaded.
+                       You can optionally specify delay for the next forced downloading by number of seconds since last
+                       download.
+                       '-force:3600' will delay it for one hour. This option is useful for preventing frequent download
+                       interruptions during active script development.
+ -ver:<version>      - switch to download/reference a specific package version.
+ -ng:<args>          - switch to pass NuGet arguments for every individual package.
+ -rt:<runtime>  - switch to use specific runtime binaries (e.g. '-rt:netstandard1.3').
+ -source <sourceUrl> - specifies the package source.
+                       If '-source' switch is used then no other switches are allowed in the directive.
+                       If '-source' is not specified then the default NuGet sources will be used.
  
 Example: //css_nuget cs-script;
          //css_nuget -ver:4.1.2 NLog
          //css_nuget -ver:"4.1.1-rc1" -ng:"-Pre -NoCache" NLog
+         //css_nuget -source https://api.mycompany.com/nuget/index.json;
  
 This directive will install CS-Script NuGet package.
-(see http://www.csscript.net/help/script_nugets.html)
+(see http://www.cs-script.net)
 ------------------------------------
 //css_args arg0[ arg1]..[ argN];
  

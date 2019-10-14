@@ -34,18 +34,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-
-using System.Threading;
-using System.Xml;
-using System.Drawing.Design;
 
 using System.ComponentModel;
-using System.Text;
-using System.Windows.Forms;
-using System.Reflection;
-using System.Linq;
 using System.Diagnostics;
+using System.Drawing.Design;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+
+using System.Threading;
+using System.Windows.Forms;
+using System.Xml;
 
 namespace csscript
 {
@@ -61,6 +61,7 @@ namespace csscript
         internal const string code_dirs_section = dirs_section_prefix + "dirs from code" + dirs_section_suffix;
         internal const string config_dirs_section = dirs_section_prefix + "dirs from config" + dirs_section_suffix;
         internal const string internal_dirs_section = dirs_section_prefix + "cs-script special dirs" + dirs_section_suffix;
+        internal const string nuget_dirs_section = dirs_section_prefix + "dirs from nuget store" + dirs_section_suffix;
 
         internal static bool ProbingLegacyOrder
         {
@@ -413,13 +414,13 @@ namespace csscript
         string InitDefaultRefAssemblies()
         {
 #if net4
-            if (Utils.IsMono)
+            if (Runtime.IsMono)
             {
                 return "System; System.Core;";
             }
             else
             {
-                if (Utils.IsNet45Plus())
+                if (Runtime.IsNet45Plus())
                     return "System; System.Core; System.Linq;";
                 else
                     return "System; System.Core;";
@@ -634,8 +635,8 @@ namespace csscript
         /// typically require assembly <c>Location</c> member being populated with the valid path.</para>
         /// </summary>
         [Category("RuntimeSettings"),
-         Description("Indicates the script assembly is to be loaded by CLR as an in-memory byte stream instead of the file. " +
-                      "Note this settings can affect the use cases requiring the loaded assemblies to have non empty Assembly.Location.")]
+        Description("Indicates the script assembly is to be loaded by CLR as an in-memory byte stream instead of the file. " +
+            "Note this settings can affect the use cases requiring the loaded assemblies to have non empty Assembly.Location.")]
         public bool InMemoryAssembly
         {
             get { return inMemoryAsm; }
@@ -653,7 +654,7 @@ namespace csscript
         {
             get
             {
-                if (concurrencyControl == ConcurrencyControl.HighResolution && Utils.IsMono)
+                if (concurrencyControl == ConcurrencyControl.HighResolution && Runtime.IsMono)
                     concurrencyControl = ConcurrencyControl.Standard;
                 return concurrencyControl;
             }
@@ -905,7 +906,7 @@ namespace csscript
                     string asm_path = Assembly.GetExecutingAssembly().Location;
                     if (!string.IsNullOrEmpty(asm_path))
                     {
-                        if (Utils.IsMono)
+                        if (Runtime.IsMono)
                         {
                             var monoFileName = Path.Combine(Path.GetDirectoryName(asm_path), "css_config.mono.xml");
                             if (File.Exists(monoFileName))

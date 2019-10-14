@@ -3,22 +3,15 @@
 //css_dir %CS-S_DEV_ROOT%\lib
 //css_ref System.Core;
 //css_pre images($this)
-//css_res images.resources; 
-////css_import debugVS8.0.cs;
-////css_import debugVS9.0.cs;
-////css_import debug#D;
-////css_import debugCLR;
+//css_res images.resources;
 //css_import searchDirs.cs;
-//css_import update;
-//css_import ShellExt.cs;
 //css_import SplashScreen.cs;
-using csscript;
-using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
@@ -27,6 +20,8 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
+using Microsoft.Win32;
+using csscript;
 
 namespace Config
 {
@@ -62,25 +57,22 @@ namespace Config
         private LinkLabel linkLabel6;
         private TextBox textBox4;
         private bool quiet = false;
-        private CheckBox advancedShellEx;
         private GroupBox groupBox4;
         private LinkLabel integrateVS;
         private LinkLabel manageSearchDirs;
         private LinkLabel configureShellExt;
         private TabControl tabControl2;
         private TabPage tabPage4;
-        private TabPage tabPage5;
         private Button repareBtn;
         private Button donateBtn;
         private ComboBox doubleClickAction;
-        private LinkLabel linkLabel10;
         private PictureBox iconPictureBox;
         private Button changeIconButton;
-        private CheckBox allFilesAdvancedShellEx;
         private PictureBox pictureBox1;
         private LinkLabel linkLabel11;
         private Button updateNuGetBtn;
         private LinkLabel integrateNpp;
+        private LinkLabel integrateST3;
         private bool ignoreDirtyOnClose = false;
 
         public ConfigForm(bool quiet, bool update)
@@ -88,29 +80,6 @@ namespace Config
             this.quiet = quiet;
             installer = new CSScriptInstaller(quiet, update);
             Init();
-
-            if (installer.ShellExtensionHasMoved)
-            {
-                CSScriptInstaller.ReinstallShellExt(); //requires this extra push as under certain circumstances (e.g. ShellEx.DLL not moved yet to commonAppDir) registration in Init() may silently fail
-
-                if (!quiet)
-                {
-                    SplashScreen.ShowNotification(
-                        "The CS-Script has been activated from the new location.\r\n\r\n" +
-                        "Please review the settings in the \"Runtime options\" tab as in result of the \"settings migration\" " +
-                        "they may now contain new defaults or invalid values (etc. absolute paths).\r\n\r\n" +
-
-                        "Shell Extension has also been reset. You may wish to restart Windows Explorer in order to refresh Shell Extension",
-
-                        "Completed", true,
-                        "Restart Windows Explorer", delegate { CSScriptInstaller.RestartExplorer(); });
-
-                    while (!SplashScreen.IsClosed)
-                    {
-                        Thread.Sleep(1000);
-                    }
-                }
-            }
         }
 
         private void Init()
@@ -127,7 +96,6 @@ namespace Config
                 this.Text += " (Restricted mode)";
                 deactivateBtn.Enabled =
                 comboBox1.Enabled =
-                advancedShellEx.Enabled =
                 checkedListBox1.Enabled =
                 doubleClickAction.Enabled = false;
             }
@@ -152,8 +120,6 @@ namespace Config
             if (CSScriptInstaller.justInstalled)
             {
                 Save();
-                CSScriptInstaller.InstallComShellExt(true, null, true);
-                CSScriptInstaller.ValidateShellExtensionsCompatibility();
                 CSScriptInstaller.ResetCsDefaultProgram();
             }
 
@@ -189,17 +155,15 @@ namespace Config
             this.components = new System.ComponentModel.Container();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.integrateST3 = new System.Windows.Forms.LinkLabel();
             this.doubleClickAction = new System.Windows.Forms.ComboBox();
+            this.configureShellExt = new System.Windows.Forms.LinkLabel();
+            this.integrateNpp = new System.Windows.Forms.LinkLabel();
             this.integrateVS = new System.Windows.Forms.LinkLabel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
-            this.allFilesAdvancedShellEx = new System.Windows.Forms.CheckBox();
-            this.advancedShellEx = new System.Windows.Forms.CheckBox();
-            this.linkLabel10 = new System.Windows.Forms.LinkLabel();
-            this.configureShellExt = new System.Windows.Forms.LinkLabel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.iconPictureBox = new System.Windows.Forms.PictureBox();
             this.changeIconButton = new System.Windows.Forms.Button();
@@ -208,8 +172,8 @@ namespace Config
             this.deactivateBtn = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.manageSearchDirs = new System.Windows.Forms.LinkLabel();
@@ -232,13 +196,11 @@ namespace Config
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.integrateNpp = new System.Windows.Forms.LinkLabel();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.tabControl2.SuspendLayout();
             this.tabPage4.SuspendLayout();
-            this.tabPage5.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.iconPictureBox)).BeginInit();
             this.tabPage2.SuspendLayout();
@@ -246,9 +208,9 @@ namespace Config
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //
             // tabControl1
-            // 
+            //
             this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -258,40 +220,71 @@ namespace Config
             this.tabControl1.Location = new System.Drawing.Point(1, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(433, 394);
+            this.tabControl1.Size = new System.Drawing.Size(433, 243);
             this.tabControl1.TabIndex = 1;
-            // 
+            //
             // tabPage1
-            // 
+            //
+            this.tabPage1.Controls.Add(this.integrateST3);
             this.tabPage1.Controls.Add(this.doubleClickAction);
+            this.tabPage1.Controls.Add(this.configureShellExt);
             this.tabPage1.Controls.Add(this.integrateNpp);
             this.tabPage1.Controls.Add(this.integrateVS);
             this.tabPage1.Controls.Add(this.groupBox4);
             this.tabPage1.Controls.Add(this.groupBox1);
+            this.tabPage1.Controls.Add(this.comboBox1);
             this.tabPage1.Controls.Add(this.label4);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Size = new System.Drawing.Size(425, 368);
+            this.tabPage1.Size = new System.Drawing.Size(425, 217);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
-            // 
+            //
+            // integrateST3
+            //
+            this.integrateST3.Location = new System.Drawing.Point(235, 183);
+            this.integrateST3.Name = "integrateST3";
+            this.integrateST3.Size = new System.Drawing.Size(165, 19);
+            this.integrateST3.TabIndex = 15;
+            this.integrateST3.TabStop = true;
+            this.integrateST3.Text = "Sublime Text Integration";
+            this.integrateST3.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.integrateST3_LinkClicked);
+            //
             // doubleClickAction
-            // 
-            this.doubleClickAction.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
+            //
             this.doubleClickAction.FormattingEnabled = true;
-            this.doubleClickAction.Location = new System.Drawing.Point(10, 318);
+            this.doubleClickAction.Location = new System.Drawing.Point(13, 119);
             this.doubleClickAction.Name = "doubleClickAction";
             this.doubleClickAction.Size = new System.Drawing.Size(396, 21);
             this.doubleClickAction.TabIndex = 14;
             this.doubleClickAction.SelectedIndexChanged += new System.EventHandler(this.doubleClickAction_SelectedIndexChanged);
             this.doubleClickAction.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             this.doubleClickAction.Click += new System.EventHandler(this.doubleClickAction_Click);
-            // 
+            //
+            // configureShellExt
+            //
+            this.configureShellExt.Location = new System.Drawing.Point(13, 154);
+            this.configureShellExt.Name = "configureShellExt";
+            this.configureShellExt.Size = new System.Drawing.Size(146, 13);
+            this.configureShellExt.TabIndex = 13;
+            this.configureShellExt.TabStop = true;
+            this.configureShellExt.Text = "Configure Context Menu";
+            this.toolTip1.SetToolTip(this.configureShellExt, "Open Advanced Shell Extensions management console");
+            this.configureShellExt.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.configureShellExt_LinkClicked);
+            //
+            // integrateNpp
+            //
+            this.integrateNpp.Location = new System.Drawing.Point(235, 154);
+            this.integrateNpp.Name = "integrateNpp";
+            this.integrateNpp.Size = new System.Drawing.Size(165, 19);
+            this.integrateNpp.TabIndex = 13;
+            this.integrateNpp.TabStop = true;
+            this.integrateNpp.Text = "Notepad++ Integration";
+            this.integrateNpp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.integrateNpp_LinkClicked);
+            //
             // integrateVS
-            // 
-            this.integrateVS.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.integrateVS.Location = new System.Drawing.Point(7, 343);
+            //
+            this.integrateVS.Location = new System.Drawing.Point(13, 183);
             this.integrateVS.Name = "integrateVS";
             this.integrateVS.Size = new System.Drawing.Size(134, 19);
             this.integrateVS.TabIndex = 13;
@@ -299,42 +292,42 @@ namespace Config
             this.integrateVS.Text = "Visual Studio Integration";
             this.toolTip1.SetToolTip(this.integrateVS, "Open VS integration console");
             this.integrateVS.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.integrateVS_LinkClicked);
-            // 
+            //
             // groupBox4
-            // 
+            //
             this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox4.Controls.Add(this.tabControl2);
-            this.groupBox4.Location = new System.Drawing.Point(3, 97);
+            this.groupBox4.Location = new System.Drawing.Point(198, 213);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(419, 196);
+            this.groupBox4.Size = new System.Drawing.Size(224, 0);
             this.groupBox4.TabIndex = 12;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Explorer context menu:";
-            // 
+            this.groupBox4.Visible = false;
+            //
             // tabControl2
-            // 
+            //
             this.tabControl2.Controls.Add(this.tabPage4);
-            this.tabControl2.Controls.Add(this.tabPage5);
-            this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl2.Location = new System.Drawing.Point(3, 16);
+            this.tabControl2.Location = new System.Drawing.Point(56, 29);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(413, 177);
+            this.tabControl2.Size = new System.Drawing.Size(232, 82);
             this.tabControl2.TabIndex = 14;
-            // 
+            this.tabControl2.Visible = false;
+            //
             // tabPage4
-            // 
+            //
             this.tabPage4.Controls.Add(this.checkedListBox1);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(405, 151);
+            this.tabPage4.Size = new System.Drawing.Size(224, 56);
             this.tabPage4.TabIndex = 0;
             this.tabPage4.Text = "Simplified Context Menu";
-            // 
+            //
             // checkedListBox1
-            // 
+            //
             this.checkedListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -342,71 +335,14 @@ namespace Config
             this.checkedListBox1.CheckOnClick = true;
             this.checkedListBox1.Location = new System.Drawing.Point(3, 3);
             this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(396, 139);
+            this.checkedListBox1.Size = new System.Drawing.Size(215, 34);
             this.checkedListBox1.TabIndex = 10;
             this.toolTip1.SetToolTip(this.checkedListBox1, "Select menu items you wnt to appear in the Explorer context menu");
             this.checkedListBox1.Click += new System.EventHandler(this.checkedListBox1_Click);
             this.checkedListBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.checkedListBox1_KeyPress);
-            // 
-            // tabPage5
-            // 
-            this.tabPage5.Controls.Add(this.allFilesAdvancedShellEx);
-            this.tabPage5.Controls.Add(this.advancedShellEx);
-            this.tabPage5.Controls.Add(this.linkLabel10);
-            this.tabPage5.Controls.Add(this.configureShellExt);
-            this.tabPage5.Location = new System.Drawing.Point(4, 22);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Size = new System.Drawing.Size(405, 151);
-            this.tabPage5.TabIndex = 1;
-            this.tabPage5.Text = "Advanced Shell Extension";
-            // 
-            // allFilesAdvancedShellEx
-            // 
-            this.allFilesAdvancedShellEx.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.allFilesAdvancedShellEx.Location = new System.Drawing.Point(6, 23);
-            this.allFilesAdvancedShellEx.Name = "allFilesAdvancedShellEx";
-            this.allFilesAdvancedShellEx.Size = new System.Drawing.Size(173, 17);
-            this.allFilesAdvancedShellEx.TabIndex = 11;
-            this.allFilesAdvancedShellEx.Text = "Use for all file extensions";
-            this.allFilesAdvancedShellEx.CheckedChanged += new System.EventHandler(this.allFilesAdvancedShellEx_CheckedChanged);
-            // 
-            // advancedShellEx
-            // 
-            this.advancedShellEx.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.advancedShellEx.Location = new System.Drawing.Point(6, 6);
-            this.advancedShellEx.Name = "advancedShellEx";
-            this.advancedShellEx.Size = new System.Drawing.Size(173, 17);
-            this.advancedShellEx.TabIndex = 11;
-            this.advancedShellEx.Text = "Use Advanced Shell Extension";
-            this.advancedShellEx.CheckedChanged += new System.EventHandler(this.advancedShellEx_CheckedChanged);
-            // 
-            // linkLabel10
-            // 
-            this.linkLabel10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.linkLabel10.Location = new System.Drawing.Point(172, 7);
-            this.linkLabel10.Name = "linkLabel10";
-            this.linkLabel10.Size = new System.Drawing.Size(99, 13);
-            this.linkLabel10.TabIndex = 13;
-            this.linkLabel10.TabStop = true;
-            this.linkLabel10.Text = "Restart Explorer";
-            this.linkLabel10.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.linkLabel10.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.RestartExplorer_LinkClicked);
-            // 
-            // configureShellExt
-            // 
-            this.configureShellExt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.configureShellExt.Location = new System.Drawing.Point(256, 7);
-            this.configureShellExt.Name = "configureShellExt";
-            this.configureShellExt.Size = new System.Drawing.Size(146, 13);
-            this.configureShellExt.TabIndex = 13;
-            this.configureShellExt.TabStop = true;
-            this.configureShellExt.Text = "Configure Shell Extension";
-            this.configureShellExt.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.toolTip1.SetToolTip(this.configureShellExt, "Open Advanced Shell Extensions management console");
-            this.configureShellExt.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.configureShellExt_LinkClicked);
-            // 
+            //
             // groupBox1
-            // 
+            //
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.iconPictureBox);
@@ -416,7 +352,6 @@ namespace Config
             this.groupBox1.Controls.Add(this.deactivateBtn);
             this.groupBox1.Controls.Add(this.textBox1);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.comboBox1);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
@@ -424,26 +359,27 @@ namespace Config
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Active CS-Script installation";
-            // 
+            //
             // iconPictureBox
-            // 
+            //
             this.iconPictureBox.Location = new System.Drawing.Point(9, 46);
             this.iconPictureBox.Name = "iconPictureBox";
             this.iconPictureBox.Size = new System.Drawing.Size(41, 36);
             this.iconPictureBox.TabIndex = 7;
             this.iconPictureBox.TabStop = false;
-            // 
+            //
             // changeIconButton
-            // 
+            //
             this.changeIconButton.Location = new System.Drawing.Point(59, 52);
             this.changeIconButton.Name = "changeIconButton";
             this.changeIconButton.Size = new System.Drawing.Size(79, 23);
             this.changeIconButton.TabIndex = 6;
             this.changeIconButton.Text = "Change Icon";
+            this.changeIconButton.Visible = false;
             this.changeIconButton.Click += new System.EventHandler(this.changeIconButton_Click);
-            // 
+            //
             // updateNuGetBtn
-            // 
+            //
             this.updateNuGetBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.updateNuGetBtn.Location = new System.Drawing.Point(160, 51);
             this.updateNuGetBtn.Name = "updateNuGetBtn";
@@ -454,9 +390,9 @@ namespace Config
         "uGet.olg for the latest nuget.exe version.\r\nDownload and replace the local copy " +
         "if the update is found.");
             this.updateNuGetBtn.Click += new System.EventHandler(this.updateNuGetBtn_Click);
-            // 
+            //
             // repareBtn
-            // 
+            //
             this.repareBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.repareBtn.Location = new System.Drawing.Point(259, 51);
             this.repareBtn.Name = "repareBtn";
@@ -465,9 +401,9 @@ namespace Config
             this.repareBtn.Text = "Repair";
             this.toolTip1.SetToolTip(this.repareBtn, "Update all CS-Script settings with the current values");
             this.repareBtn.Click += new System.EventHandler(this.repareBtn_Click);
-            // 
+            //
             // deactivateBtn
-            // 
+            //
             this.deactivateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.deactivateBtn.Location = new System.Drawing.Point(337, 51);
             this.deactivateBtn.Name = "deactivateBtn";
@@ -476,9 +412,9 @@ namespace Config
             this.deactivateBtn.Text = "Deactivate";
             this.toolTip1.SetToolTip(this.deactivateBtn, "Deactivate current CS-Script installation");
             this.deactivateBtn.Click += new System.EventHandler(this.deactivateBtn_Click);
-            // 
+            //
             // textBox1
-            // 
+            //
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -487,22 +423,30 @@ namespace Config
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(314, 20);
             this.textBox1.TabIndex = 4;
-            // 
+            //
             // label2
-            // 
+            //
             this.label2.Location = new System.Drawing.Point(120, 53);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(102, 13);
             this.label2.TabIndex = 3;
             this.label2.Text = "Target CLR version:";
             this.label2.Visible = false;
-            // 
+            //
+            // label1
+            //
+            this.label1.Location = new System.Drawing.Point(6, 21);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(83, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Home directiory:";
+            //
             // comboBox1
-            // 
+            //
             this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBox1.Location = new System.Drawing.Point(112, 45);
+            this.comboBox1.Location = new System.Drawing.Point(276, 92);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(133, 21);
             this.comboBox1.TabIndex = 2;
@@ -510,38 +454,29 @@ namespace Config
             this.toolTip1.SetToolTip(this.comboBox1, "Select target CLR version");
             this.comboBox1.Visible = false;
             this.comboBox1.TextChanged += new System.EventHandler(this.comboBox1_TextChanged);
-            // 
-            // label1
-            // 
-            this.label1.Location = new System.Drawing.Point(6, 21);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(83, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Home directiory:";
-            // 
+            //
             // label4
-            // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label4.Location = new System.Drawing.Point(8, 302);
+            //
+            this.label4.Location = new System.Drawing.Point(10, 103);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(147, 13);
             this.label4.TabIndex = 2;
             this.label4.Text = "Open (double-click action):";
-            // 
+            //
             // tabPage2
-            // 
+            //
             this.tabPage2.Controls.Add(this.manageSearchDirs);
             this.tabPage2.Controls.Add(this.propertyGrid1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(425, 368);
+            this.tabPage2.Size = new System.Drawing.Size(425, 217);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Runtime options";
-            // 
+            //
             // manageSearchDirs
-            // 
+            //
             this.manageSearchDirs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.manageSearchDirs.Location = new System.Drawing.Point(3, 340);
+            this.manageSearchDirs.Location = new System.Drawing.Point(3, 189);
             this.manageSearchDirs.Name = "manageSearchDirs";
             this.manageSearchDirs.Size = new System.Drawing.Size(250, 23);
             this.manageSearchDirs.TabIndex = 15;
@@ -549,22 +484,22 @@ namespace Config
             this.manageSearchDirs.Text = "Manage SearchDirs (probing directories)";
             this.toolTip1.SetToolTip(this.manageSearchDirs, "Open Search Directories management console");
             this.manageSearchDirs.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.manageSearchDirs_LinkClicked);
-            // 
+            //
             // propertyGrid1
-            // 
+            //
             this.propertyGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.propertyGrid1.LineColor = System.Drawing.SystemColors.ScrollBar;
             this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
             this.propertyGrid1.Name = "propertyGrid1";
-            this.propertyGrid1.Size = new System.Drawing.Size(425, 328);
+            this.propertyGrid1.Size = new System.Drawing.Size(425, 177);
             this.propertyGrid1.TabIndex = 1;
             this.propertyGrid1.ToolbarVisible = false;
             this.propertyGrid1.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid1_PropertyValueChanged);
-            // 
+            //
             // tabPage3
-            // 
+            //
             this.tabPage3.Controls.Add(this.pictureBox1);
             this.tabPage3.Controls.Add(this.donateBtn);
             this.tabPage3.Controls.Add(this.textBox4);
@@ -575,67 +510,67 @@ namespace Config
             this.tabPage3.Controls.Add(this.linkLabel2);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(425, 368);
+            this.tabPage3.Size = new System.Drawing.Size(425, 217);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "About";
-            // 
+            //
             // pictureBox1
-            // 
+            //
             this.pictureBox1.Location = new System.Drawing.Point(336, 13);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(75, 75);
             this.pictureBox1.TabIndex = 10;
             this.pictureBox1.TabStop = false;
-            // 
+            //
             // donateBtn
-            // 
+            //
             this.donateBtn.Location = new System.Drawing.Point(336, 131);
             this.donateBtn.Name = "donateBtn";
             this.donateBtn.Size = new System.Drawing.Size(66, 64);
             this.donateBtn.TabIndex = 9;
             this.donateBtn.Text = "Donate";
             this.donateBtn.Click += new System.EventHandler(this.donateBtn_Click_1);
-            // 
+            //
             // textBox4
-            // 
+            //
             this.textBox4.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox4.Location = new System.Drawing.Point(8, 17);
             this.textBox4.Multiline = true;
             this.textBox4.Name = "textBox4";
             this.textBox4.ReadOnly = true;
-            this.textBox4.Size = new System.Drawing.Size(321, 49);
+            this.textBox4.Size = new System.Drawing.Size(321, 73);
             this.textBox4.TabIndex = 7;
-            this.textBox4.Text = "CS-Script\r\nC# script execution engine. \r\nCopyright (C) 2004-2013 Oleg Shilo.";
-            // 
+            this.textBox4.Text = "CS-Script\r\n\r\nC# script execution engine. \r\n\r\nCopyright (C) 2004-2019 Oleg Shilo.";
+            //
             // groupBox3
-            // 
+            //
             this.groupBox3.Controls.Add(this.linkLabel11);
             this.groupBox3.Controls.Add(this.linkLabel9);
             this.groupBox3.Controls.Add(this.linkLabel8);
             this.groupBox3.Controls.Add(this.linkLabel7);
             this.groupBox3.Controls.Add(this.linkLabel6);
-            this.groupBox3.Location = new System.Drawing.Point(10, 128);
+            this.groupBox3.Location = new System.Drawing.Point(10, 134);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(280, 112);
+            this.groupBox3.Size = new System.Drawing.Size(280, 58);
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Resources";
-            // 
+            //
             // linkLabel11
-            // 
-            this.linkLabel11.Location = new System.Drawing.Point(8, 16);
+            //
+            this.linkLabel11.Location = new System.Drawing.Point(8, 26);
             this.linkLabel11.Name = "linkLabel11";
-            this.linkLabel11.Size = new System.Drawing.Size(187, 13);
+            this.linkLabel11.Size = new System.Drawing.Size(121, 20);
             this.linkLabel11.TabIndex = 1;
             this.linkLabel11.TabStop = true;
-            this.linkLabel11.Tag = "http://www.csscript.net/Feedback.html";
+            this.linkLabel11.Tag = "https://github.com/oleg-shilo/cs-script/issues";
             this.linkLabel11.Text = "Support/Feedback";
             this.linkLabel11.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
-            // 
+            //
             // linkLabel9
-            // 
-            this.linkLabel9.Location = new System.Drawing.Point(133, 29);
+            //
+            this.linkLabel9.Location = new System.Drawing.Point(160, 3);
             this.linkLabel9.Name = "linkLabel9";
             this.linkLabel9.Size = new System.Drawing.Size(187, 13);
             this.linkLabel9.TabIndex = 0;
@@ -644,43 +579,45 @@ namespace Config
             this.linkLabel9.Text = "Online Samples";
             this.linkLabel9.Visible = false;
             this.linkLabel9.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
-            // 
+            //
             // linkLabel8
-            // 
-            this.linkLabel8.Location = new System.Drawing.Point(8, 85);
+            //
+            this.linkLabel8.Location = new System.Drawing.Point(135, 29);
             this.linkLabel8.Name = "linkLabel8";
-            this.linkLabel8.Size = new System.Drawing.Size(187, 13);
+            this.linkLabel8.Size = new System.Drawing.Size(116, 13);
             this.linkLabel8.TabIndex = 0;
             this.linkLabel8.TabStop = true;
-            this.linkLabel8.Tag = "http://www.csscript.net/Documentation.html";
+            this.linkLabel8.Tag = "https://github.com/oleg-shilo/cs-script/wiki";
             this.linkLabel8.Text = "Online Documentation";
             this.linkLabel8.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
-            // 
+            //
             // linkLabel7
-            // 
-            this.linkLabel7.Location = new System.Drawing.Point(8, 62);
+            //
+            this.linkLabel7.Location = new System.Drawing.Point(202, 16);
             this.linkLabel7.Name = "linkLabel7";
-            this.linkLabel7.Size = new System.Drawing.Size(187, 13);
+            this.linkLabel7.Size = new System.Drawing.Size(113, 13);
             this.linkLabel7.TabIndex = 0;
             this.linkLabel7.TabStop = true;
             this.linkLabel7.Tag = "mailto:csscript.support@gmail.com?subject=Feedback";
             this.linkLabel7.Text = "CSScriptLibrary Help";
+            this.linkLabel7.Visible = false;
             this.linkLabel7.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel6_LinkClicked);
-            // 
+            //
             // linkLabel6
-            // 
-            this.linkLabel6.Location = new System.Drawing.Point(8, 39);
+            //
+            this.linkLabel6.Location = new System.Drawing.Point(87, 3);
             this.linkLabel6.Name = "linkLabel6";
             this.linkLabel6.Size = new System.Drawing.Size(187, 13);
             this.linkLabel6.TabIndex = 0;
             this.linkLabel6.TabStop = true;
             this.linkLabel6.Tag = "mailto:csscript.support@gmail.com?subject=Feedback";
             this.linkLabel6.Text = "CS-Script Help";
+            this.linkLabel6.Visible = false;
             this.linkLabel6.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel7_LinkClicked);
-            // 
+            //
             // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(215, 87);
+            //
+            this.button5.Location = new System.Drawing.Point(215, 93);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(75, 23);
             this.button5.TabIndex = 5;
@@ -688,83 +625,72 @@ namespace Config
             this.button5.Text = "Update";
             this.toolTip1.SetToolTip(this.button5, "Check for update");
             this.button5.Click += new System.EventHandler(this.button5_Click);
-            // 
+            //
             // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(107, 90);
+            //
+            this.textBox3.Location = new System.Drawing.Point(107, 96);
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
             this.textBox3.Size = new System.Drawing.Size(98, 20);
             this.textBox3.TabIndex = 4;
-            // 
+            //
             // label6
-            // 
-            this.label6.Location = new System.Drawing.Point(7, 92);
+            //
+            this.label6.Location = new System.Drawing.Point(7, 98);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(94, 18);
             this.label6.TabIndex = 3;
             this.label6.Text = "Current version:";
-            // 
+            //
             // linkLabel2
-            // 
+            //
             this.linkLabel2.Location = new System.Drawing.Point(328, 93);
             this.linkLabel2.Name = "linkLabel2";
             this.linkLabel2.Size = new System.Drawing.Size(94, 18);
             this.linkLabel2.TabIndex = 0;
             this.linkLabel2.TabStop = true;
-            this.linkLabel2.Tag = "http://www.csscript.net";
-            this.linkLabel2.Text = "www.csscript.net";
+            this.linkLabel2.Tag = "http://www.cs-script.net";
+            this.linkLabel2.Text = "www.cs-script.net";
             this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel_LinkClicked);
-            // 
+            //
             // closeBtn
-            // 
+            //
             this.closeBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.closeBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.closeBtn.Location = new System.Drawing.Point(178, 412);
+            this.closeBtn.Location = new System.Drawing.Point(178, 261);
             this.closeBtn.Name = "closeBtn";
             this.closeBtn.Size = new System.Drawing.Size(75, 23);
             this.closeBtn.TabIndex = 2;
             this.closeBtn.Text = "&Close";
             this.closeBtn.Click += new System.EventHandler(this.button1_Click);
-            // 
+            //
             // button2
-            // 
+            //
             this.button2.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(97, 412);
+            this.button2.Location = new System.Drawing.Point(97, 261);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 2;
             this.button2.Text = "&Ok";
             this.button2.Click += new System.EventHandler(this.OkButton_Click);
-            // 
+            //
             // button3
-            // 
+            //
             this.button3.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.button3.Enabled = false;
-            this.button3.Location = new System.Drawing.Point(259, 412);
+            this.button3.Location = new System.Drawing.Point(259, 261);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
             this.button3.TabIndex = 2;
             this.button3.Text = "&Apply";
             this.button3.Click += new System.EventHandler(this.ApplyButton_Click);
-            // 
-            // integrateNpp
-            // 
-            this.integrateNpp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.integrateNpp.Location = new System.Drawing.Point(160, 343);
-            this.integrateNpp.Name = "integrateNpp";
-            this.integrateNpp.Size = new System.Drawing.Size(165, 19);
-            this.integrateNpp.TabIndex = 13;
-            this.integrateNpp.TabStop = true;
-            this.integrateNpp.Text = "Notepad++ Integration";
-            this.integrateNpp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.integrateNpp_LinkClicked);
-            // 
+            //
             // ConfigForm
-            // 
+            //
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.CancelButton = this.closeBtn;
-            this.ClientSize = new System.Drawing.Size(433, 449);
+            this.ClientSize = new System.Drawing.Size(433, 298);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.closeBtn);
@@ -772,7 +698,7 @@ namespace Config
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(2000, 1000);
-            this.MinimumSize = new System.Drawing.Size(416, 357);
+            this.MinimumSize = new System.Drawing.Size(416, 300);
             this.Name = "ConfigForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "CS-Script Configuration";
@@ -782,7 +708,6 @@ namespace Config
             this.groupBox4.ResumeLayout(false);
             this.tabControl2.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
-            this.tabPage5.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.iconPictureBox)).EndInit();
@@ -853,12 +778,12 @@ namespace Config
             return null;
         }
 
-        static internal bool IsAdmin()
-        {
-            WindowsIdentity id = WindowsIdentity.GetCurrent();
-            WindowsPrincipal p = new WindowsPrincipal(id);
-            return p.IsInRole(WindowsBuiltInRole.Administrator);
-        }
+        // static internal bool IsAdmin()
+        // {
+        //     WindowsIdentity id = WindowsIdentity.GetCurrent();
+        //     WindowsPrincipal p = new WindowsPrincipal(id);
+        //     return p.IsInRole(WindowsBuiltInRole.Administrator);
+        // }
 
         [STAThread]
         static public void Main(string[] args)
@@ -870,11 +795,11 @@ namespace Config
 
         static public void main(string[] args)
         {
-            if (!IsAdmin())
-            {
-                MessageBox.Show("You must have administrative privileges to run this application.", "CS-Script");
-                return;
-            }
+            // if (!IsAdmin())
+            // {
+            //     MessageBox.Show("You must have administrative privileges to run this application.", "CS-Script");
+            //     return;
+            // }
 
             if (Environment.Version.Major >= 2)
                 typeof(Application).GetMethod("EnableVisualStyles").Invoke(null, new object[0]);
@@ -1022,9 +947,8 @@ namespace Config
 
         private void button5_Click(object sender, EventArgs e)
         {
-            Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
-            Scripting.UpdateScript.i_Main(new string[0]);
-            Cursor.Current = System.Windows.Forms.Cursors.Default;
+            MessageBox.Show("In the elevated command prompt execute:\n\n" +
+                "   'choco upgrade cs-script'", "CS-Script");
         }
 
         private void TryToStartProcess(string file)
@@ -1085,58 +1009,6 @@ namespace Config
 
         bool initialised = false;
 
-        private void advancedShellEx_CheckedChanged(object sender, EventArgs e)
-        {
-            if (initialised)
-            {
-                bool isInstalled = CSScriptInstaller.IsComShellExtInstalled();
-                bool silent = true;
-
-                CSScriptInstaller.InstallComShellExt(!isInstalled, this, silent);
-
-                if (!isInstalled && allFilesAdvancedShellEx.Checked)
-                    CSScriptInstaller.EnableComShellExtForAll(true);
-                else
-                    CSScriptInstaller.EnableComShellExtForAll(false);
-
-                if (isInstalled == CSScriptInstaller.IsComShellExtInstalled()) //we failed as "IsInstalled" did not changed so repeate it
-                {
-                    silent = false;
-                    CSScriptInstaller.InstallComShellExt(!isInstalled, this, silent);
-                }
-
-                initialised = false;
-                advancedShellEx.Checked = CSScriptInstaller.IsComShellExtInstalled();
-                allFilesAdvancedShellEx.Enabled = advancedShellEx.Checked;
-
-                initialised = true;
-
-                BringOnTop();
-            }
-        }
-
-        //void ForcedShellInstall()
-        //{
-        //    bool isInstalled = CSScriptInstaller.IsComShellExtInstalled();
-        //    bool silent = true;
-
-        //    if (isInstalled)
-        //        MessageBox.Show("About to UnInstall");
-        //    else
-        //        MessageBox.Show("About to Install");
-
-        //    CSScriptInstaller.InstallComShellExt(!isInstalled, this, silent);
-        //    if (isInstalled == CSScriptInstaller.IsComShellExtInstalled()) //we failed as "IsInstalled" did not changed so repeate it
-        //    {
-        //        silent = false;
-        //        CSScriptInstaller.InstallComShellExt(!isInstalled, this, silent);
-        //    }
-
-        //    initialised = false;
-        //    advancedShellEx.Checked = CSScriptInstaller.IsComShellExtInstalled();
-        //    initialised = true;
-        //}
-
         void BringOnTop()
         {
             //this is the only way to bring the form on top after regsvr32.exe execution
@@ -1144,8 +1016,6 @@ namespace Config
             Application.DoEvents();
             this.TopMost = false;
         }
-
-        CSSScript.ShellExForm configForm;
 
         [DllImport("shell32.dll", EntryPoint = "ExtractIconA", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern IntPtr ExtractIcon(int hInst, string lpszExeFileName, int nIconIndex);
@@ -1183,26 +1053,11 @@ namespace Config
             Environment.SetEnvironmentVariable("ConfigConsoleLoaded", "true"); //loosely coupled notification as the progress SplashScreen can be in another assembly
 
             //SplashScreen.HideSplash();
-            advancedShellEx.Checked = CSScriptInstaller.IsComShellExtInstalled();
-            allFilesAdvancedShellEx.Checked = CSScriptInstaller.IsComShellExtInstalledForAllFiles();
-            allFilesAdvancedShellEx.Enabled = advancedShellEx.Checked;
 
             if (CSScriptInstaller.IsLightVersion)
                 tabControl2.TabPages.RemoveAt(0);
 
             initialised = true;
-            configForm = new CSSScript.ShellExForm(true);
-            configForm.FormBorderStyle = FormBorderStyle.None;
-            configForm.TopLevel = false;
-            configForm.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-            configForm.Parent = tabPage5;
-            configForm.Size = tabPage5.Size;
-            configForm.Left = tabPage5.Left;
-            configForm.Top += advancedShellEx.Top + advancedShellEx.Height + 20;
-            configForm.Height -= advancedShellEx.Top + advancedShellEx.Height + 35;
-            configForm.Width -= advancedShellEx.Left;
-            configForm.Visible = true;
-            configForm.additionalOnCheckHandler = new TreeViewEventHandler(OnCheckHandler);
 
             RerfreshFileIcon();
 
@@ -1242,45 +1097,45 @@ namespace Config
             {
                 doubleClickAction.Items.Insert(0, "\"" + nppPath + "\" \"%1\"");
             }
-
-            CSScriptInstaller.ValidateShellExtensionsCompatibility();
         }
 
         static string doubleClickSysDefaultAction = "<System Default>";
         static string doubleClickRunAction = "<Run>";
         static string doubleClickOpenWithAction = "<Open with...>";
 
-        private void OnCheckHandler(object o, TreeViewEventArgs arg)
-        {
-            //MessageBox.Show("If you want to modify menu item click 'Configure Shell Extension' link.");
-            ConfigureShellExtensions();
-        }
-
         private void integrateVS_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            string homeDir = CSScriptInstaller.GetEnvironmentVariable("CSSCRIPT_DIR");
-
-            if (homeDir != null)
+            try
             {
-                string vsIntegrationScript = Path.Combine(homeDir, @"Lib\VSIntegration.cs");
+                Process.Start("https://marketplace.visualstudio.com/items?itemName=OlegShilo.CS-ScriptToolsVS2017");
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
 
-                if (File.Exists(vsIntegrationScript))
+        private void configureShellExt_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            string configDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "Shell-X");
+
+            var cs_configDir = Path.Combine(configDir, "cs");
+            var anyFile_configDir = Path.Combine(configDir, "[any]");
+
+            bool isInstalled = Directory.Exists(anyFile_configDir);
+
+            if (isInstalled)
+            {
+                try
                 {
-                    try
-                    {
-                        Process.Start(Path.Combine(homeDir, "csws.exe"), "\"" + vsIntegrationScript + "\"");
-                    }
-                    catch (Exception ex) { MessageBox.Show(ex.Message); }
-                    BringOnTop();
+                    // Process.Start("shell-x", "-open -nogui"); // good but will trigger UAC prompt
+                    Process.Start("explorer", "\"" + cs_configDir + "\"");
                 }
-                else
-                {
-                    try
-                    {
-                        Process.Start("http://visualstudiogallery.msdn.microsoft.com/7ca14f55-1b6e-4390-bfa0-7eda7b1bb1a7");
-                    }
-                    catch (Exception ex) { MessageBox.Show(ex.Message); }
-                }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
+            }
+            else
+            {
+                MessageBox.Show("It seems Shell Extension manager 'Shell-X' is not installed.\n" +
+                    "If it is the case install it from Chocolatey");
             }
         }
 
@@ -1308,29 +1163,6 @@ namespace Config
             BringOnTop();
         }
 
-        private void configureShellExt_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            ConfigureShellExtensions();
-        }
-
-        void ConfigureShellExtensions()
-        {
-            string homeDir = CSScriptInstaller.GetEnvironmentVariable("CSSCRIPT_DIR");
-
-            if (homeDir != null)
-            {
-                try
-                {
-                    using (CSSScript.ShellExForm f = new CSSScript.ShellExForm())
-                    {
-                        if (DialogResult.OK == f.ShowDialog())
-                            configForm.RefreshTreeView();
-                    }
-                }
-                catch (Exception ex) { MessageBox.Show(ex.Message); }
-            }
-        }
-
         private void repareBtn_Click(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
@@ -1340,7 +1172,7 @@ namespace Config
             CSScriptInstaller.SetKeyValue("CsScript", "CheckShellExtensionsCompatibility", "true");
             this.Cursor = Cursors.Default;
 
-            installer.Install(true);
+            installer.Install();
             CSScriptInstaller.ResetCsDefaultProgram();
         }
 
@@ -1430,11 +1262,6 @@ namespace Config
             }
         }
 
-        private void allFilesAdvancedShellEx_CheckedChanged(object sender, EventArgs e)
-        {
-            CSScriptInstaller.EnableComShellExtForAll(allFilesAdvancedShellEx.Checked);
-        }
-
         private void updateNuGetBtn_Click(object sender, EventArgs e)
         {
             try
@@ -1451,7 +1278,16 @@ namespace Config
         {
             try
             {
-                Process.Start("http://csscriptnpp.codeplex.com/");
+                Process.Start("https://github.com/oleg-shilo/cs-script.npp/");
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private void integrateST3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            try
+            {
+                Process.Start("https://github.com/oleg-shilo/cs-script-sublime");
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
@@ -1465,8 +1301,6 @@ namespace Config
             return icon as string;
         }
 
-        public bool ShellExtensionHasMoved = false;
-
         public static void RestartExplorer()
         {
             foreach (Process p in Process.GetProcessesByName("explorer"))
@@ -1476,35 +1310,6 @@ namespace Config
 
             if (Process.GetProcessesByName("explorer").Length == 0)
                 Process.Start("explorer.exe");
-        }
-
-        public static void ReinstallShellExt()
-        {
-            //Debug.Assert(false);
-            EnsureComShellExtensionPlacement();
-
-            string dll = GetComShellExtRegisteredDll();
-
-            if (dll != null)
-            {
-                if (Directory.Exists(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64")))
-                {
-                    //dll will be the path to either ShellExt or ShellExt64 (depending which one registry search returns); both are in the same directory 
-                    string dll32 = dll.Replace("ShellExt64.", "ShellExt.");
-                    string dll64 = dll.Replace("ShellExt.", "ShellExt64.");
-
-                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64\regsvr32.exe"), "/s /u \"" + dll32 + "\"");
-                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32.exe"), "/s /u \"" + dll64 + "\"");
-
-                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64\regsvr32.exe"), "/s \"" + comShellEtxDLL32 + "\"");
-                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32.exe"), "/s \"" + comShellEtxDLL64 + "\"");
-                }
-                else
-                {
-                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32.exe"), "/s /u \"" + dll + "\"");
-                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32.exe"), "/s \"" + comShellEtxDLL32 + "\"");
-                }
-            }
         }
 
         public static bool IsFileAssosiationOk()
@@ -1525,69 +1330,6 @@ namespace Config
 
         #region Advanced COM Shell Extensions
 
-        public static bool IsComShellExtInstalled()
-        {
-            if (!CSScriptInstaller.IsInstalled())
-            {
-                return false;
-            }
-            else
-            {
-                string dll = GetComShellExtRegisteredDll();
-                return (string.Compare(dll, comShellEtxDLL32, true) == 0 || string.Compare(dll, comShellEtxDLL64, true) == 0);
-            }
-        }
-
-        public static bool IsComShellExtInstalledForAllFiles()
-        {
-            if (CSScriptInstaller.IsInstalled())
-            {
-                if (IsComShellExtInstalled())
-                    using (RegistryKey regKey = Registry.ClassesRoot.OpenSubKey(@"*\shellex\ContextMenuHandlers\CS-Script"))
-                    {
-                        return (regKey != null);
-                    }
-            }
-
-            return false;
-        }
-
-        public static string GetComShellExtRegisteredDll()
-        {
-            using (RegistryKey regKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Classes\CLSID\{25D84CB0-7345-11D3-A4A1-0080C8ECFED4}\InProcServer32"))
-            {
-                if (regKey != null)
-                {
-                    string dll = regKey.GetValue("").ToString();
-                    return dll;
-                }
-                else
-                    return null;
-            }
-        }
-
-        static bool IsShellCmdEnabled(string name, string command)
-        {
-            RegistryKey regKey = Registry.ClassesRoot.OpenSubKey(@"CsScript\shell\" + name + @"\command");
-
-            if (regKey != null && regKey.GetValue("") != null && regKey.GetValue("").ToString() == command)
-                return true;
-            else
-                return false;
-        }
-
-        static string comShellEtxDir
-        {
-            get
-            {
-                var commonAppDir = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-
-                string retval = Path.Combine(commonAppDir, "CS-Script\\ShellExtension\\" + Environment.GetEnvironmentVariable("CSScriptRuntime") + "\\CS-Script");
-
-                return retval;
-            }
-        }
-
         static string ChooseDefaultProgramApp
         {
             get
@@ -1597,19 +1339,6 @@ namespace Config
                 else
                     return "";
             }
-        }
-
-        static void EnsureComShellExtensionPlacement()
-        {
-            if (!File.Exists(comShellEtxDLL32))
-            {
-                Directory.CreateDirectory(comShellEtxDir);
-
-                //string rootDir = Path.GetDirectoryName(comShellEtxDir);
-                //CopyAllFiles(comShellEtxTemplateDir, rootDir); //this call will trigger the creation of the directory
-                CopyAllFiles(comShellEtxTemplateDir, comShellEtxDir); //this call will trigger the creation of the directory
-            }
-            //Environment.SetEnvironmentVariable(@"%CSSCRIPT_SHELLEX_DIR%", comShellEtxDir);
         }
 
         internal static void EnsureRoslynShadowCopy()
@@ -1659,17 +1388,6 @@ namespace Config
             }
         }
 
-        static string comShellEtxTemplateDir
-        {
-            get
-            {
-                if (GetEnvironmentVariable("CSSCRIPT_DIR") != null)
-                    return Path.Combine(GetEnvironmentVariable("CSSCRIPT_DIR"), @"Lib\ShellExtensions\Template\CS-Script");
-                else
-                    return "";
-            }
-        }
-
         static string RoslynDistroDir
         {
             get
@@ -1693,38 +1411,6 @@ namespace Config
             }
         }
 
-        public static string comShellEtxDLL32
-        {
-            get
-            {
-                return Path.Combine(comShellEtxDir, "ShellExt.cs.{25D84CB0-7345-11D3-A4A1-0080C8ECFED4}.dll");
-            }
-        }
-
-        public static string comShellEtxDLL64
-        {
-            get
-            {
-                return Path.Combine(comShellEtxDir, "ShellExt64.cs.{25D84CB0-7345-11D3-A4A1-0080C8ECFED4}.dll");
-            }
-        }
-
-        public static void EnableComShellExtForAll(bool enable)
-        {
-            try
-            {
-                if (enable)
-                {
-                    SetKeyValue(@"*\shellex\ContextMenuHandlers\CS-Script", "", "{25D84CB0-7345-11D3-A4A1-0080C8ECFED4}");
-                }
-                else
-                {
-                    DeleteKey(@"*\shellex\ContextMenuHandlers\CS-Script");
-                }
-            }
-            catch { }
-        }
-
         public static bool IsWin8OrHigher
         {
             get
@@ -1733,155 +1419,9 @@ namespace Config
             }
         }
 
-        public static void ValidateShellExtensionsCompatibility()
-        {
-            if (KeyExists("VisualStudio.cs.11.0") && IsWin8OrHigher && string.Compare((string)GetKeyValue("CsScript", "CheckShellExtensionsCompatibility"), "false") != 0)
-            {
-                bool showAgain = ShowReminder(
-                    "On Windows 8 with Visual Studio 2012 installed the right-click menu settings may conflict with CS-Script.\n" +
-                    "Thus CS-Script context menu and double-click action settings may not work.\r\n\r\n" +
-                    "If this happens you can always check repair the settings by pressing the \"Repair\" button.\r\n\r\n" +
-                    "\r\nYou can also check the \"Use for all file extensions\" check box to force CS-Script 'Advanced Shell Extension' activation for all file types.", "Warning");
-
-                if (!showAgain)
-                    SetKeyValue("CsScript", "CheckShellExtensionsCompatibility", "false");
-            }
-        }
-
-        static bool ShowReminder(string message, string title)
-        {
-            using (Form dialog = new Form())
-            {
-                CheckBox doNotShowAgain = new CheckBox();
-                TextBox textBox1 = new TextBox();
-                //Button okButton = new Button();
-
-                doNotShowAgain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-                doNotShowAgain.AutoSize = true;
-                doNotShowAgain.Location = new System.Drawing.Point(16, 119);
-                doNotShowAgain.Size = new Size(179, 17);
-                doNotShowAgain.TabIndex = 1;
-                doNotShowAgain.Text = "Do not show this message again";
-                doNotShowAgain.UseVisualStyleBackColor = true;
-
-                textBox1.Anchor = (AnchorStyles)(AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right);
-                textBox1.BorderStyle = BorderStyle.None;
-
-                textBox1.Location = new Point(12, 12);
-                textBox1.Multiline = true;
-                textBox1.ReadOnly = true;
-                textBox1.ScrollBars = ScrollBars.Vertical;
-                textBox1.Size = new Size(395, 101);
-                textBox1.TabIndex = 2;
-                textBox1.Text = message;
-
-                //AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-                //AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-                dialog.ClientSize = new Size(419, 148);
-                dialog.Controls.Add(textBox1);
-                dialog.Controls.Add(doNotShowAgain);
-                dialog.Text = title;
-                dialog.KeyPreview = true; ;
-                dialog.FormBorderStyle = FormBorderStyle.SizableToolWindow;
-                dialog.StartPosition = FormStartPosition.CenterParent;
-                dialog.KeyDown += (sender, e) =>
-                                         {
-                                             if (e.KeyData == Keys.Escape || e.KeyData == Keys.Return)
-                                                 dialog.Close();
-                                         };
-
-                dialog.ShowDialog();
-
-                return !doNotShowAgain.Checked;
-            }
-        }
-
         public static void ResetCsDefaultProgram()
         {
             RunAppSafe(ChooseDefaultProgramApp, "-e:.cs -prog:CsScript -hash:pA2ZT35FDyE=");
-        }
-
-        public static void InstallComShellExt(bool install, Form form, bool silent)
-        {
-            //Debug.Assert(false);
-            if (!CSScriptInstaller.IsInstalled())
-            {
-                MessageBox.Show("Advanced Shell Extensions can be installed only after CS-Script configuration completed.\nPlease execute config.bat to configure the CS-Script.");
-            }
-            else
-            {
-                if (install)
-                {
-                    EnsureComShellExtensionPlacement();
-
-                    DialogResult response = DialogResult.Yes;
-
-                    if (!silent)
-                    {
-                        response = MessageBox.Show(form,
-                                                    "You are about to install/activate additional Advanced Shell Extensions.\n" +
-                                                    "\nPlease note that the structure of the shell extensions will follow the file structure of the\n" +
-                                                    "'" + Path.GetDirectoryName(comShellEtxDLL32) + "' folder\n" +
-                                                    "(See CS-Script documentation for details)\n" +
-                                                    "\n" +
-                                                    "Do you want to proceed with the installation?", "CS-Script", MessageBoxButtons.YesNo);
-
-                        if (form != null)
-                            form.Update();
-                    }
-
-                    if (DialogResult.Yes == response)
-                    {
-                        if (Directory.Exists(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64")))
-                        {
-                            RunApp(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64\regsvr32.exe"), (silent ? "/s \"" : "\"") + comShellEtxDLL32 + "\"");
-                            RunApp(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32.exe"), (silent ? "/s \"" : "\"") + comShellEtxDLL64 + "\"");
-                        }
-                        else
-                        {
-                            RunApp(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32.exe"), (silent ? "/s \"" : "\"") + comShellEtxDLL32 + "\"");
-                        }
-                    }
-                }
-                else
-                {
-                    DialogResult response = DialogResult.Yes;
-
-                    if (!silent)
-                    {
-                        response = MessageBox.Show("You are about to uninstall/deactivate additional Advanced Shell Extentions.\n" +
-                                                    "\nPlease note that some files of '" + Path.GetDirectoryName(comShellEtxDLL32) + "'\n" +
-                                                    "will be locked until Windows Explorer is restarted.\n" +
-                                                    "\n" +
-                                                    "Do you want to proceed with uninstallating?", "CS-Script", MessageBoxButtons.YesNo);
-
-                        if (form != null)
-                            form.Update();
-                    }
-
-                    if (DialogResult.Yes == response)
-                    {
-                        string dll = GetComShellExtRegisteredDll();
-
-                        if (dll != null)
-                        {
-                            if (Directory.Exists(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64")))
-                            {
-                                //dll will be the path to either ShellExt or ShellExt64 (depending which one registry search returns); both are in the same directory 
-                                string dll32 = dll.Replace("ShellExt64.", "ShellExt.");
-                                string dll64 = dll.Replace("ShellExt.", "ShellExt64.");
-
-                                RunApp(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64\regsvr32.exe"), (silent ? "/s /u \"" : "/u \"") + dll32 + "\"");
-                                RunApp(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32.exe"), (silent ? "/s /u \"" : "/u \"") + dll64 + "\"");
-                            }
-                            else
-                            {
-                                RunApp(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32.exe"), (silent ? "/s /u \"" : "/u \"") + dll + "\"");
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         #endregion Advanced COM Shell Extensions
@@ -1892,7 +1432,7 @@ namespace Config
 
             if (retval == null)
             {
-                //Then it is a standalone configuration console and the CS-S Runtime location is the 
+                //Then it is a standalone configuration console and the CS-S Runtime location is the
                 //the first parent directory with the cscs.exe/csws.exe files
 
                 string parent = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -1936,13 +1476,22 @@ namespace Config
             string oldConfigFile = "";
 
             bool runningAsScript = Environment.GetEnvironmentVariable("CSScriptRuntime") != null &&
-                                    Environment.GetEnvironmentVariable("CSScriptDebugging") == null;
+                                   Environment.GetEnvironmentVariable("CSScriptDebugging") == null;
 
+            bool preventMigration = false;
+#if CSS_PROJECT
+            preventMigration = true; //we are running the script under VS
+#endif
             if (oldVersionInstalled)
             {
                 oldHomeDir = GetEnvironmentVariable("CSSCRIPT_DIR");
-                if (Path.GetFullPath(oldHomeDir) == Path.GetFullPath(CSScriptInstaller.GetExecutingEngineDir()))
+
+                string executingEngineDir = CSScriptInstaller.GetExecutingEngineDir();
+
+                if (executingEngineDir == null || Path.GetFullPath(oldHomeDir) == Path.GetFullPath(executingEngineDir))
+                {
                     oldVersionInstalled = false;
+                }
                 else
                 {
                     GetCurrentConfig(oldMenus, ref oldDblClickAction);
@@ -1965,17 +1514,14 @@ namespace Config
             }
 
             string scHomeDir = GetEnvironmentVariable("CSSCRIPT_DIR");
-            bool preventMigration = false;
-#if CSS_PROJECT
-            preventMigration = true; //we are running the script under VS
-#endif
+
             if (scHomeDir == null)
             {
                 if (restrictedMode)
                     throw new Exception("CS-Script cannot be installed on this PC.\nYour current login does not allow you to change the system configuration.\n" +
                                         "Please login as a different user (with higher security level) and start the configuraion console again.");
 
-                Install(true);
+                Install();
 
                 string editor = GetNotepadPP();
 
@@ -2013,17 +1559,14 @@ namespace Config
 
                     oldConfigFile = ConfigFile;
 
-                    bool doShellExt = GetComShellExtRegisteredDll() != null;
                     UnInstall();
-                    Install(doShellExt);
-
-                    this.ShellExtensionHasMoved = true;
+                    Install();
 
                     scHomeDir = GetEnvironmentVariable("CSSCRIPT_DIR");
                     MergeLocalIncluds(scHomeDir);
                 }
                 else
-                    throw new Exception("Operation cancelled by user.");
+                    throw new Exception("Operation canceled by user.");
             }
 
             if (File.Exists(ConfigFile)) //installed
@@ -2203,7 +1746,6 @@ namespace Config
             string scHomeDir = GetEnvironmentVariable("CSSCRIPT_DIR");
 
             //collect IDE info
-            string[] ideInfo;
             ArrayList availableIDE = new ArrayList();
 
             // availableIDE.AddRange(VS90.Script.VS90IDE.GetAvailableIDE()); //Visual Studio 2008
@@ -2328,7 +1870,101 @@ namespace Config
             return GetEnvironmentVariable("CSSCRIPT_DIR") != null;
         }
 
-        public void Install(bool installShellExtension)
+        internal static string UninstallShelExtensionsIfPresent()
+        {
+            //C:\ProgramData\CS-Script\ShellExtension\3.28.4.0\CS-Script
+            var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"CS-Script\ShellExtension");
+            var match = Directory.GetDirectories(root)
+                .Select(x => new
+                {
+                    Version = new Version(Path.GetFileName(x)),
+                    Path = x
+                })
+                .OrderByDescending(x => x.Version)
+                .FirstOrDefault();
+
+            var deploymentDir = match != null ? match.Path : null;
+
+            if (deploymentDir != null)
+            {
+                var x32Dll = Path.Combine(deploymentDir, @"CS-Script\ShellExt.cs.{25D84CB0-7345-11D3-A4A1-0080C8ECFED4}.dll");
+                var x64Dll = Path.Combine(deploymentDir, @"CS-Script\ShellExt64.cs.{25D84CB0-7345-11D3-A4A1-0080C8ECFED4}.dll");
+
+                var is64OS = Directory.Exists(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64"));
+
+                if (is64OS)
+                {
+                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32"), "/u /s \"" + x64Dll + "\"");
+                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\SysWOW64\regsvr32"), "/u /s \"" + x32Dll + "\"");
+                }
+                else
+                {
+                    RunAppSafe(Environment.ExpandEnvironmentVariables(@"%windir%\System32\regsvr32"), "/u /s \"" + x32Dll + "\"");
+                }
+                return Path.Combine(deploymentDir, "CS-Script");
+            }
+            return null;
+        }
+
+        static void CopyToShellX(string sourceDir, string fileExtension)
+        {
+            var destDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                       @"shell-x\" + fileExtension);
+            Directory.CreateDirectory(destDir);
+
+            File.WriteAllText(Path.Combine(destDir, "01.separator"), "");
+            File.WriteAllText(Path.Combine(destDir, "02.separator"), "");
+
+            try
+            {
+                var resources = new ResourceManager("images", Assembly.GetExecutingAssembly());
+                var logo = (Icon)resources.GetObject("css_logo.ico");
+
+                using (var fs = new FileStream(Path.Combine(destDir, "01.CS-Script.ico"), FileMode.Create))
+                    logo.Save(fs);
+            }
+            catch { }
+
+            destDir = Path.Combine(destDir, "01.CS-Script");
+
+            Directory.CreateDirectory(destDir);
+
+            //Now Create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
+                Directory.CreateDirectory(dirPath.Replace(sourceDir, destDir));
+
+            //Copy all the files & Replaces any files with the same name
+            foreach (string newPath in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
+            {
+                // ignore com servers and install.bat and uninstall.bat
+                if (!newPath.EndsWith("A4A1-0080C8ECFED4}.dll") && !newPath.EndsWith(".bat"))
+                {
+                    var destPath = newPath.Replace(sourceDir, destDir);
+                    var newFilehLogicalName = Path.GetFileName(destPath).Split(".".ToCharArray(), 2).Last(); //00.Open with VS2017.cmd
+
+                    if (Directory.GetFiles(Path.GetDirectoryName(destPath), "*" + newFilehLogicalName).Any())
+                        continue; // do not override the existing file with the same logical name
+
+                    File.Copy(newPath, destPath);
+                }
+            }
+        }
+
+        static public void ConfigureShellExtensions()
+        {
+            var localDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            var oldConfigDir = UninstallShelExtensionsIfPresent();
+            var newConfigDir = Path.Combine(localDir, @"..\ShellExtensions\Template\CS-Script");
+            var fileExtension = "cs";
+
+            if (oldConfigDir != null)
+                CopyToShellX(oldConfigDir, fileExtension);
+            else
+                CopyToShellX(newConfigDir, fileExtension);
+        }
+
+        public void Install()
         {
             // System.Diagnostics.Debug.Assert(false);
 
@@ -2344,17 +1980,6 @@ namespace Config
                 envVars.SetValue("CSSCRIPT_INC", includes);
                 envVars.SetValue("CSSCRIPT_ROSLYN", RoslynShadowDir);
 
-                if (installShellExtension)
-                {
-                    envVars.SetValue("CSSCRIPT_SHELLEX_DIR", comShellEtxDir);
-                    Environment.SetEnvironmentVariable("CSSCRIPT_SHELLEX_DIR", comShellEtxDir);
-                }
-                else
-                {
-                    envVars.DeleteValue("CSSCRIPT_SHELLEX_DIR", false);
-                    Environment.SetEnvironmentVariable("CSSCRIPT_SHELLEX_DIR", null);
-                }
-
                 Environment.SetEnvironmentVariable("CSSCRIPT_DIR", GetExecutingEngineDir()); //for current process too
                 path = RegGetValueExp(HKEY_LOCAL_MACHINE, @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment", "Path");
             }
@@ -2367,31 +1992,14 @@ namespace Config
             bool bResult = SendMessageTimeout((System.IntPtr)HWND_BROADCAST, WM_SETTINGCHANGE, 0, "Environment", SMTO_ABORTIFHUNG, 5000, dwResult);
             justInstalled = true;
 
-            if (installShellExtension)
-            {
-                CSScriptInstaller.InstallComShellExt(true, null, true);
-            }
+            ConfigureShellExtensions();
 
             EnsureRoslynShadowCopy();
         }
 
-        //static bool IsShellExtensionInstalled()
-        //{
-        //    using (RegistryKey key = Registry.ClassesRoot.OpenSubKey(@"CsScript\shellex\ContextMenuHandlers\CustomShellExt - {25D84CB0-7345-11D3-A4A1-0080C8ECFED4}", false))
-        //        return (key != null);
-        //}
-
         public void UnInstall()
         {
             string oldHomeDir = GetEnvironmentVariable("CSSCRIPT_DIR");
-
-            if (oldHomeDir != null)
-            {
-                string dll = CSScriptInstaller.GetComShellExtRegisteredDll();
-
-                if (dll != null && File.Exists(dll))
-                    CSScriptInstaller.InstallComShellExt(false, null, true);
-            }
 
             string path = "";
 
@@ -2851,7 +2459,6 @@ namespace Config
                         return sb.ToString();
                 }
             }
-
             finally
             {
                 if (0 != hkey)
@@ -2878,7 +2485,6 @@ namespace Config
                     lResult = RegSetValueEx(hkey, valName, 0, 2, ref val, val.Length);
                 }
             }
-
             finally
             {
                 if (0 != hkey)
