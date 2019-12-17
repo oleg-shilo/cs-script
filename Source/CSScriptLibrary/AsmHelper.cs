@@ -1671,11 +1671,13 @@ namespace CSScriptLibrary
             foreach (Type type in asm.GetModules()[0].GetTypes())
             {
                 bool isMonoInternalType = (type.FullName == "<InteractiveExpressionClass>");
+                bool isLikelyUserType = (type.FullName.StartsWith("Submission#") && type.FullName.Contains("+"));
                 bool isRoslynInternalType = (type.FullName.StartsWith("Submission#") && !type.FullName.Contains("+"));
+                bool isRoslynInternalType2 = type.FullName.StartsWith("<"); // Latest Roslyn on .NET 4.7 host
 
-                if (!isMonoInternalType && !isRoslynInternalType)
+                if (!isMonoInternalType && !isRoslynInternalType && !isRoslynInternalType2)
                 {
-                    if (typeName == null || type.Name == typeName)
+                       if (typeName == null || type.Name == typeName || type.Name == "DynamicClass" || isLikelyUserType)
                         return type;
                 }
             }

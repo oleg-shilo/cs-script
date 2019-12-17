@@ -593,6 +593,17 @@
              Note: A .dll assembly is always compiled and linked in a normal way without any custom meta data attached.
              </summary>
         </member>
+        <member name="T:csscript.DotNetVersion">
+            <summary>
+            Helper for retrieving currently installed .NET version
+            </summary>
+        </member>
+        <member name="M:csscript.DotNetVersion.Get45PlusFromRegistry">
+            <summary>
+            Returns the exact full version of the installed .NET 4.5
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:csscript.AssemblyExecutor">
             <summary>
             Executes "public static void Main(..)" of assembly in a separate domain.

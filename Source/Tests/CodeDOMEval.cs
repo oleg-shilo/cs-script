@@ -100,6 +100,29 @@ public class CodeDomEval
     }
 
     [Fact]
+    public void CodeDom_CSharp_7()
+    {
+        // CSScript.GlobalSettings.UseAlternativeCompiler = @"C:\Users\oleg.shilo\Source\Repos\ConsoleApp13\bin\Debug\CSSRoslynProvider.dll";
+        // CSScript.GlobalSettings.RoslynDir = @"C:\Users\oleg.shilo\Source\Repos\ConsoleApp13\bin\Debug\..\..\packages\Microsoft.Net.Compilers.2.2.0\tools";
+
+        // CSScript.GlobalSettings.UseAlternativeCompiler = LocateRoslynCSSProvider();
+        // CSScript.GlobalSettings.RoslynDir = LocateRoslynCompilers();
+
+        // dynamic script = CSScript.CodeDomEvaluator
+        //                          .LoadCode(@"using System;
+        //                                      public class Script
+        //                                      {
+        //                                          public int Sum(int a, int b)
+        //                                          {
+        //                                              Conosole.WriteLine($""{a}+{b}"");
+        //                                              return a+b;
+        //                                          }
+        //                                      }");
+
+        // int result = script.Sum(1, 2);
+    }
+
+    [Fact]
     public void CreateDelegate()
     {
         var Sqr = CSScript.CodeDomEvaluator

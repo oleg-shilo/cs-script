@@ -1520,6 +1520,7 @@ namespace CSScriptLibrary
             return WrapMethodToAutoClass(methodCode, injectStatic, true, null);
         }
 
+        static internal string ClasslessScriptTypeName = "DynamicClass";
 #if !net35 && !net1
 
         static internal string WrapMethodToAutoClass(string methodCode, bool injectStatic, bool injectNamespace, string inheritFrom = null)
@@ -1552,9 +1553,9 @@ namespace CSScriptLibrary
                             }
 
                             if (inheritFrom != null)
-                                code.Append("   public class DynamicClass : " + inheritFrom + "\r\n");
+                                code.Append("   public class " + ClasslessScriptTypeName + " : " + inheritFrom + "\r\n");
                             else
-                                code.Append("   public class DynamicClass\r\n");
+                                code.Append("   public class " + ClasslessScriptTypeName + "\r\n");
 
                             code.Append("   {\r\n");
                             string[] tokens = line.Split("\t ".ToCharArray(), 3, StringSplitOptions.RemoveEmptyEntries);

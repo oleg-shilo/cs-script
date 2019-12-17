@@ -12,7 +12,7 @@ class Host
                           public static void Test()
                           {
                               try
-                              {  
+                              {
                                   using (var f = File.Open(""somefile.txt"", FileMode.OpenOrCreate))
                                     Console.WriteLine(""File.Open: success"");
                                }
@@ -21,7 +21,7 @@ class Host
                                    Console.WriteLine(e.GetType().ToString() + "": "" + e.Message);
                                }
                           }")
-                         .GetStaticMethod();
+                          .GetStaticMethod();
 
         var permissionSet = new PermissionSet(PermissionState.None);
         permissionSet.AddPermission(new SecurityPermission(SecurityPermissionFlag.Execution));
@@ -29,13 +29,13 @@ class Host
         CreateSomeFile(); //call will succeed as as the set of permissions is a default permissions set for this assembly
 
         Sandbox.With(SecurityPermissionFlag.Execution) //call will fail as the set of permissions is insufficient
-               .Execute(()=>CreateSomeFile());
+               .Execute(() => CreateSomeFile());
 
         CreateSomeFile(); //call will succeed as as the set of permissions set back to default
 
         //this is a logical equivalent of Sandbox.With.Execute syntactic sugar
         ExecuteInSandbox(permissionSet,               //call will fail as the set of permissions is insufficient
-                        ()=>CreateSomeFile());
+                         () => CreateSomeFile());
 
         CreateSomeFile(); //call will succeed as as the set of permissions set back to default
     }
@@ -57,4 +57,3 @@ class Host
         }
     }
 }
-
