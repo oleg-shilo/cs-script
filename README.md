@@ -22,7 +22,7 @@ CS-Script also offers comprehensive integration with most common development too
 
 It can be run on Win, Linux and Mac. And it is compatible with .NET, Mono and .NET Core.
 
-Over the long history of CS-Script it has been downloaded ([see stats](https://www.cs-script.net/cs-script/download.stats/daily_downloads.html)) through Notepad++ x86 plugin manager alone over ![](https://oleg-shilo.github.io/cs-script/download.stats/css.npp.count.jpeg) times ([details](https://oleg-shilo.github.io/cs-script/download.stats/daily_downloads.html)).
+Over the long history of CS-Script it has been downloaded through Notepad++ x86 plugin manager alone over ![](https://oleg-shilo.github.io/cs-script/download.stats/css.npp.count.jpeg) times ([see stats](https://www.cs-script.net/cs-script/download.stats/daily_downloads.html)).
 
 \* _statistics does not include x64 downloads nor downloads after Notepad++ discontinued shiping editor with the plugin manager x86 included_ 
 
