@@ -35,6 +35,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -149,7 +150,6 @@ namespace csscript
                     }
 
 #if net4
-                    //CSSUtils.DbgInjectionCode = cscscript.Resources.dbg;
                     CSSUtils.DbgInjectionCode = embedded_strings.dbg_source;
 #endif
                     AppInfo.appName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);

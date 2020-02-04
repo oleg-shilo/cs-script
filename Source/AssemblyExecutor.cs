@@ -36,9 +36,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CSScriptLibrary;
-using System.Threading;
 using System.Runtime.Remoting.Lifetime;
+using System.Threading;
+using CSScriptLibrary;
 
 namespace csscript
 {
@@ -78,6 +78,7 @@ namespace csscript
             setup.ApplicationName = Path.GetFileName(Assembly.GetExecutingAssembly().Location());
             setup.ShadowCopyFiles = Environment.GetEnvironmentVariable("AppDomainSetup.ShadowCopyFiles") ?? "true";
             setup.ShadowCopyDirectories = Path.GetDirectoryName(assemblyFileName);
+            setup.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 
             appDomain = AppDomain.CreateDomain(domainName, null, setup);
             remoteExecutor = (RemoteExecutor)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(RemoteExecutor).ToString());

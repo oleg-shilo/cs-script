@@ -661,7 +661,7 @@ namespace csscript
                             }
                         }
 
-                        if (options.customConfigFileName != "none")
+                        if (options.customConfigFileName == "none")
                             return "";
 
                         if (options.customConfigFileName != "")
@@ -1285,7 +1285,7 @@ namespace csscript
 
         class UniqueAssemblyLocations
         {
-            public static explicit operator string[] (UniqueAssemblyLocations obj)
+            public static explicit operator string[](UniqueAssemblyLocations obj)
             {
                 string[] retval = new string[obj.locations.Count];
                 obj.locations.Values.CopyTo(retval, 0);
