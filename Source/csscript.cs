@@ -1711,6 +1711,8 @@ namespace csscript
             if (options.DBG)
                 Utils.AddCompilerOptions(compilerParams, "/d:DEBUG /d:TRACE");
 
+            Utils.AddCompilerOptions(compilerParams, "/d:CS_SCRIPT");
+
             compilerParams.IncludeDebugInformation = options.DBG;
             compilerParams.GenerateExecutable = generateExe;
             compilerParams.GenerateInMemory = false;

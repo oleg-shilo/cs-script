@@ -362,6 +362,11 @@ namespace csscript
                     "  //css_dir #if (DEBUG) .\\bin\\Debug",
                     "  //css_reference #if PRODUCTION_PC d:\\temp\\build\\certificates.dll",
                     section_sep, //------------------------------------
+                    "The script engine also always defines special compiler conditional symbol `CS_SCRIPT`:",
+                    "  #if CS_SCRIPT",
+                    "       Console.WriteLine(\"Running as a script...\");",
+                    "  #endif",
+                    section_sep, //------------------------------------
                     "//css_include <file>;",
                     "Alias - //css_inc",
                     "file - name of a script file to be included at compile-time.",
