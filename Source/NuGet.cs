@@ -228,7 +228,7 @@ namespace csscript
 
                             .OrderByDescending(x => x.Version)
                             .Where(x => x != null)
-                            .FirstOrDefault(x => x.Name == name && (version.IsEmpty() || version == x.Version));
+                            .FirstOrDefault(x => x.Name.IsSameAs(name, true) && (version.IsEmpty() || version == x.Version));
 
             // nuspec based algorithm from cs-script.core
             // return Directory.GetDirectories(NuGetCache)
