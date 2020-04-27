@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CS-Script.RoslynProvider</id>
-<version>3.30.0.0</version>
+<version>3.30.2.0</version>
         <title>CS-Script CodeDom Roslyn provider (CSSRoslynProvider.dll)</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -13,19 +13,14 @@
         <description>The CodeDom provider for CS-Script Class Library that targets Roslyn.</description>
         <summary>This is the complete package for hosting the script engine in .NET (full) applications. Apart from having all binaries required for the all three available compilation engines (Roslyn, Mono and CodeDom) it also contains the integration module (CSSRoslynProvider.dll) that allows CodeDom compilation engine and the CS-Script legacy native interface to process C# 7.0 syntax.</summary>
         <releaseNotes>
-- Implemented NuGet dependencies discovery
-- Added support for wildcards in //css_ref directive (e.g. //css_ref ./*.dll).
-- Added support for -rt:&lt;runtime&gt; switch in //css_nuget directive
-- Added support for //css_nuget source &lt;url&gt;
-- Added migration of old shell extension configuration to Shell-X deployment
-- Issue #149: Suggesting to normalize paths in CompilingInfo.Input
-
+- Issue #189: Error "Cannot parse "//css_import..."" when referencing an assembly
+- Issue #193: DirectoryNotFoundException(C:\ProgramData\CS-Script\ShellExtension) when fresh installing
 </releaseNotes>
-        <copyright>Copyright (C) 2004-2019 Oleg Shilo</copyright>
+        <copyright>Copyright (C) 2004-2020 Oleg Shilo</copyright>
         <language>en-AU</language>
         <tags>C# Scripting Dynamic CS-Script csscript</tags>
         <dependencies>
-            <dependency id="CS-Script.bin" version="3.29.0" />
+            <dependency id="CS-Script.bin" version="3.30.2" />
             <dependency id="Microsoft.Net.Compilers" version="2.2.0" />
         </dependencies>
     </metadata>

@@ -704,7 +704,13 @@
             <para>By default it is set to <c>false</c> unless overwritten via the global settings.</para>
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:csscript.CSharpParser.ImportInfo.#ctor(System.String,System.String)" -->
+        <member name="M:csscript.CSharpParser.ImportInfo.#ctor(System.String,System.String)">
+            <summary>
+            Creates an instance of ImportInfo.
+            </summary>
+            <param name="statement">CS-Script import directive (//css_import...) string.</param>
+            <param name="parentScript">name of the parent (primary) script file.</param>
+        </member>
         <member name="M:csscript.CSharpParser.ImportInfo.#ctor(System.String,System.String,System.String)">
             <summary>
             Creates an instance of ImportInfo.

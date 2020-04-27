@@ -1,4 +1,4 @@
-C# Script execution engine. Version 3.30.1.0.
+C# Script execution engine. Version 3.30.2.0.
 Copyright (C) 2004-2018 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -245,6 +245,11 @@ the inline `#if` syntax:
   //css_include #if DEBUG debug_utils.cs
   //css_dir #if (DEBUG) .\bin\Debug
   //css_reference #if PRODUCTION_PC d:\temp\build\certificates.dll
+------------------------------------
+The script engine also always defines special compiler conditional symbol `CS_SCRIPT`:
+  #if CS_SCRIPT
+       Console.WriteLine("Running as a script...");
+  #endif
 ------------------------------------
 //css_include <file>;
 Alias - //css_inc

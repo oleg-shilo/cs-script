@@ -282,6 +282,7 @@ namespace csscript
                 }
             }
 
+            /// <summary>
             /// Creates an instance of ImportInfo.
             /// </summary>
             /// <param name="statement">CS-Script import directive (//css_import...) string.</param>

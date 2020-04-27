@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oleg Shilo")]
 [assembly: AssemblyProduct("C# Script engine")]
-[assembly: AssemblyCopyright("(C) 2004-2018 Oleg Shilo")]
+[assembly: AssemblyCopyright("(C) 2004-2020 Oleg Shilo")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 #if dev
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("3.30.1.0")]
-[assembly: AssemblyFileVersion("3.30.1.0")]
+[assembly: AssemblyVersion("3.30.2.0")]
+[assembly: AssemblyFileVersion("3.30.2.0")]
