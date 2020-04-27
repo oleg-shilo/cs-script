@@ -704,12 +704,14 @@
             <para>By default it is set to <c>false</c> unless overwritten via the global settings.</para>
             </summary>
         </member>
-        <member name="M:csscript.CSharpParser.ImportInfo.#ctor(System.String,System.String)">
+        <!-- Badly formed XML comment ignored for member "M:csscript.CSharpParser.ImportInfo.#ctor(System.String,System.String)" -->
+        <member name="M:csscript.CSharpParser.ImportInfo.#ctor(System.String,System.String,System.String)">
             <summary>
             Creates an instance of ImportInfo.
             </summary>
             <param name="statement">CS-Script import directive (//css_import...) string.</param>
             <param name="parentScript">name of the parent (primary) script file.</param>
+            <param name="context">The context string to be injected in the exception message if raised.</param>
         </member>
         <member name="F:csscript.CSharpParser.ImportInfo.file">
             <summary>
@@ -921,6 +923,16 @@
             </summary>
             <param name="text">The text to be processed.</param>
             <returns></returns>
+        </member>
+        <member name="M:csscript.CSharpParser.UserToInternalEscaping(System.String)">
+             <summary>
+             Replaces the user escaped delimiters with internal escaping.
+             <p> "{char}{char}" -> "\u{((int)c).ToString("x4")}"</p>
+             <p> "((" -> "\u0028"</p>
+            
+             </summary>
+             <param name="text">The text.</param>
+             <returns></returns>
         </member>
         <member name="M:csscript.CSharpParser.UnescapeDirectiveDelimiters(System.String)">
             <summary>

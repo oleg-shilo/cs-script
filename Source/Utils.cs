@@ -255,7 +255,7 @@ namespace csscript
 
         internal static string NormaliseAsDirectiveOf(this string statement, string parentScript)
         {
-            var text = CSharpParser.UnescapeDirectiveDelimiters(statement);
+            var text = CSharpParser.UserToInternalEscaping(statement);
 
             if (text.Length > 1 && (text[0] == '.' && text[1] != '.')) // just a single-dot start dir
                 text = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(parentScript), text));

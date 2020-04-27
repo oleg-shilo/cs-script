@@ -235,13 +235,15 @@ namespace csscript
                 public string parentScript;
                 public string[] dirs;
 
-                public ImportInfo[] Resolve(string statement)
+                public ImportInfo[] Resolve(string statement, string context)
                 {
-                    return ImportInfo.ResolveStatement(statement.Expand(), parentScript, dirs);
+                    return ImportInfo.ResolveStatement(statement.Expand(),
+                                                       parentScript,
+                                                       dirs, context);
                 }
             }
 
-            internal static ImportInfo[] ResolveStatement(string statement, string parentScript, string[] probinghDirs)
+            internal static ImportInfo[] ResolveStatement(string statement, string parentScript, string[] probinghDirs, string context)
             {
                 if (statement.Contains("*") || statement.Contains("?"))
                 {
@@ -266,7 +268,7 @@ namespace csscript
                         //substitute the file path pattern with the actual path
                         parts[0] = file;
 
-                        result.Add(new ImportInfo(parts));
+                        result.Add(new ImportInfo(parts, context));
                     }
 
                     return result.ToArray();
@@ -276,8 +278,16 @@ namespace csscript
                     if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
                         statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
 
-                    return new[] { new ImportInfo(statement, parentScript) };
+                    return new[] { new ImportInfo(statement, parentScript, context) };
                 }
+            }
+
+            /// Creates an instance of ImportInfo.
+            /// </summary>
+            /// <param name="statement">CS-Script import directive (//css_import...) string.</param>
+            /// <param name="parentScript">name of the parent (primary) script file.</param>
+            public ImportInfo(string statement, string parentScript) : this(statement, parentScript, null)
+            {
             }
 
             /// <summary>
@@ -285,7 +295,8 @@ namespace csscript
             /// </summary>
             /// <param name="statement">CS-Script import directive (//css_import...) string.</param>
             /// <param name="parentScript">name of the parent (primary) script file.</param>
-            public ImportInfo(string statement, string parentScript)
+            /// <param name="context">The context string to be injected in the exception message if raised.</param>
+            public ImportInfo(string statement, string parentScript, string context)
             {
                 string statementToParse = statement.Replace("($this.name)", Path.GetFileNameWithoutExtension(parentScript));
                 statementToParse = statementToParse.Replace("\t", "").Trim();
@@ -293,7 +304,7 @@ namespace csscript
                 string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
 
                 this.file =
-                this.rawStatement = parts[0];
+                this.rawStatement = CSharpParser.UnescapeDelimiters(parts[0]);
                 this.parentScript = parentScript;
 
                 if (!Path.IsPathRooted(this.file) && ResolveRelativeFromParentScriptLocation)
@@ -303,16 +314,16 @@ namespace csscript
                         this.file = fullPath;
                 }
 
-                InternalInit(parts, 1);
+                InternalInit(parts, 1, context);
             }
 
-            private ImportInfo(string[] parts)
+            private ImportInfo(string[] parts, string context)
             {
                 this.file = parts[0];
-                InternalInit(parts, 1);
+                InternalInit(parts, 1, context);
             }
 
-            private void InternalInit(string[] statementParts, int startIndex)
+            private void InternalInit(string[] statementParts, int startIndex, string context)
             {
                 List<string[]> renameingMap = new List<string[]>();
 
@@ -331,7 +342,7 @@ namespace csscript
                         i += 1;
                     }
                     else
-                        throw new ApplicationException("Cannot parse \"//css_import...\"");
+                        throw new ApplicationException("Cannot parse \"" + context ?? "//css_import" + "...\"");
                 }
                 if (renameingMap.Count == 0)
                     this.renaming = new string[0][];
@@ -570,21 +581,21 @@ namespace csscript
 
             // analyse script imports/includes
             foreach (string statement in GetRawStatements("//css_import", endCodePos))
-                imports.AddRange(infos.Resolve(statement));
+                imports.AddRange(infos.Resolve(statement, "//css_import"));
             foreach (string statement in GetRawStatements("//css_imp", endCodePos))
-                imports.AddRange(infos.Resolve(statement));
+                imports.AddRange(infos.Resolve(statement, "//css_imp"));
             foreach (string statement in GetRawStatements("//css_include", endCodePos))
                 if (!string.IsNullOrEmpty(statement))
-                    imports.AddRange(infos.Resolve(statement.Expand() + ",preserve_main"));
+                    imports.AddRange(infos.Resolve(statement.Expand() + ",preserve_main", "//css_include"));
             foreach (string statement in GetRawStatements("//css_inc", endCodePos))
                 if (!string.IsNullOrEmpty(statement))
-                    imports.AddRange(infos.Resolve(statement.Expand() + ",preserve_main"));
+                    imports.AddRange(infos.Resolve(statement.Expand() + ",preserve_main", "//css_inc"));
 
             // analyse assembly references
             foreach (string statement in GetRawStatements("//css_reference", endCodePos))
-                refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file)).Select(x => x.file));
+                refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file), "//css_reference").Select(x => x.file));
             foreach (string statement in GetRawStatements("//css_ref", endCodePos))
-                refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file)).Select(x => x.file));
+                refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file), "//css_ref").Select(x => x.file));
 
             // analyse precompilers
             foreach (string statement in GetRawStatements("//css_precompiler", endCodePos))
@@ -1218,6 +1229,39 @@ namespace csscript
         {
             foreach (char c in DirectiveDelimiters)
                 text = text.Replace(c.ToString(), new string(c, 2)); //very unoptimized but it is intended only for troubleshooting.
+            return text;
+        }
+
+        /// <summary>
+        /// Replaces the user escaped delimiters with internal escaping.
+        /// <p> "{char}{char}" -> "\u{((int)c).ToString("x4")}"</p>
+        /// <p> "((" -> "\u0028"</p>
+        ///
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <returns></returns>
+        internal static string UserToInternalEscaping(string text)
+        {
+            foreach (char c in DirectiveDelimiters)
+                text = text.Replace(new string(c, 2), c.Escape()); //very unoptimized but it is intended only for troubleshooting.
+            return text;
+        }
+
+        // internally use more accurate but less readable "${(int)char};" template to avoid overlapping with split by delimiters
+        // <p> "{char}{char}" -> "\u{((int)c).ToString("x4")}"</p>
+        // <p> "((" -> "\u0028"</p>
+        internal static string EscapeDelimiters(string text)
+        {
+            foreach (char c in DirectiveDelimiters)
+                text = text.Replace(c.ToString(), c.Escape()); //very unoptimized but it is intended only for troubleshooting.
+            return text;
+        }
+
+        internal static string UnescapeDelimiters(string text)
+        {
+            foreach (char c in DirectiveDelimiters)
+                text = text.Replace(c.Escape(), c.ToString()); //very unoptimized but it is intended only for troubleshooting.
+
             return text;
         }
 

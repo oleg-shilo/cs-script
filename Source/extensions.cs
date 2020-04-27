@@ -217,6 +217,8 @@ namespace csscript
         public static bool IsSameAs(this string text1, string text2, bool ignoreCase = false)
             => string.Compare(text1, text2, ignoreCase) == 0;
 
+        public static string Escape(this char c) => "\\u" + ((int)c).ToString("x4");
+
         public static List<string> AddIfNotThere(this List<string> items, string item, string section)
         {
             if (item != null && item != "")
