@@ -39,7 +39,7 @@ using System.Runtime.Serialization;
 
 namespace csscript
 {
-    internal class InvalidDirectiveException : ApplicationException
+    public class InvalidDirectiveException : ApplicationException
     {
         public InvalidDirectiveException(string message) : base(message)
         {
