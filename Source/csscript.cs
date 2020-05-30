@@ -437,7 +437,10 @@ namespace csscript
                                         preScripts.AddRange(new CSharpParser(file, true, null, options.searchDirs).CmdScripts);
                                     }
                             }
-                            catch { } //some files may not be generated yet
+                            catch
+                            {
+                                //some files may not be generated yet
+                            }
                         }
 
                         cmdScripts = preScripts.ToArray();

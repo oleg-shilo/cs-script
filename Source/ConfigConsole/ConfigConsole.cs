@@ -1952,6 +1952,10 @@ namespace Config
 
         static public void ConfigureShellExtensions()
         {
+            return; 
+			// No need as now the functionality is controlled by shell-X. 
+			// Keeping for the historical reasons.
+
             var localDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var oldConfigDir = UninstallShelExtensionsIfPresent();

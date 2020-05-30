@@ -245,40 +245,55 @@ namespace csscript
 
             internal static ImportInfo[] ResolveStatement(string statement, string parentScript, string[] probinghDirs, string context)
             {
-                if (statement.Contains("*") || statement.Contains("?"))
+                try
                 {
-                    //e.g. resolve ..\subdir\*.cs into multiple concrete imports
-                    string statementToParse = statement.Replace("($this.name)", Path.GetFileNameWithoutExtension(parentScript));
-                    statementToParse = statementToParse.Replace("\t", "").Trim().Trim('"');
-
-                    string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
-
-                    string filePattern = parts[0];
-
-                    List<ImportInfo> result = new List<ImportInfo>();
-
-                    // To ensure that parent script dir is on top.
-                    // Required because FileParser.ResolveFiles stops searching when it finds.
-                    probinghDirs = Path.GetDirectoryName(parentScript)
-                                       .ConcatWith(probinghDirs)
-                                       .RemoveDuplicates();
-
-                    foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
+                    if (statement.Contains("*") || statement.Contains("?"))
                     {
-                        //substitute the file path pattern with the actual path
-                        parts[0] = file;
+                        //e.g. resolve ..\subdir\*.cs into multiple concrete imports
+                        string statementToParse = statement.Replace("($this.name)", Path.GetFileNameWithoutExtension(parentScript));
+                        statementToParse = statementToParse.Replace("\t", "").Trim().Trim('"');
 
-                        result.Add(new ImportInfo(parts, context));
+                        string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
+
+                        string filePattern = parts[0];
+
+                        List<ImportInfo> result = new List<ImportInfo>();
+
+                        // To ensure that parent script dir is on top.
+                        // Required because FileParser.ResolveFiles stops searching when it finds.
+                        probinghDirs = Path.GetDirectoryName(parentScript)
+                                           .ConcatWith(probinghDirs)
+                                           .RemoveDuplicates();
+
+                        foreach (string file in FileParser.ResolveFiles(filePattern, probinghDirs, false))
+                        {
+                            //substitute the file path pattern with the actual path
+                            parts[0] = file;
+
+                            result.Add(new ImportInfo(parts, context));
+                        }
+
+                        return result.ToArray();
                     }
+                    else
+                    {
+                        if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
+                            statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
 
-                    return result.ToArray();
+                        return new[] { new ImportInfo(statement, parentScript, context) };
+                    }
                 }
-                else
+                catch (InvalidDirectiveException e)
                 {
-                    if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
-                        statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
-
-                    return new[] { new ImportInfo(statement, parentScript, context) };
+                    if (context.StartsWith("//css_") && context != "//css_import") // the only one that can have unescaped delimiters
+                    {
+                        if (statement.IndexOfAny(DirectiveDelimiters) != -1) // contains any unescaped delimiter
+                        {
+                            throw new InvalidDirectiveException(e.Message +
+                                "\nEnsure your directive escapes all delimiters ('" + new string(DirectiveDelimiters) + "') by doubling the delimiter character.");
+                        }
+                    }
+                    throw;
                 }
             }
 
@@ -343,7 +358,7 @@ namespace csscript
                         i += 1;
                     }
                     else
-                        throw new ApplicationException("Cannot parse \"" + context ?? "//css_import" + "...\"");
+                        throw new InvalidDirectiveException("Cannot parse \"" + context ?? "//css_import" + "...\"");
                 }
                 if (renameingMap.Count == 0)
                     this.renaming = new string[0][];

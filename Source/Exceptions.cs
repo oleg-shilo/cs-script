@@ -39,6 +39,13 @@ using System.Runtime.Serialization;
 
 namespace csscript
 {
+    internal class InvalidDirectiveException : ApplicationException
+    {
+        public InvalidDirectiveException(string message) : base(message)
+        {
+        }
+    }
+
     internal class Surrogate86ProcessRequiredException : ApplicationException
     {
     }

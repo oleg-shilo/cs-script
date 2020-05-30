@@ -72,6 +72,25 @@ public class RoslynEval
     }
 
     [Fact]
+    public void Issue_195()
+    {
+        lock (As.BlockingTest)
+        {
+            dynamic script = CSScript.RoslynEvaluator
+                                 .CompileMethod(@"//css_nuget nlog
+                                                  int Sqr(int data)
+                                                  {
+                                                       return data * data;
+                                                  }")
+                                 .CreateObject("*");
+
+            var result = script.Sqr(7);
+
+            Assert.Equal(49, result);
+        }
+    }
+
+    [Fact]
     public void CompileMethodStatic()
     {
         lock (As.BlockingTest)

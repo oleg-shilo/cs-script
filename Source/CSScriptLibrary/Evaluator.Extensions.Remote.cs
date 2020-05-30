@@ -208,7 +208,7 @@ namespace CSScriptLibrary
         }
 
         /// <summary>
-        /// Unloads the AppDomain owning the actual object the transparent proxy is associated with.
+        /// Unloads the AppDomain owning the actual object that the transparent proxy is associated with.
         /// </summary>
         /// <param name="obj">The transparent proxy object.</param>
         public static void UnloadOwnerDomain(this object obj)

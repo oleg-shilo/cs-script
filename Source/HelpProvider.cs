@@ -153,6 +153,8 @@ namespace csscript
             return text.ToConsoleLines(indent);
         }
 
+#pragma warning disable S3963 // "static" fields should be initialized inline
+
         static AppArgs()
         {
             //http://www.csscript.net/help/Online/index.html
@@ -366,6 +368,13 @@ namespace csscript
                     "  #if CS_SCRIPT",
                     "       Console.WriteLine(\"Running as a script...\");",
                     "  #endif",
+                    section_sep, //------------------------------------
+                    "Note, All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character. " +
+                    "For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters. Thus " +
+                    "the correct syntax would be as follows '//css_include script((today)).cs;'",
+                    "The delimiters characters are ';,(){}' (e.g. C:\\Program Files ((x86))\\Common...)",
+                    "However you should always check CSharpParser.DirectiveDelimiters for the accurate " +
+                    "list of the all delimiters.",
                     section_sep, //------------------------------------
                     "//css_include <file>;",
                     "Alias - //css_inc",
@@ -733,6 +742,8 @@ namespace csscript
 
             #endregion SyntaxHelp
         }
+
+#pragma warning restore S3963 // "static" fields should be initialized inline
     }
 
     internal class HelpProvider
