@@ -315,7 +315,7 @@ namespace csscript
             public ImportInfo(string statement, string parentScript, string context)
             {
                 string statementToParse = statement.Replace("($this.name)", Path.GetFileNameWithoutExtension(parentScript));
-                statementToParse = statementToParse.Replace("\t", "").Trim();
+                statementToParse = statementToParse.Replace("\t", "").Trim(" \"".ToCharArray());
 
                 string[] parts = CSharpParser.SplitByDelimiter(statementToParse, DirectiveDelimiters);
 
