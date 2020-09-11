@@ -1734,8 +1734,11 @@ namespace csscript
                 context.NewDependencies.AddRange(context.NewIncludes);
             }
 
+            Utils.AddCompilerOptions(compilerParams, context.NewCompilerOptions);
+
             string[] additionalDependencies = context.NewDependencies.ToArray();
 
+            compilerParams.ReferencedAssemblies.AddRange(context.NewReferences.ToArray());
             AddReferencedAssemblies(compilerParams, scriptFileName, parser);
 
             //add resources referenced from code
@@ -1822,8 +1825,6 @@ namespace csscript
             string outDir = Path.GetDirectoryName(Path.GetFullPath(compilerParams.OutputAssembly));
             if (!Directory.Exists(outDir))
                 Directory.CreateDirectory(outDir);
-
-            //compilerParams.ReferencedAssemblies.Add(this.GetType().Assembly.Location);
 
             CompilerResults results;
             if (generateExe)
