@@ -91,6 +91,11 @@
             <para>You may want to add new items to the process search directories because of the pre-compilation logic.</para>
             </summary>
         </member>
+        <member name="F:csscript.PrecompilationContext.NewCompilerOptions">
+            <summary>
+            Additional compiler options to be passed to the script compiler
+            </summary>
+        </member>
         <member name="F:csscript.PrecompilationContext.SearchDirs">
             <summary>
             Collection of the process assembly and script probing directories.

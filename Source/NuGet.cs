@@ -123,17 +123,30 @@ namespace csscript
             var result = new List<PackageInfo>();
             var map = new Dictionary<string, List<PackageInfo>>();
 
-            foreach (var p in packages)
-                foreach (var nupkg in Directory.GetFiles(p.SpecFile.GetDirName().GetDirName(), "*.nupkg", SearchOption.AllDirectories))
+            void add(PackageInfo info)
+            {
+                if (!map.ContainsKey(info.Name))
+                    map[info.Name] = new List<PackageInfo>();
+                map[info.Name].Add(info);
+            }
+
+            foreach (var parentPackage in packages)
+            {
+                add(parentPackage);
+
+                foreach (var nupkg in Directory.GetFiles(parentPackage.SpecFile.GetDirName().GetDirName(), "*.nupkg", SearchOption.AllDirectories))
                 {
                     var info = ExtractPackageInfo(nupkg);
-                    info.PreferredRuntime = p.PreferredRuntime;
 
-                    if (!map.ContainsKey(info.Name))
-                        map[info.Name] = new List<PackageInfo>();
+                    // if user requested a specific version, then do not interfere and ignore other packages with the same
+                    // name but potentially different version
+                    if (info.Name == parentPackage.Name && parentPackage.Version.HasText())
+                        continue;
 
-                    map[info.Name].Add(info);
+                    info.PreferredRuntime = parentPackage.PreferredRuntime;
+                    add(info);
                 }
+            }
 
             foreach (var key in map.Keys)
             {
@@ -344,7 +357,9 @@ namespace csscript
                                 newPackageWasInstalled = true;
                                 sw.Stop();
                             }
-                            catch { }
+                            catch (Exception e)
+                            {
+                            }
 
                             try
                             {

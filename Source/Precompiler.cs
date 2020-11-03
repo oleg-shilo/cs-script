@@ -15,16 +15,6 @@ namespace csscript
     /// </summary>
     internal class PrecompilationContext
     {
-        ///// <summary>
-        ///// Full path of the script being passed for pre-compilation.
-        ///// </summary>
-        //public string ScriptFileName;
-        ///// <summary>
-        ///// Flag, which indicates if the script passed for pre-compilation is an entry script (primary script).
-        ///// <para>This field can be used to determine the pre-compilation algorithm based on the entry script. For example
-        ///// generating the <c>static Main()</c> wrapper for classless scripts should be done only for an entry script but not for other included/imported script. </para>
-        ///// </summary>
-        //public bool IsPrimaryScript = true;
         /// <summary>
         /// Collection of the referenced assemblies to be added to the process script referenced assemblies.
         /// <para>You may want to add new items to the referenced assemblies because of the pre-compilation logic (e.g. some code using assemblies not referenced by the primary script
@@ -50,6 +40,11 @@ namespace csscript
         /// <para>You may want to add new items to the process search directories because of the pre-compilation logic.</para>
         /// </summary>
         public List<string> NewSearchDirs = new List<string>();
+
+        /// <summary>
+        /// Additional compiler options to be passed to the script compiler
+        /// </summary>
+        public string NewCompilerOptions;
 
         /// <summary>
         /// Collection of the process assembly and script probing directories.
