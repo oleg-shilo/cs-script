@@ -390,7 +390,7 @@ namespace csscript
                     "If for whatever reason it is preferred to always resolve path expression with respect to the parent script location " +
                     "you can configure the script engine to do it with the following command:",
                     " ",
-                    "   cscs -config:set: ResolveRelativeFromParentScriptLocation = true",
+                    "   cscs -config:set:ResolveRelativeFromParentScriptLocation = true",
                     " ",
                     "Note if you use wildcard in the imported script name (e.g. *_build.cs) the directive will only import from the first " +
                     "probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.cs' as they may lead to " +
