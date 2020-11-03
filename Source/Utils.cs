@@ -342,19 +342,19 @@ namespace csscript
         }
 
         //to avoid throwing the exception
-        public static string Location(this Assembly asm)
+    public static string Location(this Assembly asm)
+    {
+        if (asm.IsDynamic())
         {
-            if (asm.IsDynamic())
-            {
-                string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
-                if (location == null)
-                    return "";
-                else
-                    return location ?? "";
-            }
+            string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
+            if (location == null)
+                return "";
             else
-                return asm.Location;
+                return location ?? "";
         }
+        else
+            return asm.Location;
+    }
 
         public static string RemoveAssemblyExtension(this string asmName)
         {
