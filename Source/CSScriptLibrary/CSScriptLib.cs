@@ -680,11 +680,13 @@ namespace CSScriptLibrary
         /// This variable is useful for finding the compiled assembly file from the inside of the script code.
         /// Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file.
         /// </para>
+        /// <example>
         /// <code>
         /// // called from the script code
         /// var asm_hash = Assembly.GetExecutingAssembly().GetHashCode();
         /// var script_location = Environment.GetEnvironmentVariable(\"location:\" + asm_hash);
         /// </code>
+        /// </example>
         /// <para>
         /// Enabling script reflection can lead to exhausting the capacity of the process environment variables dictionary.
         /// That is why this feature is disabled by default.
