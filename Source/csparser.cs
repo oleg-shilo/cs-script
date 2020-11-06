@@ -278,7 +278,7 @@ namespace csscript
                     else
                     {
                         if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
-                            statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
+                            statement = parentScript.GetDirName().PathJoin(statement).GetFullPath();
 
                         return new[] { new ImportInfo(statement, parentScript, context) };
                     }
