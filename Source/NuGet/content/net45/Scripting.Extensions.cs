@@ -37,7 +37,8 @@ namespace CSScriptEvaluatorExtensions
             Console.WriteLine("---------------------------------------------");
             new AsyncSamples().RunAll();
             Thread.Sleep(2000);
-            Console.WriteLine("\nPress 'Enter' to run uloading samples...");
+            Console.WriteLine();
+            Console.WriteLine("Press 'Enter' to run unloading samples...");
             Console.ReadLine();
             Console.WriteLine("---------------------------------------------");
             Console.WriteLine("Testing unloading API");

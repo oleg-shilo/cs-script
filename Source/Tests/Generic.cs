@@ -43,7 +43,7 @@ public class GenericTest
 
             var parser = new CSharpParser(code, false, null, null);
         }
-        catch (Exception ex)
+        catch
         {
             // because of te multiple assemblies with the same type loaded
             // it's impossible to use Assert.Throw<SpecificAssemblyType> reliably

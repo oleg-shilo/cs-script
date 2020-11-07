@@ -900,7 +900,7 @@ namespace CSScriptLibrary
 
         string GetConnectionPointClassDeclaration(int id)
         {
-            return "\n public struct CSS_ConnectionPoint_" + id + " {}";
+            return Environment.NewLine + " public struct CSS_ConnectionPoint_" + id + " {}";
         }
 
         string GetConnectionPointGetTypeExpression(int id)

@@ -1531,8 +1531,8 @@ namespace CSScriptLibrary
 #endif
         {
             StringBuilder code = new StringBuilder(4096);
-            code.Append("//Auto-generated file\r\n"); //cannot use AppendLine as it is not available in StringBuilder v1.1
-            code.Append("using System;\r\n");
+            code.AppendLine("//Auto-generated file");
+            code.AppendLine("using System;");
 
             bool headerProcessed = false;
 
@@ -1550,38 +1550,35 @@ namespace CSScriptLibrary
 
                             if (injectNamespace)
                             {
-                                code.Append("namespace Scripting\r\n");
-                                code.Append("{\r\n");
+                                code.AppendLine("namespace Scripting");
+                                code.AppendLine("{");
                             }
 
                             if (inheritFrom != null)
-                                code.Append("   public class " + ClasslessScriptTypeName + " : " + inheritFrom + "\r\n");
+                                code.AppendLine("   public class " + ClasslessScriptTypeName + " : " + inheritFrom);
                             else
-                                code.Append("   public class " + ClasslessScriptTypeName + "\r\n");
+                                code.AppendLine("   public class " + ClasslessScriptTypeName);
 
-                            code.Append("   {\r\n");
+                            code.AppendLine("   {");
                             string[] tokens = line.Split("\t ".ToCharArray(), 3, StringSplitOptions.RemoveEmptyEntries);
 
                             if (injectStatic)
                             {
-                                //if (tokens[0] != "static" && tokens[1] != "static" && tokens[2] != "static") //unsafe public static
                                 if (!tokens.Contains("static")) //unsafe public static
-                                    code.Append("   static\r\n");
+                                    code.AppendLine("   static");
                             }
 
-                            //if (tokens[0] != "public" && tokens[1] != "public" && tokens[2] != "public")
                             if (!tokens.Contains("public"))
-                                code.Append("   public\r\n");
+                                code.AppendLine("   public");
                         }
                     }
 
-                    code.Append(line);
-                    code.Append("\r\n");
+                    code.AppendLine(line);
                 }
 
-            code.Append("   }\r\n");
+            code.AppendLine("   }");
             if (injectNamespace)
-                code.Append("}\r\n");
+                code.AppendLine("}");
 
             return code.ToString();
         }
@@ -2449,19 +2446,19 @@ namespace csscript
 
         public static string appLogo
         {
-            get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\nCopyright (C) 2004 Oleg Shilo.\n"; }
+            get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + "." + Environment.NewLine + "Copyright (C) 2004 Oleg Shilo." + Environment.NewLine; }
         }
 
         public static string appLogoShort
         {
-            get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + ".\n"; }
+            get { return "C# Script execution engine. Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + Environment.NewLine; }
         }
 
         //#pragma warning disable 414
         public static string appParams = "[/nl]:";
 
         //#pragma warning restore 414
-        public static string appParamsHelp = "nl	-	No logo mode: No banner will be shown at execution time.\n";
+        public static string appParamsHelp = "nl	-	No logo mode: No banner will be shown at execution time." + Environment.NewLine;
     }
 
     /// <summary>

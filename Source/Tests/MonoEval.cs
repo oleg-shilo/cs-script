@@ -62,7 +62,7 @@ public class MonoEval : TestBase
         var ex = Assert.Throws<CompilerException>(() =>
                      CSScript.MonoEvaluator.CompileCode(classCode.Replace("public", "error_word")));
 
-        Assert.Equal("(1,12): error CS1525: Unexpected symbol `class'\r\n", ex.Message);
+        Assert.Equal("(1,12): error CS1525: Unexpected symbol `class'" + Environment.NewLine, ex.Message);
     }
 
     [DebugBuildFactAttribute]

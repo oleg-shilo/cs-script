@@ -39,8 +39,16 @@ using System.Runtime.Serialization;
 
 namespace csscript
 {
+    /// <summary>
+    /// The exception that is thrown when an incvalid CS-Script directive is encountered.
+    /// </summary>
+    /// <seealso cref="csscript.CompilerException" />
     public class InvalidDirectiveException : CompilerException
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidDirectiveException"/> class.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public InvalidDirectiveException(string message) : base(message)
         {
         }

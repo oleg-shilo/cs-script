@@ -277,8 +277,6 @@ namespace csscript
 
             var code = new StringBuilder(4096);
             var footer = new StringBuilder();
-            //code.Append("//Auto-generated file" + Environment.NewLine); //cannot use AppendLine as it is not available in StringBuilder v1.1
-            //code.Append("using System;\r\n");
 
             //css_ac_end
             bool headerProcessed = false;

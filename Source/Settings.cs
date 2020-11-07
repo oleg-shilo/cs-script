@@ -679,7 +679,7 @@ namespace csscript
                             .Select(p => " " + p.Name + ": " + (p.PropertyType == typeof(string) ? "\"" + p.GetValue(this, dummy) + "\"" : p.GetValue(this, dummy)))
                             .ToArray();
 
-            return string.Join("\n", props);
+            return string.Join(Environment.NewLine, props);
         }
 
         internal string ToStringRaw()
@@ -848,9 +848,9 @@ namespace csscript
 
                 //note node.ParentNode.InsertAfter(doc.CreateComment("") injects int node inner text and it is not what we want
                 //very simplistic formatting
-                var xml = doc.InnerXml.Replace("><", ">\n  <")
+                var xml = doc.InnerXml.Replace("><", ">" + Environment.NewLine + "  <")
                                       .Replace(">\n  </", "></")
-                                      .Replace("></CSSConfig>", ">\n</CSSConfig>");
+                                      .Replace("></CSSConfig>", ">" + Environment.NewLine + "</CSSConfig>");
 
                 xml = CommentElement(xml, "consoleEncoding", "if 'default' then system default is used; otherwise specify the name of the encoding (e.g. 'utf-8')");
                 xml = CommentElement(xml, "autoclass.decorateAsCS6", "if 'true' auto-class decoration will inject C# 6 specific syntax expressions (e.g. 'using static dbg;')");
@@ -870,7 +870,7 @@ namespace csscript
 
         static string CommentElement(string xml, string name, string comment)
         {
-            return xml.Replace("<" + name + ">", "<!-- " + comment + " -->\n  <" + name + ">");
+            return xml.Replace("<" + name + ">", "<!-- " + comment + " -->" + Environment.NewLine + "  <" + name + ">");
         }
 
         /// <summary>

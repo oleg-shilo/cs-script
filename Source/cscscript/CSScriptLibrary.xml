@@ -1145,6 +1145,18 @@
             Show CS-Script version information.
             </summary>
         </member>
+        <member name="T:csscript.InvalidDirectiveException">
+            <summary>
+            The exception that is thrown when an incvalid CS-Script directive is encountered.
+            </summary>
+            <seealso cref="T:csscript.CompilerException" />
+        </member>
+        <member name="M:csscript.InvalidDirectiveException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:csscript.InvalidDirectiveException"/> class.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
         <member name="T:csscript.CLIException">
             <summary>
             The exception that is thrown when a the script CLI error occurs.
