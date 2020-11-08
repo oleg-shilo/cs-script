@@ -357,7 +357,7 @@ namespace csscript
                                 newPackageWasInstalled = true;
                                 sw.Stop();
                             }
-                            catch (Exception e)
+                            catch
                             {
                                 // the failed package willl be reported as missing reference anyway
                             }

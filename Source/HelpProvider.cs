@@ -153,7 +153,7 @@ namespace csscript
             return text.ToConsoleLines(indent);
         }
 
-#pragma warning disable S3963 // "static" fields should be initialized inline
+        // #pragma warning disable S3963 // "static" fields should be initialized inline
 
         static AppArgs()
         {
@@ -743,7 +743,7 @@ namespace csscript
             #endregion SyntaxHelp
         }
 
-#pragma warning restore S3963 // "static" fields should be initialized inline
+        // #pragma warning restore S3963 // "static" fields should be initialized inline
     }
 
     internal class HelpProvider
