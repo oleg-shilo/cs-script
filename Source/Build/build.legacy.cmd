@@ -121,7 +121,7 @@ ECHO Building CSScript TargetFramework: v4.5:
 ECHO Building cscs.exe: >> ..\Build\build.log
 "%net4_tools%\msbuild.exe" ..\cscscript\cscscript.csproj /p:AssemblyName=cscs /p:TargetFrameworkVersion=v4.5  /p:configuration=Release;Platform="AnyCPU" /p:OutDir=bin\Distro /p:DefineConstants="net4;net45" %common_msbuild_params%
 ECHO ------------ >> ..\Build\build.log
-echo 7777777777777777
+
 move ..\cscscript\bin\Distro\cscs.exe ..\Build\cscs.exe
 ..\Build\cscs.exe -? > "%local_dev%\help.txt"
 ..\Build\cscs.exe -? > ..\..\..\cs-script\help.txt

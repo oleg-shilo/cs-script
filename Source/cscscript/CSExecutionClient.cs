@@ -60,6 +60,9 @@ namespace csscript
         /// </summary>
         public static void Main(string[] rawArgs)
         {
+#if DEBUG
+            Environment.SetEnvironmentVariable("CSS_RESGEN", @"E:\Galos\cs-script.distro\lib\ResGen.exe");
+#endif
             // Debug.Assert(false);
             main(rawArgs);
         }

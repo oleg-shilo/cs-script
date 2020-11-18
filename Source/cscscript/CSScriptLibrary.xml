@@ -798,14 +798,14 @@
         </member>
         <member name="F:csscript.CSharpParser.SuppressCodeAnalysis">
             <summary>
-            Global flag to forcefully suppress any C# code analyses. This flag effectively disables
+            Global flag to forcefully suppress any C# code analyzes. This flag effectively disables
             all CS-Script assembly and script probing and most likely some other functionality.
             <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
             </summary>
         </member>
         <member name="F:csscript.CSharpParser.SupressCodeAnalysis">
             <summary>
-            Global flag to forcefully suppress any C# code analyses. This flag effectively disables
+            Global flag to forcefully suppress any C# code analyzes. This flag effectively disables
             all CS-Script assembly and script probing and most likely some other functionality.
             <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
             </summary>

@@ -309,8 +309,10 @@ namespace CSScriptEvaluatorApi
 
             Action runAll = () =>
             {
-                Console.WriteLine("\n---------------------------------------------");
-                Console.WriteLine("Caching enabled: " + preventCaching + "\n");
+                Console.WriteLine();
+                Console.WriteLine("---------------------------------------------");
+                Console.WriteLine("Caching enabled: " + preventCaching);
+                Console.WriteLine();
 
                 CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Mono;
                 run();

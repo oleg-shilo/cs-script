@@ -253,6 +253,15 @@ namespace csscript
             return Environment.ExpandEnvironmentVariables(text).Trim();
         }
 
+        internal static string NormaliseAsDirectiveOf(this string statement, string parentScript, char multiPathDelimiter)
+        {
+            var pathItems = statement.Split(multiPathDelimiter);
+            var result = pathItems.Select(x => NormaliseAsDirectiveOf(x.Trim(), parentScript))
+                             .JoinBy(multiPathDelimiter.ToString());
+
+            return result;
+        }
+
         internal static string NormaliseAsDirectiveOf(this string statement, string parentScript)
         {
             var text = CSharpParser.UserToInternalEscaping(statement);
