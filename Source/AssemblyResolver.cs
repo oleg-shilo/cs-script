@@ -114,7 +114,7 @@ namespace CSScriptLibrary
                 AssemblyName asmName = AssemblyName.GetAssemblyName(asmFile);
                 if (asmName != null && asmName.FullName == assemblyName)
                     return Assembly.LoadFrom(asmFile);
-                else if (assemblyName.IndexOf(",") == -1 && asmName.FullName.StartsWith(assemblyName)) //short name requested
+                else if (assemblyName.IndexOf(",") == -1 && asmName.FullName.StartsWith(assemblyName + ",")) //short name requested
                     return Assembly.LoadFrom(asmFile);
             }
             catch
