@@ -3,7 +3,10 @@ echo off
 @set oldPATH=%PATH%;
 @set PATH=%windir%\Microsoft.NET\Framework\v1.1.4322;%PATH%;
 @set net4_tools=C:\Windows\Microsoft.NET\Framework\v4.0.30319
-@set net45_tools=C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin
+@set vs_edition=Community
+rem @set vs_edition=Professional
+
+@set net45_tools=C:\Program Files (x86)\Microsoft Visual Studio\2019\%vs_edition%\MSBuild\Current\Bin
 
 @set net4_asms=C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6
 
@@ -65,6 +68,12 @@ ECHO Building CSScriptLibrary.dll: >> ..\Build\build.log
 ECHO ------------ >> ..\Build\build.log
 move ..\CSScriptLibrary\bin\Distro\CSScriptLibrary.dll ..\Build\CSScriptLibrary.dll
 move ..\CSScriptLibrary\bin\Distro\CSScriptLibrary.xml ..\Build\CSScriptLibrary.xml
+
+rem ECHO Building css_config:
+rem ECHO Building css_config: >> ..\Build\build.log
+rem "%net45_tools%\msbuild.exe" ..\css_config\css_config.csproj /p:TargetFrameworkVersion=v4.5  /p:configuration=Release;Platform="AnyCPU" /p:OutDir=bin\Distro %common_msbuild_params%
+rem move ..\css_config\bin\Distro\css_config.exe ..\Build\css_config.exe
+rem ECHO ------------ >> ..\Build\build.log
 
 set CS-S_DEV_ROOT=%cd%
 

@@ -58,7 +58,7 @@ namespace CSScriptEvaluatorApi
             //Profile(); //uncomment if want to test performance of the engines
         }
 
-        class EvaluatorSamples
+        private class EvaluatorSamples
         {
             public void RunAll()
             {

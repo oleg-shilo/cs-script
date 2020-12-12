@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CS-Script.bin</id>
-<version>3.30.3.0</version>
+<version>3.30.4.0</version>
         <title>CS-Script Binaries</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -16,8 +16,7 @@
 It is the package that you need to have CS-Script with all three compilation engines enabled: Roslyn, Mono and CodeDom.
 </summary>
         <releaseNotes>
-- Issue #189: Error "Cannot parse "//css_import..."" when referencing an assembly
-- Issue #193: DirectoryNotFoundException(C:\ProgramData\CS-Script\ShellExtension) when fresh installing
+- PR #178:Fixed issue where Example.Sub assembly would be matched when requesting Example assembly 
 </releaseNotes>
         <copyright>Copyright (C) 2004-2020 Oleg Shilo</copyright>
         <language>en-AU</language>
