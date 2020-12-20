@@ -26,12 +26,12 @@ It is the package that you need to have CS-Script with all three compilation eng
         </dependencies>
     </metadata>
     <files>
-        <file src="lib\net40\CSScriptLibrary.dll" target="lib\net40\CSScriptLibrary.dll" />
+       <!--  <file src="lib\net40\CSScriptLibrary.dll" target="lib\net40\CSScriptLibrary.dll" />
         <file src="lib\net40\CSScriptLibrary.xml" target="lib\net40\CSScriptLibrary.xml" />
         <file src="lib\net40\Mono.CSharp.dll" target="lib\net40\Mono.CSharp.dll" />
         <file src="lib\net45\CSScriptLibrary.dll" target="lib\net45\CSScriptLibrary.dll" />
         <file src="lib\net45\CSScriptLibrary.xml" target="lib\net45\CSScriptLibrary.xml" />
-        <file src="lib\net45\Mono.CSharp.dll" target="lib\net45\Mono.CSharp.dll" />
+        <file src="lib\net45\Mono.CSharp.dll" target="lib\net45\Mono.CSharp.dll" /> -->
         <file src="lib\net46\CSScriptLibrary.dll" target="lib\net46\CSScriptLibrary.dll" />
         <file src="lib\net46\CSScriptLibrary.xml" target="lib\net46\CSScriptLibrary.xml" />
         <file src="lib\net46\Mono.CSharp.dll" target="lib\net46\Mono.CSharp.dll" />

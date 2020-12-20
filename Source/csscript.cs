@@ -1724,7 +1724,7 @@ namespace csscript
                 Utils.AddCompilerOptions(compilerParams, option);
 
             if (options.DBG)
-                Utils.AddCompilerOptions(compilerParams, "/d:DEBUG /d:TRACE");
+                Utils.AddCompilerOptions(compilerParams, "/d:DEBUG");
 
             Utils.AddCompilerOptions(compilerParams, "/d:CS_SCRIPT");
 

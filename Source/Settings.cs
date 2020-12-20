@@ -259,7 +259,10 @@ namespace csscript
             set { resolveAutogenFilesRefs = value; }
         }
 
-        string defaultArguments = CSSUtils.Args.Join("c", "co:" + CSSUtils.Args.DefaultPrefix + "warn:0");
+        string defaultArguments = CSSUtils.Args.Join(
+            "c",
+            "co:" + CSSUtils.Args.DefaultPrefix + "warn:0",
+            "co:" + CSSUtils.Args.DefaultPrefix + "d:TRACE");
 
         ///// <summary>
         ///// Enables using a surrogate process to host the script engine at runtime. This may be a useful option for fine control over the hosting process
@@ -297,6 +300,7 @@ namespace csscript
         public string ConsoleEncoding
         {
             get { return consoleEncoding; }
+
             set
             {
                 //consider: https://social.msdn.microsoft.com/Forums/vstudio/en-US/e448b241-e250-4dcb-8ecd-361e00920dde/consoleoutputencoding-breaks-batch-files?forum=netfxbcl
@@ -406,6 +410,7 @@ namespace csscript
 
                 return defaultRefAssemblies;
             }
+
             set { defaultRefAssemblies = value; }
         }
 
@@ -658,6 +663,7 @@ namespace csscript
                     concurrencyControl = ConcurrencyControl.Standard;
                 return concurrencyControl;
             }
+
             set
             {
                 concurrencyControl = value;
