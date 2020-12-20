@@ -69,11 +69,11 @@ ECHO ------------ >> ..\Build\build.log
 move ..\CSScriptLibrary\bin\Distro\CSScriptLibrary.dll ..\Build\CSScriptLibrary.dll
 move ..\CSScriptLibrary\bin\Distro\CSScriptLibrary.xml ..\Build\CSScriptLibrary.xml
 
-rem ECHO Building css_config:
-rem ECHO Building css_config: >> ..\Build\build.log
-rem "%net45_tools%\msbuild.exe" ..\css_config\css_config.csproj /p:TargetFrameworkVersion=v4.5  /p:configuration=Release;Platform="AnyCPU" /p:OutDir=bin\Distro %common_msbuild_params%
-rem move ..\css_config\bin\Distro\css_config.exe ..\Build\css_config.exe
-rem ECHO ------------ >> ..\Build\build.log
+ECHO Building css_config:
+ECHO Building css_config: >> ..\Build\build.log
+"%net45_tools%\msbuild.exe" ..\css_config\css_config.csproj /p:TargetFrameworkVersion=v4.5  /p:configuration=Release;Platform="AnyCPU" /p:OutDir=bin\Distro %common_msbuild_params%
+move ..\css_config\bin\Distro\css_config.exe ..\Build\css_config.exe
+ECHO ------------ >> ..\Build\build.log
 
 set CS-S_DEV_ROOT=%cd%
 
