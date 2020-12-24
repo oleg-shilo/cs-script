@@ -79,7 +79,7 @@ class Program
                 //MessageBox.Show("non admin");
             }
         }
-    }    static string RequiredCLRVersion = "4.0";
+    }    static string RequiredCLRVersion = "4.0";
 
     static bool IsValidCLR()
     {
