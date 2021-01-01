@@ -28,7 +28,9 @@ Over the long history of CS-Script it has been downloaded through Notepad++ x86 
 
 _**For the all CS-Script details go to the project [Documentation Wiki](https://github.com/oleg-shilo/cs-script/wiki).**_
 <hr/>
+
 _**For the roadmap for .NET 5 development see this [article](https://github.com/oleg-shilo/cs-script/wiki/Roadamap).**_
+
 <hr/>
 
 The following is a simple code sample just to give you the idea about the product:
