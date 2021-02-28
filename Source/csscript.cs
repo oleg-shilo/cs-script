@@ -997,10 +997,13 @@ namespace csscript
                             {
                                 if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
                                 {
-                                    print("Error: Specified file could not be compiled.\n");
+                                    println("Error: Specified file could not be compiled.");
                                     if (NuGet.newPackageWasInstalled)
                                     {
-                                        print("> -----\nA new NuGet package has been installed. If some of it's components are not found you may need to restart the script again.\n> -----\n");
+                                        println("> -----");
+                                        println("A new NuGet package has been installed. If some of it's " +
+                                                "components are not found you may need to restart the script again.");
+                                        println("> -----");
                                     }
                                 }
                                 throw;
@@ -1020,7 +1023,7 @@ namespace csscript
                             Profiler.Stopwatch.Stop();
                             CSSUtils.VerbosePrint("  Loading script from cache...", options);
                             CSSUtils.VerbosePrint("", options);
-                            CSSUtils.VerbosePrint("  Cache file: \n       " + assemblyFileName, options);
+                            CSSUtils.VerbosePrint("  Cache file: " + Environment.NewLine + "       " + assemblyFileName, options);
                             CSSUtils.VerbosePrint("> ----------------", options);
                             CSSUtils.VerbosePrint("Initialization time: " + Profiler.Stopwatch.Elapsed.TotalMilliseconds + " msec", options);
                             CSSUtils.VerbosePrint("> ----------------", options);
@@ -1076,7 +1079,7 @@ namespace csscript
                             catch
                             {
                                 if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
-                                    print("Error: Specified file could not be executed.\n");
+                                    println("Error: Specified file could not be executed.");
                                 throw;
                             }
 
@@ -1203,6 +1206,11 @@ namespace csscript
         /// Callback to print application messages to appropriate output.
         /// </summary>
         internal static PrintDelegate print;
+
+        internal static void println(string msg)
+        {
+            print(msg + Environment.NewLine);
+        }
 
         /// <summary>
         /// Container for parsed command line arguments
@@ -1402,7 +1410,7 @@ namespace csscript
 
                             if (sccssdir != null)//CS-Script is installed/configured
                             {
-                                var errorMessage = "\nCannot find alternative compiler (" + options.altCompiler + "). Loading default compiler instead.";
+                                var errorMessage = Environment.NewLine + "Cannot find alternative compiler (" + options.altCompiler + "). Loading default compiler instead.";
 
                                 if (options.altCompiler.EndsWith("CSSCodeProvider.v4.6.dll"))
                                 {
@@ -1410,7 +1418,7 @@ namespace csscript
                                     {
                                         var roslynProvider = options.altCompiler.Replace("CSSCodeProvider.v4.6.dll", "CSSRoslynProvider.dll");
                                         var compilerAsmFile = LookupAltCompilerFile(roslynProvider, scriptDir);
-                                        errorMessage += "\nHowever CSSRoslynProvider.dll has been detected. You may consider the latest CS-Script provider " +
+                                        errorMessage += Environment.NewLine + "However CSSRoslynProvider.dll has been detected. You may consider the latest CS-Script provider " +
                                             "'CSSRoslynProvider.dll' instead of the legacy one 'CSSCodeProvider.v4.6.dll'.";
                                     }
                                     catch { }
@@ -1427,7 +1435,11 @@ namespace csscript
                     catch { }
 
                     // Debug.Assert(false);
-                    throw new ApplicationException("Cannot use alternative compiler (" + options.altCompiler + "). You may want to adjust 'CSSCRIPT_DIR' environment variable or disable alternative compiler by setting 'useAlternativeCompiler' to empty value in the css_config.xml file.\n\nError Details:", ex);
+                    throw new ApplicationException(
+                        "Cannot use alternative compiler (" + options.altCompiler + "). You may want to adjust 'CSSCRIPT_DIR' " +
+                        "environment variable or disable alternative compiler by setting 'useAlternativeCompiler' to empty value " +
+                        "in the css_config.xml file." + Environment.NewLine + Environment.NewLine +
+                        "Error Details:", ex);
                 }
             }
             return compiler;
@@ -1712,7 +1724,7 @@ namespace csscript
                 Utils.AddCompilerOptions(compilerParams, option);
 
             if (options.DBG)
-                Utils.AddCompilerOptions(compilerParams, "/d:DEBUG /d:TRACE");
+                Utils.AddCompilerOptions(compilerParams, "/d:DEBUG");
 
             Utils.AddCompilerOptions(compilerParams, "/d:CS_SCRIPT");
 
@@ -1826,6 +1838,8 @@ namespace csscript
             if (!Directory.Exists(outDir))
                 Directory.CreateDirectory(outDir);
 
+            compilerParams.CompilerOptions.TunnelConditionalSymbolsToEnvironmentVariables();
+
             CompilerResults results;
             if (generateExe)
             {
@@ -1840,7 +1854,7 @@ namespace csscript
                     filesToCompile = filesToCompile.ConcatWith(filesToInject);
                 }
 
-                CSSUtils.VerbosePrint("  Output file: \n       " + assemblyFileName, options);
+                CSSUtils.VerbosePrint("  Output file: " + Environment.NewLine + "       " + assemblyFileName, options);
                 CSSUtils.VerbosePrint("", options);
 
                 CSSUtils.VerbosePrint("  Files to compile: ", options);
@@ -1951,7 +1965,7 @@ namespace csscript
                 }
                 catch (Exception e)
                 {
-                    throw new ApplicationException("Cannot post-process compiled script (set UsePostProcessor to \"null\" if the problem persist).\n" + e.Message);
+                    throw new ApplicationException("Cannot post-process compiled script (set UsePostProcessor to \"null\" if the problem persist)." + Environment.NewLine + e.Message);
                 }
             }
 
@@ -1988,7 +2002,8 @@ namespace csscript
 
                 if (options.syntaxCheck)
                 {
-                    Console.WriteLine("Compile: {0} error(s)\n{1}", ex.ErrorCount, ex.Message.Trim());
+                    Console.WriteLine("Compile: {0} error(s)", ex.ErrorCount);
+                    Console.WriteLine(ex.Message.Trim());
                 }
                 else
                     throw ex;
@@ -2218,7 +2233,7 @@ namespace csscript
                 try
                 {
                     using (StreamWriter sw = new StreamWriter(infoFile))
-                        sw.Write(Environment.Version.ToString() + "\n" + directoryPath + "\n");
+                        sw.Write(Environment.Version.ToString() + Environment.NewLine + directoryPath + Environment.NewLine);
                 }
                 catch
                 {

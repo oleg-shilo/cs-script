@@ -153,7 +153,7 @@ namespace csscript
             return text.ToConsoleLines(indent);
         }
 
-#pragma warning disable S3963 // "static" fields should be initialized inline
+        // #pragma warning disable S3963 // "static" fields should be initialized inline
 
         static AppArgs()
         {
@@ -390,7 +390,7 @@ namespace csscript
                     "If for whatever reason it is preferred to always resolve path expression with respect to the parent script location " +
                     "you can configure the script engine to do it with the following command:",
                     " ",
-                    "   cscs -config:set: ResolveRelativeFromParentScriptLocation = true",
+                    "   cscs -config:set:ResolveRelativeFromParentScriptLocation = true",
                     " ",
                     "Note if you use wildcard in the imported script name (e.g. *_build.cs) the directive will only import from the first " +
                     "probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.cs' as they may lead to " +
@@ -743,7 +743,7 @@ namespace csscript
             #endregion SyntaxHelp
         }
 
-#pragma warning restore S3963 // "static" fields should be initialized inline
+        // #pragma warning restore S3963 // "static" fields should be initialized inline
     }
 
     internal class HelpProvider
@@ -992,19 +992,19 @@ namespace csscript
             if (Runtime.IsWin && !corlib.Contains("mono"))
                 dotNetVer = DotNetVersion.Get45PlusFromRegistry();
 
-            builder.Append(AppInfo.appLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script)\n");
-            builder.Append("\n");
-            builder.Append("   CLR:             " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : "") + "\n");
-            builder.Append("   System:          " + Environment.OSVersion + "\n");
-            builder.Append("   Corlib:          " + "".GetType().Assembly.Location + "\n");
+            builder.AppendLine(AppInfo.appLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script)");
+            builder.AppendLine("");
+            builder.AppendLine("   CLR:             " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : ""));
+            builder.AppendLine("   System:          " + Environment.OSVersion);
+            builder.AppendLine("   Corlib:          " + "".GetType().Assembly.Location);
 #if net4
-            builder.Append("   Architecture:    " + (Environment.Is64BitProcess ? "x64" : "x86") + "\n");
+            builder.AppendLine("   Architecture:    " + (Environment.Is64BitProcess ? "x64" : "x86"));
 #endif
-            builder.Append("   Install dir:     " + (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") ?? "<not integrated>") + "\n");
+            builder.AppendLine("   Install dir:     " + (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") ?? "<not integrated>"));
 
             var asm_path = Assembly.GetExecutingAssembly().Location;
-            builder.Append("   Location:        " + asm_path + "\n");
-            builder.Append("   Config file:     " + (Settings.DefaultConfigFile ?? "<none>") + "\n");
+            builder.AppendLine("   Location:        " + asm_path);
+            builder.AppendLine("   Config file:     " + (Settings.DefaultConfigFile ?? "<none>"));
             builder.Append("   Compiler:        ");
             var compiler = "<default>";
             if (!string.IsNullOrEmpty(asm_path))
@@ -1013,7 +1013,7 @@ namespace csscript
                 var alt_compiler = (Settings.Load(Settings.DefaultConfigFile, false) ?? new Settings()).ExpandUseAlternativeCompiler();
                 if (!string.IsNullOrEmpty(alt_compiler))
                 {
-                    builder.Append(alt_compiler + "\n");
+                    builder.AppendLine(alt_compiler);
                     try
                     {
                         var asm = Assembly.LoadFrom(CSExecutor.LookupAltCompilerFile(alt_compiler));
@@ -1025,22 +1025,23 @@ namespace csscript
                             var info = (Dictionary<string, string>)method.Invoke(null, new object[0]);
                             var maxLength = info.Keys.Max(x => x.Length);
                             foreach (var key in info.Keys)
-                                builder.AppendLine("                    " + key + " - \n                        " + info[key]);
-                            // builder.AppendLine("                    " + key.PadRight(maxLength) + " - " + info[key]);
+                            {
+                                builder.AppendLine("                    " + key + " - ")
+                                       .AppendLine("                        " + info[key]);
+                            }
                         }
                     }
                     catch { }
                 }
                 else
-                    builder.Append(compiler + "\n");
+                    builder.AppendLine(compiler);
             }
             else
-                builder.Append(compiler + "\n");
+                builder.AppendLine(compiler);
 
-            builder.Append("   NuGet manager:   " + NuGet.NuGetExe + "\n");
-            builder.Append("   NuGet cache:     " + NuGet.NuGetCacheView + "\n");
+            builder.AppendLine("   NuGet manager:   " + NuGet.NuGetExe);
+            builder.AppendLine("   NuGet cache:     " + NuGet.NuGetCacheView);
 
-            //builder.Append("   Engine:         " + Assembly.GetExecutingAssembly().Location + "\n");
             return builder.ToString();
         }
     }

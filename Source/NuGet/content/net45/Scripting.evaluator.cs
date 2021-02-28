@@ -58,7 +58,7 @@ namespace CSScriptEvaluatorApi
             //Profile(); //uncomment if want to test performance of the engines
         }
 
-        class EvaluatorSamples
+        private class EvaluatorSamples
         {
             public void RunAll()
             {
@@ -309,8 +309,10 @@ namespace CSScriptEvaluatorApi
 
             Action runAll = () =>
             {
-                Console.WriteLine("\n---------------------------------------------");
-                Console.WriteLine("Caching enabled: " + preventCaching + "\n");
+                Console.WriteLine();
+                Console.WriteLine("---------------------------------------------");
+                Console.WriteLine("Caching enabled: " + preventCaching);
+                Console.WriteLine();
 
                 CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Mono;
                 run();

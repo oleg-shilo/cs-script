@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CS-Script.RoslynProvider</id>
-<version>3.30.3.0</version>
+<version>3.30.5.1</version>
         <title>CS-Script CodeDom Roslyn provider (CSSRoslynProvider.dll)</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -20,7 +20,7 @@
         <language>en-AU</language>
         <tags>C# Scripting Dynamic CS-Script csscript</tags>
         <dependencies>
-            <dependency id="CS-Script.bin" version="3.30.2" />
+            <dependency id="CS-Script.bin" version="3.30.5.0-pre" />
             <dependency id="Microsoft.Net.Compilers" version="2.2.0" />
         </dependencies>
     </metadata>

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CS-Script</id>
-<version>3.30.3.0</version>
+<version>3.30.5.1</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -13,27 +13,23 @@
         <description>Class Library assembly for the CS-Script engine. CS-Script is a CLR (Common Language Runtime) based scripting system which uses ECMA-compliant C# as a programming language.</description>
         <summary>This is the complete package for hosting the script engine in .NET (full) applications. It also contains the samples demonstrating how to use all three available compilation engines (Roslyn, Mono and CodeDom) as well as the CS-Script legacy native interface.</summary>
         <releaseNotes>
-- Issue #189: Error "Cannot parse "//css_import..."" when referencing an assembly
-- Issue #193: DirectoryNotFoundException(C:\ProgramData\CS-Script\ShellExtension) when fresh installing
+- Issue #220: Reason for not defining TRACE when compiling without the debug flag
+- Removed all non v4.6 targets from the NuGet packages
+- PR #178:Fixed issue where Example.Sub assembly would be matched when requesting Example assembly
         </releaseNotes>
         <copyright>Copyright (C) 2004-2020 Oleg Shilo</copyright>
         <language>en-AU</language>
         <tags>C# Scripting Dynamic CS-Script csscript</tags>
         <dependencies>
-            <dependency id="CS-Script.bin" version="3.30.2" />
+            <dependency id="CS-Script.bin" version="3.30.5.0-pre" />
         </dependencies>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="" />
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="content\net40\Scripting.evaluator.cs" target="content\net40\Scripting.evaluator.cs" />
-        <file src="content\net40\Scripting.native.cs" target="content\net40\Scripting.native.cs" />
         <file src="content\net45\Scripting.evaluator.cs" target="content\net45\Scripting.evaluator.cs" />
         <file src="content\net45\Scripting.Extensions.cs" target="content\net45\Scripting.Extensions.cs" />
         <file src="content\net45\Scripting.native.cs" target="content\net45\Scripting.native.cs" />
-        <file src="content\net46\Scripting.evaluator.cs" target="content\net46\Scripting.evaluator.cs" />
-        <file src="content\net46\Scripting.Extensions.cs" target="content\net46\Scripting.Extensions.cs" />
-        <file src="content\net46\Scripting.native.cs" target="content\net46\Scripting.native.cs" />
     </files>
 </package>

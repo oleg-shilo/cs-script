@@ -232,7 +232,7 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
             CodeDomProvider provider = CodeDomProvider.CreateProvider("CSharp");
 
             if (sourceType.Assembly.Location() == "" || interfaceType.Assembly.Location() == "")
-                throw new Exception("Error compiling proxy class:\nThe dependency assembly is dynamic and doesn't have an assembly " +
+                throw new Exception("Error compiling proxy class:" + Environment.NewLine + "The dependency assembly is dynamic and doesn't have an assembly " +
                    "file associated with it. You will need to ensure the all engaged assemblies are loaded from the file system or " +
                    "script assemblies are compiled with CSScript.GlobalSettings.InMemoryAssembly set to `false`. Another alternative is " +
                    "to avoid duck typing by directly inheriting the sourceType from the interfaceType.");
@@ -262,7 +262,7 @@ namespace CSScriptLibrary.ThirdpartyLibraries.Rubenhak.Utils
                     sb.AppendLine(error.Line + "\t" + error.ErrorNumber + "\t" + error.ErrorText);
                 }
 
-                throw new Exception("Error compiling proxy class:\n" + sb.ToString());
+                throw new Exception("Error compiling proxy class:" + Environment.NewLine + sb.ToString());
             }
 
             return res.CompiledAssembly.GetTypes()[0];

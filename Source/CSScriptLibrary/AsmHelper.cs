@@ -1492,11 +1492,11 @@ namespace CSScriptLibrary
             if (list.Any(x => x == null))
                 throw new Exception("At least one of the invoke parameters is null. This makes impossible to " +
                                     "match method signature by the parameter type. Consider using alternative invoking " +
-                                    "mechanisms like:\n" +
-                                    " AsmHelper.GetMethod()\n" +
-                                    " AsmHelper.GetStaticMethod()\n" +
-                                    " Assembly.GetStaticMethod()\n" +
-                                    " using type 'dynamic'\n" +
+                                    "mechanisms like:" + Environment.NewLine +
+                                    " AsmHelper.GetMethod()" + Environment.NewLine +
+                                    " AsmHelper.GetStaticMethod()" + Environment.NewLine +
+                                    " Assembly.GetStaticMethod()" + Environment.NewLine +
+                                    " using type 'dynamic'" + Environment.NewLine +
                                     " using interfaces");
 
             MethodSignature methodID = new MethodSignature(methodName, list);
@@ -1677,7 +1677,7 @@ namespace CSScriptLibrary
 
                 if (!isMonoInternalType && !isRoslynInternalType && !isRoslynInternalType2)
                 {
-                       if (typeName == null || type.Name == typeName || type.Name == "DynamicClass" || isLikelyUserType)
+                    if (typeName == null || type.Name == typeName || type.Name == "DynamicClass" || isLikelyUserType)
                         return type;
                 }
             }

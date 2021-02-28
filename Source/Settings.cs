@@ -259,7 +259,10 @@ namespace csscript
             set { resolveAutogenFilesRefs = value; }
         }
 
-        string defaultArguments = CSSUtils.Args.Join("c", "co:" + CSSUtils.Args.DefaultPrefix + "warn:0");
+        string defaultArguments = CSSUtils.Args.Join(
+            "c",
+            "co:" + CSSUtils.Args.DefaultPrefix + "warn:0",
+            "co:" + CSSUtils.Args.DefaultPrefix + "d:TRACE");
 
         ///// <summary>
         ///// Enables using a surrogate process to host the script engine at runtime. This may be a useful option for fine control over the hosting process
@@ -297,6 +300,7 @@ namespace csscript
         public string ConsoleEncoding
         {
             get { return consoleEncoding; }
+
             set
             {
                 //consider: https://social.msdn.microsoft.com/Forums/vstudio/en-US/e448b241-e250-4dcb-8ecd-361e00920dde/consoleoutputencoding-breaks-batch-files?forum=netfxbcl
@@ -406,6 +410,7 @@ namespace csscript
 
                 return defaultRefAssemblies;
             }
+
             set { defaultRefAssemblies = value; }
         }
 
@@ -658,6 +663,7 @@ namespace csscript
                     concurrencyControl = ConcurrencyControl.Standard;
                 return concurrencyControl;
             }
+
             set
             {
                 concurrencyControl = value;
@@ -679,7 +685,7 @@ namespace csscript
                             .Select(p => " " + p.Name + ": " + (p.PropertyType == typeof(string) ? "\"" + p.GetValue(this, dummy) + "\"" : p.GetValue(this, dummy)))
                             .ToArray();
 
-            return string.Join("\n", props);
+            return string.Join(Environment.NewLine, props);
         }
 
         internal string ToStringRaw()
@@ -848,9 +854,9 @@ namespace csscript
 
                 //note node.ParentNode.InsertAfter(doc.CreateComment("") injects int node inner text and it is not what we want
                 //very simplistic formatting
-                var xml = doc.InnerXml.Replace("><", ">\n  <")
+                var xml = doc.InnerXml.Replace("><", ">" + Environment.NewLine + "  <")
                                       .Replace(">\n  </", "></")
-                                      .Replace("></CSSConfig>", ">\n</CSSConfig>");
+                                      .Replace("></CSSConfig>", ">" + Environment.NewLine + "</CSSConfig>");
 
                 xml = CommentElement(xml, "consoleEncoding", "if 'default' then system default is used; otherwise specify the name of the encoding (e.g. 'utf-8')");
                 xml = CommentElement(xml, "autoclass.decorateAsCS6", "if 'true' auto-class decoration will inject C# 6 specific syntax expressions (e.g. 'using static dbg;')");
@@ -870,7 +876,7 @@ namespace csscript
 
         static string CommentElement(string xml, string name, string comment)
         {
-            return xml.Replace("<" + name + ">", "<!-- " + comment + " -->\n  <" + name + ">");
+            return xml.Replace("<" + name + ">", "<!-- " + comment + " -->" + Environment.NewLine + "  <" + name + ">");
         }
 
         /// <summary>

@@ -798,14 +798,14 @@
         </member>
         <member name="F:csscript.CSharpParser.SuppressCodeAnalysis">
             <summary>
-            Global flag to forcefully suppress any C# code analyses. This flag effectively disables
+            Global flag to forcefully suppress any C# code analyzes. This flag effectively disables
             all CS-Script assembly and script probing and most likely some other functionality.
             <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
             </summary>
         </member>
         <member name="F:csscript.CSharpParser.SupressCodeAnalysis">
             <summary>
-            Global flag to forcefully suppress any C# code analyses. This flag effectively disables
+            Global flag to forcefully suppress any C# code analyzes. This flag effectively disables
             all CS-Script assembly and script probing and most likely some other functionality.
             <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
             </summary>
@@ -1144,6 +1144,18 @@
             <summary>
             Show CS-Script version information.
             </summary>
+        </member>
+        <member name="T:csscript.InvalidDirectiveException">
+            <summary>
+            The exception that is thrown when an incvalid CS-Script directive is encountered.
+            </summary>
+            <seealso cref="T:csscript.CompilerException" />
+        </member>
+        <member name="M:csscript.InvalidDirectiveException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:csscript.InvalidDirectiveException"/> class.
+            </summary>
+            <param name="message">The message.</param>
         </member>
         <member name="T:csscript.CLIException">
             <summary>

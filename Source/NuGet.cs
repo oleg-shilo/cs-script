@@ -330,8 +330,8 @@ namespace csscript
 
                         if (abort_downloading)
                         {
-                            Console.WriteLine("Warning: Resolving (installing) NuGet package has been aborted due to the incompatibility of the CS-Script host with the nuget stdout redirection.\n" +
-                                              "Run the script from the terminal (e.g. Ctrl+F5 in ST3) at least once to resolve all missing NuGet packages.");
+                            Console.WriteLine("Warning: Resolving (installing) NuGet package has been aborted due to the incompatibility of the CS-Script host with the nuget stdout redirection.");
+                            Console.WriteLine("Run the script from the terminal (e.g. Ctrl+F5 in ST3) at least once to resolve all missing NuGet packages.");
                             Console.WriteLine();
                         }
                         else
@@ -357,8 +357,9 @@ namespace csscript
                                 newPackageWasInstalled = true;
                                 sw.Stop();
                             }
-                            catch (Exception e)
+                            catch
                             {
+                                // the failed package willl be reported as missing reference anyway
                             }
 
                             try
@@ -710,7 +711,9 @@ namespace csscript
             //http://stackoverflow.com/questions/38118548/how-to-install-nuget-from-command-line-on-linux
             //on Linux native "nuget" app doesn't play nice with std.out redirected
 
-            Console.WriteLine("NuGet shell command: \n{0} {1}\n", exe, args);
+            Console.WriteLine("NuGet shell command: ");
+            Console.WriteLine("{0} {1}", exe, args);
+            Console.WriteLine();
 
             if (Runtime.IsLinux)
             {

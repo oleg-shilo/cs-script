@@ -114,10 +114,7 @@ public class AppForm : Form
             else
             {
                 string rootDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-#if DEBUG
-                if (Environment.GetEnvironmentVariable("CSSCRIPT_DIR") != null)
-                    rootDir = Environment.GetEnvironmentVariable("CSSCRIPT_DIR");
-#endif
+
                 string csws = Path.Combine(rootDir, "csws.exe");
 
                 string configScript = Path.Combine(rootDir, @"lib\config.cs");

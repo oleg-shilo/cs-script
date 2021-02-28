@@ -1,8 +1,8 @@
-using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 class Global
 {
@@ -73,9 +73,9 @@ class Program
             {
                 //Application.EnableVisualStyles();
                 //Application.SetCompatibleTextRenderingDefault(false);
-                
+
                 //embedded manifest will force it start elevated
-                //VistaSecurity.RestartElevated(); 
+                // VistaSecurity.RestartElevated();
                 //MessageBox.Show("non admin");
             }
         }
@@ -105,15 +105,15 @@ class Program
                 return true; //already patched
 
             var response = MessageBox.Show(
-                 "CS-Script requires .NET minimum v4.5 and you have only v4.0 installed.\n" +
-                 "Please install the required version and start the installation/configuration again.\n\n" +
+                "CS-Script requires .NET minimum v4.5 and you have only v4.0 installed.\n" +
+                "Please install the required version and start the installation/configuration again.\n\n" +
 
-                 "Alternatively you can retarget the script engine (CSScriptLibrary.dll) to .NET v4.0.\n" +
+                "Alternatively you can retarget the script engine (CSScriptLibrary.dll) to .NET v4.0.\n" +
 
                 //"Note: you will need to repeat the CS-Script setup if you install .NET v4.5 in the future.\n\n" +
 
-                 "Would you like to retarget the script engine?", "CS-Script",
-                 MessageBoxButtons.YesNo);
+                "Would you like to retarget the script engine?", "CS-Script",
+                MessageBoxButtons.YesNo);
 
             if (response == DialogResult.Yes)
             {

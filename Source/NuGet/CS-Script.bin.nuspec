@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>CS-Script.bin</id>
-<version>3.30.3.0</version>
+<version>3.30.5.1</version>
         <title>CS-Script Binaries</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -16,9 +16,10 @@
 It is the package that you need to have CS-Script with all three compilation engines enabled: Roslyn, Mono and CodeDom.
 </summary>
         <releaseNotes>
-- Issue #189: Error "Cannot parse "//css_import..."" when referencing an assembly
-- Issue #193: DirectoryNotFoundException(C:\ProgramData\CS-Script\ShellExtension) when fresh installing
-</releaseNotes>
+- Issue #220: Reason for not defining TRACE when compiling without the debug flag
+- Removed all non v4.6 targets from the NuGet packages
+- PR #178:Fixed issue where Example.Sub assembly would be matched when requesting Example assembly
+        </releaseNotes>
         <copyright>Copyright (C) 2004-2020 Oleg Shilo</copyright>
         <language>en-AU</language>
         <tags>C# Scripting Dynamic CS-Script csscript</tags>
@@ -27,14 +28,8 @@ It is the package that you need to have CS-Script with all three compilation eng
         </dependencies>
     </metadata>
     <files>
-        <file src="lib\net40\CSScriptLibrary.dll" target="lib\net40\CSScriptLibrary.dll" />
-        <file src="lib\net40\CSScriptLibrary.xml" target="lib\net40\CSScriptLibrary.xml" />
-        <file src="lib\net40\Mono.CSharp.dll" target="lib\net40\Mono.CSharp.dll" />
         <file src="lib\net45\CSScriptLibrary.dll" target="lib\net45\CSScriptLibrary.dll" />
         <file src="lib\net45\CSScriptLibrary.xml" target="lib\net45\CSScriptLibrary.xml" />
         <file src="lib\net45\Mono.CSharp.dll" target="lib\net45\Mono.CSharp.dll" />
-        <file src="lib\net46\CSScriptLibrary.dll" target="lib\net46\CSScriptLibrary.dll" />
-        <file src="lib\net46\CSScriptLibrary.xml" target="lib\net46\CSScriptLibrary.xml" />
-        <file src="lib\net46\Mono.CSharp.dll" target="lib\net46\Mono.CSharp.dll" />
     </files>
 </package>

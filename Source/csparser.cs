@@ -278,7 +278,7 @@ namespace csscript
                     else
                     {
                         if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
-                            statement = Path.Combine(Path.GetDirectoryName(parentScript), statement);
+                            statement = parentScript.GetDirName().PathJoin(statement).GetFullPath();
 
                         return new[] { new ImportInfo(statement, parentScript, context) };
                     }
@@ -508,14 +508,14 @@ namespace csscript
         public Hashtable CustomDirectives = new Hashtable();
 
         /// <summary>
-        /// Global flag to forcefully suppress any C# code analyses. This flag effectively disables
+        /// Global flag to forcefully suppress any C# code analyzes. This flag effectively disables
         /// all CS-Script assembly and script probing and most likely some other functionality.
         /// <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
         /// </summary>
         public static bool SuppressCodeAnalysis = false;
 
         /// <summary>
-        /// Global flag to forcefully suppress any C# code analyses. This flag effectively disables
+        /// Global flag to forcefully suppress any C# code analyzes. This flag effectively disables
         /// all CS-Script assembly and script probing and most likely some other functionality.
         /// <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
         /// </summary>
@@ -540,7 +540,7 @@ namespace csscript
             if (SuppressCodeAnalysis)
                 return;
 
-            //analyse comments and strings
+            //analyze comments and strings
             NoteCommentsAndStrings();
 
             //note the end of the header area (from the text start to the first class declaration)
@@ -556,17 +556,17 @@ namespace csscript
                 pos = code.IndexOf("class", pos + 1);
             }
 
-            //analyse script arguments
+            //analyze script arguments
             foreach (string statement in GetRawStatements("//css_args", endCodePos))
                 args.AddRange(statement.SplitCommandLine());
 
-            // analyse auto-class decoration mode
+            // analyze auto-class decoration mode
             foreach (string statement in GetRawStatements("//css_ac", endCodePos))
                 autoClassMode = statement;
             foreach (string statement in GetRawStatements("//css_autoclass", endCodePos))
                 autoClassMode = statement;
 
-            // analyse compiler options
+            // analyze compiler options
             foreach (string statement in GetRawStatements("//css_co", endCodePos))
             {
                 var directive = statement.NormaliseAsDirective();
@@ -574,7 +574,7 @@ namespace csscript
                 compilerOptions.Add(directive);
             }
 
-            //analyse 'pre' and 'post' script commands
+            //analyze 'pre' and 'post' script commands
             foreach (string statement in GetRawStatements("//css_pre", endCodePos))
                 cmdScripts.Add(new CmdScriptInfo(statement.Trim(), true, file));
             foreach (string statement in GetRawStatements("//css_prescript", endCodePos))
@@ -584,18 +584,18 @@ namespace csscript
             foreach (string statement in GetRawStatements("//css_postscript", endCodePos))
                 cmdScripts.Add(new CmdScriptInfo(statement.Trim(), false, file));
 
-            // analyse script initialization directives
+            // analyze script initialization directives
             foreach (string statement in GetRawStatements("//css_init", endCodePos))
                 inits.Add(new InitInfo(statement.Trim()));
 
-            // analyse script initialization directives
+            // analyze script initialization directives
             foreach (string statement in GetRawStatements("//css_nuget", endCodePos))
                 foreach (string package in SplitByDelimiter(statement, ','))
                     nugets.Add(package.Trim());
 
             var infos = new ImportInfo.Resolver { parentScript = file, dirs = probingDirs };
 
-            // analyse script imports/includes
+            // analyze script imports/includes
             foreach (string statement in GetRawStatements("//css_import", endCodePos))
                 imports.AddRange(infos.Resolve(statement, "//css_import"));
             foreach (string statement in GetRawStatements("//css_imp", endCodePos))
@@ -607,13 +607,13 @@ namespace csscript
                 if (!string.IsNullOrEmpty(statement))
                     imports.AddRange(infos.Resolve(statement.Expand() + ",preserve_main", "//css_inc"));
 
-            // analyse assembly references
+            // analyze assembly references
             foreach (string statement in GetRawStatements("//css_reference", endCodePos))
                 refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file), "//css_reference").Select(x => x.file));
             foreach (string statement in GetRawStatements("//css_ref", endCodePos))
                 refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file), "//css_ref").Select(x => x.file));
 
-            // analyse precompilers
+            // analyze precompilers
             foreach (string statement in GetRawStatements("//css_precompiler", endCodePos))
                 precompilers.Add(statement.NormaliseAsDirectiveOf(file));
 
@@ -624,30 +624,33 @@ namespace csscript
                 foreach (string statement in GetRawStatements("//css_host", endCodePos))
                     hostOptions.Add(statement.NormaliseAsDirective());
 
-            //analyse assembly references
+            //analyze assembly references
             foreach (string statement in GetRawStatements("//css_ignore_namespace", endCodePos))
                 ignoreNamespaces.Add(statement.Trim());
             foreach (string statement in GetRawStatements("//css_ignore_ns", endCodePos))
                 ignoreNamespaces.Add(statement.Trim());
 
-            //analyse resource references
+            // analyze resource references
+            // this directive is special as it may contain two paths
+            // //css_res Resources1.resx;",
+            // //css_res Form1.resx, Scripting.Form1.resources;"
             foreach (string statement in GetRawStatements("//css_resource", endCodePos))
-                resFiles.Add(statement.NormaliseAsDirectiveOf(file));
+                resFiles.Add(statement.NormaliseAsDirectiveOf(file, multiPathDelimiter: ','));
             foreach (string statement in GetRawStatements("//css_res", endCodePos))
-                resFiles.Add(statement.NormaliseAsDirectiveOf(file));
+                resFiles.Add(statement.NormaliseAsDirectiveOf(file, multiPathDelimiter: ','));
 
-            //analyse extra search (probing) dirs
+            //analyze extra search (probing) dirs
             foreach (string statement in GetRawStatements("//css_searchdir", endCodePos))
                 searchDirs.AddRange(CSSUtils.GetDirectories(workingDir, Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim()));
             foreach (string statement in GetRawStatements("//css_dir", endCodePos))
                 searchDirs.AddRange(CSSUtils.GetDirectories(workingDir, Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim()));
 
-            //analyse namespace references
+            //analyze namespace references
             foreach (string statement in GetRawStatements(code, "using", endCodePos, true))
                 if (!statement.StartsWith("(")) //just to cut off "using statements" as we are interested in "using directives" only
                     refNamespaces.Add(statement.Trim().Replace("\t", "").Replace("\r", "").Replace("\n", "").Replace(" ", ""));
 
-            //analyse threading model
+            //analyze threading model
             pos = code.IndexOf("TAThread]");
             while (pos != -1 && pos > 0 && threadingModel == ApartmentState.Unknown)
             {
@@ -988,11 +991,11 @@ namespace csscript
             return GetRawStatements(this.code, pattern, endIndex, false);
         }
 
-        string[] GetRawStatements(string codeToAnalyse, string pattern, int endIndex, bool ignoreComments)
+        string[] GetRawStatements(string codeToanalyze, string pattern, int endIndex, bool ignoreComments)
         {
             List<string> retval = new List<string>();
 
-            int pos = codeToAnalyse.IndexOf(pattern);
+            int pos = codeToanalyze.IndexOf(pattern);
             int endPos = -1;
             while (pos != -1 && pos <= endIndex)
             {
@@ -1003,15 +1006,15 @@ namespace csscript
                         pos += pattern.Length;
 
                         if (OpenEndDirectiveSyntax)
-                            endPos = IndexOfDelimiter(pos, codeToAnalyse.Length - 1, '\n', ';');
+                            endPos = IndexOfDelimiter(pos, codeToanalyze.Length - 1, '\n', ';');
                         else
-                            endPos = IndexOfDelimiter(pos, codeToAnalyse.Length - 1, ';');
+                            endPos = IndexOfDelimiter(pos, codeToanalyze.Length - 1, ';');
 
                         if (endPos != -1)
-                            retval.Add(codeToAnalyse.Substring(pos, endPos - pos).Trim());
+                            retval.Add(codeToanalyze.Substring(pos, endPos - pos).Trim());
                     }
                 }
-                pos = codeToAnalyse.IndexOf(pattern, pos + 1);
+                pos = codeToanalyze.IndexOf(pattern, pos + 1);
             }
 
             return retval

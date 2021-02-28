@@ -39,8 +39,16 @@ using System.Runtime.Serialization;
 
 namespace csscript
 {
-    public class InvalidDirectiveException : ApplicationException
+    /// <summary>
+    /// The exception that is thrown when an incvalid CS-Script directive is encountered.
+    /// </summary>
+    /// <seealso cref="csscript.CompilerException" />
+    public class InvalidDirectiveException : CompilerException
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidDirectiveException"/> class.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public InvalidDirectiveException(string message) : base(message)
         {
         }
@@ -174,18 +182,26 @@ namespace csscript
                 if (err.IsWarning && hideCompilerWarnings)
                     continue;
 
-                string file = err.FileName;
-                int line = err.Line;
+                if (err.FileName.HasText())
+                {
+                    string file = err.FileName;
+                    int line = err.Line;
 
-                if (resolveAutogenFilesRefs)
-                    CSSUtils.NormaliseFileReference(ref file, ref line);
+                    if (resolveAutogenFilesRefs)
+                        CSSUtils.NormaliseFileReference(ref file, ref line);
 
-                compileErr.Append(file);
-                compileErr.Append("(");
-                compileErr.Append(line);
-                compileErr.Append(",");
-                compileErr.Append(err.Column);
-                compileErr.Append("): ");
+                    compileErr.Append(file);
+                    compileErr.Append("(");
+                    compileErr.Append(line);
+                    compileErr.Append(",");
+                    compileErr.Append(err.Column);
+                    compileErr.Append("): ");
+                }
+                else
+                {
+                    compileErr.Append("BUILD: ");
+                }
+
                 if (err.IsWarning)
                     compileErr.Append("warning ");
                 else
