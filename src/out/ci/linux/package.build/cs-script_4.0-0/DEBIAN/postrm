@@ -1,0 +1,2 @@
+sudo rm /usr/local/bin/css
+sudo rm -r /usr/local/share/cs-script

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "csws": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\dev\\Galos\\cs-script.core\\src\\Tests.cscs\\bin\\Debug\\net5.0\\test.cli\\wf.cs"
+    }
+  }
+}

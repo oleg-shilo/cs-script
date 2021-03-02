@@ -1,0 +1,4 @@
+sudo chmod +x /usr/local/bin/cs-script/cscs
+sudo ln -s /usr/local/bin/cs-script/cscs /usr/local/bin/css
+sudo /usr/local/bin/cs-script/cscs -server:stop
+sudo /usr/local/bin/cs-script/cscs -server:add

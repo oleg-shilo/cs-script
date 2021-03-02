@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>build</AssemblyName>
+    <RootNamespace>Compiler</RootNamespace>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <FileVersion>1.0.2.0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;build_server</DefineConstants>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="queue\**" />
+    <EmbeddedResource Remove="queue\**" />
+    <None Remove="queue\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\cscs\BuildServer.cs" Link="BuildServer.cs" />
+    <Compile Include="..\cscs\Utils\SimpleAsmProbing.cs" Link="SimpleAsmProbing.cs" />
+    <Compile Include="..\cscs\Utils\SocketExtensions.cs" Link="SocketExtensions.cs" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="md &quot;$(ProjectDir)out&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(ProjectDir)out\$(TargetName).dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).deps.json&quot; &quot;$(ProjectDir)out\$(TargetName).deps.json&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).runtimeconfig.json&quot; &quot;$(ProjectDir)out\$(TargetName).runtimeconfig.json&quot;" />
+  </Target>
+</Project>

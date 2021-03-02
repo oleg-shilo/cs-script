@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>cs-script.core</id>
+        <version>2.0.0.0</version>
+        <title>CS-Script.Core</title>
+        <authors>Oleg Shilo</authors>
+        <owners>Oleg Shilo</owners>
+        <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+        <projectUrl>http://www.csscript.net</projectUrl>
+        <packageSourceUrl>https://github.com/oleg-shilo/cs-script.core</packageSourceUrl>
+        <bugTrackerUrl>https://github.com/oleg-shilo/cs-script.core/issues</bugTrackerUrl>
+        <docsUrl>https://github.com/oleg-shilo/cs-script.core/wiki</docsUrl>
+        <iconUrl>https://raw.githubusercontent.com/oleg-shilo/cs-script.core/master/src/wiki/css_logo_codeplex_256x256.png
+        </iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>CLR based runtime environment for executing scripts written in ECMA-compliant C#.
+    The main idea of CS-Script is to allow "plain vanilla" C# code execution from both command-prompt and form any CLR application hosting the script engine.
+    CS-Script targets .NET 5.
+    The default installation directory is "%ChocolateyInstall%\lib\cs-script.core".
+    This package contains the set of scripts and binaries that required for the default functionality. However there is some additional content that represents somewhat less mainstream functionality and experimental features. This content is available as an `Extension Pack` from the releases page(https://github.com/oleg-shilo/cs-script/releases). Installing the `Extension Pack` is as simple as downloading and extracting the archive to your chocolatey install location (most likely C:\ProgramData\chocolatey\lib\cs-script.core\tools\cs-script.core).
+
+</description>
+        <summary>CS-Script.Core</summary>
+        <releaseNotes>
+# Release v2.0.0.0
+
+## CLI
+
+    - New commands:
+        -server - for managing build server
+        -vscode - to open script in VSCode
+        -vs - to script project in Visual Studio
+        -self-test - for testing the engine on the target system
+        -self-exe - for building css launcher for manual deployment
+        -engine:&lt;csc|dotnet&gt;
+        -new:toplevel - CLI parameter
+        -profile - for testing script loading performance
+        -speed - for compiler performance testing
+    - Added css
+    - Added creation of code.header on first use of CLI command -code
+    - Added complex (multi-file) commands support (e.g. css -self-test-run)
+    - Implemented build server
+    - Implemented hot-loading for csc engine.
+    - Normalized all \n and \r\n CLI output by using Environment.NewLine
+    - Added reporting using of incompatible csc compiler for scripts requiring XAML compilation
+
+CSScriptLib
+
+    - Implemented //css_winapp for WinForm and WPF applications
+    - Added //css_engine (//css_ng) directive for choosing the compiling engine
+    - Completed CSScript.Evaluator.CodeDom interface.
+    - Implemented transparent hosting of CSScriptLib in .NET-Framework and .NET-Core
+    - Removed dependency on Roslyn for pure CodeDom evaluator use-case
+    - added sample with downloading the latest C# compiler
+    - added passing compiler options
+    - Implemented probing for default C#5 compiler when hosted on .NET Framework.
+    - Extending u-testing to cover new Evaluator features (CSScriptLib.dll)
+
+        </releaseNotes>
+        <copyright>Oleg Shilo</copyright>
+        <tags>cs-script C# script dynamic hosting</tags>
+        <dependencies>
+            <dependency id="dotnetcore-sdk" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="tools\chocolateyInstall.ps1" target="tools\chocolateyInstall.ps1" />
+        <file src="tools\chocolateyuninstall.ps1" target="tools\chocolateyuninstall.ps1" />
+    </files>
+</package>

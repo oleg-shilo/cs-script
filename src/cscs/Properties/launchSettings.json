@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "cscs.exe.core": {
+      "commandName": "Project",
+      "commandLineArgs": "-code print(''Ensuring default -code.header'')",
+      "remoteDebugEnabled": false
+    }
+  }
+}
