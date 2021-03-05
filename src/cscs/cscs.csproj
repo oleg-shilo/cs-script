@@ -59,7 +59,7 @@ CSScriptLib
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).dll&#xD;&#xA;copy &quot;$(TargetDir)cscs.exe&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).exe&#xD;&#xA;copy &quot;$(TargetDir)cscs.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\cscs.runtimeconfig.json&quot;&#xD;&#xA;" />
+    <Exec Command="md &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).dll&#xD;&#xA;copy &quot;$(TargetDir)cscs.exe&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).exe&#xD;&#xA;copy &quot;$(TargetDir)cscs.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\cscs.runtimeconfig.json&quot;&#xD;&#xA;" />
   </Target>
   <ItemGroup>
     <Compile Remove="GACHelper.cs" />
