@@ -1,5 +1,5 @@
-$packageName = 'cs-script.core'
-$url = 'https://github.com/oleg-shilo/cs-script.core/releases/download/v2.0.0.0/cs-script.win.v2.0.0.0.7z'
+$packageName = 'cs-script'
+$url = 'https://github.com/oleg-shilo/cs-script/releases/download/v2.0.0.0/cs-script.win.v2.0.0.0.7z'
 
 try {
   $installDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"

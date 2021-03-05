@@ -11,5 +11,5 @@
 MUST be CMD but not PS !!!!
 
 5.  Run build.cmd or "choco pack"
- 5.a If required run "choco install cs-script.core -y -s '%cd%'" or "choco upgrade cs-script.core -y -s '%cd%'"
+ 5.a If required run "choco install cs-script -y -s '%cd%'" or "choco upgrade cs-script -y -s '%cd%'"
 6.  Run publish.cmd

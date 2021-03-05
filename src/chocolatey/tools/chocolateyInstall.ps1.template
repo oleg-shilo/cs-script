@@ -1,4 +1,4 @@
-﻿$packageName = 'cs-script.core'
+﻿$packageName = 'cs-script'
 $url = ???
 
 try {
