@@ -72,7 +72,7 @@ namespace csscript
                     {
                         try
                         {
-                            p = Process.Start("devenv", projectFile);
+                            p = Process.Start("devenv", $"\"{projectFile}\"");
                         }
                         catch
                         {
@@ -80,7 +80,7 @@ namespace csscript
                         }
                     }
                     else
-                        p = Process.Start(vs_exe, projectFile);
+                        p = Process.Start(vs_exe, $"\"{projectFile}\"");
                 }
                 else
                 {
@@ -110,7 +110,7 @@ namespace csscript
                         try
                         {
                             // RunAsync works better than Process.Start as it stops VSCode diagnostics STD output
-                            p = (ide ?? "<unknown>").RunAsync(options.scriptFileName);
+                            p = (ide ?? "<unknown>").RunAsync($"\"{options.scriptFileName}\"");
                             print($"Opening with auto-detected VSCode '{ide}'. You can set an alternative location with environment variable '{envarName}'");
                         }
                         catch (Exception)
@@ -120,7 +120,7 @@ namespace csscript
                         }
                     }
                     else
-                        p = vs_exe.RunAsync(options.scriptFileName);
+                        p = vs_exe.RunAsync($"\"{options.scriptFileName}\"");
                 }
 
                 if (p != null)
