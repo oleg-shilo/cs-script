@@ -59,7 +59,7 @@ CSScriptLib
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="set css%25%25_bin=&quot;$(ProjectDir)..\css\bin\$(ConfigurationName)&quot;&#xD;&#xA;IF exist css_bin ( echo . ) ELSE ( md css_bin)&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.exe&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).exe&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\cscs.runtimeconfig.json&quot;&#xD;&#xA;" />
+    <Exec Command="set css_bin=&quot;$(ProjectDir)..\css\bin\$(ConfigurationName)&quot;&#xD;&#xA;IF exist %25css_bin%25 ( echo . ) ELSE ( md %25css_bin%25)&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.exe&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).exe&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\cscs.runtimeconfig.json&quot;&#xD;&#xA;" />
   </Target>
   <ItemGroup>
     <Compile Remove="GACHelper.cs" />

@@ -27,6 +27,6 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="md &quot;$(ProjectDir)out&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(ProjectDir)out\$(TargetName).dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).deps.json&quot; &quot;$(ProjectDir)out\$(TargetName).deps.json&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).runtimeconfig.json&quot; &quot;$(ProjectDir)out\$(TargetName).runtimeconfig.json&quot;" />
+    <Exec Command="IF exist &quot;$(ProjectDir)out&quot; ( echo . ) ELSE ( md &quot;$(ProjectDir)out&quot;)&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(ProjectDir)out\$(TargetName).dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).deps.json&quot; &quot;$(ProjectDir)out\$(TargetName).deps.json&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).runtimeconfig.json&quot; &quot;$(ProjectDir)out\$(TargetName).runtimeconfig.json&quot;" />
   </Target>
 </Project>
