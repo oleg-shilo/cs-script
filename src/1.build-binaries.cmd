@@ -28,9 +28,9 @@ del "out\cs-script.win.7z"
 del "out\cs-script.linux.7z"
 
 
-set msbuild="C:\Program Files (x86)\Microsoft Visual Studio\2019\%vs_edition%\MSBuild\Current\Bin\MSBuild.exe"
-%msbuild% ".\css\css (win launcher).csproj" -p:Configuration=Release -t:rebuild
-copy .\css\bin\Release\css.exe ".\out\Windows\css.exe"
+rem set msbuild="C:\Program Files (x86)\Microsoft Visual Studio\2019\%vs_edition%\MSBuild\Current\Bin\MSBuild.exe"
+rem %msbuild% ".\css\css (win launcher).csproj" -p:Configuration=Release -t:rebuild
+rem copy .\css\bin\Release\css.exe ".\out\Windows\css.exe"
 
 
 echo =====================
@@ -54,6 +54,7 @@ dotnet publish -c Release -f %target% -o "..\out\Windows\console"
 echo ----------------
 echo Building cscs.dll (Linux) from %cd%
 echo ----------------
+
 dotnet publish -c Release -f %target% -r linux-x64 --self-contained false -o "..\out\Linux"
 
 cd ..\csws
@@ -96,10 +97,12 @@ copy "Tests.cscs\cli.cs" "out\Windows\-self\-test\cli.cs"
 copy "out\static_content\readme.md" "out\Linux\readme.md" 
 
 cd out\Windows
+.\cscs.exe -self-exe-build 
+
 echo =====================
 echo Aggregating packages (cd: %cd%)
 echo =====================
-css CSScriptLib\src\CSScriptLib\output\aggregate.cs
+cscs CSScriptLib\src\CSScriptLib\output\aggregate.cs
 cd ..\..
 
 copy CSScriptLib\src\CSScriptLib\output\*.*nupkg out\
@@ -123,10 +126,10 @@ echo Injecting version in file names
 echo =====================
 
 cd out\Windows
-.\css ..\..\CSScriptLib\src\CSScriptLib\output\aggregate.cs
-.\css -engine:dotnet -code Console.WriteLine(Assembly.LoadFrom(#''cscs.dll#'').GetName().Version)
-.\css -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.7z#'', $#''..\\cs-script.win.v{version}.7z#'', true);
-.\css -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.linux.7z#'', $#''..\\cs-script.linux.v{version}.7z#'', true);
+.\cscs ..\..\CSScriptLib\src\CSScriptLib\output\aggregate.cs
+.\cscs -engine:dotnet -code Console.WriteLine(Assembly.LoadFrom(#''cscs.dll#'').GetName().Version)
+.\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.7z#'', $#''..\\cs-script.win.v{version}.7z#'', true);
+.\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.linux.7z#'', $#''..\\cs-script.linux.v{version}.7z#'', true);
 cd ..\..
 
 move "CSScriptLib\src\CSScriptLib\output\*.nupkg" ".\out"

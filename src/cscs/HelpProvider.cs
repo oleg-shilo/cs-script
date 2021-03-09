@@ -1078,8 +1078,10 @@ namespace csscript
             { "wpf-cm", CSharp_wpf_ss_Sample },
         };
 
+        static string emptyLine = NewLine + " ";
+
         public static string BuildSampleHelp() =>
-@"Usage: -new[:<type>] [<otput file>]
+$@"Usage: -new[:<type>] [<otput file>]
       type - script template based on available types.
       output - location to place the generated script file(s).
 
@@ -1093,11 +1095,11 @@ wpf             WPF script application
 wpf-cm          Cliburm.Micro based WPF script application
 toplevel|top    Top-level class script application with no entry point
                 (available on C# 9 only)
-
+{emptyLine}
 Legacy templates:
 auto            Auto-class (classless) script application; use 'toplevel' instead
 freestyle       Free style (no entry point) script application; use 'toplevel' instead
-
+{emptyLine}
 Examples:
     cscs -new script
     cscs -new:toplevel script.cs

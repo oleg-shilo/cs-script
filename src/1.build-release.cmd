@@ -1,10 +1,13 @@
 echo off
 
-echo Extracting version from release_notes.md 
-css .\out\ci\set_version 
+rem echo Extracting version from release_notes.md 
+rem css .\out\ci\set_version 
 
-1.build-binaries.cmd
+rem 1.build-binaries.cmd
 
-explorer .\out
+cd 
+.\out\Windows\cscs.exe -? > ..\help.txt 
+
+rem explorer .\out
 
 pause

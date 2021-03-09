@@ -184,8 +184,9 @@ namespace CLI
             // --------------
             // it will fail on Linux as elevation will be required. so building exe
             // needs to be tested manually.
-            if (is_win)
+            if (is_win && !Assembly.GetEntryAssembly().Location.EndsWith("css.dll"))
             {
+                // css may be locked (e.g.it is running this test)
                 output = cscs_run($"{probing_dir} -self-exe");
                 Assert.Equal($"Created: {cscs_exe.ChangeFileName("css.exe")}", output);
 
