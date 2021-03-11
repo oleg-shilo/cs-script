@@ -30,10 +30,7 @@ CS-Script also offers comprehensive integration with most common development too
 
 It can be run on Win and Linux. Class library for hosting the script engine is compiled for ".NET Standard" so it can be hosted by any managed application.
 
-Over the long history of CS-Script it has been downloaded through Notepad++ x86 plugin manager alone over ![](https://oleg-shilo.github.io/cs-script/download.stats/css.npp.count.jpeg) times ([stats](https://www.cs-script.net/cs-script/download.stats/daily_downloads.html)).
-
-\* _statistics does not include x64 downloads nor downloads after Notepad++ discontinued shiping editor with the plugin manager x86 included_
-
+Over the long history of CS-Script it has been downloaded through Notepad++ x86 plugin manager alone over ![](https://oleg-shilo.github.io/cs-script/download.stats/css.npp.count.jpeg) times ([stats](https://www.cs-script.net/cs-script/download.stats/daily_downloads.html) till July 2017).
 
 <hr/>
 
