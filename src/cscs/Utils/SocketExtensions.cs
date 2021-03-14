@@ -14,6 +14,20 @@ static class Tcp
             return clientSocket.ReadAllBytes().GetString();
         }
     }
+
+    public static bool IsOpen(this IPAddress address, int port)
+    {
+        using (var clientSocket = new TcpClient())
+        {
+            if (clientSocket.ConnectAsync(address, port).Wait(300))
+            {
+                clientSocket.Close();
+                return true;
+            }
+            else
+                return false;
+        }
+    }
 }
 
 static class SocketExtensions

@@ -18,6 +18,11 @@ namespace CSScripting.CodeDom
 
         static public string csc
         {
+            set
+            {
+                csc_asm_file = value;
+            }
+
             get
             {
                 if (csc_asm_file == null)
@@ -108,8 +113,8 @@ namespace CSScripting.CodeDom
         {
             try
             {
-                BuildServer.Request("-ping", port);
-                return true;
+                // BuildServer.Request("-ping", port);
+                return IsRemoteInstanceRunning(port);
             }
             catch
             {
@@ -136,7 +141,7 @@ namespace CSScripting.CodeDom
                 System.Diagnostics.Process proc = new();
 
                 proc.StartInfo.FileName = "dotnet";
-                proc.StartInfo.Arguments = $"{Assembly.GetExecutingAssembly().Location} -listen -port:{port}";
+                proc.StartInfo.Arguments = $"{Assembly.GetExecutingAssembly().Location} -listen -port:{port} -csc:\"{BuildServer.csc}\"";
                 proc.StartInfo.UseShellExecute = false;
                 proc.StartInfo.RedirectStandardOutput = true;
                 proc.StartInfo.RedirectStandardError = true;
@@ -154,6 +159,9 @@ namespace CSScripting.CodeDom
             }
             catch { return "<no respone>"; }
         }
+
+        public static bool IsRemoteInstanceRunning(int? port)
+            => IPAddress.Loopback.IsOpen(port ?? serverPort);
 
         public static string PingRemoteInstance(int? port)
         {
@@ -293,7 +301,14 @@ namespace CSScripting.CodeDom
                             }
                             else if (request == "-ping")
                             {
-                                try { clientSocket.WriteAllText($"pid:{Environment.ProcessId}\nfile: {Assembly.GetExecutingAssembly().Location}"); } catch { }
+                                try
+                                {
+                                    clientSocket.WriteAllText(
+                                        $"pid:{Environment.ProcessId}\n" +
+                                        $"file: {Assembly.GetExecutingAssembly().Location}\n" +
+                                        $"csc: {csc}");
+                                }
+                                catch { }
                             }
                             else if (request.StartsWith("-is_writable_dir:"))
                             {
@@ -366,7 +381,7 @@ namespace CSScripting.CodeDom
                 }
                 catch (Exception e)
                 {
-                    return e.ToString();
+                    return $"1|Build server error: {e}";
                 }
                 finally
                 {

@@ -36,7 +36,7 @@ namespace cscs
         [STAThread]
         static int Main(string[] args)
         {
-            //Debug.Assert(false);
+            // Debug.Assert(false);
             try
             {
                 try { SetEnvironmentVariable("Console.WindowWidth", Console.WindowWidth.ToString()); } catch { }

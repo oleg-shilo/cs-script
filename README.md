@@ -3,7 +3,10 @@
 
 ---
 
-The latest release targets .NET 5 runtime. <br>For the legacy releases targeting .NET Framework visit: https://github.com/oleg-shilo/cs-script.net-framework
+_Please note that this repository is hosting the releases of CS-Script (v4.0.0 and higher), which target .NET 5.
+Meaning that both CLI and class library (Nuget package) can transparently be hosted on and interact with both .NET Framework and .NET Core runtimes._
+
+_Previous content of this repository and Wiki, which was exclusively dedicated to .NET Framework edition of CS-Script has been  is  has been moved to a new repository: https://github.com/oleg-shilo/cs-script.net-framework_
 
 ---
  

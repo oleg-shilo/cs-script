@@ -251,6 +251,7 @@ namespace CSScripting.CodeDom
             // bool compile_on_server = Runtime.IsWin;
             bool compile_on_server = true;
             string cmd;
+            string std_err = "";
 
             Profiler.get("compiler").Start();
             if (compile_on_server)
@@ -269,10 +270,27 @@ namespace CSScripting.CodeDom
 
                 // ensure server running
                 // it will gracefully exit if another instance is running
-                dotnet.RunAsync($@"""{Globals.build_server}"" -listen -port:{BuildServer.serverPort}");
+                var startBuildServerCommand = $"\"{Globals.build_server}\" -listen -port:{BuildServer.serverPort} -csc:\"{Globals.csc}\"";
+
+                dotnet.RunAsync(startBuildServerCommand);
                 Thread.Sleep(30);
 
                 (string response, int exitCode) = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
+
+                bool buildServerNotRunning() => response.GetLines()
+                                                        .FirstOrDefault()?
+                                                        .Contains("System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10061)")
+                                                        == true;
+
+                for (int i = 0; i < 10 && buildServerNotRunning(); i++)
+                {
+                    Thread.Sleep(100);
+                    (response, exitCode) = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
+                }
+
+                if (buildServerNotRunning())
+                    throw new CompilerException("CS-Script build server is not running:\n" +
+                                                $"Try to start server manually with 'cscs -server:start'");
 
                 result.NativeCompilerReturnValue = exitCode;
                 result.Output.AddRange(response.GetLines());
@@ -281,8 +299,11 @@ namespace CSScripting.CodeDom
             {
                 Profiler.EngineContext = "Building with local csc engine...";
                 cmd = $@"""{Globals.GetCompilerFor(sources.FirstOrDefault())}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
-                result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x));
+                result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
             }
+
+            if (std_err.HasText())
+                result.Output.Add($"cmpl_stde: {std_err}");
 
             Profiler.get("compiler").Stop();
 

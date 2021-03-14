@@ -1,7 +1,10 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Threading;
 using csscript;
 using CSScripting.CodeDom;
 using CSScriptLib;
@@ -21,8 +24,7 @@ namespace CSScripting
         static internal void StartBuildServer(bool report = false)
         {
             if (Globals.BuildServerIsDeployed)
-                // CSScriptLib.CoreExtensions.RunAsync(
-                "dotnet".RunAsync($"\"{Globals.build_server}\" -start");
+                "dotnet".RunAsync($"\"{Globals.build_server}\" -start -csc:\"{Globals.csc}\"");
 
             if (report)
                 PrintBuildServerInfo();
@@ -37,6 +39,8 @@ namespace CSScripting
         static internal void ResetBuildServer(bool report = false)
         {
             StopBuildServer();
+            while (BuildServer.IsServerAlive(null))
+                Thread.Sleep(500);
             RemoveBuildServer();
             DeployBuildServer();
             StartBuildServer(report);
@@ -47,11 +51,13 @@ namespace CSScripting
             if (Globals.BuildServerIsDeployed)
             {    // CSScriptLib.CoreExtensions.RunAsync(
                 var alive = BuildServer.IsServerAlive(null);
-                Console.WriteLine($"Build server deployed: {Globals.build_server.GetFullPath()}");
+                Console.WriteLine($"Build server: {Globals.build_server.GetFullPath()}");
 
+                var pingResponse = BuildServer.PingRemoteInstance(null).Split('\n');
                 var pid = alive ?
-                    $" ({BuildServer.PingRemoteInstance(null).Split('\n').FirstOrDefault()})"
+                    $" ({pingResponse.FirstOrDefault()})"
                     : "";
+                Console.WriteLine($"Build server compiler: {(alive ? pingResponse[2] : "")}");
                 Console.WriteLine($"Build server is {(alive ? "" : "not ")}running{pid}.");
             }
             else
@@ -65,7 +71,8 @@ namespace CSScripting
         {
             if (Globals.BuildServerIsDeployed)
             {    // CSScriptLib.CoreExtensions.RunAsync(
-                Console.WriteLine($"Build server deployed: {Globals.build_server.GetFullPath()}");
+                Console.WriteLine($"Build server: {Globals.build_server.GetFullPath()}");
+                Console.WriteLine($"Build server compiler: {Globals.csc.GetFullPath()}");
                 Console.WriteLine($"Build server is {(BuildServer.IsServerAlive(null) ? "" : "not ")}running.");
             }
             else
@@ -145,6 +152,23 @@ namespace CSScripting
             Console.WriteLine(BuildServer.PingRemoteInstance(null));
         }
 
+        // static internal bool IsRemoteInstanceRunning()
+        // {
+        //     try
+        //     {
+        //         using (var clientSocket = new TcpClient())
+        //         {
+        //             return clientSocket
+        //                 .ConnectAsync(IPAddress.Loopback, port ?? serverPort)
+        //                 .Wait(TimeSpan.FromMilliseconds(20));
+        //         }
+        //     }
+        //     catch
+        //     {
+        //         return false;
+        //     }
+        // }
+
         /// <summary>
         /// Gets a value indicating whether build server is deployed.
         /// </summary>
@@ -172,7 +196,7 @@ namespace CSScripting
             }
         }
 
-        static string csc_file;
+        static string csc_file = Environment.GetEnvironmentVariable("css_csc_file");
 
         /// <summary>
         /// Gets the path to the dotnet executable.

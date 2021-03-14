@@ -42,8 +42,7 @@ namespace CSScriptLib
         {
             try
             {
-                Request("-ping", port);
-                return true;
+                return IPAddress.Loopback.IsOpen(port ?? serverPort);
             }
             catch
             {

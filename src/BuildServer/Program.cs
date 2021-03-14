@@ -25,6 +25,17 @@ namespace compile_server
                                     .Replace("-port:", "")
                                     .ParseAsPort();
 
+                var csc_file = args.Where(x => x.StartsWith("-csc:"))
+                                      .Select(x => x.Substring("-csc:".Length).Trim('"'))
+                                      .FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(csc_file))
+                {
+                    App.Log($"Setting csc.exe path");
+
+                    BuildServer.csc = csc_file;
+                }
+
                 if (args.FirstOrDefault() == "-start")
                 {
                     App.Log($"Starting remote instance...");

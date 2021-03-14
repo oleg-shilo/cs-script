@@ -56,6 +56,8 @@ namespace CSScriptLib
         /// </summary>
         public static bool CompileOnServer = true;
 
+        public static string CompilerLastOutput = "";
+
         /// <summary>
         /// Validates the specified information.
         /// </summary>
@@ -195,6 +197,8 @@ namespace CSScriptLib
 
                 string cmd;
 
+                var std_err = "";
+
                 if (Runtime.IsCore)
                 {
                     if (CompileOnServer && Globals.BuildServerIsDeployed)
@@ -216,11 +220,32 @@ namespace CSScriptLib
 
                             // ensure server running
                             // it will gracefully exit if another instance is running
-                            dotnet.RunAsync($@"""{Globals.build_server}"" -listen -port:{17001}");
+                            var startBuildServerCommand = $@"""{Globals.build_server}"" -listen -port:{17001} -csc:""{Globals.csc}""";
+
+                            dotnet.RunAsync(startBuildServerCommand);
                             Thread.Sleep(30);
 
                             // var response = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
                             var response = BuildServer.SendBuildRequest(request, 17001);
+
+                            bool buildServerNotRunning() => response.GetLines()
+                                                                    .FirstOrDefault()?
+                                                                    .Contains("System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10061)")
+                                                                    == true;
+
+                            for (int i = 0; i < 10 && buildServerNotRunning(); i++)
+                            {
+                                Thread.Sleep(100);
+                                response = BuildServer.SendBuildRequest(request, 17001);
+                            }
+
+                            if (buildServerNotRunning())
+                                throw new CompilerException("CS-Script build server is not running:\n" +
+                                    $"Either\n" +
+                                    $"  - start server from the host application 'CSScript.StartBuildServer();'\n" +
+                                    $"  - start server manually with 'dotnet {startBuildServerCommand}'\n" +
+                                    $"  - use RoslynEvaluator\n" +
+                                    $"  - compile script with CodeDom in the same process (`CodeDomEvaluator.CompileOnServer = false;`)");
 
                             result.NativeCompilerReturnValue = 0;
                             result.Output.AddRange(response.GetLines());
@@ -230,15 +255,20 @@ namespace CSScriptLib
                     {
                         cmd = $@"""{Globals.csc}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
 
-                        result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x));
+                        result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
                     }
                 }
                 else
                 {
-                    cmd = $@" {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                    cmd = $@" {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")} ";
 
-                    result.NativeCompilerReturnValue = Globals.csc.Run(cmd, build_dir, x => result.Output.Add(x));
+                    result.NativeCompilerReturnValue = Globals.csc.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
                 }
+
+                if (std_err.HasText())
+                    result.Output.Add($"cmpl_stde: {std_err}");
+
+                CodeDomEvaluator.CompilerLastOutput = result.Output.JoinBy(Environment.NewLine);
 
                 result.ProcessErrors();
 
