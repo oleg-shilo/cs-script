@@ -63,6 +63,7 @@
   <HelpKINode Title="CodeDomEvaluator.CodeDomEvaluator constructor" Url="html/a1262ae6-5146-091c-e5ea-6dd39bf7ab3d.htm" />
   <HelpKINode Title="CodeDomEvaluator.Compile method" Url="html/f7a1ca69-dadf-f11c-c28d-1d07023d8a21.htm" />
   <HelpKINode Title="CodeDomEvaluator.CompileOnServer field" Url="html/a5044dad-6c2c-44b7-c498-777cf1f88a29.htm" />
+  <HelpKINode Title="CodeDomEvaluator.CompilerLastOutput field" Url="html/4751465b-2ab9-aa48-ee98-2a621d90a0a4.htm" />
   <HelpKINode Title="CodeDomEvaluator.GetReferencedAssemblies method" Url="html/2ec33008-23e6-603f-da58-2f3ec1e8d4c3.htm" />
   <HelpKINode Title="CodeDomEvaluator.GetReferencedAssembliesFiles method" Url="html/88d98743-1f06-8b2e-46ca-ebf48cee4f00.htm" />
   <HelpKINode Title="CodeDomEvaluator.ReferenceAssembly method" Url="html/034662e4-4e8f-a633-880a-b9197e517f2d.htm" />
@@ -128,6 +129,7 @@
   <HelpKINode Title="CompilerException.CompilerException constructor" Url="html/54ba38ea-fba4-86e8-42af-2e00b3253f56.htm" />
   <HelpKINode Title="CompilerException.Create method" Url="html/3cac691a-360c-8ccd-d686-887843fb4b06.htm" />
   <HelpKINode Title="CompilerException.ErrorCount property" Url="html/8ea7f8d7-26f3-d98f-c3d8-569053b0ad57.htm" />
+  <HelpKINode Title="CompilerLastOutput field" Url="html/4751465b-2ab9-aa48-ee98-2a621d90a0a4.htm" />
   <HelpKINode Title="CompilerOptions field" Url="html/b438235c-6d7f-e029-a2dc-6de179eb02f1.htm" />
   <HelpKINode Title="CompilerOptions property">
     <HelpKINode Title="CompileInfo.CompilerOptions Property " Url="html/c5b25d26-54ac-41c7-d994-a5970d91b423.htm" />

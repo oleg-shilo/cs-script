@@ -56,6 +56,12 @@ namespace CSScriptLib
         /// </summary>
         public static bool CompileOnServer = true;
 
+        /// <summary>
+        /// The low level output of the last script compilation. This member is not designed to be a part of script error handling. For this purpose a normal
+        /// exception based mechanism the is a more appropriate choice.
+        /// <para><see cref="CompilerLastOutput"/> on another hand is great for troubleshooting problems associated with the low level completion.
+        /// IE non script specific failures of csc.exe.</para>
+        /// </summary>
         public static string CompilerLastOutput = "";
 
         /// <summary>

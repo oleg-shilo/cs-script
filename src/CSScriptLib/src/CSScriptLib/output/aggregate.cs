@@ -16,5 +16,5 @@ Directory
     .ToList()
     .ForEach(x => File.Delete(x));
 
-move("CS-Script.Core.*.nupkg");
-move("CS-Script.Core.*.snupkg");
+move("CS-Script.*.nupkg");
+move("CS-Script.*.snupkg");

@@ -11,7 +11,9 @@ CLI
 	- `-new:toplevel` - CLI parameter
 	- `-profile` - for testing script loading performance
 	- `-speed` - for compiler performance testing
-- Added css 
+- Added css.exe
+- Added suppotrrt for setting csc path with %css_csc_file%
+- Improved error output for BuildServer run failures
 - Added creation of `code.header` on first use of CLI command `-code`
 - Added complex (multi-file) commands support (e.g. css -self-test-run)
 - Implemented build server
@@ -29,3 +31,5 @@ CSScriptLib
 - added passing compiler options
 - Implemented probing for default C#5 compiler when hosted on .NET Framework.
 - Extending u-testing to cover new Evaluator features (CSScriptLib.dll)
+- Added `CodeDomEvaluator.CompilerLastOutput`
+

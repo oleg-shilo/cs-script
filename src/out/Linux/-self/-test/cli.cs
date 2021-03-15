@@ -213,6 +213,16 @@ namespace CLI
         }
 
         [Fact]
+        public void compiler_output()
+        {
+            var script_file = nameof(compiler_output);
+            var output = cscs_run($"-new {script_file}");
+
+            output = cscs_run($"-check -ng:csc {script_file}");
+            Assert.Equal("Compile: OK", output);
+        }
+
+        [Fact]
         [FactWinOnly]
         public void new_wpf_with_cscs()
         {
