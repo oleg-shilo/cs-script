@@ -1,0 +1,3 @@
+cd {$local_root}
+sudo chmod 775 cs-script_{$version}/DEBIAN/p*
+dpkg-deb --build cs-script_{$version}

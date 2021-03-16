@@ -1,0 +1,17 @@
+﻿// This file is used by Code Analysis to maintain SuppressMessage
+// attributes that are applied to this project.
+// Project-level suppressions either have no target or are given
+// a specific target and scoped to a namespace, type, member, etc.
+
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Common Practices and Code Improvements", "RECS0063:Warns when a culture-aware 'StartsWith' call is used by default.", Justification = "<Pending>", Scope = "member", Target = "~M:css.Program.Main(System.String[])")]
+
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Common Practices and Code Improvements", "RECS0060:Warns when a culture-aware 'IndexOf' call is used by default.", Justification = "<Pending>", Scope = "member", Target = "~M:css.Args.Same(System.String,System.String[])~System.Boolean")]
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Common Practices and Code Improvements", "RECS0060:Warns when a culture-aware 'IndexOf' call is used by default.", Justification = "<Pending>", Scope = "member", Target = "~M:css.Args.StartsWith(System.String,System.String)~System.Boolean")]
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Common Practices and Code Improvements", "RECS0063:Warns when a culture-aware 'StartsWith' call is used by default.", Justification = "<Pending>", Scope = "member", Target = "~M:css.Args.Same(System.String,System.String[])~System.Boolean")]
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Common Practices and Code Improvements", "RECS0063:Warns when a culture-aware 'StartsWith' call is used by default.", Justification = "<Pending>", Scope = "member", Target = "~M:css.Args.StartsWith(System.String,System.String)~System.Boolean")]
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0022:A catch clause that catches System.Exception and has an empty body", Justification = "<Pending>", Scope = "member", Target = "~M:ScriptLauncher.HandleErrors")]
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0022:A catch clause that catches System.Exception and has an empty body", Justification = "<Pending>", Scope = "member", Target = "~M:ScriptLauncher.HandleInput")]
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0022:A catch clause that catches System.Exception and has an empty body", Justification = "<Pending>", Scope = "member", Target = "~M:ScriptLauncher.HandleOutput")]
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0022:A catch clause that catches System.Exception and has an empty body", Justification = "<Pending>", Scope = "member", Target = "~M:ScriptLauncher.Run(System.String,System.String)")]
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0022:A catch clause that catches System.Exception and has an empty body", Justification = "<Pending>", Scope = "member", Target = "~M:ScriptLauncher.ShowConsole")]
+// [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Compiler Warnings", "RECS0081:Validate Xml docs", Justification = "<Pending>", Scope = "namespace", Target = "~N:css")]

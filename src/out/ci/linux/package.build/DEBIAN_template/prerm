@@ -1,0 +1,2 @@
+sudo /usr/local/bin/cs-script/cscs -server:stop
+sudo unlink /usr/local/bin/css

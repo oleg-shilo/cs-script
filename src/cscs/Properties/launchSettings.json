@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "cscs.exe.core": {
+      "commandName": "Project",
+      "commandLineArgs": "-c:0 -ng:csc ttt",
+      "remoteDebugEnabled": false
+    }
+  }
+}

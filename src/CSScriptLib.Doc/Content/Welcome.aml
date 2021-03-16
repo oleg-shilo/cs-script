@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<topic id="e862697d-3cd2-4fa7-bdbd-3d17ef405b58" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        This page documents API of the CS-SCript.Cor class library (CSScriptLib.dll) only.
+      </para>
+    </introduction>
+
+    <section>
+      <title>Useful links</title>
+      <content>
+        <para>
+          To get started, add a documentation source to the project (a Visual Studio solution, project, or
+          assembly and XML comments file).  See the <legacyBold>Getting Started</legacyBold> topics in the Sandcastle Help
+          File Builder's help file for more information.  The following default items are included in this project:
+        </para>
+
+        <list class="bullet">
+          <listItem>
+            <para>
+              CS-Script overview <link xlink:href="https://github.com/oleg-shilo/cs-script/blob/master/README.md" />
+            </para>
+          </listItem>
+
+          <listItem>
+            <para>
+              CS-Script.Core on GitHub <link xlink:href="https://github.com/oleg-shilo/cs-script.core" />
+            </para>
+          </listItem>
+        </list>
+      </content>
+    </section>
+
+    <relatedTopics>
+      <link xlink:href="0e1f8b7b-1d8a-423e-a4a3-7c35249bf89a" />
+    </relatedTopics>
+  </developerConceptualDocument>
+</topic>

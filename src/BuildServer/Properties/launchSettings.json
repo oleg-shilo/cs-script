@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "compile_server": {
+      "commandName": "Project",
+      "commandLineArgs": "-stop"
+    }
+  }
+}

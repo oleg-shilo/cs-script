@@ -1,0 +1,12 @@
+Package: cs-script
+Version: {$version}
+Section: base
+Priority: optional
+Architecture: all
+Homepage: https://github.com/oleg-shilo/cs-script
+Maintainer: Oleg Shilo <oleg.shilo@email.com>
+Description: C# scripting runtime environment
+ CS-Script is a CLR (Common Language Runtime) based scripting system
+ which uses ECMA-compliant C# as a scripting language.
+ .
+ The package depends on the .NET so ensure it is instaled (see https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu)

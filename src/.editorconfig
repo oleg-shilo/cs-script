@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# CS0693: Type parameter has the same name as the type parameter from outer type
+dotnet_diagnostic.CS0693.severity = none
+
+# IDE0040: Add accessibility modifiers
+dotnet_diagnostic.IDE0040.severity = none
