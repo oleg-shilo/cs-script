@@ -30,6 +30,7 @@ namespace csscript
         public const string sample = "sample";
         public const string @new = "new";
         public const string verbose = "verbose";
+        public const string verbose2 = "verbose2";
         public const string profile = "profile";
         public const string v = "v";
         public const string version = "version";

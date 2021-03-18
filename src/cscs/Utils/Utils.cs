@@ -725,8 +725,10 @@ partial class dbg
                         if (argValue != null)
                             options.altCompiler = Environment.ExpandEnvironmentVariables(argValue);
                     }
-                    else if (Args.Same(arg, AppArgs.verbose))
+                    else if (Args.Same(arg, AppArgs.verbose, AppArgs.verbose2))
                     {
+                        if (Args.Same(arg, AppArgs.verbose2))
+                            Environment.SetEnvironmentVariable("echo_compiler_cli", "true");
                         options.verbose = true;
                     }
                     else if (Args.Same(arg, AppArgs.profile))

@@ -250,12 +250,14 @@ namespace CSScripting.CodeDom
 
             // bool compile_on_server = Runtime.IsWin;
             bool compile_on_server = true;
-            string cmd;
+            string cmd = "";
             string std_err = "";
 
             Profiler.get("compiler").Start();
             if (compile_on_server)
                 compile_on_server = Globals.BuildServerIsDeployed;
+
+            var cmpl_cmd = "";
 
             if (compile_on_server)
             {
@@ -268,6 +270,7 @@ namespace CSScripting.CodeDom
                 var request = $@"{compiler} {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}"
                               .SplitCommandLine();
 
+                cmpl_cmd = request.JoinBy(" ");
                 // ensure server running
                 // it will gracefully exit if another instance is running
                 var startBuildServerCommand = $"\"{Globals.build_server}\" -listen -port:{BuildServer.serverPort} -csc:\"{Globals.csc}\"";
@@ -299,6 +302,7 @@ namespace CSScripting.CodeDom
             {
                 Profiler.EngineContext = "Building with local csc engine...";
                 cmd = $@"""{Globals.GetCompilerFor(sources.FirstOrDefault())}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                cmpl_cmd = cmd;
                 result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
             }
 
@@ -308,7 +312,22 @@ namespace CSScripting.CodeDom
             Profiler.get("compiler").Stop();
 
             if (CSExecutor.options.verbose)
-                Console.WriteLine("    csc.dll: " + Profiler.get("compiler").Elapsed);
+            {
+                if (Environment.GetEnvironmentVariable("echo_compiler_cli") == null)
+                {
+                    Console.WriteLine("    csc.dll: " + Profiler.get("compiler").Elapsed);
+                }
+                else
+                {
+                    // File.WriteAllTe();
+                    Console.WriteLine("> ================");
+                    Console.WriteLine("csc.dll run: ");
+                    Console.WriteLine($"  current_dir: {build_dir}");
+                    Console.WriteLine($"  cmd: dotnet \"{Globals.csc}\" {cmpl_cmd}");
+                    Console.WriteLine($"  output: {NewLine}{result.Output.JoinBy(NewLine)}");
+                    Console.WriteLine("> ================");
+                }
+            }
 
             result.ProcessErrors();
 
@@ -590,16 +609,29 @@ EndGlobal"
             var result = new CompilerResults();
 
             var config = options.IncludeDebugInformation ? "--configuration Debug" : "--configuration Release";
+            var cmd = $"build {config} -o {output} {options.CompilerOptions}";
 
             Profiler.get("compiler").Start();
-            result.NativeCompilerReturnValue = dotnet.Run($"build {config} -o {output} {options.CompilerOptions}", build_dir, x => result.Output.Add(x), x => Console.WriteLine("error> " + x));
+            result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => Console.WriteLine("error> " + x));
             Profiler.get("compiler").Stop();
 
             if (CSExecutor.options.verbose)
             {
-                var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
-                if (timing != null)
-                    Console.WriteLine("    dotnet: " + timing);
+                if (Environment.GetEnvironmentVariable("echo_compiler_cli") == null)
+                {
+                    var timing = result.Output.FirstOrDefault(x => x.StartsWith("Time Elapsed"));
+                    if (timing != null)
+                        Console.WriteLine("    dotnet: " + timing);
+                }
+                else
+                {
+                    Console.WriteLine("> ================");
+                    Console.WriteLine("dotnet.exe run: ");
+                    Console.WriteLine($"  current_dir: {build_dir}");
+                    Console.WriteLine($"  cmd: dotnet {cmd}");
+                    Console.WriteLine($"  output: {NewLine}{result.Output.JoinBy(NewLine)}");
+                    Console.WriteLine("> ================");
+                }
             }
 
             Profiler.EngineContext = "Building with dotnet engine...";
