@@ -203,6 +203,10 @@ namespace CSScriptLib
 
                 string cmd;
 
+                var sdk_warning = (Runtime.IsSdkInstalled() ?
+                                    "" :
+                                    "WARNING: .NET SDK is not installed. It is required for CS-Script to function properly.\n");
+
                 var std_err = "";
 
                 if (Runtime.IsCore)
@@ -246,13 +250,14 @@ namespace CSScriptLib
                             }
 
                             if (buildServerNotRunning())
-                                throw new CompilerException("CS-Script build server is not running:\n" +
+                            {
+                                throw new CompilerException($"{sdk_warning}CS-Script build server is not running:\n" +
                                     $"Either\n" +
                                     $"  - start server from the host application 'CSScript.StartBuildServer();'\n" +
                                     $"  - start server manually with 'dotnet {startBuildServerCommand}'\n" +
                                     $"  - use RoslynEvaluator\n" +
                                     $"  - compile script with CodeDom in the same process (`CodeDomEvaluator.CompileOnServer = false;`)");
-
+                            }
                             result.NativeCompilerReturnValue = 0;
                             result.Output.AddRange(response.GetLines());
                         }
@@ -314,7 +319,7 @@ namespace CSScriptLib
                     if (result.Errors.IsEmpty())
                     {
                         // unknown error; e.g. invalid compiler params
-                        result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
+                        result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error\n" + sdk_warning });
                     }
                     throw CompilerException.Create(result.Errors, true, true);
                 }

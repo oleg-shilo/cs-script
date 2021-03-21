@@ -216,50 +216,64 @@ namespace csscript
         /// </summary>
         public static string DesktopAssembliesDir
         {
-            get
+            get => FindLatestSharedDir("Microsoft.WindowsDesktop.App");
+        }
+
+        public static string WebAssembliesDir
+        {
+            get => FindLatestSharedDir("Microsoft.AspNetCore.App");
+        }
+
+        static string FindLatestSharedDir(string appType)
+        {
+            try
             {
-                try
+                // There is no warranty that the dotnet dedktop assemblies belong to the same distro version as dotnet Core:
+                // C:\Program Files\dotnet\shared\Microsoft.NETCore.App\5.0.0-rc.1.20451.14
+                // C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\5.0.0-rc.1.20452.2
+                var netCoreDir = typeof(string).Assembly.Location.GetDirName();
+                var dir = netCoreDir.Replace("Microsoft.NETCore.App", appType);
+
+                if (dir.DirExists())
+                    return dir; // Microsoft.WindowsDesktop.App and Microsoft.NETCore.App are of teh same version
+
+                var desiredVersion = netCoreDir.GetFileName();
+
+                int howSimilar(string stringA, string stringB)
                 {
-                    // There is no warranty that the dotnet dedktop assemblies belong to the same distro version as dotnet Core:
-                    // C:\Program Files\dotnet\shared\Microsoft.NETCore.App\5.0.0-rc.1.20451.14
-                    // C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\5.0.0-rc.1.20452.2
-                    var netCoreDir = typeof(string).Assembly.Location.GetDirName();
-                    var dir = netCoreDir.Replace("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
+                    var maxSimilariry = Math.Min(stringA.Length, stringB.Length);
 
-                    if (dir.DirExists())
-                        return dir; // Microsoft.WindowsDesktop.App and Microsoft.NETCore.App are of teh same version
+                    for (int i = 0; i < maxSimilariry; i++)
+                        if (stringA[i] != stringB[i])
+                            return i;
 
-                    var desiredVersion = netCoreDir.GetFileName();
-
-                    int howSimilar(string stringA, string stringB)
-                    {
-                        var maxSimilariry = Math.Min(stringA.Length, stringB.Length);
-
-                        for (int i = 0; i < maxSimilariry; i++)
-                            if (stringA[i] != stringB[i])
-                                return i;
-
-                        return maxSimilariry;
-                    }
-
-                    var allDesktopVersionsRootDir = dir.GetDirName();
-
-                    var allInstalledVersions = Directory.GetDirectories(allDesktopVersionsRootDir)
-                                                        .Select(d => new
-                                                        {
-                                                            Path = d,
-                                                            Version = d.GetFileName(),
-                                                            SimialrityIndex = howSimilar(d.GetFileName(), desiredVersion)
-                                                        })
-                                                        .OrderByDescending(x => x.SimialrityIndex);
-
-                    return allInstalledVersions.FirstOrDefault()?.Path;
+                    return maxSimilariry;
                 }
-                catch
-                {
-                    return null;
-                }
+
+                var allDesktopVersionsRootDir = dir.GetDirName();
+
+                var allInstalledVersions = Directory.GetDirectories(allDesktopVersionsRootDir)
+                                                    .Select(d => new
+                                                    {
+                                                        Path = d,
+                                                        Version = d.GetFileName(),
+                                                        SimialrityIndex = howSimilar(d.GetFileName(), desiredVersion)
+                                                    })
+                                                    .OrderByDescending(x => x.SimialrityIndex);
+
+                return allInstalledVersions.FirstOrDefault()?.Path;
             }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static bool IsSdkInstalled()
+        {
+            var output = "";
+            "dotnet".Run("--list-sdks", null, onOutput: x => output += x);
+            return output.IsNotEmpty();
         }
     }
 }

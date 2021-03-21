@@ -131,6 +131,7 @@ namespace CSScriptLib
         public string fileNameImported = "";
         public ParsingParams prams = null;
 
+        public bool IsWebApp => this.parser?.IsWebApp == true;
         public string FileToCompile => Imported ? fileNameImported : fileName;
 
         public string[] SearchDirs { get; private set; } = new string[0];

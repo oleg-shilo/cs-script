@@ -160,13 +160,9 @@ namespace CSScriptLib
         /// <summary>
         /// The path of the parsed script.
         /// </summary>
-        public string ScriptPath
-        {
-            get { return scriptPath; }
-            set { scriptPath = value; }
-        }
+        public string ScriptPath { get; set; }
 
-        string scriptPath;
+        public bool IsWebApp => this.fileParsers.FirstOrDefault()?.IsWebApp == true;
 
         /// <summary>
         /// Initialization of ScriptParser instance
@@ -178,7 +174,8 @@ namespace CSScriptLib
             ScriptPath = fileName;
 
             //process main file
-            FileParser mainFile = new FileParser(fileName, null, true, false, searchDirs, throwOnError);
+            var mainFile = new FileParser(fileName, null, true, false, searchDirs, throwOnError);
+
 #if !class_lib
             this.apartmentState = mainFile.ThreadingModel;
 #endif
@@ -203,7 +200,7 @@ namespace CSScriptLib
             foreach (string opt in mainFile.CompilerOptions)
                 PushCompilerOptions(opt);
 
-            List<string> dirs = new List<string>();
+            var dirs = new List<string>();
             dirs.Add(Path.GetDirectoryName(mainFile.fileName));//note: mainFile.fileName is warrantied to be a full name but fileName is not
             if (searchDirs != null)
                 dirs.AddRange(searchDirs);

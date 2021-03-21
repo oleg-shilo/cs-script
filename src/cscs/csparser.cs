@@ -603,6 +603,12 @@ namespace csscript
                 refAssemblies.Add("System.Windows.Forms");
             }
 
+            if (HasRawStatement("//css_webapp", endCodePos))
+            {
+                this.IsWebApp = true;
+                searchDirs.Add("%WEB_APP%".Expand());
+            }
+
             //analyse namespace references
             foreach (string statement in GetRawStatements(code, "using", endCodePos, true))
                 if (!statement.StartsWith("(")) //just to cut off "using statements" as we are interested in "using directives" only
@@ -754,6 +760,8 @@ namespace csscript
             }
             this.ModifiedCode = sb.ToString();
         }
+
+        public bool IsWebApp = false;
 
         /// <summary>
         /// Embedded script arguments. The both script and engine arguments are allowed except "/noconfig" engine command line switch.

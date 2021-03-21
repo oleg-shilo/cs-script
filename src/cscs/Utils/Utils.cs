@@ -231,12 +231,6 @@ namespace CSScripting
             }
         }
 
-        public static bool IsNet45Plus()
-        {
-            // Class "ReflectionContext" exists from .NET 4.5 onwards.
-            return !Runtime.IsCore && Type.GetType("System.Reflection.ReflectionContext", false) != null;
-        }
-
         public static bool IsNet40Plus()
         {
             return !Runtime.IsCore && Environment.Version.Major >= 4;

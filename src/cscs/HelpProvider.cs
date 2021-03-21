@@ -350,8 +350,10 @@ namespace csscript
                                                     "The simplest way to solve this problem is disable the `dbg.cs` inclusion.",
                                                     " -dbgprint:1   enable `dbg.cs` inclusion; Same as `-dbgprint`;",
                                                     " -dbgprint:0   disable `dbg.cs` inclusion;");
+            switch2Help[verbose2] =
             switch2Help[verbose] = new ArgInfo("-verbose",
                                                "Prints runtime information during the script execution.",
+                                               "'-verbose2' additionally echoes compiling engine (e.g. csc.dll) input and output.",
                                                    "(applicable for console clients only)");
             switch2Help[profile] = new ArgInfo("-profile",
                                                "Prints script loading performance information during the script execution.");
@@ -613,6 +615,12 @@ namespace csscript
                          "Note: you need to use csws.exe engine to run WPF scripts.",
                          "Alternatively you can set environment variable 'CSS_WINAPP' to non empty value and css.exe shim will redirect the " +
                          "execution to the csws.exe executable.",
+                         section_sep, //------------------------------------
+                         "//css_webapp",
+                         " ",
+                         alias_prefix + "//css_webapp",
+                         "Indicates that the script app needs to be compiled against Microsoft.AspNetCore.App framework.",
+                         "A typical example is a WebAPI script application.",
                          section_sep, //------------------------------------
                          "//css_autoclass [style]",
                          " ",

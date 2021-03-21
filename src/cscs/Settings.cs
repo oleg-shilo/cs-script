@@ -221,10 +221,7 @@ namespace csscript
 
         string InitDefaultRefAssemblies()
         {
-            if (Utils.IsNet45Plus())
-                return "System; System.Core; System.Linq;";
-            else
-                return "System; System.Core;";
+            return "System; System.Core;";
         }
 
         /// <summary>

@@ -114,10 +114,10 @@ namespace CSScripting
             }
         }
 
-        internal static string DeleteIfExists(this string path)
+        internal static string DeleteIfExists(this string path, bool recursive = false)
         {
             if (Directory.Exists(path))
-                Directory.Delete(path);
+                Directory.Delete(path, recursive);
             else if (File.Exists(path))
                 File.Delete(path);
             return path;

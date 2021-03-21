@@ -43,6 +43,7 @@ namespace cscs
                 SetEnvironmentVariable("ENTRY_ASM", Assembly.GetEntryAssembly().GetName().Name);
                 SetEnvironmentVariable("DOTNET_SHARED", typeof(string).Assembly.Location.GetDirName().GetDirName());
                 SetEnvironmentVariable("WINDOWS_DESKTOP_APP", Runtime.DesktopAssembliesDir);
+                SetEnvironmentVariable("WEB_APP", Runtime.WebAssembliesDir);
                 SetEnvironmentVariable("css_nuget", null);
 
                 Runtime.GlobalIncludsDir?.EnsureDir();

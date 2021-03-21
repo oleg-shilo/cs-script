@@ -33,8 +33,6 @@ using CSScripting;
 
 namespace CSScriptLib
 {
-    #region CSharpParser...
-
     /// <summary>
     /// Very light parser for C# code. The main purpose of it is to be very fast and reliable.
     /// It only extracts code information relative to the CS-Script.
@@ -1169,6 +1167,8 @@ namespace CSScriptLib
         /// </summary>
         public static char[] DirectiveDelimiters = new char[] { ';', '(', ')', '{', '}', ',' };
 
+        internal bool IsWebApp = false; // for CLI compatibility
+
         void NoteCommentsAndStrings()
         {
             List<int> quotationChars = new List<int>();
@@ -1304,6 +1304,4 @@ namespace CSScriptLib
             return sb.ToString();
         }
     }
-
-    #endregion CSharpParser...
 }

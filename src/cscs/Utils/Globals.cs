@@ -219,7 +219,7 @@ namespace CSScripting
         }
 
         static internal string GetCompilerFor(string file)
-            => file.GetExtension().SameAs("cs") ? csc : csc.ChangeFileName("vbc.dll");
+            => file.GetExtension().SameAs(".cs") ? csc : csc.ChangeFileName("vbc.dll");
 
         /// <summary>
         /// Gets or sets the path to the C# compiler executable (e.g. csc.exe or csc.dll)

@@ -2,7 +2,7 @@
   "profiles": {
     "cscs.exe.core": {
       "commandName": "Project",
-      "commandLineArgs": "-c:0 -ng:csc ttt",
+      "commandLineArgs": "-c:0 -ng:csc \"D:\\scripts\\web-api\\client.cs\"",
       "remoteDebugEnabled": false
     }
   }

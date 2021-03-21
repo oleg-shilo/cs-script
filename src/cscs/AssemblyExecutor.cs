@@ -44,13 +44,19 @@ namespace csscript
         /// </summary>
         public Assembly ResolveEventHandler(object sender, ResolveEventArgs args)
         {
+            var fullName = args.Name;
+            var shortName = args.Name.Split(',').First();
+
             //it is tempting to throw but should not as there can be other (e.g. host) ResolveEventHandler(s)
             //and throwing will prevent them from being invoked
             bool throwExceptions = false;
 
             var dirs = searchDirs.Where(x => !x.StartsWith(Settings.dirs_section_prefix));
 
-            Assembly probe(string name)
+            Assembly probe_appdomain(string name)
+                => AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == name);
+
+            Assembly probe_dir(string name)
             {
                 foreach (string dir in dirs)
                 {
@@ -58,11 +64,13 @@ namespace csscript
                     if (retval != null)
                         return retval;
                 }
+
                 return null;
             }
 
-            return probe(args.Name) ??
-                   probe(args.Name.Split(',').First()); // repeat it again but with the short name
+            return probe_dir(fullName) ??
+                   probe_dir(shortName) ??
+                   probe_appdomain(shortName); // repeat it again but with the short name
         }
 
         public Assembly ResolveResEventHandler(object sender, ResolveEventArgs args) => Assembly.LoadFile(this.asmFile);

@@ -1052,7 +1052,7 @@ namespace csscript
                                     executor.Execute(scriptArgs);
                                 }
                             }
-                            catch
+                            catch (Exception e)
                             {
                                 if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
                                     print("Error: Specified file could not be executed." + NewLine);
@@ -1534,7 +1534,7 @@ namespace csscript
             //ASSUMPTION: assembly name is the same as namespace + ".dll"
             //if script doesn't follow this assumption user will need to
             //specify assemblies explicitly
-            ScriptParser parser = new ScriptParser(scriptFileName, options.searchDirs);
+            var parser = new ScriptParser(scriptFileName, options.searchDirs);
 
             if (Settings.ProbingLegacyOrder)
             {
@@ -1559,7 +1559,10 @@ namespace csscript
 
             ICodeCompiler compiler = LoadCompiler(scriptFileName, ref filesToInject);
 
-            CompilerParameters compilerParams = new CompilerParameters();
+            var compilerParams = new CompilerParameters();
+
+            if (parser.IsWebApp)
+                compilerParams.AppType = "Web";
 
             foreach (string file in parser.Precompilers)
                 if (options.preCompilers == "")
