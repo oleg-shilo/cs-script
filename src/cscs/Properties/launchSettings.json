@@ -2,7 +2,7 @@
   "profiles": {
     "cscs.exe.core": {
       "commandName": "Project",
-      "commandLineArgs": "-c:0 -ng:csc \"D:\\scripts\\web-api\\client.cs\"",
+      "commandLineArgs": "-c:0 -ng:csc \"D:\\dev\\Galos\\cs-script\\docs\\samples\\cli\\web-api\\server.cs\"",
       "remoteDebugEnabled": false
     }
   }
