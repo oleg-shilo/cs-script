@@ -11,7 +11,7 @@
         <packageSourceUrl>https://github.com/oleg-shilo/cs-script</packageSourceUrl>
         <bugTrackerUrl>https://github.com/oleg-shilo/cs-script/issues</bugTrackerUrl>
         <docsUrl>https://github.com/oleg-shilo/cs-script/wiki</docsUrl>
-        <iconUrl>https://raw.githubusercontent.com/oleg-shilo/cs-script./master/src/wiki/css_logo_codeplex_256x256.png
+        <iconUrl>https://raw.githubusercontent.com/oleg-shilo/cs-script/master/src/wiki/css_logo_codeplex_256x256.png
         </iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>CLR based runtime environment for executing scripts written in ECMA-compliant C#.
