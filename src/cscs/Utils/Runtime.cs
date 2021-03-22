@@ -219,6 +219,9 @@ namespace csscript
             get => FindLatestSharedDir("Microsoft.WindowsDesktop.App");
         }
 
+        /// <summary>
+        /// Returns path to the `Microsoft.AspNetCore.App` shared assemblies of the compatible runtime version.
+        /// </summary>
         public static string WebAssembliesDir
         {
             get => FindLatestSharedDir("Microsoft.AspNetCore.App");
@@ -269,6 +272,12 @@ namespace csscript
             }
         }
 
+        /// <summary>
+        /// Determines whether .NET SDK is installed.
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if [is SDK installed]; otherwise, <c>false</c>.
+        /// </returns>
         public static bool IsSdkInstalled()
         {
             var output = "";

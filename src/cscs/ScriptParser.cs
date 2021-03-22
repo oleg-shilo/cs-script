@@ -162,6 +162,12 @@ namespace CSScriptLib
         /// </summary>
         public string ScriptPath { get; set; }
 
+        /// <summary>
+        /// Gets a value indicating whether the script being parsed is a web application script.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the script is web application; otherwise, <c>false</c>.
+        /// </value>
         public bool IsWebApp => this.fileParsers.FirstOrDefault()?.IsWebApp == true;
 
         /// <summary>

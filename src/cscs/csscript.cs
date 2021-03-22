@@ -1052,7 +1052,7 @@ namespace csscript
                                     executor.Execute(scriptArgs);
                                 }
                             }
-                            catch (Exception e)
+                            catch
                             {
                                 if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
                                     print("Error: Specified file could not be executed." + NewLine);

@@ -13,7 +13,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.0.1.1</Version>
+    <Version>4.0.1.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5</Description>
     <Copyright>(C) 2018-2021 Oleg Shilo</Copyright>
@@ -24,11 +24,14 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
     <PackageReleaseNotes>CLI
- - Added support for `-verbose2` CLI switch to echo compiling input and output
- - Issue #234: Could not find a part of the path with CS-Script 4.0.0.0</PackageReleaseNotes>
+- Added support for `-verbose2` CLI switch to echo compiling input and output
+- Added `//css_webapp` support
+- Added checking fro SDK being installed
+- Added `cli/web-api` sample
+- Issue #234: Could not find a part of the path with CS-Script 4.0.0.0</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.0.1.1</AssemblyVersion>
-    <FileVersion>4.0.1.1</FileVersion>
+    <AssemblyVersion>4.0.1.0</AssemblyVersion>
+    <FileVersion>4.0.1.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>

@@ -7,7 +7,7 @@
     <AssemblyName>csws</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.0.1.1</Version>
+    <Version>4.0.1.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2021 Oleg Shilo</Copyright>
@@ -18,11 +18,14 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script.core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.0.1.1</AssemblyVersion>
-    <FileVersion>4.0.1.1</FileVersion>
+    <AssemblyVersion>4.0.1.0</AssemblyVersion>
+    <FileVersion>4.0.1.0</FileVersion>
     <PackageReleaseNotes>CLI
- - Added support for `-verbose2` CLI switch to echo compiling input and output
- - Issue #234: Could not find a part of the path with CS-Script 4.0.0.0</PackageReleaseNotes>
+- Added support for `-verbose2` CLI switch to echo compiling input and output
+- Added `//css_webapp` support
+- Added checking fro SDK being installed
+- Added `cli/web-api` sample
+- Issue #234: Could not find a part of the path with CS-Script 4.0.0.0</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
     <PackageIcon>..\logo\css_logo.png</PackageIcon>

@@ -509,7 +509,9 @@
   <HelpKINode Title="IsLinux property" Url="html/dfdf27a9-1c0a-ad7c-0c81-82be9b94e1e8.htm" />
   <HelpKINode Title="IsNotEmpty method" Url="html/62365278-1a9d-6fd2-1d43-6c78897ef547.htm" />
   <HelpKINode Title="IsOneOf method" Url="html/be410dea-97af-634e-c798-e60292f792ff.htm" />
+  <HelpKINode Title="IsSdkInstalled method" Url="html/1b6b8e48-aa8b-8659-3f19-6e1141773ae6.htm" />
   <HelpKINode Title="IsWarning property" Url="html/c6975a61-b40b-c0f7-e507-0facad05731d.htm" />
+  <HelpKINode Title="IsWebApp property" Url="html/32ad3699-448c-dc1b-a8a2-e2f87df42e62.htm" />
   <HelpKINode Title="IsWin property" Url="html/6e5d4f63-37af-c074-ddfb-87924ab90568.htm" />
   <HelpKINode Title="Items property" Url="html/08d67670-da7a-16d5-b0ce-fa566823a909.htm" />
   <HelpKINode Title="JoinBy method" Url="html/12cfecc0-b747-1217-12de-9fc6c021c12e.htm" />
@@ -700,8 +702,10 @@
   <HelpKINode Title="Runtime.GetScriptTempDir method" Url="html/04ccf43b-fc41-47f1-8aa0-3ddb100810ed.htm" />
   <HelpKINode Title="Runtime.IsCore property" Url="html/1b339948-d1d7-5952-a62e-5035def91ea9.htm" />
   <HelpKINode Title="Runtime.IsLinux property" Url="html/dfdf27a9-1c0a-ad7c-0c81-82be9b94e1e8.htm" />
+  <HelpKINode Title="Runtime.IsSdkInstalled method" Url="html/1b6b8e48-aa8b-8659-3f19-6e1141773ae6.htm" />
   <HelpKINode Title="Runtime.IsWin property" Url="html/6e5d4f63-37af-c074-ddfb-87924ab90568.htm" />
   <HelpKINode Title="Runtime.NuGetCacheView property" Url="html/31d29ac8-5a9a-a4ae-ac6f-8d8ee297c2c4.htm" />
+  <HelpKINode Title="Runtime.WebAssembliesDir property" Url="html/a24c0696-e477-9b0f-6ee5-175f732e56d0.htm" />
   <HelpKINode Title="SameAs method" Url="html/1d5c37ec-d93e-ad94-7382-5ce6692a3408.htm" />
   <HelpKINode Title="SamePathAs method" Url="html/b1bd09ce-8632-7ecc-be9e-00f05e6d4f2c.htm" />
   <HelpKINode Title="SaveImportedScripts method" Url="html/029486a5-618c-7793-27a9-9f63db5235c1.htm" />
@@ -721,6 +725,7 @@
   <HelpKINode Title="ScriptParser.GetContext method" Url="html/f6c9aff7-3f15-0b9d-a929-5e5f02fe18bb.htm" />
   <HelpKINode Title="ScriptParser.IgnoreNamespaces property" Url="html/1c59e15b-b7fa-9d2b-8593-33af01bb4f98.htm" />
   <HelpKINode Title="ScriptParser.ImportedFiles property" Url="html/bd30072c-6288-c430-d167-fa644baaf0a1.htm" />
+  <HelpKINode Title="ScriptParser.IsWebApp property" Url="html/32ad3699-448c-dc1b-a8a2-e2f87df42e62.htm" />
   <HelpKINode Title="ScriptParser.Packages property" Url="html/5375351e-da45-d976-0d61-76d746ad6311.htm" />
   <HelpKINode Title="ScriptParser.Precompilers property" Url="html/1b03e7ca-febe-3cc6-6746-e938d7050417.htm" />
   <HelpKINode Title="ScriptParser.ProcessImportedScript method" Url="html/b48c34e1-fcba-e84d-a45f-91dded0b5d4a.htm" />
@@ -811,4 +816,5 @@
     <HelpKINode Title="CodeDomEvaluator.Validate Method " Url="html/a09e46cf-ab4b-7ef6-2ace-89913891f2b0.htm" />
     <HelpKINode Title="EvaluatorBase(T).Validate Method " Url="html/57bc5fd7-58f0-94c4-229c-6292663be0b8.htm" />
   </HelpKINode>
+  <HelpKINode Title="WebAssembliesDir property" Url="html/a24c0696-e477-9b0f-6ee5-175f732e56d0.htm" />
 </HelpKI>
