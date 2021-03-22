@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.0.0.0</version>
+        <version>4.0.1.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,8 +25,18 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-# Release v4.0.0.0
+# Release v4.0.1.0
 
+v4.0.1.0
+
+CLI
+- Added support for `-verbose2` CLI switch to echo compiling input and output
+- Added `//css_webapp` support
+- Added checking fro SDK being installed
+- Added `cli/web-api` sample
+- Issue #234: Could not find a part of the path with CS-Script 4.0.0.0
+
+v4.0.0.0
 ## CLI
 
     - New commands:
