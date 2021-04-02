@@ -88,10 +88,10 @@ You can either load the existing script into it with `css -vscode .\script.cs` o
 
 _**Hosting script engine**_
 
-You can host the script engine in any .NET application. The class library is distributed as a NuGet package [CS-Script.Core](https://www.nuget.org/packages/CS-Script.Core/). 
+You can host the script engine in any .NET application. The class library is distributed as a NuGet package [CS-Script](https://www.nuget.org/packages/CS-Script/). 
 
 ```ps
-Install-Package CS-Script.Core
+Install-Package CS-Script
 ```
 
 The library is built against _.NET Standard 2.0_ so it can be hosted on any edition of runtime. However the script evaluation is done via .NET 5 tool chain so it needs to be installed on the host PC even if the application is implemented with the older framework (e.g. .NET Framework).
