@@ -187,8 +187,8 @@ namespace CSScriptLib
             {
                 // return Assembly.LoadFile(info.AssemblyFile);
                 // this way the loaded script assembly can be referenced from
-                // other scripts without custom asssembly probing
-                return Assembly.LoadFrom(info.AssemblyFile);
+                // other scripts without custom assembly probing
+                return AppDomain.CurrentDomain.LoadCollectableAssemblyFrom(info.AssemblyFile);
             }
             else
             {

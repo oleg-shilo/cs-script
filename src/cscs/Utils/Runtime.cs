@@ -85,7 +85,25 @@ namespace csscript
             }
         }
 
-        public static Func<AssemblyLoadContext> CreateUnloadableAssemblyLoadContext;
+        /// <summary>
+        /// The delegate for creating unloadable <see cref="AssemblyLoadContext"/> assembly load context.
+        /// The delegate is required to be set from the host process at runtime. It is because it
+        /// is not available at compile time since CSScriptLib assembly is compiled as '.NET Standard 2.0'
+        /// which does not implement <see cref="AssemblyLoadContext"/> but its abstract type only.
+        /// <para>CS-Script uses intensive reflection technique to retrieve the host environment
+        /// <see cref="AssemblyLoadContext"/> implementation. So you no not need to set it.</para>
+        /// </summary>
+        internal static Func<AssemblyLoadContext> CreateUnloadableAssemblyLoadContext;
+
+        /// <summary>
+        /// The disable CS-Script assembly unloading functionality that is implemented as a combination of
+        /// loading assembly into "IsCollectible" <see cref="AssemblyLoadContext"/> and the
+        /// <see cref="ReflectionExtensions.Unload(System.Reflection.Assembly)"/> extension. Unloading is only
+        /// available on the runtimes that support it.
+        /// <para><see cref="DisableAssemblyUnloading"/> is designed to allow unconditional disabling of the
+        /// assembly unloading should you decide you require that.</para>
+        /// </summary>
+        public static bool DisableAssemblyUnloading;
 
         /// <summary>
         /// Cleans the snippets.

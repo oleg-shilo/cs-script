@@ -62,6 +62,12 @@ namespace CSScripting
                 return asm.Location;
         }
 
+        /// <summary>
+        /// Retrieves <see cref="AssemblyLoadContext"/> associated with the assembly and unloads it.
+        /// <para>It will throw an exception if the <see cref="AssemblyLoadContext"/> is not created as
+        /// 'IsCollectible' (default CS-Script behavior).</para>
+        /// </summary>
+        /// <param name="asm"></param>
         public static void Unload(this Assembly asm)
         {
             dynamic context = AssemblyLoadContext.GetLoadContext(asm);
@@ -71,11 +77,10 @@ namespace CSScripting
             }
             catch (System.InvalidOperationException e)
             {
-                var error = "Your runtime version may not support unloading assemblies. " +
-                            "The host application needs to target .NET 5 and higher.";
-
-                if (IsUnloadingSupported)
-                    error = "The problem may be caused by the assembly loaded with non-collectible `AssemblyLoadContext` (default CLR behavior).";
+                var error = IsUnloadingSupported ?
+                                "The problem may be caused by the assembly loaded with non-collectible `AssemblyLoadContext` (default CLR behavior)."
+                                :
+                                "Your runtime version may not support unloading assemblies. The host application needs to target .NET 5 and higher.";
 
                 throw new NotImplementedException(error, e);
             }
@@ -93,7 +98,29 @@ namespace CSScripting
                     () => (AssemblyLoadContext)AssemblyLoadContextConstructor.Invoke(new object[] { Guid.NewGuid().ToString(), true });
         }
 
+        internal static void DisableUnloading()
+        {
+            // static constructor is already called so it is OK to set the delegate to null
+            IsUnloadingDisabled = true;
+        }
+
+        static bool IsUnloadingDisabled = false;
+#else
+        static bool IsUnloadingSupported = false;
 #endif
+
+        internal static Assembly LoadCollectableAssemblyFrom(this AppDomain appDomain, string assembly)
+        {
+#if !class_lib
+            return Assembly.LoadFrom(assembly);
+#else
+            if (CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext == null || IsUnloadingDisabled)
+                return Assembly.LoadFrom(assembly);
+            else
+                return CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext()
+                                          .LoadFromAssemblyPath(assembly);
+#endif
+        }
 
         internal static Assembly LoadCollectableAssembly(this AppDomain appDomain, byte[] assembly, byte[] assemblySymbols = null)
         {
@@ -106,7 +133,7 @@ namespace CSScripting
 #if !class_lib
             asm = legacy_load();
 #else
-            if (CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext == null)
+            if (CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext == null || IsUnloadingDisabled)
             {
                 asm = legacy_load();
             }
