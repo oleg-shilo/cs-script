@@ -10,7 +10,7 @@ _Previous content of this repository and Wiki, which was exclusively dedicated t
 
 ---
  
-[![Build status](https://ci.appveyor.com/api/projects/status/jruj9dmf2dwjn5p3?svg=true)](https://ci.appveyor.com/project/oleg-shilo/cs-script) [![Chocolatey Version](http://img.shields.io/chocolatey/v/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![Chocolatey Downloads](http://img.shields.io/chocolatey/dt/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![NuGet version (CS-Script)](https://img.shields.io/nuget/v/CS-Script.svg?style=flat-square)](https://www.nuget.org/packages/CS-Script/)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/oleg-shilo/cs-script?svg=true)](https://ci.appveyor.com/project/oleg-shilo/cs-script) [![Chocolatey Version](http://img.shields.io/chocolatey/v/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![Chocolatey Downloads](http://img.shields.io/chocolatey/dt/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![NuGet version (CS-Script)](https://img.shields.io/nuget/v/CS-Script.svg?style=flat-square)](https://www.nuget.org/packages/CS-Script/)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://oleg-shilo.github.io/cs-script/Donation.html)
 
@@ -88,10 +88,10 @@ You can either load the existing script into it with `css -vscode .\script.cs` o
 
 _**Hosting script engine**_
 
-You can host the script engine in any .NET application. The class library is distributed as a NuGet package [CS-Script.Core](https://www.nuget.org/packages/CS-Script.Core/). 
+You can host the script engine in any .NET application. The class library is distributed as a NuGet package [CS-Script](https://www.nuget.org/packages/CS-Script/). 
 
 ```ps
-Install-Package CS-Script.Core
+Install-Package CS-Script
 ```
 
 The library is built against _.NET Standard 2.0_ so it can be hosted on any edition of runtime. However the script evaluation is done via .NET 5 tool chain so it needs to be installed on the host PC even if the application is implemented with the older framework (e.g. .NET Framework).
