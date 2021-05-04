@@ -42,6 +42,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace CSScriptLib
 {
@@ -192,9 +193,9 @@ namespace CSScriptLib
             else
             {
                 if (pdb != null)
-                    return AppDomain.CurrentDomain.Load(asm, pdb);
+                    return AppDomain.CurrentDomain.LoadCollectableAssembly(asm, pdb);
                 else
-                    return AppDomain.CurrentDomain.Load(asm);
+                    return AppDomain.CurrentDomain.LoadCollectableAssembly(asm);
             }
         }
 

@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.Loader;
 
 #if class_lib
 
@@ -83,6 +84,8 @@ namespace csscript
                     catch { }
             }
         }
+
+        public static Func<AssemblyLoadContext> CreateUnloadableAssemblyLoadContext;
 
         /// <summary>
         /// Cleans the snippets.

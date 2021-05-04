@@ -1,14 +1,40 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using CSScripting;
 using CSScriptLib;
 
 namespace ConsoleApp1
 {
+    static class ttt
+    {
+        public static string GetGenericTypeBaseName(this Type type)
+        {
+            if (type.IsGenericType)
+                return type.FullName.Split('`').FirstOrDefault();
+            return null;
+        }
+    }
+
+    class CustomDialogContent { }
+
+    class CustomDialogContent2 { }
+
+    class CustomDialog<T> { }
+
     class Program
     {
         static void Main(string[] args)
         {
+            var type = typeof(CustomDialog<CustomDialogContent>);
+            var type2 = typeof(CustomDialog<CustomDialogContent2>);
+
+            var n = type2.GetGenericTypeBaseName();
+
+            var t1 = type.GetGenericArguments();
+            var t2 = type2.GetGenericArguments();
+            Type d4 = type2.GetGenericTypeDefinition();
+
             CSScript.StopBuildServer();
             CSScript.EvaluatorConfig.DebugBuild = true;
 

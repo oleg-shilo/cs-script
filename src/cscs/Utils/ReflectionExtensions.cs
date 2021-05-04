@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace CSScripting
 {
@@ -59,6 +60,75 @@ namespace CSScripting
             }
             else
                 return asm.Location;
+        }
+
+        public static void Unload(this Assembly asm)
+        {
+            dynamic context = AssemblyLoadContext.GetLoadContext(asm);
+            try
+            {
+                context.Unload();
+            }
+            catch (System.InvalidOperationException e)
+            {
+                var error = "Your runtime version may not support unloading assemblies. " +
+                            "The host application needs to target .NET 5 and higher.";
+
+                if (IsUnloadingSupported)
+                    error = "The problem may be caused by the assembly loaded with non-collectible `AssemblyLoadContext` (default CLR behavior).";
+
+                throw new NotImplementedException(error, e);
+            }
+        }
+
+#if class_lib
+
+        static ConstructorInfo AssemblyLoadContextConstructor = typeof(AssemblyLoadContext).GetConstructor(new Type[] { typeof(string), typeof(bool) });
+        static bool IsUnloadingSupported = AssemblyLoadContextConstructor != null;
+
+        static ReflectionExtensions()
+        {
+            if (IsUnloadingSupported)
+                CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext =
+                    () => (AssemblyLoadContext)AssemblyLoadContextConstructor.Invoke(new object[] { Guid.NewGuid().ToString(), true });
+        }
+
+#endif
+
+        internal static Assembly LoadCollectableAssembly(this AppDomain appDomain, byte[] assembly, byte[] assemblySymbols = null)
+        {
+            Assembly asm = null;
+
+            Assembly legacy_load()
+                => (assemblySymbols != null) ?
+                    appDomain.Load(assembly, assemblySymbols) :
+                    appDomain.Load(assembly);
+#if !class_lib
+            asm = legacy_load();
+#else
+            if (CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext == null)
+            {
+                asm = legacy_load();
+            }
+            else
+            {
+                using (var stream = new MemoryStream(assembly))
+                {
+                    var context = CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext();
+
+                    if (assemblySymbols != null)
+                    {
+                        using (var symbols = new MemoryStream(assemblySymbols))
+                            asm = context.LoadFromStream(stream, symbols);
+                    }
+                    else
+                    {
+                        asm = context.LoadFromStream(stream);
+                    }
+                }
+            }
+#endif
+            return asm;
         }
 
         /// <summary>

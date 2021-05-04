@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using csscript;
 using CSScripting;
 using CSScriptLib;
@@ -12,10 +13,36 @@ public interface IPrinter
     void Print();
 }
 
+static class extensions
+{
+    public class UnloadableAssemblyLoadContext : AssemblyLoadContext
+    {
+        public UnloadableAssemblyLoadContext(string name = null)
+            : base(name ?? Guid.NewGuid().ToString(), isCollectible: true)
+        { }
+    }
+}
+
 namespace EvaluatorTests
 {
     public class Generic_Roslyn
     {
+        [Fact]
+        public void call_UnloadAssembly()
+        {
+            dynamic script = CSScript.RoslynEvaluator
+                                     .LoadMethod(@"public object func()
+                                               {
+                                                   return new[] {0,5};
+                                               }");
+
+            var result = (int[])script.func();
+
+            var asm_type = (Type)script.GetType();
+
+            asm_type.Assembly.Unload();
+        }
+
         [Fact]
         public void call_LoadMethod()
         {
@@ -26,6 +53,8 @@ namespace EvaluatorTests
                                                }");
 
             var result = (int[])script.func();
+
+            var asm_type = (Type)script.GetType();
 
             Assert.Equal(0, result[0]);
             Assert.Equal(5, result[1]);

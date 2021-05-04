@@ -162,7 +162,8 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Adds the search dirs from host.
+        /// Adds the search dirs from host application.
+        /// <para>The dirs are the list of locations the all currently loaded assemblies are loaded from.</para>
         /// </summary>
         /// <returns>The Settings instance</returns>
         public Settings AddSearchDirsFromHost()

@@ -39,10 +39,10 @@ using System.Reflection;
 namespace CSScripting
 {
     /// <summary>
-    /// Class for automated assembly probing. It implments extremely simple ('optimistic')
+    /// Class for automated assembly probing. It implements extremely simple ('optimistic')
     /// probing algorithm. At runtime it attempts to resolve the assemblies via AppDomain.Assembly resolve
-    /// event by looking up the assembly files in the user dfined list of probing direcctories.
-    /// The algorithm relies on the simple relationship between assembluy name and assembly file name:
+    /// event by looking up the assembly files in the user defined list of probing directories.
+    /// The algorithm relies on the simple relationship between assembly name and assembly file name:
     ///  &lt;assembly file&gt; = &lt;asm name&gt; + ".dll"
     /// </summary>
     ///<example>The following is an example of automated assembly probing.

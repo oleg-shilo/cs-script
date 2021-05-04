@@ -111,7 +111,7 @@ public class Samples
         alcWeakRef = new WeakReference(asm);
 
         ICalc script = (ICalc)asm.LoadFromAssemblyPath(asmFile)
-                                 .CreateObject("*"); // or `CreateInstance("css_root+Script")`
+                                    .CreateObject("*"); // or `CreateInstance("css_root+Script")`
 
         int result = script.Sum(1, 3);
 

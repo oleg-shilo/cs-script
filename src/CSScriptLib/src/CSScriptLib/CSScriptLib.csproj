@@ -72,6 +72,7 @@
     <Compile Include="..\..\..\cscs\Utils\Profiler.cs" Link="Profiler.cs" />
     <Compile Include="..\..\..\cscs\Utils\ReflectionExtensions.cs" Link="Utils\ReflectionExtensions.cs" />
     <Compile Include="..\..\..\cscs\Utils\Runtime.cs" Link="Utils\Runtime.cs" />
+    <Compile Include="..\..\..\cscs\Utils\SimpleAsmProbing.cs" Link="SimpleAsmProbing.cs" />
     <Compile Include="..\..\..\cscs\Utils\SocketExtensions.cs" Link="SocketExtensions.cs" />
     <Compile Include="..\..\..\cscs\Utils\StringExtensions.cs" Link="Utils\StringExtensions.cs" />
     <Compile Include="..\..\..\cscs\Utils\WildCardExtensions.cs" Link="Utils\WildCardExtensions.cs" />
