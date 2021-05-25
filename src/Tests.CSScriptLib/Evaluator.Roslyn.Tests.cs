@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -60,6 +61,33 @@ namespace EvaluatorTests
 
             Assert.Equal(0, result[0]);
             Assert.Equal(5, result[1]);
+        }
+
+        [Fact]
+        public void use_AssembliesFilter()
+        {
+            string[] refAssemblies = null;
+
+            var eval = CSScript.RoslynEvaluator;
+
+            dynamic script = eval.SetRefAssemblyFilter(asms =>
+                                    {
+                                        refAssemblies = asms.Select(a => a.Location)
+                                                            .Distinct()
+                                                            .ToArray();
+
+                                        return asms.Where(a => a.FullName != Assembly.GetExecutingAssembly().FullName);
+                                    })
+                                 .LoadMethod(@"public object func()
+                                               {
+                                                   return new[] {0,5};
+                                               }");
+
+            var filteresAssemblies = eval.GetReferencedAssemblies()
+                                         .Select(a => a.Location)
+                                         .ToArray();
+
+            Assert.Equal(1, refAssemblies.Count() - filteresAssemblies.Count());
         }
 
         [Fact]

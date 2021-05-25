@@ -775,6 +775,14 @@ namespace CSScriptLib
             return this;
         }
 
+        protected Func<IEnumerable<Assembly>, IEnumerable<Assembly>> FilterAssemblies = x => x;
+
+        public IEvaluator SetRefAssemblyFilter(Func<IEnumerable<Assembly>, IEnumerable<Assembly>> filter)
+        {
+            FilterAssemblies += filter;
+            return this;
+        }
+
         /// <summary>
         /// References the assembly by the object, which belongs to this assembly.
         /// <para>It is safe to call this method multiple times
