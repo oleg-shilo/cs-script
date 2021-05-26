@@ -79,7 +79,7 @@ namespace CSScripting
             return @object;
         }
 
-        internal static T2 With<T, T2>(this T @object, Func<T, T2> action)
+        internal static T2 With1<T, T2>(this T @object, Func<T, T2> action)
         {
             return action(@object);
         }

@@ -43,6 +43,23 @@ namespace EvaluatorTests
         }
 
         [Fact]
+        public void call_UnloadAssembly()
+        {
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .With(eval => eval.IsAssemblyUnloadingEnabledled = true)
+                                     .LoadMethod(@"public object func()
+                                               {
+                                                   return new[] {0,5};
+                                               }");
+
+            var result = (int[])script.func();
+
+            var asm_type = (Type)script.GetType();
+
+            asm_type.Assembly.Unload();
+        }
+
+        [Fact]
         public void call_LoadMethod()
         {
             CSScript.EvaluatorConfig.DebugBuild = true;
@@ -111,7 +128,8 @@ namespace EvaluatorTests
                                    }
                                }";
 
-                var asm = CSScript.CodeDomEvaluator.CompileCode(utils_code, info);
+                var asm = CSScript.CodeDomEvaluator
+                                  .CompileCode(utils_code, info);
 
                 dynamic script = CSScript.CodeDomEvaluator
                                          .ReferenceAssembly(info.AssemblyFile)

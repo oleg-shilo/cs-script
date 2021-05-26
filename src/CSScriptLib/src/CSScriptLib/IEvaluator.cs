@@ -160,6 +160,19 @@ namespace CSScriptLib
         bool? DebugBuild { get; set; }
 
         /// <summary>
+        /// CS-Script assembly unloading functionality is implemented as a combination of
+        /// loading assembly into <see cref="AssemblyLoadContext"/> that is marked as "IsCollectible"
+        /// and the <c>ReflectionExtensions</c>.<see cref="ReflectionExtensions.Unload(Assembly)"/> extension method.
+        /// Unloading is only available on the runtimes that support it. Otherwise <see cref="AssemblyLoadContext"/>
+        /// throws an exception on attempt to load the compiled script assembly.
+        /// <para><see cref="IsAssemblyUnloadingEnabledled"/> is designed to allow enabling/disabling of the
+        /// assembly unloading should you find that the limitations associated with this .NET Core specific feature
+        /// are not acceptable. E.g., collectible assemblies cannot be referenced from other scripts or
+        /// in fact any dynamically loaded assembly for that matter.</para>
+        /// </summary>
+        bool IsAssemblyUnloadingEnabledled { get; set; }
+
+        /// <summary>
         /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies
         /// that the script depend on (via '//css_...' and 'using ...' directives) should be referenced.
         /// </summary>

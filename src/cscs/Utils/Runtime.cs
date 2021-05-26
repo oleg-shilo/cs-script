@@ -96,16 +96,6 @@ namespace csscript
         internal static Func<AssemblyLoadContext> CreateUnloadableAssemblyLoadContext;
 
         /// <summary>
-        /// The disable CS-Script assembly unloading functionality that is implemented as a combination of
-        /// loading assembly into "IsCollectible" <see cref="AssemblyLoadContext"/> and the
-        /// <see cref="ReflectionExtensions.Unload(System.Reflection.Assembly)"/> extension. Unloading is only
-        /// available on the runtimes that support it.
-        /// <para><see cref="DisableAssemblyUnloading"/> is designed to allow unconditional disabling of the
-        /// assembly unloading should you decide you require that.</para>
-        /// </summary>
-        public static bool DisableAssemblyUnloading;
-
-        /// <summary>
         /// Cleans the snippets.
         /// </summary>
         public static void CleanSnippets()
@@ -220,7 +210,6 @@ namespace csscript
                                                 .With(x =>
                                                 {
                                                     Environment.SetEnvironmentVariable("CSSCRIPT_INC", x, EnvironmentVariableTarget.User);
-                                                    return x;
                                                 })
                                                 .EnsureDir();
                 }
