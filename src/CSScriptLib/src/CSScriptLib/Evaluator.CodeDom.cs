@@ -109,7 +109,27 @@ namespace CSScriptLib
                     sources = sources.Concat(new[] { injection_file }).ToArray();
                 }
 
+                int scriptHash = 0;
+
+                if (IsCachingEnabled)
+                {
+                    var hashableCode = new StringBuilder();
+                    hashableCode.Append($"{scriptText}.{scriptFile?.GetFullPath()}");
+                    foreach (string dependencyScript in sources)
+                        hashableCode.Append(File.ReadAllText(dependencyScript).GetHashCode());
+
+                    scriptHash = $"{scriptText}.{scriptFile?.GetFullPath()}".GetHashCode(); // not very sophisticated (e.g. not all ref asms are
+                                                                                            // included in hashing)
+                                                                                            // but adequate
+
+                    if (scriptCache.ContainsKey(scriptHash))
+                        return scriptCache[scriptHash];
+                }
+
                 (byte[], byte[]) result = CompileAssemblyFromFileBatch_with_Csc(sources, refs, info?.AssemblyFile, this.IsDebug, info);
+
+                if (IsCachingEnabled)
+                    scriptCache[scriptHash] = result;
 
                 return result;
             }

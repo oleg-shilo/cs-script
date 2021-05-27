@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -31,9 +32,8 @@ namespace EvaluatorTests
         [Fact]
         public void call_UnloadAssembly()
         {
-            // CSScriptLib.Runtime.DisableAssemblyUnloading = true;
-
             dynamic script = CSScript.RoslynEvaluator
+                                     .With(eval => eval.IsAssemblyUnloadingEnabledled = true)
                                      .LoadMethod(@"public object func()
                                                {
                                                    return new[] {0,5};
@@ -44,6 +44,36 @@ namespace EvaluatorTests
             var asm_type = (Type)script.GetType();
 
             asm_type.Assembly.Unload();
+        }
+
+        [Fact]
+        public void use_ScriptCaching()
+        {
+            var code = "object func() => new[] { 0, 5 }; // " + Guid.NewGuid();
+
+            // cache is created and the compilation result is saved
+            CSScript.RoslynEvaluator
+                    .With(eval => eval.IsCachingEnabled = true)
+                    .LoadMethod(code);
+
+            // cache is used instead of recompilation
+            var sw = Stopwatch.StartNew();
+
+            CSScript.RoslynEvaluator
+                    .With(eval => eval.IsCachingEnabled = true)
+                    .LoadMethod(code);
+
+            var cachedLoadingTime = sw.ElapsedMilliseconds;
+            sw.Restart();
+
+            // cache is not used and the script is recompiled again
+            CSScript.RoslynEvaluator
+                    .With(eval => eval.IsCachingEnabled = false)
+                    .LoadMethod(code);
+
+            var noncachedLoadingTime = sw.ElapsedMilliseconds;
+
+            Assert.True(cachedLoadingTime < noncachedLoadingTime);
         }
 
         [Fact]

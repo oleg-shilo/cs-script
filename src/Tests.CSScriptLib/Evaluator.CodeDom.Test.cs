@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using csscript;
@@ -40,6 +41,23 @@ namespace EvaluatorTests
             dynamic script = asm.CreateObject("*");
             var result = script.Sum(7, 3);
             Assert.Equal(-10, result);
+        }
+
+        [Fact]
+        public void call_UnloadAssembly()
+        {
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .With(eval => eval.IsAssemblyUnloadingEnabledled = true)
+                                     .LoadMethod(@"public object func()
+                                               {
+                                                   return new[] {0,5};
+                                               }");
+
+            var result = (int[])script.func();
+
+            var asm_type = (Type)script.GetType();
+
+            asm_type.Assembly.Unload();
         }
 
         [Fact]
@@ -111,7 +129,8 @@ namespace EvaluatorTests
                                    }
                                }";
 
-                var asm = CSScript.CodeDomEvaluator.CompileCode(utils_code, info);
+                var asm = CSScript.CodeDomEvaluator
+                                  .CompileCode(utils_code, info);
 
                 dynamic script = CSScript.CodeDomEvaluator
                                          .ReferenceAssembly(info.AssemblyFile)
@@ -129,6 +148,36 @@ namespace EvaluatorTests
             {
                 info.AssemblyFile.FileDelete(rethrow: false); // assembly is locked so only showing the intention
             }
+        }
+
+        [Fact]
+        public void use_ScriptCaching()
+        {
+            var code = "object func() => new[] { 0, 5 };";
+
+            // cache is created and the compilation result is saved
+            CSScript.CodeDomEvaluator
+                    .With(eval => eval.IsCachingEnabled = true)
+                    .LoadMethod(code);
+
+            // cache is used instead of recompilation
+            var sw = Stopwatch.StartNew();
+
+            CSScript.CodeDomEvaluator
+                    .With(eval => eval.IsCachingEnabled = true)
+                    .LoadMethod(code);
+
+            var cachedLoadingTime = sw.ElapsedMilliseconds;
+            sw.Restart();
+
+            // cache is not used and the script is recompiled again
+            CSScript.CodeDomEvaluator
+                    .With(eval => eval.IsCachingEnabled = false)
+                    .LoadMethod(code);
+
+            var noncachedLoadingTime = sw.ElapsedMilliseconds;
+
+            Assert.True(cachedLoadingTime < noncachedLoadingTime);
         }
 
         [Fact]

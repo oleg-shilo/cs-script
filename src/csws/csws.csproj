@@ -53,7 +53,6 @@
     <Compile Include="..\cscs\Exceptions.cs" Link="Exceptions.cs" />
     <Compile Include="..\cscs\ExecuteOptions.cs" Link="ExecuteOptions.cs" />
     <Compile Include="..\cscs\fileparser.cs" Link="fileparser.cs" />
-    <Compile Include="..\cscs\GACHelper.cs" Link="GACHelper.cs" />
     <Compile Include="..\cscs\HelpProvider.cs" Link="HelpProvider.cs" />
     <Compile Include="..\cscs\Models\CompilingInfo.cs" Link="Models\CompilingInfo.cs" />
     <Compile Include="..\cscs\Models\Interfaces.cs" Link="Models\Interfaces.cs" />

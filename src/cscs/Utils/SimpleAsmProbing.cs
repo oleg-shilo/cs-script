@@ -49,8 +49,8 @@ namespace CSScripting
     ///<code>
     /// using (SimpleAsmProbing.For(@"E:\Dev\Libs", @"E:\Dev\Packages"))
     /// {
-    ///     dynamic script = CSScript.Load(script_file)
-    ///                              .CreateObject("Script");
+    ///     dynamic script = CSScript.Evaluator
+    ///                              .LoadFile(script_file);
     ///     script.Print();
     /// }
     /// </code>

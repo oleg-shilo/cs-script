@@ -65,7 +65,9 @@ namespace CSScripting
         /// <summary>
         /// Retrieves <see cref="AssemblyLoadContext"/> associated with the assembly and unloads it.
         /// <para>It will throw an exception if the <see cref="AssemblyLoadContext"/> is not created as
-        /// 'IsCollectible' (default CS-Script behavior).</para>
+        /// unloadable ('IsCollectible').</para>
+        /// <para>Use <see cref="CSScriptLib.IEvaluator.IsAssemblyUnloadingEnabledled"/> to control
+        /// how the assemblies (compiled scripts) are loaded.</para>
         /// </summary>
         /// <param name="asm"></param>
         public static void Unload(this Assembly asm)
@@ -98,13 +100,6 @@ namespace CSScripting
                     () => (AssemblyLoadContext)AssemblyLoadContextConstructor.Invoke(new object[] { Guid.NewGuid().ToString(), true });
         }
 
-        internal static void DisableUnloading()
-        {
-            // static constructor is already called so it is OK to set the delegate to null
-            IsUnloadingDisabled = true;
-        }
-
-        static bool IsUnloadingDisabled = false;
 #else
         static bool IsUnloadingSupported = false;
 #endif
@@ -114,7 +109,7 @@ namespace CSScripting
 #if !class_lib
             return Assembly.LoadFrom(assembly);
 #else
-            if (CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext == null || IsUnloadingDisabled)
+            if (CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext == null)
                 return Assembly.LoadFrom(assembly);
             else
                 return CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext()
@@ -133,7 +128,7 @@ namespace CSScripting
 #if !class_lib
             asm = legacy_load();
 #else
-            if (CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext == null || IsUnloadingDisabled)
+            if (CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext == null)
             {
                 asm = legacy_load();
             }
