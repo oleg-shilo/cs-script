@@ -284,6 +284,7 @@ namespace CSScriptLib
             // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
 
             string tempScriptFile = null;
+
             try
             {
                 if (scriptText == null && scriptFile != null)
@@ -304,6 +305,16 @@ namespace CSScriptLib
                     }
 
                     scriptText = $"#line 1 \"{scriptFile ?? tempScriptFile}\"{Environment.NewLine}" + scriptText;
+                }
+
+                int scriptHash = 0;
+
+                if (IsCachingEnabled)
+                {
+                    scriptHash = $"{scriptText}.{scriptFile?.GetFullPath()}".GetHashCode(); // not very sophisticated but adequate
+
+                    if (scriptCache.ContainsKey(scriptHash))
+                        return scriptCache[scriptHash];
                 }
 
                 var compilation = CSharpScript.Create(scriptText, CompilerSettings)
@@ -356,6 +367,8 @@ namespace CSScriptLib
                     }
                     else
                     {
+                        (byte[], byte[]) binaries;
+
                         asm.Seek(0, SeekOrigin.Begin);
                         byte[] buffer = asm.GetBuffer();
 
@@ -373,10 +386,15 @@ namespace CSScriptLib
                             if (info?.PdbFile != null)
                                 File.WriteAllBytes(info.PdbFile, pdbBuffer);
 
-                            return (buffer, pdbBuffer);
+                            binaries = (buffer, pdbBuffer);
                         }
                         else
-                            return (buffer, null);
+                            binaries = (buffer, null);
+
+                        if (IsCachingEnabled)
+                            scriptCache[scriptHash] = binaries;
+
+                        return binaries;
                     }
                 }
             }

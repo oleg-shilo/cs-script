@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using csscript;
@@ -147,6 +148,36 @@ namespace EvaluatorTests
             {
                 info.AssemblyFile.FileDelete(rethrow: false); // assembly is locked so only showing the intention
             }
+        }
+
+        [Fact]
+        public void use_ScriptCaching()
+        {
+            var code = "object func() => new[] { 0, 5 };";
+
+            // cache is created and the compilation result is saved
+            CSScript.CodeDomEvaluator
+                    .With(eval => eval.IsCachingEnabled = true)
+                    .LoadMethod(code);
+
+            // cache is used instead of recompilation
+            var sw = Stopwatch.StartNew();
+
+            CSScript.CodeDomEvaluator
+                    .With(eval => eval.IsCachingEnabled = true)
+                    .LoadMethod(code);
+
+            var cachedLoadingTime = sw.ElapsedMilliseconds;
+            sw.Restart();
+
+            // cache is not used and the script is recompiled again
+            CSScript.CodeDomEvaluator
+                    .With(eval => eval.IsCachingEnabled = false)
+                    .LoadMethod(code);
+
+            var noncachedLoadingTime = sw.ElapsedMilliseconds;
+
+            Assert.True(cachedLoadingTime < noncachedLoadingTime);
         }
 
         [Fact]

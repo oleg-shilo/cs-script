@@ -57,7 +57,7 @@ using System.Text;
 // /usr/local/share/dotnet/store on macOS/Linux and
 // C:/Program Files/dotnet/store on Windows).
 
-namespace csscript
+namespace csscript1
 {
     /// <summary>
     /// COM HR checker: just to make code more compact;

@@ -190,6 +190,27 @@ namespace CSScriptLib
         /// </summary>
         public bool IsAssemblyUnloadingEnabledled { get; set; } = false;
 
+        static internal Dictionary<int, (byte[] asm, byte[] pdb)> scriptCache = new Dictionary<int, (byte[] asm, byte[] pdb)>();
+
+        /// <summary>
+        /// This property controls script caching.
+        /// <para>Caching mechanism allows avoiding multiple compilation of the scripts that have been already compiled and has not changes
+        /// since then for the duration of the host process. This feature can dramatically improve the performance in the cases when you are executing
+        /// the same script again and again. Even though in such cases caching is not the greatest optimization that can be achieved.</para>
+        /// <para>Note that caching has some limitations. Thus the algorithm for checking if the script is changed since the last execution
+        /// is limited to verifying the script code (text) only. Thus it needs to be used with caution. </para>
+        /// <para>Script caching is disabled by default.</para>
+        /// </summary>
+        /// <example>The following is an example of caching the compilation.
+        ///<code>
+        /// dynamic printerScript = CSScript.Evaluator
+        ///                                 .With(eval => eval.IsCachingEnabled = true)
+        ///                                 .LoadFile(script_file);
+        /// printerScript.Print();
+        /// </code>
+        /// </example>
+        public bool IsCachingEnabled = false;
+
         Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
         {
             Validate(info);
@@ -370,7 +391,7 @@ namespace CSScriptLib
         /// </summary>
         /// <example>
         /// <code>
-        /// var log = CSScript.RoslynEvaluator
+        /// var log = CSScript.Evaluator
         ///                   .CreateDelegate(@"void Log(string message)
         ///                                     {
         ///                                         Console.WriteLine(message);
