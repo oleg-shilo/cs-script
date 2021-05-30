@@ -724,7 +724,6 @@ namespace csscript
         {
             try
             {
-                //System.Diagnostics.Debug.Assert(false);
                 if (options.processFile)
                 {
                     var initInfo = options.initContext as CSharpParser.InitInfo;
@@ -1306,7 +1305,6 @@ namespace csscript
                     }
                     catch { }
 
-                    // Debug.Assert(false);
                     throw new ApplicationException($"Cannot use alternative compiler (" + options.altCompiler + $"). You may want to adjust 'CSSCRIPT_ROOT' environment variable or disable alternative compiler by setting 'useAlternativeCompiler' to empty value in the css_config.xml file.{NewLine}{NewLine}Error Details:", ex);
                 }
             }
@@ -1518,7 +1516,6 @@ namespace csscript
             // * Extremely important to keep the project building algorithm in sync with ProjectBuilder.GenerateProjectFor
             // ********************************************************************************************
 
-            //System.Diagnostics.Debug.Assert(false);
             // if no request to build executable or dll is made then use exe format as it is the only format that allows
             // top-level statements (classless scripts)
             bool generateExe = options.buildExecutable;

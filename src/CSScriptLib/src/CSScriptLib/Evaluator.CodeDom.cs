@@ -88,7 +88,6 @@ namespace CSScriptLib
         /// <returns>The method result.</returns>
         override protected (byte[] asm, byte[] pdb) Compile(string scriptText, string scriptFile, CompileInfo info)
         {
-            // Debug.Assert(false);
             string tempScriptFile = null;
             string injection_file = null;
             try

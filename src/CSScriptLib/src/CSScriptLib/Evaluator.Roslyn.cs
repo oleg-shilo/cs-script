@@ -296,6 +296,16 @@ namespace CSScriptLib
                     ReferenceAssembliesFromCode(scriptText, localDir);
                 }
 
+                int scriptHash = 0;
+
+                if (IsCachingEnabled)
+                {
+                    scriptHash = $"{scriptText}.{scriptFile?.GetFullPath()}".GetHashCode(); // not very sophisticated but adequate
+
+                    if (scriptCache.ContainsKey(scriptHash))
+                        return scriptCache[scriptHash];
+                }
+
                 if (this.IsDebug)
                 {
                     if (scriptFile == null)
@@ -308,16 +318,6 @@ namespace CSScriptLib
                 }
 
                 PrepareRefeAssemblies();
-
-                int scriptHash = 0;
-
-                if (IsCachingEnabled)
-                {
-                    scriptHash = $"{scriptText}.{scriptFile?.GetFullPath()}".GetHashCode(); // not very sophisticated but adequate
-
-                    if (scriptCache.ContainsKey(scriptHash))
-                        return scriptCache[scriptHash];
-                }
 
                 var compilation = CSharpScript.Create(scriptText, CompilerSettings)
                                               .GetCompilation();

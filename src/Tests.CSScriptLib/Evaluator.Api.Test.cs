@@ -316,7 +316,9 @@ namespace EvaluatorTests
                                             public int Sum(int a, int b) => a+b;
                                         }");
 
-            ICalc calc = evaluator.LoadFile<ICalc>(script);
+            ICalc calc = evaluator.ReferenceDomainAssemblies()
+                                  .LoadFile<ICalc>(script);
+
             int result = calc.Sum(1, 2);
 
             Assert.Equal(3, result);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace CSScriptLib
@@ -161,9 +162,9 @@ namespace CSScriptLib
 
         /// <summary>
         /// CS-Script assembly unloading functionality is implemented as a combination of
-        /// loading assembly into <see cref="AssemblyLoadContext"/> that is marked as "IsCollectible"
-        /// and the <c>ReflectionExtensions</c>.<see cref="ReflectionExtensions.Unload(Assembly)"/> extension method.
-        /// Unloading is only available on the runtimes that support it. Otherwise <see cref="AssemblyLoadContext"/>
+        /// loading assembly into <see cref="System.Runtime.Loader.AssemblyLoadContext"/> that is marked as "IsCollectible"
+        /// and the <c>ReflectionExtensions</c>.<see cref="CSScripting.ReflectionExtensions.Unload(Assembly)"/> extension method.
+        /// Unloading is only available on the runtimes that support it. Otherwise <see cref="System.Runtime.Loader.AssemblyLoadContext"/>
         /// throws an exception on attempt to load the compiled script assembly.
         /// <para><see cref="IsAssemblyUnloadingEnabledled"/> is designed to allow enabling/disabling of the
         /// assembly unloading should you find that the limitations associated with this .NET Core specific feature
@@ -292,6 +293,20 @@ namespace CSScriptLib
         /// <param name="code">The C# code.</param>
         /// <returns>The compiled assembly.</returns>
         Assembly CompileMethod(string code);
+
+        /// <summary>
+        /// Sets the filter for referenced assemblies. The filter is to be applied just before the assemblies are to be referenced
+        /// during the script execution.
+        /// <code>
+        /// dynamic script = CSScript.Evaluator
+        ///                          .SetRefAssemblyFilter(asms =>
+        ///                              asms.Where(a => !a.FullName.StartsWith("Microsoft."))
+        ///                          .LoadCode(scriptCode);
+        /// </code>
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <returns></returns>
+        IEvaluator SetRefAssemblyFilter(Func<IEnumerable<Assembly>, IEnumerable<Assembly>> filter);
 
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads the class to the current AppDomain.

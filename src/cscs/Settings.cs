@@ -606,7 +606,6 @@ namespace csscript
         /// <returns>Setting object deserialized from the XML file</returns>
         public static Settings Load(string fileName, bool createAlways)
         {
-            //System.Diagnostics.Debug.Assert(false);
             Settings settings = new Settings();
 
             var filePath = fileName;

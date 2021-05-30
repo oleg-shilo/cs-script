@@ -14,8 +14,6 @@ namespace compile_server
     {
         static int Main(string[] app_args)
         {
-            // Debug.Assert(false);
-
             var exitCode = 0;
             try
             {
@@ -64,14 +62,11 @@ namespace compile_server
                 }
                 else if (args.FirstOrDefault() == "-list")
                 {
-                    // Debugger.Launch();
                     App.Log($"Listing remote instances...");
                     App.Log(BuildServer.PingRemoteInstances());
                 }
                 else if (args.FirstOrDefault() == "-listen")
                 {
-                    // Debugger.Launch();
-
                     ListenToShutdownRequest();
 
                     BuildServer.ReportRunning(port);
@@ -80,7 +75,6 @@ namespace compile_server
                 }
                 else
                 {
-                    // Debugger.Launch();
                     BuildServer.StartRemoteInstance(port);
                     (var buildLog, _) = BuildServer.SendBuildRequest(args, port);
 

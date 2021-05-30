@@ -648,7 +648,6 @@ partial class dbg
             // CLIExitRequest.Throw() is an exception based mechanism for unconditional application exit.
 
             ExecuteOptions options = executor.GetOptions();
-            //Debug.Assert(false);
             for (int i = 0; i < args.Length; i++)
             {
                 string arg = args[i];
@@ -791,7 +790,6 @@ partial class dbg
                         argValue.StartsWith("get:") ||
                         argValue.StartsWith("set:"))
                         {
-                            // Debug.Assert(false);
                             executor.ProcessConfigCommand(argValue);
                             CLIExitRequest.Throw();
                         }

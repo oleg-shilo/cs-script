@@ -1524,7 +1524,6 @@ nvironment.NewLine);
 
                 if (!string.IsNullOrEmpty(asm_path))
                 {
-                    //System.Diagnostics.Debug.Assert(false);
                     var settings = Settings.Load(Settings.DefaultConfigFile, false) ?? new Settings();
 
                     var alt_compiler = settings.ExpandUseAlternativeCompiler();

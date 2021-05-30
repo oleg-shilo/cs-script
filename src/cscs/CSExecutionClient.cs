@@ -60,7 +60,6 @@ namespace csscript
         /// </summary>
         public static void Run(string[] rawArgs)
         {
-            // Debug.Assert(false);
             main(PreprocessArgs(rawArgs));
         }
 

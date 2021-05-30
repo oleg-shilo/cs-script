@@ -259,7 +259,6 @@ namespace csscript
             var result = new Result(content);
             string autoClassMode = null;
 
-            // Debug.Assert(false);
             // we will be effectively normalizing the line ends but the input file may no be
 
             var code = new StringBuilder(4096);

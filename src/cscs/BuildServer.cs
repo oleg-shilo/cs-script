@@ -357,8 +357,6 @@ namespace CSScripting.CodeDom
 
         static string Compile(string compiler, string[] args)
         {
-            // Debug.Assert(false);
-
             using (SimpleAsmProbing.For(Path.GetDirectoryName(csc)))
             {
                 var oldOut = Console.Out;

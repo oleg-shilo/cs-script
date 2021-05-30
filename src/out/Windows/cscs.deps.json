@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v5.0": {
-      "cscs/4.0.1.0": {
+      "cscs/4.0.2.0": {
         "runtime": {
           "cscs.dll": {}
         }
@@ -14,7 +14,7 @@
     }
   },
   "libraries": {
-    "cscs/4.0.1.0": {
+    "cscs/4.0.2.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

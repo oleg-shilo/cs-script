@@ -817,8 +817,23 @@ namespace CSScriptLib
             return this;
         }
 
+        /// <summary>
+        /// The filter assemblies
+        /// </summary>
         protected Func<IEnumerable<Assembly>, IEnumerable<Assembly>> FilterAssemblies = x => x;
 
+        /// <summary>
+        /// Sets the filter for referenced assemblies. The filter is to be applied just before the assemblies are to be referenced
+        /// during the script execution.
+        /// <code>
+        /// dynamic script = CSScript.Evaluator
+        ///                          .SetRefAssemblyFilter(asms =>
+        ///                              asms.Where(a => !a.FullName.StartsWith("Microsoft."))
+        ///                          .LoadCode(scriptCode);
+        /// </code>
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <returns></returns>
         public IEvaluator SetRefAssemblyFilter(Func<IEnumerable<Assembly>, IEnumerable<Assembly>> filter)
         {
             FilterAssemblies += filter;

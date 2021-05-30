@@ -62,7 +62,6 @@ namespace EvaluatorTests
             CSScript.RoslynEvaluator
                     .With(eval => eval.IsCachingEnabled = true)
                     .LoadMethod(code);
-
             var cachedLoadingTime = sw.ElapsedMilliseconds;
             sw.Restart();
 
@@ -74,6 +73,7 @@ namespace EvaluatorTests
             var noncachedLoadingTime = sw.ElapsedMilliseconds;
 
             Assert.True(cachedLoadingTime < noncachedLoadingTime);
+            return;
         }
 
         [Fact]
@@ -100,7 +100,8 @@ namespace EvaluatorTests
 
             var eval = CSScript.RoslynEvaluator;
 
-            dynamic script = eval.SetRefAssemblyFilter(asms =>
+            dynamic script = eval.ReferenceDomainAssemblies()
+                                 .SetRefAssemblyFilter(asms =>
                                     {
                                         refAssemblies = asms.Select(a => a.Location)
                                                             .Distinct()
@@ -136,6 +137,7 @@ namespace EvaluatorTests
         [Fact]
         public void referencing_script_types_from_another_script()
         {
+            CSScript.EvaluatorConfig.RefernceDomainAsemblies = false; // to avoid an accidental referencing
             CSScript.EvaluatorConfig.DebugBuild = true;
 
             var info = new CompileInfo { RootClass = "script_a", AssemblyFile = "script_a_asm2" };
@@ -158,9 +160,14 @@ namespace EvaluatorTests
                           }
                       }";
 
-                CSScript.RoslynEvaluator.CompileCode(code2, info);
+                CSScript.RoslynEvaluator
+                        .With(e => e.IsCachingEnabled = false) // required to not interfere with xUnit
+                        .CompileCode(code2, info);
 
                 dynamic script = CSScript.RoslynEvaluator
+                                         .With(e => e.IsCachingEnabled = false)
+                                         // .With(e => e.ReferenceDomainAssemblies = false)
+
                                          .ReferenceAssembly(info.AssemblyFile)
                                          .CompileMethod(@"using static script_a;
                                                   Utils Test()
