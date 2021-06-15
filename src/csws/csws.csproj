@@ -134,7 +134,7 @@ _No changes_
     <Compile Include="..\cscs\CodeDom\CompilerError.cs" Link="CompilerError.cs" />
     <Compile Include="..\cscs\ScriptParser.cs" Link="ScriptParser.cs" />
     <Compile Include="..\cscs\ScriptParsingResult.cs" Link="ScriptParsingResult.cs" />
-    <None Include="..\cscs\Services.Roslyn.cs" Link="Services.Roslyn.cs" />
+    <Compile Include="..\cscs\Services.Roslyn.cs" Link="Services.Roslyn.cs" />
     <Compile Include="..\cscs\Settings.cs" Link="Settings.cs" />
     <Compile Include="..\cscs\Utils\CLIExtensions.cs" Link="Utils\CLIExtensions.cs" />
     <Compile Include="..\cscs\Utils\ConsoleExtensions.cs" Link="Utils\ConsoleExtensions.cs" />
@@ -159,6 +159,9 @@ _No changes_
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.10.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

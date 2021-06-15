@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Emit;
 
 // using Microsoft.CodeAnalysis.Emit;
 using System.Collections.Generic;
@@ -75,24 +76,24 @@ namespace csscript
              * so need to use an adapter.
              */
 
-            // public static BuildResult.Diagnostic From(Microsoft.CodeAnalysis.Diagnostic data)
-            // {
-            //     return new BuildResult.Diagnostic
-            //     {
-            //         IsWarningAsError = data.IsWarningAsError,
-            //         // Severity = data.Severity,
-            //         Location_IsInSource = data.Location.IsInSource,
-            //         Location_StartLinePosition_Line = data.Location.GetLineSpan().StartLinePosition.Line,
-            //         Location_StartLinePosition_Character = data.Location.GetLineSpan().StartLinePosition.Character,
-            //         Location_FilePath = data.Location.SourceTree.FilePath,
-            //         Id = data.Id,
-            //         Message = data.GetMessage()
-            //     };
-            // }
+            public static BuildResult.Diagnostic From(Microsoft.CodeAnalysis.Diagnostic data)
+            {
+                return new BuildResult.Diagnostic
+                {
+                    IsWarningAsError = data.IsWarningAsError,
+                    // Severity = data.Severity,
+                    Location_IsInSource = data.Location.IsInSource,
+                    Location_StartLinePosition_Line = data.Location.GetLineSpan().StartLinePosition.Line,
+                    Location_StartLinePosition_Character = data.Location.GetLineSpan().StartLinePosition.Character,
+                    Location_FilePath = data.Location.SourceTree.FilePath,
+                    Id = data.Id,
+                    Message = data.GetMessage()
+                };
+            }
 
             public bool IsWarningAsError;
 
-            // public DiagnosticSeverity Severity;
+            public DiagnosticSeverity Severity;
             public bool Location_IsInSource;
 
             public int Location_StartLinePosition_Line;
@@ -103,16 +104,16 @@ namespace csscript
         }
 
         public bool Success;
-        // public List<BuildResult.Diagnostic> Diagnostics = new List<BuildResult.Diagnostic>();
+        public List<BuildResult.Diagnostic> Diagnostics = new List<BuildResult.Diagnostic>();
 
-        // public static BuildResult From(EmitResult data)
-        // {
-        //     return new BuildResult
-        //     {
-        //         Success = data.Success,
-        //         Diagnostics = data.Diagnostics.Select(x => Diagnostic.From(x)).ToList()
-        //     };
-        // }
+        public static BuildResult From(EmitResult data)
+        {
+            return new BuildResult
+            {
+                Success = data.Success,
+                Diagnostics = data.Diagnostics.Select(x => Diagnostic.From(x)).ToList()
+            };
+        }
     }
 
     class UniqueAssemblyLocations

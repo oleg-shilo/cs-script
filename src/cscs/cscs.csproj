@@ -109,14 +109,15 @@ _No changes_
   </Target>
   <ItemGroup>
     <Compile Remove="GACHelper.cs" />
-    <Compile Remove="Services.Roslyn.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\logo\css_logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="Services.Roslyn.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.10.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

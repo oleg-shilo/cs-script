@@ -13,6 +13,7 @@ namespace CSScripting
         public const string compiler = "//css_engine";
         public const string compiler_csc = "csc";
         public const string compiler_dotnet = "dotnet";
+        public const string compiler_roslyn = "roslyn";
     }
 
     /// <summary>

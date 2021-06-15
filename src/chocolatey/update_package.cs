@@ -14,7 +14,7 @@ void main()
 
     var installScript = @"tools\chocolateyInstall.ps1";
 
-    var cheksum = calcChecksum(url);
+    var cheksum = calcChecksum(url); 
     // var cheksum = "E1809AD6433A91B2FF4803E7F4B15AE0FA88905A28949EAC5590F7D9FD9BE9C3";
     Console.WriteLine(cheksum);
 
