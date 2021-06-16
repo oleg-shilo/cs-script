@@ -137,7 +137,7 @@ namespace EvaluatorTests
         [Fact]
         public void referencing_script_types_from_another_script()
         {
-            CSScript.EvaluatorConfig.RefernceDomainAsemblies = false; // to avoid an accidental referencing
+            CSScript.EvaluatorConfig.ReferenceDomainAssemblies = false; // to avoid an accidental referencing
             CSScript.EvaluatorConfig.DebugBuild = true;
 
             var info = new CompileInfo { RootClass = "script_a", AssemblyFile = "script_a_asm2" };

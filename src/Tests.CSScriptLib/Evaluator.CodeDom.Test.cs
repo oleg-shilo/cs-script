@@ -106,7 +106,7 @@ namespace EvaluatorTests
         public void referencing_script_types_from_another_script()
         {
             CSScript.EvaluatorConfig.DebugBuild = true;
-            CSScript.EvaluatorConfig.RefernceDomainAsemblies = false;
+            CSScript.EvaluatorConfig.ReferenceDomainAssemblies = false;
 
             var info = new CompileInfo { AssemblyFile = "utils_asm" };
 

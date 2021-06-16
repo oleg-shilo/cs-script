@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace CSScriptLib
@@ -125,7 +126,18 @@ namespace CSScriptLib
         /// Flag that controls if the host AppDo,main referenced assemblies are automatically referenced at creation
         /// of <see cref="CSScriptLib.IEvaluator"/>.
         /// </summary>
+        [Obsolete("The name of the property method is misspelled. Use `ReferenceDomainAssemblies` instead", false)]
         public bool RefernceDomainAsemblies
+        {
+            get { return refDomainAsms; }
+            set { refDomainAsms = value; }
+        }
+
+        /// <summary>
+        /// Flag that controls if the host AppDo,main referenced assemblies are automatically referenced at creation
+        /// of <see cref="CSScriptLib.IEvaluator"/>.
+        /// </summary>
+        public bool ReferenceDomainAssemblies
         {
             get { return refDomainAsms; }
             set { refDomainAsms = value; }
@@ -681,5 +693,45 @@ namespace CSScriptLib
         /// </code>
         /// </example>
         IEvaluator Clone(bool copyRefAssemblies = true);
+    }
+
+    /// <summary>
+    /// Some convenient extension methods for working with <see cref="IEvaluator"/>.
+    /// </summary>
+    public static class EvaluatorExtensions
+    {
+        /// <summary>
+        /// Sets referenced assemblies filter for exclusion of some "undesired" assemblies.
+        /// It is a convenient method for fine controlling referencing assemblies but without specifying
+        /// the complete predicates with
+        /// <see cref="IEvaluator.SetRefAssemblyFilter(Func{IEnumerable{Assembly}, IEnumerable{Assembly}})"/>.
+        /// <code>
+        /// dynamic script = CSScript.Evaluator
+        ///                          .ExcludeReferencedAssemblies(new[]{this.GetType().Assembly})
+        ///                          .LoadCode(scriptCode);
+        /// </code>
+        /// </summary>
+        /// <param name="evaluator">The evaluator.</param>
+        /// <param name="excludedAssemblies">The excluded assemblies.</param>
+        /// <returns></returns>
+        public static IEvaluator ExcludeReferencedAssemblies(this IEvaluator evaluator, IEnumerable<Assembly> excludedAssemblies)
+            => evaluator.SetRefAssemblyFilter(asms => asms.Where(a => !excludedAssemblies.Contains(a)));
+
+        /// <summary>
+        /// Sets referenced assemblies filter for exclusion of some "undesired" assemblies.
+        /// It is a convenient method for fine controlling referencing assemblies but without specifying
+        /// the complete predicates with
+        /// <see cref="IEvaluator.SetRefAssemblyFilter(Func{IEnumerable{Assembly}, IEnumerable{Assembly}})"/>.
+        /// <code>
+        /// dynamic script = CSScript.Evaluator
+        ///                          .ExcludeReferencedAssemblies(this.GetType().Assembly)
+        ///                          .LoadCode(scriptCode);
+        /// </code>
+        /// </summary>
+        /// <param name="evaluator">The evaluator.</param>
+        /// <param name="excludedAssemblies">The excluded assemblies.</param>
+        /// <returns></returns>
+        public static IEvaluator ExcludeReferencedAssemblies(this IEvaluator evaluator, params Assembly[] excludedAssemblies)
+            => evaluator.SetRefAssemblyFilter(asms => asms.Where(a => !excludedAssemblies.Contains(a)));
     }
 }

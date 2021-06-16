@@ -102,7 +102,7 @@ namespace CSScriptLib
         /// </summary>
         public EvaluatorBase()
         {
-            if (CSScript.EvaluatorConfig.RefernceDomainAsemblies)
+            if (CSScript.EvaluatorConfig.ReferenceDomainAssemblies)
                 ReferenceDomainAssemblies();
         }
 
