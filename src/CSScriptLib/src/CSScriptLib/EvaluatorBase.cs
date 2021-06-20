@@ -741,9 +741,6 @@ namespace CSScriptLib
         {
             var globalProbingDirs = CSScript.GlobalSettings.SearchDirs.ToList();
 
-            //zos
-            //globalProbingDirs.Add(Assembly.GetCallingAssembly().GetAssemblyDirectoryName());
-
             var dirs = globalProbingDirs.ToArray();
 
             string asmFile = AssemblyResolver.FindAssembly(assembly, dirs).FirstOrDefault();

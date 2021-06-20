@@ -81,7 +81,7 @@ namespace csscript
                 return new BuildResult.Diagnostic
                 {
                     IsWarningAsError = data.IsWarningAsError,
-                    // Severity = data.Severity,
+                    Severity = data.Severity,
                     Location_IsInSource = data.Location.IsInSource,
                     Location_StartLinePosition_Line = data.Location.GetLineSpan().StartLinePosition.Line,
                     Location_StartLinePosition_Character = data.Location.GetLineSpan().StartLinePosition.Character,
@@ -111,7 +111,7 @@ namespace csscript
             return new BuildResult
             {
                 Success = data.Success,
-                Diagnostics = data.Diagnostics.Select(x => Diagnostic.From(x)).ToList()
+                Diagnostics = data.Diagnostics.Select(x => Diagnostic.From(x)).ToList(),
             };
         }
     }

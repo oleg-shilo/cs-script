@@ -425,7 +425,7 @@ namespace CSScripting.Roslyn
 {
     public static class BuildServer
     {
-        public static int serverPort = 17001;
+        public static int serverPort = 17002;
 
         static public string SentRequest(string request)
         {
@@ -469,6 +469,7 @@ namespace CSScripting.Roslyn
                                 break;
                             }
 
+                            System.Diagnostics.Debugger.Break(); // zos
                             Profiler.measure(">> Processing client request: ", () =>
                             {
                                 string response = RoslynService.process_build_remotelly_request(request);

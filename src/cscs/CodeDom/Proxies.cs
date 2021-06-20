@@ -107,7 +107,9 @@ namespace CSScripting.CodeDom
                         return CompileAssemblyFromFileBatch_with_Csc(options, fileNames);
 
                     case Directives.compiler_roslyn:
-                        return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames);
+                        return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, false);
+                    case Directives.compiler_roslyn_inproc:
+                        return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, true);
 
                     default:
                         return CompileAssemblyFromFileBatch_with_Build(options, fileNames);

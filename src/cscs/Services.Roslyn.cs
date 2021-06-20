@@ -43,7 +43,7 @@ namespace CSScripting.CodeDom
             return new[] { code.Substring(0, pos).TrimEnd(), code.Substring(pos) };
         }
 
-        public static CompilerResults CompileAssemblyFromFileBatch_with_roslyn(CompilerParameters options, string[] fileNames)
+        public static CompilerResults CompileAssemblyFromFileBatch_with_roslyn(CompilerParameters options, string[] fileNames, bool inprocess)
         {
             // setting up build folder
             string projectName = fileNames.First().GetFileName();
@@ -63,7 +63,7 @@ namespace CSScripting.CodeDom
 
             if (attr_file != null)
             {
-                // scripting does not support attributes
+                // Roslyn scripting does not support attributes
                 // (0,2): error CS7026: Assembly and module attributes are not allowed in this context
 
 #pragma warning disable S125 // Sections of code should not be commented out
@@ -96,6 +96,9 @@ namespace CSScripting.CodeDom
 
             var mapping = new Dictionary<(int, int), (string, int)>();
 
+            combinedScript.Add($"#define NETCORE");
+            combinedScript.Add($"#define CS_SCRIPT");
+
             foreach (string file in imported_sources)
             {
                 var parts = File.ReadAllText(file).SeparateUsingsFromCode();
@@ -114,8 +117,6 @@ namespace CSScripting.CodeDom
                 mapping[(start, end)] = (file, lineOffset);
             }
 
-            combinedScript.Add($"#define NETCORE");
-            combinedScript.Add($"#define CS_SCRIPT");
             combinedScript.Add($"#line 1 \"{firstScript}\"");
             add_code(firstScript, File.ReadAllLines(firstScript), 0);
 
@@ -123,7 +124,7 @@ namespace CSScripting.CodeDom
             {
                 (var usings_count, var code) = importedSources[file];
 
-                combinedScript.Add($"#line {usings_count + 1} \"{file}\"");
+                combinedScript.Add($"#line {usings_count + 1} \"{file}\""); // zos
                 add_code(file, code, usings_count);
             }
 
@@ -153,7 +154,7 @@ namespace CSScripting.CodeDom
             var all_refs = Directory.GetFiles(gac, "System.*.dll")
                                     .ConcatWith(ref_assemblies);
 
-            BuildResult emitResult = Build(single_source, assembly, all_refs, options.IncludeDebugInformation);
+            BuildResult emitResult = Build(single_source, assembly, all_refs, options.IncludeDebugInformation, inprocess);
 
             if (!emitResult.Success)
             {
@@ -222,9 +223,9 @@ namespace CSScripting.CodeDom
             return result;
         }
 
-        static BuildResult Build(string sourceFile, string assemblyFile, string[] refs, bool IsDebug)
+        static BuildResult Build(string sourceFile, string assemblyFile, string[] refs, bool IsDebug, bool buildLocally)
         {
-            bool useServer = true;
+            bool useServer = !buildLocally;
             // useServer = false;
             var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
             try
