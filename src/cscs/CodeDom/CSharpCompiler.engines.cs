@@ -191,12 +191,6 @@ namespace CSScripting.CodeDom
                 return result;
             }
 
-            if (!options.GenerateExecutable || !Runtime.IsCore || DefaultCompilerRuntime == DefaultCompilerRuntime.Standard)
-            {
-                // todo
-                // nothing for now
-            }
-
             //----------------------------
 
             //pseudo-gac as .NET core does not support GAC but rather common assemblies.
@@ -212,8 +206,10 @@ namespace CSScripting.CodeDom
 
             common_args.Add("/utf8output");
             common_args.Add("/nostdlib+");
-
-            common_args.Add("/t:exe"); // need always build exe so "top-class" feature is supported even when building dlls
+            if (options.GenerateExecutable)
+                common_args.Add("/t:exe");
+            else
+                common_args.Add("/t:library");
 
             if (options.IncludeDebugInformation)
                 common_args.Add("/debug:portable");  // on .net full it is "/debug+"

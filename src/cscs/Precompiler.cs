@@ -366,6 +366,7 @@ namespace csscript
                             {
                                 bool noargs = Regex.Matches(lineText, @"\s+main\s*\(\s*\)").Count != 0;
                                 bool noReturn = Regex.Matches(lineText, @"void\s+main\s*\(").Count != 0;
+                                bool isStatic = Regex.Matches(lineText, @"\bstatic").Count != 0;
 
                                 string actualArgs = (noargs ? "" : "args");
 
@@ -374,10 +375,11 @@ namespace csscript
                                 if (!consoleEncoding.SameAs(Settings.DefaultEncodingName))
                                     entryPointDefinition += "try { System.Console.OutputEncoding = System.Text.Encoding.GetEncoding(\"" + consoleEncoding + "\"); } catch {} ";
 
+                                var parentObject = isStatic ? "ScriptClass" : "new ScriptClass()";
                                 if (noReturn)
-                                    entryPointDefinition += "new ScriptClass().main(" + actualArgs + "); return 0; } ";
+                                    entryPointDefinition += $"{parentObject}.main(" + actualArgs + "); return 0; } ";
                                 else
-                                    entryPointDefinition += "return (int)new ScriptClass().main(" + actualArgs + "); } ";
+                                    entryPointDefinition += $"return (int){parentObject}.main(" + actualArgs + "); } ";
 
                                 // point to the next line
                                 entryPointDefinition += "///CS-Script auto-class generation" + Environment.NewLine +
