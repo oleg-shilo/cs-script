@@ -2,7 +2,7 @@
   "profiles": {
     "cscs.exe.core": {
       "commandName": "Project",
-      "commandLineArgs": "-c:0 -ng:dotnet -verbose \"D:\\dev\\Galos\\cs-script\\docs\\samples\\cli\\web-api\\server.cs\"",
+      "commandLineArgs": " -c:0 -ng:roslyn -profile \"D:\\dev\\Galos\\cs-script\\src\\cscs\\bin\\Debug\\net5.0\\test.cs\"",
       "remoteDebugEnabled": false
     }
   }

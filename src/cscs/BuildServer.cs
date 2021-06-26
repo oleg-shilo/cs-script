@@ -58,7 +58,7 @@ namespace CSScripting.CodeDom
             }
         }
 
-        internal static int serverPort = 17001;
+        internal static int serverPort = "CSS_BUILDSERVER_CSC_PORT".GetEnvar().ToInt(defaultValue: 17001);
 
         static public string Request(string request, int? port)
         {
@@ -425,7 +425,7 @@ namespace CSScripting.Roslyn
 {
     public static class BuildServer
     {
-        public static int serverPort = 17002;
+        public static int serverPort = Environment.GetEnvironmentVariable("CSS_BUILDSERVER_ROSLYN_PORT").ToInt(defaultValue: 17002);
 
         static public string SentRequest(string request)
         {

@@ -221,15 +221,42 @@ namespace csscript
             switch1Help[co] = new ArgInfo("-co:<options>",
                                           "Passes compiler options directly to the language compiler.",
                                               "(e.g.  -co:/d:TRACE pass /d:TRACE option to C# compiler",
-                                                  "or  -co:/platform:x86 to produce Win32 executable)");
+                                              " or    -co:/platform:x86 to produce Win32 executable)");
             switch1Help[engine] =
             switch1Help[ng] = new ArgInfo("-ng|-engine:<csc:dotnet>]",
                                          "Forces compilation to be done by one of the supported .NET engines.",
-                                         "dotnet - ${<==}dotnet.exe compiler; this is the most versatile compilation engine.",
+                                         "  ",
+                                         "dotnet - ${<==}dotnet.exe compiler; this is the most versatile compilation engine though " +
+                                         "it does have a startup overhead when running the script for the first time. It requires .NET SDK to be installed " +
+                                         "on the target system.",
+                                         "  ",
                                          "csc    - ${<==}csc.exe compiler; the fastest compiler available. It is not suitable" +
                                          "for WPF scripts as csc.exe cannot compile XAML.",
+                                         "         ${<==}The compilation is performed in the separate child process build.exe which is somewhat " +
+                                         "equivalent of VBCSCompiler.exe (build server) from .NET toolset. It requires .NET SDK to be installed " +
+                                         "on the target system.",
+                                         "         ${<==}CS-Script communicates with build.exe build server via socket (default port 17001). You can " +
+                                         "control port value via environment variable 'CSS_BUILDSERVER_CSC_PORT'",
+                                         "         ${<==}Value `csc-inproc` will suppress spinning off an build server process and .NET csc.exe will be " +
+                                         "called directly instead. This option convenient when socket communication is undesirable for whatever reason. " +
+                                         "Though in this case all the performance benefits of `-ng:csc` will be lost and then you are better off using " +
+                                         "`-ng:dotnet` instead.",
+                                         "  ",
+                                         "roslyn - ${<==}Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation " +
+                                         "engine. It does not require .NET SDK being installed. Though it does have limitations (see documentation).",
+                                         "         ${<==}The compilation is performed in the separate child process " + AppInfo.appName + " (another " +
+                                         "instance of script engine) which is somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.",
+                                         "         ${<==}CS-Script communicates with " + AppInfo.appName + " build server via socket (default port 17002). " +
+                                         "You can control port value " +
+                                         "via environment variable 'CSS_BUILDSERVER_ROSLYN_PORT'",
+                                         "         ${<==}Value `roslyn-inproc` will suppress spinning off an external process and Roslyn compiler will be " +
+                                         "hosted in the original process of script engine instead. This option convenient when socket communication is " +
+                                         "undesirable for whatever reason. Though in this case performance will be affected on the first run of the script.",
+                                         "  ",
                                          "(e.g. " + AppInfo.appName + " -engine:dotnet sample.cs",
-                                         " " + AppInfo.appName + " -ng:csc sample.cs)");
+                                         "      " + AppInfo.appName + " -ng:csc sample.cs)",
+                                         "      " + AppInfo.appName + " -ng:roslyn-inproc sample.cs)",
+                                         "      " + AppInfo.appName + " -ng:roslyn sample.cs)");
             switch1Help[sample] =
             switch1Help[s] = new ArgInfo("-s|-sample[:<C# version>]",
                                          " -s:7    - prints C# 7+ sample. Otherwise it prints the default canonical 'Hello World' sample.",

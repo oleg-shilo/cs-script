@@ -285,7 +285,9 @@ namespace CSScripting.CodeDom
                     var exe = Assembly.GetEntryAssembly().Location();
                     "dotnet".RunAsync($"\"{exe}\" -server_r:start");
                 }
-                Console.WriteLine("Build server problem:" + e.Message);
+
+                if (Environment.GetCommandLineArgs().Contains(AppArgs.verbose))
+                    Console.WriteLine("Build server problem:" + e.Message);
                 throw;
             }
         }

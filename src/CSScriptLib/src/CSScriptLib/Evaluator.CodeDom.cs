@@ -237,8 +237,12 @@ namespace CSScriptLib
                         if (usingCli)
                         {
                             // using CLI app to send/receive sockets data
-                            dotnet.RunAsync($"\"{Globals.build_server}\" -start -port:{17001}");
-                            cmd = $@"""{Globals.build_server}"" -port:{17001} csc {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+
+                            // statr server; it will exit if it is already started
+                            dotnet.RunAsync($"\"{Globals.build_server}\" -start -port:{BuildServer.serverPort}");
+
+                            // send the buld request
+                            cmd = $@"""{Globals.build_server}"" -port:{BuildServer.serverPort} csc {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
                             result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x));
                         }
                         else
@@ -249,13 +253,12 @@ namespace CSScriptLib
 
                             // ensure server running
                             // it will gracefully exit if another instance is running
-                            var startBuildServerCommand = $@"""{Globals.build_server}"" -listen -port:{17001} -csc:""{Globals.csc}""";
+                            var startBuildServerCommand = $@"""{Globals.build_server}"" -listen -port:{BuildServer.serverPort} -csc:""{Globals.csc}""";
 
                             dotnet.RunAsync(startBuildServerCommand);
                             Thread.Sleep(30);
 
-                            // var response = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
-                            var response = BuildServer.SendBuildRequest(request, 17001);
+                            var response = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
 
                             bool buildServerNotRunning() => response.GetLines()
                                                                     .FirstOrDefault()?
@@ -265,7 +268,7 @@ namespace CSScriptLib
                             for (int i = 0; i < 10 && buildServerNotRunning(); i++)
                             {
                                 Thread.Sleep(100);
-                                response = BuildServer.SendBuildRequest(request, 17001);
+                                response = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
                             }
 
                             if (buildServerNotRunning())

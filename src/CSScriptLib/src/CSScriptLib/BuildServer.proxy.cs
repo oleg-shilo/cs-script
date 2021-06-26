@@ -9,7 +9,7 @@ namespace CSScriptLib
 {
     class BuildServer
     {
-        public static int serverPort = 17001;
+        public static int serverPort = "CSS_BUILDSERVER_CSC_PORT".GetEnvar().ToInt(defaultValue: 17001);
 
         static public string Request(string request, int? port)
         {
