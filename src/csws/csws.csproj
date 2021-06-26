@@ -123,6 +123,7 @@ _No changes_
     <Compile Include="..\cscs\ExecuteOptions.cs" Link="ExecuteOptions.cs" />
     <Compile Include="..\cscs\fileparser.cs" Link="fileparser.cs" />
     <Compile Include="..\cscs\HelpProvider.cs" Link="HelpProvider.cs" />
+    <Compile Include="..\cscs\Models\BuildResult.cs" Link="BuildResult.cs" />
     <Compile Include="..\cscs\Models\CompilingInfo.cs" Link="Models\CompilingInfo.cs" />
     <Compile Include="..\cscs\Models\Interfaces.cs" Link="Models\Interfaces.cs" />
     <Compile Include="..\cscs\NuGet.Core.cs" Link="NuGet.Core.cs" />
