@@ -469,7 +469,6 @@ namespace CSScripting.Roslyn
                                 break;
                             }
 
-                            System.Diagnostics.Debugger.Break(); // zos
                             Profiler.measure(">> Processing client request: ", () =>
                             {
                                 string response = RoslynService.process_build_remotelly_request(request);

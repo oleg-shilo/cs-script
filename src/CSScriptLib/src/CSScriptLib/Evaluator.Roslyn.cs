@@ -161,6 +161,16 @@ namespace CSScriptLib
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="CompilerException"/> class.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="exception">The exception.</param>
+        public CompilerException(string message, Exception exception)
+            : base(message, exception)
+        {
+        }
+
+        /// <summary>
         /// Creates the CompilerException instance from the specified compiler errors.
         /// </summary>
         /// <param name="Errors">The compiler errors.</param>

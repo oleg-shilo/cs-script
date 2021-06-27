@@ -295,7 +295,25 @@ namespace CSScriptLib
                 {
                     cmd = $@" {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")} ";
 
-                    result.NativeCompilerReturnValue = Globals.csc.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+                    try
+                    {
+                        result.NativeCompilerReturnValue = Globals.csc.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+                    }
+                    catch (Exception e)
+                    {
+                        var message = "Cannot compile script.";
+                        if (!File.Exists(Globals.csc))
+                        {
+                            if (Globals.csc.GetDirName() == Assembly.GetEntryAssembly().Location.GetDirName())
+                                message = "Cannot find .NET compiler csc.exe. If you are running application build as SelfContained .NET application" +
+                                    "then you can only use Roslyn evaluator engine (e.g. 'CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn').";
+                            else
+                                message = "Cannot find .NET compiler csc.exe. You need either install .NET SDK " +
+                                        "or use Roslyn evaluator engine instead " +
+                                        "(e.g. 'CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn').";
+                        }
+                        throw new CompilerException(message, e);
+                    }
                 }
 
                 if (std_err.HasText())

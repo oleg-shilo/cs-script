@@ -67,7 +67,7 @@ namespace EvaluatorTests
             CodeDomEvaluator.CompileOnServer = true;
 
             dynamic script = CSScript.CodeDomEvaluator
-                                      .LoadMethod(@"public object func()
+                                     .LoadMethod(@"public object func()
                                                 {
                                                     return new[] {0,5};
                                                 }");
