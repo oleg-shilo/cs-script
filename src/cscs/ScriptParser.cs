@@ -444,7 +444,7 @@ namespace CSScriptLib
                 var asmNames = refAsms.Select(x => Path.GetFileNameWithoutExtension(x).ToUpper()).ToArray();
 
                 var refNsAsms = this.ReferencedNamespaces
-                                     .Union(defaultNamespacess)
+                                    .Union(defaultNamespacess)
                                     .Where(name => !string.IsNullOrEmpty(name))
                                     .Where(name => !this.IgnoreNamespaces.Contains(name))
                                     .Where(name => !asmNames.Contains(name.ToUpper()))

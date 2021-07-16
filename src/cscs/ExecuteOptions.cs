@@ -108,11 +108,11 @@ namespace csscript
             ExecuteOptions clone = new ExecuteOptions();
             clone.processFile = this.processFile;
             //some props will be further set by the caller
-            //clone.scriptFileName = this.scriptFileName;
-            //clone.noLogo = this.noLogo;
-            //clone.useCompiled = this.useCompiled;
-            //clone.DLLExtension = this.DLLExtension;
-            //clone.forceCompile = this.forceCompile;
+            //clone.scriptFileName
+            //clone.noLogo
+            //clone.useCompiled
+            //clone.DLLExtension
+            //clone.forceCompile
             clone.useSmartCaching = this.useSmartCaching;
             clone.suppressExecution = this.suppressExecution;
             clone.InjectScriptAssemblyAttribute = this.InjectScriptAssemblyAttribute;
@@ -138,7 +138,7 @@ namespace csscript
             clone.forceOutputAssembly = this.forceOutputAssembly;
             clone.versionOnly = this.versionOnly;
             clone.noConfig = this.noConfig;
-            //clone.suppressExternalHosting = this.suppressExternalHosting;
+            //clone.suppressExternalHosting
             clone.compilationContext = this.compilationContext;
             clone.compilerEngine = this.compilerEngine;
             clone.autoClass = this.autoClass;
