@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.0.0.0.
+C# Script execution engine (.NET Core). Version 4.1.0.0.
 Copyright (C) 2004-2020 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -57,15 +57,41 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
 -co:<options>
     Passes compiler options directly to the language compiler.
     (e.g.  -co:/d:TRACE pass /d:TRACE option to C# compiler
-    or  -co:/platform:x86 to produce Win32 executable)
+     or    -co:/platform:x86 to produce Win32 executable)
 
 -ng|-engine:<csc:dotnet>]
     Forces compilation to be done by one of the supported .NET engines.
-    dotnet - dotnet.exe compiler; this is the most versatile compilation engine.
+      
+    dotnet - dotnet.exe compiler; this is the most versatile compilation engine though it does have a startup overhead
+             when running the script for the first time. It requires .NET SDK to be installed on the target system.
+      
     csc    - csc.exe compiler; the fastest compiler available. It is not suitablefor WPF scripts as csc.exe cannot
              compile XAML.
+             The compilation is performed in the separate child process build.exe which is somewhat equivalent of
+             VBCSCompiler.exe (build server) from .NET toolset. It requires .NET SDK to be installed on the target
+             system.
+             CS-Script communicates with build.exe build server via socket (default port 17001). You can control port
+             value via environment variable 'CSS_BUILDSERVER_CSC_PORT'
+             Value `csc-inproc` will suppress spinning off an build server process and .NET csc.exe will be called
+             directly instead. This option convenient when socket communication is undesirable for whatever reason.
+             Though in this case all the performance benefits of `-ng:csc` will be lost and then you are better off
+             using `-ng:dotnet` instead.
+      
+    roslyn - Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation engine. It
+             does not require .NET SDK being installed. Though it does have limitations (see documentation).
+             The compilation is performed in the separate child process cscs (another instance of script engine) which
+             is somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.
+             CS-Script communicates with cscs build server via socket (default port 17002). You can control port value
+             via environment variable 'CSS_BUILDSERVER_ROSLYN_PORT'
+             Value `roslyn-inproc` will suppress spinning off an external process and Roslyn compiler will be hosted
+             in the original process of script engine instead. This option convenient when socket communication is
+             undesirable for whatever reason. Though in this case performance will be affected on the first run of the
+             script.
+      
     (e.g. cscs -engine:dotnet sample.cs
-     cscs -ng:csc sample.cs)
+          cscs -ng:csc sample.cs)
+          cscs -ng:roslyn-inproc sample.cs)
+          cscs -ng:roslyn sample.cs)
 
 -s|-sample[:<C# version>]
      -s:7    - prints C# 7+ sample. Otherwise it prints the default canonical 'Hello World' sample.
@@ -83,7 +109,7 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
     winform         Windows Forms (WinForms) script application
     winform-vb      Windows Forms (WinForms) VB script application
     wpf             WPF script application
-    wpf-cm          Cliburm.Micro based WPF script application
+    wpf-cm          Caliburn.Micro based WPF script application
     toplevel|top    Top-level class script application with no entry point
                     (available on C# 9 only)
      
@@ -198,6 +224,7 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
 
 -verbose
     Prints runtime information during the script execution.
+    '-verbose2' additionally echoes compiling engine (e.g. csc.dll) input and output.
     (applicable for console clients only)
 
 -profile
@@ -209,16 +236,22 @@ Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
 
 -server[:<start|stop|restart|add|remove|ping>]
     Prints the information about build server.
+    Note, the server starts automatically on the script execution that is configured to use the 'csc' or 'roslyn'
+    engine.
     Build server is a background process which implements hop loading of C# compiler csc.exe. Somewhat similar to
     VBCSCompiler.exe.
     This option is only relevant if compiler engine is set to 'csc' (see '-engine' command).
-     -server:start   - deploys and starts build server
+     -server:start   - deploys and starts build server. Useful if you want to start the server on system startup.
      -server:stop    - stops starts build server
      -server:restart - restarts build server
      -server:reset   - stops, re-deploys and starts build server
      -server:add     - deploys build server
      -server:remove  - removes build server files. Useful for troubleshooting.
      -server:ping    - Pins running instance (if any) of the build server
+    This option is only relevant if compiler engine is set to 'roslyn' (see '-engine' command).
+    Roslyn based build server variant is much simpler so it only exposes start and stop interface.
+     -server_r:start - deploys and starts Roslyn build server
+     -server_r:stop  - stops starts Roslyn build server
 
 -tc
     Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.
@@ -335,6 +368,7 @@ package0[,package1]..[,packageN];
 - //css_precompiler <file 1>,<file 2>;
 - //css_searchdir <directory>;
 - //css_winapp
+- //css_webapp
 - //css_autoclass [style]
 - //css_resource <file>[, <out_file>];
 - //css_co <options>;
@@ -480,6 +514,12 @@ Adds search directories required for running WinForm and WPF scripts.
 Note: you need to use csws.exe engine to run WPF scripts.
 Alternatively you can set environment variable 'CSS_WINAPP' to non empty value and css.exe shim will redirect the
 execution to the csws.exe executable.
+------------------------------------
+//css_webapp
+ 
+Alias - //css_webapp
+Indicates that the script app needs to be compiled against Microsoft.AspNetCore.App framework.
+A typical example is a WebAPI script application.
 ------------------------------------
 //css_autoclass [style]
  

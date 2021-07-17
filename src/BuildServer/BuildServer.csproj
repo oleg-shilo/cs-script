@@ -14,6 +14,10 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;build_server</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="queue\**" />
     <EmbeddedResource Remove="queue\**" />

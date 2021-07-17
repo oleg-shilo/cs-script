@@ -390,16 +390,25 @@ namespace csscript
 
             switch2Help[server] = new ArgInfo("-server[:<start|stop|restart|add|remove|ping>]",
                                           "Prints the information about build server.",
+                                          "Note, the server starts automatically on the script execution that is configured to use the 'csc' " +
+                                          "or 'roslyn' engine.",
                                           "Build server is a background process which implements hop loading of C# compiler csc.exe. " +
                                           "Somewhat similar to VBCSCompiler.exe.",
                                           "This option is only relevant if compiler engine is set to 'csc' (see '-engine' command).",
-                                          " -server:start   - ${<==}deploys and starts build server",
+                                          " -server:start   - ${<==}deploys and starts build server. Useful if you want to start the server " +
+                                                                   "on system startup.",
                                           " -server:stop    - ${<==}stops starts build server",
                                           " -server:restart - ${<==}restarts build server",
                                           " -server:reset   - ${<==}stops, re-deploys and starts build server",
                                           " -server:add     - ${<==}deploys build server",
                                           " -server:remove  - ${<==}removes build server files. Useful for troubleshooting.",
-                                          " -server:ping    - ${<==}Pins running instance (if any) of the build server");
+                                          " -server:ping    - ${<==}Pins running instance (if any) of the build server",
+                                          "",
+                                          "This option is only relevant if compiler engine is set to 'roslyn' (see '-engine' command).",
+                                          "Roslyn based build server variant is much simpler so it only exposes start and stop interface.",
+                                          " -server_r:start - ${<==}deploys and starts Roslyn build server",
+                                          " -server_r:stop  - ${<==}stops starts Roslyn build server"
+                                          );
 
             switch2Help[tc] = new ArgInfo("-tc",
                                           "Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.",

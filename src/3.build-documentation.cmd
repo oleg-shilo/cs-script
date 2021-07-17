@@ -1,5 +1,8 @@
 echo off
 
+.\src\out\Windows\css.exe -server_r:stop
+.\src\out\Windows\css.exe -server:stop
+
 set vs_edition=Community
 if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\%vs_edition%" (
     echo Visual Studio 2019 (Community)

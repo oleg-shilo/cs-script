@@ -138,7 +138,9 @@ move "CSScriptLib\src\CSScriptLib\output\*.snupkg" ".\out"
 del out\cs-script.win.7z
 del out\cs-script.linux.7z
 
+echo Updating help.txt
+.\out\Windows\cscs.exe -? > ..\help.txt 
+
 rem echo Published: %cd%
 rem cd ..\..\.
 :exit 
-pause

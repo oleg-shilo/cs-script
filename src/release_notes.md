@@ -1,23 +1,18 @@
-# Release v4.0.2.0
+# Release v4.1.0.0
 
-Minor usability improvements of CSScriptLib: 
-
-- Unloading script assembly. 
-   _After .NET Framework ignoring the problem for ~14 years .NET Core fillally allows this feature to be implemented._
-- Excluding assemblies from being auto referenced (assembly filtering).
-- Implemented script caching that was available in the CS-Script edition for .NET Franework.
+Implementation of Roslyn engine that allows execution of scripts (both CLI and hosted) on the target system without .NET 5 SDK installed.
 
 ---
 
 ## Deployment
 _**Ubuntu (terminal)**_
 ```
-repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.0.2.0/; file=cs-script_4.0-2.deb; rm $file; wget $repo$file; sudo dpkg -i $file
+repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.1.0.0/; file=cs-script_4.1-0.deb; rm $file; wget $repo$file; sudo dpkg -i $file
 ```
 _**Windows (choco)**_
 _Pending approval_
 ```
-choco install cs-script --version=4.0.2.0 
+choco install cs-script --version=4.1.0.0 
 ```
 It is highly recommended that you uninstall CS-Script.Core:
 ```
@@ -35,44 +30,42 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
 ---
 ## Changes 
 
-### CLI
+### _CLI_
 
-_No changes_
+- Added support for Roslyn engine (no SDK required). See [this wiki](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine) for details.
 
-### CSScriptLib
+  **_Per-execution_**
 
-- Added support for filtering referenced assemblies:
-  ```C#
-  dynamic script = CSScript
-                       .Evaluator
-                       .SetRefAssemblyFilter(asms =>
-                           asms.Where(a => !a.FullName.StartsWith("Microsoft."))
-                       .LoadCode(scriptCode);
+  From command line:
+
+  ```ps
+  css -engine:roslyn <script file>
+  or
+  css -ng:roslyn <script file>
   ```
 
-- Added extension method for unloading script assembly after the execution
+  From script code:
+
   ```C#
-  ICalc calc = evaluator
-                  .With(eval => eval.IsAssemblyUnloadingEnabledled = true)
-                  .LoadMethod<ICalc>("int Sum(int a, int b) => a+b;");
-
-  var result = calc.Sum(7, 3);
-
-  calc.GetType()
-      .Assembly
-      .Unload();
+  //css_engine roslyn
+  or
+  //css_ng roslyn
   ```
 
-- Added script caching. If caching is enabled (disabled by default) the script is to be recompiled only if it is changes since the last execution. It applies to both execution if script file and script code.
-  ```C#
-  dynamic script = CSScript.Evaluator
-                           .With(eval => eval.IsCachingEnabled = true)
-                           .LoadMethod(@"object print(string message)
-                                         {
-                                             Console.WriteLine(message);
-                                         }");
+  **_Global_**
 
-  script.print("Hello...");
-
+  ```ps
+  css -config:set:DefaultCompilerEngine=roslyn
   ```
-  
+- Added option to configure build server ports from environment variables
+- Issues:
+  - Issue #245: .Net 5 SDK project, could not run "CompileAssemblyFromCode"
+  - Issue #235: csc engine cannot compile dll
+  - Issue #244: Some questions about 4.0.2
+    `RefernceDomainAsemblies` made obsolete and renamed to `ReferenceDomainAssemblies`
+    Added extension methods `IEvaluator.ExcludeReferencedAssemblies`
+
+### _CSScriptLib_
+
+ _No changes_
+
