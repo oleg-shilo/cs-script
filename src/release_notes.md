@@ -38,7 +38,7 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
 
   From command line:
 
-  ```ps
+  ```
   css -engine:roslyn <script file>
   or
   css -ng:roslyn <script file>
@@ -57,15 +57,14 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
   ```ps
   css -config:set:DefaultCompilerEngine=roslyn
   ```
+
 - Added option to configure build server ports from environment variables
-- Issues:
-  - Issue #245: .Net 5 SDK project, could not run "CompileAssemblyFromCode"
-  - Issue #235: csc engine cannot compile dll
-  - Issue #244: Some questions about 4.0.2
-    `RefernceDomainAsemblies` made obsolete and renamed to `ReferenceDomainAssemblies`
-    Added extension methods `IEvaluator.ExcludeReferencedAssemblies`
+- Issue #235: csc engine cannot compile dll
 
 ### _CSScriptLib_
 
- _No changes_
+- Issue #245: .Net 5 SDK project, could not run "CompileAssemblyFromCode"
+- Issue #244: Some questions about 4.0.2
+  `RefernceDomainAsemblies` made obsolete and renamed to `ReferenceDomainAssemblies`
+  Added extension methods `IEvaluator.ExcludeReferencedAssemblies`
 
