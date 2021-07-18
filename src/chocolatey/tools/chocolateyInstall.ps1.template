@@ -33,6 +33,8 @@ try {
 
   stop-server "localhost" "17001" "-exit" # prev release Roslyn compiling server requires "-exit"
   stop-server "localhost" "17001" "-stop" # starting from .NET 5 release CodeDom build server requires "-stop"
+  stop-server "localhost" "17002" "-stop" # starting from .NET 5 release Roslyn build server requires "-stop"
+
 
   # Download and unpack a zip file
   Install-ChocolateyZipPackage "$packageName" "$url" "$installDir" -checksum $checksum -checksumType $checksumType

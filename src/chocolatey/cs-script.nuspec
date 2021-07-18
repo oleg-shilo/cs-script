@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.0.2.0</version>
+        <version>4.1.0.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,14 +25,15 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-# Release v4.0.2.0
-CLI
-- No changes
+# Release v4.1.0.0
 
-CSScriptLib
-- Added support for filtering referenced assemblies:
-- Added extension method for unloading script assembly after the execution
-- Added script caching. If caching is enabled (disabled by default) the script is to be recompiled only if it is changes since the last execution. It applies to both execution if script file and script code.
+Implementation of Roslyn engine that allows execution of scripts (both CLI and hosted) on the target system without .NET 5 SDK installed (but .NET 5 runtime only).
+
+_Changes:_
+
+- Added support for Roslyn engine (no SDK required). See [this wiki](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine) for details.
+- Added option to configure build server ports from environment variables
+- Issue #235: csc engine cannot compile dll
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>cs-script C# script dynamic hosting</tags>

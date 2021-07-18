@@ -1,10 +1,10 @@
 $packageName = 'cs-script'
-$url = 'https://github.com/oleg-shilo/cs-script/releases/download/v4.0.2.0/cs-script.win.v4.0.2.0.7z'
+$url = 'https://github.com/oleg-shilo/cs-script/releases/download/v4.1.0.0/cs-script.win.v4.1.0.0.7z'
 
 try {
   $installDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 
-  $cheksum = 'C907007DAC3D8C53FB5DF55D38D623E840AC010219444606DB4E3FC750B82D4A'
+  $cheksum = '77FB273E009F74C84EFFBD3F65DDADACA6B7A6CBB744824B18E692FB72B1A3A5'
   $checksumType = "sha256"
 
   function stop-server
@@ -33,6 +33,7 @@ try {
 
   stop-server "localhost" "17001" "-exit" # prev release Roslyn compiling server requires "-exit"
   stop-server "localhost" "17001" "-stop" # starting from .NET 5 release CodeDom build server requires "-stop"
+  stop-server "localhost" "17002" "-stop" # starting from .NET 5 release Roslyn build server requires "-stop"
 
   # Download and unpack a zip file
   Install-ChocolateyZipPackage "$packageName" "$url" "$installDir" -checksum $checksum -checksumType $checksumType
