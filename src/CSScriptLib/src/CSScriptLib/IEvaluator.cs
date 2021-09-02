@@ -423,7 +423,7 @@ namespace CSScriptLib
         /// <typeparam name="T">The type of the script class instance should be type casted to.</typeparam>
         /// <param name="scriptText">The C# script text.</param>
         /// <param name="args">The non default type <c>T</c> constructor arguments.</param>
-        /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script.</returns>
+        /// <returns>Typecasted to the <c>T</c> interface instance of the class defined in the script.</returns>
         T LoadCode<T>(string scriptText, params object[] args) where T : class;
 
         /// <summary>
