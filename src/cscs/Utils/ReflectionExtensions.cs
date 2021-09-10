@@ -19,52 +19,10 @@ namespace CSScripting
     }
 
     /// <summary>
-    /// Various Reflection extensions
+    /// Various Reflection extensions for implementing assembly unloading
     /// </summary>
-    public static class ReflectionExtensions
+    public static class AssemblyUnloadingExtensions
     {
-        /// <summary>
-        /// Returns directory where the specified assembly file is.
-        /// </summary>
-        /// <param name="asm">The asm.</param>
-        /// <returns>The directory path</returns>
-        public static string Directory(this Assembly asm)
-        {
-            var file = asm.Location();
-            if (file.IsNotEmpty())
-                return Path.GetDirectoryName(file);
-            else
-                return "";
-        }
-
-        /// <summary>
-        /// Returns location of the specified assembly. Avoids throwing an exception in case
-        /// of dynamic assembly.
-        /// </summary>
-        /// <param name="asm">The asm.</param>
-        /// <returns>The path to the assembly file</returns>
-        public static string Location(this Assembly asm)
-        {
-            if (asm.IsDynamic())
-            {
-                string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
-                if (location == null)
-                {
-                    // Note assembly can contain only single AssemblyDescriptionAttribute
-                    return asm.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true)?
-                              .Cast<AssemblyDescriptionAttribute>()
-                              .FirstOrDefault()?
-                              .Description
-                              ??
-                              "";
-                }
-                else
-                    return location ?? "";
-            }
-            else
-                return asm.Location;
-        }
-
         /// <summary>
         /// Retrieves <see cref="AssemblyLoadContext"/> associated with the assembly and unloads it.
         /// <para>It will throw an exception if the <see cref="AssemblyLoadContext"/> is not created as
@@ -96,7 +54,7 @@ namespace CSScripting
         static ConstructorInfo AssemblyLoadContextConstructor = typeof(AssemblyLoadContext).GetConstructor(new Type[] { typeof(string), typeof(bool) });
         static bool IsUnloadingSupported = AssemblyLoadContextConstructor != null;
 
-        static ReflectionExtensions()
+        static AssemblyUnloadingExtensions()
         {
             if (IsUnloadingSupported)
                 CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext =
@@ -154,6 +112,54 @@ namespace CSScripting
             }
 #endif
             return asm;
+        }
+    }
+
+    /// <summary>
+    /// Various Reflection extensions
+    /// </summary>
+    public static class ReflectionExtensions
+    {
+        /// <summary>
+        /// Returns directory where the specified assembly file is.
+        /// </summary>
+        /// <param name="asm">The asm.</param>
+        /// <returns>The directory path</returns>
+        public static string Directory(this Assembly asm)
+        {
+            var file = asm.Location();
+            if (file.IsNotEmpty())
+                return Path.GetDirectoryName(file);
+            else
+                return "";
+        }
+
+        /// <summary>
+        /// Returns location of the specified assembly. Avoids throwing an exception in case
+        /// of dynamic assembly.
+        /// </summary>
+        /// <param name="asm">The asm.</param>
+        /// <returns>The path to the assembly file</returns>
+        public static string Location(this Assembly asm)
+        {
+            if (asm.IsDynamic())
+            {
+                string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
+                if (location == null)
+                {
+                    // Note assembly can contain only single AssemblyDescriptionAttribute
+                    return asm.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true)?
+                              .Cast<AssemblyDescriptionAttribute>()
+                              .FirstOrDefault()?
+                              .Description
+                              ??
+                              "";
+                }
+                else
+                    return location ?? "";
+            }
+            else
+                return asm.Location;
         }
 
         /// <summary>
@@ -237,7 +243,10 @@ namespace CSScripting
 
         internal static Type FirstUserTypeAssignableFrom<T>(this Assembly asm)
             => asm.OrderedUserTypes().FirstOrDefault(x => typeof(T).IsAssignableFrom(x));
+    }
 
+    public static class ReflectionExtensions_FX
+    {
         /// <summary>
         /// Determines whether the assembly is dynamic.
         /// </summary>
@@ -247,9 +256,13 @@ namespace CSScripting
         /// </returns>
         public static bool IsDynamic(this Assembly asm)
         {
-            //http://bloggingabout.net/blogs/vagif/archive/2010/07/02/net-4-0-and-notsupportedexception-complaining-about-dynamic-assemblies.aspx
-            //Will cover both System.Reflection.Emit.AssemblyBuilder and System.Reflection.Emit.InternalAssemblyBuilder
-            return asm.GetType().FullName.EndsWith("AssemblyBuilder") || asm.Location == null || asm.Location == "";
+            try
+            {
+                //http://bloggingabout.net/blogs/vagif/archive/2010/07/02/net-4-0-and-notsupportedexception-complaining-about-dynamic-assemblies.aspx
+                //Will cover both System.Reflection.Emit.AssemblyBuilder and System.Reflection.Emit.InternalAssemblyBuilder
+                return asm.GetType().FullName.EndsWith("AssemblyBuilder") || asm.Location == null || asm.Location == "";
+            }
+            catch { return false; }
         }
     }
 }
