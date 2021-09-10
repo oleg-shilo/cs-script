@@ -33,11 +33,11 @@ namespace EvaluatorTests
         public void call_UnloadAssembly()
         {
             dynamic script = CSScript.RoslynEvaluator
-                                     .With(eval => eval.IsAssemblyUnloadingEnabledled = true)
-                                     .LoadMethod(@"public object func()
-                                               {
-                                                   return new[] {0,5};
-                                               }");
+                                        .With(eval => eval.IsAssemblyUnloadingEnabledled = true)
+                                        .LoadMethod(@"public object func()
+                                        {
+                                            return new[] {0,5};
+                                        }");
 
             var result = (int[])script.func();
 
@@ -91,6 +91,24 @@ namespace EvaluatorTests
 
             Assert.Equal(0, result[0]);
             Assert.Equal(5, result[1]);
+        }
+
+        [Fact]
+        public void issue_251()
+        {
+            var calc = CSScript
+                .Evaluator
+                .LoadCode<Testing.ICalc>(
+                                  @"using System;
+                                    public class Script : Testing.ICalc
+                                    {
+                                        public int Sum(int a, int b)
+                                        {
+                                            return a+b;
+                                        }
+                                    }");
+            var result = calc.Sum(1, 2);
+            Console.WriteLine(result);
         }
 
         [Fact]

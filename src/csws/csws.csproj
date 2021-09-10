@@ -13,9 +13,9 @@
     <Copyright>(C) 2004-2021 Oleg Shilo</Copyright>
     <Description>C# Script engine .NET Core executable</Description>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/oleg-shilo/cs-script.core</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
     <PackageIconUrl></PackageIconUrl>
-    <RepositoryUrl>https://github.com/oleg-shilo/cs-script.core</RepositoryUrl>
+    <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
     <AssemblyVersion>4.1.0.0</AssemblyVersion>

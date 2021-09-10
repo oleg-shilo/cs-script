@@ -1540,7 +1540,7 @@ nvironment.NewLine);
             }
             else
             {
-                builder.AppendLine(AppInfo.appLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script.core)")
+                builder.AppendLine(AppInfo.appLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script)")
                        .AppendLine()
                        .AppendLine("   CLR:             " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : ""))
                        .AppendLine("   System:          " + Environment.OSVersion)

@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "cscs.exe.core": {
-      "commandName": "Project",
-      "commandLineArgs": " -c:1 -ng:roslyn -profile \"D:\\dev\\Galos\\cs-script\\src\\cscs\\bin\\Debug\\net5.0\\test.cs\"",
-      "remoteDebugEnabled": false
-    }
-  }
-}

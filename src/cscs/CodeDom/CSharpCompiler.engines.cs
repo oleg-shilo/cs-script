@@ -38,7 +38,7 @@ namespace CSScripting.CodeDom
                 Console.WriteLine("WARNING: .NET SDK is not installed. It is required for CS-Script to function properly.");
 
             var config = options.IncludeDebugInformation ? "--configuration Debug" : "--configuration Release";
-            var cmd = $"build {config} -o {output} {options.CompilerOptions}";
+            var cmd = $"build {config} -o {output} {options.CompilerOptions.Replace("/target:winexe", "")}"; // dotnet build command gets "console vs win" from the project file, not the CLI param
 
             Profiler.get("compiler").Start();
             result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => Console.WriteLine("error> " + x));

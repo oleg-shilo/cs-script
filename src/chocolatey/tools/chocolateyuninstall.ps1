@@ -27,6 +27,6 @@ function stop-server
 stop-server "localhost" "17001" "-exit" # prev release Roslyn compiling server requires "-exit"
 stop-server "localhost" "17001" "-stop" # starting from .NET 5 release CodeDom build server requires "-stop"
 
-Write-Warning "REmoving 'css' shim $($env:ChocolateyInstall)\lib\cs-script.core\tools"
+Write-Warning "Removing 'css' shim $($env:ChocolateyInstall)\lib\cs-script.core\tools"
 
 Uninstall-BinFile "css1" "$($env:ChocolateyInstall)\lib\cs-script.core\tools\cscs.exe"
