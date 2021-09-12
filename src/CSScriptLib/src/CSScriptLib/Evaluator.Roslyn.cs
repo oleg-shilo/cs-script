@@ -302,7 +302,7 @@ namespace CSScriptLib
 
                 if (!DisableReferencingFromCode)
                 {
-                    var localDir = Path.GetDirectoryName(this.GetType().Assembly.Location);
+                    var localDir = this.GetType().Assembly.Location().GetDirName();
                     ReferenceAssembliesFromCode(scriptText, localDir);
                 }
 

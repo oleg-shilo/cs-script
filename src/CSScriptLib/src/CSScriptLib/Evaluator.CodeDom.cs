@@ -155,7 +155,7 @@ namespace CSScriptLib
         {
             string projectName = fileNames.First().GetFileName();
 
-            var engine_dir = this.GetType().Assembly.Location.GetDirName();
+            var engine_dir = this.GetType().Assembly.Location().GetDirName();
             var cache_dir = CSExecutor.ScriptCacheDir; // C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284
             var build_dir = cache_dir.PathJoin(".build", projectName);
 

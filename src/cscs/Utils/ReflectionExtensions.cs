@@ -147,13 +147,18 @@ namespace CSScripting
                 string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
                 if (location == null)
                 {
+                    var validPath = asm.CodeBase?.FromUriToPath();
+
+                    if (validPath.FileExists())
+                        return validPath;
+
                     // Note assembly can contain only single AssemblyDescriptionAttribute
                     return asm.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true)?
-                              .Cast<AssemblyDescriptionAttribute>()
-                              .FirstOrDefault()?
-                              .Description
-                              ??
-                              "";
+                          .Cast<AssemblyDescriptionAttribute>()
+                          .FirstOrDefault()?
+                          .Description
+                          ??
+                          "";
                 }
                 else
                     return location ?? "";
@@ -161,6 +166,9 @@ namespace CSScripting
             else
                 return asm.Location;
         }
+
+        internal static string FromUriToPath(this string uri)
+            => new Uri(uri).LocalPath;
 
         /// <summary>
         /// Gets the name of the type.
@@ -243,10 +251,7 @@ namespace CSScripting
 
         internal static Type FirstUserTypeAssignableFrom<T>(this Assembly asm)
             => asm.OrderedUserTypes().FirstOrDefault(x => typeof(T).IsAssignableFrom(x));
-    }
 
-    public static class ReflectionExtensions_FX
-    {
         /// <summary>
         /// Determines whether the assembly is dynamic.
         /// </summary>

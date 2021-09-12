@@ -197,7 +197,11 @@ namespace CSScripting
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>The result of the test.</returns>
-        public static bool FileExists(this string path) => path.IsNotEmpty() ? File.Exists(path) : false;
+        public static bool FileExists(this string path)
+        {
+            try { return path.IsNotEmpty() ? File.Exists(path) : false; }
+            catch { return false; }
+        }
 
         /// <summary>
         /// Gets the directory name from the path.
@@ -205,7 +209,7 @@ namespace CSScripting
         /// <param name="path">The path.</param>
         /// <returns>The directory path.</returns>
         public static string GetDirName(this string path)
-            => path == null ? null : Path.GetDirectoryName(path);
+        => path == null ? null : Path.GetDirectoryName(path);
 
         /// <summary>
         /// Changes the name of the file.
