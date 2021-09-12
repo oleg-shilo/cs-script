@@ -175,7 +175,7 @@ namespace CSScriptLib
         /// <summary>
         /// CS-Script assembly unloading functionality is implemented as a combination of
         /// loading assembly into <see cref="System.Runtime.Loader.AssemblyLoadContext"/> that is marked as "IsCollectible"
-        /// and the <c>ReflectionExtensions</c>.<see cref="CSScripting.ReflectionExtensions.Unload(Assembly)"/> extension method.
+        /// and the <c>ReflectionExtensions</c>.<see cref="CSScripting.AssemblyUnloadingExtensions.Unload(Assembly)"/> extension method.
         /// Unloading is only available on the runtimes that support it. Otherwise <see cref="System.Runtime.Loader.AssemblyLoadContext"/>
         /// throws an exception on attempt to load the compiled script assembly.
         /// <para><see cref="IsAssemblyUnloadingEnabledled"/> is designed to allow enabling/disabling of the
