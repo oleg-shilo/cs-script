@@ -24,6 +24,9 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
     <PackageReleaseNotes>- Issue #252: System.NullReferenceException: Object reference not set to an instance of an object. (updated API doc)
+- Issue #253: Supports both .Net Framework and .Net 5
+
+
 
 
 
