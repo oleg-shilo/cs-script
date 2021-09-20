@@ -37,6 +37,9 @@ replaceInFile(bld_root.join(@"DEBIAN\control"), "{$version}", version);
 replaceInFile(build_sh_script, "{$version}", version);
 replaceInFile(build_sh_script, "{$local_root}", GetFullPath(bld_root.join("..")).toLnx());
 
+foreach (var file in Directory.GetFiles(bld_root.join(@"DEBIAN")))
+    file.normalizeEndings();
+
 WriteAllText(build_cmd_script, "bash build.sh");
 Start(build_cmd_script).WaitForExit();
 
@@ -49,4 +52,10 @@ Console.WriteLine("Package: " + package);
 static class extensions
 {
     public static string toLnx(this string path) => path.Replace(@"\\wsl$\Ubuntu", "").Replace(@"\", "/");
+    public static string normalizeEndings(this string file)
+    {
+        var content = File.ReadAllText(file);
+        File.WriteAllText(file, content.Replace("\r\n", "\n"));
+        return file;
+    }
 }
