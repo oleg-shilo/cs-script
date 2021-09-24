@@ -34,7 +34,9 @@ using csscript;
 using CSScripting;
 using CSScripting.CodeDom;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Emit;
 
 //using Microsoft.CodeAnalysis;
@@ -229,6 +231,30 @@ namespace CSScriptLib
         }
     }
 
+    static class localExtensions
+    {
+        public static (string file, int line) Translate(this Dictionary<(int, int), (string, int)> mapping, int line)
+        {
+            foreach ((int start, int end) range in mapping.Keys)
+                if (range.start <= line && line <= range.end)
+                {
+                    (string file, int lineOffset) = mapping[range];
+                    return (file, line - range.start + lineOffset);
+                }
+
+            return ("", 0);
+        }
+
+        static public string[] SeparateUsingsFromCode(this string code)
+        {
+            SyntaxTree tree = CSharpSyntaxTree.ParseText(code);
+            CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
+            int pos = root.Usings.FullSpan.End;
+
+            return new[] { code.Substring(0, pos).TrimEnd(), code.Substring(pos) };
+        }
+    }
+
     /// <summary>
     ///
     /// </summary>
@@ -316,16 +342,68 @@ namespace CSScriptLib
                         return scriptCache[scriptHash];
                 }
 
-                if (this.IsDebug)
+                ////////////////////////////////////////
+
+                var mapping = new Dictionary<(int, int), (string, int)>();
+
+                if (scriptFile == null && new CSharpParser(scriptText, false).Imports.Any())
                 {
-                    if (scriptFile == null)
+                    tempScriptFile = CSScript.GetScriptTempFile();
+                    File.WriteAllText(tempScriptFile, scriptText);
+                }
+
+                if (scriptFile == null && tempScriptFile == null)
+                {
+                    if (this.IsDebug)
                     {
                         tempScriptFile = CSScript.GetScriptTempFile();
                         File.WriteAllText(tempScriptFile, scriptText);
+                        scriptText = $"#line 1 \"{tempScriptFile}\"{Environment.NewLine}" + scriptText;
+                    }
+                    else
+                        scriptText = $"#line 1 \"script\"{Environment.NewLine}" + scriptText;
+                }
+                else
+                {
+                    var parser = new ScriptParser(scriptFile ?? tempScriptFile, new[] { scriptFile?.GetDirName() }, false);
+
+                    var importedSources = new Dictionary<string, (int, string[])>(); // file, usings count, code lines
+                    var combinedScript = new List<string>();
+
+                    var single_source = scriptFile.ChangeExtension(".g" + scriptFile.GetExtension());
+                    foreach (string file in parser.FilesToCompile.Skip(1))
+                    {
+                        var parts = File.ReadAllText(file).SeparateUsingsFromCode();
+                        var usings = parts[0].GetLines();
+                        var code = parts[1].GetLines();
+
+                        importedSources[file] = (usings.Count(), code);
+                        add_code(file, usings, 0);
                     }
 
-                    scriptText = $"#line 1 \"{scriptFile ?? tempScriptFile}\"{Environment.NewLine}" + scriptText;
+                    void add_code(string file, string[] codeLines, int lineOffset)
+                    {
+                        int start = combinedScript.Count;
+                        combinedScript.AddRange(codeLines);
+                        int end = combinedScript.Count;
+                        mapping[(start, end)] = (file, lineOffset);
+                    }
+
+                    combinedScript.Add($"#line 1 \"{(scriptFile ?? tempScriptFile)}\"");
+                    add_code(scriptFile, scriptText.GetLines(), 0);
+
+                    foreach (string file in importedSources.Keys)
+                    {
+                        (var usings_count, var code) = importedSources[file];
+
+                        combinedScript.Add($"#line {usings_count + 1} \"{file}\""); // zos
+                        add_code(file, code, usings_count);
+                    }
+
+                    scriptText = combinedScript.JoinBy(Environment.NewLine);
                 }
+
+                ////////////////////////////////////////
 
                 PrepareRefeAssemblies();
 
@@ -366,14 +444,18 @@ namespace CSScriptLib
                                 int error_line = error_pos.Line + 1;
                                 int error_column = error_pos.Character + 1;
 
-                                // the actual source contains an injected '#line' directive f compiled with debug symbols
-                                if (IsDebug)
-                                    error_line--;
+                                var source = "<script>";
+                                if (mapping.Any())
+                                    (source, error_line) = mapping.Translate(error_line);
+                                else
+                                    error_line--; // no mapping as it was a single file so translation is minimal
 
-                                error_location = $"{diagnostic.Location.SourceTree.FilePath}({error_line},{ error_column}): ";
+                                // the actual source contains an injected '#line' directive of compiled with debug symbols so increment line after formatting
+                                error_location = $"{(source.HasText() ? source : "<script>")}({error_line},{ error_column}): ";
                             }
                             message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
                         }
+
                         var errors = message.ToString();
                         throw new CompilerException(errors);
                     }
@@ -452,15 +534,16 @@ namespace CSScriptLib
             foreach (var assembly in FilterAssemblies(refAssemblies))
                 if (assembly != null)//this check is needed when trying to load partial name assemblies that result in null
                 {
-                    var refs = CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
-                                               .Select(r => r.FilePath.GetFileName()).OrderBy(x => x).ToArray();
-
                     if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
                         .Any(r => r.FilePath.SamePathAs(assembly.Location)))
                         // Future assembly aliases support:
                         // MetadataReference.CreateFromFile("asm.dll", new MetadataReferenceProperties().WithAliases(new[] { "lib_a", "external_lib_a" } })
                         CompilerSettings = CompilerSettings.AddReferences(assembly);
                 }
+            var refs = CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
+                                       .Select(r => r.FilePath.GetFileName())
+                                       .OrderBy(x => x)
+                                       .ToArray();
             return this;
         }
 

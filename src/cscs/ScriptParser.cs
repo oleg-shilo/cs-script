@@ -137,7 +137,7 @@ namespace CSScriptLib
         public ScriptParser(string fileName, string[] searchDirs)
         {
             //if ((CSExecutor.ExecuteOptions.options != null && CSExecutor.options.useSmartCaching) && CSExecutor.ScriptCacheDir == "") //in case if ScriptParser is used outside of the script engine
-            if (CSExecutor.ScriptCacheDir == "") //in case if ScriptParser is used outside of the script engine
+            if (CSExecutor.ScriptCacheDir == "" && fileName.IsValidPath()) //in case if ScriptParser is used outside of the script engine
                 CSExecutor.SetScriptCacheDir(fileName);
             Init(fileName, searchDirs);
         }
@@ -152,7 +152,7 @@ namespace CSScriptLib
         {
             this.throwOnError = throwOnError;
             //if ((CSExecutor.ExecuteOptions.options != null && CSExecutor.ExecuteOptions.options.useSmartCaching) && CSExecutor.ScriptCacheDir == "") //in case if ScriptParser is used outside of the script engine
-            if (CSExecutor.ScriptCacheDir == "") //in case if ScriptParser is used outside of the script engine
+            if (CSExecutor.ScriptCacheDir == "" && fileName.IsValidPath()) //in case if ScriptParser is used outside of the script engine
                 CSExecutor.SetScriptCacheDir(fileName);
             Init(fileName, searchDirs);
         }
@@ -175,9 +175,11 @@ namespace CSScriptLib
         /// </summary>
         /// <param name="fileName">Script file name</param>
         /// <param name="searchDirs">Extra ScriptLibrary directory(s) </param>
+
         void Init(string fileName, string[] searchDirs)
         {
-            ScriptPath = fileName;
+            if (fileName.IsValidPath())
+                ScriptPath = fileName;
 
             //process main file
             var mainFile = new FileParser(fileName, null, true, false, searchDirs, throwOnError);
@@ -245,6 +247,7 @@ namespace CSScriptLib
 
                         this.fileParsers.Add(importedFile);
                         this.fileParsers.Sort(fileComparer);
+                        importedFile.fileNameImported = importedFile.fileName;
 
                         foreach (string namespaceName in importedFile.ReferencedNamespaces)
                             PushNamespace(namespaceName);
@@ -301,7 +304,6 @@ namespace CSScriptLib
         /// <returns>Collection of the saved imported scripts file names</returns>
         public string[] SaveImportedScripts()
         {
-            string workingDir = Path.GetDirectoryName(((FileParser)fileParsers[0]).fileName);
             List<string> retval = new List<string>();
 
             foreach (FileParser file in fileParsers)

@@ -1,9 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using csscript;
 using CSScripting;
 using CSScriptLib;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Scripting;
 using Testing;
 using Xunit;
@@ -26,7 +32,7 @@ namespace EvaluatorTests
 
             var ex = Assert.Throws<CSScriptException>(() =>
             {
-                Assembly asm = evaluator.CompileCode(@"using System;
+                Assembly asm = new_evaluator.CompileCode(@"using System;
                                                                public class Script
                                                                {
                                                                    public int Sum(int a, int b)
@@ -54,12 +60,281 @@ namespace EvaluatorTests
         }
 
         public Func<IEvaluator> GetEvaluator = () => CSScript.RoslynEvaluator;
-        public IEvaluator evaluator => GetEvaluator();
+        public IEvaluator new_evaluator => GetEvaluator();
+
+        /// <summary>
+        /// Compiles the code with imports.
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public void CompileFileWithImports()
+        {
+            var rootDir = Environment.CurrentDirectory;
+            var primaryScript = rootDir.PathJoin($"{nameof(CompileCodeWithImports)}.cs");
+            var dependencyScript = rootDir.PathJoin($"dep{nameof(CompileCodeWithImports)}.cs");
+
+            File.WriteAllText(primaryScript, $@"//css_inc {dependencyScript}
+                                               using System;
+                                               public class Script
+                                               {{
+                                                   public int Sum(int a, int b) => Calc.Sum(a ,b);
+                                               }}");
+
+            File.WriteAllText(dependencyScript, @"using System;
+                                               public class Calc
+                                               {
+                                                   static public int Sum(int a, int b)
+                                                   {
+                                                       return a+b;
+                                                   }
+                                               }");
+
+            // CSScript.EvaluatorConfig.DebugBuild = true;
+            dynamic script = new_evaluator
+                .LoadFile(primaryScript);
+
+            var result = script.Sum(7, 3);
+
+            Assert.Equal(10, result);
+        }
+
+        [Fact]
+        public void CompileCodeWithImports()
+        {
+            // CSScript.EvaluatorConfig.DebugBuild = true;
+            var rootDir = Environment.CurrentDirectory;
+            var dependencyScript = rootDir.PathJoin($"dep{nameof(CompileCodeWithImports)}.cs");
+
+            File.WriteAllText(dependencyScript, @"using System;
+                                               public class Calc
+                                               {
+                                                   static public int Sum(int a, int b)
+                                                   {
+                                                       return a+b;
+                                                   }
+                                               }");
+
+            dynamic script = new_evaluator.LoadCode($@"//css_inc {dependencyScript}
+                                               using System;
+                                               public class Script
+                                               {{
+                                                   public int Sum(int a, int b) => Calc.Sum(a ,b);
+                                               }}");
+
+            var result = script.Sum(7, 3);
+
+            Assert.Equal(10, result);
+        }
+
+        [Fact]
+        public void CompileCodeWithRefs()
+        {
+            var tempDir = ".\\dependencies".EnsureDir();
+
+            var calcAsm = CSScript.CodeDomEvaluator
+                 .CompileAssemblyFromCode(@"using System;
+                                            public class Calc
+                                            {
+                                                static public int Sum(int a, int b) => a + b;
+                                            }",
+                                            tempDir.PathJoin("calc.dll").GetFullPath());
+
+            // NOTE!!! Roslyn evaluator will inject class in the extra root class "css_root"
+            // Very annoying, but even `css_root.Calc.Sum` will not work when referenced in scrips.
+            // Roslyn does some crazy stuff. The assembly produced by Roslyn cannot be easily used.
+            //
+            // So using CodeDom (csc.exe) instead. It does build proper assemblies
+
+            var code = @"using System;
+                         public class Script
+                         {
+                             public int Sum(int a, int b) => Calc.Sum(a, b);
+                         }";
+
+            try
+            {
+                new_evaluator.LoadCode(code);
+
+                Assert.True(false);
+            }
+            catch (Exception e)
+            {
+                Assert.Contains("The name 'Calc' does not exist in the current context", e.Message);
+            }
+
+            new_evaluator.LoadCode($"//css_ref {calcAsm}" + Environment.NewLine + code);
+        }
+
+        [Fact]
+        public void LoadCode_detect_error_in_imported_script()
+        {
+            var dependencyScript = $"dep{nameof(LoadCode_detect_error_in_imported_script)}.cs".GetFullPath();
+
+            try
+            {
+                File.WriteAllText(dependencyScript, @"using System;
+                                                      public class Calc
+                                                      {
+                                                          static public int Sum(int a, int b)
+                                                          {
+                                                              return a+b
+                                                          }
+                                                      }");
+
+                new_evaluator.LoadCode($@"//css_inc {dependencyScript}
+                                      using System;
+                                      public class Script
+                                      {{
+                                          public int Sum(int a, int b) => Calc.Sum(a ,b);
+                                      }}");
+                Assert.True(false, "Expected compile error was not detected");
+            }
+            catch (Exception e)
+            {
+                Assert.Contains($"{dependencyScript}(6,73): error CS1002: ; expected", e.Message);
+            }
+        }
+
+        [Fact]
+        public void LoadFile_detect_error_in_imported_script()
+        {
+            var primaryScript = $"{nameof(LoadFile_detect_error_in_imported_script)}.cs".GetFullPath();
+            var dependencyScript = $"dep{nameof(LoadFile_detect_error_in_imported_script)}.cs".GetFullPath();
+
+            try
+            {
+                File.WriteAllText(primaryScript, $@"//css_inc {dependencyScript}
+                                                    using System;
+                                                    public class Script
+                                                    {{
+                                                        public int Sum(int a, int b) => Calc.Sum(a ,b);
+                                                    }}");
+
+                File.WriteAllText(dependencyScript, @"using System;
+                                                      public class Calc
+                                                      {
+                                                          static public int Sum(int a, int b)
+                                                          {
+                                                              return a+b
+                                                          }
+                                                      }");
+                new_evaluator.LoadFile(primaryScript);
+                Assert.True(false, "Expected compile error was not detected");
+            }
+            catch (Exception e)
+            {
+                Assert.Contains($"{dependencyScript}(6,73): error CS1002: ; expected", e.Message);
+            }
+        }
+
+        [Fact]
+        public void LoadCode_detect_error_in_primary_script()
+        {
+            var dependencyScript = $"dep{nameof(LoadCode_detect_error_in_primary_script)}.cs".GetFullPath();
+
+            try
+            {
+                File.WriteAllText(dependencyScript, @"using System;
+                                                      public class Calc
+                                                      {
+                                                          static public int Sum(int a, int b)
+                                                          {
+                                                              return a+b;
+                                                          }
+                                                      }");
+
+                new_evaluator.LoadCode($@"//css_inc {dependencyScript}
+                                      using System;
+                                      public class Script
+                                      {{
+                                          public int Sum(int a, int b) => Calc.Sum(a ,b)
+                                      }}");
+                Assert.True(false, "Expected compile error was not detected");
+            }
+            catch (Exception e)
+            {
+                Assert.Contains($"<script>(5,89): error CS1002: ; expected", e.Message);
+            }
+        }
+
+        [Fact]
+        public void LoadCode_detect_error_in_script()
+        {
+            try
+            {
+                new_evaluator.LoadCode($@"using System;
+                                      public class Script
+                                      {{
+                                          public int Sum(int a, int b) => a = b
+                                      }}");
+
+                Assert.True(false, "Expected compile error was not detected");
+            }
+            catch (Exception e)
+            {
+                Assert.Contains($"<script>(4,80): error CS1002: ; expected", e.Message);
+            }
+        }
+
+        [Fact]
+        public void LoadFiule_detect_error_in_script()
+        {
+            var script = $"{nameof(LoadFiule_detect_error_in_script)}.cs".GetFullPath();
+
+            try
+            {
+                File.WriteAllText(script, @"using System;
+                                            public class Script
+                                            {
+                                                 public int Sum(int a, int b) => a + b
+                                            }");
+
+                new_evaluator.LoadFile(script);
+
+                Assert.True(false, "Expected compile error was not detected");
+            }
+            catch (Exception e)
+            {
+                Assert.Contains($"{script}(4,87): error CS1002: ; expected", e.Message);
+            }
+        }
+
+        [Fact]
+        public void LoadFile_detect_error_in_primary_script()
+        {
+            var primaryScript = $"{nameof(LoadFile_detect_error_in_primary_script)}.cs".GetFullPath();
+            var dependencyScript = $"dep{nameof(LoadFile_detect_error_in_primary_script)}.cs".GetFullPath();
+
+            try
+            {
+                File.WriteAllText(primaryScript, $@"//css_inc {dependencyScript}
+                                                    using System;
+                                                    public class Script
+                                                    {{
+                                                        public int Sum(int a, int b) => Calc.Sum(a ,b)
+                                                    }}");
+
+                File.WriteAllText(dependencyScript, @"using System;
+                                                      public class Calc
+                                                      {
+                                                          static public int Sum(int a, int b)
+                                                          {
+                                                              return a+b;
+                                                          }
+                                                      }");
+                new_evaluator.LoadFile(primaryScript);
+                Assert.True(false, "Expected compile error was not detected");
+            }
+            catch (Exception e)
+            {
+                Assert.Contains($"{primaryScript}(5,103): error CS1002: ; expected", e.Message);
+            }
+        }
 
         [Fact]
         public void CompileCode()
         {
-            Assembly asm = evaluator.CompileCode(@"using System;
+            Assembly asm = new_evaluator.CompileCode(@"using System;
                                                    public class Script
                                                    {
                                                        public int Sum(int a, int b)
@@ -84,7 +359,7 @@ namespace EvaluatorTests
 
             var info = new CompileInfo { AssemblyFile = asm_file };
 
-            Assembly asm = evaluator.CompileCode(@"using System;
+            Assembly asm = new_evaluator.CompileCode(@"using System;
                                                    public class Script
                                                    {
                                                        public int Sum(int a, int b)
@@ -104,14 +379,14 @@ namespace EvaluatorTests
         [Fact]
         public void CompileCode_InmemAsmLocation()
         {
-            if (evaluator is RoslynEvaluator) // Roslyn cannot work with C# files (but in memory streams)
+            if (new_evaluator is RoslynEvaluator) // Roslyn cannot work with C# files (but in memory streams)
                 return;                       // So asm location does not make sense.
 
             var asm_file = GetTempFileName(nameof(CompileCode_InmemAsmLocation));
 
             var info = new CompileInfo { AssemblyFile = asm_file, PreferLoadingFromFile = false };
 
-            Assembly asm = evaluator.CompileCode(@"using System;
+            Assembly asm = new_evaluator.CompileCode(@"using System;
                                                     public class Script
                                                     {
                                                         public int Sum(int a, int b)
@@ -133,7 +408,7 @@ namespace EvaluatorTests
         {
             var ex = Assert.Throws<CompilerException>(() =>
             {
-                evaluator.Check(@"using System;
+                new_evaluator.Check(@"using System;
                                   public class Script ??");
             });
 
@@ -143,7 +418,7 @@ namespace EvaluatorTests
         [Fact]
         public void Check_ValidScript()
         {
-            evaluator.Check(@"using System;
+            new_evaluator.Check(@"using System;
                               public class Script
                               {
                                  public int Sum(int a, int b)
@@ -157,7 +432,7 @@ namespace EvaluatorTests
         [Fact]
         public void CompileAssemblyFromCode()
         {
-            string asmFile = evaluator.CompileAssemblyFromCode(
+            string asmFile = new_evaluator.CompileAssemblyFromCode(
                                          @"using System;
                                            public class Script
                                            {
@@ -181,7 +456,7 @@ namespace EvaluatorTests
                                            public int Sum(int a, int b) => a+b;
                                        }");
 
-            string asmFile = evaluator.CompileAssemblyFromFile(script, "MyScript.asm");
+            string asmFile = new_evaluator.CompileAssemblyFromFile(script, "MyScript.asm");
 
             Assert.True(File.Exists(asmFile));
         }
@@ -189,7 +464,7 @@ namespace EvaluatorTests
         [Fact]
         public void CompileMethod()
         {
-            dynamic calc = evaluator.CompileMethod("int Sum(int a, int b) => a+b;")
+            dynamic calc = new_evaluator.CompileMethod("int Sum(int a, int b) => a+b;")
                                     .CreateObject("*");
 
             var result = calc.Sum(7, 3);
@@ -200,7 +475,7 @@ namespace EvaluatorTests
         [Fact]
         public void LoadMethod()
         {
-            dynamic calc = evaluator.LoadMethod("int Sum(int a, int b) => a+b;");
+            dynamic calc = new_evaluator.LoadMethod("int Sum(int a, int b) => a+b;");
             var result = calc.Sum(7, 3);
 
             Assert.Equal(10, result);
@@ -209,7 +484,7 @@ namespace EvaluatorTests
         [Fact]
         public void LoadMethod_T()
         {
-            ICalc calc = evaluator.LoadMethod<ICalc>("int Sum(int a, int b) => a+b;");
+            ICalc calc = new_evaluator.LoadMethod<ICalc>("int Sum(int a, int b) => a+b;");
             var result = calc.Sum(7, 3);
 
             Assert.Equal(10, result);
@@ -218,7 +493,7 @@ namespace EvaluatorTests
         [Fact]
         public void CreateDelegate()
         {
-            var sum = evaluator.CreateDelegate(@"int Sum(int a, int b)
+            var sum = new_evaluator.CreateDelegate(@"int Sum(int a, int b)
                                                     => a + b;");
 
             int result = (int)sum(7, 3);
@@ -229,7 +504,7 @@ namespace EvaluatorTests
         [Fact]
         public void CreateDelegate_T()
         {
-            var sum = evaluator.CreateDelegate<int>(@"int Sum(int a, int b)
+            var sum = new_evaluator.CreateDelegate<int>(@"int Sum(int a, int b)
                                                     => a + b;");
 
             int result = sum(7, 3);
@@ -240,7 +515,7 @@ namespace EvaluatorTests
         [Fact]
         public void LoadCode()
         {
-            dynamic script = evaluator
+            dynamic script = new_evaluator
                                   .LoadCode(@"using System;
                                               public class Script
                                               {
@@ -257,7 +532,7 @@ namespace EvaluatorTests
         [Fact]
         public void LoadCode_T()
         {
-            ICalc calc = evaluator.LoadCode<ICalc>(@"using System;
+            ICalc calc = new_evaluator.LoadCode<ICalc>(@"using System;
                                                      public class Script : Testing.ICalc
                                                      {
                                                          public int Sum(int a, int b)
@@ -281,7 +556,7 @@ namespace EvaluatorTests
                                             public int Sum(int a, int b) => a+b;
                                         }");
 
-            dynamic calc = evaluator.LoadFile(script);
+            dynamic calc = new_evaluator.LoadFile(script);
             int result = calc.Sum(1, 2);
 
             Assert.Equal(3, result);
@@ -299,7 +574,7 @@ namespace EvaluatorTests
                                             public int Sum(int a, int b) => a+b;
                                         }");
 
-            dynamic calc = evaluator.LoadFile(script, "test");
+            dynamic calc = new_evaluator.LoadFile(script, "test");
             int result = calc.Sum(1, 2);
 
             Assert.Equal(3, result);
@@ -316,7 +591,7 @@ namespace EvaluatorTests
                                             public int Sum(int a, int b) => a+b;
                                         }");
 
-            ICalc calc = evaluator.ReferenceDomainAssemblies()
+            ICalc calc = new_evaluator.ReferenceDomainAssemblies()
                                   .LoadFile<ICalc>(script);
 
             int result = calc.Sum(1, 2);

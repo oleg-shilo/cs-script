@@ -33,11 +33,12 @@ namespace EvaluatorTests
         public void call_UnloadAssembly()
         {
             dynamic script = CSScript.RoslynEvaluator
-                                        .With(eval => eval.IsAssemblyUnloadingEnabledled = true)
-                                        .LoadMethod(@"public object func()
-                                        {
-                                            return new[] {0,5};
-                                        }");
+
+                                     .With(eval => eval.IsAssemblyUnloadingEnabledled = true)
+                                     .LoadMethod(@"public object func()
+                                     {
+                                         return new[] {0,5};
+                                     }");
 
             var result = (int[])script.func();
 

@@ -75,6 +75,15 @@ namespace CSScripting
         public static bool IsDir(this string path) => Directory.Exists(path);
 
         /// <summary>
+        /// Determines whether the specified path string is valid (does not contain invalid characters).
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        ///   <c>true</c> if the path is valid; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsValidPath(this string path) => path.IndexOfAny(Path.GetInvalidPathChars()) == -1;
+
+        /// <summary>
         /// A more convenient API version of <see cref="Path.Combine(string[])"/>.
         /// </summary>
         /// <param name="path">The path.</param>
