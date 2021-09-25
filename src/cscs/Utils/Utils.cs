@@ -678,7 +678,8 @@ partial class dbg
                     else if (Args.ParseValuedArg(arg, AppArgs.@out, out argValue)) // -out:
                     {
                         if (argValue != null)
-                            options.forceOutputAssembly = Environment.ExpandEnvironmentVariables(argValue);
+
+                            options.forceOutputAssembly = argValue.Expand().GetFullPath();
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.ng, AppArgs.engine, out argValue)) // -ng:<csc:dotnet> -engine:<csc:dotnet>
                     {

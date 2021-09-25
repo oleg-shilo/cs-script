@@ -109,7 +109,7 @@ namespace csscript
                             outFile = Runtime.CustomCommandsDir.PathJoin(outFile);
                         }
 
-                        var file = Path.GetFullPath(outFile).ChangeExtension(sample.FileExtension);
+                        var file = Path.GetFullPath(outFile).ChangeExtension(sample.FileExtension).EnsureFileDir();
 
                         print?.Invoke($"Created: {file}");
                         File.WriteAllText(file, sample.Code);

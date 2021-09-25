@@ -151,6 +151,23 @@ namespace CSScripting
         }
 
         /// <summary>
+        /// Ensures the parent directory of the file exists.
+        /// </summary>
+        /// <param name="file">The file path.</param>
+        /// <param name="rethrow">if set to <c>true</c> [rethrow].</param>
+        /// <returns>Path of the file</returns>
+        public static string EnsureFileDir(this string file, bool rethrow = true)
+        {
+            try
+            {
+                file.GetDirName().EnsureDir();
+                return file;
+            }
+            catch { if (rethrow) throw; }
+            return null;
+        }
+
+        /// <summary>
         /// Deletes the directory and its all content.
         /// </summary>
         /// <param name="path">The path.</param>
