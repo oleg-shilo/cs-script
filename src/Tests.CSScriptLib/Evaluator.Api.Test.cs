@@ -101,25 +101,23 @@ namespace EvaluatorTests
         [Fact]
         public void CompileCodeWithImports()
         {
-            // CSScript.EvaluatorConfig.DebugBuild = true;
-            var rootDir = Environment.CurrentDirectory;
-            var dependencyScript = rootDir.PathJoin($"dep{nameof(CompileCodeWithImports)}.cs");
+            var dependencyScript = $"dep{nameof(CompileCodeWithImports)}.cs".GetFullPath();
 
             File.WriteAllText(dependencyScript, @"using System;
-                                               public class Calc
-                                               {
-                                                   static public int Sum(int a, int b)
-                                                   {
-                                                       return a+b;
-                                                   }
-                                               }");
+                                            public class Calc
+                                            {
+                                                static public int Sum(int a, int b)
+                                                {
+                                                    return a+b;
+                                                }
+                                            }");
 
             dynamic script = new_evaluator.LoadCode($@"//css_inc {dependencyScript}
-                                               using System;
-                                               public class Script
-                                               {{
-                                                   public int Sum(int a, int b) => Calc.Sum(a ,b);
-                                               }}");
+                                            using System;
+                                            public class Script
+                                            {{
+                                                public int Sum(int a, int b) => Calc.Sum(a ,b);
+                                            }}");
 
             var result = script.Sum(7, 3);
 
@@ -130,14 +128,16 @@ namespace EvaluatorTests
         public void CompileCodeWithRefs()
         {
             var tempDir = ".\\dependencies".EnsureDir();
+            var calcAsm = tempDir.PathJoin("calc.v1.dll").GetFullPath();
 
-            var calcAsm = CSScript.CodeDomEvaluator
-                 .CompileAssemblyFromCode(@"using System;
-                                            public class Calc
-                                            {
-                                                static public int Sum(int a, int b) => a + b;
-                                            }",
-                                            tempDir.PathJoin("calc.dll").GetFullPath());
+            if (!calcAsm.FileExists()) // try to avoid unnecessary compilations as xUnint keeps locking the loaded assemblies
+                CSScript.CodeDomEvaluator
+                        .CompileAssemblyFromCode(@"using System;
+                                                   public class Calc
+                                                   {
+                                                       static public int Sum(int a, int b) => a + b;
+                                                   }",
+                                                   calcAsm);
 
             // NOTE!!! Roslyn evaluator will inject class in the extra root class "css_root"
             // Very annoying, but even `css_root.Calc.Sum` will not work when referenced in scrips.
@@ -253,7 +253,7 @@ namespace EvaluatorTests
             }
             catch (Exception e)
             {
-                Assert.Contains($"<script>(5,89): error CS1002: ; expected", e.Message);
+                Assert.Contains($"(5,89): error CS1002: ; expected", e.Message);
             }
         }
 
@@ -272,7 +272,7 @@ namespace EvaluatorTests
             }
             catch (Exception e)
             {
-                Assert.Contains($"<script>(4,80): error CS1002: ; expected", e.Message);
+                Assert.Contains($"(4,80): error CS1002: ; expected", e.Message);
             }
         }
 

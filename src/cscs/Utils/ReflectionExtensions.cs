@@ -147,21 +147,25 @@ namespace CSScripting
                 string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
                 if (location == null)
                 {
+                    // Note assembly can contain only single AssemblyDescriptionAttribute
+                    var locationFromDescAttr = asm
+                        .GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true)?
+                        .Cast<AssemblyDescriptionAttribute>()
+                        .FirstOrDefault()?
+                        .Description;
+
+                    if (locationFromDescAttr.FileExists())
+                        return locationFromDescAttr;
+
                     var validPath = asm.CodeBase?.FromUriToPath();
 
                     if (validPath.FileExists())
                         return validPath;
 
-                    // Note assembly can contain only single AssemblyDescriptionAttribute
-                    return asm.GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true)?
-                          .Cast<AssemblyDescriptionAttribute>()
-                          .FirstOrDefault()?
-                          .Description
-                          ??
-                          "";
+                    return "";
                 }
                 else
-                    return location ?? "";
+                    return location;
             }
             else
                 return asm.Location;

@@ -220,7 +220,7 @@ namespace CSScriptLib
                     compileErr.Append("error ");
                 compileErr.Append(err.ErrorNumber)
                           .Append(": ")
-                          .Append(err.ErrorText)
+                          .Append(err.ErrorText.Trim(' '))
                           .Append(Environment.NewLine);
             }
 
