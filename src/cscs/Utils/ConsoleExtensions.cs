@@ -54,8 +54,8 @@ namespace csscript
 
         static string[] newLineSeparators = { Environment.NewLine, "\n", "\r" };
 
-        public static string ToConsoleLines(this string text, int indent) =>
-            text.SplitIntoLines(GetMaxTextWidth(), indent);
+        public static string ToConsoleLines(this string text, int indent, int? maxTextWidth = null) =>
+            text.SplitIntoLines(maxTextWidth ?? GetMaxTextWidth(), indent);
 
         public static string SplitIntoLines(this string text, int maxWidth, int indent)
         {

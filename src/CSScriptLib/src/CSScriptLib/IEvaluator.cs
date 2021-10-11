@@ -178,12 +178,12 @@ namespace CSScriptLib
         /// and the <c>ReflectionExtensions</c>.<see cref="CSScripting.AssemblyUnloadingExtensions.Unload(Assembly)"/> extension method.
         /// Unloading is only available on the runtimes that support it. Otherwise <see cref="System.Runtime.Loader.AssemblyLoadContext"/>
         /// throws an exception on attempt to load the compiled script assembly.
-        /// <para><see cref="IsAssemblyUnloadingEnabledled"/> is designed to allow enabling/disabling of the
+        /// <para><see cref="IsAssemblyUnloadingEnabled"/> is designed to allow enabling/disabling of the
         /// assembly unloading should you find that the limitations associated with this .NET Core specific feature
         /// are not acceptable. E.g., collectible assemblies cannot be referenced from other scripts or
         /// in fact any dynamically loaded assembly for that matter.</para>
         /// </summary>
-        bool IsAssemblyUnloadingEnabledled { get; set; }
+        bool IsAssemblyUnloadingEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies

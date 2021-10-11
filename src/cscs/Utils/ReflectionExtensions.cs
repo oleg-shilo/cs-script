@@ -27,7 +27,7 @@ namespace CSScripting
         /// Retrieves <see cref="AssemblyLoadContext"/> associated with the assembly and unloads it.
         /// <para>It will throw an exception if the <see cref="AssemblyLoadContext"/> is not created as
         /// unloadable ('IsCollectible').</para>
-        /// <para>Use <see cref="CSScriptLib.IEvaluator.IsAssemblyUnloadingEnabledled"/> to control
+        /// <para>Use <see cref="CSScriptLib.IEvaluator.IsAssemblyUnloadingEnabled"/> to control
         /// how the assemblies (compiled scripts) are loaded.</para>
         /// </summary>
         /// <param name="asm"></param>

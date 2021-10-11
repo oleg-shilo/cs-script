@@ -73,11 +73,21 @@ namespace CSScripting
             return collection;
         }
 
-        internal static T With<T>(this T @object, Action<T> action)
+        /// <summary>
+        /// Allows updating the object in Fluent expressions.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="object">The object.</param>
+        /// <param name="action">The action.</param>
+        /// <returns></returns>
+        public static T With<T>(this T @object, Action<T> action)
         {
             action(@object);
             return @object;
         }
+
+        internal static (T value1, T value2) ToTupleOf2<T>(this T[] array)
+            => (array.FirstOrDefault(), array.Skip(1).FirstOrDefault());
 
         internal static T2 With1<T, T2>(this T @object, Func<T, T2> action)
         {

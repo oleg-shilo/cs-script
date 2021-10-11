@@ -15,15 +15,15 @@ public interface IPrinter
     void Print();
 }
 
-static class extensions
-{
-    public class UnloadableAssemblyLoadContext : AssemblyLoadContext
-    {
-        public UnloadableAssemblyLoadContext(string name = null)
-            : base(name ?? Guid.NewGuid().ToString(), isCollectible: true)
-        { }
-    }
-}
+// static class extensions
+// {
+//     public class UnloadableAssemblyLoadContext : AssemblyLoadContext
+//     {
+//         public UnloadableAssemblyLoadContext(string name = null)
+//             : base(name ?? Guid.NewGuid().ToString(), isCollectible: true)
+//         { }
+//     }
+// }
 
 namespace EvaluatorTests
 {
@@ -33,8 +33,7 @@ namespace EvaluatorTests
         public void call_UnloadAssembly()
         {
             dynamic script = CSScript.RoslynEvaluator
-
-                                     .With(eval => eval.IsAssemblyUnloadingEnabledled = true)
+                                     .With(eval => eval.IsAssemblyUnloadingEnabled = true)
                                      .LoadMethod(@"public object func()
                                      {
                                          return new[] {0,5};

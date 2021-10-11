@@ -47,7 +47,7 @@ namespace EvaluatorTests
         public void call_UnloadAssembly()
         {
             dynamic script = CSScript.CodeDomEvaluator
-                                     .With(eval => eval.IsAssemblyUnloadingEnabledled = true)
+                                     .With(eval => eval.IsAssemblyUnloadingEnabled = true)
                                      .LoadMethod(@"public object func()
                                                {
                                                    return new[] {0,5};

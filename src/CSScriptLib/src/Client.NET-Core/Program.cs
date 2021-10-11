@@ -24,8 +24,26 @@ namespace ConsoleApp1
 
     class Program
     {
+        static public void call_UnloadAssembly()
+        {
+            dynamic script = CSScript.Evaluator
+                                     .With(eval => eval.IsAssemblyUnloadingEnabled = true)
+                                     .LoadMethod(@"public object func()
+                                     {
+                                         return new[] {0,5};
+                                     }");
+
+            var result = (int[])script.func();
+
+            var asm_type = (Type)script.GetType();
+
+            asm_type.Assembly.Unload();
+        }
+
         static void Main(string[] args)
         {
+            call_UnloadAssembly();
+
             var type = typeof(CustomDialog<CustomDialogContent>);
             var type2 = typeof(CustomDialog<CustomDialogContent2>);
 

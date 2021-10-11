@@ -685,6 +685,12 @@ partial class dbg
                     {
                         options.compilerEngine = argValue;
                     }
+                    else if (Args.ParseValuedArg(arg, "ev", out argValue)) // -ev:<name>[:[<value>]]
+                    {
+                        // -ev:css_help_md:yes
+                        var envar = argValue.Split(':');
+                        Environment.SetEnvironmentVariable(envar[0], envar.Skip(1).FirstOrDefault() ?? "true");
+                    }
                     else if (Args.ParseValuedArg(arg, AppArgs.c, out argValue)) // -c:<value>
                     {
                         if (!options.suppressExecution) // do not change the value if compilation is the objective

@@ -136,15 +136,21 @@ namespace csscript
             public string ArgSpec { get { return argSpec; } }
             public string Description { get { return description; } }
 
-            public string GetFullDoc()
+            public string GetFullDoc(bool markdown = false)
             {
+                var actualIndent = markdown ? 0 : indent;
+
                 var buf = new StringBuilder();
-                buf.AppendLine(argSpec)
-                   .Append(' '.Repeat(indent))
-                   .Append(description);
+
+                var prefix = markdown ? "### `" : "";
+                var suffix = markdown ? "`" : "";
+
+                buf.AppendLine($"{prefix}{argSpec}{suffix}")
+                   .Append(' '.Repeat(actualIndent))
+                   .Append(markdown ? description : description.Replace("\r\n```", ""));
 
                 if (doc != "")
-                    buf.AppendLine().Append(doc.ToConsoleLines(indent));
+                    buf.AppendLine().Append(doc.ToConsoleLines(actualIndent, markdown ? int.MaxValue : null));
 
                 return buf.ToString().TrimEnd();
             }
@@ -179,14 +185,26 @@ namespace csscript
             //http://www.csscript.net/help/Online/index.html
             switch1Help[help2] =
             switch1Help[help] =
-            switch1Help[question] = new ArgInfo("--help|-help|-? [command]",
+            switch1Help[question] = new ArgInfo("--help|-help|-? [<command>|<scope[:md]>]",
                                                 "Displays either generic or command specific help info.",
-                                                    "Reversed order of parameters for the command specific help is also acceptable. " +
-                                                    "The all following argument combinations print the same help topic for 'cache' command:",
-                                                    "   -help cache",
-                                                    "   -? cache",
-                                                    "   -cache help",
-                                                    "   -cache ?");
+                                                "```",
+                                                "   <command> - one of the supported CLI commands",
+                                                "   <scope>    ",
+                                                "         `cli`    - print documentation for all CLI commands",
+                                                "         `syntax` - print the complete documentation for scripting syntax",
+                                                "         `md`     - print the documentation in GitHub markdown format",
+                                                "         (e.g. `-help cli:md`)",
+                                                "```",
+                                                "Reversed order of parameters for the command specific help is also acceptable. " +
+                                                "The all following argument combinations print the same help topic for 'cache' command:",
+                                                "```",
+                                                "   -help cache",
+                                                "   -? cache",
+                                                "   -cache help",
+                                                "   -cache ?",
+                                                "```")
+            {
+            };
             switch1Help[e] = new ArgInfo("-e",
                                          "Compiles script into console application executable.");
             switch1Help[ew] = new ArgInfo("-ew",
@@ -194,8 +212,10 @@ namespace csscript
             switch1Help[c] = new ArgInfo("-c[:<0|1>]",
                                          "Executes compiled script cache (e.g. <cache dir>/script.cs.dll) if found.",
                                          "This command improves performance by avoiding compiling the script if it was not changed since last execution.",
-                                             "   -c:1|-c  enable caching",
-                                             "   -c:0     disable caching (which might be enabled globally)");
+                                          "```",
+                                          "   -c:1|-c  - enable caching",
+                                          "   -c:0     - disable caching (which might be enabled globally)",
+                                          "```");
             switch1Help[ca] = new ArgInfo("-ca",
                                           "Compiles script file into cache file (e.g. <cache dir>/script.cs.dll).");
             switch1Help[cd] = new ArgInfo("-cd",
@@ -215,48 +235,52 @@ namespace csscript
 
             switch1Help[cache] = new ArgInfo("-cache[:<ls|trim|clear>]",
                                              "Performs script cache operations.",
-                                                 " ls    - lists all cache items.",
-                                                 " trim  - removes all abandoned cache items.",
-                                                 " clear - removes all cache items.");
+                                             "```",
+                                             " ls    - lists all cache items.",
+                                             " trim  - removes all abandoned cache items.",
+                                             " clear - removes all cache items.",
+                                             "```");
             switch1Help[co] = new ArgInfo("-co:<options>",
                                           "Passes compiler options directly to the language compiler.",
-                                              "(e.g.  -co:/d:TRACE pass /d:TRACE option to C# compiler",
-                                              " or    -co:/platform:x86 to produce Win32 executable)");
+                                              "(e.g.  `-co:/d:TRACE` pass `/d:TRACE` option to C# compiler",
+                                              " or    `-co:/platform:x86` to produce Win32 executable)");
             switch1Help[engine] =
             switch1Help[ng] = new ArgInfo("-ng|-engine:<csc:dotnet>]",
                                          "Forces compilation to be done by one of the supported .NET engines.",
                                          "  ",
-                                         "dotnet - ${<==}dotnet.exe compiler; this is the most versatile compilation engine though " +
+                                         "`dotnet` - ${<==}dotnet.exe compiler; this is the most versatile compilation engine though " +
                                          "it does have a startup overhead when running the script for the first time. It requires .NET SDK to be installed " +
                                          "on the target system.",
                                          "  ",
-                                         "csc    - ${<==}csc.exe compiler; the fastest compiler available. It is not suitable" +
+                                         "`csc`   - ${<==}csc.exe compiler; the fastest compiler available. It is not suitable" +
                                          "for WPF scripts as csc.exe cannot compile XAML.",
-                                         "         ${<==}The compilation is performed in the separate child process build.exe which is somewhat " +
+                                         "          ${<==}The compilation is performed in the separate child process build.exe which is somewhat " +
                                          "equivalent of VBCSCompiler.exe (build server) from .NET toolset. It requires .NET SDK to be installed " +
                                          "on the target system.",
-                                         "         ${<==}CS-Script communicates with build.exe build server via socket (default port 17001). You can " +
+                                         "          ${<==}CS-Script communicates with build.exe build server via socket (default port 17001). You can " +
                                          "control port value via environment variable 'CSS_BUILDSERVER_CSC_PORT'",
-                                         "         ${<==}Value `csc-inproc` will suppress spinning off an build server process and .NET csc.exe will be " +
+                                         "          ${<==}Value `csc-inproc` will suppress spinning off an build server process and .NET csc.exe will be " +
                                          "called directly instead. This option convenient when socket communication is undesirable for whatever reason. " +
                                          "Though in this case all the performance benefits of `-ng:csc` will be lost and then you are better off using " +
                                          "`-ng:dotnet` instead.",
                                          "  ",
-                                         "roslyn - ${<==}Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation " +
+                                         "`roslyn` - ${<==}Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation " +
                                          "engine. It does not require .NET SDK being installed. Though it does have limitations (see documentation).",
-                                         "         ${<==}The compilation is performed in the separate child process " + AppInfo.appName + " (another " +
+                                         "           ${<==}The compilation is performed in the separate child process " + AppInfo.appName + " (another " +
                                          "instance of script engine) which is somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.",
-                                         "         ${<==}CS-Script communicates with " + AppInfo.appName + " build server via socket (default port 17002). " +
+                                         "           ${<==}CS-Script communicates with " + AppInfo.appName + " build server via socket (default port 17002). " +
                                          "You can control port value " +
                                          "via environment variable 'CSS_BUILDSERVER_ROSLYN_PORT'",
-                                         "         ${<==}Value `roslyn-inproc` will suppress spinning off an external process and Roslyn compiler will be " +
+                                         "           ${<==}Value `roslyn-inproc` will suppress spinning off an external process and Roslyn compiler will be " +
                                          "hosted in the original process of script engine instead. This option convenient when socket communication is " +
                                          "undesirable for whatever reason. Though in this case performance will be affected on the first run of the script.",
                                          "  ",
+                                         "```",
                                          "(e.g. " + AppInfo.appName + " -engine:dotnet sample.cs",
                                          "      " + AppInfo.appName + " -ng:csc sample.cs)",
                                          "      " + AppInfo.appName + " -ng:roslyn-inproc sample.cs)",
-                                         "      " + AppInfo.appName + " -ng:roslyn sample.cs)");
+                                         "      " + AppInfo.appName + " -ng:roslyn sample.cs)",
+                                         "```");
             switch1Help[sample] =
             switch1Help[s] = new ArgInfo("-s|-sample[:<C# version>]",
                                          " -s:7    - prints C# 7+ sample. Otherwise it prints the default canonical 'Hello World' sample.",
@@ -270,13 +294,15 @@ namespace csscript
                                             "Executes script code directly without using a script file.",
                                                 "Sample:",
                                                     " ",
+                                                    "```",
                                                     AppInfo.appName + " -code \"Console.WriteLine(Environment.UserDomainName);#n" +
                                                     "Console.WriteLine(#''%USERNAME%#'');\"",
                                                     AppInfo.appName + " -code \"using System.Linq;#nSystem.Diagnostics.Process.GetProcessesByName(''notepad'').ToList().ForEach(x => x.Kill());\"",
                                                     AppInfo.appName + " -code \"SetEnvironmentVariable(`ntp`,`notepad.exe`, EnvironmentVariableTarget.Machine)\"",
+                                                    "```",
                                                     " ",
                                                     "The -code argument must be the last argument in the command. The only argument that is allowed " +
-                                                    "after the <script code> is '//x'",
+                                                    "after the `<script code>` is `//x`",
                                                     " ",
                                                     "Escaping special characters sometimes can be problematic as many shells have their own techniques " +
                                                     "(e.g. PowerShell collapses two single quote characters) that may conflict with CS-Script escaping approach." +
@@ -286,6 +312,7 @@ namespace csscript
                                                     " ",
                                                     "Since command line interface does not allow some special characters they need to be escaped.",
                                                     "",
+                                                    "```",
                                                     "Escaped         Interpreted character",
                                                     "-------------------------------------",
                                                     "#n        ->    <\\n>",
@@ -295,7 +322,8 @@ namespace csscript
                                                     "#``       ->    \"   ",
                                                     "`n        ->    <\\n>",
                                                     "`r        ->    <\\r>",
-                                                    "``        ->    \"   "
+                                                    "``        ->    \"   ",
+                                                    "```"
                                            );
 
             switch1Help[wait] = new ArgInfo("-wait[:prompt]",
@@ -305,16 +333,19 @@ namespace csscript
                                                     "prompt - if none specified 'Press any key to continue...' will be used");
             switch1Help[ac] =
             switch1Help[autoclass] = new ArgInfo("-ac|-autoclass[:<0|1|2|out>]",
-                                                 "Legacy command: executes scripts without class definition. Use top-level scripts instead.",
+                                                 "Legacy command: executes scripts without class definition. Use top-level statements (C# 9) scripts instead.",
+                                                     "```",
                                                      " -ac     - enables auto-class decoration (which might be disabled globally).",
                                                      " -ac:0   - disables auto-class decoration (which might be enabled globally).",
                                                      " -ac:1   - same as '-ac'",
                                                      " -ac:2   - same as '-ac:1' and '-ac'",
                                                      " -ac:out - ",
                                                      "${<=-11}prints auto-class decoration for a given script file. The argument must be followed by the path to script file.",
+                                                     "```",
                                                      " ",
                                                      "Automatically generates 'static entry point' class if the script doesn't define any.",
                                                      " ",
+                                                     "```",
                                                      "    using System;",
                                                      " ",
                                                      "    void Main()",
@@ -322,6 +353,7 @@ namespace csscript
                                                      "        Console.WriteLine(\"Hello World!\";",
                                                      "    }",
                                                      " ",
+                                                     "```",
                                                      "Using an alternative 'instance entry point' is even more convenient (and reliable).",
                                                      "The acceptable 'instance entry point' signatures are:",
                                                      " ",
@@ -375,8 +407,10 @@ namespace csscript
                                                     "and object.dup(). While `dbg.print` is extremely useful it can and lead to some referencing challenges when " +
                                                     "the script being executed is referencing assemblies compiled with `dbg.print` already included. " +
                                                     "The simplest way to solve this problem is disable the `dbg.cs` inclusion.",
+                                                    "```",
                                                     " -dbgprint:1   enable `dbg.cs` inclusion; Same as `-dbgprint`;",
-                                                    " -dbgprint:0   disable `dbg.cs` inclusion;");
+                                                    " -dbgprint:0   disable `dbg.cs` inclusion;",
+                                                    "```");
             switch2Help[verbose2] =
             switch2Help[verbose] = new ArgInfo("-verbose",
                                                "Prints runtime information during the script execution.",
@@ -395,6 +429,7 @@ namespace csscript
                                           "Build server is a background process which implements hop loading of C# compiler csc.exe. " +
                                           "Somewhat similar to VBCSCompiler.exe.",
                                           "This option is only relevant if compiler engine is set to 'csc' (see '-engine' command).",
+                                          "```",
                                           " -server:start   - ${<==}deploys and starts build server. Useful if you want to start the server " +
                                                                    "on system startup.",
                                           " -server:stop    - ${<==}stops starts build server",
@@ -403,12 +438,14 @@ namespace csscript
                                           " -server:add     - ${<==}deploys build server",
                                           " -server:remove  - ${<==}removes build server files. Useful for troubleshooting.",
                                           " -server:ping    - ${<==}Pins running instance (if any) of the build server",
+                                          "```",
                                           "",
                                           "This option is only relevant if compiler engine is set to 'roslyn' (see '-engine' command).",
                                           "Roslyn based build server variant is much simpler so it only exposes start and stop interface.",
+                                          "```",
                                           " -server_r:start - ${<==}deploys and starts Roslyn build server",
-                                          " -server_r:stop  - ${<==}stops starts Roslyn build server"
-                                          );
+                                          " -server_r:stop  - ${<==}stops starts Roslyn build server",
+                                          "```");
 
             switch2Help[tc] = new ArgInfo("-tc",
                                           "Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.",
@@ -418,12 +455,15 @@ namespace csscript
                 switch2Help[wpf] = new ArgInfo("-wpf[:<enable|disable|1|0>]",
                                                "Enables/disables WPF support on Windows by updating the framework name " +
                                                "in the *.runtimeconfig.json file",
-                                                   " -wpf               - ${<==}prints current enabled status",
-                                                   " -wpf:<enable|1>    - ${<==}enables WPF support",
-                                                   " -wpf:<disable|0>   - ${<==}disables WPF support");
+                                               "```",
+                                               " -wpf               - ${<==}prints current enabled status",
+                                               " -wpf:<enable|1>    - ${<==}enables WPF support",
+                                               " -wpf:<disable|0>   - ${<==}disables WPF support",
+                                               "```");
 
             switch2Help[config] = new ArgInfo("-config[:<option>]",
                                               "Performs various CS-Script config operations",
+                                              "```",
                                               " -config:none               - ${<==}ignores config file (uses default settings)",
                                               " -config:create             - ${<==}creates config file with default settings",
                                               " -config:default            - ${<==}prints default config file",
@@ -434,9 +474,11 @@ namespace csscript
                                               " -config:set:name=add:value - ${<==}updates the current config value content by appending the specified value.",
                                               " -config:set:name=del:value - ${<==}updates the current config value content by removing all occurrences of the specified value.",
                                               " -config:<file>             - ${<==}uses custom config file",
+                                              "```",
                                               " ",
                                                   "Note: The property name in -config:set and -config:set is case insensitive and can also contain '_' " +
                                                   "as a token separator that is ignored during property lookup.",
+                                                  "```",
                                                   "(e.g. " + AppInfo.appName + " -config:none sample.cs",
                                                   "${<=6}" + AppInfo.appName + " -config:default > css_VB.xml",
 
@@ -445,7 +487,9 @@ namespace csscript
                                                   "${<=6}" + AppInfo.appName + " -config:set:DefaultCompilerEngine=dotnet",
                                                   "${<=6}" + AppInfo.appName + " -config:set:DefaultArguments=add:-ac",
                                                   "${<=6}" + AppInfo.appName + " -config:set:default_arguments=del:-ac",
-                                                  "${<=6}" + AppInfo.appName + " -config:c:\\cs-script\\css_VB.xml sample.vb)");
+                                                  "${<=6}" + AppInfo.appName + " -config:c:\\cs-script\\css_VB.xml sample.vb)",
+                                                  "```");
+
             switch2Help[@out] = new ArgInfo("-out[:<file>]",
                                             "Forces the script to be compiled into a specific location.",
                                                 "Used only for very fine hosting tuning.",
@@ -461,12 +505,12 @@ namespace csscript
             switch2Help[r] = new ArgInfo("-r:<assembly 1>,<assembly N>",
                                          "Uses explicitly referenced assembly.", "It is required only for " +
                                              "rare cases when namespace cannot be resolved into assembly.",
-                                                 "(e.g. " + AppInfo.appName + " /r:myLib.dll myScript.cs).");
+                                                 "(e.g. `" + AppInfo.appName + " /r:myLib.dll myScript.cs`).");
 
             switch2Help[dir] = new ArgInfo("-dir:<directory 1>,<directory N>",
                                            "Adds path(s) to the assembly probing directory list.",
                                                "You can use a reserved word 'show' as a directory name to print the configured probing directories.",
-                                                   "(e.g. " + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs; " + AppInfo.appName + " -dir:show).");
+                                                   "(e.g. `" + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs; " + AppInfo.appName + " -dir:show`).");
             switch2Help[pc] =
             switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
                                                    "Specifies custom precompiler. This can be either script or assembly file.",
@@ -493,12 +537,14 @@ namespace csscript
                                                  "This command allows light management of the NuGet packages in the CS-Script local package repository (%PROGRAMDATA%\\CS-Script\\nuget).",
                                                      "The tasks are limited to installing, updating and listing the local packages.",
                                                      " ",
+                                                     "```",
                                                      " -nuget           - ${<==}prints the list of all root packages in the repository",
                                                      // " -nuget:purge     - ${<==}detects multiple versions of the same package and removes all but the latest one. ",
                                                      " -nuget:<package> - ${<==}downloads and installs the latest version of the package(s). ",
                                                      "                    ${<==}Wild cards can be used to update multiple packages. For example '-nuget:ServiceStack*' will update all " +
                                                      "already installed ServiceStack packages.",
                                                      "                    ${<==}You can also use the index of the package instead of its full name.",
+                                                     "```",
                                                      " ",
                                                      "Installing packages this way is an alternative to have '//css_nuget -force ...' directive in the script code as it may be " +
                                                      "more convenient for the user to update packages manually instead of having them updated on every script execution/recompilation.");
@@ -1040,58 +1086,94 @@ namespace csscript
 
         public static string BuildCommandInterfaceHelp(string arg)
         {
-            if (arg != null)
+            // cli:md
+            (string scope, string context) = (arg ?? "").Split(':').ToTupleOf2();
+
+            var includeCLI = (scope.IsEmpty() || scope == "cli");
+            var includeSyntax = (scope.IsEmpty() || scope == "syntax");
+
+            bool mdFormat = (context == "md" || GetEnvironmentVariable("css_help_md").HasText());
+
+            if (arg != null && !scope.IsOneOf("cli", "syntax"))
             {
                 return AppArgs.LookupSwitchHelp(arg) ??
                        "Invalid 'cmd' argument. Use '" + AppInfo.appName + " -cmd' for the list of valid commands." + Environment.NewLine + AppArgs.switch1Help[AppArgs.help].GetFullDoc();
             }
 
             var builder = new StringBuilder();
-            builder.AppendLine(AppInfo.appLogo);
-            builder.AppendLine("Usage: " + AppInfo.appName + " <switch 1> <switch 2> <file> [params] [//x]");
-            builder.AppendLine("");
-            builder.AppendLine("<switch 1>");
-            builder.AppendLine("");
+            var alreadyPrinted = new List<string>(); // args can be effectively duplicated as the same arg may have multiple aliases (e.g. '-ac|-autoclass')
 
-            //cannot use LINQ as it can be incompatible target
-            var printed = new List<string>();
-
-            // string fullDoc = GetFullDoc();
-            foreach (AppArgs.ArgInfo info in AppArgs.switch1Help.Values)
+            if (includeCLI)
             {
-                if (printed.Contains(info.ArgSpec))
-                    continue;
-                builder.AppendLine(info.GetFullDoc());
+                var usage = "Usage: " + AppInfo.appName + " <switch 1> <switch 2> <file> [params] [//x]";
+
+                if (mdFormat)
+                {
+                    builder
+                        .AppendLine("```")
+                        .AppendLine(usage)
+                        .AppendLine("```")
+                        .AppendLine()
+                        .AppendLine("---")
+                        .AppendLine("### <switch 1>")
+                        .AppendLine();
+                }
+                else
+                {
+                    builder
+                        .AppendLine(AppInfo.appLogo)
+                        .AppendLine()
+                        .AppendLine("<switch 1>")
+                        .AppendLine();
+                }
+
+                // string fullDoc = GetFullDoc();
+                foreach (AppArgs.ArgInfo info in AppArgs.switch1Help.Values)
+                {
+                    if (alreadyPrinted.Contains(info.ArgSpec))
+                        continue;
+
+                    builder.AppendLine(info.GetFullDoc(mdFormat));
+                    builder.AppendLine("");
+                    if (mdFormat) builder.AppendLine("---").AppendLine();
+                    alreadyPrinted.Add(info.ArgSpec);
+                }
+
+                if (!mdFormat)
+                    builder.AppendLine("---------");
+
+                builder.AppendLine($"{(mdFormat ? "### " : "")}<switch 2>");
                 builder.AppendLine("");
-                printed.Add(info.ArgSpec);
+                foreach (AppArgs.ArgInfo info in AppArgs.switch2Help.Values)
+                {
+                    if (alreadyPrinted.Contains(info.ArgSpec))
+                        continue;
+                    builder.AppendLine(info.GetFullDoc(mdFormat));
+                    builder.AppendLine("");
+                    alreadyPrinted.Add(info.ArgSpec);
+                }
             }
 
-            builder.AppendLine("---------");
-            builder.AppendLine("<switch 2>");
-            builder.AppendLine("");
-            foreach (AppArgs.ArgInfo info in AppArgs.switch2Help.Values)
+            if (includeSyntax)
             {
-                if (printed.Contains(info.ArgSpec))
-                    continue;
-                builder.AppendLine(info.GetFullDoc());
+                builder.AppendLine("---------");
+                foreach (AppArgs.ArgInfo info in AppArgs.miscHelp.Values)
+                {
+                    if (alreadyPrinted.Contains(info.ArgSpec))
+                        continue;
+                    builder.AppendLine(info.GetFullDoc(mdFormat));
+                    builder.AppendLine("");
+                    alreadyPrinted.Add(info.ArgSpec);
+                }
                 builder.AppendLine("");
-                printed.Add(info.ArgSpec);
+                builder.AppendLine("");
+                builder.Append(AppArgs.SyntaxHelp);
             }
 
-            builder.AppendLine("---------");
-            foreach (AppArgs.ArgInfo info in AppArgs.miscHelp.Values)
-            {
-                if (printed.Contains(info.ArgSpec))
-                    continue;
-                builder.AppendLine(info.GetFullDoc());
-                builder.AppendLine("");
-                printed.Add(info.ArgSpec);
-            }
-            builder.AppendLine("");
-            builder.AppendLine("");
-            builder.Append(AppArgs.SyntaxHelp);
-
-            return builder.ToString();
+            if (mdFormat)
+                return builder.ToString();
+            else
+                return builder.ToString().Replace("```", "");
         }
 
         internal class SampleInfo
@@ -1129,7 +1211,7 @@ namespace csscript
 $@"Usage: -new[:<type>] [<otput file>]
       type - script template based on available types.
       output - location to place the generated script file(s).
-
+```
 Type           Template
 ---------------------------------------------------
 console         Console script application (Default)
@@ -1150,7 +1232,8 @@ Examples:
     cscs -new:toplevel script.cs
     cscs -new:console console.cs
     cscs -new:winform myapp.cs
-    cscs -new:wpf hello".NormalizeNewLines();
+    cscs -new:wpf hello
+```".NormalizeNewLines();
 
         internal static SampleInfo[] BuildSampleCode(string appType, string context)
         {

@@ -181,14 +181,14 @@ namespace CSScriptLib
         /// and the <c>ReflectionExtensions</c>.<see cref="AssemblyUnloadingExtensions.Unload(Assembly)" /> extension method.
         /// Unloading is only available on the runtimes that support it. Otherwise <see cref="AssemblyLoadContext" />
         /// throws an exception on attempt to load the compiled script assembly.
-        /// <para><see cref="IsAssemblyUnloadingEnabledled" /> is designed to allow enabling/disabling of the
+        /// <para><see cref="IsAssemblyUnloadingEnabled" /> is designed to allow enabling/disabling of the
         /// assembly unloading should you find that the limitations associated with this .NET Core specific feature
         /// are not acceptable. E.g., collectible assemblies cannot be referenced from other scripts or
         /// in fact any dynamically loaded assembly for that matter.</para>
         /// <para>Due to the limitations (though minor) of the underlying .NET Core feature
-        /// <see cref="IsAssemblyUnloadingEnabledled" /> is set to <c>false</c> by default.</para>
+        /// <see cref="IsAssemblyUnloadingEnabled" /> is set to <c>false</c> by default.</para>
         /// </summary>
-        public bool IsAssemblyUnloadingEnabledled { get; set; } = false;
+        public bool IsAssemblyUnloadingEnabled { get; set; } = false;
 
         static internal Dictionary<int, (byte[] asm, byte[] pdb)> scriptCache = new Dictionary<int, (byte[] asm, byte[] pdb)>();
 
@@ -224,18 +224,18 @@ namespace CSScriptLib
                 // return Assembly.LoadFile(info.AssemblyFile);
                 // this way the loaded script assembly can be referenced from
                 // other scripts without custom assembly probing
-                return IsAssemblyUnloadingEnabledled
+                return IsAssemblyUnloadingEnabled
                             ? AppDomain.CurrentDomain.LoadCollectableAssemblyFrom(info.AssemblyFile)
                             : Assembly.LoadFrom(info.AssemblyFile);
             }
             else
             {
                 if (pdb != null)
-                    return IsAssemblyUnloadingEnabledled
+                    return IsAssemblyUnloadingEnabled
                         ? AppDomain.CurrentDomain.LoadCollectableAssembly(asm, pdb)
                         : AppDomain.CurrentDomain.Load(asm, pdb);
                 else
-                    return IsAssemblyUnloadingEnabledled
+                    return IsAssemblyUnloadingEnabled
                         ? AppDomain.CurrentDomain.LoadCollectableAssembly(asm)
                         : AppDomain.CurrentDomain.Load(asm);
             }
