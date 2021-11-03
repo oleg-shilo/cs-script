@@ -102,7 +102,7 @@ cd out\Windows
 echo =====================
 echo Aggregating packages (cd: %cd%)
 echo =====================
-cscs CSScriptLib\src\CSScriptLib\output\aggregate.cs
+.\cscs -c:0 ..\..\CSScriptLib\src\CSScriptLib\output\aggregate.cs
 cd ..\..
 
 copy CSScriptLib\src\CSScriptLib\output\*.*nupkg out\
@@ -126,10 +126,11 @@ echo Injecting version in file names
 echo =====================
 
 cd out\Windows
-.\cscs ..\..\CSScriptLib\src\CSScriptLib\output\aggregate.cs
+.\cscs -c:0 ..\..\CSScriptLib\src\CSScriptLib\output\aggregate.cs
 .\cscs -engine:dotnet -code Console.WriteLine(Assembly.LoadFrom(#''cscs.dll#'').GetName().Version)
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.7z#'', $#''..\\cs-script.win.v{version}.7z#'', true);
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.linux.7z#'', $#''..\\cs-script.linux.v{version}.7z#'', true);
+.\cscs -help cli:md > ..\cli.md
 cd ..\..
 
 move "CSScriptLib\src\CSScriptLib\output\*.nupkg" ".\out"

@@ -157,15 +157,28 @@ namespace CLI
         }
 
         [Fact]
+        public void compile_dll()
+        {
+            // Issue #255: Relative path for cscs.exe -out option results in wrong output folder
+
+            var script_file = $".\\temp\\{nameof(compile_dll)}";
+            var dll_file = $".\\temp\\{nameof(compile_dll)}.dll";
+            var output = cscs_run($"-new:console {script_file}");
+
+            output = cscs_run($"-cd -out:{dll_file} {script_file}");
+            Assert.Contains("Created: " + dll_file.GetFullPath(), output);
+
+            output = cscs_run($"-ng:csc -cd -out:{dll_file} {script_file}");
+            Assert.Contains("Created: " + dll_file.GetFullPath(), output);
+        }
+
+        [Fact]
         public void new_console()
         {
             var script_file = nameof(new_console);
             var output = cscs_run($"-new:console {script_file}");
 
             output = cscs_run($"-check -ng:dotnet {script_file}");
-            Assert.Equal("Compile: OK", output);
-
-            output = cscs_run($"-check -ng:csc {script_file}");
             Assert.Equal("Compile: OK", output);
         }
 
