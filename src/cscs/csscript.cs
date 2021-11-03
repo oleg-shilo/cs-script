@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CSScripting;
 using CSScripting.CodeDom;
 using CSScriptLib;
+using System.ComponentModel;
 
 namespace csscript
 {
@@ -1074,6 +1075,10 @@ namespace csscript
                 else
                 {
                     Environment.ExitCode = 1;
+
+                    if (Runtime.RaiseUnhandledExceptionIfSubscribed(this, new UnhandledExceptionEventArgs(ex, true)))
+                        return;
+
                     if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
                     {
                         string message;
