@@ -234,6 +234,7 @@ namespace csscript
 
             // need to get raw unparsed CLI line so cannot use args
             var code = Environment.CommandLine;
+            var isRoslyn = args.FirstOrDefault(x => x.StartsWith("-ng:") || x.StartsWith("-engine:")) == "-ng:roslyn";
 
             if (Environment.CommandLine.EndsWith($"-{AppArgs.speed}")) // speed test
             {
@@ -278,6 +279,11 @@ namespace csscript
                        .Replace("#r", "\r")
                        .Trim(" \"".ToCharArray())
                        .Expand();
+
+            if (isRoslyn) // does not support top-level execution (classless)
+            {
+                code = $"class EntryScript {{ static void Main(string[] args){{ {code }; }}}}";
+            }
 
             var commonHeader =
             "   using System;" + NewLine +

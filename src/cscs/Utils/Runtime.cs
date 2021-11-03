@@ -25,9 +25,9 @@ namespace csscript
 
         internal static bool RaiseUnhandledExceptionIfSubscribed(object sender, UnhandledExceptionEventArgs e)
         {
-            var handlers = UnhandledException.GetInvocationList();
+            var handlers = UnhandledException?.GetInvocationList();
 
-            if (handlers.Any())
+            if (handlers?.Any() == true)
             {
                 handlers.ForEach(x => x.DynamicInvoke(sender, e));
                 return true;
