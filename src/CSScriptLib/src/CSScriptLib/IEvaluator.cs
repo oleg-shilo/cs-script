@@ -173,6 +173,25 @@ namespace CSScriptLib
         bool? DebugBuild { get; set; }
 
         /// <summary>
+        /// This property controls script caching.
+        /// <para>Caching mechanism allows avoiding multiple compilation of the scripts that have been already compiled and has not changes
+        /// since then for the duration of the host process. This feature can dramatically improve the performance in the cases when you are executing
+        /// the same script again and again. Even though in such cases caching is not the greatest optimization that can be achieved.</para>
+        /// <para>Note that caching has some limitations. Thus the algorithm for checking if the script is changed since the last execution
+        /// is limited to verifying the script code (text) only. Thus it needs to be used with caution. </para>
+        /// <para>Script caching is disabled by default.</para>
+        /// </summary>
+        /// <example>The following is an example of caching the compilation.
+        ///<code>
+        /// dynamic printerScript = CSScript.Evaluator
+        ///                                 .With(eval => eval.IsCachingEnabled = true)
+        ///                                 .LoadFile(script_file);
+        /// printerScript.Print();
+        /// </code>
+        /// </example>
+        bool IsCachingEnabled { get; set; }
+
+        /// <summary>
         /// CS-Script assembly unloading functionality is implemented as a combination of
         /// loading assembly into <see cref="System.Runtime.Loader.AssemblyLoadContext"/> that is marked as "IsCollectible"
         /// and the <c>ReflectionExtensions</c>.<see cref="CSScripting.AssemblyUnloadingExtensions.Unload(Assembly)"/> extension method.

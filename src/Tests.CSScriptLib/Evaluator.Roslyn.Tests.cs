@@ -112,6 +112,35 @@ namespace EvaluatorTests
         }
 
         [Fact]
+        public void issue_259()
+        {
+            var code = @"void Log(string message)
+                    {
+                        Console.WriteLine(message);
+                    }";
+
+            var before = AppDomain.CurrentDomain.GetAssemblies().Count();
+            // -----
+
+            dynamic load_method(string method)
+            {
+                var info = new CompileInfo { AssemblyFile = @$".\{method.GetHashCode()}.dll" };
+
+                Assembly asm = CSScript.Evaluator
+                                       .With(e => e.IsCachingEnabled = true)
+                                       .CompileCode(@"using System;
+                                                      public class Script
+                                                      {
+                                                          " + code + @"
+                                                      }",
+                                                     info);
+
+                return asm.CreateObject("*");
+            }
+           
+        }
+
+        [Fact]
         public void use_AssembliesFilter()
         {
             string[] refAssemblies = null;

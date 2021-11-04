@@ -239,7 +239,7 @@ namespace csscript
             if (Environment.CommandLine.EndsWith($"-{AppArgs.speed}")) // speed test
             {
                 // simulate `{engine_file} -code "/**/"`
-                code = $@"{this.GetType().Assembly.Location} -{AppArgs.code} /**/";
+                code = $@"{this.GetType().Assembly.Location} -{AppArgs.code} var i = 1;";
 
                 var engineArg = args.FirstOrDefault(x => x.StartsWith("-ng:") || x.StartsWith("-engine:"));
 

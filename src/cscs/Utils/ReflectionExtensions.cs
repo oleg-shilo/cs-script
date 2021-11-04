@@ -153,11 +153,12 @@ namespace CSScripting
                         .Cast<AssemblyDescriptionAttribute>()
                         .FirstOrDefault()?
                         .Description;
-
                     if (locationFromDescAttr.FileExists())
                         return locationFromDescAttr;
 
+#pragma warning disable SYSLIB0012
                     var validPath = asm.CodeBase?.FromUriToPath();
+#pragma warning restore SYSLIB0012
 
                     if (validPath.FileExists())
                         return validPath;

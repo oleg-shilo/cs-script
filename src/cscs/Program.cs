@@ -59,6 +59,8 @@ namespace cscs
                     else if (serverCommand == "-server:reset") Globals.ResetBuildServer();
                     else if (serverCommand == "-server:add") Globals.DeployBuildServer();
                     else if (serverCommand == "-server:remove") Globals.RemoveBuildServer();
+                    else if (serverCommand == "-servers:start") { CSScripting.Roslyn.BuildServer.Start(); Globals.StartBuildServer(); }
+                    else if (serverCommand == "-servers:stop") { CSScripting.Roslyn.BuildServer.Stop(); Globals.StopBuildServer(); }
                     else if (serverCommand == "-server_r:start") CSScripting.Roslyn.BuildServer.Start();
                     else if (serverCommand == "-server_r:stop") CSScripting.Roslyn.BuildServer.Stop();
                     else Globals.PrintBuildServerInfo();

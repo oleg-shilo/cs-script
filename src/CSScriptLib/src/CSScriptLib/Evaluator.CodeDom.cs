@@ -41,6 +41,7 @@ using System.Threading;
 using csscript;
 using CSScripting;
 using CSScripting.CodeDom;
+using static CSScripting.Globals;
 using Scripting;
 
 namespace CSScriptLib
@@ -144,8 +145,6 @@ namespace CSScriptLib
                 CSScript.StartPurgingOldTempFiles(ignoreCurrentProcessScripts: true);
             }
         }
-
-        static string dotnet = "dotnet";
 
         (byte[] asm, byte[] pdb) CompileAssemblyFromFileBatch_with_Csc(string[] fileNames,
                                                                        string[] ReferencedAssemblies,
