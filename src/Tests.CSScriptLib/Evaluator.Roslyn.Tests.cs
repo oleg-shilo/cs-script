@@ -137,7 +137,10 @@ namespace EvaluatorTests
 
                 return asm.CreateObject("*");
             }
-           
+
+            load_method(code);
+
+            var after = AppDomain.CurrentDomain.GetAssemblies().Count();
         }
 
         [Fact]

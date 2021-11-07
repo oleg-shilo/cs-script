@@ -1,5 +1,6 @@
 using CSScripting;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -37,9 +38,9 @@ namespace csscript
                     var currentConfig = Settings.Load(false) ?? new Settings();
                     print(currentConfig.ToStringRaw());
                 }
-                else if (command.StartsWith("get:"))
+                else if (command.StartsWith("get:") || command.StartsWith(":"))
                 {
-                    string name = command.Substring(4);
+                    string name = command.Split(':', 2).Last();
                     var currentConfig = Settings.Load(false) ?? new Settings();
                     var value = currentConfig.Get(ref name);
                     print(name + ": " + value);
@@ -62,6 +63,22 @@ namespace csscript
 
                     var new_value = currentConfig.Get(ref name);
                     print("set: " + name + ": " + new_value);
+                }
+                else
+                {
+                    var props = typeof(Settings).GetProperties()
+                        .Select(x => new { Name = x.Name, Descr = x.GetCustomAttribute<DescriptionAttribute>()?.Description })
+                        .Where(x => x.Descr.HasText());
+
+                    if (!command.IsOneOf("", "*"))
+                        props = props.Where(x => x.Name.SameAs(command.Replace("_", ""), ignoreCase: true));
+
+                    props.ForEach(item =>
+                                  {
+                                      print($"`{item.Name}`");
+                                      print(item.Descr);
+                                      print("");
+                                  });
                 }
             }
             catch (Exception e)
