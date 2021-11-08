@@ -69,7 +69,6 @@ namespace csscript
             clone.searchDirs = new List<string>(this.searchDirs).ToArray();
             clone.buildWinExecutable = this.buildWinExecutable;
             clone.altCompiler = this.altCompiler;
-            clone.roslynDir = this.roslynDir;
             clone.consoleEncoding = this.consoleEncoding;
             clone.resolveAutogenFilesRefs = this.resolveAutogenFilesRefs;
             clone.preCompilers = this.preCompilers;
@@ -127,7 +126,6 @@ namespace csscript
             clone.searchDirs = new List<string>(this.searchDirs).ToArray();
             clone.buildWinExecutable = this.buildWinExecutable;
             clone.altCompiler = this.altCompiler;
-            clone.roslynDir = this.roslynDir;
             clone.preCompilers = this.preCompilers;
             clone.defaultRefAssemblies = this.defaultRefAssemblies;
             clone.compilerOptions = this.compilerOptions;
@@ -190,7 +188,6 @@ namespace csscript
         public bool openEndDirectiveSyntax = true;
         public bool resolveAutogenFilesRefs = true;
         public string altCompiler = "";
-        public string roslynDir = "";
         public string consoleEncoding = "utf-8";
         public string defaultCompilerEngine = "dotnet";
         public bool enableDbgPrint = true;
