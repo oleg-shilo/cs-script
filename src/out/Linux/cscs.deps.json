@@ -7,7 +7,7 @@
   "targets": {
     ".NETCoreApp,Version=v5.0": {},
     ".NETCoreApp,Version=v5.0/linux-x64": {
-      "cscs/4.1.4.0": {
+      "cscs/4.1.0.0": {
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp.Scripting": "3.10.0"
         },
@@ -557,7 +557,7 @@
     }
   },
   "libraries": {
-    "cscs/4.1.4.0": {
+    "cscs/4.1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
