@@ -59,7 +59,7 @@ namespace EvaluatorTests
             script.GetType().Assembly.Unload();
         }
 
-        void call_FailingUnloadAssembly()
+        private void call_FailingUnloadAssembly()
         {
             // dynamic will trigger an accidental referencing the assembly under the hood of CLR and
             // it will not be collected.
@@ -145,31 +145,21 @@ namespace EvaluatorTests
         [Fact]
         public void issue_259()
         {
-            var code = @"void Log(string message)
-                    {
-                        Console.WriteLine(message);
-                    }";
-
             var before = AppDomain.CurrentDomain.GetAssemblies().Count();
             // -----
 
-            dynamic load_method(string method)
-            {
-                var info = new CompileInfo { AssemblyFile = @$".\{method.GetHashCode()}.dll" };
+            Assembly asm = CSScript.Evaluator
+                                    .With(e => e.IsCachingEnabled = true)
+                                    .CompileCode(@"using System;
+                                                   public class Script
+                                                   {
+                                                       void Log(string message)
+                                                       {
+                                                           Console.WriteLine(message);
+                                                       }
+                                                   }");
 
-                Assembly asm = CSScript.Evaluator
-                                       .With(e => e.IsCachingEnabled = true)
-                                       .CompileCode(@"using System;
-                                                      public class Script
-                                                      {
-                                                          " + code + @"
-                                                      }",
-                                                     info);
-
-                return asm.CreateObject("*");
-            }
-
-            load_method(code);
+            asm.CreateObject("*");
 
             var after = AppDomain.CurrentDomain.GetAssemblies().Count();
         }

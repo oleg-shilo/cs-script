@@ -16,7 +16,7 @@ namespace ConsoleApp1
             Console.WriteLine($"Loading and unloading script 20 times");
             Test_Unloading();
             Console.WriteLine("================\n");
-            return;
+
             CSScript.StopBuildServer();
             CSScript.EvaluatorConfig.DebugBuild = true;
 

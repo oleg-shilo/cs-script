@@ -36,6 +36,14 @@ namespace CSScripting
         /// underlying limitations. Thus an AssemblyLoadContext can only be unloaded if it is collectible. And 
         /// Unloading will occur asynchronously.
         /// </para>
+        /// <para>
+        /// Note, using 'dynamic` completely breaks CLR unloading mechanism. Most likely it triggers
+        /// an accidental referencing of the assembly or <see
+        /// cref="System.Runtime.Loader.AssemblyLoadContext"/>. Meaning that if you are planing to
+        /// use assembly unloading you need to use interface based scripting. See `Test_Unloading`
+        /// (https://github.com/oleg-shilo/cs-script/blob/master/src/CSScriptLib/src/Client.NET-Core/Program.cs)
+        /// sample for details.
+        /// </para>
         /// </summary>
         /// <param name="asm"></param>
         public static void Unload(this Assembly asm)
