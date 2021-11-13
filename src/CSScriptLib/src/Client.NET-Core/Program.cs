@@ -1,58 +1,22 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using CSScripting;
 using CSScriptLib;
 
 namespace ConsoleApp1
 {
-    static class ttt
-    {
-        public static string GetGenericTypeBaseName(this Type type)
-        {
-            if (type.IsGenericType)
-                return type.FullName.Split('`').FirstOrDefault();
-            return null;
-        }
-    }
-
-    class CustomDialogContent { }
-
-    class CustomDialogContent2 { }
-
-    class CustomDialog<T> { }
-
     class Program
     {
-        static public void call_UnloadAssembly()
-        {
-            dynamic script = CSScript.Evaluator
-                                     .With(eval => eval.IsAssemblyUnloadingEnabled = true)
-                                     .LoadMethod(@"public object func()
-                                     {
-                                         return new[] {0,5};
-                                     }");
-
-            var result = (int[])script.func();
-
-            var asm_type = (Type)script.GetType();
-
-            asm_type.Assembly.Unload();
-        }
-
         static void Main(string[] args)
         {
-            call_UnloadAssembly();
-
-            var type = typeof(CustomDialog<CustomDialogContent>);
-            var type2 = typeof(CustomDialog<CustomDialogContent2>);
-
-            var n = type2.GetGenericTypeBaseName();
-
-            var t1 = type.GetGenericArguments();
-            var t2 = type2.GetGenericArguments();
-            Type d4 = type2.GetGenericTypeDefinition();
-
+            Console.WriteLine("================\n");
+            Console.WriteLine($"Loading and unloading script 20 times");
+            Test_Unloading();
+            Console.WriteLine("================\n");
+            return;
             CSScript.StopBuildServer();
             CSScript.EvaluatorConfig.DebugBuild = true;
 
@@ -98,5 +62,47 @@ namespace ConsoleApp1
 
             (int, int) result = script.func();
         }
+
+        static void call_UnloadAssembly()
+        {
+            var script = CSScript.Evaluator
+                                 .With(eval => eval.IsAssemblyUnloadingEnabled = true)
+                                 .LoadMethod<ICalc>(@"public int Sum(int a, int b)
+                                                     { return a+b; }");
+
+            script.Sum(1, 2);
+
+            script.GetType().Assembly.Unload();
+        }
+
+        static void call_UnloadAssembly_Failing()
+        {
+            // using 'dynamic` completely breaks CLR unloading mechanism. Most likely it triggers an
+            // accidental referencing of the assembly or System.Runtime.Loader.AssemblyLoadContext.
+            dynamic script = CSScript.Evaluator
+                                     .With(eval => eval.IsAssemblyUnloadingEnabled = true)
+                                     .LoadMethod(@"public int Sum(int a, int b)
+                                                { return a+b; }");
+
+            script.Sum(1, 2);
+
+            (script as object).GetType().Assembly.Unload();
+        }
+
+        static void Test_Unloading()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                Console.WriteLine("Loaded assemblies county: " + AppDomain.CurrentDomain.GetAssemblies().Count());
+                call_UnloadAssembly();
+                // call_UnloadAssembly_Failing();
+                GC.Collect();
+            }
+        }
+    }
+
+    public interface ICalc
+    {
+        int Sum(int a, int b);
     }
 }
