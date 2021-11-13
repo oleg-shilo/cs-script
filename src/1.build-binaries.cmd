@@ -130,7 +130,7 @@ cd out\Windows
 .\cscs -engine:dotnet -code Console.WriteLine(Assembly.LoadFrom(#''cscs.dll#'').GetName().Version)
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.7z#'', $#''..\\cs-script.win.v{version}.7z#'', true);
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.linux.7z#'', $#''..\\cs-script.linux.v{version}.7z#'', true);
-.\cscs -help cli:md > ..\cli.md
+.\cscs -help cli:md > ..\CS-Script---Command-Line-Interface.md
 cd ..\..
 
 move "CSScriptLib\src\CSScriptLib\output\*.nupkg" ".\out"

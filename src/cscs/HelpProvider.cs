@@ -423,7 +423,8 @@ namespace csscript
                                                "Prints script loading performance information during the script execution.");
             switch2Help[speed] = new ArgInfo("-speed",
                                              "Prints script initialization/compilation time information of the .NET compiler. ",
-                                                 "It is a convenient way of testing performance of the .NET distribution.");
+                                             "You can use -ng option () ",
+                                             "It is a convenient way of testing performance of the .NET distribution.");
 
             switch2Help[server] = new ArgInfo("-server[:<start|stop|restart|add|remove|ping>]",
                                           "Prints the information about build server.",
@@ -1118,10 +1119,12 @@ namespace csscript
             if (includeCLI)
             {
                 var page_intro =
-                    "# CS-Script - Command Line Interface" + Environment.NewLine + Environment.NewLine +
+                    "# CS-Script - Command Line Interface" + NewLine + NewLine +
                     "As many other tools CS-Script provides an intensive command line interface that can be used from shell/terminal (e.g. Bash, PowerShell, command-prompt). This interface is particularly useful fo environments like Linux, " +
-                    "where working from terminal is a predominate development approach." + Environment.NewLine + Environment.NewLine +
-                    "## CLI Commands" + Environment.NewLine;
+                    "where working from terminal is a predominate development approach." + NewLine + NewLine +
+                    "_This document is auto-generted with the command `css -help cli:md`._" + NewLine + NewLine +
+
+                    "## CLI Commands" + NewLine;
 
                 var usage = "Usage: " + AppInfo.appName + " <switch 1> <switch 2> <file> [params] [//x]";
 
@@ -1190,7 +1193,7 @@ namespace csscript
             }
 
             if (mdFormat)
-                return builder.ToString();
+                return builder.ToString().GetLines().Select(x => x.TrimEnd()).JoinBy(NewLine); 
             else
                 return builder.ToString().Replace("```", "");
         }

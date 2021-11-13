@@ -191,6 +191,7 @@ namespace CSScriptLib
         public bool IsAssemblyUnloadingEnabled { get; set; } = false;
 
         static internal Dictionary<int, (byte[] asm, byte[] pdb)> scriptCache = new Dictionary<int, (byte[] asm, byte[] pdb)>();
+        static internal Dictionary<int, Assembly> loadedScriptsCache = new Dictionary<int, Assembly>();
 
         /// <summary>
         /// This property controls script caching.
@@ -217,29 +218,49 @@ namespace CSScriptLib
 
             // scriptFile is needed to allow injection of the debug information
 
+            int scriptHash = GetHashFor(scriptText, scriptFile);
+
+            if (IsCachingEnabled)
+            {
+                if (loadedScriptsCache.ContainsKey(scriptHash))
+                    return loadedScriptsCache[scriptHash];
+            }
+
             (byte[] asm, byte[] pdb) = Compile(scriptText, scriptFile, info);
 
+            Assembly scriptAssembly;
+            
             if (info?.PreferLoadingFromFile == true && info?.AssemblyFile.IsNotEmpty() == true)
             {
                 // return Assembly.LoadFile(info.AssemblyFile);
                 // this way the loaded script assembly can be referenced from
                 // other scripts without custom assembly probing
-                return IsAssemblyUnloadingEnabled
-                            ? AppDomain.CurrentDomain.LoadCollectableAssemblyFrom(info.AssemblyFile)
-                            : Assembly.LoadFrom(info.AssemblyFile);
+                scriptAssembly = IsAssemblyUnloadingEnabled
+                                     ? AppDomain.CurrentDomain.LoadCollectableAssemblyFrom(info.AssemblyFile)
+                                     : Assembly.LoadFrom(info.AssemblyFile);
             }
             else
             {
                 if (pdb != null)
-                    return IsAssemblyUnloadingEnabled
+                    scriptAssembly = IsAssemblyUnloadingEnabled
                         ? AppDomain.CurrentDomain.LoadCollectableAssembly(asm, pdb)
                         : AppDomain.CurrentDomain.Load(asm, pdb);
                 else
-                    return IsAssemblyUnloadingEnabled
+                    scriptAssembly = IsAssemblyUnloadingEnabled
                         ? AppDomain.CurrentDomain.LoadCollectableAssembly(asm)
                         : AppDomain.CurrentDomain.Load(asm);
             }
+
+            if (IsCachingEnabled)
+            {
+                loadedScriptsCache[scriptHash] = scriptAssembly;
+            }
+            
+            return scriptAssembly;
         }
+
+        internal int GetHashFor(string scriptText, string scriptFile)
+            =>$"{scriptText}.{scriptFile?.GetFullPath()}".GetHashCode(); // not very sophisticated but adequate
 
         /// <summary>
         /// Returns set of referenced assemblies.

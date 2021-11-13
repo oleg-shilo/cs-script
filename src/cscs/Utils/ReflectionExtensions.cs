@@ -29,6 +29,13 @@ namespace CSScripting
         /// unloadable ('IsCollectible').</para>
         /// <para>Use <see cref="CSScriptLib.IEvaluator.IsAssemblyUnloadingEnabled"/> to control
         /// how the assemblies (compiled scripts) are loaded.</para>
+        /// <para>
+        /// Note, unloading of assembly is implemented by CLR not CS-Script. This method extension is simply
+        /// redirecting the call to the .NET <see cref="System.Runtime.Loader.AssemblyLoadContext.Unload"/>
+        /// . Thus it is subject of the 
+        /// underlying limitations. Thus an AssemblyLoadContext can only be unloaded if it is collectible. And 
+        /// Unloading will occur asynchronously.
+        /// </para>
         /// </summary>
         /// <param name="asm"></param>
         public static void Unload(this Assembly asm)

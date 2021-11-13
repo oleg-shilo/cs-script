@@ -332,12 +332,10 @@ namespace CSScriptLib
                     ReferenceAssembliesFromCode(scriptText, localDir);
                 }
 
-                int scriptHash = 0;
+                int scriptHash = base.GetHashFor(scriptText,scriptFile);
 
                 if (IsCachingEnabled)
                 {
-                    scriptHash = $"{scriptText}.{scriptFile?.GetFullPath()}".GetHashCode(); // not very sophisticated but adequate
-
                     if (scriptCache.ContainsKey(scriptHash))
                         return scriptCache[scriptHash];
                 }

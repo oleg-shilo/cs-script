@@ -21,7 +21,6 @@ Copyright (C) 2004-2020 Oleg Shilo.
        -? cache
        -cache help
        -cache ?
-    
 
 -e
     Compiles script into console application executable.
@@ -35,7 +34,6 @@ Copyright (C) 2004-2020 Oleg Shilo.
     
        -c:1|-c  - enable caching
        -c:0     - disable caching (which might be enabled globally)
-    
 
 -ca
     Compiles script file into cache file (e.g. <cache dir>/script.cs.dll).
@@ -65,7 +63,6 @@ Copyright (C) 2004-2020 Oleg Shilo.
      ls    - lists all cache items.
      trim  - removes all abandoned cache items.
      clear - removes all cache items.
-    
 
 -co:<options>
     Passes compiler options directly to the language compiler.
@@ -107,7 +104,6 @@ Copyright (C) 2004-2020 Oleg Shilo.
           cscs -ng:csc sample.cs)
           cscs -ng:roslyn-inproc sample.cs)
           cscs -ng:roslyn sample.cs)
-    
 
 -s|-sample[:<C# version>]
      -s:7    - prints C# 7+ sample. Otherwise it prints the default canonical 'Hello World' sample.
@@ -140,7 +136,6 @@ Copyright (C) 2004-2020 Oleg Shilo.
         cscs -new:console console.cs
         cscs -new:winform myapp.cs
         cscs -new:wpf hello
-    
 
 -code[:show] <script code>
     Executes script code directly without using a script file.
@@ -173,8 +168,7 @@ Copyright (C) 2004-2020 Oleg Shilo.
     #``       ->    "   
     `n        ->    <\n>
     `r        ->    <\r>
-    ``        ->    "   
-    
+    ``        ->    "
 
 -wait[:prompt]
     Waits for user input after the execution before exiting.
@@ -248,7 +242,6 @@ Copyright (C) 2004-2020 Oleg Shilo.
     
      -dbgprint:1   enable `dbg.cs` inclusion; Same as `-dbgprint`;
      -dbgprint:0   disable `dbg.cs` inclusion;
-    
 
 -verbose
     Prints runtime information during the script execution.
@@ -288,7 +281,6 @@ Copyright (C) 2004-2020 Oleg Shilo.
     
      -servers:start - deploys and starts both Roslyn and csc build server
      -servers:stop - stops both Roslyn and csc build server
-    
 
 -tc
     Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.
@@ -300,22 +292,23 @@ Copyright (C) 2004-2020 Oleg Shilo.
      -wpf               - prints current enabled status
      -wpf:<enable|1>    - enables WPF support
      -wpf:<disable|0>   - disables WPF support
-    
 
 -config[:<option>]
     Performs various CS-Script config operations
     
-     -config:none               - ignores config file (uses default settings)
-     -config:create             - creates config file with default settings
-     -config:default            - prints default config file
-     -config:<raw|xml>          - prints current config file content
-     -config[:ls]               - lists/prints current config values
-     -config:get:name           - prints current config value
-     -config:set:name=value     - sets current config value
-     -config:set:name=add:value - updates the current config value content by appending the specified value.
-     -config:set:name=del:value - updates the current config value content by removing all occurrences of the
-                                  specified value.
-     -config:<file>             - uses custom config file
+     -config:none                   - ignores config file (uses default settings)
+     -config:create                 - creates config file with default settings
+     -config:default                - prints default config file
+     -config:<raw|xml>              - prints current config file content
+     -config[:ls]                   - lists/prints current config values
+     -config:<name> ?               - prints help for the configuration value specified by name
+     -config:get:<name>             - prints current config value
+     -config::<name>                - the same as `-config:get:name`
+     -config:set:<name>=<value>     - sets current config value
+     -config:set:<name>=add:<value> - updates the current config value content by appending the specified value.
+     -config:set:<name>=del:<value> - updates the current config value content by removing all occurrences of the
+                                      specified value.
+     -config:<file>                 - uses custom config file
     
      
     Note: The property name in -config:set and -config:set is case insensitive and can also contain '_' as a token
@@ -327,7 +320,6 @@ Copyright (C) 2004-2020 Oleg Shilo.
           cscs -config:set:DefaultArguments=add:-ac
           cscs -config:set:default_arguments=del:-ac
           cscs -config:c:\cs-script\css_VB.xml sample.vb)
-    
 
 -out[:<file>]
     Forces the script to be compiled into a specific location.
