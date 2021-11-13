@@ -152,7 +152,10 @@ namespace csscript
                 if (doc != "")
                     buf.AppendLine().Append(doc.ToConsoleLines(actualIndent, markdown ? int.MaxValue : null));
 
-                return buf.ToString().TrimEnd();
+                if (markdown)
+                    return buf.ToString().TrimEnd();
+                else
+                    return buf.ToString().Replace("```", "").TrimEnd();
             }
 
             static int indent = 4;
@@ -428,11 +431,11 @@ namespace csscript
                                           "or 'roslyn' engine.",
                                           "Build server is a background process which implements hop loading of C# compiler csc.exe. " +
                                           "Somewhat similar to VBCSCompiler.exe.",
-                                          "This option is only relevant if compiler engine is set to 'csc' (see '-engine' command).",
+                                          "This options are only relevant if compiler engine is set to 'csc' (see '-engine' command).",
                                           "```",
                                           " -server:start   - ${<==}deploys and starts build server. Useful if you want to start the server " +
                                                                    "on system startup.",
-                                          " -server:stop    - ${<==}stops starts build server",
+                                          " -server:stop    - ${<==}stops build server",
                                           " -server:restart - ${<==}restarts build server",
                                           " -server:reset   - ${<==}stops, re-deploys and starts build server",
                                           " -server:add     - ${<==}deploys build server",
@@ -440,12 +443,19 @@ namespace csscript
                                           " -server:ping    - ${<==}Pins running instance (if any) of the build server",
                                           "```",
                                           "",
-                                          "This option is only relevant if compiler engine is set to 'roslyn' (see '-engine' command).",
+                                          "The following options are only relevant if compiler engine is set to 'roslyn' (see '-engine' command).",
                                           "Roslyn based build server variant is much simpler so it only exposes start and stop interface.",
                                           "```",
                                           " -server_r:start - ${<==}deploys and starts Roslyn build server",
-                                          " -server_r:stop  - ${<==}stops starts Roslyn build server",
-                                          "```");
+                                          " -server_r:stop  - ${<==}stops Roslyn build server",
+                                          "```",
+                                          "",
+                                          "And this is how you can start and stop both Roslyn and csc build servers with a single command:",
+                                          "```",
+                                          " -servers:start - ${<==}deploys and starts both Roslyn and csc build server",
+                                          " -servers:stop - ${<==}stops both Roslyn and csc build server",
+                                          "```"
+                                          );
 
             switch2Help[tc] = new ArgInfo("-tc",
                                           "Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.",
@@ -464,16 +474,18 @@ namespace csscript
             switch2Help[config] = new ArgInfo("-config[:<option>]",
                                               "Performs various CS-Script config operations",
                                               "```",
-                                              " -config:none               - ${<==}ignores config file (uses default settings)",
-                                              " -config:create             - ${<==}creates config file with default settings",
-                                              " -config:default            - ${<==}prints default config file",
-                                              " -config:<raw|xml>          - ${<==}prints current config file content",
-                                              " -config[:ls]               - ${<==}lists/prints current config values",
-                                              " -config:get:name           - ${<==}prints current config value",
-                                              " -config:set:name=value     - ${<==}sets current config value",
-                                              " -config:set:name=add:value - ${<==}updates the current config value content by appending the specified value.",
-                                              " -config:set:name=del:value - ${<==}updates the current config value content by removing all occurrences of the specified value.",
-                                              " -config:<file>             - ${<==}uses custom config file",
+                                              " -config:none                   - ${<==}ignores config file (uses default settings)",
+                                              " -config:create                 - ${<==}creates config file with default settings",
+                                              " -config:default                - ${<==}prints default config file",
+                                              " -config:<raw|xml>              - ${<==}prints current config file content",
+                                              " -config[:ls]                   - ${<==}lists/prints current config values",
+                                              " -config:<name> ?               - ${<==}prints help for the configuration value specified by name",
+                                              " -config:get:<name>             - ${<==}prints current config value",
+                                              " -config::<name>                - ${<==}the same as `-config:get:name`",
+                                              " -config:set:<name>=<value>     - ${<==}sets current config value",
+                                              " -config:set:<name>=add:<value> - ${<==}updates the current config value content by appending the specified value.",
+                                              " -config:set:<name>=del:<value> - ${<==}updates the current config value content by removing all occurrences of the specified value.",
+                                              " -config:<file>                 - ${<==}uses custom config file",
                                               "```",
                                               " ",
                                                   "Note: The property name in -config:set and -config:set is case insensitive and can also contain '_' " +
@@ -1105,11 +1117,18 @@ namespace csscript
 
             if (includeCLI)
             {
+                var page_intro =
+                    "# CS-Script - Command Line Interface" + Environment.NewLine + Environment.NewLine +
+                    "As many other tools CS-Script provides an intensive command line interface that can be used from shell/terminal (e.g. Bash, PowerShell, command-prompt). This interface is particularly useful fo environments like Linux, " +
+                    "where working from terminal is a predominate development approach." + Environment.NewLine + Environment.NewLine +
+                    "## CLI Commands" + Environment.NewLine;
+
                 var usage = "Usage: " + AppInfo.appName + " <switch 1> <switch 2> <file> [params] [//x]";
 
                 if (mdFormat)
                 {
                     builder
+                        .AppendLine(page_intro)
                         .AppendLine("```")
                         .AppendLine(usage)
                         .AppendLine("```")
@@ -1671,10 +1690,19 @@ nvironment.NewLine);
                     }
                     else
                     {
-                        if (settings.DefaultCompilerEngine == "csc")
+                        if (settings.DefaultCompilerEngine == Directives.compiler_csc)
+                        {
                             builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Globals.csc})");
-                        else
+                            builder.AppendLine($"                  : dotnet ({Globals.dotnet})");
+                        }
+                        else if (settings.DefaultCompilerEngine == Directives.compiler_roslyn)
+                        {
+                            builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({typeof(Microsoft.CodeAnalysis.CSharp.Scripting.CSharpScript).Assembly.Location})");
+                        }
+                        else if (settings.DefaultCompilerEngine == Directives.compiler_dotnet)
+                        {
                             builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Globals.dotnet})");
+                        }
                     }
                 }
                 else

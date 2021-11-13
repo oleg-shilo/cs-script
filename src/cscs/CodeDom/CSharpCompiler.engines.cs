@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using static System.StringComparison;
 using static CSScripting.PathExtensions;
+using static CSScripting.Globals;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
@@ -291,7 +292,7 @@ namespace CSScripting.CodeDom
                 Profiler.EngineContext = "Building with local csc engine...";
                 cmd = $@"""{Globals.GetCompilerFor(sources.FirstOrDefault())}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
                 cmpl_cmd = cmd;
-                result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+                result.NativeCompilerReturnValue = Globals.dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
             }
 
             if (std_err.HasText())

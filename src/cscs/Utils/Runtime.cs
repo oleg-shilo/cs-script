@@ -19,6 +19,24 @@ namespace csscript
     public static class Runtime
     {
         /// <summary>
+        /// Occurs when an exception is not caught.
+        /// </summary>
+        static public event UnhandledExceptionEventHandler UnhandledException;
+
+        internal static bool RaiseUnhandledExceptionIfSubscribed(object sender, UnhandledExceptionEventArgs e)
+        {
+            var handlers = UnhandledException?.GetInvocationList();
+
+            if (handlers?.Any() == true)
+            {
+                handlers.ForEach(x => x.DynamicInvoke(sender, e));
+                return true;
+            }
+            else
+                return false;
+        }
+
+        /// <summary>
         /// Returns the name of the temporary folder in the CSSCRIPT subfolder of Path.GetTempPath().
         /// <para>Under certain circumstances it may be desirable to the use the alternative location for the CS-Script temporary files.
         /// In such cases use SetScriptTempDir() to set the alternative location.

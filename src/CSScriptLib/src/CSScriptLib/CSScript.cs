@@ -358,6 +358,9 @@ namespace CSScriptLib
         /// the script engine will use that compiled script from the cache instead of compiling it again.
         /// Note the script cache is always maintained by the script engine. The CacheEnabled property only indicates if the cached script should be used or not when CSScript.Load(...) method is called.
         /// </summary>
+        [Obsolete(message:
+            "This property is no longer in use. It was serving CS-Script Native API, which is no longer supported due " +
+            "to the breaking changes of .NET 5/Core. Use `CSScript.Evaluator.With(eval => eval.IsCachingEnabled = false)...` instead.")]
         public static bool CacheEnabled { get; set; } = true;
 
         static List<string> tempFiles;

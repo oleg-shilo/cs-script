@@ -209,7 +209,7 @@ namespace CSScriptLib
         /// printerScript.Print();
         /// </code>
         /// </example>
-        public bool IsCachingEnabled = false;
+        public bool IsCachingEnabled { get; set; } = false;
 
         Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
         {

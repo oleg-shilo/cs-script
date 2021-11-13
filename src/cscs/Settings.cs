@@ -43,21 +43,8 @@ namespace csscript
         /// <summary>
         /// Location of alternative code provider assembly. If set it forces script engine to use an alternative code compiler.
         /// </summary>
-        [Category("Extensibility"), Description("Location of alternative code provider assembly. If set it forces script engine to use an alternative code compiler.")]
+        [Description("Location (path) of alternative code provider assembly. If set it forces script engine to use an alternative code compiler.")]
         public string UseAlternativeCompiler { get; set; }
-
-        /// <summary>
-        /// Gets or sets the path to the Roslyn directory. This setting is used to redirect Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll to the
-        /// custom location of the Roslyn compilers (e.g. /usr/lib/mono/4.5).
-        /// </summary>
-        /// <value>
-        /// The Roslyn directory.
-        /// </value>
-        public string RoslynDir
-        {
-            get => Environment.GetEnvironmentVariable("CSSCRIPT_ROSLYN") ?? "";
-            set => Environment.SetEnvironmentVariable("CSSCRIPT_ROSLYN", value);
-        }
 
         /// <summary>
         /// <para> When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.
@@ -70,6 +57,12 @@ namespace csscript
         /// <para>Set <see cref="ResolveRelativeFromParentScriptLocation"/> to <c>true</c> if you want to convert all relative paths
         /// into the absolute path, not only the ones with a single dot ('.') prefix.</para>
         /// </summary>
+        [Description(
+@"When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.Resolving relative path is typically done with respect to the current directory.
+The only exception is any path that starts with a single dot ('.') prefix, which triggers the conversion of the path into the absolute path with respect to the location of the file containing the import directive.
+Set ResolveRelativeFromParentScriptLocation to true if you want to convert all relative paths into the absolute path, not only the ones with a single dot ('.') prefix.
+
+`true` if the option is enabled; otherwise, `false`")]
         public bool ResolveRelativeFromParentScriptLocation
         {
             get { return CSharpParser.ImportInfo.ResolveRelativeFromParentScriptLocation; }
@@ -86,7 +79,7 @@ namespace csscript
         /// Default command-line arguments. For example if "/dbg" is specified all scripts will be compiled in debug mode
         /// regardless if the user specified "/dbg" when a particular script is launched.
         /// </summary>
-        [Category("RuntimeSettings"), Description("Default command-line arguments (e.g.-dbg) for all scripts.")]
+        [Description("Default command-line arguments (e.g.-dbg) for all scripts.")]
         public string DefaultArguments { get; set; }
             = CSSUtils.Args.Join("c",
                                  (Runtime.IsCore || CSharpCompiler.DefaultCompilerRuntime == DefaultCompilerRuntime.Standard)
@@ -95,11 +88,14 @@ namespace csscript
 
         /// <summary>
         /// Gets or sets a value indicating whether script assembly attribute should be injected. The AssemblyDecription attribute
-        /// contains the original location of the script file the assembly being compiled from./
+        /// contains the original location of the script file the assembly being compiled from.
         /// </summary>
         /// <value>
         /// <c>true</c> if the attribute should be injected; otherwise, <c>false</c>.
         /// </value>
+        [Description(@"Gets or sets a value indicating whether script assembly attribute should be injected. The AssemblyDecription attributecontains the original location of the script file the assembly being compiled from.
+
+`true` if the attribute should be injected; otherwise, `false`")]
         public bool InjectScriptAssemblyAttribute { get; set; }
 
         /// <summary>
@@ -108,6 +104,9 @@ namespace csscript
         /// <value>
         ///   <c>true</c> if print methods are enabled; otherwise, <c>false</c>.
         /// </value>
+        [Description(@"Gets or sets a value indicating whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now)).
+
+`true` if print methods are enabled; otherwise, `false`")]
         public bool EnableDbgPrint { get; set; } = true;
 
         /// <summary>
@@ -120,11 +119,19 @@ namespace csscript
         /// <value>
         /// <c>true</c> if preferences needs to be resolved; otherwise, <c>false</c>.
         /// </value>
+        [Description(@"Gets or sets a value indicating whether references to the auto-generated files should be resolved.
+If this flag is set the all references in the compile errors text to the path of the derived auto-generated files(e.g. errors in the decorated classless scripts) will be replaced with the path of the original file(s) (e.g. classless script itself).
+
+`true` if preferences needs to be resolved; otherwise, `false`")]
         public bool ResolveAutogenFilesRefs { get; set; } = true;
 
         /// <summary>
         /// Enables omitting closing character (";") for CS-Script directives (e.g. "//css_ref System.Xml.dll" instead of "//css_ref System.Xml.dll;").
         /// </summary>
+
+        [Description(@"Enables omitting closing character ("";"") for CS-Script directives (e.g. ""//css_ref System.Xml.dll"" instead of ""//css_ref System.Xml.dll;"").
+
+`true` if the option is enabled; otherwise, `false`")]
         public bool OpenEndDirectiveSyntax { get; set; } = true;
 
         string consoleEncoding = DefaultEncodingName;
@@ -132,8 +139,7 @@ namespace csscript
         /// <summary>
         /// Encoding of he Console Output. Applicable for console applications script engine only.
         /// </summary>
-        [Category("RuntimeSettings"), Description("Console output encoding. Use 'default' value if you want to use system default encoding. " +
-                                                  "Otherwise specify the name of the encoding (e.g. utf-8).")]
+        [Description("Console output encoding. Use \"default\" value if you want to use system default encoding. Otherwise specify the name of the encoding (e.g. \"utf-8\").")]
         public string ConsoleEncoding
         {
             get { return consoleEncoding; }
@@ -169,6 +175,18 @@ namespace csscript
         /// <value>
         ///   <c>true</c> if to suppress timestamping; otherwise, <c>false</c>.
         /// </value>
+
+        [Description(@"Gets or sets a value indicating whether to enforce timestamping the compiled script assembly.
+Some reports indicated that changing assembly timestamp can affect CLR caching (shadow copying)due to some unknown/undocumented CLR feature(s).
+
+Thus script caching algorithm has been changed to avoid using the compiled assemblyLastModifiedTime file-attribute for storing the script timestamp. Currently caching algorithmuses injected metadata instead.
+
+If for whatever reason the old behaver is preferred you can always enable it by either setting LegacyTimestampCaching to true or by setting CSS_LEGACY_TIMESTAMP_CAHINGenvironment variable to ""true"".
+
+Triggered by issue #61: https://github.com/oleg-shilo/cs-script/issues/61
+
+`true` if the option is enabled; otherwise, `false`")
+            ]
         public bool LegacyTimestampCaching
         {
             get { return legacyTimestampCaching; }
@@ -181,6 +199,7 @@ namespace csscript
         /// <value>
         /// The custom temporary directory.
         /// </value>
+        [Description("Gets or sets the custom CS-Script temporary directory.")]
         public string CustomTempDirectory
         {
             get { return Environment.GetEnvironmentVariable("CSS_CUSTOM_TEMPDIR"); }
@@ -201,13 +220,15 @@ namespace csscript
         /// <value>
         /// The default compiler.
         /// </value>
+        [Description("Default compiler engine. This default value is to be used if user does not provide " +
+            "the specific engine choice with the `-ng` CLI argument. Run `css -ng ?` for possible values and other details.")]
         public string DefaultCompilerEngine { get; set; } = Runtime.IsLinux ? "csc" : "dotnet";
 
         /// <summary>
         /// List of assembly names to be automatically referenced by the script. The items must be separated by coma or semicolon. Specifying .dll extension (e.g. System.Core.dll) is optional.
         /// Assembly can contain expandable environment variables.
         /// </summary>
-        [Category("Extensibility"), Description("List of assembly names to be automatically referenced by the scripts (e.g. System.dll, System.Core.dll). Assembly extension is optional.")]
+        [Description("List of assembly names to be automatically referenced by the scripts (e.g. System.dll, System.Core.dll). Assembly extension is optional.")]
         public string DefaultRefAssemblies
         {
             get
@@ -238,7 +259,7 @@ namespace csscript
         /// List of directories to be used to search (probing) for referenced assemblies and script files.
         /// This setting is similar to the system environment variable PATH.
         /// </summary>
-        [Category("Extensibility"), Description("List of directories to be used to search (probing) for referenced assemblies and script files.\nThis setting is similar to the system environment variable PATH.")]
+        [Description("List of semicolon separated directories to be used to search (probing) for referenced assemblies and script files.\nThis setting is similar to the system environment variable PATH.")]
         public string SearchDirs
         {
             get { return searchDirs; }
@@ -266,18 +287,12 @@ namespace csscript
             }
         }
 
-        /// <summary>
-        /// The value, which indicates if auto-generated files (if any) should be hidden in the temporary directory.
-        /// </summary>
-        [Category("RuntimeSettings"), Description("The value, which indicates if auto-generated files (if any) should be hidden in the temporary directory.")]
-        public HideOptions HideAutoGeneratedFiles { get; set; } = HideOptions.HideAll;
-
         string precompiler = "";
 
         /// <summary>
         /// Path to the precompiler script/assembly (see documentation for details). You can specify multiple recompiles separating them by semicolon.
         /// </summary>
-        [Category("RuntimeSettings"), Description("Path to the precompiler script/assembly (see documentation for details). You can specify multiple recompiles separating them by semicolon.")]
+        [Description("Path to the precompiler script/assembly (see documentation for details). You can specify multiple recompiles separating them by semicolon.")]
         public string Precompiler
         {
             get { return precompiler; }
@@ -302,6 +317,13 @@ namespace csscript
         /// <value>
         ///   <c>true</c> if custom hashing is in use; otherwise, <c>false</c>.
         /// </value>
+        [Description(
+            "Gets or sets a value indicating whether custom string hashing algorithm should be used. " +
+            "String hashing is used by the script engine for allocating temporary and cached paths.However default string hashing is platform dependent (x32 vs.x64) " +
+            "what makes impossible a truly deterministic string hashing.This in turns complicates the integration of the CS-Script infrastructure with the third-party " +
+            @"applications (e.g.Notepad++ CS-Script plugin).
+
+To overcome this problem CS-Script uses custom string hashing algorithm(default setting).Though the native.NET hashing can be enabled if desired by setting CustomHashingto false.")]
         public bool CustomHashing
         {
             get { return customHashing; }
@@ -325,7 +347,9 @@ namespace csscript
         /// false - Top level exception will be reported
         /// true - Whole exception stack will be reported
         /// </summary>
-        [Category("RuntimeSettings"), Description("Indicates how much error details to be reported should error occur.")]
+        [Description("Indicates how much error details to be reported should error occur.\n" +
+            "\n" +
+            "`true` if the option is enabled; otherwise, `false`")]
         public bool ReportDetailedErrorInfo { get; set; } = false;
 
         /// <summary>
@@ -346,7 +370,10 @@ namespace csscript
         /// false - warnings will be displayed
         /// true - warnings will not be displayed
         /// </summary>
-        [Category("RuntimeSettings"), Description("Indicates if compiler warnings should be included in script compilation output.")]
+        [Description(
+            "Indicates if compiler warnings should be included in script compilation output.\n" +
+            "\n" +
+            "`true` if the option is enabled; otherwise, `false`")]
         public bool HideCompilerWarnings { get; set; } = false;
 
         /// <summary>
@@ -358,15 +385,22 @@ namespace csscript
         /// For example <c>Interface Alignment</c> any not work with such assemblies as it relies on CLR compiling services that
         /// typically require assembly <c>Location</c> member being populated with the valid path.</para>
         /// </summary>
-        [Category("RuntimeSettings"),
-        Description("Indicates the script assembly is to be loaded by CLR as an in-memory byte stream instead of the file. " +
-            "Note this settings can affect the use cases requiring the loaded assemblies to have non empty Assembly.Location.")]
+        [Description("Indicates the script assembly is to be loaded by CLR as an in-memory byte stream instead of the file. " +
+            "Note this settings can affect the use cases requiring the loaded assemblies to have non empty Assembly.Location.\n" +
+            "\n" +
+            "`true` if the option is enabled; otherwise, `false`")]
         public bool InMemoryAssembly { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the concurrency control model.
         /// </summary>
         /// <value>The concurrency control.</value>
+        [Description("Gets or sets the concurrency control model.\n" +
+            "Possible values are:\n" +
+            " Standard - Simple model. The script engine doesn't start the timestamp validation and the script compilation until another engine validating finishes its job.\n" +
+            " HighResolution - A legacy synchronization model available on Windows only. While it can be beneficial in the intense concurrent 'border line' scenarios, its practical value very limited.\n" +
+            " None - No concurrency control is done by the script engine. All synchronization is the responsibility of the hosting environment.\n" +
+            "(See https://github.com/oleg-shilo/cs-script/wiki/Performance,-Caching-and-Concurrency#concurrency for details)")]
         public ConcurrencyControl ConcurrencyControl { get; set; } = ConcurrencyControl.Standard;
 
         /// <summary>
@@ -496,7 +530,6 @@ namespace csscript
                 doc.DocumentElement.AppendChild(doc.CreateElement(nameof(DefaultRefAssemblies))).AppendChild(doc.CreateTextNode(DefaultRefAssemblies));
                 doc.DocumentElement.AppendChild(doc.CreateElement(nameof(SearchDirs))).AppendChild(doc.CreateTextNode(SearchDirs));
                 doc.DocumentElement.AppendChild(doc.CreateElement(nameof(UseAlternativeCompiler))).AppendChild(doc.CreateTextNode(UseAlternativeCompiler));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(RoslynDir))).AppendChild(doc.CreateTextNode(RoslynDir));
                 doc.DocumentElement.AppendChild(doc.CreateElement(nameof(DefaultCompilerEngine))).AppendChild(doc.CreateTextNode(DefaultCompilerEngine));
                 doc.DocumentElement.AppendChild(doc.CreateElement(nameof(ConsoleEncoding))).AppendChild(doc.CreateTextNode(ConsoleEncoding));
                 doc.DocumentElement.AppendChild(doc.CreateElement(nameof(InMemoryAssembly))).AppendChild(doc.CreateTextNode(InMemoryAssembly.ToString()));
@@ -506,9 +539,6 @@ namespace csscript
 
                 if (ResolveRelativeFromParentScriptLocation != false)
                     doc.DocumentElement.AppendChild(doc.CreateElement(nameof(ResolveRelativeFromParentScriptLocation))).AppendChild(doc.CreateTextNode(ResolveRelativeFromParentScriptLocation.ToString()));
-
-                if (HideAutoGeneratedFiles != HideOptions.HideAll)
-                    doc.DocumentElement.AppendChild(doc.CreateElement(nameof(HideAutoGeneratedFiles))).AppendChild(doc.CreateTextNode(HideAutoGeneratedFiles.ToString()));
 
                 if (!string.IsNullOrEmpty(CustomTempDirectory))
                     doc.DocumentElement.AppendChild(doc.CreateElement(nameof(CustomTempDirectory))).AppendChild(doc.CreateTextNode(CustomTempDirectory));
@@ -643,10 +673,8 @@ namespace csscript
                     node = data.SelectSingleNode(nameof(DefaultArguments)); if (node != null) settings.DefaultArguments = node.InnerText;
                     node = data.SelectSingleNode(nameof(ReportDetailedErrorInfo)); if (node != null) settings.ReportDetailedErrorInfo = node.InnerText.ToBool();
                     node = data.SelectSingleNode(nameof(UseAlternativeCompiler)); if (node != null) settings.UseAlternativeCompiler = node.InnerText;
-                    node = data.SelectSingleNode(nameof(RoslynDir)); if (node != null) settings.RoslynDir = Environment.ExpandEnvironmentVariables(node.InnerText);
                     node = data.SelectSingleNode(nameof(SearchDirs)); if (node != null) settings.SearchDirs = node.InnerText;
                     node = data.SelectSingleNode(nameof(DefaultCompilerEngine)); if (node != null) settings.DefaultCompilerEngine = node.InnerText;
-                    node = data.SelectSingleNode(nameof(HideAutoGeneratedFiles)); if (node != null) settings.HideAutoGeneratedFiles = (HideOptions)Enum.Parse(typeof(HideOptions), node.InnerText, true);
                     node = data.SelectSingleNode(nameof(EnableDbgPrint)); if (node != null) settings.EnableDbgPrint = node.InnerText.ToBool();
                     node = data.SelectSingleNode(nameof(HideCompilerWarnings)); if (node != null) settings.HideCompilerWarnings = node.InnerText.ToBool();
                     node = data.SelectSingleNode(nameof(InMemoryAssembly)); if (node != null) settings.InMemoryAssembly = node.InnerText.ToBool();

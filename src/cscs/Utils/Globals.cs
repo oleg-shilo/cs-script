@@ -246,6 +246,8 @@ namespace CSScripting
                     else
 #endif
                     {
+                        // Win: C:\Program Files\dotnet\sdk\6.0.100-rc.2.21505.57\Roslyn\bincore\csc.dll
+                        //      C:\Program Files (x86)\dotnet\sdk\5.0.402\Roslyn\bincore\csc.dll
                         // linux ~dotnet/.../3.0.100-preview5-011568/Roslyn/... (cannot find in preview)
                         // win: program_files/dotnet/sdk/<version>/Roslyn/csc.exe
                         var dotnet_root = "".GetType().Assembly.Location;
@@ -253,18 +255,19 @@ namespace CSScripting
                         // find first "dotnet" parent dir by trimming till the last "dotnet" token
                         dotnet_root = dotnet_root.Split(Path.DirectorySeparatorChar)
                                                  .Reverse()
-                                                     .SkipWhile(x => x != "dotnet")
-                                                     .Reverse()
-                                                     .JoinBy(Path.DirectorySeparatorChar.ToString());
+                                                 .SkipWhile(x => x != "dotnet")
+                                                 .Reverse()
+                                                 .JoinBy(Path.DirectorySeparatorChar.ToString());
 
                         if (dotnet_root.PathJoin("sdk").DirExists()) // need to check as otherwise it will throw
                         {
                             var dirs = dotnet_root.PathJoin("sdk")
                                                   .PathGetDirs("*")
-                                                      .Where(dir => char.IsDigit(dir.GetFileName()[0]))
-                                                      .OrderBy(x => System.Version.Parse(x.GetFileName().Split('-').First()))
-                                                      .SelectMany(dir => dir.PathGetDirs("Roslyn"))
-                                                      .ToArray();
+                                                  .Where(dir => char.IsDigit(dir.GetFileName()[0]))
+                                                  .OrderBy(x => System.Version.Parse(x.GetFileName().Split('-').First()))
+                                                  .SelectMany(dir => dir.PathGetDirs("Roslyn"))
+                                                  .ToArray();
+
                             csc_file = dirs.Select(dir => dir.PathJoin("bincore", "csc.dll"))
                                                    .LastOrDefault(File.Exists);
                         }

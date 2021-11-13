@@ -789,17 +789,20 @@ partial class dbg
                         //-config:<file>           - use custom config file
 
                         if (argValue == null ||
-                        argValue == "create" ||
-                        argValue == "default" ||
-                        argValue == "ls" ||
-                        argValue == "raw" ||
-                        argValue == "xml" ||
-                        argValue.StartsWith("get:") ||
-                        argValue.StartsWith("set:"))
+                            (argValue.HasText() && nextArg.IsHelpRequest()) ||
+                            argValue == "create" ||
+                            argValue == "default" ||
+                            argValue == "ls" ||
+                            argValue == "raw" ||
+                            argValue == "xml" ||
+                            argValue.StartsWith(":") ||
+                            argValue.StartsWith("get:") ||
+                            argValue.StartsWith("set:"))
                         {
                             executor.ProcessConfigCommand(argValue);
                             CLIExitRequest.Throw();
                         }
+
                         if (argValue == "none")
                         {
                             options.noConfig = true;

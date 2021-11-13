@@ -9,6 +9,7 @@ using static CSScripting.PathExtensions;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
+using static CSScripting.Globals;
 
 #if class_lib
 using CSScriptLib;
@@ -54,8 +55,6 @@ namespace CSScripting.CodeDom
             throw new NotImplementedException();
         }
 
-        static string dotnet { get; } = "dotnet";
-
         static string InitBuildTools(string fileType)
         {
             var cache_dir = CSExecutor.ScriptCacheDir; // C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284
@@ -74,6 +73,7 @@ namespace CSScripting.CodeDom
                 build_root.PathJoin($"Program{fileType}").DeleteIfExists();
                 build_root.PathJoin("obj").DeleteIfExists(recursive: true);
             }
+            // zos; need mechanizm for cleaning
 
             if (!File.Exists(proj_template)) // sdk may not be available
             {
@@ -108,6 +108,7 @@ namespace CSScripting.CodeDom
 
                     case Directives.compiler_roslyn:
                         return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, false);
+
                     case Directives.compiler_roslyn_inproc:
                         return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, true);
 

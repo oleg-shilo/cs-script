@@ -14,7 +14,7 @@ namespace CSScriptLib
     /// <param name="paramters">Optional method parameters.</param>
     /// <returns>Returns MethodInfo return value</returns>
     public delegate object MethodDelegate(params object[] paramters);
-
+     
     /// <summary>
     /// Delegate which is used as a return type for AsmHelper.GetMethodInvoker().
     ///
