@@ -7,3 +7,4 @@
 Publish GitHub release
 Publish NuGet release
 Build and publish Choco release
+

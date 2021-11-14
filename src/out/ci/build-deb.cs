@@ -33,6 +33,8 @@ copy(
     win_root.join(@"linux\package.build\build.sh.template"),
     build_sh_script);
 
+build_sh_script.normalizeEndings();
+
 replaceInFile(bld_root.join(@"DEBIAN\control"), "{$version}", version);
 replaceInFile(build_sh_script, "{$version}", version);
 replaceInFile(build_sh_script, "{$local_root}", GetFullPath(bld_root.join("..")).toLnx());
@@ -41,6 +43,7 @@ foreach (var file in Directory.GetFiles(bld_root.join(@"DEBIAN")))
     file.normalizeEndings();
 
 WriteAllText(build_cmd_script, "bash build.sh");
+
 Start(build_cmd_script).WaitForExit();
 
 var package = win_root.join($@"..\cs-script_{version}.deb").getFullPath();

@@ -27,6 +27,11 @@
   <HelpKINode Title="AssemblyResolver.FindLocalAssembly method" Url="html/dcc36655-67ef-6f81-2c41-f70663a90c03.htm" />
   <HelpKINode Title="AssemblyResolver.ignoreFileName field" Url="html/f5eb4f01-8395-d745-0665-c2cb7fc57f1b.htm" />
   <HelpKINode Title="AssemblyResolver.IsLegalPathToken method" Url="html/47368b85-09ce-e9de-406b-c62b8e0e47db.htm" />
+  <HelpKINode Title="AssemblyUnloadingExtensions class">
+    <HelpKINode Title="AssemblyUnloadingExtensions Class" Url="html/f730df22-0243-89a5-8684-c723bcb69a9b.htm" />
+    <HelpKINode Title="methods" Url="html/5180bac3-e18b-cb65-c584-523a71afb929.htm" />
+  </HelpKINode>
+  <HelpKINode Title="AssemblyUnloadingExtensions.Unload method" Url="html/506de4d8-4b28-08e6-4fa9-75ca5c7a588a.htm" />
   <HelpKINode Title="BuildServerIsDeployed property" Url="html/e4f9f210-238e-8198-fe99-f53ad4bd0652.htm" />
   <HelpKINode Title="CacheEnabled property" Url="html/b6eecca6-2a1f-ea29-166e-1983d4bee747.htm" />
   <HelpKINode Title="CaptureExceptionDispatchInfo method" Url="html/17519245-a510-7d47-f2fd-01753e249701.htm" />
@@ -246,6 +251,7 @@
   <HelpKINode Title="CSScript.StartPurgingOldTempFiles method" Url="html/e4cfaa30-3cb5-2d01-b10d-123ad5affa3e.htm" />
   <HelpKINode Title="CSScript.StopBuildServer method" Url="html/18a0fab5-208f-d0fe-b15e-84471749f0f9.htm" />
   <HelpKINode Title="CSScripting namespace" Url="html/b733ea25-daa6-7d84-f5e2-ac603c316d12.htm" />
+  <HelpKINode Title="CSScripting.AssemblyUnloadingExtensions class" Url="html/f730df22-0243-89a5-8684-c723bcb69a9b.htm" />
   <HelpKINode Title="CSScripting.CodeDom namespace" Url="html/b7b89ba7-f579-b601-3fd0-ac833b44a002.htm" />
   <HelpKINode Title="CSScripting.CodeDom.CompilerError class" Url="html/4dd1dc6f-14e4-3908-fa7d-056086522c43.htm" />
   <HelpKINode Title="CSScripting.CodeDom.CompilerResults class" Url="html/cd86dba5-f1e1-a717-29b4-45f766ce9de2.htm" />
@@ -309,6 +315,7 @@
   <HelpKINode Title="Engine property" Url="html/e47a926c-2877-8e9f-594d-68eac5f6d191.htm" />
   <HelpKINode Title="EngineName property" Url="html/ae11eeaa-fbe4-8caf-76c0-a01f5459eea3.htm" />
   <HelpKINode Title="EnsureDir method" Url="html/41b4f499-427b-76ed-9ec8-96c65e168509.htm" />
+  <HelpKINode Title="EnsureFileDir method" Url="html/4c9fe824-2a48-8d84-1afd-256d3d223ba8.htm" />
   <HelpKINode Title="EoAuthnCap field" Url="html/41878467-4d4b-c5e7-e10b-7ce187a692e3.htm" />
   <HelpKINode Title="ErrorCount property" Url="html/8ea7f8d7-26f3-d98f-c3d8-569053b0ad57.htm" />
   <HelpKINode Title="ErrorNumber property" Url="html/7abd5390-85fd-91a3-ddae-65237ba15e87.htm" />
@@ -342,8 +349,8 @@
   <HelpKINode Title="EvaluatorBase(Of T).FilterAssemblies field" Url="html/48137323-2581-27b6-4de5-99b4919108bf.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).GetReferencedAssemblies method" Url="html/cfd82feb-9697-3185-3f1a-e0267b8497b9.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).GetReferencedAssembliesFiles method" Url="html/fe594be8-32a4-9b82-df90-29cee19aab90.htm" />
-  <HelpKINode Title="EvaluatorBase(Of T).IsAssemblyUnloadingEnabledled property" Url="html/e03629ef-3bba-d59d-bdf0-9107f765f840.htm" />
-  <HelpKINode Title="EvaluatorBase(Of T).IsCachingEnabled field" Url="html/981c8e67-234b-8f90-f3e5-3b29523d1aa2.htm" />
+  <HelpKINode Title="EvaluatorBase(Of T).IsAssemblyUnloadingEnabled property" Url="html/8bc76220-136f-4481-85aa-1c9f1686791d.htm" />
+  <HelpKINode Title="EvaluatorBase(Of T).IsCachingEnabled property" Url="html/9c6a6496-93b0-e765-618e-d299c6bb050c.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).IsDebug property" Url="html/e62b52ed-0c39-4ec8-ef9b-af41ff62dafb.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).LoadCode method" Url="html/49098733-d05b-88be-0ca8-cec90bdddf9b.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).LoadDelegate(Of T) method" Url="html/96801cc9-12b8-3725-3ab0-34d315aee567.htm" />
@@ -381,8 +388,8 @@
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.FilterAssemblies field" Url="html/48137323-2581-27b6-4de5-99b4919108bf.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.GetReferencedAssemblies method" Url="html/cfd82feb-9697-3185-3f1a-e0267b8497b9.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.GetReferencedAssembliesFiles method" Url="html/fe594be8-32a4-9b82-df90-29cee19aab90.htm" />
-  <HelpKINode Title="EvaluatorBase&lt;T&gt;.IsAssemblyUnloadingEnabledled property" Url="html/e03629ef-3bba-d59d-bdf0-9107f765f840.htm" />
-  <HelpKINode Title="EvaluatorBase&lt;T&gt;.IsCachingEnabled field" Url="html/981c8e67-234b-8f90-f3e5-3b29523d1aa2.htm" />
+  <HelpKINode Title="EvaluatorBase&lt;T&gt;.IsAssemblyUnloadingEnabled property" Url="html/8bc76220-136f-4481-85aa-1c9f1686791d.htm" />
+  <HelpKINode Title="EvaluatorBase&lt;T&gt;.IsCachingEnabled property" Url="html/9c6a6496-93b0-e765-618e-d299c6bb050c.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.IsDebug property" Url="html/e62b52ed-0c39-4ec8-ef9b-af41ff62dafb.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.LoadCode method" Url="html/49098733-d05b-88be-0ca8-cec90bdddf9b.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.LoadDelegate&lt;T&gt; method" Url="html/96801cc9-12b8-3725-3ab0-34d315aee567.htm" />
@@ -491,7 +498,8 @@
   <HelpKINode Title="IEvaluator.DebugBuild property" Url="html/ceb4eab2-3fb7-b506-eb71-c942971c8641.htm" />
   <HelpKINode Title="IEvaluator.DisableReferencingFromCode property" Url="html/62ee5b67-b522-438d-0a01-da897fc2ba5b.htm" />
   <HelpKINode Title="IEvaluator.GetReferencedAssemblies method" Url="html/ab4ae96a-c7d5-b223-7be9-6b0841f2b185.htm" />
-  <HelpKINode Title="IEvaluator.IsAssemblyUnloadingEnabledled property" Url="html/d33aafdb-ba91-c02a-ca0e-3d9389ea2c7b.htm" />
+  <HelpKINode Title="IEvaluator.IsAssemblyUnloadingEnabled property" Url="html/71fa8b27-9c13-a934-cfa6-3c2c6c6e0874.htm" />
+  <HelpKINode Title="IEvaluator.IsCachingEnabled property" Url="html/4ce16dfb-76a5-060a-253b-e4b42f2bebd2.htm" />
   <HelpKINode Title="IEvaluator.LoadCode method" Url="html/9c4ff282-5122-0716-f5e3-75f6b857506a.htm" />
   <HelpKINode Title="IEvaluator.LoadDelegate(Of T) method" Url="html/24a8edf3-c189-eafc-310b-19f1f58a7fec.htm" />
   <HelpKINode Title="IEvaluator.LoadDelegate&lt;T&gt; method" Url="html/24a8edf3-c189-eafc-310b-19f1f58a7fec.htm" />
@@ -524,11 +532,14 @@
     <HelpKINode Title="methods" Url="html/7bb13481-c494-0623-c125-7750ab6c12c8.htm" />
   </HelpKINode>
   <HelpKINode Title="Inits property" Url="html/471753f8-9f49-0b80-2adb-cca16d544c2e.htm" />
-  <HelpKINode Title="IsAssemblyUnloadingEnabledled property">
-    <HelpKINode Title="EvaluatorBase(T).IsAssemblyUnloadingEnabledled Property " Url="html/e03629ef-3bba-d59d-bdf0-9107f765f840.htm" />
-    <HelpKINode Title="IEvaluator.IsAssemblyUnloadingEnabledled Property " Url="html/d33aafdb-ba91-c02a-ca0e-3d9389ea2c7b.htm" />
+  <HelpKINode Title="IsAssemblyUnloadingEnabled property">
+    <HelpKINode Title="EvaluatorBase(T).IsAssemblyUnloadingEnabled Property " Url="html/8bc76220-136f-4481-85aa-1c9f1686791d.htm" />
+    <HelpKINode Title="IEvaluator.IsAssemblyUnloadingEnabled Property " Url="html/71fa8b27-9c13-a934-cfa6-3c2c6c6e0874.htm" />
   </HelpKINode>
-  <HelpKINode Title="IsCachingEnabled field" Url="html/981c8e67-234b-8f90-f3e5-3b29523d1aa2.htm" />
+  <HelpKINode Title="IsCachingEnabled property">
+    <HelpKINode Title="EvaluatorBase(T).IsCachingEnabled Property " Url="html/9c6a6496-93b0-e765-618e-d299c6bb050c.htm" />
+    <HelpKINode Title="IEvaluator.IsCachingEnabled Property " Url="html/4ce16dfb-76a5-060a-253b-e4b42f2bebd2.htm" />
+  </HelpKINode>
   <HelpKINode Title="IsCore property" Url="html/1b339948-d1d7-5952-a62e-5035def91ea9.htm" />
   <HelpKINode Title="IsDebug property" Url="html/e62b52ed-0c39-4ec8-ef9b-af41ff62dafb.htm" />
   <HelpKINode Title="IsDir method" Url="html/830a18ce-f497-f2a1-843e-4b8eb15505f0.htm" />
@@ -541,6 +552,7 @@
   <HelpKINode Title="IsNotEmpty method" Url="html/62365278-1a9d-6fd2-1d43-6c78897ef547.htm" />
   <HelpKINode Title="IsOneOf method" Url="html/be410dea-97af-634e-c798-e60292f792ff.htm" />
   <HelpKINode Title="IsSdkInstalled method" Url="html/1b6b8e48-aa8b-8659-3f19-6e1141773ae6.htm" />
+  <HelpKINode Title="IsValidPath method" Url="html/e5bd4957-1479-7775-250f-e1fbacd78af6.htm" />
   <HelpKINode Title="IsWarning property" Url="html/c6975a61-b40b-c0f7-e507-0facad05731d.htm" />
   <HelpKINode Title="IsWebApp property" Url="html/32ad3699-448c-dc1b-a8a2-e2f87df42e62.htm" />
   <HelpKINode Title="IsWin property" Url="html/6e5d4f63-37af-c074-ddfb-87924ab90568.htm" />
@@ -559,6 +571,8 @@
   <HelpKINode Title="LinqExtensions.IsEmpty&lt;T&gt; method" Url="html/7921dcc5-be75-50b5-536f-ec597b6175a9.htm" />
   <HelpKINode Title="LinqExtensions.None(Of T) method" Url="html/58419aaf-b521-ae5d-a2ef-71036e4dff74.htm" />
   <HelpKINode Title="LinqExtensions.None&lt;T&gt; method" Url="html/58419aaf-b521-ae5d-a2ef-71036e4dff74.htm" />
+  <HelpKINode Title="LinqExtensions.With(Of T) method" Url="html/7a40439c-3607-1e4b-18e1-fba5eeac0da2.htm" />
+  <HelpKINode Title="LinqExtensions.With&lt;T&gt; method" Url="html/7a40439c-3607-1e4b-18e1-fba5eeac0da2.htm" />
   <HelpKINode Title="Load field" Url="html/63e63edc-efdc-ead0-32d2-b110a6c8d866.htm" />
   <HelpKINode Title="LoadCode method">
     <HelpKINode Title="EvaluatorBase(T).LoadCode Method " Url="html/49098733-d05b-88be-0ca8-cec90bdddf9b.htm" />
@@ -606,6 +620,7 @@
   <HelpKINode Title="PathExtensions.DeleteDir method" Url="html/12f2d607-6120-d264-4600-7c67ab2fc707.htm" />
   <HelpKINode Title="PathExtensions.DirExists method" Url="html/6915955a-f704-aee5-07e5-908fff894f0e.htm" />
   <HelpKINode Title="PathExtensions.EnsureDir method" Url="html/41b4f499-427b-76ed-9ec8-96c65e168509.htm" />
+  <HelpKINode Title="PathExtensions.EnsureFileDir method" Url="html/4c9fe824-2a48-8d84-1afd-256d3d223ba8.htm" />
   <HelpKINode Title="PathExtensions.FileCopy method" Url="html/35195bb1-d005-e043-fb9b-c460db8d3fdb.htm" />
   <HelpKINode Title="PathExtensions.FileExists method" Url="html/5104a689-5a17-8156-3e4e-bcaabecc4b14.htm" />
   <HelpKINode Title="PathExtensions.GetDirName method" Url="html/1f7e900c-5646-b2e1-a5f5-12d8bfcc29ab.htm" />
@@ -615,6 +630,7 @@
   <HelpKINode Title="PathExtensions.GetFullPath method" Url="html/9bff21b9-3af0-66e8-e3e1-4f04896b6c5f.htm" />
   <HelpKINode Title="PathExtensions.GetPath method" Url="html/3e9fef45-9140-7a80-b8d4-9fb0d2f8aeaa.htm" />
   <HelpKINode Title="PathExtensions.IsDir method" Url="html/830a18ce-f497-f2a1-843e-4b8eb15505f0.htm" />
+  <HelpKINode Title="PathExtensions.IsValidPath method" Url="html/e5bd4957-1479-7775-250f-e1fbacd78af6.htm" />
   <HelpKINode Title="PathExtensions.PathGetDirs method" Url="html/8efb73f4-cbaf-7371-a451-39e439fc60e9.htm" />
   <HelpKINode Title="PathExtensions.PathJoin method" Url="html/a7181d9e-56dd-cac5-679d-3c8ce5a9a745.htm" />
   <HelpKINode Title="PathExtensions.PathNormaliseSeparators method" Url="html/79d33a54-8055-0298-8a44-d50142127d5a.htm" />
@@ -691,7 +707,6 @@
   <HelpKINode Title="ReflectionExtensions.GetName method" Url="html/d726f61c-e602-cff7-3f56-35875f42e3a4.htm" />
   <HelpKINode Title="ReflectionExtensions.IsDynamic method" Url="html/a0d74cc3-639b-ca15-c9d5-bca5a3b23a85.htm" />
   <HelpKINode Title="ReflectionExtensions.Location method" Url="html/c3a24961-393f-bf28-b420-2f972e47918d.htm" />
-  <HelpKINode Title="ReflectionExtensions.Unload method" Url="html/d29787d2-a489-3c86-2d4b-cca7999cef7d.htm" />
   <HelpKINode Title="RefNamespaces property" Url="html/8ffb5221-d395-1789-803e-2716762a85b6.htm" />
   <HelpKINode Title="Refs field" Url="html/18a0a0dd-b462-e567-835e-80c01757f612.htm" />
   <HelpKINode Title="RemoveAssemblyExtension method" Url="html/cddfad44-0fdf-1420-7171-8d426da004f9.htm" />
@@ -726,6 +741,7 @@
   <HelpKINode Title="RpcImpLevel field" Url="html/f6a6e393-2998-fed9-9861-369ed7537841.htm" />
   <HelpKINode Title="Runtime class">
     <HelpKINode Title="Runtime Class" Url="html/ebc3afc5-8d42-9a7b-d9a4-eef0d80d73fd.htm" />
+    <HelpKINode Title="events" Url="html/8fbd7a10-b5c4-aac5-2ebe-1034cb83b3a1.htm" />
     <HelpKINode Title="methods" Url="html/0b6244d1-1281-74b4-5162-8bf2182d4143.htm" />
     <HelpKINode Title="properties" Url="html/93d18638-35b7-4211-3b91-b36a527d3e4a.htm" />
   </HelpKINode>
@@ -739,6 +755,7 @@
   <HelpKINode Title="Runtime.IsSdkInstalled method" Url="html/1b6b8e48-aa8b-8659-3f19-6e1141773ae6.htm" />
   <HelpKINode Title="Runtime.IsWin property" Url="html/6e5d4f63-37af-c074-ddfb-87924ab90568.htm" />
   <HelpKINode Title="Runtime.NuGetCacheView property" Url="html/31d29ac8-5a9a-a4ae-ac6f-8d8ee297c2c4.htm" />
+  <HelpKINode Title="Runtime.UnhandledException event" Url="html/b38cd469-93c3-0bb7-db0f-005c87faabab.htm" />
   <HelpKINode Title="Runtime.WebAssembliesDir property" Url="html/a24c0696-e477-9b0f-6ee5-175f732e56d0.htm" />
   <HelpKINode Title="SameAs method" Url="html/1d5c37ec-d93e-ad94-7382-5ce6692a3408.htm" />
   <HelpKINode Title="SamePathAs method" Url="html/b1bd09ce-8632-7ecc-be9e-00f05e6d4f2c.htm" />
@@ -861,11 +878,14 @@
     <HelpKINode Title="IEvaluator.TryReferenceAssemblyByNamespace Method " Url="html/3be9ef02-eb46-3210-6986-e2aaa7567039.htm" />
   </HelpKINode>
   <HelpKINode Title="UnescapeDirectiveDelimiters method" Url="html/8c43d32e-f3d6-96ab-af8b-fe2c530b8f5f.htm" />
+  <HelpKINode Title="UnhandledException event" Url="html/b38cd469-93c3-0bb7-db0f-005c87faabab.htm" />
   <HelpKINode Title="Uninit method" Url="html/779c8309-e3a7-59e3-7aac-9971f7727d5a.htm" />
-  <HelpKINode Title="Unload method" Url="html/d29787d2-a489-3c86-2d4b-cca7999cef7d.htm" />
+  <HelpKINode Title="Unload method" Url="html/506de4d8-4b28-08e6-4fa9-75ca5c7a588a.htm" />
   <HelpKINode Title="Validate method">
     <HelpKINode Title="CodeDomEvaluator.Validate Method " Url="html/a09e46cf-ab4b-7ef6-2ace-89913891f2b0.htm" />
     <HelpKINode Title="EvaluatorBase(T).Validate Method " Url="html/57bc5fd7-58f0-94c4-229c-6292663be0b8.htm" />
   </HelpKINode>
   <HelpKINode Title="WebAssembliesDir property" Url="html/a24c0696-e477-9b0f-6ee5-175f732e56d0.htm" />
+  <HelpKINode Title="With(Of T) method" Url="html/7a40439c-3607-1e4b-18e1-fba5eeac0da2.htm" />
+  <HelpKINode Title="With&lt;T&gt; method" Url="html/7a40439c-3607-1e4b-18e1-fba5eeac0da2.htm" />
 </HelpKI>

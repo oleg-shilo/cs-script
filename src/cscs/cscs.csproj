@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.1.4.0</Version>
+    <Version>4.2.0.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2021 Oleg Shilo</Copyright>
@@ -17,34 +17,36 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.1.4.0</AssemblyVersion>
-    <FileVersion>4.1.4.0</FileVersion>
-    <PackageReleaseNotes>- Updated `-speed` and `-code` with the complete support `-ng:*` switches
-- Added `IEvaluator.IsCachingEnabled`. Ite as always available from the conctrete types implementing `IEvaluator` and now it is moved directly to the interface.
-- Added `-servers:start` and `-servers:stop` command to control both Roslyn and csc build servers at the same time
-- CSScriptLib: Native API `CacheEnabled` marked as obsolete
+    <AssemblyVersion>4.2.0.0</AssemblyVersion>
+    <FileVersion>4.2.0.0</FileVersion>
+    <PackageReleaseNotes>Maintenance release:
+
+- Updated -speed and -code with the complete support -ng:* switches
+- Added IEvaluator.IsCachingEnabled. Ite as always available from the conctrete types implementing IEvaluator and now it is moved directly to the interface.
+- Added -servers:start and -servers:stop command to control both Roslyn and csc build servers at the same time
+- CSScriptLib: Native API CacheEnabled marked as obsolete
 - Issue #258: Can not run scripts after installing VS2022
-- Issue #257: Ability to catch AppDomain.UnhandledException in a not-hosted script (cscs) 
+- Issue #257: Ability to catch AppDomain.UnhandledException in a not-hosted script (cscs)
 - Issue #255: Relative path for cscs.exe -out option results in wrong output folder
 - Issue #254: Script merger for hosted scripts
 - Issue #253: Supports both .Net Framework and .Net 5
 - Issue #252: System.NullReferenceException: Object reference not set to an instance of an object. (updated API doc)
-- Added auto-generation of the CLI MD documentation with `-help cli:md`. To be used to generate GitHub wiki page during the build
-- Fixed Debian packaging problem (`/n/r` needed replacement with `\n`)
+- Added auto-generation of the CLI MD documentation with -help cli:md. To be used to generate GitHub wiki page during the build
+- Fixed Debian packaging problem (/n/r needed replacement with \n)
 
 ---
 
 ## Deployment
 _**Ubuntu (terminal)**_
 ```
-repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.1.4.0/; file=cs-script_4.1-4.deb; rm $file; wget $repo$file; sudo dpkg -i $file
+repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.1.0.0/; file=cs-script_4.1-0.deb; rm $file; wget $repo$file; sudo dpkg -i $file
 ```
 _**Windows (choco)**_
 _Pending approval_
 ```
-choco install cs-script --version=4.1.4.0 
+choco install cs-script --version=4.1.0.0 
 ```
-It is highly recommended that you uninstall CS-Script.Core if it is present:
+It is highly recommended that you uninstall CS-Script.Core:
 ```
 sudo choco uninstall cs-script.core
 ```

@@ -7,7 +7,7 @@
     <AssemblyName>csws</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.1.0.0</Version>
+    <Version>4.2.0.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2021 Oleg Shilo</Copyright>
@@ -18,9 +18,22 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.1.0.0</AssemblyVersion>
-    <FileVersion>4.1.0.0</FileVersion>
-    <PackageReleaseNotes>Implementation of Roslyn engine that allows execution of scripts (both CLI and hosted) on the target system without .NET 5 SDK installed.
+    <AssemblyVersion>4.2.0.0</AssemblyVersion>
+    <FileVersion>4.2.0.0</FileVersion>
+    <PackageReleaseNotes>Maintenance release:
+
+- Updated -speed and -code with the complete support -ng:* switches
+- Added IEvaluator.IsCachingEnabled. Ite as always available from the conctrete types implementing IEvaluator and now it is moved directly to the interface.
+- Added -servers:start and -servers:stop command to control both Roslyn and csc build servers at the same time
+- CSScriptLib: Native API CacheEnabled marked as obsolete
+- Issue #258: Can not run scripts after installing VS2022
+- Issue #257: Ability to catch AppDomain.UnhandledException in a not-hosted script (cscs)
+- Issue #255: Relative path for cscs.exe -out option results in wrong output folder
+- Issue #254: Script merger for hosted scripts
+- Issue #253: Supports both .Net Framework and .Net 5
+- Issue #252: System.NullReferenceException: Object reference not set to an instance of an object. (updated API doc)
+- Added auto-generation of the CLI MD documentation with -help cli:md. To be used to generate GitHub wiki page during the build
+- Fixed Debian packaging problem (/n/r needed replacement with \n)
 
 ---
 
@@ -58,7 +71,7 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
 
   From command line:
 
-  ```ps
+  ```
   css -engine:roslyn &lt;script file&gt;
   or
   css -ng:roslyn &lt;script file&gt;

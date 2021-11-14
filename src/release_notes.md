@@ -1,18 +1,18 @@
-# Release v4.1.0.0
+# Release v4.2.0.0
 
-Implementation of Roslyn engine that allows execution of scripts (both CLI and hosted) on the target system without .NET 5 SDK installed.
+Maintenance release
 
 ---
 
 ## Deployment
 _**Ubuntu (terminal)**_
 ```
-repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.1.0.0/; file=cs-script_4.1-0.deb; rm $file; wget $repo$file; sudo dpkg -i $file
+repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.2.0.0/; file=cs-script_4.2-0.deb; rm $file; wget $repo$file; sudo dpkg -i $file
 ```
 _**Windows (choco)**_
 _Pending approval_
 ```
-choco install cs-script --version=4.1.0.0 
+choco install cs-script --version=4.2.0.0 
 ```
 It is highly recommended that you uninstall CS-Script.Core:
 ```
@@ -30,41 +30,24 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
 ---
 ## Changes 
 
+### _Misc_
+- Added auto-generation of the CLI MD documentation with -help cli:md. To be used to generate GitHub wiki page during the build
+- Fixed Debian packaging problem (/n/r needed replacement with \n)
+- Issue #253: Supports both .Net Framework and .Net 5
+
 ### _CLI_
 
-- Added support for Roslyn engine (no SDK required). See [this wiki](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine) for details.
-
-  **_Per-execution_**
-
-  From command line:
-
-  ```
-  css -engine:roslyn <script file>
-  or
-  css -ng:roslyn <script file>
-  ```
-
-  From script code:
-
-  ```C#
-  //css_engine roslyn
-  or
-  //css_ng roslyn
-  ```
-
-  **_Global_**
-
-  ```ps
-  css -config:set:DefaultCompilerEngine=roslyn
-  ```
-
-- Added option to configure build server ports from environment variables
-- Issue #235: csc engine cannot compile dll
+- Updated -speed and -code with the complete support -ng:* switches
+- Added -servers:start and -servers:stop command to control both Roslyn and csc build servers at the same time
+- Issue #258: Can not run scripts after installing VS2022
+- Issue #257: Ability to catch AppDomain.UnhandledException in a not-hosted script (cscs)
+- Issue #255: Relative path for cscs.exe -out option results in wrong output folder
+- Issue #254: Script merger for hosted scripts
+- Issue #252: System.NullReferenceException: Object reference not set to an instance of an object. (updated API doc)
 
 ### _CSScriptLib_
 
-- Issue #245: .Net 5 SDK project, could not run "CompileAssemblyFromCode"
-- Issue #244: Some questions about 4.0.2
-  `RefernceDomainAsemblies` made obsolete and renamed to `ReferenceDomainAssemblies`
-  Added extension methods `IEvaluator.ExcludeReferencedAssemblies`
+- Native API CacheEnabled marked as obsolete
+- Added IEvaluator.IsCachingEnabled. It is always available from the concrete types implementing IEvaluator and now it is moved directly to the interface.
+
 
