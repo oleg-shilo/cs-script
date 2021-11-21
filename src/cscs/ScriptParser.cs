@@ -33,12 +33,15 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Processes the imported script. Processing involves lookup for 'static Main' and renaming it so it does not
-        /// interfere with the 'static Main' of the primary script. After renaming is done the new content is saved in the
-        /// CS-Script cache and the new file location is returned. The saved file can be used late as an "included script".
-        /// This technique can be from 'precompiler' scripts.
-        /// <para>If the script file does not require renaming (static Main is not present) the method returns the
-        /// original script file location.</para>
+        /// Processes the imported script. Processing involves lookup for 'static Main' and renaming
+        /// it so it does not interfere with the 'static Main' of the primary script. After renaming
+        /// is done the new content is saved in the CS-Script cache and the new file location is
+        /// returned. The saved file can be used late as an "included script". This technique can be
+        /// from 'precompiler' scripts.
+        /// <para>
+        /// If the script file does not require renaming (static Main is not present) the method
+        /// returns the original script file location.
+        /// </para>
         /// </summary>
         /// <param name="scriptFile">The script file.</param>
         /// <returns>Path to the script file to be compiled and executed</returns>
@@ -94,12 +97,18 @@ namespace CSScriptLib
 
         /// <summary>
         /// Resolves the NuGet packages into assemblies to be referenced by the script.
-        /// <para>If the package was never installed/downloaded yet CS-Script runtime will try to download it.</para>
-        /// <para>CS-Script will also analyze the installed package structure in try to reference compatible assemblies
-        /// from the package.</para>
+        /// <para>
+        /// If the package was never installed/downloaded yet CS-Script runtime will try to download it.
+        /// </para>
+        /// <para>
+        /// CS-Script will also analyze the installed package structure in try to reference
+        /// compatible assemblies from the package.
+        /// </para>
         /// </summary>
-        /// <param name="suppressDownloading">if set to <c>true</c> suppresses downloading the NuGet package.
-        /// Suppressing can be useful for the quick 'referencing' assessment.</param>
+        /// <param name="suppressDownloading">
+        /// if set to <c>true</c> suppresses downloading the NuGet package. Suppressing can be
+        /// useful for the quick 'referencing' assessment.
+        /// </param>
         /// <returns>Collection of the referenced assembly files.</returns>
         public string[] ResolvePackages(bool suppressDownloading = false)
         {
@@ -116,7 +125,8 @@ namespace CSScriptLib
         public string[] Packages => packages.ToArray();
 
         /// <summary>
-        /// Collection of referenced assemblies. All assemblies are referenced either from command-line, code or resolved from referenced namespaces.
+        /// Collection of referenced assemblies. All assemblies are referenced either from
+        /// command-line, code or resolved from referenced namespaces.
         /// </summary>
         public string[] ReferencedAssemblies => referencedAssemblies.ToArray();
 
@@ -133,7 +143,7 @@ namespace CSScriptLib
         /// Constructor.
         /// </summary>
         /// <param name="fileName">Script file name</param>
-        /// <param name="searchDirs">Extra ScriptLibrary directory </param>
+        /// <param name="searchDirs">Extra ScriptLibrary directory</param>
         public ScriptParser(string fileName, string[] searchDirs)
         {
             //if ((CSExecutor.ExecuteOptions.options != null && CSExecutor.options.useSmartCaching) && CSExecutor.ScriptCacheDir == "") //in case if ScriptParser is used outside of the script engine
@@ -146,8 +156,10 @@ namespace CSScriptLib
         /// Constructor.
         /// </summary>
         /// <param name="fileName">Script file name</param>
-        /// <param name="searchDirs">Extra ScriptLibrary directory(s) </param>
-        /// <param name="throwOnError">flag to indicate if the file parsing/processing error should raise an exception</param>
+        /// <param name="searchDirs">Extra ScriptLibrary directory(s)</param>
+        /// <param name="throwOnError">
+        /// flag to indicate if the file parsing/processing error should raise an exception
+        /// </param>
         public ScriptParser(string fileName, string[] searchDirs, bool throwOnError)
         {
             this.throwOnError = throwOnError;
@@ -165,16 +177,14 @@ namespace CSScriptLib
         /// <summary>
         /// Gets a value indicating whether the script being parsed is a web application script.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the script is web application; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if the script is web application; otherwise, <c>false</c>.</value>
         public bool IsWebApp => this.fileParsers.FirstOrDefault()?.IsWebApp == true;
 
         /// <summary>
         /// Initialization of ScriptParser instance
         /// </summary>
         /// <param name="fileName">Script file name</param>
-        /// <param name="searchDirs">Extra ScriptLibrary directory(s) </param>
+        /// <param name="searchDirs">Extra ScriptLibrary directory(s)</param>
 
         void Init(string fileName, string[] searchDirs)
         {
@@ -247,7 +257,9 @@ namespace CSScriptLib
 
                         this.fileParsers.Add(importedFile);
                         this.fileParsers.Sort(fileComparer);
-                        importedFile.fileNameImported = importedFile.fileName;
+
+                        if (importedFile.fileNameImported.IsEmpty())
+                            importedFile.fileNameImported = importedFile.fileName;
 
                         foreach (string namespaceName in importedFile.ReferencedNamespaces)
                             PushNamespace(namespaceName);
@@ -409,11 +421,13 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Aggregates the references from the script and its imported scripts. It is a logical equivalent of CSExecutor.AggregateReferencedAssemblies
-        /// but optimized for later .NET versions (e.g LINQ) and completely decoupled. Thus it has no dependencies on internal state
-        /// (e.g. settings, options.shareHostAssemblies).
-        /// <para>It is the method to call for generating list of ref asms as part of the project info.</para>
-        ///
+        /// Aggregates the references from the script and its imported scripts. It is a logical
+        /// equivalent of CSExecutor.AggregateReferencedAssemblies but optimized for later .NET
+        /// versions (e.g LINQ) and completely decoupled. Thus it has no dependencies on internal
+        /// state (e.g. settings, options.shareHostAssemblies).
+        /// <para>
+        /// It is the method to call for generating list of ref asms as part of the project info.
+        /// </para>
         /// </summary>
         /// <param name="searchDirs">The search dirs.</param>
         /// <param name="defaultRefAsms">The default ref asms.</param>
@@ -428,7 +442,8 @@ namespace CSScriptLib
             var refCodeAsms = this.ReferencedAssemblies
                                   .SelectMany(asm => AssemblyResolver.FindAssembly(asm.Replace("\"", ""), probingDirs)).ToArray();
 
-            // need to add default CLR assemblies as there will be no namespace->GAC assembly resolving as it is .NET Core
+            // need to add default CLR assemblies as there will be no namespace->GAC assembly
+            // resolving as it is .NET Core
             var clrDefaultAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("System.")).Select(x => x.Location).ToArray();
 
             var refAsms = refPkAsms.Union(refPkAsms)
@@ -473,10 +488,8 @@ namespace CSScriptLib
             {
                 try
                 {
-                    // need to ensure that item has extension in order to avoid interpreting
-                    // complex file names as simple name + extension:
-                    // System.Core -> System
-                    // System.dll  -> System
+                    // need to ensure that item has extension in order to avoid interpreting complex
+                    // file names as simple name + extension: System.Core -> System System.dll -> System
                     string name = item.GetFileNameWithoutExtension();
                     if (!asmNames.Contains(name))
                     {
