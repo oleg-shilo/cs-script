@@ -258,9 +258,6 @@ namespace CSScriptLib
                         this.fileParsers.Add(importedFile);
                         this.fileParsers.Sort(fileComparer);
 
-                        if (importedFile.fileNameImported.IsEmpty())
-                            importedFile.fileNameImported = importedFile.fileName;
-
                         foreach (string namespaceName in importedFile.ReferencedNamespaces)
                             PushNamespace(namespaceName);
 
