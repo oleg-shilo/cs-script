@@ -61,7 +61,7 @@ namespace csscript
 
         public bool NewPackageWasInstalled { get; set; }
 
-        public void InstallPackage(string packageNameMask, string version = null)
+        public void InstallPackage(string packageNameMask, string version = null, string nugetArgs = null)
         {
             var packages = new string[0];
             //index is 1-based, exactly as it is printed with ListPackages
@@ -102,7 +102,13 @@ namespace csscript
                         var ver = "";
                         if (version != null)
                             ver = "-v " + version;
-                        "dotnet".Run($"add package {name} {ver}", nuget_dir, x => Console.WriteLine(x));
+
+                        if (string.IsNullOrEmpty(nugetArgs))
+                            nugetArgs = "";
+
+                        // Syntax: dotnet add <PROJECT (optional)> package [options] <PACKAGE_NAME>
+                        string commandLine = $"add package {ver} {nugetArgs} {name}";
+                        "dotnet".Run(commandLine, nuget_dir, x => Console.WriteLine(x));
                     }
 
                     // intercept and report incompatible packages (maybe)
@@ -390,7 +396,7 @@ namespace csscript
 
                         try
                         {
-                            InstallPackage(package, packageVersion);
+                            InstallPackage(package, packageVersion, nugetArgs);
                             package_info = FindPackage(package, packageVersion);
                             this.NewPackageWasInstalled = true;
                         }
