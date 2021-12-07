@@ -316,6 +316,10 @@ namespace csscript
 
         PackageInfo FindPackage(string name, string version)
         {
+            // Create nuget cache directory if we are on a blank system
+            if (!Directory.Exists(NuGetCache))
+                Directory.CreateDirectory(NuGetCache);
+
             var packages = Directory.GetDirectories(NuGetCache, name, SearchOption.TopDirectoryOnly)
                             .SelectMany(x =>
                             {
