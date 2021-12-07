@@ -34,7 +34,7 @@ namespace cscs
     static class Program
     {
         [STAThread]
-        static int Main(string[] args)
+        static void Main(string[] args)
         {
             try
             {
@@ -69,12 +69,11 @@ namespace cscs
                     CSExecutionClient.Run(args);
 
                 //  Process.GetCurrentProcess().Kill(); // some background monitors may keep the app alive too long
-                return 0;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-                return 1;
+                Environment.ExitCode = 1;
             }
         }
     }
