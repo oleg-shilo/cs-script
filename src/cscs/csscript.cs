@@ -68,12 +68,13 @@ namespace csscript
                 Process p = null;
                 if (request == AppArgs.vs)
                 {
+                    string processStartArg = $"\"{projectFile}\" \"{options.scriptFileName}\"";
                     print("Opening project: " + projectFile);
                     if (vs_exe.IsEmpty())
                     {
                         try
                         {
-                            p = Process.Start("devenv", $"\"{projectFile}\"");
+                            p = Process.Start("devenv", processStartArg);
                         }
                         catch
                         {
@@ -81,7 +82,7 @@ namespace csscript
                         }
                     }
                     else
-                        p = Process.Start(vs_exe, $"\"{projectFile}\"");
+                        p = Process.Start(vs_exe, processStartArg);
                 }
                 else
                 {
