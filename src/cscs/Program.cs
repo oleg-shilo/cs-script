@@ -68,8 +68,9 @@ namespace cscs
                 else
                     CSExecutionClient.Run(args);
 
-                //  Process.GetCurrentProcess().Kill(); // some background monitors may keep the app alive too long
-                return 0;
+                // Process.GetCurrentProcess().Kill(); // some background monitors may keep the app
+                // alive too long
+                return Environment.ExitCode;
             }
             catch (Exception e)
             {
