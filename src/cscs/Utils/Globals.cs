@@ -18,8 +18,8 @@ namespace CSScripting
     {
         static internal string DynamicWrapperClassName = "DynamicClass";
         static internal string RootClassName = "css_root";
-        // Roslyn still does not support anything else but `Submission#0` (17 Jul 2019)
-        // [update] Roslyn now does support alternative class names (1 Jan 2020)
+        // Roslyn still does not support anything else but `Submission#0` (17 Jul 2019) [update]
+        // Roslyn now does support alternative class names (1 Jan 2020)
 
         static internal void StartBuildServer(bool report = false)
         {
@@ -152,29 +152,14 @@ namespace CSScripting
             Console.WriteLine(BuildServer.PingRemoteInstance(null));
         }
 
-        // static internal bool IsRemoteInstanceRunning()
-        // {
-        //     try
-        //     {
-        //         using (var clientSocket = new TcpClient())
-        //         {
-        //             return clientSocket
-        //                 .ConnectAsync(IPAddress.Loopback, port ?? serverPort)
-        //                 .Wait(TimeSpan.FromMilliseconds(20));
-        //         }
-        //     }
-        //     catch
-        //     {
-        //         return false;
-        //     }
-        // }
+        // static internal bool IsRemoteInstanceRunning() { try { using (var clientSocket = new
+        // TcpClient()) { return clientSocket .ConnectAsync(IPAddress.Loopback, port ?? serverPort)
+        // .Wait(TimeSpan.FromMilliseconds(20)); } } catch { return false; } }
 
         /// <summary>
         /// Gets a value indicating whether build server is deployed.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if build server is deployed; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if build server is deployed; otherwise, <c>false</c>.</value>
         static public bool BuildServerIsDeployed
         {
             get
@@ -201,20 +186,20 @@ namespace CSScripting
         /// <summary>
         /// Gets the path to the dotnet executable.
         /// </summary>
-        /// <value>
-        /// The dotnet executable path.
-        /// </value>
+        /// <value>The dotnet executable path.</value>
         static public string dotnet
         {
             get
             {
+                var dotnetExeName = Runtime.IsLinux ? "dotnet" : "dotnet.exe";
+
                 var file = "".GetType().Assembly.Location
                   .Split(Path.DirectorySeparatorChar)
                   .TakeWhile(x => x != "dotnet")
                   .JoinBy(Path.DirectorySeparatorChar.ToString())
-                  .PathJoin("dotnet", "dotnet.exe");
+                  .PathJoin("dotnet", dotnetExeName);
 
-                return File.Exists(file) ? file : "dotnet.exe";
+                return File.Exists(file) ? file : dotnetExeName;
             }
         }
 
@@ -224,9 +209,7 @@ namespace CSScripting
         /// <summary>
         /// Gets or sets the path to the C# compiler executable (e.g. csc.exe or csc.dll)
         /// </summary>
-        /// <value>
-        /// The CSC.
-        /// </value>
+        /// <value>The CSC.</value>
         static public string csc
         {
             set
@@ -247,8 +230,8 @@ namespace CSScripting
 #endif
                     {
                         // Win: C:\Program Files\dotnet\sdk\6.0.100-rc.2.21505.57\Roslyn\bincore\csc.dll
-                        //      C:\Program Files (x86)\dotnet\sdk\5.0.402\Roslyn\bincore\csc.dll
-                        // linux ~dotnet/.../3.0.100-preview5-011568/Roslyn/... (cannot find in preview)
+                        // C:\Program Files (x86)\dotnet\sdk\5.0.402\Roslyn\bincore\csc.dll linux
+                        // ~dotnet/.../3.0.100-preview5-011568/Roslyn/... (cannot find in preview)
                         // win: program_files/dotnet/sdk/<version>/Roslyn/csc.exe
                         var dotnet_root = "".GetType().Assembly.Location;
 
