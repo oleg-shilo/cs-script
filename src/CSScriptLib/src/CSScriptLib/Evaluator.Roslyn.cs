@@ -70,13 +70,12 @@ namespace CSScriptLib
     {
         /// <summary>
         /// Gets or sets the compiler options for csc.exe.
-        /// <para>This property is only applcable for CodeDOM based script execution as Roslyn engine does not accept
-        /// string options for compilation.
+        /// <para>
+        /// This property is only applcable for CodeDOM based script execution as Roslyn engine does
+        /// not accept string options for compilation.
         /// </para>
         /// </summary>
-        /// <value>
-        /// The compiler options.
-        /// </value>
+        /// <value>The compiler options.</value>
         public string CompilerOptions { get; set; }
 
         string assemblyFile;
@@ -98,34 +97,35 @@ namespace CSScriptLib
 
         /// <summary>
         /// The PDB file path.
-        /// <para>Even if the this value is specified the file will not be generated unless
-        /// <see cref="CSScript.EvaluatorConfig"/>.DebugBuild is set to <c>true</c>.
+        /// <para>
+        /// Even if the this value is specified the file will not be generated unless <see
+        /// cref="CSScript.EvaluatorConfig"/>.DebugBuild is set to <c>true</c>.
         /// </para>
         /// </summary>
         public string PdbFile { set; get; }
 
         /// <summary>
         /// Gets or sets the root class name.
-        /// <para>This setting is required as Roslyn cannot produce compiled scripts with the user script class defined as
-        /// a top level class. Thus all user defined classes are in fact nested classes with the root class
-        /// named by Roslyn as "Submission#0". This leads to the complications when user wants to reference script class in
-        /// another script. Specifically because C# treats "Submission#0" as an illegal class name. </para>
-        /// <para>C# helps the situation by allowing user specified root name <see cref="CSScriptLib.CompileInfo.RootClass"/>,
-        /// which is by default is "css_root".
+        /// <para>
+        /// This setting is required as Roslyn cannot produce compiled scripts with the user script
+        /// class defined as a top level class. Thus all user defined classes are in fact nested
+        /// classes with the root class named by Roslyn as "Submission#0". This leads to the
+        /// complications when user wants to reference script class in another script. Specifically
+        /// because C# treats "Submission#0" as an illegal class name.
+        /// </para>
+        /// <para>
+        /// C# helps the situation by allowing user specified root name <see
+        /// cref="CSScriptLib.CompileInfo.RootClass"/>, which is by default is "css_root".
         /// </para>
         /// </summary>
-        /// <value>
-        /// The root class name.
-        /// </value>
+        /// <value>The root class name.</value>
         public string RootClass { set; get; } = Globals.RootClassName;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to prefer loading compiled script from the assembly file when
-        /// it is available.
+        /// Gets or sets a value indicating whether to prefer loading compiled script from the
+        /// assembly file when it is available.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if [prefer loading from file]; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if [prefer loading from file]; otherwise, <c>false</c>.</value>
         public bool PreferLoadingFromFile { set; get; } = true;
     }
 
@@ -177,8 +177,11 @@ namespace CSScriptLib
         /// </summary>
         /// <param name="Errors">The compiler errors.</param>
         /// <param name="hideCompilerWarnings">if set to <c>true</c> hide compiler warnings.</param>
-        /// <param name="resolveAutogenFilesRefs">if set to <c>true</c> all references to the path of the derived auto-generated files
-        /// (e.g. errors in the decorated classless scripts) will be replaced with the path of the original files (e.g. classless script itself).</param>
+        /// <param name="resolveAutogenFilesRefs">
+        /// if set to <c>true</c> all references to the path of the derived auto-generated files
+        /// (e.g. errors in the decorated classless scripts) will be replaced with the path of the
+        /// original files (e.g. classless script itself).
+        /// </param>
         /// <returns>The method result.</returns>
         public static CompilerException Create(IEnumerable<CompilerError> Errors, bool hideCompilerWarnings, bool resolveAutogenFilesRefs)
         {
@@ -256,24 +259,22 @@ namespace CSScriptLib
     }
 
     /// <summary>
-    ///
     /// </summary>
-    /// <seealso cref="CSScriptLib.IEvaluator" />
+    /// <seealso cref="CSScriptLib.IEvaluator"/>
     public class RoslynEvaluator : EvaluatorBase<RoslynEvaluator>, IEvaluator
     {
         ScriptOptions compilerSettings = ScriptOptions.Default;
 
         /// <summary>
         /// Loads and returns set of referenced assemblies.
-        /// <para>
-        /// Notre: the set of assemblies is cleared on Reset.
-        /// </para>
+        /// <para>Notre: the set of assemblies is cleared on Reset.</para>
         /// </summary>
         /// <returns>The method result.</returns>
         public override Assembly[] GetReferencedAssemblies()
         {
-            // Note all ref assemblies are already loaded as the Evaluator interface is "align" to behave as Mono evaluator,
-            // which only referenced already loaded assemblies but not file locations
+            // Note all ref assemblies are already loaded as the Evaluator interface is "align" to
+            // behave as Mono evaluator, which only referenced already loaded assemblies but not
+            // file locations
             var assemblies = CompilerSettings.MetadataReferences
                                              .OfType<PortableExecutableReference>()
                                              .Select(r => Assembly.LoadFile(r.FilePath))
@@ -294,12 +295,14 @@ namespace CSScriptLib
 
         /// <summary>
         /// Loads the assemblies implementing Roslyn compilers.
-        /// <para>Roslyn compilers are extremely heavy and loading the compiler assemblies for with the first
-        /// evaluation call can take a significant time to complete (in some cases up to 4 seconds) while the consequent
-        /// calls are very fast.
+        /// <para>
+        /// Roslyn compilers are extremely heavy and loading the compiler assemblies for with the
+        /// first evaluation call can take a significant time to complete (in some cases up to 4
+        /// seconds) while the consequent calls are very fast.
         /// </para>
         /// <para>
-        /// You may want to call this method to pre-load the compiler assembly your script evaluation performance.
+        /// You may want to call this method to pre-load the compiler assembly your script
+        /// evaluation performance.
         /// </para>
         /// </summary>
         public static void LoadCompilers()
@@ -332,7 +335,7 @@ namespace CSScriptLib
                     ReferenceAssembliesFromCode(scriptText, localDir);
                 }
 
-                int scriptHash = base.GetHashFor(scriptText,scriptFile);
+                int scriptHash = base.GetHashFor(scriptText, scriptFile);
 
                 if (IsCachingEnabled)
                 {
@@ -448,7 +451,8 @@ namespace CSScriptLib
                                 else
                                     error_line--; // no mapping as it was a single file so translation is minimal
 
-                                // the actual source contains an injected '#line' directive of compiled with debug symbols so increment line after formatting
+                                // the actual source contains an injected '#line' directive of
+                                // compiled with debug symbols so increment line after formatting
                                 error_location = $"{(source.HasText() ? source : "<script>")}({error_line},{ error_column}): ";
                             }
                             message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
@@ -501,17 +505,19 @@ namespace CSScriptLib
 
         /// <summary>
         /// References the given assembly.
-        /// <para>It is safe to call this method multiple times
-        /// for the same assembly. If the assembly already referenced it will not
-        /// be referenced again.
+        /// <para>
+        /// It is safe to call this method multiple times for the same assembly. If the assembly
+        /// already referenced it will not be referenced again.
         /// </para>
         /// </summary>
         /// <param name="assembly">The assembly instance.</param>
         /// <returns>
-        /// The instance of the <see cref="T:CSScriptLib.IEvaluator" /> to allow  fluent interface.
+        /// The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
         /// </returns>
-        /// <exception cref="System.Exception">Current version of {EngineName} doesn't support referencing assemblies " +
-        ///                          "which are not loaded from the file location.</exception>
+        /// <exception cref="System.Exception">
+        /// Current version of {EngineName} doesn't support referencing assemblies " + "which are
+        /// not loaded from the file location.
+        /// </exception>
         public override IEvaluator ReferenceAssembly(Assembly assembly)
         {
             //Microsoft.Net.Compilers.1.2.0 - beta
@@ -535,7 +541,9 @@ namespace CSScriptLib
                     if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
                         .Any(r => r.FilePath.SamePathAs(assembly.Location)))
                         // Future assembly aliases support:
-                        // MetadataReference.CreateFromFile("asm.dll", new MetadataReferenceProperties().WithAliases(new[] { "lib_a", "external_lib_a" } })
+                        // MetadataReference.CreateFromFile("asm.dll", new
+                        // MetadataReferenceProperties().WithAliases(new[] { "lib_a",
+                        // "external_lib_a" } })
                         CompilerSettings = CompilerSettings.AddReferences(assembly);
                 }
             var refs = CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
@@ -548,16 +556,20 @@ namespace CSScriptLib
         /// <summary>
         /// Resets Evaluator.
         /// <para>
-        /// Resetting means clearing all referenced assemblies, recreating evaluation infrastructure (e.g. compiler setting)
-        /// and reconnection to or recreation of the underlying compiling services.
-        /// </para><para>Optionally the default current AppDomain assemblies can be referenced automatically with
-        /// <paramref name="referenceDomainAssemblies" />.</para>
+        /// Resetting means clearing all referenced assemblies, recreating evaluation infrastructure
+        /// (e.g. compiler setting) and reconnection to or recreation of the underlying compiling services.
+        /// </para>
+        /// <para>
+        /// Optionally the default current AppDomain assemblies can be referenced automatically with
+        /// <paramref name="referenceDomainAssemblies"/>.
+        /// </para>
         /// </summary>
-        /// <param name="referenceDomainAssemblies">if set to <c>true</c> the default assemblies of the current AppDomain
-        /// will be referenced (see <see cref="M:CSScriptLib.EvaluatorBase`1.ReferenceDomainAssemblies(CSScriptLib.DomainAssemblies)" /> method).</param>
-        /// <returns>
-        /// The freshly initialized instance of the <see cref="T:CSScriptLib.IEvaluator" />.
-        /// </returns>
+        /// <param name="referenceDomainAssemblies">
+        /// if set to <c>true</c> the default assemblies of the current AppDomain will be referenced
+        /// (see <see
+        /// cref="M:CSScriptLib.EvaluatorBase`1.ReferenceDomainAssemblies(CSScriptLib.DomainAssemblies)"/> method).
+        /// </param>
+        /// <returns>The freshly initialized instance of the <see cref="T:CSScriptLib.IEvaluator"/>.</returns>
         public override IEvaluator Reset(bool referenceDomainAssemblies = true)
         {
             CompilerSettings = ScriptOptions.Default;

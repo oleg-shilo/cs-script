@@ -10,6 +10,15 @@ namespace csscript
 {
     partial class CSExecutor
     {
+        public void ShowEngines()
+        {
+            print($"dotnet - {Globals.dotnet}");
+            print($"csc    - {Globals.csc}");
+            print($"roslyn - {Globals.roslyn}");
+            print($"---");
+            print($".NET SDK - {(Runtime.IsSdkInstalled() ? "installed" : "not unstalled") }");
+        }
+
         public void ProcessConfigCommand(string command)
         {
             //-config                  - lists/print current settings value

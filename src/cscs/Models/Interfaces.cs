@@ -38,6 +38,8 @@ namespace csscript
 
         void ShowVersion(string arg = null);
 
+        void ShowEngines();
+
         void ShowPrecompilerSample();
 
         void CreateDefaultConfigFile();

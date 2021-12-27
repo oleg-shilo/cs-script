@@ -2,11 +2,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.2.0.0</Version>
+    <Version>4.2.1.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2021 Oleg Shilo</Copyright>
@@ -17,12 +17,12 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.2.0.0</AssemblyVersion>
-    <FileVersion>4.2.0.0</FileVersion>
+    <AssemblyVersion>4.2.1.0</AssemblyVersion>
+    <FileVersion>4.2.1.0</FileVersion>
     <PackageReleaseNotes>Maintenance release:
 
 - Updated -speed and -code with the complete support -ng:* switches
-- Added IEvaluator.IsCachingEnabled. Ite as always available from the conctrete types implementing IEvaluator and now it is moved directly to the interface.
+- Added IEvaluator.IsCachingEnabled. It was always available from the concrete types implementing IEvaluator and now it is moved directly to the interface.
 - Added -servers:start and -servers:stop command to control both Roslyn and csc build servers at the same time
 - CSScriptLib: Native API CacheEnabled marked as obsolete
 - Issue #258: Can not run scripts after installing VS2022
@@ -107,10 +107,10 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;CS_SCRIPT</DefineConstants>
   </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="set css_bin=&quot;$(ProjectDir)..\css\bin\$(ConfigurationName)&quot;&#xD;&#xA;IF exist %25css_bin%25 ( echo . ) ELSE ( md %25css_bin%25)&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.exe&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).exe&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\cscs.runtimeconfig.json&quot;&#xD;&#xA;" />
+    <Exec Command="set css_bin=&quot;$(ProjectDir)..\css\bin\$(ConfigurationName)&quot;&#xD;&#xA;IF exist %25css_bin%25 ( echo . ) ELSE ( md %25css_bin%25)&#xD;&#xA;&#xD;&#xA;pushd .\&#xD;&#xA;cd $(TargetDir)&#xD;&#xA;IF exist deploy.cmd ( deploy.cmd )&#xD;&#xA;popd&#xD;&#xA; &#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.exe&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).exe&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\cscs.runtimeconfig.json&quot;&#xD;&#xA;" />
   </Target>
   <ItemGroup>
     <Compile Remove="GACHelper.cs" />

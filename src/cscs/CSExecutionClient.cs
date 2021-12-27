@@ -42,9 +42,8 @@ using static System.Environment;
 
 /// <summary>
 /// CS-Script engine class library assembly.
-/// Runtime: .NET Standard 2.0
-/// File name: cscs.eng.dll
-/// Implements light/refined business logic of the standard CS-Script.
+/// Runtime: .NET Standard 2.0 File name: cscs.eng.dll Implements light/refined business logic of
+/// the standard CS-Script.
 /// </summary>
 namespace csscript
 {
@@ -69,11 +68,11 @@ namespace csscript
 
             if (!Runtime.IsWin)
             {
-                // because Linux shebang does not properly split arguments we need to take care of this
-                // http://www.daniweb.com/software-development/c/threads/268382
+                // because Linux shebang does not properly split arguments we need to take care of
+                // this http://www.daniweb.com/software-development/c/threads/268382
 
-                // disabled for now based on the reasons described in the `SplitMergedArgs` implementation
-                // args = args.SplitMergedArgs();
+                // disabled for now based on the reasons described in the `SplitMergedArgs`
+                // implementation args = args.SplitMergedArgs();
             }
 
             return args;

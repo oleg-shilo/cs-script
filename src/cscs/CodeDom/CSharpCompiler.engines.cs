@@ -80,8 +80,8 @@ namespace CSScripting.CodeDom
                 result.PathToAssembly = options.OutputAssembly;
                 if (options.GenerateExecutable)
                 {
-                    // strangely enough on some Linux distro (e.g. WSL2) the access denied error is raised after the files are successfully copied
-                    // so ignore
+                    // strangely enough on some Linux distro (e.g. WSL2) the access denied error is
+                    // raised after the files are successfully copied so ignore
                     PathExtensions.FileCopy(
                         assembly.ChangeExtension(".runtimeconfig.json"),
                         result.PathToAssembly.ChangeExtension(".runtimeconfig.json"),
@@ -150,14 +150,16 @@ namespace CSScripting.CodeDom
 
             fileNames.ForEach((string source) =>
             {
-                // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported
-                // by both .NET debugger (VS) and .NET Core debugger (VSCode).
+                // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the
+                // only format that is supported by both .NET debugger (VS) and .NET Core debugger (VSCode).
 
-                // However PortablePDB does not store the full source path but file name only (at least for now). It works fine in typical
-                // .Core scenario where the all sources are in the root directory but if they are not (e.g. scripting or desktop app) then
+                // However PortablePDB does not store the full source path but file name only (at
+                // least for now). It works fine in typical .Core scenario where the all sources are
+                // in the root directory but if they are not (e.g. scripting or desktop app) then
                 // debugger cannot resolve sources without user input.
 
-                // The only solution (ugly one) is to inject the full file path at startup with #line directive
+                // The only solution (ugly one) is to inject the full file path at startup with
+                // #line directive
 
                 var new_file = build_dir.PathJoin(source.GetFileName());
                 var sourceText = $"#line 1 \"{source}\"{Environment.NewLine}" + File.ReadAllText(source);
@@ -228,17 +230,18 @@ namespace CSScripting.CodeDom
             if (gac2.HasText())
                 gac_asms.AddRange(Directory.GetFiles(gac2, "Microsoft.*.dll").Where(x => !x.Contains("Native")));
 
+            gac_asms.RemoveAll(x => x.Contains(".Native."));
+
             foreach (string file in gac_asms.Concat(ref_assemblies))
                 refs_args.Add($"/r:\"{file}\"");
 
             foreach (string file in sources)
                 source_args.Add($"\"{file}\"");
 
-            // running build server on Linux is problematic as if it is started from here it will be killed when the
-            // parent process (this) exits
+            // running build server on Linux is problematic as if it is started from here it will be
+            // killed when the parent process (this) exits
+            bool compile_on_server = Runtime.IsWin;
 
-            // bool compile_on_server = Runtime.IsWin;
-            bool compile_on_server = true;
             string cmd = "";
             string std_err = "";
 
@@ -260,8 +263,7 @@ namespace CSScripting.CodeDom
                               .SplitCommandLine();
 
                 cmpl_cmd = request.JoinBy(" ");
-                // ensure server running
-                // it will gracefully exit if another instance is running
+                // ensure server running it will gracefully exit if another instance is running
                 var startBuildServerCommand = $"\"{Globals.build_server}\" -listen -port:{BuildServer.serverPort} -csc:\"{Globals.csc}\"";
 
                 dotnet.RunAsync(startBuildServerCommand);
@@ -371,11 +373,13 @@ namespace CSScripting.CodeDom
             {
                 if (result.Errors.Any(x => x.ErrorNumber == "CS2012") && Runtime.IsLinux && compile_on_server)
                 {
-                    // When running on Linux as sudo CS-Script creates temp folders (e.g. cache) that automatically
-                    // get write-protected if accessed by not sudo-process. On Windows these folders are always not protected.
-                    // Meaning that if the build server is running as non root (sudo) it will fail to place the output to these folders.
-                    // The solution is to either restart build server as sudo or use dotnet engine as it always starts and stops with the
-                    // cscs.exe executable and always inherits its root context.
+                    // When running on Linux as sudo CS-Script creates temp folders (e.g. cache)
+                    // that automatically get write-protected if accessed by not sudo-process. On
+                    // Windows these folders are always not protected. Meaning that if the build
+                    // server is running as non root (sudo) it will fail to place the output to
+                    // these folders. The solution is to either restart build server as sudo or use
+                    // dotnet engine as it always starts and stops with the cscs.exe executable and
+                    // always inherits its root context.
 
                     var outputDir = assembly.GetDirName();
 

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Xml.Linq;
 using csscript;
 using CSScripting;
@@ -68,8 +69,12 @@ namespace cscs
                 else
                     CSExecutionClient.Run(args);
 
-                // Process.GetCurrentProcess().Kill(); // some background monitors may keep the app
-                // alive too long
+                ThreadPool.QueueUserWorkItem(x =>
+                {
+                    Thread.Sleep(2000);
+                    // alive too long on WLS2
+                    Process.GetCurrentProcess().Kill(); // some background monitors may keep the app
+                });
                 return Environment.ExitCode;
             }
             catch (Exception e)

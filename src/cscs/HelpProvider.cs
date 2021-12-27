@@ -248,7 +248,7 @@ namespace csscript
                                               "(e.g.  `-co:/d:TRACE` pass `/d:TRACE` option to C# compiler",
                                               " or    `-co:/platform:x86` to produce Win32 executable)");
             switch1Help[engine] =
-            switch1Help[ng] = new ArgInfo("-ng|-engine:<csc:dotnet>]",
+            switch1Help[ng] = new ArgInfo("-ng|-engine:<csc|dotnet|roslyn>]",
                                          "Forces compilation to be done by one of the supported .NET engines.",
                                          "  ",
                                          "`dotnet` - ${<==}dotnet.exe compiler; this is the most versatile compilation engine though " +
@@ -379,9 +379,8 @@ namespace csscript
                                                      "the decorated code.",
                                                      "User can achieve this by placing '//css_ac_end' statement into the code. Any user code below this " +
                                                      "statement will be excluded from the decoration and stay unchanged.");
-            // switch2Help[nl] = new ArgInfo("-nl",
-            //                                        "No logo mode: No banner will be shown/printed at execution time.",
-            //                                        "Applicable for console mode only.");
+            // switch2Help[nl] = new ArgInfo("-nl", "No logo mode: No banner will be shown/printed
+            // at execution time.", "Applicable for console mode only.");
             switch2Help[d] =
             switch2Help[dbg] = new ArgInfo("-dbg|-d",
                                            "Forces compiler to include debug information.");
@@ -393,15 +392,14 @@ namespace csscript
             switch2Help[v] = new ArgInfo("-v|-ver|--version",
                                          "Prints CS-Script version information.");
 
-            // may need to resurrect if users do miss it :)
-            // switch2Help[inmem] = new ArgInfo("-inmem[:<0|1>]",
-            //                                        "Loads compiled script in memory before execution.",
-            //                                        "This mode allows preventing locking the compiled script file. " +
-            //                                        "Can be beneficial for fine concurrency control as it allows changing " +
-            //                                        "and executing the scripts that are already loaded (being executed). This mode is incompatible " +
-            //                                        "with the scripting scenarios that require script assembly to be file based (e.g. advanced Reflection).",
-            //                                        " -inmem:1   enable caching (which might be disabled globally);",
-            //                                        " -inmem:0   disable caching (which might be enabled globally);");
+            // may need to resurrect if users do miss it :) switch2Help[inmem] = new
+            // ArgInfo("-inmem[:<0|1>]", "Loads compiled script in memory before execution.", "This
+            // mode allows preventing locking the compiled script file. " + "Can be beneficial for
+            // fine concurrency control as it allows changing " + "and executing the scripts that
+            // are already loaded (being executed). This mode is incompatible " + "with the
+            // scripting scenarios that require script assembly to be file based (e.g. advanced
+            // Reflection).", " -inmem:1 enable caching (which might be disabled globally);", "
+            // -inmem:0 disable caching (which might be enabled globally);");
 
             switch2Help[dbgprint] = new ArgInfo("-dbgprint[:<0:1>]",
                                                 "Controls whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now)).",
@@ -495,7 +493,9 @@ namespace csscript
                                                   "(e.g. " + AppInfo.appName + " -config:none sample.cs",
                                                   "${<=6}" + AppInfo.appName + " -config:default > css_VB.xml",
 
-                                                  // "${<=6}" + AppInfo.appName + " -config:set:" + inmem + "=true", // may need to resurrect if users do miss it :)
+                                                  // "${<=6}" + AppInfo.appName + " -config:set:" +
+                                                  // inmem + "=true", // may need to resurrect if
+                                                  // users do miss it :)
 
                                                   "${<=6}" + AppInfo.appName + " -config:set:DefaultCompilerEngine=dotnet",
                                                   "${<=6}" + AppInfo.appName + " -config:set:DefaultArguments=add:-ac",
@@ -507,13 +507,14 @@ namespace csscript
                                             "Forces the script to be compiled into a specific location.",
                                                 "Used only for very fine hosting tuning.",
                                                     "(e.g. " + AppInfo.appName + " -out:%temp%\\%pid%\\sample.dll sample.cs");
-            // .NET core does not support custom app.config
-            // switch2Help[sconfig] = new ArgInfo("-sconfig[:<file>|none]",
-            //                                    "Uses custom config file as a .NET app.config.",
-            //                                        "This option might be useful for running scripts, which usually cannot be executed without custom configuration file (e.g. WCF, Remoting).",
-            //                                        "By default CS-Script expects script config file name to be <script_name>.cs.config or <script_name>.exe.config. " +
-            //                                        "However if <file> value is specified the it is used as a config file. ",
-            //                                        "(e.g. if -sconfig:myApp.config is used the expected config file name is myApp.config)");
+            // .NET core does not support custom app.config switch2Help[sconfig] = new
+            // ArgInfo("-sconfig[:<file>|none]", "Uses custom config file as a .NET app.config.",
+            // "This option might be useful for running scripts, which usually cannot be executed
+            // without custom configuration file (e.g. WCF, Remoting).", "By default CS-Script
+            // expects script config file name to be <script_name>.cs.config or
+            // <script_name>.exe.config. " + "However if <file> value is specified the it is used as
+            // a config file. ", "(e.g. if -sconfig:myApp.config is used the expected config file
+            // name is myApp.config)");
 
             switch2Help[r] = new ArgInfo("-r:<assembly 1>,<assembly N>",
                                          "Uses explicitly referenced assembly.", "It is required only for " +
@@ -552,7 +553,9 @@ namespace csscript
                                                      " ",
                                                      "```",
                                                      " -nuget           - ${<==}prints the list of all root packages in the repository",
-                                                     // " -nuget:purge     - ${<==}detects multiple versions of the same package and removes all but the latest one. ",
+                                                     // " -nuget:purge - ${<==}detects multiple
+                                                     // versions of the same package and removes all
+                                                     // but the latest one. ",
                                                      " -nuget:<package> - ${<==}downloads and installs the latest version of the package(s). ",
                                                      "                    ${<==}Wild cards can be used to update multiple packages. For example '-nuget:ServiceStack*' will update all " +
                                                      "already installed ServiceStack packages.",
@@ -807,17 +810,20 @@ namespace csscript
                          " ",
                          "options - options string.",
                          " ",
-                         "This directive is used to pass compiler options string directly to the language specific CLR compiler.",
-                         "Note: charecter `;` in compiler options interferes with `//css_...` directives so try to avoid it. Thus " +
+                         "This directive is used to pass compiler options string directly to the language specific CLR compiling engine.",
+                         "Note: ",
+                         "- the options may not be compatible with the compiling engine of your choice (see //css_engine)." +
+                         "Thus `//css_co /define:CS_SCRIPT` will work for `csc` engine but will not for `dotnet` since it does not support /define.",
+                         "- character `;` in compiler options interferes with `//css_...` directives so try to avoid it. Thus " +
                          "use `-d:DEBUG -d:NET4` instead of `-d:DEBUG;NET4`",
                          " Example: //css_co /d:TRACE pass /d:TRACE option to C# compiler",
                          "          //css_co /platform:x86 to produce Win32 executable\n",
+
                          section_sep, //------------------------------------
-                         "//css_engine <csc|dotnet>;",
+                         "//css_engine <csc|dotnet|roslyn>;",
                          " ",
                          alias_prefix + "//css_ng",
                          " ",
-                         "WARNING: this is an experimental feature that may not work as expected in some cases.",
                          "This directive is used to select compiler services for building a script into an assembly.",
                          "  dotnet - use `dotnet.exe` and on-fly .NET projects.",
                          "           ${<==}This is a default compiler engine that handles well even complicated " +
@@ -829,7 +835,10 @@ namespace csscript
                          "           ${<==}Using this option can in order of magnitude improve compilation speed. However it's not suitable for " +
                          "compiling WPF scripts because csc.exe cannot compile XAML.",
                          "           ${<==}While this feature useful it will be deprecated when .NET5+ starts distributing its own properly" +
-                         "working build server VBCSCompiler.exe." +
+                         "working build server VBCSCompiler.exe.",
+                         "  roslyn - use `Microsoft.CodeAnalysis.CSharp.Scripting.dll` (Roslyn). ",
+                         "           ${<==}This compiler shows good performance and does not require .NET SDK. Though it is not suitable for WPF scripts. " +
+                         "See [this wiki](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine) for details.",
                          " ",
                          " Example: //css_engine csc" + NewLine,
                          section_sep, //------------------------------------
@@ -1193,7 +1202,7 @@ namespace csscript
             }
 
             if (mdFormat)
-                return builder.ToString().GetLines().Select(x => x.TrimEnd()).JoinBy(NewLine); 
+                return builder.ToString().GetLines().Select(x => x.TrimEnd()).JoinBy(NewLine);
             else
                 return builder.ToString().Replace("```", "");
         }
@@ -1603,9 +1612,7 @@ using System.Collections.Generic;
 nvironment.NewLine);
 public class Sample_Precompiler //precompiler class name must end with 'Precompiler'
 {
-    // possible signatures
-    // bool Compile(dynamic context)
-    // bool Compile(csscript.PrecompilationContext context)
+    // possible signatures bool Compile(dynamic context) bool Compile(csscript.PrecompilationContext context)
     public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
     {
         //The context Hashtable items are:

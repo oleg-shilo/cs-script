@@ -56,14 +56,9 @@ namespace CSScripting
 
         public static void TunnelConditionalSymbolsToEnvironmentVariables(this string directive)
         {
-            // "/define:DEBUG"
-            // "/d:DEBUG"
-            // "-define:DEBUG"
-            // "-d:DEBUG"
-            // "-d:DEBUG;NET4 -d:PRODUCTION"
+            // "/define:DEBUG" "/d:DEBUG" "-define:DEBUG" "-d:DEBUG" "-d:DEBUG;NET4 -d:PRODUCTION"
 
-            // Need to handle both `-` and  `/`prefixes as older compilers use
-            // `/`
+            // Need to handle both `-` and `/`prefixes as older compilers use `/`
 
             // `;` in compiler options interferes with `//css_...` directives so try to avoid it.
             // Use `-d:DEBUG -d:NET4` instead of `-d:DEBUG;NET4`
@@ -257,8 +252,7 @@ namespace CSScripting
                 if (runtime != null)
                     try
                     {
-                        // C:\Program Files(x86)\Mono\lib\mono\4.5\*.dll
-                        // C:\Program Files(x86)\Mono\lib\mono
+                        // C:\Program Files(x86)\Mono\lib\mono\4.5\*.dll C:\Program Files(x86)\Mono\lib\mono
                         return runtime.Assembly.Location.GetDirName().GetDirName();
                     }
                     catch { }
@@ -272,11 +266,8 @@ namespace CSScripting
         public static string DbgFileOf(string assemblyFileName)
             => assemblyFileName.ChangeExtension(".pdb");
 
-        // [Obsolete]
-        // public static bool ContainsPath(string path, string subPath)
-        // {
-        //     return path.Substring(0, subPath.Length).SamePathAs(subPath);
-        // }
+        // [Obsolete] public static bool ContainsPath(string path, string subPath) { return
+        // path.Substring(0, subPath.Length).SamePathAs(subPath); }
 
         public static bool IsNullOrWhiteSpace(string text)
         {
@@ -284,7 +275,8 @@ namespace CSScripting
         }
 
         /// <summary>
-        /// Adds compiler options to the CompilerParameters in a manner that it does separate every option by the space character
+        /// Adds compiler options to the CompilerParameters in a manner that it does separate every
+        /// option by the space character
         /// </summary>
         static public void AddCompilerOptions(CompilerParameters compilerParams, string option)
         {
@@ -607,19 +599,14 @@ partial class dbg
                 return false;
             }
 
-            // detects pseudo arguments - script files named as args (e.g. '-update')
-            // disabled as currently every arg that starts with '-' is treated as scripted arg (script file)
-            // public static bool IsScriptedArg(string arg)
-            // {
-            //     var rootDir = Path.GetFullPath(Assembly.GetExecutingAssembly().Location());
-            //     if (!string.IsNullOrEmpty(rootDir))
-            //         rootDir = Path.GetDirectoryName(rootDir);
+            // detects pseudo arguments - script files named as args (e.g. '-update') disabled as
+            // currently every arg that starts with '-' is treated as scripted arg (script file)
+            // public static bool IsScriptedArg(string arg) { var rootDir =
+            // Path.GetFullPath(Assembly.GetExecutingAssembly().Location()); if
+            // (!string.IsNullOrEmpty(rootDir)) rootDir = Path.GetDirectoryName(rootDir);
 
-            //     if (File.Exists(rootDir.PathCombine(arg)) || File.Exists(rootDir.PathCombine(arg + ".cs")))
-            //         return true;
-            //     else
-            //         return false;
-            // }
+            // if (File.Exists(rootDir.PathCombine(arg)) || File.Exists(rootDir.PathCombine(arg +
+            // ".cs"))) return true; else return false; }
         }
 
         static internal int FirstScriptArg(string[] args)
@@ -643,8 +630,8 @@ partial class dbg
         static internal int ParseAppArgs(this IScriptExecutor executor, string[] args)
         {
             // NOTE: it is expected that arguments are passed multiple times during the session.
-            // E.g. first time from command line, second time for the DefaultArguments from the config file, that
-            // has been specified from the command line args.
+            // E.g. first time from command line, second time for the DefaultArguments from the
+            // config file, that has been specified from the command line args.
             // CLIExitRequest.Throw() is an exception based mechanism for unconditional application exit.
 
             ExecuteOptions options = executor.GetOptions();
@@ -671,9 +658,9 @@ partial class dbg
                 {
                     if (Args.Same(arg, AppArgs.nl)) // -nl
                     {
-                        // '-nl' has been made obsolete.
-                        // Just continue to let the legacy setting/args pass through without affecting the execution.
-                        // options.noLogo = true;
+                        // '-nl' has been made obsolete. Just continue to let the legacy
+                        // setting/args pass through without affecting the execution. options.noLogo
+                        // = true;
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.@out, out argValue)) // -out:
                     {
@@ -683,6 +670,12 @@ partial class dbg
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.ng, AppArgs.engine, out argValue)) // -ng:<csc:dotnet> -engine:<csc:dotnet>
                     {
+                        if (argValue.IsEmpty())
+                        {
+                            executor.ShowEngines();
+                            CLIExitRequest.Throw();
+                        }
+
                         options.compilerEngine = argValue;
                     }
                     else if (Args.ParseValuedArg(arg, "ev", out argValue)) // -ev:<name>[:[<value>]]
@@ -865,11 +858,10 @@ partial class dbg
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.proj, out argValue)) // -proj
                     {
-                        // Requests for some no-dependency operations can be handled here
-                        // e.g. ShowHelp
-                        // But others like ShowProject need to be processed outside of this
-                        // arg parser (at the caller) as the whole list of parsed arguments
-                        // may be required for handling request.
+                        // Requests for some no-dependency operations can be handled here e.g.
+                        // ShowHelp But others like ShowProject need to be processed outside of this
+                        // arg parser (at the caller) as the whole list of parsed arguments may be
+                        // required for handling request.
                         options.nonExecuteOpRquest = AppArgs.proj;
                         if (argValue == "dbg")
                             options.nonExecuteOpRquest = AppArgs.proj_dbg;
@@ -987,9 +979,8 @@ partial class dbg
                     }
                     else
                     {
-                        // at this stage it's safe to assume that if arg starts with '-' but cannot be matched it is always
-                        // a script file ("pseudo arg")
-                        // if (Args.IsScriptedArg(arg))
+                        // at this stage it's safe to assume that if arg starts with '-' but cannot
+                        // be matched it is always a script file ("pseudo arg") if (Args.IsScriptedArg(arg))
                         return i;
                     }
                 }
@@ -1062,8 +1053,8 @@ partial class dbg
                             {
                                 if (method_dynamic != null)
                                 {
-                                    // bool Compile(dynamic context)
-                                    // bool Compile(PrecompilationContext context)
+                                    // bool Compile(dynamic context) bool
+                                    // Compile(PrecompilationContext context)
                                     object compiler = null;
                                     if (!method_dynamic.IsStatic)
                                         compiler = Activator.CreateInstance(method_dynamic.DeclaringType);
@@ -1075,7 +1066,8 @@ partial class dbg
                                 }
                                 else
                                 {
-                                    // public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                                    // public static bool Compile(ref string scriptCode, string
+                                    // scriptFile, bool isPrimaryScript, Hashtable context)
                                     var compile = (CompileMethod)Delegate.CreateDelegate(typeof(CompileMethod), method);
 
                                     result = compile(ref content,
@@ -1177,8 +1169,7 @@ partial class dbg
 
                     // var executor = new LocalExecutor(ExecuteOptions.options.searchDirs);
 
-                    // var executor = new AssemblyExecutor(precompilerAsm, "AsmExecution");
-                    // executor.Execute("".Split('|'));
+                    // var executor = new AssemblyExecutor(precompilerAsm, "AsmExecution"); executor.Execute("".Split('|'));
 
                     using (SimpleAsmProbing.For(options.searchDirs))
                     {
@@ -1298,8 +1289,8 @@ partial class dbg
 
         public static Assembly CompilePrecompilerScript(string sourceFile, string[] searchDirs)
         {
-            // https://github.com/aspnet/RoslynCodeDomProvider/issues/37
-            // .NET Core team does not have any plans for CodeDOM
+            // https://github.com/aspnet/RoslynCodeDomProvider/issues/37 .NET Core team does not
+            // have any plans for CodeDOM
             try
             {
                 var asmExtension = ".dll";
@@ -1506,26 +1497,25 @@ partial class dbg
 
     #region MetaDataItems...
 
-    /// <summary>
-    /// The MetaDataItems class contains information about script dependencies (referenced local
-    /// assemblies and imported scripts) and compiler options. This information is required when
-    /// scripts are executed in a 'cached' mode (/c switch). On the base of this information the script
-    /// engine will compile new version of <cache dir>/<script file>.dll assembly if any of it's dependencies is
-    /// changed. This is required even for referenced local assemblies as it is possible that they are a strongly
-    /// named assemblies (recompiling is required for any compiled client of the strongly named assembly
-    /// in case this assembly is changed).
+    /// <summary> The MetaDataItems class contains information about script dependencies (referenced
+    /// local assemblies and imported scripts) and compiler options. This information is required
+    /// when scripts are executed in a 'cached' mode (/c switch). On the base of this information
+    /// the script engine will compile new version of <cache dir>/<script file>.dll assembly if any
+    /// of it's dependencies is changed. This is required even for referenced local assemblies as it
+    /// is possible that they are a strongly named assemblies (recompiling is required for any
+    /// compiled client of the strongly named assembly in case this assembly is changed).
     ///
     /// The perfect place to store the dependencies info (custom meta data) is the assembly
-    /// resources. However if we do so such assemblies would have to be loaded in order to read their
-    /// resources. It is not acceptable as after loading assembly cannot be unloaded. Also assembly loading
-    /// can significantly compromise performance.
+    /// resources. However if we do so such assemblies would have to be loaded in order to read
+    /// their resources. It is not acceptable as after loading assembly cannot be unloaded. Also
+    /// assembly loading can significantly compromise performance.
     ///
     /// That is why custom meta data is just physically appended to the file. This is a valid
-    /// approach because such assembly is not to be distributed anywhere but to stay always
-    /// on the PC and play the role of the temporary data for the script engine.
+    /// approach because such assembly is not to be distributed anywhere but to stay always on the
+    /// PC and play the role of the temporary data for the script engine.
     ///
-    /// Note: A .dll assembly is always compiled and linked in a normal way without any custom meta data attached.
-    /// </summary>
+    /// Note: A .dll assembly is always compiled and linked in a normal way without any custom meta
+    /// data attached. </summary>
     internal class MetaDataItems
     {
         public class MetaDataItem
@@ -1579,12 +1569,10 @@ partial class dbg
             }
         }
 
-        // public string[] AddItems(System.Collections.Specialized.StringCollection files, bool isAssembly, string[] searchDirs)
-        // {
-        //     string[] referencedAssemblies = new string[files.Count];
-        //     files.CopyTo(referencedAssemblies, 0);
-        //     return AddItems(referencedAssemblies, isAssembly, searchDirs);
-        // }
+        // public string[] AddItems(System.Collections.Specialized.StringCollection files, bool
+        // isAssembly, string[] searchDirs) { string[] referencedAssemblies = new
+        // string[files.Count]; files.CopyTo(referencedAssemblies, 0); return
+        // AddItems(referencedAssemblies, isAssembly, searchDirs); }
 
         public string[] AddItems(string[] files, bool isAssembly, string[] searchDirs)
         {

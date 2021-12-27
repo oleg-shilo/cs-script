@@ -755,7 +755,7 @@ namespace csscript
                         }
                         else if (options.compilerEngine == Directives.compiler_roslyn)
                         {
-                            Console.WriteLine($"  Compiler engine: {options.compilerEngine} ({typeof(Microsoft.CodeAnalysis.CSharp.Scripting.CSharpScript).Assembly.Location})");
+                            Console.WriteLine($"  Compiler engine: {options.compilerEngine} ({Globals.roslyn})");
                         }
                         else if (options.compilerEngine == Directives.compiler_dotnet)
                         {
@@ -797,7 +797,7 @@ namespace csscript
                     // Execution consist of multiple stages and some of them need to be atomic and
                     // need to be synchronized system wide.
                     // Note: synchronization (concurrency control) may only be required for
-                    //       execution of a given script by two or more competing processes. If one
+                    // execution of a given script by two or more competing processes. If one
                     // process executes script_a.cs and another one executes script_b.cs then there
                     // is no need for any synchronization as the script files are different and
                     // their executions do not collide with each other.
@@ -836,11 +836,11 @@ namespace csscript
                     // informative locking (access denied) exception.
                     //
                     // Note: if the assembly is loaded as in-memory file copy (options.inMemoryAsm)
-                    //       then the assembly locking is completely eliminated. This is in fact an extremely
-                    // attractive execution model as it eliminates any problems associated with the
-                    // assembly looking during the execution. The only reason why it's not activated
-                    // by default is contradicts the traditional .NET loading model when the
-                    // assembly loaded as a file.
+                    // then the assembly locking is completely eliminated. This is in fact an
+                    // extremely attractive execution model as it eliminates any problems associated
+                    // with the assembly looking during the execution. The only reason why it's not
+                    // activated by default is contradicts the traditional .NET loading model when
+                    // the assembly loaded as a file.
                     //
                     // While execution stage cannot benefit from synchronization it is still using
                     // executingFileLock synchronization object. Though the objective is not to wait
@@ -1549,7 +1549,8 @@ namespace csscript
         string Compile(string scriptFileName)
         {
             // ********************************************************************************************
-            // * Extremely important to keep the project building algorithm in sync with ProjectBuilder.GenerateProjectFor ********************************************************************************************
+            // * Extremely important to keep the project building algorithm in sync with
+            // ProjectBuilder.GenerateProjectFor ********************************************************************************************
 
             // if no request to build executable or dll is made then use exe format as it is the
             // only format that allows top-level statements (classless scripts)

@@ -38,8 +38,10 @@ namespace csscript
 
         /// <summary>
         /// Returns the name of the temporary folder in the CSSCRIPT subfolder of Path.GetTempPath().
-        /// <para>Under certain circumstances it may be desirable to the use the alternative location for the CS-Script temporary files.
-        /// In such cases use SetScriptTempDir() to set the alternative location.
+        /// <para>
+        /// Under certain circumstances it may be desirable to the use the alternative location for
+        /// the CS-Script temporary files. In such cases use SetScriptTempDir() to set the
+        /// alternative location.
         /// </para>
         /// </summary>
         /// <returns>Temporary directory name.</returns>
@@ -69,8 +71,7 @@ namespace csscript
                 foreach (var cacheDir in Directory.GetDirectories(rootDir))
                     try
                     {
-                        // line 0: <clr version>
-                        // line 1: <dir>
+                        // line 0: <clr version> line 1: <dir>
                         var infoFile = cacheDir.PathJoin("css_info.txt");
                         var sourceDir = File.Exists(infoFile) ? File.ReadAllLines(infoFile)[1] : null;
 
@@ -104,12 +105,15 @@ namespace csscript
         }
 
         /// <summary>
-        /// The delegate for creating unloadable <see cref="AssemblyLoadContext"/> assembly load context.
-        /// The delegate is required to be set from the host process at runtime. It is because it
-        /// is not available at compile time since CSScriptLib assembly is compiled as '.NET Standard 2.0'
-        /// which does not implement <see cref="AssemblyLoadContext"/> but its abstract type only.
-        /// <para>CS-Script uses intensive reflection technique to retrieve the host environment
-        /// <see cref="AssemblyLoadContext"/> implementation. So you no not need to set it.</para>
+        /// The delegate for creating unloadable <see cref="AssemblyLoadContext"/> assembly load
+        /// context. The delegate is required to be set from the host process at runtime. It is
+        /// because it is not available at compile time since CSScriptLib assembly is compiled as
+        /// '.NET Standard 2.0' which does not implement <see cref="AssemblyLoadContext"/> but its
+        /// abstract type only.
+        /// <para>
+        /// CS-Script uses intensive reflection technique to retrieve the host environment <see
+        /// cref="AssemblyLoadContext"/> implementation. So you no not need to set it.
+        /// </para>
         /// </summary>
         internal static Func<AssemblyLoadContext> CreateUnloadableAssemblyLoadContext;
 
@@ -181,31 +185,25 @@ namespace csscript
         /// <summary>
         /// Gets the nuget cache path in the form displayable in Console.
         /// </summary>
-        /// <value>
-        /// The nu get cache view.
-        /// </value>
+        /// <value>The nu get cache view.</value>
         static public string NuGetCacheView => "<not defined>";
 
         /// <summary>
         /// Gets a value indicating whether the host OS Windows.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the host OS is Windows; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if the host OS is Windows; otherwise, <c>false</c>.</value>
         public static bool IsWin => !IsLinux;
 
         /// <summary>
-        /// Note it is not about OS being exactly Linux but rather about OS having Linux type of file system.
-        /// For example path being case sensitive
+        /// Note it is not about OS being exactly Linux but rather about OS having Linux type of
+        /// file system. For example path being case sensitive
         /// </summary>
         public static bool IsLinux { get; } = (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
 
         /// <summary>
-        /// Gets a value indicating whether the runtime is  core.
+        /// Gets a value indicating whether the runtime is core.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if the runtime is  core; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if the runtime is core; otherwise, <c>false</c>.</value>
         public static bool IsCore { get; } = "".GetType().Assembly.Location.Split(Path.DirectorySeparatorChar).Contains("Microsoft.NETCore.App");
 
         static internal string CustomCommandsDir
@@ -236,10 +234,13 @@ namespace csscript
         }
 
         /// <summary>
-        /// Returns path to the `Microsoft.WindowsDesktop.App` shared assemblies of the compatible runtime version.
-        /// <para>Note, there is no warranty that the dotnet dedktop assemblies belong to the same distro version as dotnet Core:
-        /// <para> - C:\Program Files\dotnet\shared\Microsoft.NETCore.App\5.0.0-rc.1.20451.14</para>
-        /// <para> - C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\5.0.0-rc.1.20452.2</para>
+        /// Returns path to the `Microsoft.WindowsDesktop.App` shared assemblies of the compatible
+        /// runtime version.
+        /// <para>
+        /// Note, there is no warranty that the dotnet dedktop assemblies belong to the same distro
+        /// version as dotnet Core:
+        /// <para>- C:\Program Files\dotnet\shared\Microsoft.NETCore.App\5.0.0-rc.1.20451.14</para>
+        /// <para>- C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\5.0.0-rc.1.20452.2</para>
         /// </para>
         /// </summary>
         public static string DesktopAssembliesDir
@@ -248,7 +249,8 @@ namespace csscript
         }
 
         /// <summary>
-        /// Returns path to the `Microsoft.AspNetCore.App` shared assemblies of the compatible runtime version.
+        /// Returns path to the `Microsoft.AspNetCore.App` shared assemblies of the compatible
+        /// runtime version.
         /// </summary>
         public static string WebAssembliesDir
         {
@@ -259,9 +261,9 @@ namespace csscript
         {
             try
             {
-                // There is no warranty that the dotnet dedktop assemblies belong to the same distro version as dotnet Core:
-                // C:\Program Files\dotnet\shared\Microsoft.NETCore.App\5.0.0-rc.1.20451.14
-                // C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\5.0.0-rc.1.20452.2
+                // There is no warranty that the dotnet dedktop assemblies belong to the same distro
+                // version as dotnet Core: C:\Program
+                // Files\dotnet\shared\Microsoft.NETCore.App\5.0.0-rc.1.20451.14 C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\5.0.0-rc.1.20452.2
                 var netCoreDir = typeof(string).Assembly.Location.GetDirName();
                 var dir = netCoreDir.Replace("Microsoft.NETCore.App", appType);
 
@@ -303,9 +305,7 @@ namespace csscript
         /// <summary>
         /// Determines whether .NET SDK is installed.
         /// </summary>
-        /// <returns>
-        ///   <c>true</c> if [is SDK installed]; otherwise, <c>false</c>.
-        /// </returns>
+        /// <returns><c>true</c> if [is SDK installed]; otherwise, <c>false</c>.</returns>
         public static bool IsSdkInstalled()
         {
             var output = "";

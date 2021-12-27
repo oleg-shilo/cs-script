@@ -45,7 +45,7 @@ namespace csscript
             nuget.ListPackages();
         }
 
-        static public string[] Resolve(string[] packages, bool suppressDownloading, string script)
+        static public string[] Resolve(string[] packages, bool suppressDownloading, string script)                                   
             => nuget.Resolve(packages, suppressDownloading, script);
     }
 

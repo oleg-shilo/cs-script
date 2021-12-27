@@ -58,35 +58,36 @@ namespace CSScripting.CodeDom
 
             if (attr_file != null)
             {
-                // Roslyn scripting does not support attributes
-                // (0,2): error CS7026: Assembly and module attributes are not allowed in this context
+                // Roslyn scripting does not support attributes (0,2): error CS7026: Assembly and
+                // module attributes are not allowed in this context
 
 #pragma warning disable S125 // Sections of code should not be commented out
                 // writer.WriteLine(File.ReadAllText(attr_file));
 #pragma warning restore S125 // Sections of code should not be commented out
             }
 
-            // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported
-            // by both .NET debugger (VS) and .NET Core debugger (VSCode).
+            // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the
+            // only format that is supported by both .NET debugger (VS) and .NET Core debugger (VSCode).
 
-            // However PortablePDB does not store the full source path but file name only (at least for now). It works fine in typical
-            // .Core scenario where the all sources are in the root directory but if they are not (e.g. scripting or desktop app) then
-            // debugger cannot resolve sources without user input.
+            // However PortablePDB does not store the full source path but file name only (at least
+            // for now). It works fine in typical .Core scenario where the all sources are in the
+            // root directory but if they are not (e.g. scripting or desktop app) then debugger
+            // cannot resolve sources without user input.
 
             // The only solution (ugly one) is to inject the full file path at startup with #line directive
 
-            // merge all scripts into a single source
-            //    move all scripts' usings to the file header
-            //    append the first script whole content
-            //    append all imported scripts bodies at the bottom of the first script
-            //    ensure all scripts' content is separated by debugger directive `#line...`
+            // merge all scripts into a single source move all scripts' usings to the file header
+            // append the first script whole content append all imported scripts bodies at the
+            // bottom of the first script ensure all scripts' content is separated by debugger
+            // directive `#line...`
 
             var importedSources = new Dictionary<string, (int, string[])>(); // file, usings count, code lines
 
             var combinedScript = new List<string>();
 
-            // exclude dbg_inject_file because it has extension methods, which are not permitted in Roslyn scripts
-            // exclude attr_file because it has assembly attribute, which is not permitted in Roslyn scripts
+            // exclude dbg_inject_file because it has extension methods, which are not permitted in
+            // Roslyn scripts exclude attr_file because it has assembly attribute, which is not
+            // permitted in Roslyn scripts
             var imported_sources = fileNames.Where(x => x != attr_file && x != firstScript && x != dbg_inject_file);
 
             var mapping = new Dictionary<(int, int), (string, int)>();
@@ -183,7 +184,7 @@ namespace CSScripting.CodeDom
             //----------------------------
             Profiler.get("compiler").Stop();
 
-            // Console.WriteLine("    roslyn: " + Profiler.get("compiler").Elapsed);
+            // Console.WriteLine(" roslyn: " + Profiler.get("compiler").Elapsed);
 
             result.ProcessErrors();
 
@@ -243,7 +244,6 @@ namespace CSScripting.CodeDom
             if (IsDebug)
                 compilation = compilation.WithOptions(compilation.Options
                                          .WithOptimizationLevel(OptimizationLevel.Debug)
-                                         // .WithScriptClassName("CSScriptClassRoot")
                                          .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
 
             return build_locally(compilation, assemblyFile, IsDebug, emitOptions);
@@ -251,6 +251,7 @@ namespace CSScripting.CodeDom
 
         static BuildResult build_remotelly(string sourceFile, string assemblyFile, string[] refs, bool IsDebug, EmitOptions emitOptions)
         {
+            //Console.WriteLine("Building remotely");
             var request = new BuildRequest
             {
                 Source = sourceFile,
@@ -270,7 +271,7 @@ namespace CSScripting.CodeDom
                 }
                 finally
                 {
-                    // Console.WriteLine("    server: " + Profiler.get("server").Elapsed);
+                    // Console.WriteLine(" server: " + Profiler.get("server").Elapsed);
                 }
             }
             catch (Exception e)

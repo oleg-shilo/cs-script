@@ -10,7 +10,7 @@ namespace csscript
     /// <summary>
     /// The exception that is thrown when an invalid CS-Script directive is encountered.
     /// </summary>
-    /// <seealso cref="csscript.CompilerException" />
+    /// <seealso cref="csscript.CompilerException"/>
     class InvalidDirectiveException : CompilerException
     {
         /// <summary>
@@ -83,8 +83,11 @@ namespace csscript
         /// </summary>
         /// <param name="Errors">The compiler errors.</param>
         /// <param name="hideCompilerWarnings">if set to <c>true</c> hide compiler warnings.</param>
-        /// <param name="resolveAutogenFilesRefs">if set to <c>true</c> all references to the path of the derived auto-generated files
-        /// (e.g. errors in the decorated classless scripts) will be replaced with the path of the original files (e.g. classless script itself).</param>
+        /// <param name="resolveAutogenFilesRefs">
+        /// if set to <c>true</c> all references to the path of the derived auto-generated files
+        /// (e.g. errors in the decorated classless scripts) will be replaced with the path of the
+        /// original files (e.g. classless script itself).
+        /// </param>
         /// <returns></returns>
         public static CompilerException Create(IEnumerable<CompilerError> Errors, bool hideCompilerWarnings, bool resolveAutogenFilesRefs)
         {

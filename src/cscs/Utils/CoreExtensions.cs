@@ -22,11 +22,17 @@ namespace csscript
 #endif
 {
     /// <summary>
-    ///
     /// </summary>
     public static partial class CoreExtensions
     {
         internal static Process RunAsync(this string exe, string args, string dir = null)
+        {
+            var process = InitProc(exe, args, dir);
+            process.Start();
+            return process;
+        }
+
+        internal static Process InitProc(this string exe, string args, string dir = null)
         {
             var process = new Process();
 
@@ -47,15 +53,15 @@ namespace csscript
 
         internal static int Run(this string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null)
         {
-            var process = RunAsync(exe, args, dir);
+            var process = InitProc(exe, args, dir);
 
-            var error = StartMonitor(process.StandardError, onError);
-            var output = StartMonitor(process.StandardOutput, onOutput);
+            //var error = StartMonitor(process.StandardError, onError);
+            StartMonitor(process.StandardOutput, onOutput);
 
+            process.Start(); // important to call even if it is already started, otherwise WLS2 fails to catch the output
             process.WaitForExit();
 
-            // try { error.Abort(); } catch { }
-            // try { output.Abort(); } catch { }
+            // try { error.Abort(); } catch { } try { output.Abort(); } catch { }
 
             return process.ExitCode;
         }
@@ -134,8 +140,8 @@ namespace csscript
         }
 
         /// <summary>
-        /// Removes the duplicated file system path items from the collection.The duplicates are identified
-        /// based on the path being case sensitive depending on the hosting OS file system.
+        /// Removes the duplicated file system path items from the collection.The duplicates are
+        /// identified based on the path being case sensitive depending on the hosting OS file system.
         /// </summary>
         /// <param name="list">The list.</param>
         /// <returns>A list with the unique items</returns>
@@ -160,9 +166,7 @@ namespace csscript
         /// Determines whether [is shared assembly].
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <returns>
-        ///   <c>true</c> if [is shared assembly] [the specified path]; otherwise, <c>false</c>.
-        /// </returns>
+        /// <returns><c>true</c> if [is shared assembly] [the specified path]; otherwise, <c>false</c>.</returns>
         internal static bool IsSharedAssembly(this string path) => path.StartsWith(sdk_root, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
@@ -203,8 +207,7 @@ namespace csscript
         {
             try
             {
-                // on .NET 4.5 ExceptionDispatchInfo can be used
-                // ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                // on .NET 4.5 ExceptionDispatchInfo can be used ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
 
                 typeof(Exception).GetMethod("PrepForRemoting", BindingFlags.NonPublic | BindingFlags.Instance)
                                  .Invoke(ex, new object[0]);
@@ -295,8 +298,8 @@ namespace csscript
                             }
                         }
 
-                        // it's not critical at this stage as the whole options.SearchDirs (the reason for this routine)
-                        // is rebuild from ground to top if it has no sections
+                        // it's not critical at this stage as the whole options.SearchDirs (the
+                        // reason for this routine) is rebuild from ground to top if it has no sections
                         var createMissingSection = false;
 
                         if (!added)
@@ -358,6 +361,20 @@ namespace csscript
 
             return default(T2);
         }
+
+        // beautiful solution: https://stackoverflow.com/questions/49190830/is-it-possible-for-string-split-to-return-tuple
+        public static void Deconstruct<T>(this IList<T> list, out T first, out IList<T> rest)
+        {
+            first = list.Count > 0 ? list[0] : default(T); // or throw
+            rest = list.Skip(1).ToList();
+        }
+
+        public static void Deconstruct<T>(this IList<T> list, out T first, out T second, out IList<T> rest)
+        {
+            first = list.Count > 0 ? list[0] : default(T); // or throw
+            second = list.Count > 1 ? list[1] : default(T); // or throw
+            rest = list.Skip(2).ToList();
+        }
     }
 
     /// <summary>
@@ -368,9 +385,7 @@ namespace csscript
         /// <summary>
         /// Gets or sets the items (file paths) composing the temporary files collections.
         /// </summary>
-        /// <value>
-        /// The items.
-        /// </value>
+        /// <value>The items.</value>
         public List<string> Items { get; set; } = new List<string>();
 
         /// <summary>
