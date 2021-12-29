@@ -71,10 +71,11 @@ namespace cscs
 
                 ThreadPool.QueueUserWorkItem(x =>
                 {
-                    Thread.Sleep(2000);
+                    Thread.Sleep(200);
                     // alive too long on WLS2
                     Process.GetCurrentProcess().Kill(); // some background monitors may keep the app
                 });
+
                 return Environment.ExitCode;
             }
             catch (Exception e)

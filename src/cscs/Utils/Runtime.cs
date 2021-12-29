@@ -308,9 +308,11 @@ namespace csscript
         /// <returns><c>true</c> if [is SDK installed]; otherwise, <c>false</c>.</returns>
         public static bool IsSdkInstalled()
         {
-            var output = "";
-            "dotnet".Run("--list-sdks", null, onOutput: x => output += x);
-            return output.IsNotEmpty();
+            return Globals.csc.FileExists();
+            // "dotnet --list-sdks" is more accurate but it is fragile on WLS2
+            //var output = "";
+            //"dotnet".Run("--list-sdks", null, onOutput: x => output += x);
+            //return output.IsNotEmpty();
         }
     }
 }

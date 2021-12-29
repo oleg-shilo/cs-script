@@ -362,13 +362,21 @@ namespace csscript
             return default(T2);
         }
 
-        // beautiful solution: https://stackoverflow.com/questions/49190830/is-it-possible-for-string-split-to-return-tuple
+        /// <summary> Converts an array to a tuple. <para> Based on this beautiful solution:
+        /// https://stackoverflow.com/questions/49190830/is-it-possible-for-string-split-to-return-tuple
+        /// </para> <param name="list">The list.</param> <param name="first">The first.</param>
+        /// <param name="rest">The rest.</param>
         public static void Deconstruct<T>(this IList<T> list, out T first, out IList<T> rest)
         {
             first = list.Count > 0 ? list[0] : default(T); // or throw
             rest = list.Skip(1).ToList();
         }
 
+        /// <summary> Converts an array to a tuple. <para> Based on this beautiful solution:
+        /// https://stackoverflow.com/questions/49190830/is-it-possible-for-string-split-to-return-tuple
+        /// </para> </summary> </summary> <param name="list">The list.</param> <param
+        /// name="first">The first.</param> <param name="second">The second.</param> <param
+        /// name="rest">The rest.</param>
         public static void Deconstruct<T>(this IList<T> list, out T first, out T second, out IList<T> rest)
         {
             first = list.Count > 0 ? list[0] : default(T); // or throw

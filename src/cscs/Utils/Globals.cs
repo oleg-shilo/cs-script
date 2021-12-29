@@ -183,6 +183,10 @@ namespace CSScripting
 
         static string csc_file = Environment.GetEnvironmentVariable("css_csc_file");
 
+
+        /// <summary>
+        /// Gets the path to the assembly implementing Roslyn compiler.
+        /// </summary>
         static public string roslyn => typeof(Microsoft.CodeAnalysis.CSharp.Scripting.CSharpScript).Assembly.Location;
 
         /// <summary>
