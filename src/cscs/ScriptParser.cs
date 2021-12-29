@@ -113,7 +113,7 @@ namespace CSScriptLib
         public string[] ResolvePackages(bool suppressDownloading = false)
         {
 #if !class_lib
-            return NuGet.Resolve(Packages, suppressDownloading, this.ScriptPath, this.PackagesConfig);
+            return NuGet.Resolve(Packages, suppressDownloading, this.ScriptPath);
 #else
             return new string[0];
 #endif
@@ -123,22 +123,6 @@ namespace CSScriptLib
         /// Collection of the NuGet packages
         /// </summary>
         public string[] Packages => packages.ToArray();
-
-        /// <summary>
-        /// Gets the location of the `packages.config` file if present.
-        /// </summary>
-        public string PackagesConfig
-        {
-            get
-            {
-                var packagesConfig = ScriptPath.GetDirName().PathJoin("packages.config");
-
-                if (packagesConfig.FileExists())
-                    return packagesConfig;
-                else
-                    return null;
-            }
-        }
 
         /// <summary>
         /// Collection of referenced assemblies. All assemblies are referenced either from

@@ -34,7 +34,7 @@ namespace csscript
 
         static public bool newPackageWasInstalled => NuGetCore.NewPackageWasInstalled;
 
-        static public void InstallPackage(string packageNameMask) => NuGetCore.InstallPackage(packageNameMask);
+        static public void InstallPackage(string packageNameMask, string nugetConfig = null) => NuGetCore.InstallPackage(packageNameMask, nugetConfig);
 
         static public void ListPackages()
         {
@@ -45,8 +45,8 @@ namespace csscript
             NuGetCore.ListPackages();
         }
 
-        static public string[] Resolve(string[] packages, bool suppressDownloading, string script, string packagesConfig = null)
-            => NuGetCore.Resolve(packages, suppressDownloading, script, packagesConfig);
+        static public string[] Resolve(string[] packages, bool suppressDownloading, string script)
+            => NuGetCore.Resolve(packages, suppressDownloading, script);
     }
 
     class NuGetCore
@@ -61,7 +61,7 @@ namespace csscript
 
         static public bool NewPackageWasInstalled { get; set; }
 
-        static public void InstallPackage(string packageNameMask, string version = null, string nugetArgs = null)
+        static public void InstallPackage(string packageNameMask, string version = null, string nugetArgs = null, string nugetConfig = null)
         {
             var packages = new string[0];
             //index is 1-based, exactly as it is printed with ListPackages
@@ -96,6 +96,10 @@ namespace csscript
                 if (!File.Exists(proj_template))
                 {
                     "dotnet".Run("new console", nuget_dir);
+
+                    if (nugetConfig.FileExists())
+                        File.Copy(nugetConfig, nuget_dir.PathJoin(nugetConfig.GetFileName()), true);
+
                     foreach (var name in packages)
                     {
                         var ver = "";
@@ -341,12 +345,16 @@ namespace csscript
                                                               (version.IsEmpty() || version == x.Version));
         }
 
-        static public string[] Resolve(string[] packages, bool suppressDownloading, string script, string packagesConfig = null)
+        static public string[] Resolve(string[] packages, bool suppressDownloading, string script)
         {
             var assemblies = new List<string>();
             var all_packages = new List<PackageInfo>();
 
-            var packagesFromConfig = XDocument.Load(packagesConfig)
+            var allPackages = packages.ToList();
+
+            string packagesConfig = script.ChangeFileName("packages.config");
+            if (packagesConfig.FileExists())
+                allPackages.AddRange(XDocument.Load(packagesConfig)
                                               .Descendants("package")
                                               .Select(n =>
                                                       {
@@ -354,11 +362,10 @@ namespace csscript
                                                           if (n.Attribute("version") != null)
                                                               package += $" -ver:\"{n.Attribute("version").Value}\"";
                                                           return package;
-                                                      })
-                                              .ToArray();
+                                                      }));
 
             bool promptPrinted = false;
-            foreach (string item in packages.Concat(packagesFromConfig))
+            foreach (string item in packages.Concat(allPackages))
             {
                 // //css_nuget -noref -ng:"-IncludePrerelease version 1.0beta" cs-script
                 // //css_nuget -noref -ver:"4.1.0-alpha1" -ng:"-Pre" NLog
@@ -406,7 +413,7 @@ namespace csscript
 
                         try
                         {
-                            InstallPackage(package, packageVersion, nugetArgs);
+                            InstallPackage(package, packageVersion, nugetArgs, script.ChangeFileName("NuGet.config"));
                             package_info = FindPackage(package, packageVersion);
                             NewPackageWasInstalled = true;
                         }

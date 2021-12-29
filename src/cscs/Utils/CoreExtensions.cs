@@ -22,7 +22,6 @@ namespace csscript
 #endif
 {
     /// <summary>
-    ///
     /// </summary>
     public static partial class CoreExtensions
     {
@@ -54,8 +53,7 @@ namespace csscript
 
             process.WaitForExit();
 
-            // try { error.Abort(); } catch { }
-            // try { output.Abort(); } catch { }
+            // try { error.Abort(); } catch { } try { output.Abort(); } catch { }
 
             return process.ExitCode;
         }
@@ -134,8 +132,8 @@ namespace csscript
         }
 
         /// <summary>
-        /// Removes the duplicated file system path items from the collection.The duplicates are identified
-        /// based on the path being case sensitive depending on the hosting OS file system.
+        /// Removes the duplicated file system path items from the collection.The duplicates are
+        /// identified based on the path being case sensitive depending on the hosting OS file system.
         /// </summary>
         /// <param name="list">The list.</param>
         /// <returns>A list with the unique items</returns>
@@ -160,9 +158,7 @@ namespace csscript
         /// Determines whether [is shared assembly].
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <returns>
-        ///   <c>true</c> if [is shared assembly] [the specified path]; otherwise, <c>false</c>.
-        /// </returns>
+        /// <returns><c>true</c> if [is shared assembly] [the specified path]; otherwise, <c>false</c>.</returns>
         internal static bool IsSharedAssembly(this string path) => path.StartsWith(sdk_root, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
@@ -194,6 +190,19 @@ namespace csscript
         public static bool SamePathAs(this string path1, string path2) =>
             string.Compare(path1, path2, Runtime.IsWin) == 0;
 
+        public static bool IfSateliteExists(this string file, string sateliteName, out string sateliteFile)
+        {
+            sateliteFile = null;
+            var sateliteFilePath = file.GetDirName().PathJoin(sateliteName);
+
+            if (sateliteFilePath.FileExists())
+            {
+                sateliteFile = sateliteFilePath;
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// Captures the exception dispatch information.
         /// </summary>
@@ -203,8 +212,7 @@ namespace csscript
         {
             try
             {
-                // on .NET 4.5 ExceptionDispatchInfo can be used
-                // ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                // on .NET 4.5 ExceptionDispatchInfo can be used ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
 
                 typeof(Exception).GetMethod("PrepForRemoting", BindingFlags.NonPublic | BindingFlags.Instance)
                                  .Invoke(ex, new object[0]);
@@ -295,8 +303,8 @@ namespace csscript
                             }
                         }
 
-                        // it's not critical at this stage as the whole options.SearchDirs (the reason for this routine)
-                        // is rebuild from ground to top if it has no sections
+                        // it's not critical at this stage as the whole options.SearchDirs (the
+                        // reason for this routine) is rebuild from ground to top if it has no sections
                         var createMissingSection = false;
 
                         if (!added)
@@ -368,9 +376,7 @@ namespace csscript
         /// <summary>
         /// Gets or sets the items (file paths) composing the temporary files collections.
         /// </summary>
-        /// <value>
-        /// The items.
-        /// </value>
+        /// <value>The items.</value>
         public List<string> Items { get; set; } = new List<string>();
 
         /// <summary>
