@@ -69,18 +69,24 @@ namespace csscript
                 if (request == AppArgs.vs)
                 {
                     print("Opening project: " + projectFile);
+
+                    void copy_config(string name)
+                    {
+                        var scriptNugetConfig = project.Script.GetDirName().PathJoin(name);
+                        if (File.Exists(scriptNugetConfig))
+                        {
+                            var projectNugetConfig = projectFile.GetDirName().PathJoin(name);
+                            File.Copy(scriptNugetConfig, projectNugetConfig);
+                        }
+                    }
+
+                    copy_config("packages.config");
+                    copy_config("NuGet.config");
+
                     if (vs_exe.IsEmpty())
                     {
                         try
                         {
-                            var scriptNugetConfig = project.Script.GetDirName().PathJoin("packages.config");
-                            if (File.Exists(scriptNugetConfig))
-                            {
-                                var projectNugetConfig = projectFile.GetDirName().PathJoin("packages.config");
-
-                                File.Copy(scriptNugetConfig, projectNugetConfig);
-                            }
-
                             p = Process.Start("devenv", $"\"{projectFile}\"");
                         }
                         catch
@@ -1477,8 +1483,10 @@ namespace csscript
                 }
             }
 
+            var packages = new List<string>(parser.ResolvePackages());
+
             //add assemblies/packages referenced from code
-            foreach (string asmName in parser.ResolvePackages())
+            foreach (string asmName in packages)
             {
                 requestedRefAsms.AddAssembly(asmName);
                 options.AddSearchDir(asmName.GetDirName(), Settings.code_dirs_section);

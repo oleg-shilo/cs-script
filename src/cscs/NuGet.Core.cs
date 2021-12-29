@@ -19,49 +19,49 @@ namespace csscript
         public string Name;
     }
 
-    // Tempting to use "NuGet.Core" NuGet package to avoid deploying and using nuget.exe.
-    // However it is not compatible with .NET Core runtime (at least as at 19.05.2018)
-    // Next candidate is the REST API (e.g. https://api-v2v3search-0.nuget.org/query?q=cs-script&prerelease=false)
+    // Tempting to use "NuGet.Core" NuGet package to avoid deploying and using nuget.exe. However it
+    // is not compatible with .NET Core runtime (at least as at 19.05.2018) Next candidate is the
+    // REST API (e.g. https://api-v2v3search-0.nuget.org/query?q=cs-script&prerelease=false)
     class NuGet
     {
         static NuGetCore nuget = new NuGetCore();
 
-        static public string NuGetCacheView => Directory.Exists(nuget.NuGetCache) ? nuget.NuGetCache : "<not found>";
-        static public string NuGetCache => nuget.NuGetCache;
+        static public string NuGetCacheView => Directory.Exists(NuGetCore.NuGetCache) ? NuGetCore.NuGetCache : "<not found>";
+        static public string NuGetCache => NuGetCore.NuGetCache;
 
         static public string NuGetExeView
-            => (nuget.NuGetExe.FileExists() || nuget.NuGetExe == "dotnet") ? nuget.NuGetExe : "<not found>";
+            => (NuGetCore.NuGetExe.FileExists() || NuGetCore.NuGetExe == "dotnet") ? NuGetCore.NuGetExe : "<not found>";
 
-        static public bool newPackageWasInstalled => nuget.NewPackageWasInstalled;
+        static public bool newPackageWasInstalled => NuGetCore.NewPackageWasInstalled;
 
-        static public void InstallPackage(string packageNameMask) => nuget.InstallPackage(packageNameMask);
+        static public void InstallPackage(string packageNameMask) => NuGetCore.InstallPackage(packageNameMask);
 
         static public void ListPackages()
         {
             Console.WriteLine("Repository: " + NuGetCacheView);
             int i = 0;
-            foreach (string name in nuget.ListPackages())
+            foreach (string name in NuGetCore.ListPackages())
                 Console.WriteLine((++i) + ". " + name);
-            nuget.ListPackages();
+            NuGetCore.ListPackages();
         }
 
-        static public string[] Resolve(string[] packages, bool suppressDownloading, string script)
-            => nuget.Resolve(packages, suppressDownloading, script);
+        static public string[] Resolve(string[] packages, bool suppressDownloading, string script, string packagesConfig = null)
+            => NuGetCore.Resolve(packages, suppressDownloading, script, packagesConfig);
     }
 
     class NuGetCore
     {
         //https://docs.microsoft.com/en-us/nuget/consume-packages/managing-the-global-packages-and-cache-folders
         // .NET Mono, .NET Core
-        public string NuGetCache => Runtime.IsWin ?
+        static public string NuGetCache => Runtime.IsWin ?
                                             Environment.ExpandEnvironmentVariables(@"%userprofile%\.nuget\packages") :
                                             "~/.nuget/packages";
 
-        public string NuGetExe => "dotnet";
+        static public string NuGetExe => "dotnet";
 
-        public bool NewPackageWasInstalled { get; set; }
+        static public bool NewPackageWasInstalled { get; set; }
 
-        public void InstallPackage(string packageNameMask, string version = null, string nugetArgs = null)
+        static public void InstallPackage(string packageNameMask, string version = null, string nugetArgs = null)
         {
             var packages = new string[0];
             //index is 1-based, exactly as it is printed with ListPackages
@@ -75,9 +75,8 @@ namespace csscript
             }
             else
             {
-                // Regex is too much at this stage
-                // string pattern = CSSUtils.ConvertSimpleExpToRegExp();
-                // Regex wildcard = new Regex(pattern, RegexOptions.IgnoreCase);
+                // Regex is too much at this stage string pattern =
+                // CSSUtils.ConvertSimpleExpToRegExp(); Regex wildcard = new Regex(pattern, RegexOptions.IgnoreCase);
 
                 if (packageNameMask.EndsWith("*"))
                     packages = ListPackages().Where(x => x.StartsWith(packageNameMask.Substring(0, packageNameMask.Length - 1))).ToArray();
@@ -124,7 +123,7 @@ namespace csscript
             }
         }
 
-        void ClearAnabdonedNugetDirs(string nuget_root)
+        static void ClearAnabdonedNugetDirs(string nuget_root)
         {
             // not implemented yet
             foreach (var item in Directory.GetDirectories(nuget_root))
@@ -137,7 +136,7 @@ namespace csscript
             }
         }
 
-        IEnumerable<PackageInfo> ResolveDependenciesFor(IEnumerable<PackageInfo> packages)
+        static IEnumerable<PackageInfo> ResolveDependenciesFor(IEnumerable<PackageInfo> packages)
         {
             var result = new List<PackageInfo>(packages);
             var queue = new Queue<PackageInfo>(packages);
@@ -153,9 +152,9 @@ namespace csscript
                 if (dependenciesSection == null)
                     continue;
 
-                // <dependencies>
-                //   <group targetFramework=".NETStandard2.0">
-                //     <dependency id="Microsoft.Extensions.Logging.Abstractions" version="2.1.0" exclude="Build,Analyzers" />
+                // <dependencies> <group targetFramework=".NETStandard2.0"> <dependency
+                // id="Microsoft.Extensions.Logging.Abstractions" version="2.1.0"
+                // exclude="Build,Analyzers" />
                 var frameworks = dependenciesSection.FindDescendants("group");
                 if (frameworks.Any())
                 {
@@ -191,18 +190,16 @@ namespace csscript
         }
 
         /// <summary>
-        /// Gets the compatible target framework. Similar to `GetPackageCompatibleLib` but relies on NuGet spec file
+        /// Gets the compatible target framework. Similar to `GetPackageCompatibleLib` but relies on
+        /// NuGet spec file
         /// </summary>
         /// <param name="freameworks">The frameworks.</param>
         /// <param name="package">The package.</param>
         /// <returns></returns>
-        XElement GetCompatibleTargetFramework(IEnumerable<XElement> freameworks, PackageInfo package)
+        static XElement GetCompatibleTargetFramework(IEnumerable<XElement> freameworks, PackageInfo package)
         {
-            // https://docs.microsoft.com/en-us/dotnet/standard/frameworks
-            // netstandard?.?
-            // netcoreapp?.?
-            // net?? | net???
-            // ""  (no framework element, meaning "any framework")
+            // https://docs.microsoft.com/en-us/dotnet/standard/frameworks netstandard?.?
+            // netcoreapp?.? net?? | net??? "" (no framework element, meaning "any framework")
             // Though packages use Upper case with '.' preffix: '<group targetFramework=".NETStandard2.0">'
 
             XElement findMatch(Predicate<string> matchTest)
@@ -247,11 +244,12 @@ namespace csscript
         }
 
         /// <summary>
-        /// Gets the package compatible library. Similar to `GetCompatibleTargetFramework` but relies on file structure
+        /// Gets the package compatible library. Similar to `GetCompatibleTargetFramework` but
+        /// relies on file structure
         /// </summary>
         /// <param name="package">The package.</param>
         /// <returns></returns>
-        string GetPackageCompatibleLib(PackageInfo package)
+        static string GetPackageCompatibleLib(PackageInfo package)
         {
             var libDir = package.SpecFile.GetDirName().PathJoin("lib");
 
@@ -285,7 +283,7 @@ namespace csscript
             }
         }
 
-        string[] GetCompatibleAssemblies(PackageInfo package)
+        static string[] GetCompatibleAssemblies(PackageInfo package)
         {
             var lib = GetPackageCompatibleLib(package);
             if (lib != null)
@@ -297,7 +295,7 @@ namespace csscript
                 return new string[0];
         }
 
-        public string[] ListPackages()
+        static public string[] ListPackages()
         {
             return Directory.GetDirectories(NuGetCache)
                             .Select(x =>
@@ -314,7 +312,7 @@ namespace csscript
                             .ToArray();
         }
 
-        PackageInfo FindPackage(string name, string version)
+        static PackageInfo FindPackage(string name, string version)
         {
             var packages = Directory.GetDirectories(NuGetCache, name, SearchOption.TopDirectoryOnly)
                             .SelectMany(x =>
@@ -339,16 +337,28 @@ namespace csscript
                             .Where(x => x != null)
                             .ToArray();
 
-            return packages.FirstOrDefault(x => x.Name == name && (version.IsEmpty() || version == x.Version));
+            return packages.FirstOrDefault(x => string.Compare(x.Name, name, StringComparison.OrdinalIgnoreCase) == 0 &&
+                                                              (version.IsEmpty() || version == x.Version));
         }
 
-        public string[] Resolve(string[] packages, bool suppressDownloading, string script)
+        static public string[] Resolve(string[] packages, bool suppressDownloading, string script, string packagesConfig = null)
         {
             var assemblies = new List<string>();
             var all_packages = new List<PackageInfo>();
 
+            var packagesFromConfig = XDocument.Load(packagesConfig)
+                                              .Descendants("package")
+                                              .Select(n =>
+                                                      {
+                                                          var package = n.Attribute("id").Value;
+                                                          if (n.Attribute("version") != null)
+                                                              package += $" -ver:\"{n.Attribute("version").Value}\"";
+                                                          return package;
+                                                      })
+                                              .ToArray();
+
             bool promptPrinted = false;
-            foreach (string item in packages)
+            foreach (string item in packages.Concat(packagesFromConfig))
             {
                 // //css_nuget -noref -ng:"-IncludePrerelease version 1.0beta" cs-script
                 // //css_nuget -noref -ver:"4.1.0-alpha1" -ng:"-Pre" NLog
@@ -398,13 +408,14 @@ namespace csscript
                         {
                             InstallPackage(package, packageVersion, nugetArgs);
                             package_info = FindPackage(package, packageVersion);
-                            this.NewPackageWasInstalled = true;
+                            NewPackageWasInstalled = true;
                         }
                         catch { }
 
                         try
                         {
-                            File.SetLastWriteTimeUtc(package_info.SpecFile, DateTime.Now.ToUniversalTime());
+                            if (package_info != null)
+                                File.SetLastWriteTimeUtc(package_info.SpecFile, DateTime.Now.ToUniversalTime());
                         }
                         catch { }
                     }

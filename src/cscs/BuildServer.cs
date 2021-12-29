@@ -68,6 +68,12 @@ namespace CSScripting.CodeDom
             return clientSocket.ReadAllBytes().GetString();
         }
 
+        /// <summary>
+        /// Sends the build request.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <param name="port">The port.</param>
+        /// <returns>A (string response, int exitCode) .</returns>
         static public (string response, int exitCode) SendBuildRequest(string[] args, int? port)
         {
             int exitCode = 0;
