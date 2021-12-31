@@ -1,15 +1,16 @@
 echo off
 
 set vs_edition=Community
-if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\%vs_edition%" (
-    echo Visual Studio 2019 (Community)
+
+if exist "C:\Program Files\Microsoft Visual Studio\2022\%vs_edition%" (
+    echo Visual Studio 2022 (Community)
 ) else (
     set vs_edition=Professional
-    echo Visual Studio 2019 (PRO)
+    echo Visual Studio 2022 (PRO)
 )
 
 set PATH=%PATH%;%%\out\ci\
-set target=net5.0
+set target=net6.0
 md "out\Windows"
 md "out\Linux"
 md "out\Linux\-self"

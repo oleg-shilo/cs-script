@@ -20,14 +20,18 @@ namespace csscript
         static bool cacheProbingResults;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the assembly probing results should be cached. Default value is <c>false</c>;
+        /// Gets or sets a value indicating whether the assembly probing results should be cached.
+        /// Default value is <c>false</c>;
         /// <para>
-        /// Caching means that during the probing if the assembly is not found in one of the probing directories this directory will not
-        /// be checked again if the same assembly is to be resolved in the future.
+        /// Caching means that during the probing if the assembly is not found in one of the probing
+        /// directories this directory will not be checked again if the same assembly is to be
+        /// resolved in the future.
         /// </para>
         /// <para>
-        /// This setting is to be used with the caution. While it can bring some performance benefits when the list of probing directories
-        /// is large it also may be wrong to assume that if the assembly in not found in a particular directory it still will not be there if the probing is repeated.
+        /// This setting is to be used with the caution. While it can bring some performance
+        /// benefits when the list of probing directories is large it also may be wrong to assume
+        /// that if the assembly in not found in a particular directory it still will not be there
+        /// if the probing is repeated.
         /// </para>
         /// </summary>
         /// <value><c>true</c> if probing results should be cached; otherwise, <c>false</c>.</value>
@@ -67,8 +71,7 @@ namespace csscript
                 }
                 else if (assemblyName.IndexOf(",") == -1 && asmName.FullName.StartsWith(assemblyName + ","))
                 {
-                    // short name requested
-                    // reqst:"test" - asm: "test, 1.0.0.0"
+                    // short name requested reqst:"test" - asm: "test, 1.0.0.0"
                     return Assembly.LoadFile(asmFile);
                 }
             }
@@ -152,9 +155,7 @@ namespace csscript
         /// Determines whether the string is a legal path token.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <returns>
-        /// 	<c>true</c> if the string is a legal path token; otherwise, <c>false</c>.
-        /// </returns>
+        /// <returns><c>true</c> if the string is a legal path token; otherwise, <c>false</c>.</returns>
         static public bool IsLegalPathToken(string name)
         {
             return name.IndexOfAny(illegalChars) != -1;
@@ -167,8 +168,10 @@ namespace csscript
         /// </summary>
         /// <param name="name">'namespace'/assembly(file) name</param>
         /// <param name="searchDirs">Assembly search directories</param>
-        /// <para>If the default implementation isn't suitable then you can set <c>CSScript.FindAssemblyAlgorithm</c>
-        /// to the alternative implementation of the probing algorithm.</para>
+        /// <para>
+        /// If the default implementation isn't suitable then you can set
+        /// <c>CSScript.FindAssemblyAlgorithm</c> to the alternative implementation of the probing algorithm.
+        /// </para>
         /// <returns>collection of assembly file names where namespace is implemented</returns>
         static public string[] FindAssembly(string name, string[] searchDirs)
         {
@@ -210,9 +213,9 @@ namespace csscript
         }
 
         /// <summary>
-        /// Resolves namespace into array of local assembly locations.
-        /// (Currently it returns only one assembly location but in future
-        /// it can be extended to collect all assemblies with the same namespace)
+        /// Resolves namespace into array of local assembly locations. (Currently it returns only
+        /// one assembly location but in future it can be extended to collect all assemblies with
+        /// the same namespace)
         /// </summary>
         /// <param name="name">namespace/assembly name</param>
         /// <param name="dir">directory</param>
@@ -269,11 +272,19 @@ namespace csscript
             {
                 try
                 {
-                    //non reflection base assembly inspection can be found here: http://ccimetadata.codeplex.com/
-                    //also there are some indications that Reflector uses ILReader without reflection: http://blogs.msdn.com/haibo_luo/default.aspx?p=3
-                    //Potential solutions: AsmReader in this file or Assembly.Load(byte[]);
+                    // non reflection base assembly inspection can be found here:
+                    // http://ccimetadata.codeplex.com/ also there are some indications that
+                    // Reflector uses ILReader without reflection:
+                    // http://blogs.msdn.com/haibo_luo/default.aspx?p=3 Potential solutions:
+                    // AsmReader in this file or Assembly.Load(byte[]);
 
-                    Assembly assembly = Assembly.ReflectionOnlyLoadFrom(asmFileName);
+                    // Note this routine can be executed as part of CSScriptLib.dll. So despite the
+                    // `deprecated` attribute `ReflectionOnlyLoadFrom` will succeed in some cases
+                    // (e.g. .NET Framework hosts)
+                    Assembly assembly = null;
+#if class_lib
+                    assembly = Assembly.ReflectionOnlyLoadFrom(asmFileName);
+#endif
 
                     if (assembly != null)
                     {

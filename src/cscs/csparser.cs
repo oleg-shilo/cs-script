@@ -13,26 +13,27 @@ using CSScriptLib;
 namespace csscript
 {
     /// <summary>
-    /// Very light parser for C# code. The main purpose of it is to be very fast and reliable.
-    /// It only extracts code information relative to the CS-Script.
+    /// Very light parser for C# code. The main purpose of it is to be very fast and reliable. It
+    /// only extracts code information relative to the CS-Script.
     /// </summary>
     public class CSharpParser
     {
         /// <summary>
-        /// Class to hold the script information on what pre- or post-execution script needs to be executed.
-        /// pre- and post-script CS-Script command format:
-        /// //css_prescript file([arg0][, arg1]..[,arg2])[,ignore];
-        /// //file - script file (extension is optional)
-        /// //arg0..N - script string arguments;
-        /// If $this is specified as arg0..N it will be replaced with the parent script full name at execution time.
+        /// Class to hold the script information on what pre- or post-execution script needs to be
+        /// executed. pre- and post-script CS-Script command format: //css_prescript file([arg0][,
+        /// arg1]..[,arg2])[,ignore]; //file - script file (extension is optional) //arg0..N -
+        /// script string arguments; If $this is specified as arg0..N it will be replaced with the
+        /// parent script full name at execution time.
         /// </summary>
         public class CmdScriptInfo
         {
             /// <summary>
-            ///	Creates an instance of CmdScriptInfo.
+            /// Creates an instance of CmdScriptInfo.
             /// </summary>
             /// <param name="statement">CS-Script pre- or post-script directive</param>
-            /// <param name="preScript">If set to true the 'statement' is a pre-script otherwise it is a post-script.</param>
+            /// <param name="preScript">
+            /// If set to true the 'statement' is a pre-script otherwise it is a post-script.
+            /// </param>
             /// <param name="parentScript">The file name of the main script.</param>
             public CmdScriptInfo(string statement, bool preScript, string parentScript)
             {
@@ -85,7 +86,8 @@ namespace csscript
             public bool preScript;
 
             /// <summary>
-            /// If set to 'true' parent script will be aborted on pre/post-script error, otherwise the error will be ignored.
+            /// If set to 'true' parent script will be aborted on pre/post-script error, otherwise
+            /// the error will be ignored.
             /// </summary>
             public bool abortOnError = true;
         }
@@ -96,7 +98,8 @@ namespace csscript
         public class InitInfo
         {
             /// <summary>
-            /// The boolean flag indicating if CoInitializeSecurity (with default parameters) should be called at the start of the script execution.
+            /// The boolean flag indicating if CoInitializeSecurity (with default parameters) should
+            /// be called at the start of the script execution.
             /// </summary>
             public bool CoInitializeSecurity = false;
 
@@ -116,7 +119,9 @@ namespace csscript
             /// <summary>
             /// Initializes a new instance of the <see cref="InitInfo"/> class.
             /// </summary>
-            /// <param name="statement">The original argument statement of the <c>//css_init</c> directive.</param>
+            /// <param name="statement">
+            /// The original argument statement of the <c>//css_init</c> directive.
+            /// </param>
             public InitInfo(string statement)
             {
                 //CoInitializeSecurity or
@@ -172,18 +177,24 @@ namespace csscript
         public class ImportInfo
         {
             // create wrong output
-            // -proj  -dbg "C:\Users\oleg.shilo\Documents\C# Scripts\New Script11\New Script11.cs"
+            // -proj -dbg "C:\Users\oleg.shilo\Documents\C# Scripts\New Script11\New Script11.cs"
 
             /// <summary>
-            /// <para> When importing dependency scripts with '//css_include' or '//css_import' you can use relative path.
-            /// Resolving relative path is typically done with respect to the <c>current directory</c>.
+            /// <para>
+            /// When importing dependency scripts with '//css_include' or '//css_import' you can use
+            /// relative path. Resolving relative path is typically done with respect to the
+            /// <c>current directory</c>.
             /// </para>
             /// <para>
-            /// The only exception is any path that starts with a single dot ('.') prefix, which triggers the conversion of the path into the absolute path
-            /// with respect to the location of the file containing the import directive.
+            /// The only exception is any path that starts with a single dot ('.') prefix, which
+            /// triggers the conversion of the path into the absolute path with respect to the
+            /// location of the file containing the import directive.
             /// </para>
-            /// <para>Set <see cref="ResolveRelativeFromParentScriptLocation"/> to <c>true</c> if you want to convert all relative paths
-            /// into the absolute path, not only the ones with a single dot ('.') prefix.</para>
+            /// <para>
+            /// Set <see cref="ResolveRelativeFromParentScriptLocation"/> to <c>true</c> if you want
+            /// to convert all relative paths into the absolute path, not only the ones with a
+            /// single dot ('.') prefix.
+            /// </para>
             /// <para>By default it is set to <c>false</c> unless overwritten via the global settings.</para>
             /// </summary>
             public static bool ResolveRelativeFromParentScriptLocation = false;
@@ -215,8 +226,8 @@ namespace csscript
 
                         List<ImportInfo> result = new List<ImportInfo>();
 
-                        // To ensure that parent script dir is on top.
-                        // Required because FileParser.ResolveFiles stops searching when it finds.
+                        // To ensure that parent script dir is on top. Required because
+                        // FileParser.ResolveFiles stops searching when it finds.
                         probinghDirs = Path.GetDirectoryName(parentScript)
                                            .ConcatWith(probinghDirs)
                                            .Distinct();
@@ -403,7 +414,9 @@ namespace csscript
         /// </summary>
         /// <param name="script">C# script (code or file).</param>
         /// <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
-        /// <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
+        /// <param name="directivesToSearch">
+        /// Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.
+        /// </param>
         public CSharpParser(string script, bool isFile, string[] directivesToSearch)
         {
             InitEnvironment();
@@ -415,8 +428,12 @@ namespace csscript
         /// </summary>
         /// <param name="script">C# script (code or file).</param>
         /// <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
-        /// <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
-        /// <param name="probingDirs">Search directories for resolving wild card paths in //css_inc and //css_imp</param>
+        /// <param name="directivesToSearch">
+        /// Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.
+        /// </param>
+        /// <param name="probingDirs">
+        /// Search directories for resolving wild card paths in //css_inc and //css_imp
+        /// </param>
         public CSharpParser(string script, bool isFile, string[] directivesToSearch, string[] probingDirs)
         {
             InitEnvironment();
@@ -451,7 +468,10 @@ namespace csscript
         /// <summary>
         /// Global flag to forcefully suppress any C# code analyses. This flag effectively disables
         /// all CS-Script assembly and script probing and most likely some other functionality.
-        /// <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
+        /// <para>
+        /// You may ever want to suppress code analysis only for profiling purposes or during
+        /// performance tuning.
+        /// </para>
         /// </summary>
         public static bool SuppressCodeAnalysis = false;
 
@@ -460,8 +480,12 @@ namespace csscript
         /// </summary>
         /// <param name="code">C# script (code or file).</param>
         /// <param name="file">If set to 'true' the script is a file, otherwise it is a C# code.</param>
-        /// <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
-        /// <param name="probingDirs">Search directories for resolving wild card paths in //css_inc and //css_imp</param>
+        /// <param name="directivesToSearch">
+        /// Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.
+        /// </param>
+        /// <param name="probingDirs">
+        /// Search directories for resolving wild card paths in //css_inc and //css_imp
+        /// </param>
         void Init(string code, string file, string[] directivesToSearch, string[] probingDirs)
         {
             probingDirs = probingDirs?.Except(Settings.PseudoDirItems)
@@ -576,10 +600,8 @@ namespace csscript
             foreach (string statement in GetRawStatements("//css_ignore_ns", endCodePos))
                 ignoreNamespaces.Add(statement.Trim());
 
-            // analyze resource references
-            // this directive is special as it may contain two paths
-            // //css_res Resources1.resx;",
-            // //css_res Form1.resx, Scripting.Form1.resources;"
+            // analyze resource references this directive is special as it may contain two paths
+            // //css_res Resources1.resx;", //css_res Form1.resx, Scripting.Form1.resources;"
             foreach (string statement in GetRawStatements("//css_resource", endCodePos))
                 resFiles.Add(statement.NormaliseAsDirectiveOf(file, multiPathDelimiter: ','));
             foreach (string statement in GetRawStatements("//css_res", endCodePos))
@@ -671,7 +693,9 @@ namespace csscript
         /// Renames namespaces according renaming instructions.
         /// </summary>
         /// <param name="renamingMap">Renaming instructions (old_name vs. new_name).</param>
-        /// <param name="preserveMain">/// If set to 'true' "static...Main" in the imported script is not renamed.</param>
+        /// <param name="preserveMain">
+        /// /// If set to 'true' "static...Main" in the imported script is not renamed.
+        /// </param>
         public void DoRenaming(string[][] renamingMap, bool preserveMain)
         {
             int renamingPos = -1;
@@ -764,7 +788,8 @@ namespace csscript
         public bool IsWebApp = false;
 
         /// <summary>
-        /// Embedded script arguments. The both script and engine arguments are allowed except "/noconfig" engine command line switch.
+        /// Embedded script arguments. The both script and engine arguments are allowed except
+        /// "/noconfig" engine command line switch.
         /// </summary>
         public string[] Args => args.ToArray();
 
@@ -864,12 +889,13 @@ namespace csscript
         List<string> args = new List<string>();
 
         /// <summary>
-        /// Enables omitting closing character (";") for CS-Script directives (e.g. "//css_ref System.Xml.dll" instead of "//css_ref System.Xml.dll;").
+        /// Enables omitting closing character (";") for CS-Script directives (e.g. "//css_ref
+        /// System.Xml.dll" instead of "//css_ref System.Xml.dll;").
         /// </summary>
         public static bool OpenEndDirectiveSyntax = true;
 
         bool HasRawStatement(string pattern, int endIndex)
-            => IndexOf(pattern, 0, endIndex) != -1;
+            => this.Code.IndexOf(pattern, 0, endIndex) != -1;
 
         string[] GetRawStatements(string pattern, int endIndex, bool canBeEmpty = false)
         {
@@ -1019,7 +1045,8 @@ namespace csscript
                 char c = Code[i];
                 if (lastDelimiter != char.MinValue)
                 {
-                    // need to ensure that double "\n\n" is not treated as escaped delimiter. The same comes to '\r' and '\t'.
+                    // need to ensure that double "\n\n" is not treated as escaped delimiter. The
+                    // same comes to '\r' and '\t'.
 
                     if (lastDelimiter == c && !char.IsWhiteSpace(lastDelimiter)) //delimiter was escaped
                         lastDelimiter = char.MinValue;
@@ -1120,11 +1147,16 @@ namespace csscript
 
         /// <summary>
         /// Escapes the CS-Script directive (e.g. //css_*) delimiters.
-        /// <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
-        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
-        /// The correct syntax would be as follows '//css_include script((today)).cs;'</para>
+        /// <para>
+        /// All //css_* directives should escape any internal CS-Script delimiters by doubling the
+        /// delimiter character. For example //css_include for 'script(today).cs' should escape
+        /// brackets as they are the directive delimiters. The correct syntax would be as follows
+        /// '//css_include script((today)).cs;'
+        /// </para>
         /// <remarks>The delimiters characters are ';,(){}'.
-        /// <para>However you should check <see cref="csscript.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
+        /// <para>
+        /// However you should check <see cref="csscript.CSharpParser.DirectiveDelimiters"/> for the
+        /// accurate list of all delimiters.
         /// </para>
         /// </remarks>
         /// </summary>
@@ -1139,9 +1171,8 @@ namespace csscript
 
         /// <summary>
         /// Replaces the user escaped delimiters with internal escaping.
-        /// <p> "{char}{char}" -> "\u{((int)c).ToString("x4")}"</p>
-        /// <p> "((" -> "\u0028"</p>
-        ///
+        /// <p>"{char}{char}" -&gt; "\u{((int)c).ToString("x4")}"</p>
+        /// <p>"((" -&gt; "\u0028"</p>
         /// </summary>
         /// <param name="text">The text.</param>
         /// <returns>Escaped string</returns>
@@ -1162,11 +1193,16 @@ namespace csscript
 
         /// <summary>
         /// Unescapes the CS-Script directive (e.g. //css_*) delimiters.
-        /// <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
-        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
-        /// The correct syntax would be as follows '//css_include script((today)).cs;'</para>
+        /// <para>
+        /// All //css_* directives should escape any internal CS-Script delimiters by doubling the
+        /// delimiter character. For example //css_include for 'script(today).cs' should escape
+        /// brackets as they are the directive delimiters. The correct syntax would be as follows
+        /// '//css_include script((today)).cs;'
+        /// </para>
         /// <remarks>The delimiters characters are ';,(){}'.
-        /// <para>However you should check <see cref="csscript.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
+        /// <para>
+        /// However you should check <see cref="csscript.CSharpParser.DirectiveDelimiters"/> for the
+        /// accurate list of all delimiters.
         /// </para>
         /// </remarks>
         /// </summary>
@@ -1180,11 +1216,10 @@ namespace csscript
         }
 
         /// <summary>
-        /// The //css_* directive delimiters.
-        /// <remarks>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
-        /// For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
-        /// The correct syntax would be as follows '//css_include script((today)).cs;'
-        /// </remarks>
+        /// The //css_* directive delimiters. <remarks>All //css_* directives should escape any
+        /// internal CS-Script delimiters by doubling the delimiter character. For example
+        /// //css_include for 'script(today).cs' should escape brackets as they are the directive
+        /// delimiters. The correct syntax would be as follows '//css_include script((today)).cs;'</remarks>
         /// </summary>
         public static char[] DirectiveDelimiters = new char[] { ';', '(', ')', '{', '}', ',' };
 

@@ -37,7 +37,7 @@ namespace CLI
 #else
             var config = "Release";
 #endif
-            cscs_exe = Environment.GetEnvironmentVariable("css_test_asm") ?? $@"..\..\..\..\..\cscs\bin\{config}\net5.0\cscs.dll".GetFullPath();
+            cscs_exe = Environment.GetEnvironmentVariable("css_test_asm") ?? $@"..\..\..\..\..\cscs\bin\{config}\net{Environment.Version.Major}.0\cscs.dll".GetFullPath();
             var cmd_dir = cscs_exe.ChangeFileName("-self");
 
             if (cmd_dir.DirExists())
@@ -194,8 +194,7 @@ namespace CLI
             output = cscs_run($"{probing_dir} -self-run");
             Assert.Equal(cscs_exe, output);
 
-            // --------------
-            // it will fail on Linux as elevation will be required. so building exe
+            // -------------- it will fail on Linux as elevation will be required. so building exe
             // needs to be tested manually.
             if (is_win && !Assembly.GetEntryAssembly().Location.EndsWith("css.dll"))
             {
@@ -239,28 +238,29 @@ namespace CLI
         [FactWinOnly]
         public void new_wpf_with_cscs()
         {
-            // WPF is a special case.
-            // If WPF script uses compiled (not dynamically loaded) XAML then it needs to be compiled to BAML.
-            // The same way as MSBuild does for a WPF vs project. Thus csc.exe simply not capable of doing this so
-            // you need to use  dotnet engine.
-            //
-            // script_type   |  host_app   |  compiler_engine   |  compilation  |  hosting  |  overall execution  |  special_steps
-            // -------------------------------------------------|---------------|-----------|--------------------------------------
-            // console       |  cscs       |  csc               |  success      |  success  |  success            |
-            // console       |  csws       |  csc               |  success      |  success  |  success            |
-            // console       |  cscs       |  dotnet            |  success      |  success  |  success            |
-            // console       |  csws       |  dotnet            |  success      |  success  |  success            |
-            //
-            // winform       |  cscs       |  csc               |  success      |  success  |  success            |  //css_winapp
-            // winform       |  csws       |  csc               |  success      |  success  |  success            |  //css_winapp
-            // winform       |  cscs       |  dotnet            |  success      |  success  |  success            |  //css_winapp
-            // winform       |  csws       |  dotnet            |  success      |  success  |  success            |  //css_winapp
-            //
-            // WPF           |  cscs       |  csc               |  failure      |  failure  |  failure            |  //css_winapp
-            // WPF           |  csws       |  csc               |  failure      |  failure  |  failure            |  //css_winapp
-            // WPF           |  cscs       |  dotnet            |  success      |  failure  |  failure            |  //css_winapp
-            // WPF           |  cscs       |  dotnet            |  success      |  success  |  success            |  //css_winapp (execute `cscs -wpf:enable` once)
-            // WPF           |  csws       |  dotnet            |  success      |  success  |  success            |  //css_winapp
+            /*
+            // WPF is a special case. If WPF script uses compiled (not dynamically loaded) XAML then
+            // it needs to be compiled to BAML. The same way as MSBuild does for a WPF vs project.
+            // Thus csc.exe simply not capable of doing this so you need to use dotnet engine.
+
+            script_type   |  host_app   |  compiler_engine   |  compilation  |  hosting  |  overall execution  |  special_steps
+            -------------------------------------------------|---------------|-----------|--------------------------------------
+            console       |  cscs       |  csc               |  success      |  success  |  success            |
+            console       |  csws       |  csc               |  success      |  success  |  success            |
+            console       |  cscs       |  dotnet            |  success      |  success  |  success            |
+            console       |  csws       |  dotnet            |  success      |  success  |  success            |
+
+            winform       |  cscs       |  csc               |  success      |  success  |  success            |  //css_winapp
+            winform       |  csws       |  csc               |  success      |  success  |  success            |  //css_winapp
+            winform       |  cscs       |  dotnet            |  success      |  success  |  success            |  //css_winapp
+            winform       |  csws       |  dotnet            |  success      |  success  |  success            |  //css_winapp
+
+            WPF           |  cscs       |  csc               |  failure      |  failure  |  failure            |  //css_winapp
+            WPF           |  csws       |  csc               |  failure      |  failure  |  failure            |  //css_winapp
+            WPF           |  cscs       |  dotnet            |  success      |  failure  |  failure            |  //css_winapp
+            WPF           |  cscs       |  dotnet            |  success      |  success  |  success            |  //css_winapp (execute `cscs -wpf:enable` once)
+            WPF           |  csws       |  dotnet            |  success      |  success  |  success            |  //css_winapp
+             */
 
             if (!Runtime.IsLinux)
             {

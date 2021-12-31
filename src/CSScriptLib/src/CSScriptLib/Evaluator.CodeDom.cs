@@ -49,7 +49,7 @@ namespace CSScriptLib
     /// <summary>
     /// Class implementing CodeDom favor of (csc.exe/csc.dll) <see cref="IEvaluator"/>
     /// </summary>
-    /// <seealso cref="CSScriptLib.IEvaluator" />
+    /// <seealso cref="CSScriptLib.IEvaluator"/>
     public class CodeDomEvaluator : EvaluatorBase<CodeDomEvaluator>, IEvaluator
     {
         /// <summary>
@@ -58,10 +58,13 @@ namespace CSScriptLib
         public static bool CompileOnServer = true;
 
         /// <summary>
-        /// The low level output of the last script compilation. This member is not designed to be a part of script error handling. For this purpose a normal
-        /// exception based mechanism the is a more appropriate choice.
-        /// <para><see cref="CompilerLastOutput"/> on another hand is great for troubleshooting problems associated with the low level completion.
-        /// IE non script specific failures of csc.exe.</para>
+        /// The low level output of the last script compilation. This member is not designed to be a
+        /// part of script error handling. For this purpose a normal exception based mechanism the
+        /// is a more appropriate choice.
+        /// <para>
+        /// <see cref="CompilerLastOutput"/> on another hand is great for troubleshooting problems
+        /// associated with the low level completion. IE non script specific failures of csc.exe.
+        /// </para>
         /// </summary>
         public static string CompilerLastOutput = "";
 
@@ -69,9 +72,12 @@ namespace CSScriptLib
         /// Validates the specified information.
         /// </summary>
         /// <param name="info">The information.</param>
-        /// <exception cref="CSScriptException">CompileInfo.RootClass property should only be used with Roslyn evaluator as " +
-        ///                     "it addresses the limitation associated with Roslyn. Specifically wrapping ALL scripts in the illegally " +
-        ///                     "named parent class. You are using CodeDomEvaluator so you should not set CompileInfo.RootClass to any custom value</exception>
+        /// <exception cref="CSScriptException">
+        /// CompileInfo.RootClass property should only be used with Roslyn evaluator as " + "it
+        /// addresses the limitation associated with Roslyn. Specifically wrapping ALL scripts in
+        /// the illegally " + "named parent class. You are using CodeDomEvaluator so you should not
+        /// set CompileInfo.RootClass to any custom value
+        /// </exception>
         protected override void Validate(CompileInfo info)
         {
             if (info != null && info.RootClass != Globals.RootClassName)
@@ -119,7 +125,9 @@ namespace CSScriptLib
                         hashableCode.Append(File.ReadAllText(dependencyScript).GetHashCode());
 
                     scriptHash = $"{scriptText}.{scriptFile?.GetFullPath()}".GetHashCode(); // not very sophisticated (e.g. not all ref asms are
-                                                                                            // included in hashing)
+                                                                                            // included
+                                                                                            // in
+                                                                                            // hashing)
                                                                                             // but adequate
 
                     if (scriptCache.ContainsKey(scriptHash))
@@ -188,7 +196,8 @@ namespace CSScriptLib
                 if (info?.CompilerOptions.HasText() == true)
                     common_args.Add(info.CompilerOptions);
 
-                // common_args.Add("/t:exe"); // need always build exe so "top-class" feature is supported even when building dlls
+                // common_args.Add("/t:exe"); // need always build exe so "top-class" feature is
+                // supported even when building dlls
 
                 if (IncludeDebugInformation)
                     if (Runtime.IsCore)
@@ -210,11 +219,12 @@ namespace CSScriptLib
                 }
                 else
                 {
-                    // foreach (string file in ref_assemblies)
-                    // refs_args.Add($"/r:\"{file}\"");
+                    // foreach (string file in ref_assemblies) refs_args.Add($"/r:\"{file}\"");
                     refs_args.Add($"/r:\"System.Design.dll\"");
                     refs_args.Add($"/r:\"mscorlib.dll\"");
                 }
+
+                refs_args.RemoveAll(x => x.Contains(".Native."));
 
                 foreach (string file in sources)
                     source_args.Add($"\"{file}\"");
@@ -250,8 +260,7 @@ namespace CSScriptLib
                             var request = $@"csc {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}"
                                           .SplitCommandLine();
 
-                            // ensure server running
-                            // it will gracefully exit if another instance is running
+                            // ensure server running it will gracefully exit if another instance is running
                             var startBuildServerCommand = $@"""{Globals.build_server}"" -listen -port:{BuildServer.serverPort} -csc:""{Globals.csc}""";
 
                             dotnet.RunAsync(startBuildServerCommand);
@@ -373,17 +382,19 @@ namespace CSScriptLib
 
         /// <summary>
         /// References the given assembly.
-        /// <para>It is safe to call this method multiple times
-        /// for the same assembly. If the assembly already referenced it will not
-        /// be referenced again.
+        /// <para>
+        /// It is safe to call this method multiple times for the same assembly. If the assembly
+        /// already referenced it will not be referenced again.
         /// </para>
         /// </summary>
         /// <param name="assembly">The assembly instance.</param>
         /// <returns>
-        /// The instance of the <see cref="T:CSScriptLib.IEvaluator" /> to allow  fluent interface.
+        /// The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
         /// </returns>
-        /// <exception cref="System.Exception">Current version of {EngineName} doesn't support referencing assemblies " +
-        ///                          "which are not loaded from the file location.</exception>
+        /// <exception cref="System.Exception">
+        /// Current version of {EngineName} doesn't support referencing assemblies " + "which are
+        /// not loaded from the file location.
+        /// </exception>
         public override IEvaluator ReferenceAssembly(Assembly assembly)
         {
             if (assembly != null)//this check is needed when trying to load partial name assemblies that result in null
@@ -410,9 +421,7 @@ namespace CSScriptLib
 
         /// <summary>
         /// Loads and returns set of referenced assemblies.
-        /// <para>
-        /// Notre: the set of assemblies is cleared on Reset.
-        /// </para>
+        /// <para>Notre: the set of assemblies is cleared on Reset.</para>
         /// </summary>
         /// <returns>The method result.</returns>
         public override Assembly[] GetReferencedAssemblies()

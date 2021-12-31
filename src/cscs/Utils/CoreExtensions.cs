@@ -51,15 +51,28 @@ namespace csscript
             return process;
         }
 
-        internal static int Run(this string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null)
+        internal static int Run(this string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null, int timeout = -1)
         {
             var process = InitProc(exe, args, dir);
 
-            //var error = StartMonitor(process.StandardError, onError);
-            StartMonitor(process.StandardOutput, onOutput);
+            // starting draining streams from another thread creates a problem as `WaitForExit()`
+            // returns before streams are closed (at least in .NET6) so use blocking `ReadToEnd()`
+            // Seems to be a problem with .NET implementation.
+
+            // onErrro will be used when this functionality is restored. var error =
+            // StartMonitor(process.StandardError, onError); var output =
+            // StartMonitor(process.StandardOutput, onOutput);
+
+            var output = process.StandardOutput.ReadToEnd();
+            onOutput?.Invoke(output);
 
             process.Start(); // important to call even if it is already started, otherwise WLS2 fails to catch the output
-            process.WaitForExit();
+            if (!process.WaitForExit(-1))
+            {
+                if (timeout != -1) // of course it is not -1 if we are here :)
+                    onOutput?.Invoke($"Process '{exe}' is taking too long to finish. Terminating it forcefully.");
+                try { process.Kill(); } catch { }
+            }
 
             // try { error.Abort(); } catch { } try { output.Abort(); } catch { }
 
@@ -362,21 +375,28 @@ namespace csscript
             return default(T2);
         }
 
-        /// <summary> Converts an array to a tuple. <para> Based on this beautiful solution:
-        /// https://stackoverflow.com/questions/49190830/is-it-possible-for-string-split-to-return-tuple
-        /// </para> <param name="list">The list.</param> <param name="first">The first.</param>
-        /// <param name="rest">The rest.</param>
+        /// <summary>
+        /// Converts an array to a tuple.
+        /// <para>Based on this beautiful solution: https://stackoverflow.com/questions/49190830/is-it-possible-for-string-split-to-return-tuple</para>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list">The list.</param>
+        /// <param name="first">The first.</param>
+        /// <param name="rest"></param>
         public static void Deconstruct<T>(this IList<T> list, out T first, out IList<T> rest)
         {
             first = list.Count > 0 ? list[0] : default(T); // or throw
             rest = list.Skip(1).ToList();
         }
 
-        /// <summary> Converts an array to a tuple. <para> Based on this beautiful solution:
-        /// https://stackoverflow.com/questions/49190830/is-it-possible-for-string-split-to-return-tuple
-        /// </para> </summary> </summary> <param name="list">The list.</param> <param
-        /// name="first">The first.</param> <param name="second">The second.</param> <param
-        /// name="rest">The rest.</param>
+        /// <summary>
+        /// Converts an array to a tuple.
+        /// <para>Based on this beautiful solution: https://stackoverflow.com/questions/49190830/is-it-possible-for-string-split-to-return-tuple</para>
+        /// </summary>
+        /// <param name="list">The list.</param>
+        /// <param name="first">The first.</param>
+        /// <param name="second">The second.</param>
+        /// <param name="rest">The rest.</param>
         public static void Deconstruct<T>(this IList<T> list, out T first, out T second, out IList<T> rest)
         {
             first = list.Count > 0 ? list[0] : default(T); // or throw

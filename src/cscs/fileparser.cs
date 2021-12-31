@@ -9,8 +9,8 @@ using CSScripting;
 namespace CSScriptLib
 {
     /// <summary>
-    /// ParsingParams is a class that holds parsing parameters (parameters that controls how file is to be parsed).
-    /// At this moment they are namespace renaming rules only.
+    /// ParsingParams is a class that holds parsing parameters (parameters that controls how file is
+    /// to be parsed). At this moment they are namespace renaming rules only.
     /// </summary>
     class ParsingParams
     {
@@ -72,7 +72,9 @@ namespace CSScriptLib
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="info">ImportInfo object containing the information how the script file should be parsed.</param>
+        /// <param name="info">
+        /// ImportInfo object containing the information how the script file should be parsed.
+        /// </param>
         public ScriptInfo(CSharpParser.ImportInfo info)
         {
             this.fileName = info.file;
@@ -132,7 +134,7 @@ namespace CSScriptLib
         public ParsingParams prams = null;
 
         public bool IsWebApp => this.parser?.IsWebApp == true;
-        public string FileToCompile => Imported ? fileNameImported : fileName;
+        public string FileToCompile => Imported ? (fileNameImported.HasText() ? fileNameImported : fileName) : fileName;
 
         public string[] SearchDirs { get; private set; } = new string[0];
 
@@ -218,8 +220,8 @@ namespace CSScriptLib
         List<string> referencedResources = new List<string>();
 
         /// <summary>
-        /// Searches for script file by given script name. Calls ResolveFile(string fileName, string[] extraDirs, bool throwOnError)
-        /// with throwOnError flag set to true.
+        /// Searches for script file by given script name. Calls ResolveFile(string fileName,
+        /// string[] extraDirs, bool throwOnError) with throwOnError flag set to true.
         /// </summary>
         public static string ResolveFile(string fileName, string[] extraDirs)
             => ResolveFile(fileName, extraDirs, throwOnError);
@@ -233,8 +235,8 @@ namespace CSScriptLib
         /// The default algorithm searches for script file by given script name. Search order:
         /// 1. Current directory
         /// 2. extraDirs (usually %CSSCRIPT_ROOT%\Lib and ExtraLibDirectory)
-        /// 3. PATH
-        /// Also fixes file name if user did not provide extension for script file (assuming .cs extension)
+        /// 3. PATH Also fixes file name if user did not provide extension for script file (assuming
+        /// .cs extension)
         /// </para>
         /// </summary>
         internal static ResolveSourceFileAlgorithm ResolveFilesAlgorithm = ResolveFilesDefault;
@@ -245,10 +247,12 @@ namespace CSScriptLib
         /// Searches for script file by given script name. Search order:
         /// 1. Current directory
         /// 2. extraDirs (usually %CSSCRIPT_ROOT%\Lib and ExtraLibDirectory)
-        /// 3. PATH
-        /// Also fixes file name if user did not provide extension for script file (assuming .cs extension)
-        /// <para>If the default implementation isn't suitable then you can set <c>FileParser.ResolveFilesAlgorithm</c>
-        /// to the alternative implementation of the probing algorithm.</para>
+        /// 3. PATH Also fixes file name if user did not provide extension for script file (assuming
+        /// .cs extension)
+        /// <para>
+        /// If the default implementation isn't suitable then you can set
+        /// <c>FileParser.ResolveFilesAlgorithm</c> to the alternative implementation of the probing algorithm.
+        /// </para>
         /// </summary>
         public static string ResolveFile(string file, string[] extraDirs, bool throwOnError)
             => ResolveFilesAlgorithm(file, extraDirs, throwOnError).FirstOrDefault();
@@ -265,18 +269,10 @@ namespace CSScriptLib
                 retval = _ResolveFiles(file, extraDirs, ".csl"); //script link file
             if (retval.Length == 0)
             {
-                // a complex command folder. IE:
-                // ├──  -self
-                // │   └──  -test
-                // │       ├── run.cs
-                // │       ├── utils.cs
-                // │       ├── log.cs
-                // │       └── test_definitions.cs.
+                // a complex command folder. IE: ├── -self │ └── -test │ ├── run.cs │ ├── utils.cs │
+                // ├── log.cs │ └── test_definitions.cs.
 
-                // possible CLI command:
-                // css -self-test
-                // css -self-test-run
-                // css -self-test-log
+                // possible CLI command: css -self-test css -self-test-run css -self-test-log
                 if (file.GetFileName().StartsWith("-"))
                 {
                     var filePath = "-" + file.TrimStart('-').Replace("-", $"{Path.DirectorySeparatorChar}-");
@@ -358,7 +354,8 @@ namespace CSScriptLib
             }
             catch
             {
-                // may fail when one of PATH dirs is used e.g. `Access to the path 'C:\Windows\system32\config' is denied.`
+                // may fail when one of PATH dirs is used e.g. `Access to the path
+                // 'C:\Windows\system32\config' is denied.`
             }
             return new string[0];
         }
@@ -435,7 +432,6 @@ namespace CSScriptLib
     /// <summary>
     /// Implementation of the IComparer for sorting operations of collections of FileParser instances
     /// </summary>
-    ///
     class FileParserComparer : IComparer<FileParser>
     {
         public int Compare(FileParser x, FileParser y)

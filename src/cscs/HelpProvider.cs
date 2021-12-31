@@ -1439,7 +1439,7 @@ class Program
                 .AppendLine("    public MainWindow()")
                 .AppendLine("    {")
                 .AppendLine("        InitializeComponent();")
-                .AppendLine("        button.Click += (s, e) => MessageBox.Show(\"Hello World!\");")
+                .AppendLine("        button.Click += (s, e) => System.Windows.MessageBox.Show(\"Hello World!\");")
                 .AppendLine("    }")
                 .AppendLine("}")
                 .ToString();

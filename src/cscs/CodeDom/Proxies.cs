@@ -64,7 +64,7 @@ namespace CSScripting.CodeDom
             (string projectName, string language) = fileType.MapValue((".cs", to => ("build.csproj", "C#")),
                                                                       (".vb", to => ("build.vbproj", "VB")));
 
-            var proj_template = build_root.PathJoin($"build{fileType}proj");
+            var proj_template = build_root.PathJoin($"build.{Environment.Version}{fileType}proj");
 
             if (!File.Exists(proj_template))
             {
@@ -73,7 +73,7 @@ namespace CSScripting.CodeDom
                 build_root.PathJoin($"Program{fileType}").DeleteIfExists();
                 build_root.PathJoin("obj").DeleteIfExists(recursive: true);
             }
-            // zos; need mechanizm for cleaning
+            // zos; need mechanism for cleaning
 
             if (!File.Exists(proj_template)) // sdk may not be available
             {
@@ -82,7 +82,7 @@ namespace CSScripting.CodeDom
                     "<Project Sdk=\"Microsoft.NET.Sdk\">",
                     "  <PropertyGroup>",
                     "    <OutputType>Exe</OutputType>",
-                    "    <TargetFramework>net5.0</TargetFramework>",
+                    "    <TargetFramework>net6.0</TargetFramework>",
                     "  </PropertyGroup>",
                     "</Project>"
                 });
@@ -162,12 +162,7 @@ namespace CSScripting.CodeDom
             build_dir.DeleteDir()
                      .EnsureDir();
 
-            //  <Project Sdk ="Microsoft.NET.Sdk">
-            //    <PropertyGroup>
-            //      <OutputType>Exe</OutputType>
-            //      <TargetFramework>netcoreapp3.1</TargetFramework>
-            //    </PropertyGroup>
-            //  </Project>
+            // <Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>netcoreapp3.1</TargetFramework></PropertyGroup></Project>
             var project_element = XElement.Parse(File.ReadAllText(template));
 
             var compileConstantsDelimiter = ";";
@@ -187,13 +182,14 @@ namespace CSScripting.CodeDom
                                .Remove();
             }
 
-            // In .NET all references including GAC assemblies must be passed to the compiler.
-            // In .NET Core this creates a problem as the compiler does not expect any default (shared)
+            // In .NET all references including GAC assemblies must be passed to the compiler. In
+            // .NET Core this creates a problem as the compiler does not expect any default (shared)
             // assemblies to be passed. So we do need to exclude them.
-            // Note: .NET project that uses 'standard' assemblies brings facade/full .NET Core assemblies in the working folder (engine dir)
+            // Note: .NET project that uses 'standard' assemblies brings facade/full .NET Core
+            // assemblies in the working folder (engine dir)
             //
-            // Though we still need to keep shared assembly resolving in the host as the future compiler
-            // require ALL ref assemblies to be pushed to the compiler.
+            // Though we still need to keep shared assembly resolving in the host as the future
+            // compiler require ALL ref assemblies to be pushed to the compiler.
 
             bool not_in_engine_dir(string asm) => (asm.GetDirName() != Assembly.GetExecutingAssembly().Location.GetDirName());
 
@@ -203,7 +199,7 @@ namespace CSScripting.CodeDom
                                                              .ToList();
 
             void setTargetFremeworkWin() => project_element.Element("PropertyGroup")
-                                                           .SetElementValue("TargetFramework", "net5.0-windows");
+                                                           .SetElementValue("TargetFramework", "net6.0-windows");
 
             bool refWinForms = ref_assemblies.Any(x => x.EndsWith("System.Windows.Forms") ||
                                                        x.EndsWith("System.Windows.Forms.dll"));
@@ -229,15 +225,17 @@ namespace CSScripting.CodeDom
 
             void CopySourceToBuildDir(string source)
             {
-                // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the only format that is supported
-                // by both .NET debugger (VS) and .NET Core debugger (VSCode).
+                // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the
+                // only format that is supported by both .NET debugger (VS) and .NET Core debugger (VSCode).
 
-                // However PortablePDB does not store the full source path but file name only (at least for now). It works fine in typical
-                // .Core scenario where the all sources are in the root directory but if they are not (e.g. scripting or desktop app) then
+                // However PortablePDB does not store the full source path but file name only (at
+                // least for now). It works fine in typical .Core scenario where the all sources are
+                // in the root directory but if they are not (e.g. scripting or desktop app) then
                 // debugger cannot resolve sources without user input.
 
-                // The only solution (ugly one) is to inject the full file path at startup with #line directive. And loose the possibility
-                // to use path-based source files in the project file instead of copying all files in the build dir as we do.
+                // The only solution (ugly one) is to inject the full file path at startup with
+                // #line directive. And loose the possibility to use path-based source files in the
+                // project file instead of copying all files in the build dir as we do.
 
                 var new_file = build_dir.PathJoin(source.GetFileName());
                 var sourceText = File.ReadAllText(source);
@@ -268,7 +266,7 @@ namespace CSScripting.CodeDom
                 project_element.Add(includs);
                 fileNames.ForEach(x =>
                 {
-                    // <Compile Include="..\..\..\cscs\fileparser.cs" Link="fileparser.cs" />
+                    // <Compile Include="..\..\..\cscs\fileparser.cs" Link="fileparser.cs"/>
 
                     if (x.EndsWith(".xaml", StringComparison.OrdinalIgnoreCase))
                         includs.Add(new XElement("Page",
