@@ -12,7 +12,9 @@ if exist "C:\Program Files\Microsoft Visual Studio\2022\%vs_edition%" (
 set PATH=%PATH%;%%\out\ci\
 set target=net6.0
 md "out\Windows"
-md "out\Linux"
+md "out\Windows\lib"
+md "out\Linux\"
+md "out\Linux\lib"
 md "out\Linux\-self"
 md "out\Linux\-self\-exe"
 md "out\Linux\-self\-test"
@@ -82,6 +84,9 @@ del "out\Linux\*.pdb"
 del "out\Windows\*.pdb" 
 rd "out\Windows\win" /S /Q
 rd "out\Windows\console" /S /Q
+
+copy "out\static_content\global-usings.cs" "out\Windows\lib\global-usings.cs" 
+copy "out\static_content\global-usings.cs" "out\Linux\lib\global-usings.cs"
 
 copy "out\static_content\-self\*" "out\Windows\-self\" 
 copy "out\static_content\-self\*" "out\Linux\-self\" 

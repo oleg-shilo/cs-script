@@ -1222,7 +1222,7 @@ namespace csscript
         static Dictionary<string, Func<string, SampleInfo[]>> sampleBuilders = new Dictionary<string, Func<string, SampleInfo[]>>
         {
             { "", DefaultSample},
-            { "console", DefaultSample},
+            { "console", CSharp_console_Sample},
             { "console-vb", DefaultVbSample},
             { "vb", DefaultVbSample},
             { "toplevel", CSharp_toplevel_Sample},
@@ -1480,13 +1480,18 @@ class Program
                 builder.AppendLine("// #!/usr/local/bin/cscs");
             }
 
-            builder.AppendLine("using System;")
-                   .AppendLine("using System.IO;")
-                   .AppendLine("using System.Diagnostics;")
-                   .AppendLine("using static dbg; // for print() extension")
-                   .AppendLine("using static System.Environment;")
-                   .AppendLine()
-                   .AppendLine("print(\"Script: \", GetEnvironmentVariable(\"EntryScript\"));")
+            if (!isGlobalUsingAvailabe)
+                builder.AppendLine("using System;")
+                       .AppendLine("using System.IO;")
+                       .AppendLine("using System.Diagnostics;")
+                       .AppendLine("using static dbg; // for print() extension")
+                       .AppendLine("using static System.Environment;")
+                       .AppendLine();
+            else
+                builder.AppendLine("//css_include global-usings")
+                       .AppendLine();
+
+            builder.AppendLine("print(\"Script: \", GetEnvironmentVariable(\"EntryScript\"));")
                    .AppendLine("@\".\\\".list_files(); ")
                    .AppendLine()
                    .AppendLine("static class extensions")
@@ -1529,7 +1534,12 @@ class Program
             return new[] { new SampleInfo(cs.ToString(), ".cs") };
         }
 
-        static SampleInfo[] CSharp7_Sample(string context)
+        static bool isGlobalUsingAvailabe => Assembly
+                                                 .GetExecutingAssembly().Location
+                                                 .GetDirName().PathJoin("lib", "global-usings.cs")
+                                                 .FileExists();
+
+        static SampleInfo[] CSharp10_Sample(string context)
         {
             var builder = new StringBuilder();
 
@@ -1538,35 +1548,82 @@ class Program
                 builder.AppendLine("// #!/usr/local/bin/cscs");
             }
 
-            builder
-                .AppendLine("using System;")
-                .AppendLine("using System.Linq;")
-                .AppendLine("using System.Collections.Generic;")
-                .AppendLine("using static dbg; // to use 'print' instead of 'dbg.print'")
-                .AppendLine("            ")
-                .AppendLine("class Script")
-                .AppendLine("{")
-                .AppendLine("    static public void Main(string[] args)")
-                .AppendLine("    {")
-                .AppendLine("        (string message, int version) setup_say_hello()")
-                .AppendLine("        {")
-                .AppendLine("            return (\"Hello from C#\", 9);")
-                .AppendLine("        }")
-                .AppendLine("")
-                .AppendLine("        var info = setup_say_hello();")
-                .AppendLine("")
-                .AppendLine("        print(info.message, info.version);")
-                .AppendLine("")
-                .AppendLine("        print(Environment.GetEnvironmentVariables()")
-                .AppendLine("                            .Cast<object>()")
-                .AppendLine("                            .Take(5));")
-                .AppendLine("    }")
-                .AppendLine("}");
+            if (!isGlobalUsingAvailabe)
+                builder.AppendLine("using System;")
+                       .AppendLine("using System.IO;")
+                       .AppendLine("using System.Collections.Generic;")
+                       .AppendLine("using System.Diagnostics;")
+                       .AppendLine("using System.Linq;");
+            else
+                builder.AppendLine("//css_include global-usings");
 
+            builder
+                .AppendLine("using static dbg; // for print() extension")
+                .AppendLine("using static System.Environment;")
+                .AppendLine()
+                .AppendLine("\"------------------------------------\".print();")
+                .AppendLine("Console.WriteLine($\"Date: {DateTime.Now}\");")
+                .AppendLine("(string message, int version) setup_say_hello()")
+                .AppendLine("{")
+                .AppendLine("    return (\"Hello from C#\", 9);")
+                .AppendLine("}")
+                .AppendLine("")
+                .AppendLine("var info = setup_say_hello();")
+                .AppendLine()
+                .AppendLine("print(info.message, info.version);")
+                .AppendLine()
+                .AppendLine("print(Environment.GetEnvironmentVariables()")
+                .AppendLine("                 .Cast<object>()")
+                .AppendLine("                 .Take(5));")
+                .AppendLine("\"------------------------------------\".print();")
+                .AppendLine();
             return new[] { new SampleInfo(builder.ToString(), ".cs") };
         }
 
-        static SampleInfo[] DefaultSample(string context) => CSharp7_Sample(context);
+        static SampleInfo[] CSharp_console_Sample(string context)
+        {
+            var builder = new StringBuilder();
+
+            if (!Runtime.IsWin)
+            {
+                builder.AppendLine("// #!/usr/local/bin/cscs");
+            }
+
+            if (!isGlobalUsingAvailabe)
+                builder.AppendLine("using System;")
+                       .AppendLine("using System.IO;")
+                       .AppendLine("using System.Collections.Generic;")
+                       .AppendLine("using System.Diagnostics;")
+                       .AppendLine("using System.Linq;");
+            else
+                builder.AppendLine("//css_include global-usings");
+
+            builder
+               .AppendLine("using System.Collections.Generic;")
+               .AppendLine("using static dbg; // to use 'print' instead of 'dbg.print'")
+               .AppendLine("            ")
+               .AppendLine("class Script")
+               .AppendLine("{")
+               .AppendLine("    static public void Main(string[] args)")
+               .AppendLine("    {")
+               .AppendLine("        (string message, int version) setup_say_hello()")
+               .AppendLine("        {")
+               .AppendLine("            return (\"Hello from C#\", 9);")
+               .AppendLine("        }")
+               .AppendLine("")
+               .AppendLine("        var info = setup_say_hello();")
+               .AppendLine("")
+               .AppendLine("        print(info.message, info.version);")
+               .AppendLine("")
+               .AppendLine("        print(Environment.GetEnvironmentVariables()")
+               .AppendLine("                            .Cast<object>()")
+               .AppendLine("                            .Take(5));")
+               .AppendLine("    }")
+               .AppendLine("}");
+            return new[] { new SampleInfo(builder.ToString(), ".cs") };
+        }
+
+        static SampleInfo[] DefaultSample(string context) => CSharp10_Sample(context);
 
         static SampleInfo[] DefaultVbSample(string context)
         {

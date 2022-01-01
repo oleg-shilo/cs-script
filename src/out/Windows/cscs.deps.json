@@ -1,12 +1,12 @@
 {
   "runtimeTarget": {
-    "name": ".NETCoreApp,Version=v5.0",
+    "name": ".NETCoreApp,Version=v6.0",
     "signature": ""
   },
   "compilationOptions": {},
   "targets": {
-    ".NETCoreApp,Version=v5.0": {
-      "cscs/4.2.0.0": {
+    ".NETCoreApp,Version=v6.0": {
+      "cscs/4.3.0.0": {
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp.Scripting": "3.10.0"
         },
@@ -468,7 +468,7 @@
     }
   },
   "libraries": {
-    "cscs/4.2.0.0": {
+    "cscs/4.3.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -63,7 +63,7 @@ namespace CLI
             Assert.StartsWith("Created:", output);
 
             output = cscs_run(script_file);
-            Assert.StartsWith("Hello from C#", output);
+            Assert.Contains("Hello from C#", output);
         }
 
         [Fact]
@@ -180,6 +180,35 @@ namespace CLI
 
             output = cscs_run($"-check -ng:dotnet {script_file}");
             Assert.Equal("Compile: OK", output);
+        }
+
+        [Fact]
+        public void syntax_version_10()
+        {
+            var script = (nameof(syntax_version_10) + ".cs").GetFullPath();
+            var script_g = script.ChangeExtension(".g.cs");
+
+            File.WriteAllText(script, @$"
+//css_inc {script_g}
+Console.WriteLine(""Hello, World!"");");
+
+            File.WriteAllText(script_g, @"
+global using global::System;
+global using global::System.Collections.Generic;
+global using global::System.IO;
+global using global::System.Linq;
+global using global::System.Net.Http;
+global using global::System.Threading;
+global using global::System.Threading.Tasks;");
+
+            var output = cscs_run($"-ng:dotnet \"{script}\"");
+            Assert.Equal("Hello, World!", output);
+
+            output = cscs_run($"-ng:csc \"{script}\"");
+            Assert.Equal("Hello, World!", output);
+
+            output = cscs_run($"-ng:roslyn \"{script}\"");
+            Assert.Equal("Hello, World!", output);
         }
 
         [Fact]

@@ -1,18 +1,18 @@
-# Release v4.2.1.0
+# Release v4.3.0.0
 
-Maintenance release
+.NET 6 release
 
 ---
 
 ## Deployment
 _**Ubuntu (terminal)**_
 ```
-repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.2.0.0/; file=cs-script_4.2-0.deb; rm $file; wget $repo$file; sudo dpkg -i $file
+repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.3.0.0/; file=cs-script_4.3-0.deb; rm $file; wget $repo$file; sudo dpkg -i $file
 ```
 _**Windows (choco)**_
 _Pending approval_
 ```
-choco install cs-script --version=4.2.0.0 
+choco install cs-script --version=4.3.0.0 
 ```
 It is highly recommended that you uninstall CS-Script.Core:
 ```
@@ -30,24 +30,20 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
 ---
 ## Changes 
 
-### _Misc_
-- Added auto-generation of the CLI MD documentation with -help cli:md. To be used to generate GitHub wiki page during the build
-- Fixed Debian packaging problem (/n/r needed replacement with \n)
-- Issue #253: Supports both .Net Framework and .Net 5
+### CLI
+- Issue #271: Any Special considerations running in a linux docker container?
+- Added support for `packages.config` and `NuGet.config`
+  Triggered by PR #263: Use and forward additional nuget arguments
+- Various changes for .NET 6 porting
+- Create NuGetCache directory on environments without an existing package directory
+- Open main script in Visual Studio when project is loaded
+- PR #265: Do not overwrite return code set in Environment.ExitCode
+- Issue #264: Spelling issue?
+- Issue #260: Double Entry Point Definition
 
-### _CLI_
 
-- Updated -speed and -code with the complete support -ng:* switches
-- Added -servers:start and -servers:stop command to control both Roslyn and csc build servers at the same time
-- Issue #258: Can not run scripts after installing VS2022
-- Issue #257: Ability to catch AppDomain.UnhandledException in a not-hosted script (cscs)
-- Issue #255: Relative path for cscs.exe -out option results in wrong output folder
-- Issue #254: Script merger for hosted scripts
-- Issue #252: System.NullReferenceException: Object reference not set to an instance of an object. (updated API doc)
+### CSScriptLib
 
-### _CSScriptLib_
-
-- Native API CacheEnabled marked as obsolete
-- Added IEvaluator.IsCachingEnabled. It is always available from the concrete types implementing IEvaluator and now it is moved directly to the interface.
+- _None_
 
 

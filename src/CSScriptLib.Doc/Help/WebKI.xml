@@ -162,6 +162,7 @@
     <HelpKINode Title="methods" Url="html/e9f0310b-2127-dcde-c2c5-1e7268929f33.htm" />
   </HelpKINode>
   <HelpKINode Title="CoreExtensions.CaptureExceptionDispatchInfo method" Url="html/17519245-a510-7d47-f2fd-01753e249701.htm" />
+  <HelpKINode Title="CoreExtensions.Deconstruct method" Url="html/14f058ed-cdb1-1f3c-700b-94f169032eea.htm" />
   <HelpKINode Title="CoreExtensions.EscapeDirectiveDelimiters method" Url="html/e004bf0a-6967-e602-7e69-0fc11d0dde0a.htm" />
   <HelpKINode Title="CoreExtensions.RemoveAssemblyExtension method" Url="html/cddfad44-0fdf-1420-7171-8d426da004f9.htm" />
   <HelpKINode Title="CoreExtensions.SamePathAs method" Url="html/b1bd09ce-8632-7ecc-be9e-00f05e6d4f2c.htm" />
@@ -295,6 +296,7 @@
     <HelpKINode Title="EvaluatorConfig.DebugBuild Property " Url="html/565c1bd9-120e-2898-f064-e002af7a1853.htm" />
     <HelpKINode Title="IEvaluator.DebugBuild Property " Url="html/ceb4eab2-3fb7-b506-eb71-c942971c8641.htm" />
   </HelpKINode>
+  <HelpKINode Title="Deconstruct method" Url="html/14f058ed-cdb1-1f3c-700b-94f169032eea.htm" />
   <HelpKINode Title="DefaultConfigFile property" Url="html/c6890f47-e645-1b87-1a7c-dbcbf9fba2d3.htm" />
   <HelpKINode Title="DefaultRefAssemblies property" Url="html/4b3dd18a-95a2-49fd-0a73-ac2b9a6af939.htm" />
   <HelpKINode Title="DeleteDir method" Url="html/12f2d607-6120-d264-4600-7c67ab2fc707.htm" />
@@ -480,6 +482,7 @@
   <HelpKINode Title="Globals.Globals constructor" Url="html/c40a8171-847e-029e-bfb6-e7a677f1a87a.htm" />
   <HelpKINode Title="Globals.Ping method" Url="html/2e317daf-736d-939c-fead-bb4587311b34.htm" />
   <HelpKINode Title="Globals.RemoveBuildServer method" Url="html/646ddb54-4c4d-af14-7e90-5e2ef18d9d1d.htm" />
+  <HelpKINode Title="Globals.roslyn property" Url="html/ca02210a-7ae0-8a8b-88a8-37a6567dabd1.htm" />
   <HelpKINode Title="GlobalSettings field" Url="html/33e53372-e8ea-848d-e27f-055e834015b2.htm" />
   <HelpKINode Title="HasText method" Url="html/8ba13135-1f7c-cef0-5fe7-dc75b19beec2.htm" />
   <HelpKINode Title="HostOptions property" Url="html/aada4d22-a321-2e08-5a3a-be3b1294612f.htm" />
@@ -723,6 +726,7 @@
   <HelpKINode Title="ResolveSourceFileAlgorithm delegate" Url="html/87cbc735-60de-4827-00d1-8aaef756c074.htm" />
   <HelpKINode Title="RootClass property" Url="html/d1021c54-75f4-209d-7d53-2d4c1ed2abd5.htm" />
   <HelpKINode Title="Roslyn enumeration member" Url="html/78976dd5-4163-18cb-da0f-c7e70d9d356d.htm" />
+  <HelpKINode Title="roslyn property" Url="html/ca02210a-7ae0-8a8b-88a8-37a6567dabd1.htm" />
   <HelpKINode Title="RoslynEvaluator class">
     <HelpKINode Title="RoslynEvaluator Class" Url="html/9674b5d1-3a9a-73ad-7eb0-38ff27b81336.htm" />
     <HelpKINode Title="constructor" Url="html/5cf3c013-48af-0aa7-0bc3-67a21d4dde3b.htm" />
