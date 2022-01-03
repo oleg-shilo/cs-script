@@ -192,7 +192,7 @@ namespace csscript
                                                 "Displays either generic or command specific help info.",
                                                 "```",
                                                 "   <command> - one of the supported CLI commands",
-                                                "   <scope>    ",
+                                                "   <scope>  ",
                                                 "         `cli`    - print documentation for all CLI commands",
                                                 "         `syntax` - print the complete documentation for scripting syntax",
                                                 "         `md`     - print the documentation in GitHub markdown format",
@@ -898,13 +898,13 @@ namespace csscript
                          " 'cscs_exe_dir'            - ${<==}script engine directory",
                          " 'EntryScript'             - ${<==}location of the entry script",
                          " 'EntryScriptAssembly'     - ${<==}location of the compiled script assembly",
-                         " 'location:<assm_hash>'    - ${<==}location of the compiled script assembly.",
+                         " 'location:<asm_hash>'    - ${<==}location of the compiled script assembly.",
                          " ",
                          "This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script code. " +
                          "Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file. " +
                          "(e.g. var location = Environment.GetEnvironmentVariable(\"location:\" + Assembly.GetExecutingAssembly().GetHashCode()); ",
                          " ",
-                         "Note that by default setting of 'location:<assm_hash>' is disabled. You can enable it by calling " +
+                         "Note that by default setting of 'location:<asm_hash>' is disabled. You can enable it by calling " +
                          " 'CSScript.EnableScriptLocationReflection = true'.",
                          " ",
                          "The following is the optional set of environment variables that the script engine uses to improve the user experience:",
@@ -1158,7 +1158,6 @@ namespace csscript
                         .AppendLine();
                 }
 
-                // string fullDoc = GetFullDoc();
                 foreach (AppArgs.ArgInfo info in AppArgs.switch1Help.Values)
                 {
                     if (alreadyPrinted.Contains(info.ArgSpec))
@@ -1553,13 +1552,13 @@ class Program
                        .AppendLine("using System.IO;")
                        .AppendLine("using System.Collections.Generic;")
                        .AppendLine("using System.Diagnostics;")
-                       .AppendLine("using System.Linq;");
+                       .AppendLine("using System.Linq;")
+                       .AppendLine("using static dbg; // for print() extension")
+                       .AppendLine("using static System.Environment;");
             else
                 builder.AppendLine("//css_include global-usings");
 
             builder
-                .AppendLine("using static dbg; // for print() extension")
-                .AppendLine("using static System.Environment;")
                 .AppendLine()
                 .AppendLine("\"------------------------------------\".print();")
                 .AppendLine("Console.WriteLine($\"Date: {DateTime.Now}\");")
@@ -1594,13 +1593,12 @@ class Program
                        .AppendLine("using System.IO;")
                        .AppendLine("using System.Collections.Generic;")
                        .AppendLine("using System.Diagnostics;")
-                       .AppendLine("using System.Linq;");
+                       .AppendLine("using System.Linq;")
+                       .AppendLine("using static dbg; // to use 'print' instead of 'dbg.print'");
             else
                 builder.AppendLine("//css_include global-usings");
 
             builder
-               .AppendLine("using System.Collections.Generic;")
-               .AppendLine("using static dbg; // to use 'print' instead of 'dbg.print'")
                .AppendLine("            ")
                .AppendLine("class Script")
                .AppendLine("{")
