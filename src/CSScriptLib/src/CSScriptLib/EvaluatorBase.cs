@@ -47,23 +47,25 @@ using System.Runtime.Loader;
 namespace CSScriptLib
 {
     /// <summary>
-    /// A wrapper class that encapsulates the functionality of the Roslyn  evaluator (<see cref="Microsoft.CodeAnalysis.CSharp.Scripting"/>).
+    /// A wrapper class that encapsulates the functionality of the Roslyn evaluator ( <see cref="Microsoft.CodeAnalysis.CSharp.Scripting"/>).
     /// </summary>
     public class EvaluatorBase<T> : IEvaluator where T : IEvaluator, new()
     {
         /// <summary>
         /// Clones itself as <see cref="CSScriptLib.IEvaluator"/>.
         /// <para>
-        /// This method returns a freshly initialized copy of the <see cref="CSScriptLib.IEvaluator"/>.
-        /// The cloning 'depth' can be controlled by the <paramref name="copyRefAssemblies"/>.
+        /// This method returns a freshly initialized copy of the <see
+        /// cref="CSScriptLib.IEvaluator"/>. The cloning 'depth' can be controlled by the <paramref name="copyRefAssemblies"/>.
         /// </para>
         /// <para>
-        /// This method is a convenient technique when multiple <see cref="CSScriptLib.IEvaluator"/> instances
-        /// are required (e.g. for concurrent script evaluation).
+        /// This method is a convenient technique when multiple <see cref="CSScriptLib.IEvaluator"/>
+        /// instances are required (e.g. for concurrent script evaluation).
         /// </para>
         /// </summary>
-        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced assemblies from the parent <see cref="CSScriptLib.IEvaluator"/>
-        /// will be referenced in the cloned copy.</param>
+        /// <param name="copyRefAssemblies">
+        /// if set to <c>true</c> all referenced assemblies from the parent <see
+        /// cref="CSScriptLib.IEvaluator"/> will be referenced in the cloned copy.
+        /// </param>
         /// <returns>The freshly initialized instance of the <see cref="CSScriptLib.IEvaluator"/>.</returns>
         public IEvaluator Clone(bool copyRefAssemblies = true)
         {
@@ -81,9 +83,9 @@ namespace CSScriptLib
 
         /// <summary>
         /// Gets or sets a value indicating whether to compile script with debug symbols.
-        /// <para>Note, setting <c>DebugBuild</c> will only affect the current instance of Evaluator.
-        /// If you want to emit debug symbols for all instances of Evaluator then use
-        /// <see cref="CSScriptLib.CSScript.EvaluatorConfig"/>.DebugBuild.
+        /// <para>
+        /// Note, setting <c>DebugBuild</c> will only affect the current instance of Evaluator. If
+        /// you want to emit debug symbols for all instances of Evaluator then use <see cref="CSScriptLib.CSScript.EvaluatorConfig"/>.DebugBuild.
         /// </para>
         /// </summary>
         /// <value><c>true</c> if 'debug build'; otherwise, <c>false</c>.</value>
@@ -92,13 +94,11 @@ namespace CSScriptLib
         /// <summary>
         /// Gets a value indicating whether this instance is debug.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is debug; otherwise, <c>false</c>.
-        /// </value>
+        /// <value><c>true</c> if this instance is debug; otherwise, <c>false</c>.</value>
         protected bool IsDebug => DebugBuild ?? CSScript.EvaluatorConfig.DebugBuild;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RoslynEvaluator" /> class.
+        /// Initializes a new instance of the <see cref="RoslynEvaluator"/> class.
         /// </summary>
         public EvaluatorBase()
         {
@@ -133,31 +133,35 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s).
-        /// <para>The method is identical to <see cref="IEvaluator.CompileCode(string, CompileInfo)"/> except that it allows specifying
-        /// the destination assembly file with <see cref="CompileInfo"/> object.</para>
+        /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a
+        /// single or multiple class definition(s).
+        /// <para>
+        /// The method is identical to <see cref="IEvaluator.CompileCode(string, CompileInfo)"/>
+        /// except that it allows specifying the destination assembly file with <see
+        /// cref="CompileInfo"/> object.
+        /// </para>
         /// </summary>
         /// <example>
         /// <code>
-        /// var info = new CompileInfo
-        /// {
-        ///     AssemblyFile = @"E:\temp\asm.dll"
-        /// };
+        ///var info = new CompileInfo
+        ///{
+        ///AssemblyFile = @"E:\temp\asm.dll"
+        ///};
         ///
-        /// Assembly asm = CSScript.Evaluator
-        ///                        .Cast&lt;RoslynEvaluator&gt;()
-        ///                        .CompileCode(@"using System;
-        ///                                       public class Script
-        ///                                       {
-        ///                                           public int Sum(int a, int b)
-        ///                                           {
-        ///                                               return a+b;
-        ///                                           }
-        ///                                       }",
-        ///                                       info);
+        ///Assembly asm = CSScript.Evaluator
+        ///.Cast&lt;RoslynEvaluator&gt;()
+        ///.CompileCode(@"using System;
+        ///public class Script
+        ///{
+        ///public int Sum(int a, int b)
+        ///{
+        ///return a+b;
+        ///}
+        ///}",
+        ///info);
         ///
-        /// dynamic script =  asm.CreateObject("*");
-        /// var result = script.Sum(7, 3);
+        ///dynamic script =  asm.CreateObject("*");
+        ///var result = script.Sum(7, 3);
         /// </code>
         /// </example>
         /// <param name="scriptText">The C# script text.</param>
@@ -176,17 +180,22 @@ namespace CSScriptLib
         { }
 
         /// <summary>
-        /// CS-Script assembly unloading functionality is implemented as a combination of
-        /// loading assembly into <see cref="AssemblyLoadContext" /> that is marked as "IsCollectible"
-        /// and the <c>ReflectionExtensions</c>.<see cref="AssemblyUnloadingExtensions.Unload(Assembly)" /> extension method.
-        /// Unloading is only available on the runtimes that support it. Otherwise <see cref="AssemblyLoadContext" />
-        /// throws an exception on attempt to load the compiled script assembly.
-        /// <para><see cref="IsAssemblyUnloadingEnabled" /> is designed to allow enabling/disabling of the
-        /// assembly unloading should you find that the limitations associated with this .NET Core specific feature
-        /// are not acceptable. E.g., collectible assemblies cannot be referenced from other scripts or
-        /// in fact any dynamically loaded assembly for that matter.</para>
-        /// <para>Due to the limitations (though minor) of the underlying .NET Core feature
-        /// <see cref="IsAssemblyUnloadingEnabled" /> is set to <c>false</c> by default.</para>
+        /// CS-Script assembly unloading functionality is implemented as a combination of loading
+        /// assembly into <see cref="AssemblyLoadContext"/> that is marked as "IsCollectible" and
+        /// the <c>ReflectionExtensions</c>. <see
+        /// cref="AssemblyUnloadingExtensions.Unload(Assembly)"/> extension method. Unloading is
+        /// only available on the runtimes that support it. Otherwise <see
+        /// cref="AssemblyLoadContext"/> throws an exception on attempt to load the compiled script assembly.
+        /// <para>
+        /// <see cref="IsAssemblyUnloadingEnabled"/> is designed to allow enabling/disabling of the
+        /// assembly unloading should you find that the limitations associated with this .NET Core
+        /// specific feature are not acceptable. E.g., collectible assemblies cannot be referenced
+        /// from other scripts or in fact any dynamically loaded assembly for that matter.
+        /// </para>
+        /// <para>
+        /// Due to the limitations (though minor) of the underlying .NET Core feature <see
+        /// cref="IsAssemblyUnloadingEnabled"/> is set to <c>false</c> by default.
+        /// </para>
         /// </summary>
         public bool IsAssemblyUnloadingEnabled { get; set; } = false;
 
@@ -229,12 +238,11 @@ namespace CSScriptLib
             (byte[] asm, byte[] pdb) = Compile(scriptText, scriptFile, info);
 
             Assembly scriptAssembly;
-            
+
             if (info?.PreferLoadingFromFile == true && info?.AssemblyFile.IsNotEmpty() == true)
             {
-                // return Assembly.LoadFile(info.AssemblyFile);
-                // this way the loaded script assembly can be referenced from
-                // other scripts without custom assembly probing
+                // return Assembly.LoadFile(info.AssemblyFile); this way the loaded script assembly
+                // can be referenced from other scripts without custom assembly probing
                 scriptAssembly = IsAssemblyUnloadingEnabled
                                      ? AppDomain.CurrentDomain.LoadCollectableAssemblyFrom(info.AssemblyFile)
                                      : Assembly.LoadFrom(info.AssemblyFile);
@@ -255,18 +263,16 @@ namespace CSScriptLib
             {
                 loadedScriptsCache[scriptHash] = scriptAssembly;
             }
-            
+
             return scriptAssembly;
         }
 
         internal int GetHashFor(string scriptText, string scriptFile)
-            =>$"{scriptText}.{scriptFile?.GetFullPath()}".GetHashCode(); // not very sophisticated but adequate
+            => $"{scriptText}.{scriptFile?.GetFullPath()}".GetHashCode(); // not very sophisticated but adequate
 
         /// <summary>
         /// Returns set of referenced assemblies.
-        /// <para>
-        /// Notre: the set of assemblies is cleared on Reset.
-        /// </para>
+        /// <para>Notre: the set of assemblies is cleared on Reset.</para>
         /// </summary>
         /// <returns>The method result.</returns>
         /// <exception cref="NotImplementedException"></exception>
@@ -282,17 +288,16 @@ namespace CSScriptLib
             => throw new NotImplementedException();
 
         /// <summary>
-        /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing a single or multiple class definition(s).
+        /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing
+        /// a single or multiple class definition(s).
         /// </summary>
         /// <param name="scriptFile">The C# script file.</param>
         /// <param name="outputFile">The path to the assembly file to be compiled.</param>
-        /// <returns>
-        /// The compiled assembly file path.
-        /// </returns>
+        /// <returns>The compiled assembly file path.</returns>
         /// <example>
-        ///   <code>
-        /// string asmFile = CSScript.Evaluator
-        ///                          .CompileAssemblyFromFile("MyScript.cs", "MyScript.dll");
+        /// <code>
+        ///string asmFile = CSScript.Evaluator
+        ///.CompileAssemblyFromFile("MyScript.cs", "MyScript.dll");
         /// </code>
         /// </example>
         public string CompileAssemblyFromFile(string scriptFile, string outputFile)
@@ -407,22 +412,25 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads the class to the current AppDomain.
-        /// <para>Returns non-typed <see cref="CSScriptLib.MethodDelegate"/> for class-less style of invoking.</para>
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+        /// evaluates it and loads the class to the current AppDomain.
+        /// <para>
+        /// Returns non-typed <see cref="CSScriptLib.MethodDelegate"/> for class-less style of invoking.
+        /// </para>
         /// </summary>
         /// <example>
         /// <code>
-        /// var log = CSScript.Evaluator
-        ///                   .CreateDelegate(@"void Log(string message)
-        ///                                     {
-        ///                                         Console.WriteLine(message);
-        ///                                     }");
+        ///var log = CSScript.Evaluator
+        ///.CreateDelegate(@"void Log(string message)
+        ///{
+        ///Console.WriteLine(message);
+        ///}");
         ///
-        /// log("Test message");
+        ///log("Test message");
         /// </code>
         /// </example>
         /// <param name="code">The C# code.</param>
-        /// <returns> The instance of a non-typed <see cref="CSScriptLib.MethodDelegate"/></returns>
+        /// <returns>The instance of a non-typed <see cref="CSScriptLib.MethodDelegate"/></returns>
         public MethodDelegate CreateDelegate(string code)
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
@@ -441,23 +449,26 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads the class to the current AppDomain.
-        /// <para>Returns typed <see cref="CSScriptLib.MethodDelegate{T}"/> for class-less style of invoking.</para>
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+        /// evaluates it and loads the class to the current AppDomain.
+        /// <para>
+        /// Returns typed <see cref="CSScriptLib.MethodDelegate{T}"/> for class-less style of invoking.
+        /// </para>
         /// </summary>
         /// <typeparam name="T">The delegate return type.</typeparam>
         /// <example>
         /// <code>
-        /// var product = CSScript.RoslynEvaluator
-        ///                       .CreateDelegate&lt;int&gt;(@"int Product(int a, int b)
-        ///                                             {
-        ///                                                 return a * b;
-        ///                                             }");
+        ///var product = CSScript.RoslynEvaluator
+        ///.CreateDelegate&lt;int&gt;(@"int Product(int a, int b)
+        ///{
+        ///return a * b;
+        ///}");
         ///
-        /// int result = product(3, 2);
+        ///int result = product(3, 2);
         /// </code>
         /// </example>
         /// <param name="code">The C# code.</param>
-        /// <returns> The instance of a typed <see cref="CSScriptLib.MethodDelegate{T}"/></returns>
+        /// <returns>The instance of a typed <see cref="CSScriptLib.MethodDelegate{T}"/></returns>
         public MethodDelegate<T> CreateDelegate<T>(string code)
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
@@ -476,7 +487,8 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Analyses the script code and returns set of locations for the assemblies referenced from the code with CS-Script directives (//css_ref).
+        /// Analyses the script code and returns set of locations for the assemblies referenced from
+        /// the code with CS-Script directives (//css_ref).
         /// </summary>
         /// <param name="code">The script code.</param>
         /// <param name="searchDirs">The assembly search/probing directories.</param>
@@ -557,32 +569,35 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
+        /// Evaluates and loads C# code to the current AppDomain. Returns instance of the first
+        /// class defined in the code.
         /// </summary>
-        /// <typeparam name="T">The type of the script class instance should be type casted to.</typeparam>
+        /// <typeparam name="T">
+        /// The type of the script class instance should be type casted to.
+        /// </typeparam>
         /// <param name="scriptText">The C# script text.</param>
         /// <param name="args">The non default type <c>T</c> constructor arguments.</param>
-        /// <returns>
-        /// Aligned to the <c>T</c> interface instance of the class defined in the script.
-        /// </returns>
-        /// <example>The following is the simple example of the interface alignment:
+        /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script.</returns>
+        /// <example>
+        /// The following is the simple example of the interface alignment:
         /// <code>
-        /// public interface ICalc
-        /// {
-        ///     int Sum(int a, int b);
-        /// }
-        /// ....
-        /// ICalc calc = CSScript.Evaluator
-        ///                      .LoadCode&lt;ICalc&gt;(@"using System;
-        ///                                         public class Script
-        ///                                         {
-        ///                                             public int Sum(int a, int b)
-        ///                                             {
-        ///                                                 return a+b;
-        ///                                             }
-        ///                                         }");
-        /// int result = calc.Sum(1, 2);
-        /// </code></example>
+        ///public interface ICalc
+        ///{
+        ///int Sum(int a, int b);
+        ///}
+        ///....
+        ///ICalc calc = CSScript.Evaluator
+        ///.LoadCode&lt;ICalc&gt;(@"using System;
+        ///public class Script
+        ///{
+        ///public int Sum(int a, int b)
+        ///{
+        ///return a+b;
+        ///}
+        ///}");
+        ///int result = calc.Sum(1, 2);
+        /// </code>
+        /// </example>
         public T LoadCode<T>(string scriptText, params object[] args) where T : class
         {
             this.ReferenceAssemblyOf<T>();
@@ -592,20 +607,22 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads
-        /// the class to the current AppDomain.
-        /// <para>Returns instance of <c>T</c> delegate for the first method in the auto-generated class.</para>
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+        /// evaluates it and loads the class to the current AppDomain.
+        /// <para>
+        /// Returns instance of <c>T</c> delegate for the first method in the auto-generated class.
+        /// </para>
         /// </summary>
-        ///  <example>
+        /// <example>
         /// <code>
-        /// var Product = CSScript.Evaluator
-        ///                       .LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
-        ///                                   @"int Product(int a, int b)
-        ///                                     {
-        ///                                         return a * b;
-        ///                                     }");
+        ///var Product = CSScript.Evaluator
+        ///.LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
+        ///@"int Product(int a, int b)
+        ///{
+        ///return a * b;
+        ///}");
         ///
-        /// int result = Product(3, 2);
+        ///int result = Product(3, 2);
         /// </code>
         /// </example>
         /// <param name="code">The C# code.</param>
@@ -671,18 +688,19 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads
-        /// the class to the current AppDomain.
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+        /// evaluates it and loads the class to the current AppDomain.
         /// </summary>
-        /// <example>The following is the simple example of the LoadMethod usage:
+        /// <example>
+        /// The following is the simple example of the LoadMethod usage:
         /// <code>
-        /// dynamic script = CSScript.RoslynEvaluator
-        ///                          .LoadMethod(@"int Product(int a, int b)
-        ///                                        {
-        ///                                            return a * b;
-        ///                                        }");
+        ///dynamic script = CSScript.RoslynEvaluator
+        ///.LoadMethod(@"int Product(int a, int b)
+        ///{
+        ///return a * b;
+        ///}");
         ///
-        /// int result = script.Product(3, 2);
+        ///int result = script.Product(3, 2);
         /// </code>
         /// </example>
         /// <param name="code">The C# script text.</param>
@@ -694,35 +712,41 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>), evaluates it and loads
-        /// the class to the current AppDomain.
+        /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+        /// evaluates it and loads the class to the current AppDomain.
         /// <para>
-        /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
+        /// After initializing the class instance it is aligned to the interface specified by the
+        /// parameter <c>T</c>.
         /// </para>
         /// </summary>
-        /// <example>The following is the simple example of the interface alignment:
+        /// <example>
+        /// The following is the simple example of the interface alignment:
         /// <code>
-        /// public interface ICalc
-        /// {
-        ///     int Sum(int a, int b);
-        ///     int Div(int a, int b);
-        /// }
-        /// ....
-        /// ICalc script = CSScript.RoslynEvaluator
-        ///                        .LoadMethod&lt;ICalc&gt;(@"public int Sum(int a, int b)
-        ///                                             {
-        ///                                                 return a + b;
-        ///                                             }
-        ///                                             public int Div(int a, int b)
-        ///                                             {
-        ///                                                 return a/b;
-        ///                                             }");
-        /// int result = script.Div(15, 3);
+        ///public interface ICalc
+        ///{
+        ///int Sum(int a, int b);
+        ///int Div(int a, int b);
+        ///}
+        ///....
+        ///ICalc script = CSScript.RoslynEvaluator
+        ///.LoadMethod&lt;ICalc&gt;(@"public int Sum(int a, int b)
+        ///{
+        ///return a + b;
+        ///}
+        ///public int Div(int a, int b)
+        ///{
+        ///return a/b;
+        ///}");
+        ///int result = script.Div(15, 3);
         /// </code>
         /// </example>
-        /// <typeparam name="T">The type of the interface type the script class instance should be aligned to.</typeparam>
+        /// <typeparam name="T">
+        /// The type of the interface type the script class instance should be aligned to.
+        /// </typeparam>
         /// <param name="code">The C# script text.</param>
-        /// <returns>Aligned to the <c>T</c> interface instance of the auto-generated class defined in the script.</returns>
+        /// <returns>
+        /// Aligned to the <c>T</c> interface instance of the auto-generated class defined in the script.
+        /// </returns>
         public T LoadMethod<T>(string code) where T : class
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, false, false, typeof(T).FullName);
@@ -730,20 +754,25 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Gets or sets the flag indicating if the script code should be analyzed and the assemblies
-        /// that the script depend on (via '//css_...' and 'using ...' directives) should be referenced.
+        /// Gets or sets the flag indicating if the script code should be analyzed and the
+        /// assemblies that the script depend on (via '//css_...' and 'using ...' directives) should
+        /// be referenced.
         /// </summary>
         /// <value></value>
         public bool DisableReferencingFromCode { get; set; }
 
         /// <summary>
         /// References the assemblies from the script code.
-        /// <para>The method analyses and tries to resolve CS-Script directives (e.g. '//css_ref') and 'used' namespaces based on the
-        /// optional search directories.</para>
+        /// <para>
+        /// The method analyses and tries to resolve CS-Script directives (e.g. '//css_ref') and
+        /// 'used' namespaces based on the optional search directories.
+        /// </para>
         /// </summary>
         /// <param name="code">The script code.</param>
         /// <param name="searchDirs">The assembly search/probing directories.</param>
-        /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
+        /// <returns>
+        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
+        /// </returns>
         public IEvaluator ReferenceAssembliesFromCode(string code, params string[] searchDirs)
         {
             foreach (var asm in GetReferencedAssemblies(code, searchDirs))
@@ -753,11 +782,15 @@ namespace CSScriptLib
 
         /// <summary>
         /// References the given assembly by the assembly path.
-        /// <para>It is safe to call this method multiple times for the same assembly. If the assembly already referenced it will not
-        /// be referenced again.</para>
+        /// <para>
+        /// It is safe to call this method multiple times for the same assembly. If the assembly
+        /// already referenced it will not be referenced again.
+        /// </para>
         /// </summary>
         /// <param name="assembly">The path to the assembly file.</param>
-        /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
+        /// <returns>
+        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
+        /// </returns>
         public IEvaluator ReferenceAssembly(string assembly)
         {
             var globalProbingDirs = CSScript.GlobalSettings.SearchDirs.ToList();
@@ -775,42 +808,53 @@ namespace CSScriptLib
         /// <summary>
         /// Gets the name of the engine (e.g. 'csc' or 'dotnet').
         /// </summary>
-        /// <value>
-        /// The name of the engine.
-        /// </value>
+        /// <value>The name of the engine.</value>
         protected virtual string EngineName => "CS-Script evaluator";
 
         /// <summary>
         /// References the given assembly.
-        /// <para>It is safe to call this method multiple times
-        /// for the same assembly. If the assembly already referenced it will not
-        /// be referenced again.
+        /// <para>
+        /// It is safe to call this method multiple times for the same assembly. If the assembly
+        /// already referenced it will not be referenced again.
         /// </para>
         /// </summary>
         /// <param name="assembly">The assembly instance.</param>
-        /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
+        /// <returns>
+        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
+        /// </returns>
         public virtual IEvaluator ReferenceAssembly(Assembly assembly)
         => throw new NotImplementedException();
 
         /// <summary>
         /// References the name of the assembly by its partial name.
-        /// <para>Note that the referenced assembly will be loaded into the host AppDomain in order to resolve assembly partial name.</para>
+        /// <para>
+        /// Note that the referenced assembly will be loaded into the host AppDomain in order to
+        /// resolve assembly partial name.
+        /// </para>
         /// <para>It is an equivalent of <c>Evaluator.ReferenceAssembly(Assembly.Load(assemblyPartialName))</c></para>
         /// </summary>
         /// <param name="assemblyName">Name of the assembly.</param>
-        /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
-        public IEvaluator ReferenceAssemblyByName(string assemblyName)
+        /// <returns>
+        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
+        /// </returns>
+        public IEvaluator ReferenceAssemblyByName(params string[] assemblyName)
         {
-            return ReferenceAssembly(Assembly.Load(assemblyName));
+            foreach (var item in assemblyName)
+                ReferenceAssembly(Assembly.Load(item));
+            return this;
         }
 
         /// <summary>
         /// References the assembly by the given namespace it implements.
         /// </summary>
         /// <param name="namespace">The namespace.</param>
-        /// <param name="resolved">Set to <c>true</c> if the namespace was successfully resolved (found) and
-        /// the reference was added; otherwise, <c>false</c>.</param>
-        /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
+        /// <param name="resolved">
+        /// Set to <c>true</c> if the namespace was successfully resolved (found) and the reference
+        /// was added; otherwise, <c>false</c>.
+        /// </param>
+        /// <returns>
+        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
+        /// </returns>
         public IEvaluator TryReferenceAssemblyByNamespace(string @namespace, out bool resolved)
         {
             resolved = false;
@@ -824,10 +868,15 @@ namespace CSScriptLib
 
         /// <summary>
         /// References the assembly by the given namespace it implements.
-        /// <para>Adds assembly reference if the namespace was successfully resolved (found) and, otherwise does nothing</para>
+        /// <para>
+        /// Adds assembly reference if the namespace was successfully resolved (found) and,
+        /// otherwise does nothing
+        /// </para>
         /// </summary>
         /// <param name="namespace">The namespace.</param>
-        /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
+        /// <returns>
+        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
+        /// </returns>
         public IEvaluator ReferenceAssemblyByNamespace(string @namespace)
         {
             foreach (string asm in AssemblyResolver.FindGlobalAssembly(@namespace))
@@ -841,13 +890,13 @@ namespace CSScriptLib
         protected Func<IEnumerable<Assembly>, IEnumerable<Assembly>> FilterAssemblies = x => x;
 
         /// <summary>
-        /// Sets the filter for referenced assemblies. The filter is to be applied just before the assemblies are to be referenced
-        /// during the script execution.
+        /// Sets the filter for referenced assemblies. The filter is to be applied just before the
+        /// assemblies are to be referenced during the script execution.
         /// <code>
-        /// dynamic script = CSScript.Evaluator
-        ///                          .SetRefAssemblyFilter(asms =>
-        ///                              asms.Where(a => !a.FullName.StartsWith("Microsoft."))
-        ///                          .LoadCode(scriptCode);
+        ///dynamic script = CSScript.Evaluator
+        ///.SetRefAssemblyFilter(asms =&gt;
+        ///asms.Where(a =&gt; !a.FullName.StartsWith("Microsoft."))
+        ///.LoadCode(scriptCode);
         /// </code>
         /// </summary>
         /// <param name="filter">The filter.</param>
@@ -860,13 +909,15 @@ namespace CSScriptLib
 
         /// <summary>
         /// References the assembly by the object, which belongs to this assembly.
-        /// <para>It is safe to call this method multiple times
-        /// for the same assembly. If the assembly already referenced it will not
-        /// be referenced again.
+        /// <para>
+        /// It is safe to call this method multiple times for the same assembly. If the assembly
+        /// already referenced it will not be referenced again.
         /// </para>
         /// </summary>
         /// <param name="obj">The object, which belongs to the assembly to be referenced.</param>
-        /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
+        /// <returns>
+        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
+        /// </returns>
         public IEvaluator ReferenceAssemblyOf(object obj)
         {
             ReferenceAssembly(obj.GetType().Assembly);
@@ -875,13 +926,15 @@ namespace CSScriptLib
 
         /// <summary>
         /// References the assembly by the object, which belongs to this assembly.
-        /// <para>It is safe to call this method multiple times
-        /// for the same assembly. If the assembly already referenced it will not
-        /// be referenced again.
+        /// <para>
+        /// It is safe to call this method multiple times for the same assembly. If the assembly
+        /// already referenced it will not be referenced again.
         /// </para>
         /// </summary>
         /// <typeparam name="T">The type which is implemented in the assembly to be referenced.</typeparam>
-        /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
+        /// <returns>
+        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
+        /// </returns>
         public IEvaluator ReferenceAssemblyOf<T>()
         {
             return ReferenceAssembly(typeof(T).Assembly);
@@ -890,11 +943,15 @@ namespace CSScriptLib
 #if net35
         /// <summary>
         /// References the assemblies the are already loaded into the current <c>AppDomain</c>.
-        /// <para>This method is an equivalent of <see cref="CSScriptLib.IEvaluator.ReferenceDomainAssemblies"/>
-        /// with the hard codded <c>DomainAssemblies.AllStaticNonGAC</c> input parameter.
+        /// <para>
+        /// This method is an equivalent of <see
+        /// cref="CSScriptLib.IEvaluator.ReferenceDomainAssemblies"/> with the hard codded
+        /// <c>DomainAssemblies.AllStaticNonGAC</c> input parameter.
         /// </para>
         /// </summary>
-        /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
+        /// <returns>
+        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
+        /// </returns>
         public IEvaluator ReferenceDomainAssemblies()
         {
             return ReferenceDomainAssemblies(DomainAssemblies.AllStaticNonGAC);
@@ -905,7 +962,9 @@ namespace CSScriptLib
         /// References the assemblies the are already loaded into the current <c>AppDomain</c>.
         /// </summary>
         /// <param name="assemblies">The type of assemblies to be referenced.</param>
-        /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow  fluent interface.</returns>
+        /// <returns>
+        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
+        /// </returns>
 #if net35
         public IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies)
 #else
@@ -942,14 +1001,17 @@ namespace CSScriptLib
         /// <summary>
         /// Resets Evaluator.
         /// <para>
-        /// Resetting means clearing all referenced assemblies, recreating evaluation infrastructure (e.g. compiler setting)
-        /// and reconnection to or recreation of the underlying compiling services.
+        /// Resetting means clearing all referenced assemblies, recreating evaluation infrastructure
+        /// (e.g. compiler setting) and reconnection to or recreation of the underlying compiling services.
         /// </para>
-        /// <para>Optionally the default current AppDomain assemblies can be referenced automatically with
-        /// <paramref name="referenceDomainAssemblies"/>.</para>
+        /// <para>
+        /// Optionally the default current AppDomain assemblies can be referenced automatically with
+        /// <paramref name="referenceDomainAssemblies"/>.
+        /// </para>
         /// </summary>
-        /// <param name="referenceDomainAssemblies">if set to <c>true</c> the default assemblies of the current AppDomain
-        /// will be referenced (see <see cref="ReferenceDomainAssemblies(DomainAssemblies)"/> method).
+        /// <param name="referenceDomainAssemblies">
+        /// if set to <c>true</c> the default assemblies of the current AppDomain will be referenced
+        /// (see <see cref="ReferenceDomainAssemblies(DomainAssemblies)"/> method).
         /// </param>
         /// <returns>The freshly initialized instance of the <see cref="CSScriptLib.IEvaluator"/>.</returns>
         public virtual IEvaluator Reset(bool referenceDomainAssemblies = true)

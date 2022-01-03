@@ -14,7 +14,7 @@ namespace CSScriptLib
     /// <param name="paramters">Optional method parameters.</param>
     /// <returns>Returns MethodInfo return value</returns>
     public delegate object MethodDelegate(params object[] paramters);
-     
+
     /// <summary>
     /// Delegate which is used as a return type for AsmHelper.GetMethodInvoker().
     ///
@@ -221,7 +221,8 @@ namespace CSScriptLib
         /// printerScript.Print();
         /// </code>
         /// </example>
-        bool IsCachingEnabled { get; set; } 
+        bool IsCachingEnabled { get; set; }
+
         /// <summary>
         /// Gets or sets the flag indicating if the script code should be analyzed and the
         /// assemblies that the script depend on (via '//css_...' and 'using ...' directives) should
@@ -647,7 +648,7 @@ namespace CSScriptLib
         /// <returns>
         /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
         /// </returns>
-        IEvaluator ReferenceAssemblyByName(string assemblyPartialName);
+        IEvaluator ReferenceAssemblyByName(params string[] assemblyPartialName);
 
         /// <summary>
         /// References the assembly by the given namespace it implements.
