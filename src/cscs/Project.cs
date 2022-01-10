@@ -7,6 +7,7 @@ using System.Reflection;
 using CSScripting;
 
 #if !class_lib
+
 namespace csscript
 #else
 
@@ -14,8 +15,8 @@ namespace CSScriptLib
 #endif
 {
     /// <summary>
-    /// Class that holds all information about the execution context
-    /// (probing directories and dependencies) of a script.
+    /// Class that holds all information about the execution context (probing directories and
+    /// dependencies) of a script.
     /// </summary>
     public class Project
     {
@@ -25,9 +26,8 @@ namespace CSScriptLib
         public string Script;
 
         /// <summary>
-        /// List of all C# sources defined by the project. This
-        /// includes the primary script itself and all other scripts files the imported/included
-        /// by the primary script.
+        /// List of all C# sources defined by the project. This includes the primary script itself
+        /// and all other scripts files the imported/included by the primary script.
         /// </summary>
         public string[] Files;
 
@@ -37,16 +37,16 @@ namespace CSScriptLib
         public string[] Refs;
 
         /// <summary>
-        /// List of search folders where CS-Script does probing for
-        /// imported/included scripts and assemblies.
+        /// List of search folders where CS-Script does probing for imported/included scripts and assemblies.
         /// </summary>
         public string[] SearchDirs;
 
         /// <summary>
         /// Generates the top level view project for a given script.
         /// <para>
-        /// Note this method uses the same algorithm as CS-Script executor but it deliberately doesn't
-        /// include cached directories and auto-generated files. This method is to be used by IDs and tools.
+        /// Note this method uses the same algorithm as CS-Script executor but it deliberately
+        /// doesn't include cached directories and auto-generated files. This method is to be used
+        /// by IDs and tools.
         /// </para>
         /// </summary>
         /// <param name="script">The script.</param>
@@ -74,8 +74,7 @@ namespace CSScriptLib
         static public Project GenerateProjectFor(string script)
         {
             // ********************************************************************************************
-            // * Extremely important to keep the project building algorithm in sync with CSExecutor.Compile
-            // ********************************************************************************************
+            // * Extremely important to keep the project building algorithm in sync with CSExecutor.Compile ********************************************************************************************
             var project = new Project { Script = script };
 
             var searchDirs = new List<string>();
@@ -164,8 +163,8 @@ namespace CSScriptLib
                 items.dirs.AddRange(settings.SearchDirs);
 #endif
 
-                if (configFile != null && File.Exists(configFile))
-                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(configFile), "lib"));
+                //if (configFile != null && File.Exists(configFile))
+                items.dirs.Add(Path.Combine(Path.GetDirectoryName(configFile), "lib"));
                 items.asms.AddRange(splitPathItems(settings.DefaultRefAssemblies));
             }
             catch { }

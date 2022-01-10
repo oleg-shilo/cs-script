@@ -92,7 +92,7 @@ namespace csscript
                         }
                         catch
                         {
-                            print($"Error: you need to set environment variable '{envarName}' to the valid path to Visual Studio executable devenv.exe.");
+                            print($"Error: you need to set environment variable '{envarName}' to the valid path to the Visual Studio executable devenv.exe.");
                         }
                     }
                     else
@@ -504,6 +504,8 @@ namespace csscript
                             dirs.AddPathIfNotThere(CSExecutor.ScriptCacheDir, Settings.internal_dirs_section);
                         }
                     }
+
+                    dirs.AddPathIfNotThere(Globals.LibDir, Settings.internal_dirs_section);
 
                     options.searchDirs = dirs.ToArray();
                     var cmdScripts = new CSharpParser.CmdScriptInfo[0];

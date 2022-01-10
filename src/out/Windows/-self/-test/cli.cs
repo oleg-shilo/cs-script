@@ -161,8 +161,8 @@ namespace CLI
         {
             // Issue #255: Relative path for cscs.exe -out option results in wrong output folder
 
-            var script_file = $".\\temp\\{nameof(compile_dll)}";
-            var dll_file = $".\\temp\\{nameof(compile_dll)}.dll";
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_dll)}");
+            var dll_file = ".".PathJoin("temp", $"{nameof(compile_dll)}.dll");
             var output = cscs_run($"-new:console {script_file}");
 
             output = cscs_run($"-cd -out:{dll_file} {script_file}");

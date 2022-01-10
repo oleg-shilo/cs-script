@@ -2,25 +2,27 @@
 								 
 							</th><th>Name</th><th>Description</th></tr><tr data="public;inherited;notNetfw;"><td><img src="../icons/pubproperty.gif" alt="Public property" title="Public property" /></td><td><a href="a69a8dab-acb8-e252-b26a-4d3ff8ae3f6c.htm">DebugBuild</a></td><td><div class="summary">
             Gets or sets a value indicating whether to compile script with debug symbols.
-            <p>Note, setting <span class="code">DebugBuild</span> will only affect the current instance of Evaluator.
-            If you want to emit debug symbols for all instances of Evaluator then use
-            <a href="33e2b04a-87b0-98e5-bfc2-f85c47029951.htm">EvaluatorConfig</a>.DebugBuild.
+            <p>
+            Note, setting <span class="code">DebugBuild</span> will only affect the current instance of Evaluator. If
+            you want to emit debug symbols for all instances of Evaluator then use <a href="33e2b04a-87b0-98e5-bfc2-f85c47029951.htm">EvaluatorConfig</a>.DebugBuild.
             </p></div> (Inherited from <a href="de09888d-de57-1960-ccb8-f93ba3be86bf.htm">EvaluatorBase<span id="LST7FA581D4_0"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST7FA581D4_0?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");</script>T<span id="LST7FA581D4_1"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST7FA581D4_1?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");</script></a>.)</td></tr><tr data="public;inherited;notNetfw;"><td><img src="../icons/pubproperty.gif" alt="Public property" title="Public property" /></td><td><a href="05b664a3-88ca-72d6-5044-47dd9fab6366.htm">DisableReferencingFromCode</a></td><td><div class="summary">
-            Gets or sets the flag indicating if the script code should be analyzed and the assemblies
-            that the script depend on (via '//css_...' and 'using ...' directives) should be referenced.
+            Gets or sets the flag indicating if the script code should be analyzed and the
+            assemblies that the script depend on (via '//css_...' and 'using ...' directives) should
+            be referenced.
             </div> (Inherited from <a href="de09888d-de57-1960-ccb8-f93ba3be86bf.htm">EvaluatorBase<span id="LST7FA581D4_2"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST7FA581D4_2?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");</script>T<span id="LST7FA581D4_3"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST7FA581D4_3?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");</script></a>.)</td></tr><tr data="protected;inherited;notNetfw;"><td><img src="../icons/protproperty.gif" alt="Protected property" title="Protected property" /></td><td><a href="ae11eeaa-fbe4-8caf-76c0-a01f5459eea3.htm">EngineName</a></td><td><div class="summary">
             Gets the name of the engine (e.g. 'csc' or 'dotnet').
             </div> (Inherited from <a href="de09888d-de57-1960-ccb8-f93ba3be86bf.htm">EvaluatorBase<span id="LST7FA581D4_4"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST7FA581D4_4?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");</script>T<span id="LST7FA581D4_5"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST7FA581D4_5?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");</script></a>.)</td></tr><tr data="public;inherited;notNetfw;"><td><img src="../icons/pubproperty.gif" alt="Public property" title="Public property" /></td><td><a href="8bc76220-136f-4481-85aa-1c9f1686791d.htm">IsAssemblyUnloadingEnabled</a></td><td><div class="summary">
-            CS-Script assembly unloading functionality is implemented as a combination of
-            loading assembly into <a href="https://docs.microsoft.com/dotnet/api/system.runtime.loader.assemblyloadcontext" target="_blank" rel="noopener noreferrer">AssemblyLoadContext</a> that is marked as "IsCollectible"
-            and the <span class="code">ReflectionExtensions</span>.<a href="506de4d8-4b28-08e6-4fa9-75ca5c7a588a.htm">Unload(Assembly)</a> extension method.
-            Unloading is only available on the runtimes that support it. Otherwise <a href="https://docs.microsoft.com/dotnet/api/system.runtime.loader.assemblyloadcontext" target="_blank" rel="noopener noreferrer">AssemblyLoadContext</a>
-            throws an exception on attempt to load the compiled script assembly.
+            CS-Script assembly unloading functionality is implemented as a combination of loading
+            assembly into <a href="https://docs.microsoft.com/dotnet/api/system.runtime.loader.assemblyloadcontext" target="_blank" rel="noopener noreferrer">AssemblyLoadContext</a> that is marked as "IsCollectible" and
+            the <span class="code">ReflectionExtensions</span>. <a href="506de4d8-4b28-08e6-4fa9-75ca5c7a588a.htm">Unload(Assembly)</a> extension method. Unloading is
+            only available on the runtimes that support it. Otherwise <a href="https://docs.microsoft.com/dotnet/api/system.runtime.loader.assemblyloadcontext" target="_blank" rel="noopener noreferrer">AssemblyLoadContext</a> throws an exception on attempt to load the compiled script assembly.
             <p><a href="8bc76220-136f-4481-85aa-1c9f1686791d.htm">IsAssemblyUnloadingEnabled</a> is designed to allow enabling/disabling of the
-            assembly unloading should you find that the limitations associated with this .NET Core specific feature
-            are not acceptable. E.g., collectible assemblies cannot be referenced from other scripts or
-            in fact any dynamically loaded assembly for that matter.</p><p>Due to the limitations (though minor) of the underlying .NET Core feature
-            <a href="8bc76220-136f-4481-85aa-1c9f1686791d.htm">IsAssemblyUnloadingEnabled</a> is set to <span class="code">false</span> by default.</p></div> (Inherited from <a href="de09888d-de57-1960-ccb8-f93ba3be86bf.htm">EvaluatorBase<span id="LST7FA581D4_6"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST7FA581D4_6?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");</script>T<span id="LST7FA581D4_7"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST7FA581D4_7?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");</script></a>.)</td></tr><tr data="public;inherited;notNetfw;"><td><img src="../icons/pubproperty.gif" alt="Public property" title="Public property" /><img src="../icons/CodeExample.png" alt="Code example" title="Code example" /></td><td><a href="9c6a6496-93b0-e765-618e-d299c6bb050c.htm">IsCachingEnabled</a></td><td><div class="summary">
+            assembly unloading should you find that the limitations associated with this .NET Core
+            specific feature are not acceptable. E.g., collectible assemblies cannot be referenced
+            from other scripts or in fact any dynamically loaded assembly for that matter.
+            </p><p>
+            Due to the limitations (though minor) of the underlying .NET Core feature <a href="8bc76220-136f-4481-85aa-1c9f1686791d.htm">IsAssemblyUnloadingEnabled</a> is set to <span class="code">false</span> by default.
+            </p></div> (Inherited from <a href="de09888d-de57-1960-ccb8-f93ba3be86bf.htm">EvaluatorBase<span id="LST7FA581D4_6"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST7FA581D4_6?cs=&lt;|vb=(Of |cpp=&lt;|nu=(|fs=&lt;'");</script>T<span id="LST7FA581D4_7"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST7FA581D4_7?cs=&gt;|vb=)|cpp=&gt;|nu=)|fs=&gt;");</script></a>.)</td></tr><tr data="public;inherited;notNetfw;"><td><img src="../icons/pubproperty.gif" alt="Public property" title="Public property" /><img src="../icons/CodeExample.png" alt="Code example" title="Code example" /></td><td><a href="9c6a6496-93b0-e765-618e-d299c6bb050c.htm">IsCachingEnabled</a></td><td><div class="summary">
              This property controls script caching.
              <p>Caching mechanism allows avoiding multiple compilation of the scripts that have been already compiled and has not changes
              since then for the duration of the host process. This feature can dramatically improve the performance in the cases when you are executing

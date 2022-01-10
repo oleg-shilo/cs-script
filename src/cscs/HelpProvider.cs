@@ -211,7 +211,7 @@ namespace csscript
             switch1Help[e] = new ArgInfo("-e",
                                          "Compiles script into console application executable.");
             switch1Help[ew] = new ArgInfo("-ew",
-                                          "Compiles script into Windows application executable.");
+                                          "Compiles script into Windows application executable (applicable only on Windows).");
             switch1Help[c] = new ArgInfo("-c[:<0|1>]",
                                          "Executes compiled script cache (e.g. <cache dir>/script.cs.dll) if found.",
                                          "This command improves performance by avoiding compiling the script if it was not changed since last execution.",
@@ -255,13 +255,13 @@ namespace csscript
                                          "it does have a startup overhead when running the script for the first time. It requires .NET SDK to be installed " +
                                          "on the target system.",
                                          "  ",
-                                         "`csc`   - ${<==}csc.exe compiler; the fastest compiler available. It is not suitable" +
+                                         "`csc`   - ${<==}csc.exe compiler; the fastest compiler available. It is not suitable " +
                                          "for WPF scripts as csc.exe cannot compile XAML.",
                                          "          ${<==}The compilation is performed in the separate child process build.exe which is somewhat " +
-                                         "equivalent of VBCSCompiler.exe (build server) from .NET toolset. It requires .NET SDK to be installed " +
+                                         "equivalent to VBCSCompiler.exe (build server) from .NET toolset. It requires .NET SDK to be installed " +
                                          "on the target system.",
                                          "          ${<==}CS-Script communicates with build.exe build server via socket (default port 17001). You can " +
-                                         "control port value via environment variable 'CSS_BUILDSERVER_CSC_PORT'",
+                                         "control port value via the environment variable 'CSS_BUILDSERVER_CSC_PORT'",
                                          "          ${<==}Value `csc-inproc` will suppress spinning off an build server process and .NET csc.exe will be " +
                                          "called directly instead. This option convenient when socket communication is undesirable for whatever reason. " +
                                          "Though in this case all the performance benefits of `-ng:csc` will be lost and then you are better off using " +
@@ -273,10 +273,10 @@ namespace csscript
                                          "instance of script engine) which is somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.",
                                          "           ${<==}CS-Script communicates with " + AppInfo.appName + " build server via socket (default port 17002). " +
                                          "You can control port value " +
-                                         "via environment variable 'CSS_BUILDSERVER_ROSLYN_PORT'",
+                                         "via the environment variable 'CSS_BUILDSERVER_ROSLYN_PORT'",
                                          "           ${<==}Value `roslyn-inproc` will suppress spinning off an external process and Roslyn compiler will be " +
-                                         "hosted in the original process of script engine instead. This option convenient when socket communication is " +
-                                         "undesirable for whatever reason. Though in this case performance will be affected on the first run of the script.",
+                                         "hosted in the original process of script engine instead. This option is convenient when socket communication is " +
+                                         "undesirable for whatever reason. Though in this case performance will be effected on the first run of the script.",
                                          "  ",
                                          "```",
                                          "(e.g. " + AppInfo.appName + " -engine:dotnet sample.cs",
@@ -286,7 +286,7 @@ namespace csscript
                                          "```");
             switch1Help[sample] =
             switch1Help[s] = new ArgInfo("-s|-sample[:<C# version>]",
-                                         " -s:7    - prints C# 7+ sample. Otherwise it prints the default canonical 'Hello World' sample.",
+                                         " -s:7    - prints C# 7+ sample. Otherwise, it prints the default canonical 'Hello World' sample.",
                                          "(e.g. " + AppInfo.appName + " -s:7 > sample.cs).");
 
             switch1Help[@new] = new ArgInfo("-new[:<type>] [<script name>]",
@@ -310,10 +310,10 @@ namespace csscript
                                                     "Escaping special characters sometimes can be problematic as many shells have their own techniques " +
                                                     "(e.g. PowerShell collapses two single quote characters) that may conflict with CS-Script escaping approach." +
                                                     "This is the reason why CS-Script offers multiple escape techniques.",
-                                                    "It can be beneficial during the troubleshooting  to use `-code:show` command that outputs the received " +
+                                                    "It can be beneficial during the troubleshooting to use `-code:show` command that outputs the received " +
                                                     "CLI arguments and the interpreted C# code without the execution.",
                                                     " ",
-                                                    "Since command line interface does not allow some special characters they need to be escaped.",
+                                                    "Since command-line interface does not allow some special characters they need to be escaped.",
                                                     "",
                                                     "```",
                                                     "Escaped         Interpreted character",
@@ -372,12 +372,12 @@ namespace csscript
                                                      "start of the script routine and a class closing bracket to the end. This may have an unintended " +
                                                      "effect as any class declared in the script becomes a 'nested class'. While it is acceptable " +
                                                      "for practically all use-cases it may be undesired for just a few scenarios. For example, any " +
-                                                     "class containing method extensions must be a top level static class, what conflicts with the " +
+                                                     "class containing method extensions must be a top-level static class, which conflicts with the " +
                                                      "auto-class decoration algorithm.",
                                                      " ",
-                                                     "The solution to this problem is to allow some user code to be protected from being included into " +
+                                                     "The solution to this problem is to allow some user code to be protected from being included in " +
                                                      "the decorated code.",
-                                                     "User can achieve this by placing '//css_ac_end' statement into the code. Any user code below this " +
+                                                     "Users can achieve this by placing '//css_ac_end' statement into the code. Any user code below this " +
                                                      "statement will be excluded from the decoration and stay unchanged.");
             // switch2Help[nl] = new ArgInfo("-nl", "No logo mode: No banner will be shown/printed
             // at execution time.", "Applicable for console mode only.");
@@ -404,10 +404,10 @@ namespace csscript
             switch2Help[dbgprint] = new ArgInfo("-dbgprint[:<0:1>]",
                                                 "Controls whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now)).",
                                                     "This setting allows controlling dynamic referencing of script engine assembly containing " +
-                                                    "implementation of Python-like print methods `dbg.print` and derived extension methods object.print() " +
+                                                    "the implementation of Python-like print methods `dbg.print` and derived extension methods object.print() " +
                                                     "and object.dup(). While `dbg.print` is extremely useful it can and lead to some referencing challenges when " +
                                                     "the script being executed is referencing assemblies compiled with `dbg.print` already included. " +
-                                                    "The simplest way to solve this problem is disable the `dbg.cs` inclusion.",
+                                                    "The simplest way to solve this problem is to disable the `dbg.cs` inclusion.",
                                                     "```",
                                                     " -dbgprint:1   enable `dbg.cs` inclusion; Same as `-dbgprint`;",
                                                     " -dbgprint:0   disable `dbg.cs` inclusion;",
@@ -428,9 +428,9 @@ namespace csscript
                                           "Prints the information about build server.",
                                           "Note, the server starts automatically on the script execution that is configured to use the 'csc' " +
                                           "or 'roslyn' engine.",
-                                          "Build server is a background process which implements hop loading of C# compiler csc.exe. " +
+                                          "Build server is a background process, which implements hop loading of C# compiler csc.exe. " +
                                           "Somewhat similar to VBCSCompiler.exe.",
-                                          "This options are only relevant if compiler engine is set to 'csc' (see '-engine' command).",
+                                          "These options are only relevant if the compiler engine is set to 'csc' (see '-engine' command).",
                                           "```",
                                           " -server:start   - ${<==}deploys and starts build server. Useful if you want to start the server " +
                                                                    "on system startup.",
@@ -442,7 +442,7 @@ namespace csscript
                                           " -server:ping    - ${<==}Pins running instance (if any) of the build server",
                                           "```",
                                           "",
-                                          "The following options are only relevant if compiler engine is set to 'roslyn' (see '-engine' command).",
+                                          "The following options are only relevant if the compiler engine is set to 'roslyn' (see '-engine' command).",
                                           "Roslyn based build server variant is much simpler so it only exposes start and stop interface.",
                                           "```",
                                           " -server_r:start - ${<==}deploys and starts Roslyn build server",
@@ -523,13 +523,13 @@ namespace csscript
 
             switch2Help[dir] = new ArgInfo("-dir:<directory 1>,<directory N>",
                                            "Adds path(s) to the assembly probing directory list.",
-                                               "You can use a reserved word 'show' as a directory name to print the configured probing directories.",
+                                               "You can use the reserved word 'show' as a directory name to print the configured probing directories.",
                                                    "(e.g. `" + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs; " + AppInfo.appName + " -dir:show`).");
             switch2Help[pc] =
             switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
                                                    "Specifies custom precompiler. This can be either script or assembly file.",
                                                    alias_prefix + "pc[:<file 1>,<file N>]",
-                                                   "If no file(s) specified prints the code template for the custom precompiler. The spacial value 'print' has " +
+                                                   "If no file(s) specified prints the code template for the custom precompiler. The special value 'print' has " +
                                                    "the same effect (e.g. " + AppInfo.appName + " -pc:print).",
                                                    "There is a special reserved word '" + CSSUtils.noDefaultPrecompilerSwitch + "' to be used as a file name. " +
                                                    "It instructs script engine to prevent loading any built-in precompilers " +
@@ -544,7 +544,7 @@ namespace csscript
                                                     "C#7 support is implemented via Roslyn based provider: '-pvdr:CSSRoslynProvider.dll'." +
                                                     "If the switch is not specified CSSRoslynProvider.dll file will be use as a code provider " +
                                                     "if it is found in the same folder where the script engine is. Automatic CSSRoslynProvider.dll " +
-                                                    "loading can be disabled with special 'none' argument: -pvdr:none.",
+                                                    "loading can be disabled with a special 'none' argument: -pvdr:none.",
                                                     $"(see {help_url}/help/non_cs_compilers.html)");
             switch2Help[nuget] = new ArgInfo("-nuget[:<package|purge>]",
                                              "Installs new or updates existing NuGet package.",
@@ -562,7 +562,7 @@ namespace csscript
                                                      "                    ${<==}You can also use the index of the package instead of its full name.",
                                                      "```",
                                                      " ",
-                                                     "Installing packages this way is an alternative to have '//css_nuget -force ...' directive in the script code as it may be " +
+                                                     "Installing packages this way is an alternative to having '//css_nuget -force ...' directive in the script code as it may be " +
                                                      "more convenient for the user to update packages manually instead of having them updated on every script execution/recompilation.");
             switch2Help[syntax] = new ArgInfo("-syntax",
                                               "Prints documentation for CS-Script specific C# syntax.");
@@ -1128,10 +1128,10 @@ namespace csscript
             if (includeCLI)
             {
                 var page_intro =
-                    "# CS-Script - Command Line Interface" + NewLine + NewLine +
-                    "As many other tools CS-Script provides an intensive command line interface that can be used from shell/terminal (e.g. Bash, PowerShell, command-prompt). This interface is particularly useful fo environments like Linux, " +
-                    "where working from terminal is a predominate development approach." + NewLine + NewLine +
-                    "_This document is auto-generted with the command `css -help cli:md`._" + NewLine + NewLine +
+                    "Like with many other tools CS-Script provides an intensive command line interface that can be used from shell/terminal " +
+                    "(e.g. Bash, PowerShell, command-prompt). This interface is particularly useful for environments like Linux, " +
+                    "where working from terminal is a predominant development approach." + NewLine + NewLine +
+                    "_This document is auto-generated with the command `css -help cli:md`._" + NewLine + NewLine +
 
                     "## CLI Commands" + NewLine;
 
@@ -1255,7 +1255,7 @@ toplevel|top    Top-level class script application with no entry point
 {emptyLine}
 Legacy templates:
 auto            Auto-class (classless) script application; use 'toplevel' instead
-freestyle       Free style (no entry point) script application; use 'toplevel' instead
+freestyle       Freestyle (no entry point) script application; use 'toplevel' instead
 {emptyLine}
 Examples:
     cscs -new script
@@ -1533,10 +1533,7 @@ class Program
             return new[] { new SampleInfo(cs.ToString(), ".cs") };
         }
 
-        static bool isGlobalUsingAvailabe => Assembly
-                                                 .GetExecutingAssembly().Location
-                                                 .GetDirName().PathJoin("lib", "global-usings.cs")
-                                                 .FileExists();
+        static bool isGlobalUsingAvailabe => Globals.LibDir.PathJoin("global-usings.cs").FileExists();
 
         static SampleInfo[] CSharp10_Sample(string context)
         {

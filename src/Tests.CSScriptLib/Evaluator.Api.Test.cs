@@ -139,8 +139,8 @@ namespace EvaluatorTests
                                                    }",
                                                    calcAsm);
 
-            // NOTE!!! Roslyn evaluator will inject class in the extra root class "css_root"
-            // Very annoying, but even `css_root.Calc.Sum` will not work when referenced in scrips.
+            // NOTE!!! Roslyn evaluator will inject class in the extra root class "css_root" Very
+            // annoying, but even `css_root.Calc.Sum` will not work when referenced in scrips.
             // Roslyn does some crazy stuff. The assembly produced by Roslyn cannot be easily used.
             //
             // So using CodeDom (csc.exe) instead. It does build proper assemblies
@@ -352,8 +352,9 @@ namespace EvaluatorTests
         [Fact]
         public void CompileCode_CompileInfo()
         {
-            // Note if you give AssemblyFile the name with the extension .dll xUnit runtime will lock the file simply
-            // because it was present in the local dir. So hide the assembly by dropping the file extension.
+            // Note if you give AssemblyFile the name with the extension .dll xUnit runtime will
+            // lock the file simply because it was present in the local dir. So hide the assembly by
+            // dropping the file extension.
 
             var asm_file = GetTempFileName(nameof(CompileCode_InmemAsmLocation));
 

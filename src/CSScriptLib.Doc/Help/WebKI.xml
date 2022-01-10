@@ -360,7 +360,7 @@
   <HelpKINode Title="EvaluatorBase(Of T).LoadMethod method" Url="html/7454904c-a24c-4dbd-34c1-55176cc6379e.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).ReferenceAssembliesFromCode method" Url="html/b6a05fcd-435c-6b8c-1bb9-9f3791bfa251.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).ReferenceAssembly method" Url="html/38e36442-ea7a-ce51-d74e-f4d7daa1ddd9.htm" />
-  <HelpKINode Title="EvaluatorBase(Of T).ReferenceAssemblyByName method" Url="html/84c179ed-6ab5-616a-6fb0-6357c195ab2d.htm" />
+  <HelpKINode Title="EvaluatorBase(Of T).ReferenceAssemblyByName method" Url="html/b023cd3e-a961-e7b5-fead-3ddfd40fd515.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).ReferenceAssemblyByNamespace method" Url="html/66ef70ea-67a3-0a48-c43d-9df7d06e299f.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).ReferenceAssemblyOf method" Url="html/d842a198-6c2d-75ab-724e-385b83249d25.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).ReferenceDomainAssemblies method" Url="html/604e3cfc-4923-a207-7e10-ba669f5bc661.htm" />
@@ -399,7 +399,7 @@
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.LoadMethod method" Url="html/7454904c-a24c-4dbd-34c1-55176cc6379e.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.ReferenceAssembliesFromCode method" Url="html/b6a05fcd-435c-6b8c-1bb9-9f3791bfa251.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.ReferenceAssembly method" Url="html/38e36442-ea7a-ce51-d74e-f4d7daa1ddd9.htm" />
-  <HelpKINode Title="EvaluatorBase&lt;T&gt;.ReferenceAssemblyByName method" Url="html/84c179ed-6ab5-616a-6fb0-6357c195ab2d.htm" />
+  <HelpKINode Title="EvaluatorBase&lt;T&gt;.ReferenceAssemblyByName method" Url="html/b023cd3e-a961-e7b5-fead-3ddfd40fd515.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.ReferenceAssemblyByNamespace method" Url="html/66ef70ea-67a3-0a48-c43d-9df7d06e299f.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.ReferenceAssemblyOf method" Url="html/d842a198-6c2d-75ab-724e-385b83249d25.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.ReferenceDomainAssemblies method" Url="html/604e3cfc-4923-a207-7e10-ba669f5bc661.htm" />
@@ -510,7 +510,7 @@
   <HelpKINode Title="IEvaluator.LoadMethod method" Url="html/6c12c148-e999-2f2e-e85b-1e46a939019d.htm" />
   <HelpKINode Title="IEvaluator.ReferenceAssembliesFromCode method" Url="html/119d5cb0-66b7-5527-367a-62c64ac98e2c.htm" />
   <HelpKINode Title="IEvaluator.ReferenceAssembly method" Url="html/39458dfb-f9f1-c3eb-d545-19bda88dd558.htm" />
-  <HelpKINode Title="IEvaluator.ReferenceAssemblyByName method" Url="html/b566748c-9cd1-3f37-abd8-a944fbdc201f.htm" />
+  <HelpKINode Title="IEvaluator.ReferenceAssemblyByName method" Url="html/833d983c-cd79-8294-d952-7386aebcec50.htm" />
   <HelpKINode Title="IEvaluator.ReferenceAssemblyByNamespace method" Url="html/00a902da-a4b5-9520-794a-271520c93b86.htm" />
   <HelpKINode Title="IEvaluator.ReferenceAssemblyOf method" Url="html/ed88c78c-4eae-ca54-cef4-ed6e5bb54ecc.htm" />
   <HelpKINode Title="IEvaluator.ReferenceDomainAssemblies method" Url="html/5e2dbdc6-548f-068d-e74a-9924b58479d2.htm" />
@@ -677,8 +677,8 @@
     <HelpKINode Title="RoslynEvaluator.ReferenceAssembly Method " Url="html/bcd579ae-f88a-a5b3-283a-eec349b640c0.htm" />
   </HelpKINode>
   <HelpKINode Title="ReferenceAssemblyByName method">
-    <HelpKINode Title="EvaluatorBase(T).ReferenceAssemblyByName Method " Url="html/84c179ed-6ab5-616a-6fb0-6357c195ab2d.htm" />
-    <HelpKINode Title="IEvaluator.ReferenceAssemblyByName Method " Url="html/b566748c-9cd1-3f37-abd8-a944fbdc201f.htm" />
+    <HelpKINode Title="EvaluatorBase(T).ReferenceAssemblyByName Method " Url="html/b023cd3e-a961-e7b5-fead-3ddfd40fd515.htm" />
+    <HelpKINode Title="IEvaluator.ReferenceAssemblyByName Method " Url="html/833d983c-cd79-8294-d952-7386aebcec50.htm" />
   </HelpKINode>
   <HelpKINode Title="ReferenceAssemblyByNamespace method">
     <HelpKINode Title="EvaluatorBase(T).ReferenceAssemblyByNamespace Method " Url="html/66ef70ea-67a3-0a48-c43d-9df7d06e299f.htm" />
