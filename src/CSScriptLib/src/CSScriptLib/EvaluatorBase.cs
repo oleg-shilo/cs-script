@@ -30,19 +30,19 @@
 
 #endregion License...
 
-using csscript;
-using CSScripting;
-using Microsoft.CodeAnalysis;
-
-//using Microsoft.CodeAnalysis;
-//using Microsoft.CodeAnalysis.CSharp.Scripting
-using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using Microsoft.CodeAnalysis;
+
+//using Microsoft.CodeAnalysis;
+//using Microsoft.CodeAnalysis.CSharp.Scripting
+using Microsoft.CodeAnalysis.Scripting;
+using csscript;
+using CSScripting;
 
 namespace CSScriptLib
 {
@@ -297,7 +297,7 @@ namespace CSScriptLib
         /// <example>
         /// <code>
         ///string asmFile = CSScript.Evaluator
-        ///.CompileAssemblyFromFile("MyScript.cs", "MyScript.dll");
+        ///                         .CompileAssemblyFromFile("MyScript.cs", "MyScript.dll");
         /// </code>
         /// </example>
         public string CompileAssemblyFromFile(string scriptFile, string outputFile)

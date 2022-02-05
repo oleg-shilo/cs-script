@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using static System.Environment;
 using System.IO;
@@ -10,7 +11,6 @@ using System.Threading.Tasks;
 using CSScripting;
 using CSScripting.CodeDom;
 using CSScriptLib;
-using System.ComponentModel;
 
 namespace csscript
 {
@@ -756,8 +756,8 @@ namespace csscript
                     if (options.verbose)
                     {
                         Console.WriteLine("> ----------------");
-                        Console.WriteLine("  TragetFramework: " + options.TargetFramework);
                         Console.WriteLine("  Provider: " + options.altCompiler);
+                        string sdkWarning = Globals.CheckAndGenerateSdkWarning();
                         try
                         {
                             Console.WriteLine("  Script engine: " + Assembly.GetExecutingAssembly().Location);
@@ -768,6 +768,8 @@ namespace csscript
                         {
                             Console.WriteLine($"  Compiler engine: {options.compilerEngine} ({Globals.csc})");
                             Console.WriteLine($"                 : dotnet ({Globals.dotnet})");
+                            if (sdkWarning.HasText())
+                                Console.WriteLine($"                    {sdkWarning}");
                         }
                         else if (options.compilerEngine == Directives.compiler_roslyn)
                         {
@@ -776,6 +778,8 @@ namespace csscript
                         else if (options.compilerEngine == Directives.compiler_dotnet)
                         {
                             Console.WriteLine($"  Compiler engine: {options.compilerEngine} ({Globals.dotnet})");
+                            if (sdkWarning.HasText())
+                                Console.WriteLine($"                    {sdkWarning}");
                         }
 
                         try

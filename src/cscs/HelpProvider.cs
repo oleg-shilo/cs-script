@@ -215,10 +215,10 @@ namespace csscript
             switch1Help[c] = new ArgInfo("-c[:<0|1>]",
                                          "Executes compiled script cache (e.g. <cache dir>/script.cs.dll) if found.",
                                          "This command improves performance by avoiding compiling the script if it was not changed since last execution.",
-                                          "```",
-                                          "   -c:1|-c  - enable caching",
-                                          "   -c:0     - disable caching (which might be enabled globally)",
-                                          "```");
+                                         "```",
+                                         "   -c:1|-c  - enable caching",
+                                         "   -c:0     - disable caching (which might be enabled globally)",
+                                         "```");
             switch1Help[ca] = new ArgInfo("-ca",
                                           "Compiles script file into cache file (e.g. <cache dir>/script.cs.dll).");
             switch1Help[cd] = new ArgInfo("-cd",
@@ -249,41 +249,41 @@ namespace csscript
                                               " or    `-co:/platform:x86` to produce Win32 executable)");
             switch1Help[engine] =
             switch1Help[ng] = new ArgInfo("-ng|-engine:<csc|dotnet|roslyn>]",
-                                         "Forces compilation to be done by one of the supported .NET engines.",
-                                         "  ",
-                                         "`dotnet` - ${<==}dotnet.exe compiler; this is the most versatile compilation engine though " +
-                                         "it does have a startup overhead when running the script for the first time. It requires .NET SDK to be installed " +
-                                         "on the target system.",
-                                         "  ",
-                                         "`csc`   - ${<==}csc.exe compiler; the fastest compiler available. It is not suitable " +
-                                         "for WPF scripts as csc.exe cannot compile XAML.",
-                                         "          ${<==}The compilation is performed in the separate child process build.exe which is somewhat " +
-                                         "equivalent to VBCSCompiler.exe (build server) from .NET toolset. It requires .NET SDK to be installed " +
-                                         "on the target system.",
-                                         "          ${<==}CS-Script communicates with build.exe build server via socket (default port 17001). You can " +
-                                         "control port value via the environment variable 'CSS_BUILDSERVER_CSC_PORT'",
-                                         "          ${<==}Value `csc-inproc` will suppress spinning off an build server process and .NET csc.exe will be " +
-                                         "called directly instead. This option convenient when socket communication is undesirable for whatever reason. " +
-                                         "Though in this case all the performance benefits of `-ng:csc` will be lost and then you are better off using " +
-                                         "`-ng:dotnet` instead.",
-                                         "  ",
-                                         "`roslyn` - ${<==}Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation " +
-                                         "engine. It does not require .NET SDK being installed. Though it does have limitations (see documentation).",
-                                         "           ${<==}The compilation is performed in the separate child process " + AppInfo.appName + " (another " +
-                                         "instance of script engine) which is somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.",
-                                         "           ${<==}CS-Script communicates with " + AppInfo.appName + " build server via socket (default port 17002). " +
-                                         "You can control port value " +
-                                         "via the environment variable 'CSS_BUILDSERVER_ROSLYN_PORT'",
-                                         "           ${<==}Value `roslyn-inproc` will suppress spinning off an external process and Roslyn compiler will be " +
-                                         "hosted in the original process of script engine instead. This option is convenient when socket communication is " +
-                                         "undesirable for whatever reason. Though in this case performance will be effected on the first run of the script.",
-                                         "  ",
-                                         "```",
-                                         "(e.g. " + AppInfo.appName + " -engine:dotnet sample.cs",
-                                         "      " + AppInfo.appName + " -ng:csc sample.cs)",
-                                         "      " + AppInfo.appName + " -ng:roslyn-inproc sample.cs)",
-                                         "      " + AppInfo.appName + " -ng:roslyn sample.cs)",
-                                         "```");
+                                          "Forces compilation to be done by one of the supported .NET engines.",
+                                          "  ",
+                                          "`dotnet` - ${<==}dotnet.exe compiler; this is the most versatile compilation engine though " +
+                                          "it does have a startup overhead when running the script for the first time. It requires .NET SDK to be installed " +
+                                          "on the target system.",
+                                          "  ",
+                                          "`csc`   - ${<==}csc.exe compiler; the fastest compiler available. It is not suitable " +
+                                          "for WPF scripts as csc.exe cannot compile XAML.",
+                                          "          ${<==}The compilation is performed in the separate child process build.exe which is somewhat " +
+                                          "equivalent to VBCSCompiler.exe (build server) from .NET toolset. It requires .NET SDK to be installed " +
+                                          "on the target system.",
+                                          "          ${<==}CS-Script communicates with build.exe build server via socket (default port 17001). You can " +
+                                          "control port value via the environment variable 'CSS_BUILDSERVER_CSC_PORT'",
+                                          "          ${<==}Value `csc-inproc` will suppress spinning off an build server process and .NET csc.exe will be " +
+                                          "called directly instead. This option convenient when socket communication is undesirable for whatever reason. " +
+                                          "Though in this case all the performance benefits of `-ng:csc` will be lost and then you are better off using " +
+                                          "`-ng:dotnet` instead.",
+                                          "  ",
+                                          "`roslyn` - ${<==}Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation " +
+                                          "engine. It does not require .NET SDK being installed. Though it does have limitations (see documentation).",
+                                          "           ${<==}The compilation is performed in the separate child process " + AppInfo.appName + " (another " +
+                                          "instance of script engine) which is somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.",
+                                          "           ${<==}CS-Script communicates with " + AppInfo.appName + " build server via socket (default port 17002). " +
+                                          "You can control port value " +
+                                          "via the environment variable 'CSS_BUILDSERVER_ROSLYN_PORT'",
+                                          "           ${<==}Value `roslyn-inproc` will suppress spinning off an external process and Roslyn compiler will be " +
+                                          "hosted in the original process of script engine instead. This option is convenient when socket communication is " +
+                                          "undesirable for whatever reason. Though in this case performance will be effected on the first run of the script.",
+                                          "  ",
+                                          "```",
+                                          "(e.g. " + AppInfo.appName + " -engine:dotnet sample.cs",
+                                          "      " + AppInfo.appName + " -ng:csc sample.cs)",
+                                          "      " + AppInfo.appName + " -ng:roslyn-inproc sample.cs)",
+                                          "      " + AppInfo.appName + " -ng:roslyn sample.cs)",
+                                          "```");
             switch1Help[sample] =
             switch1Help[s] = new ArgInfo("-s|-sample[:<C# version>]",
                                          " -s:7    - prints C# 7+ sample. Otherwise, it prints the default canonical 'Hello World' sample.",
@@ -433,7 +433,7 @@ namespace csscript
                                           "These options are only relevant if the compiler engine is set to 'csc' (see '-engine' command).",
                                           "```",
                                           " -server:start   - ${<==}deploys and starts build server. Useful if you want to start the server " +
-                                                                   "on system startup.",
+                                              "on system startup.",
                                           " -server:stop    - ${<==}stops build server",
                                           " -server:restart - ${<==}restarts build server",
                                           " -server:reset   - ${<==}stops, re-deploys and starts build server",
@@ -454,7 +454,7 @@ namespace csscript
                                           " -servers:start - ${<==}deploys and starts both Roslyn and csc build server",
                                           " -servers:stop - ${<==}stops both Roslyn and csc build server",
                                           "```"
-                                          );
+                                             );
 
             switch2Help[tc] = new ArgInfo("-tc",
                                           "Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.",
@@ -1596,25 +1596,25 @@ class Program
                 builder.AppendLine("//css_include global-usings");
 
             builder
-               .AppendLine("            ")
-               .AppendLine("class Script")
-               .AppendLine("{")
-               .AppendLine("    static public void Main(string[] args)")
-               .AppendLine("    {")
-               .AppendLine("        (string message, int version) setup_say_hello()")
-               .AppendLine("        {")
-               .AppendLine("            return (\"Hello from C#\", 9);")
-               .AppendLine("        }")
-               .AppendLine("")
-               .AppendLine("        var info = setup_say_hello();")
-               .AppendLine("")
-               .AppendLine("        print(info.message, info.version);")
-               .AppendLine("")
-               .AppendLine("        print(Environment.GetEnvironmentVariables()")
-               .AppendLine("                            .Cast<object>()")
-               .AppendLine("                            .Take(5));")
-               .AppendLine("    }")
-               .AppendLine("}");
+                .AppendLine("            ")
+                .AppendLine("class Script")
+                .AppendLine("{")
+                .AppendLine("    static public void Main(string[] args)")
+                .AppendLine("    {")
+                .AppendLine("        (string message, int version) setup_say_hello()")
+                .AppendLine("        {")
+                .AppendLine("            return (\"Hello from C#\", 9);")
+                .AppendLine("        }")
+                .AppendLine("")
+                .AppendLine("        var info = setup_say_hello();")
+                .AppendLine("")
+                .AppendLine("        print(info.message, info.version);")
+                .AppendLine("")
+                .AppendLine("        print(Environment.GetEnvironmentVariables()")
+                .AppendLine("                            .Cast<object>()")
+                .AppendLine("                            .Take(5));")
+                .AppendLine("    }")
+                .AppendLine("}");
             return new[] { new SampleInfo(builder.ToString(), ".cs") };
         }
 
@@ -1752,10 +1752,14 @@ nvironment.NewLine);
                     }
                     else
                     {
+                        string sdkWarning = Globals.CheckAndGenerateSdkWarning();
+
                         if (settings.DefaultCompilerEngine == Directives.compiler_csc)
                         {
                             builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Globals.csc})");
                             builder.AppendLine($"                  : dotnet ({Globals.dotnet})");
+                            if (sdkWarning.HasText())
+                                builder.AppendLine($"                    {sdkWarning}");
                         }
                         else if (settings.DefaultCompilerEngine == Directives.compiler_roslyn)
                         {
@@ -1764,6 +1768,8 @@ nvironment.NewLine);
                         else if (settings.DefaultCompilerEngine == Directives.compiler_dotnet)
                         {
                             builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Globals.dotnet})");
+                            if (sdkWarning.HasText())
+                                builder.AppendLine($"                    {sdkWarning}");
                         }
                     }
                 }

@@ -93,10 +93,10 @@ namespace CSScripting
             get
             {
                 var path = Environment.SpecialFolder.CommonApplicationData.GetPath().PathJoin("cs-script",
-                                                                                      "bin",
-                                                                                      "compiler",
-                                                                                      Assembly.GetExecutingAssembly().GetName().Version,
-                                                                                      "build.dll");
+                                                                                     "bin",
+                                                                                     "compiler",
+                                                                                     Assembly.GetExecutingAssembly().GetName().Version,
+                                                                                     "build.dll");
                 if (Runtime.IsLinux)
                 {
                     path = path.Replace("/usr/share/cs-script", "/usr/local/share/cs-script");
@@ -201,10 +201,10 @@ namespace CSScripting
                 var dotnetExeName = Runtime.IsLinux ? "dotnet" : "dotnet.exe";
 
                 var file = "".GetType().Assembly.Location
-                  .Split(Path.DirectorySeparatorChar)
-                  .TakeWhile(x => x != "dotnet")
-                  .JoinBy(Path.DirectorySeparatorChar.ToString())
-                  .PathJoin("dotnet", dotnetExeName);
+                    .Split(Path.DirectorySeparatorChar)
+                    .TakeWhile(x => x != "dotnet")
+                    .JoinBy(Path.DirectorySeparatorChar.ToString())
+                    .PathJoin("dotnet", dotnetExeName);
 
                 return File.Exists(file) ? file : dotnetExeName;
             }
@@ -212,6 +212,15 @@ namespace CSScripting
 
         static internal string GetCompilerFor(string file)
             => file.GetExtension().SameAs(".cs") ? csc : csc.ChangeFileName("vbc.dll");
+
+        static internal string CheckAndGenerateSdkWarning()
+        {
+            if (!csc.FileExists())
+            {
+                return $"WARNING: .NET {Environment.Version.Major} SDK cannot be found. It's required for `csc` and `dotnet` compiler engines.";
+            }
+            return null;
+        }
 
         /// <summary>
         /// Gets or sets the path to the C# compiler executable (e.g. csc.exe or csc.dll)
@@ -237,8 +246,9 @@ namespace CSScripting
 #endif
                     {
                         // Win: C:\Program Files\dotnet\sdk\6.0.100-rc.2.21505.57\Roslyn\bincore\csc.dll
-                        // C:\Program Files (x86)\dotnet\sdk\5.0.402\Roslyn\bincore\csc.dll linux
-                        // ~dotnet/.../3.0.100-preview5-011568/Roslyn/... (cannot find in preview)
+                        //      C:\Program Files (x86)\dotnet\sdk\5.0.402\Roslyn\bincore\csc.dll
+                        // Linux: ~dotnet/.../3.0.100-preview5-011568/Roslyn/... (cannot find SDK in preview)
+
                         // win: program_files/dotnet/sdk/<version>/Roslyn/csc.exe
                         var dotnet_root = "".GetType().Assembly.Location;
 
@@ -252,7 +262,7 @@ namespace CSScripting
                         if (dotnet_root.PathJoin("sdk").DirExists()) // need to check as otherwise it will throw
                         {
                             var dirs = dotnet_root.PathJoin("sdk")
-                                                  .PathGetDirs("*")
+                                                  .PathGetDirs($"{Environment.Version.Major}*")
                                                   .Where(dir => char.IsDigit(dir.GetFileName()[0]))
                                                   .OrderBy(x => System.Version.Parse(x.GetFileName().Split('-').First()))
                                                   .SelectMany(dir => dir.PathGetDirs("Roslyn"))
