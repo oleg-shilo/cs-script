@@ -12,18 +12,6 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            CodeDomEvaluator.CompileOnServer = true;
-            dynamic script = CSScript.CodeDomEvaluator
-                                     .LoadMethod(@"public (int, int) func()
-                                                   {
-                                                       return (0,5);
-                                                   }");
-            (int, int) result = script.func();
-
-            Console.WriteLine("CLR: " + Environment.Version);
-            Console.WriteLine("OK!");
-
-            return;
             Console.WriteLine("================\n");
             Console.WriteLine($"Loading and unloading script 20 times");
             Test_Unloading();
