@@ -5,11 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using static System.StringComparison;
-using static CSScripting.PathExtensions;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
-using static CSScripting.Globals;
 
 #if class_lib
 using CSScriptLib;
@@ -17,6 +15,9 @@ using CSScriptLib;
 
 using csscript;
 using static csscript.CoreExtensions;
+using static CSScripting.Directives;
+using static CSScripting.Globals;
+using static CSScripting.PathExtensions;
 
 #endif
 
@@ -98,7 +99,24 @@ namespace CSScripting.CodeDom
             if (options.BuildExe)
                 return CompileAssemblyFromFileBatch_with_Build(options, fileNames); // csc.exe does not support building self sufficient executables
             else
-                switch (CSExecutor.options.compilerEngine)
+            {
+                var engine = CSExecutor.options.compilerEngine;
+
+                if (!Runtime.IsSdkInstalled() &&
+                    engine != compiler_roslyn &&
+                    engine != compiler_roslyn_inproc)
+                {
+                    Console.WriteLine(
+                        $"WARNING: Cannot find .NET {Environment.Version.Major} SDK required for `{engine}` compiler engine. " +
+                        $"Switching compiler to `{compiler_roslyn}` instead.{NewLine}" +
+                        $"To remove this warning either install .NET {Environment.Version.Major} SDK " +
+                        $"or set the default compiler engine to `{compiler_roslyn}` with {NewLine}" +
+                        $"  css -config:set:DefaultCompilerEngine={compiler_roslyn}.{NewLine}" +
+                        $"--------");
+                    engine = compiler_roslyn;
+                }
+
+                switch (engine)
                 {
                     case Directives.compiler_dotnet:
                         return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
@@ -115,6 +133,7 @@ namespace CSScripting.CodeDom
                     default:
                         return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
                 }
+            }
         }
 
         class FileWatcher

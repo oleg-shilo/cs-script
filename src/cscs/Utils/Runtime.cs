@@ -1,9 +1,9 @@
-using CSScripting;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
+using CSScripting;
 
 #if class_lib
 
@@ -222,12 +222,12 @@ namespace csscript
                         return globalIncluds.EnsureDir();
 
                     return Environment.SpecialFolder.CommonApplicationData.GetPath()
-                                                .PathJoin("cs-script", "inc")
-                                                .With(x =>
-                                                {
-                                                    Environment.SetEnvironmentVariable("CSSCRIPT_INC", x, EnvironmentVariableTarget.User);
-                                                })
-                                                .EnsureDir();
+                                                    .PathJoin("cs-script", "inc")
+                                                    .With(x =>
+                                                    {
+                                                        Environment.SetEnvironmentVariable("CSSCRIPT_INC", x, EnvironmentVariableTarget.User);
+                                                    })
+                                                    .EnsureDir();
                 }
                 catch { return null; }
             }

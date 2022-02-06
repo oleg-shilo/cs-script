@@ -2,9 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Client_NET_5_CLI</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="scripts\**" />
+    <EmbeddedResource Remove="scripts\**" />
+    <None Remove="scripts\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CSScriptLib\CSScriptLib.csproj" />

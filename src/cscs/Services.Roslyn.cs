@@ -5,13 +5,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Emit;
+using Microsoft.CodeAnalysis.Scripting;
 
 using csscript;
-using Microsoft.CodeAnalysis.Emit;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Scripting;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
 
 namespace CSScripting.CodeDom
 {
@@ -157,7 +157,7 @@ namespace CSScripting.CodeDom
                 var message = new StringBuilder();
 
                 IEnumerable<BuildResult.Diagnostic> failures = emitResult.Diagnostics.Where(d => d.IsWarningAsError ||
-                                                                                     d.Severity == DiagnosticSeverity.Error);
+                                                                                      d.Severity == DiagnosticSeverity.Error);
                 foreach (var diagnostic in failures)
                 {
                     string error_location = "";
@@ -177,7 +177,13 @@ namespace CSScripting.CodeDom
                     }
                     message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.Message}");
                 }
+
+                if (combinedScript.Any(x => x.TrimStart().StartsWith("global using ")))
+                    message.Insert(0, "<script>(0,0): warning: It looks like you are using global using statement that is not " +
+                        $"supported by Roslyn. Either remove it or use different compiler engine.{Environment.NewLine}");
+
                 var errors = message.ToString();
+
                 throw new CompilerException(errors);
             }
 

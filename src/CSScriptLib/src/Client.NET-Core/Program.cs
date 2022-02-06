@@ -12,6 +12,18 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
+            CodeDomEvaluator.CompileOnServer = true;
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .LoadMethod(@"public (int, int) func()
+                                                   {
+                                                       return (0,5);
+                                                   }");
+            (int, int) result = script.func();
+
+            Console.WriteLine("CLR: " + Environment.Version);
+            Console.WriteLine("OK!");
+
+            return;
             Console.WriteLine("================\n");
             Console.WriteLine($"Loading and unloading script 20 times");
             Test_Unloading();
@@ -93,7 +105,7 @@ namespace ConsoleApp1
         {
             for (int i = 0; i < 20; i++)
             {
-                Console.WriteLine("Loaded assemblies county: " + AppDomain.CurrentDomain.GetAssemblies().Count());
+                Console.WriteLine("Loaded assemblies count: " + AppDomain.CurrentDomain.GetAssemblies().Count());
                 call_UnloadAssembly();
                 // call_UnloadAssembly_Failing();
                 GC.Collect();

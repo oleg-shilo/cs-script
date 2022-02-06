@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using static System.StringComparison;
-using static CSScripting.PathExtensions;
-using static CSScripting.Globals;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
@@ -17,6 +15,8 @@ using CSScriptLib;
 
 using csscript;
 using static csscript.CoreExtensions;
+using static CSScripting.Globals;
+using static CSScripting.PathExtensions;
 
 #endif
 
@@ -36,7 +36,7 @@ namespace CSScripting.CodeDom
             var result = new CompilerResults();
 
             if (!Runtime.IsSdkInstalled())
-                Console.WriteLine("WARNING: .NET SDK is not installed. It is required for CS-Script to function properly.");
+                Console.WriteLine("WARNING: .NET SDK is not installed. It is required for CS-Script (with `csc` engine) to function properly.");
 
             var config = options.IncludeDebugInformation ? "--configuration Debug" : "--configuration Release";
             var cmd = $"build {config} -o {output} {options.CompilerOptions.Replace("/target:winexe", "")}"; // dotnet build command gets "console vs win" from the project file, not the CLI param
