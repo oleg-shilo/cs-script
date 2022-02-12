@@ -30,9 +30,13 @@
 
 #endregion License...
 
-using csscript;
-using CSScripting;
-using CSScripting.CodeDom;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
@@ -42,13 +46,9 @@ using Microsoft.CodeAnalysis.Emit;
 //using Microsoft.CodeAnalysis;
 //using Microsoft.CodeAnalysis.CSharp.Scripting
 using Microsoft.CodeAnalysis.Scripting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
+using csscript;
+using CSScripting;
+using CSScripting.CodeDom;
 
 // <summary>
 //<package id="Microsoft.Net.Compilers" version="1.2.0-beta-20151211-01" targetFramework="net45" developmentDependency="true" />
@@ -421,7 +421,7 @@ namespace CSScriptLib
                 using (var pdb = new MemoryStream())
                 using (var asm = new MemoryStream())
                 {
-                    var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
+                    var emitOptions = new EmitOptions(false, CSScript.EvaluatorConfig.PdbFormat);
 
                     EmitResult result;
                     if (IsDebug)

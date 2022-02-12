@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.CodeAnalysis.Emit;
 
 namespace CSScriptLib
 {
@@ -123,6 +124,14 @@ namespace CSScriptLib
         /// </example>
         /// </summary>
         public bool DebugBuild { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the PDB format. This property is only used if <see cref="EvaluatorConfig.DebugBuild"/> is set to <c>true</c>.
+        /// </summary>
+        /// <value>
+        /// The PDB format.
+        /// </value>
+        public DebugInformationFormat PdbFormat { get; set; } = DebugInformationFormat.PortablePdb;
 
         bool refDomainAsms = true;
 
