@@ -24,13 +24,13 @@ namespace EvaluatorTests
 {
     public class Generic_Roslyn
     {
-        [Fact]
+        [Fact(Skip = "xUnit runtime is incompatible. But test is valid"
+             )]
         public void call_UnloadAssembly()
         {
             // There is something strange happening under xUnit runtime. This very test runs fine
-            // from a console app nut under a test runner the assembly stays in the memory. Possibly
+            // from a console app but under a test runner the assembly stays in the memory. Possibly
             // because xUnit uses dynamic types. See "Test_Unloading" method for details (https://github.com/oleg-shilo/cs-script/blob/master/src/CSScriptLib/src/Client.NET-Core/Program.cs)
-            return;
 
             int? count = null;
 
@@ -48,6 +48,8 @@ namespace EvaluatorTests
             }
         }
 
+        [Fact(Skip = "xUnit runtime is incompatible. But test is valid"
+             )]
         public void call_SuccessfulUnloadAssembly()
         {
             ICalc script = CSScript.RoslynEvaluator
@@ -150,7 +152,7 @@ namespace EvaluatorTests
 
             Assembly asm = CSScript.Evaluator
                                     .With(e => e.IsCachingEnabled = true)
-                                    .CompileCode(@"using System;
+                                   .CompileCode(@"using System;
                                                    public class Script
                                                    {
                                                        void Log(string message)
@@ -173,13 +175,13 @@ namespace EvaluatorTests
 
             dynamic script = eval.ReferenceDomainAssemblies()
                                  .SetRefAssemblyFilter(asms =>
-                                    {
-                                        refAssemblies = asms.Select(a => a.Location)
-                                                            .Distinct()
-                                                            .ToArray();
+                                     {
+                                         refAssemblies = asms.Select(a => a.Location)
+                                                             .Distinct()
+                                                             .ToArray();
 
-                                        return asms.Where(a => a.FullName != Assembly.GetExecutingAssembly().FullName);
-                                    })
+                                         return asms.Where(a => a.FullName != Assembly.GetExecutingAssembly().FullName);
+                                     })
                                  .LoadMethod(@"public object func()
                                                {
                                                    return new[] {0,5};

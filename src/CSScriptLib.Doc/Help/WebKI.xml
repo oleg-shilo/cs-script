@@ -418,6 +418,7 @@
   <HelpKINode Title="EvaluatorConfig.DebugBuild property" Url="html/565c1bd9-120e-2898-f064-e002af7a1853.htm" />
   <HelpKINode Title="EvaluatorConfig.Engine property" Url="html/e47a926c-2877-8e9f-594d-68eac5f6d191.htm" />
   <HelpKINode Title="EvaluatorConfig.EvaluatorConfig constructor" Url="html/300d962a-a0f2-f339-1403-fc8297b60814.htm" />
+  <HelpKINode Title="EvaluatorConfig.PdbFormat property" Url="html/9e3377c9-ecdd-ebcf-d7e1-89b8fcfe8fa8.htm" />
   <HelpKINode Title="EvaluatorConfig.ReferenceDomainAssemblies property" Url="html/394920d1-094d-a374-6fb2-8412b229cc94.htm" />
   <HelpKINode Title="EvaluatorConfig.RefernceDomainAsemblies property" Url="html/8089c58b-f088-f426-bfa8-853fb375c052.htm" />
   <HelpKINode Title="EvaluatorEngine enumeration" Url="html/78976dd5-4163-18cb-da0f-c7e70d9d356d.htm" />
@@ -642,6 +643,7 @@
   <HelpKINode Title="PathNormaliseSeparators method" Url="html/79d33a54-8055-0298-8a44-d50142127d5a.htm" />
   <HelpKINode Title="PathToAssembly property" Url="html/81ba8ad2-08a5-5fd4-1440-753e4c76a1d6.htm" />
   <HelpKINode Title="PdbFile property" Url="html/d096b785-4355-62d3-1b79-d45d9ea943a6.htm" />
+  <HelpKINode Title="PdbFormat property" Url="html/9e3377c9-ecdd-ebcf-d7e1-89b8fcfe8fa8.htm" />
   <HelpKINode Title="Ping method" Url="html/2e317daf-736d-939c-fead-bb4587311b34.htm" />
   <HelpKINode Title="Precompilers field" Url="html/23334ad8-a133-eb0d-d1f4-0eb81bb334d2.htm" />
   <HelpKINode Title="Precompilers property">
