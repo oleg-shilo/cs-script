@@ -11,11 +11,7 @@ repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.4.0.0/; file=c
 _**Windows (choco)**_
 _Pending approval_
 ```
-choco install cs-script --version=4.4.0.0 
-```
-It is highly recommended that you uninstall CS-Script.Core:
-```
-sudo choco uninstall cs-script.core
+sudo choco install cs-script --version=4.4.0.0 
 ```
 
 _**Manual**_

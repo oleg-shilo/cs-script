@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.2.0.0</version>
+        <version>4.4.0.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -17,7 +17,7 @@
         <description>CLR based runtime environment for executing scripts written in ECMA-compliant C#.
     The main idea of CS-Script is to allow "plain vanilla" C# code execution from both command-prompt and form any CLR application hosting the script engine.
 
-    CS-Script targets .NET 5.
+    CS-Script targets .NET 5 and higher.
 
     The default installation directory is "%ChocolateyInstall%\lib\cs-script".
     This package contains the set of scripts and binaries that required for the default functionality. However there is some additional content that represents somewhat less mainstream functionality and experimental features. This content is available as an `Extension Pack` from the releases page(https://github.com/oleg-shilo/cs-script/releases). Installing the `Extension Pack` is as simple as downloading and extracting the archive to your chocolatey install location (most likely C:\ProgramData\chocolatey\lib\cs-script\tools\cs-script).
@@ -25,16 +25,12 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-# Release v4.2.0.0
+Release v4.4.0.0
 
-    Updated -speed and -code with the complete support -ng:* switches
-    Added -servers:start and -servers:stop command to control both Roslyn and csc build servers at the same time
-    Issue #258: Can not run scripts after installing VS2022
-    Issue #257: Ability to catch AppDomain.UnhandledException in a not-hosted script (cscs)
-    Issue #255: Relative path for cscs.exe -out option results in wrong output folder
-    Issue #254: Script merger for hosted scripts
-    Issue #252: System.NullReferenceException: Object reference not set to an instance of an object. (updated API doc)
-
+- Issue #277: Installation and use problems, NET6, targeting (4.3.0.0)
+  - Added warning on SDK not installed
+  - Added auto-switch to Roslyn if SDK is not found
+  - Improved check for SDK install. Added ignoring SDK of lower version.
 
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
