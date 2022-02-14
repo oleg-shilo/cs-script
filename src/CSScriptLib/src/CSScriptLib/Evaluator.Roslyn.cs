@@ -424,7 +424,9 @@ namespace CSScriptLib
                     var emitOptions = new EmitOptions(false, CSScript.EvaluatorConfig.PdbFormat);
 
                     EmitResult result;
-                    if (IsDebug)
+                    if (IsDebug && CSScript.EvaluatorConfig.PdbFormat == DebugInformationFormat.Embedded)
+                        result = compilation.Emit(asm, options: emitOptions);
+                    else if (IsDebug)
                         result = compilation.Emit(asm, pdb, options: emitOptions);
                     else
                         result = compilation.Emit(asm);
@@ -471,7 +473,7 @@ namespace CSScriptLib
                         if (info?.AssemblyFile != null)
                             File.WriteAllBytes(info.AssemblyFile, buffer);
 
-                        if (IsDebug)
+                        if (IsDebug && CSScript.EvaluatorConfig.PdbFormat != DebugInformationFormat.Embedded)
                         {
                             pdb.Seek(0, SeekOrigin.Begin);
                             byte[] pdbBuffer = pdb.GetBuffer();
