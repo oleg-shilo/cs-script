@@ -424,10 +424,14 @@ namespace CSScriptLib
                     var emitOptions = new EmitOptions(false, CSScript.EvaluatorConfig.PdbFormat);
 
                     EmitResult result;
-                    if (IsDebug && CSScript.EvaluatorConfig.PdbFormat == DebugInformationFormat.Embedded)
-                        result = compilation.Emit(asm, options: emitOptions);
-                    else if (IsDebug)
-                        result = compilation.Emit(asm, pdb, options: emitOptions);
+
+                    if (IsDebug)
+                    {
+                        if (CSScript.EvaluatorConfig.PdbFormat == DebugInformationFormat.Embedded)
+                            result = compilation.Emit(asm, options: emitOptions);
+                        else
+                            result = compilation.Emit(asm, pdb, options: emitOptions);
+                    }
                     else
                         result = compilation.Emit(asm);
 
