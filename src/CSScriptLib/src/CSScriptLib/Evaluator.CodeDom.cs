@@ -366,8 +366,15 @@ namespace CSScriptLib
                 {
                     if (result.Errors.IsEmpty())
                     {
-                        // unknown error; e.g. invalid compiler params
-                        result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error\n" + sdk_warning });
+                        if (result.Output.Any())
+                        {
+                            result.Errors.Add(new CompilerError { ErrorText = result.Output.JoinBy("\n") });
+                        }
+                        else
+                        {
+                            // unknown error; e.g. invalid compiler params
+                            result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error\n" + sdk_warning });
+                        }
                     }
                     throw CompilerException.Create(result.Errors, true, true);
                 }
