@@ -232,8 +232,8 @@ namespace CSScriptLib
                 string cmd;
 
                 var sdk_warning = (Runtime.IsSdkInstalled() ?
-                                    "" :
-                                    "WARNING: .NET SDK is not installed. It is required for CS-Script to function properly.\n");
+                                   "" :
+                                   "WARNING: .NET SDK is not installed. It is required for CS-Script to function properly.\n");
 
                 var std_err = "";
 
@@ -270,7 +270,7 @@ namespace CSScriptLib
 
                             bool buildServerNotRunning() => response.GetLines()
                                                                     .FirstOrDefault()?
-                                                                    .Contains("System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10061)")
+                                                                    .Contains("System.Net.Internals.SocketExceptionFactory+ExtendedSocketException")
                                                                     == true;
 
                             for (int i = 0; i < 10 && buildServerNotRunning(); i++)
@@ -317,7 +317,7 @@ namespace CSScriptLib
                                     "then you can only use Roslyn evaluator engine (e.g. 'CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn').";
                             else
                                 message = "Cannot find .NET compiler csc.exe. You need either install .NET SDK " +
-                                        "or use Roslyn evaluator engine instead " +
+                                    "or use Roslyn evaluator engine instead " +
                                         "(e.g. 'CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn').";
                         }
                         throw new CompilerException(message, e);
