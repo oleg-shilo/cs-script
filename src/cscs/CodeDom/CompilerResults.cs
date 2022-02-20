@@ -84,7 +84,7 @@ namespace CSScripting.CodeDom
             // Console.WriteLine(">>>" + Output.JoinBy("\n"));
             // Console.WriteLine("-----------");
             // Build succeeded.
-            foreach (var line in Output)
+            foreach (var line in Output.SelectMany(x => x.GetLines()))
             {
                 if (!isErrroSection)
                 {

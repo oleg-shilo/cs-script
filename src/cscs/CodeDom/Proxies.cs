@@ -121,8 +121,11 @@ namespace CSScripting.CodeDom
                     case Directives.compiler_dotnet:
                         return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
 
+                    case Directives.compiler_csc_inproc:
+                        return CompileAssemblyFromFileBatch_with_Csc(options, fileNames, false);
+
                     case Directives.compiler_csc:
-                        return CompileAssemblyFromFileBatch_with_Csc(options, fileNames);
+                        return CompileAssemblyFromFileBatch_with_Csc(options, fileNames, true);
 
                     case Directives.compiler_roslyn:
                         return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, false);

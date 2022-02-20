@@ -65,6 +65,9 @@ namespace ConsoleApp1
 
         static void call_UnloadAssembly()
         {
+            CSScript.EvaluatorConfig.PdbFormat = Microsoft.CodeAnalysis.Emit.DebugInformationFormat.Embedded;
+            CSScript.EvaluatorConfig.DebugBuild = true;
+
             var script = CSScript.Evaluator
                                  .With(eval => eval.IsAssemblyUnloadingEnabled = true)
                                  .LoadMethod<ICalc>(@"public int Sum(int a, int b)

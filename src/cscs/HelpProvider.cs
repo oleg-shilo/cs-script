@@ -1661,7 +1661,7 @@ End Module";
         @"using System;
 using System.Collections;
 using System.Collections.Generic;
-nvironment.NewLine);
+
 public class Sample_Precompiler //precompiler class name must end with 'Precompiler'
 {
     // possible signatures bool Compile(dynamic context) bool Compile(csscript.PrecompilationContext context)
@@ -1677,7 +1677,6 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
         //    SearchDirs
         //    ConsoleEncoding
         //    CompilerOptions
-nvironment.NewLine);
         //if new assemblies are to be referenced add them (see 'Precompilers' in the documentation)
         //var newReferences = (List<string>)context[\""NewReferences\""];
         //newReferences.Add(\""System.Xml.dll\"");

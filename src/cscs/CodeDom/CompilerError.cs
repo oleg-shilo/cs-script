@@ -92,7 +92,7 @@ namespace CSScripting.CodeDom
                 return new CompilerError
                 {
                     ErrorText = parts.Last().Trim(),        // MSBUILD error: Unknown switch.
-                    ErrorNumber = parts.First()                         // MSB1001
+                    ErrorNumber = parts.First()             // MSB1001
                 };
             }
             else if (isWarning || isError)

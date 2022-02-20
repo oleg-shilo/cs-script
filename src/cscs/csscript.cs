@@ -133,8 +133,8 @@ namespace csscript
                         }
                         catch (Exception)
                         {
-                            print($"Error: you need to set environment variable '{envarName}' to the valid path " +
-                                  $"to Visual Studio Code executable code{vscode_exe}.");
+                            printError($"Error: you need to set environment variable '{envarName}' to the valid path " +
+                                       $"to Visual Studio Code executable code{vscode_exe}.");
                         }
                     }
                     else
@@ -412,11 +412,11 @@ namespace csscript
                     if (args.Length <= firstScriptArg)
                     {
                         Environment.ExitCode = 1;
-                        print("No script file was specified.");
+                        printError("No script file was specified.");
                         return; //no script, no script arguments
                     }
 
-                    //process original command-line arguments
+                    // process original command-line arguments
                     if (options.scriptFileName == "")
                     {
                         options.scriptFileName = args[firstScriptArg];
@@ -515,7 +515,12 @@ namespace csscript
 
                     var compilerDirective = "//css_engine";
                     var compilerDirective2 = "//css_ng";
-                    //do quick parsing for pre/post scripts, ThreadingModel and embedded script arguments
+
+                    //  do quick parsing for pre/post scripts, ThreadingModel and embedded script arguments
+
+                    var scriptToExecute = options.scriptFileName;
+                    // if (args[firstScriptArg] != scriptToExecute)
+                    //     scriptToExecute = args[firstScriptArg];
 
                     CSharpParser parser = new CSharpParser(options.scriptFileName, true, new[] { compilerDirective, compilerDirective2 }, options.searchDirs);
 
@@ -623,7 +628,7 @@ namespace csscript
                             Environment.CurrentDirectory = originalCurrDir;
                             info.args[1] = FileParser.ResolveFile(info.args[1], originalOptions.searchDirs);
 
-                            var exec = new CSExecutor(info.abortOnError, originalOptions);
+                            var exec = NewExecutorForPreScripts(info.abortOnError, originalOptions);
 
                             if (originalOptions.DBG)
                             {
@@ -668,7 +673,7 @@ namespace csscript
                             Environment.CurrentDirectory = originalCurrDir;
                             info.args[1] = FileParser.ResolveFile(info.args[1], originalOptions.searchDirs);
 
-                            CSExecutor exec = new CSExecutor(info.abortOnError, originalOptions);
+                            CSExecutor exec = NewExecutorForPreScripts(info.abortOnError, originalOptions);
 
                             if (originalOptions.DBG)
                             {
@@ -722,9 +727,9 @@ namespace csscript
                     if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
                     {
                         if (options.reportDetailedErrorInfo && !(ex is FileNotFoundException))
-                            print(ex.ToString());
+                            printError(ex.ToString());
                         else
-                            print(ex.Message); //Mono friendly
+                            printError(ex.Message); //Mono friendly
                     }
                 }
             }
@@ -1039,10 +1044,10 @@ namespace csscript
                                 {
                                     if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
                                     {
-                                        print($"Error: Specified file could not be compiled.{NewLine}");
+                                        printError($"Error: Specified file could not be compiled.{NewLine}");
                                         if (NuGet.newPackageWasInstalled)
                                         {
-                                            print($"> -----{NewLine}A new NuGet package has been installed. If some of its components are not found you may need to restart the script again.{NewLine}> -----{NewLine}");
+                                            printError($"> -----{NewLine}A new NuGet package has been installed. If some of its components are not found you may need to restart the script again.{NewLine}> -----{NewLine}");
                                         }
                                     }
                                 }
@@ -1109,7 +1114,7 @@ namespace csscript
                             catch
                             {
                                 if (!CSSUtils.IsRuntimeErrorReportingSuppressed)
-                                    print("Error: Specified file could not be executed." + NewLine);
+                                    printError("Error: Specified file could not be executed." + NewLine);
                                 throw;
                             }
                         }
@@ -1148,7 +1153,7 @@ namespace csscript
                                        $"with `{Environment.GetEnvironmentVariable("ENTRY_ASM")} -wpf:enable`";
                         }
 
-                        print(message);
+                        printError(message);
                     }
                 }
             }
@@ -1222,6 +1227,16 @@ namespace csscript
         /// </summary>
         internal static PrintDelegate print;
 
+        internal static PrintDelegate printError =>
+#if WIN_APP
+            print;
+#else
+            Environment.GetEnvironmentVariable("CSS_MERGE_STD_OUT") != null ?
+                                                        print :
+                                                        msg => Console.Error.WriteLine(msg);
+
+#endif
+
         /// <summary>
         /// Container for parsed command line arguments
         /// </summary>
@@ -1230,9 +1245,17 @@ namespace csscript
         public CSExecutor()
         { }
 
-        public CSExecutor(bool rethrow, ExecuteOptions optionsBase)
+        public static CSExecutor NewExecutorForPreScripts(bool rethrow, ExecuteOptions optionsBase)
+            => new CSExecutor(rethrow, optionsBase);
+
+        private CSExecutor(bool rethrow, ExecuteOptions optionsBase)
         {
+            // this constructor is to be used only for Pre/Post scripts
             this.Rethrow = rethrow;
+
+            // it is important to reset the options for a new execution
+            // the global `options` object will be restored to its original state after the pre-script execution
+            options = new ExecuteOptions();
 
             //force to read all relative options data from the config file
             options.noConfig = optionsBase.noConfig;
@@ -1357,7 +1380,7 @@ namespace csscript
                         var errorMessage = $"{NewLine}Cannot find alternative compiler (" + options.altCompiler + "). Loading default compiler instead.";
 
                         if (!File.Exists(options.altCompiler)) //Invalid alt-compiler configured
-                            print(errorMessage);
+                            printError(errorMessage);
 
                         options.altCompiler = "";
                         return LoadDefaultCompiler();
@@ -1641,7 +1664,7 @@ namespace csscript
             compilerParams.GenerateExecutable = !options.compileDLL; // user asked to execute script but we still need to generate the exe assembly before
                                                                      // the execution so top-level
                                                                      // classes are supported
-            compilerParams.BuildExe = options.buildExecutable; // user asked to build exe
+            compilerParams.BuildExe = options.buildExecutable;       // user asked to build exe
             compilerParams.GenerateInMemory = false;
             compilerParams.WarningLevel = (options.hideCompilerWarnings ? -1 : 4);
 

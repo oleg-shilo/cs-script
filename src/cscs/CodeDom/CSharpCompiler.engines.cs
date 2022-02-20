@@ -44,7 +44,7 @@ namespace CSScripting.CodeDom
             Profiler.get("compiler").Start();
             result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir,
                                                           onOutput: x => result.Output.Add(x),
-                                                          onError: x => Console.WriteLine("error> " + x),
+                                                          onError: x => Console.Error.WriteLine("error> " + x),
                                                           timeout: 30000);
             Profiler.get("compiler").Stop();
             Thread.Sleep(50);
@@ -119,8 +119,15 @@ namespace CSScripting.CodeDom
             {
                 if (result.Errors.IsEmpty())
                 {
-                    // unknown error; e.g. invalid compiler params
-                    result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
+                    if (result.Output.Any())
+                    {
+                        result.Errors.Add(new CompilerError { ErrorText = result.Output.JoinBy("\n") });
+                    }
+                    else
+                    {
+                        // unknown error; e.g. invalid compiler params
+                        result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
+                    }
                 }
             }
 
@@ -129,7 +136,7 @@ namespace CSScripting.CodeDom
             return result;
         }
 
-        CompilerResults CompileAssemblyFromFileBatch_with_Csc(CompilerParameters options, string[] fileNames)
+        CompilerResults CompileAssemblyFromFileBatch_with_Csc(CompilerParameters options, string[] fileNames, bool buidOnServer = true)
         {
             if (fileNames.Any() && fileNames.First().GetExtension().SameAs(".vb"))
                 throw new CompilerException("Executing VB scripts is only supported on dotnet engine. Please either set it:" + NewLine +
@@ -243,7 +250,7 @@ namespace CSScripting.CodeDom
 
             // running build server on Linux is problematic as if it is started from here it will be
             // killed when the parent process (this) exits
-            bool compile_on_server = Runtime.IsWin;
+            bool compile_on_server = Runtime.IsWin && buidOnServer;
 
             string cmd = "";
             string std_err = "";
@@ -294,7 +301,7 @@ namespace CSScripting.CodeDom
             }
             else
             {
-                Profiler.EngineContext = "Building with local csc engine...";
+                Profiler.EngineContext = "Building with raw csc engine...";
                 cmd = $@"""{Globals.GetCompilerFor(sources.FirstOrDefault())}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
                 cmpl_cmd = cmd;
                 result.NativeCompilerReturnValue = Globals.dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);

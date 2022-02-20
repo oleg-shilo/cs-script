@@ -17,7 +17,7 @@
         <description>CLR based runtime environment for executing scripts written in ECMA-compliant C#.
     The main idea of CS-Script is to allow "plain vanilla" C# code execution from both command-prompt and form any CLR application hosting the script engine.
 
-    CS-Script targets .NET 5 and higher.
+    CS-Script targets .NET 6 and higher.
 
     The default installation directory is "%ChocolateyInstall%\lib\cs-script".
     This package contains the set of scripts and binaries that required for the default functionality. However there is some additional content that represents somewhat less mainstream functionality and experimental features. This content is available as an `Extension Pack` from the releases page(https://github.com/oleg-shilo/cs-script/releases). Installing the `Extension Pack` is as simple as downloading and extracting the archive to your chocolatey install location (most likely C:\ProgramData\chocolatey\lib\cs-script\tools\cs-script).
@@ -36,7 +36,7 @@ Release v4.4.0.0
         <copyright>Oleg Shilo</copyright>
         <tags>cs-script C# script dynamic hosting</tags>
         <dependencies>
-            <dependency id="dotnet-5.0-sdk" />
+            <dependency id="dotnet-sdk" version="6.0.101"/>
         </dependencies>
     </metadata>
     <files>

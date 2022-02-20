@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +9,6 @@ using System.Xml.Linq;
 using csscript;
 using CSScripting;
 using CSScripting.CodeDom;
-using static System.Environment;
 
 /*
  TODO:
@@ -80,7 +80,7 @@ namespace cscs
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Console.Error.WriteLine(e.ToString());
                 return 1;
             }
         }
