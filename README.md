@@ -3,8 +3,9 @@
 
 ---
 
-_Please note that this repository is hosting the releases of CS-Script (v4.0.0 and higher), which target .NET 5.
-Meaning that both CLI and class library (Nuget package) can transparently be hosted on and interact with both .NET Framework and .NET Core runtimes (.NET 5 SDK is required to be installed)._
+_Please note that this repository is hosting the releases of CS-Script (v4.0.0 and higher), which targets .NET 5+ for CLI and Standard 2.0 for class library (Nuget package). Meaning the package can be transparently hosted on and interact with both .NET Framework and .NET Core runtimes._
+
+_Note .NET SDK is required to have all features enabled, otherwise .NET Runtime is sufficient. See [details](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine#compiler-technology-comparison)._
 
 _Previous content of this repository and Wiki, which was exclusively dedicated to .NET Framework edition of CS-Script has been  is  has been moved to a new repository: https://github.com/oleg-shilo/cs-script.net-framework_
 
