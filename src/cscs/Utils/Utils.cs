@@ -113,7 +113,7 @@ namespace CSScripting
             return path;
         }
 
-        class Win32
+        internal class Win32
         {
             [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
             internal static extern bool SetEnvironmentVariable(string lpName, string lpValue);
@@ -851,9 +851,14 @@ partial class dbg
                         options.suppressExecution = true;
                         options.syntaxCheck = true;
                     }
+                    else if (Args.Same(arg, AppArgs.vs_init)) // -vs:init
+                    {
+                        VSConfig.Init(nextArg);
+                        CLIExitRequest.Throw();
+                    }
                     else if (Args.Same(arg, AppArgs.vs, AppArgs.vscode)) // -vs, -vscode
                     {
-                        options.nonExecuteOpRquest = Args.Same(arg, AppArgs.vs) ? AppArgs.vs : AppArgs.vscode;
+                        options.nonExecuteOpRquest = arg.Substring(1);
                         options.processFile = false;
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.proj, out argValue)) // -proj

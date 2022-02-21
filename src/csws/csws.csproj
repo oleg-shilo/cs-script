@@ -7,7 +7,7 @@
     <AssemblyName>csws</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.4.0.0</Version>
+    <Version>4.4.1.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -18,8 +18,8 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.4.0.0</AssemblyVersion>
-    <FileVersion>4.4.0.0</FileVersion>
+    <AssemblyVersion>4.4.1.0</AssemblyVersion>
+    <FileVersion>4.4.1.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Deployment
@@ -31,11 +31,7 @@ repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.4.0.0/; file=c
 _**Windows (choco)**_
 _Pending approval_
 ```
-choco install cs-script --version=4.4.0.0 
-```
-It is highly recommended that you uninstall CS-Script.Core:
-```
-sudo choco uninstall cs-script.core
+sudo choco install cs-script --version=4.4.0.0 
 ```
 
 _**Manual**_
@@ -115,6 +111,7 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
     <Compile Include="..\cscs\Utils\Profiler.cs" Link="Utils\Profiler.cs" />
     <Compile Include="..\cscs\Utils\ReflectionExtensions.cs" Link="Utils\ReflectionExtensions.cs" />
     <Compile Include="..\cscs\Utils\Runtime.cs" Link="Utils\Runtime.cs" />
+    <Compile Include="..\cscs\Utils\VSConfig.cs" Link="Utils\VSConfig.cs" />
     <Compile Include="..\cscs\Utils\SerializationExtensions.cs" Link="Utils\SerializationExtensions.cs" />
     <Compile Include="..\cscs\Utils\SimpleAsmProbing.cs" Link="SimpleAsmProbing.cs" />
     <Compile Include="..\cscs\Utils\SocketExtensions.cs" Link="Utils\SocketExtensions.cs" />

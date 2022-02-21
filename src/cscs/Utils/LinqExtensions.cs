@@ -1,7 +1,7 @@
-using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 
 namespace CSScripting
 {
@@ -69,6 +69,23 @@ namespace CSScripting
             foreach (T item in collection)
             {
                 action(item);
+            }
+            return collection;
+        }
+
+        /// <summary>
+        /// A generic LINQ equivalent of C# foreach loop with support for the item index.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="action">The action.</param>
+        /// <returns></returns>
+        public static IEnumerable<T> ForEachI<T>(this IEnumerable<T> collection, Action<T, int> action)
+        {
+            int i = 0;
+            foreach (T item in collection)
+            {
+                action(item, i++);
             }
             return collection;
         }
