@@ -47,8 +47,8 @@ namespace cscs
                 SetEnvironmentVariable("WEB_APP", Runtime.WebAssembliesDir);
                 SetEnvironmentVariable("css_nuget", null);
 
-                Runtime.GlobalIncludsDir?.EnsureDir();
-                Runtime.CustomCommandsDir.EnsureDir();
+                Runtime.GlobalIncludsDir?.EnsureDir(rethrow: false);
+                Runtime.CustomCommandsDir.EnsureDir(rethrow: false);
 
                 var serverCommand = args.LastOrDefault(x => x.StartsWith("-server"));
 

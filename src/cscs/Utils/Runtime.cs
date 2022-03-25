@@ -227,7 +227,7 @@ namespace csscript
                                                     {
                                                         Environment.SetEnvironmentVariable("CSSCRIPT_INC", x, EnvironmentVariableTarget.User);
                                                     })
-                                                    .EnsureDir();
+                                                    .EnsureDir(rethrow: false);
                 }
                 catch { return null; }
             }

@@ -1,10 +1,10 @@
-using CSScripting;
 using System;
 using System.ComponentModel;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using static System.Environment;
+using CSScripting;
 
 namespace csscript
 {
@@ -236,7 +236,7 @@ namespace csscript
 
             if (arg == "enable" || arg == "1")
                 content = content.Replace(console_type, win_type);
-            else if (arg == "disabled" || arg == "0")
+            else if (arg == "disable" || arg == "0")
                 content = content.Replace(win_type, console_type);
 
             File.WriteAllText(configFile, content);

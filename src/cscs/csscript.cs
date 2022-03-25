@@ -1163,12 +1163,17 @@ namespace csscript
         {
             var message = e.ToString();
 
-            if (e is System.Reflection.ReflectionTypeLoadException && (message.Contains("'System.Windows.DependencyObject'") || message.Contains("'WindowsBase,")))
-                return true;
-            else if (Runtime.IsWin && e.GetType().ToString().Contains("System.Windows.Markup.XamlParseException") && message.Contains("'System.Windows.Controls.UIElementCollection'"))
-                return true;
-            else
-                return false;
+            if (Runtime.IsWin)
+            {
+                if (e is System.Reflection.ReflectionTypeLoadException &&
+                         (message.Contains("'System.Windows.DependencyObject'") ||
+                         message.Contains("'WindowsBase,") ||
+                         message.Contains("'PresentationFramework,")))
+                    return true;
+                else if (Runtime.IsWin && e.GetType().ToString().Contains("System.Windows.Markup.XamlParseException") && message.Contains("'System.Windows.Controls.UIElementCollection'"))
+                    return true;
+            }
+            return false;
         }
 
         static void SaveDebuggingMetadata(string scriptFile)
