@@ -100,9 +100,13 @@ namespace csscript
         /// <summary>
         /// Show CS-Script version information.
         /// </summary>
-        public void ShowVersion(string arg = null)
+        public void ShowVersion(string arg = null, string context = null)
         {
-            print(HelpProvider.BuildVersionInfo(arg));
+            var message = HelpProvider.BuildVersionInfo(arg);
+            if (context.HasText())
+                File.WriteAllText(context, message);
+            else
+                print(message);
         }
 
         public void ShowProjectFor(string arg)
@@ -142,7 +146,7 @@ namespace csscript
                     }
                     else
                     {
-                        print?.Invoke($"{NewLine}{context}{sample.FileExtension}:{NewLine}----------");
+                        print?.Invoke($"{NewLine}script{sample.FileExtension}:{NewLine}----------");
                         print?.Invoke(sample.Code);
                     }
                 }

@@ -2,7 +2,7 @@
   "profiles": {
     "csws": {
       "commandName": "Project",
-      "commandLineArgs": "-new text.cs",
+      "commandLineArgs": "--version ver.log",
       "workingDirectory": "D:\\dev\\Galos\\cs-script\\src"
     }
   }

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.4.0.0</version>
+        <version>4.4.2.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -24,19 +24,12 @@
 
 </description>
         <summary>CS-Script</summary>
-        <releaseNotes>
-Release v4.4.0.0
-
-- Issue #277: Installation and use problems, NET6, targeting (4.3.0.0)
-  - Added warning on SDK not installed
-  - Added auto-switch to Roslyn if SDK is not found
-  - Improved check for SDK install. Added ignoring SDK of lower version.
-
+        <releaseNotes> - Issue #286: System.ArgumentNullException: Value cannot be null. (Parameter 'path') on macOS Monterey
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>cs-script C# script dynamic hosting</tags>
         <dependencies>
-            <dependency id="dotnet-sdk" version="6.0.101"/>
+            <!-- <dependency id="dotnet-sdk" version="6.0.201"/> -->
         </dependencies>
     </metadata>
     <files>

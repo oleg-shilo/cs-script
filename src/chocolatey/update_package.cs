@@ -9,7 +9,7 @@ using System;
     ServicePointManager.Expect100Continue = true;
     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-    var url = "https://github.com/oleg-shilo/cs-script/releases/download/v4.4.0.0/cs-script.win.v4.4.0.0.7z";
+    var url = "https://github.com/oleg-shilo/cs-script/releases/download/v4.4.2/cs-script.win.v4.4.2.0.7z";
 
     var installScript = @"tools\chocolateyInstall.ps1";
 

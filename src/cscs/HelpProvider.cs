@@ -395,7 +395,7 @@ namespace csscript
             switch2Help[version2] =
             switch2Help[version] =
             switch2Help[ver] =
-            switch2Help[v] = new ArgInfo("-v|-ver|--version",
+            switch2Help[v] = new ArgInfo("-v|-ver|--version [output file]",
                                          "Prints CS-Script version information.");
 
             // may need to resurrect if users do miss it :) switch2Help[inmem] = new
@@ -1230,7 +1230,8 @@ namespace csscript
             { "console", CSharp_console_Sample},
             { "console-vb", DefaultVbSample},
             { "vb", DefaultVbSample},
-            { "toplevel", CSharp_toplevel_Sample},
+            { "toplevel", CSharp_toplevel_extended_Sample},
+            { "toplevel-x", CSharp_toplevel_Sample},
             { "top", CSharp_toplevel_Sample},
             { "freestyle", CSharp_freestyle_Sample},
             { "auto", CSharp_auto_Sample},
@@ -1257,7 +1258,8 @@ winform-vb      Windows Forms (WinForms) VB script application
 wpf             WPF script application
 wpf-cm          Caliburn.Micro based WPF script application
 toplevel|top    Top-level class script application with no entry point
-                (available on C# 9 only)
+toplevel-x      Top-level class script application with no entry point an advanced CS-Script integration samples.
+
 {emptyLine}
 Legacy templates:
 auto            Auto-class (classless) script application; use 'toplevel' instead
@@ -1477,6 +1479,34 @@ class Program
         }
 
         static SampleInfo[] CSharp_toplevel_Sample(string context)
+        {
+            var builder = new StringBuilder();
+
+            if (!Runtime.IsWin)
+            {
+                builder.AppendLine("// #!/usr/local/bin/cscs");
+            }
+
+            if (!isGlobalUsingAvailabe)
+                builder.AppendLine("using System;")
+                       .AppendLine("using System.IO;")
+                       .AppendLine("using System.Diagnostics;")
+                       .AppendLine("using static dbg; // for print() extension")
+                       .AppendLine("using static System.Environment;")
+                       .AppendLine();
+            else
+                builder.AppendLine("//css_include global-usings")
+                       .AppendLine();
+
+            builder.AppendLine("print(\"Hello World!\");")
+                   .AppendLine("Console.WriteLine(\"Hello World!\");");
+
+            builder.AppendLine("");
+
+            return new[] { new SampleInfo(builder.ToString(), ".cs") };
+        }
+
+        static SampleInfo[] CSharp_toplevel_extended_Sample(string context)
         {
             var builder = new StringBuilder();
 

@@ -1,10 +1,10 @@
-using CSScriptLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using CSScripting;
+using CSScriptLib;
 
 #if !class_lib
 
@@ -74,7 +74,8 @@ namespace CSScriptLib
         static public Project GenerateProjectFor(string script)
         {
             // ********************************************************************************************
-            // * Extremely important to keep the project building algorithm in sync with CSExecutor.Compile ********************************************************************************************
+            // * Extremely important to keep the project building algorithm in sync with CSExecutor.Compile
+            // ********************************************************************************************
             var project = new Project { Script = script };
 
             var searchDirs = new List<string>();
@@ -86,6 +87,11 @@ namespace CSScriptLib
             var defaultNamespaces = globalConfig.namespaces;
 
             searchDirs.AddRange(defaultSearchDirs);
+
+            foreach (var item in defaultSearchDirs)
+            {
+                Console.WriteLine("searchdir: " + item);
+            }
 
             ScriptParser parser;
             using (new CurrentDirGuard())
@@ -164,7 +170,11 @@ namespace CSScriptLib
 #endif
 
                 //if (configFile != null && File.Exists(configFile))
-                items.dirs.Add(Path.Combine(Path.GetDirectoryName(configFile), "lib"));
+                if (Assembly.GetExecutingAssembly().Location.HasText())
+                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "lib"));
+                else if (Environment.GetEnvironmentVariable("CSS_ENTRY_ASM") != null)
+                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("CSS_ENTRY_ASM")), "lib"));
+
                 items.asms.AddRange(splitPathItems(settings.DefaultRefAssemblies));
             }
             catch { }

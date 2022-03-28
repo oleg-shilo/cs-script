@@ -235,7 +235,7 @@ namespace CSScripting
         /// <param name="path">The path.</param>
         /// <returns>The directory path.</returns>
         public static string GetDirName(this string path)
-        => path == null ? null : Path.GetDirectoryName(path);
+            => path == null ? null : Path.GetDirectoryName(path);
 
         /// <summary>
         /// Changes the name of the file.

@@ -42,6 +42,7 @@ namespace cscs
             {
                 try { SetEnvironmentVariable("Console.WindowWidth", Console.WindowWidth.ToString()); } catch { }
                 SetEnvironmentVariable("ENTRY_ASM", Assembly.GetEntryAssembly().GetName().Name);
+                SetEnvironmentVariable("CSS_ENTRY_ASM", Assembly.GetEntryAssembly().GetName().Name);
                 SetEnvironmentVariable("DOTNET_SHARED", typeof(string).Assembly.Location.GetDirName().GetDirName());
                 SetEnvironmentVariable("WINDOWS_DESKTOP_APP", Runtime.DesktopAssembliesDir);
                 SetEnvironmentVariable("WEB_APP", Runtime.WebAssembliesDir);

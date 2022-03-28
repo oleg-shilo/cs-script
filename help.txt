@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.4.1.0.
+C# Script execution engine (.NET Core). Version 4.4.3.0.
 Copyright (C) 2004-2020 Oleg Shilo.
 
 
@@ -47,10 +47,14 @@ Copyright (C) 2004-2020 Oleg Shilo.
 -proj
     Shows script 'project info' - script and all its dependencies.
 
--vs
+-vs|-vs:init [index_of_detected_VS_executable]
     Generates .NET project file and opens it in Visual Studio.
     The path to the Visual Studio executable (devenv.exe) needs to be defined in the environment variable
     `CSSCRIPT_VSEXE`.
+    You can let CS-Script to detect installed Visual Studio executable and interactively select the detected
+    executable for integrating it with CS-Script by using `-vs:init` option.
+    Alternatively you can even ask to integrate the first detected executable with: 
+          cscs -vs:init 0)
 
 -vscode
     Generates .NET project file and opens it in Visual Studio Code.
@@ -124,7 +128,7 @@ Copyright (C) 2004-2020 Oleg Shilo.
     wpf             WPF script application
     wpf-cm          Caliburn.Micro based WPF script application
     toplevel|top    Top-level class script application with no entry point
-                    (available on C# 9 only)
+    toplevel-x      Top-level class script application with no entry point an advanced CS-Script integration samples.
      
     Legacy templates:
     auto            Auto-class (classless) script application; use 'toplevel' instead
@@ -228,7 +232,7 @@ Copyright (C) 2004-2020 Oleg Shilo.
 -l[:<0|1>]
     'local' (makes the script directory a 'current directory'). '1' is a default value.
 
--v|-ver|--version
+-v|-ver|--version [output file]
     Prints CS-Script version information.
 
 -dbgprint[:<0:1>]

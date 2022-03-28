@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.4.2.0</Version>
+    <Version>4.4.3.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -17,13 +17,22 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.4.2.0</AssemblyVersion>
-    <FileVersion>4.4.2.0</FileVersion>
+    <AssemblyVersion>4.4.3.0</AssemblyVersion>
+    <FileVersion>4.4.3.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Deployment
 
-_**Manual**_
+_**Ubuntu (terminal)**_
+
+```
+repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.4.3.0/; file=cs-script_4.4-3.deb; rm $file; wget $repo$file; sudo dpkg -i $file
+```
+
+_**Windows (choco)**_
+_Not published yet_
+
+_**Manual (Any OS)**_
 
 Just unpack the corresponding 7z file and start using the script engine executable `cscs`.
 If you prefer you can build a shim exe `css` for an easy launch of the script engine process:
@@ -40,7 +49,8 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
 
 ### CLI
 
-- Issue #286: System.ArgumentNullException: Value cannot be null. (Parameter 'path') on macOS Monterey
+- Added support for `&lt;root&gt;/lib/global-usings.cs` probing when running as fileless assembly (e.g. CS-Scyntaxer loading cscs.dll)
+- Added support for printing windows app script engine version in file (e.g. CS-Scyntaxer loading cscs.dll)
 
 ### CSScriptLib
 

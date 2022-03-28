@@ -1,9 +1,8 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Emit;
-
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Emit;
 
 namespace csscript
 {
@@ -36,7 +35,7 @@ namespace csscript
 
         void DoCacheOperations(string command);
 
-        void ShowVersion(string arg = null);
+        void ShowVersion(string arg = null, string context = null);
 
         void ShowEngines();
 

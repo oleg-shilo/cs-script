@@ -444,6 +444,8 @@
   <HelpKINode Title="For method" Url="html/1b5c00d8-42c3-c9a3-b25f-a70aa824a785.htm" />
   <HelpKINode Title="ForEach(Of T) method" Url="html/a11912b9-5f51-6559-7e20-8ff0229b9577.htm" />
   <HelpKINode Title="ForEach&lt;T&gt; method" Url="html/a11912b9-5f51-6559-7e20-8ff0229b9577.htm" />
+  <HelpKINode Title="ForEachI(Of T) method" Url="html/598a8bdc-f688-4eea-4942-42cf3e580476.htm" />
+  <HelpKINode Title="ForEachI&lt;T&gt; method" Url="html/598a8bdc-f688-4eea-4942-42cf3e580476.htm" />
   <HelpKINode Title="GenerateProjectFor method" Url="html/48f7bb0a-da18-e006-50ab-ec7c48d5ebc3.htm" />
   <HelpKINode Title="GetContext method" Url="html/f6c9aff7-3f15-0b9d-a929-5e5f02fe18bb.htm" />
   <HelpKINode Title="GetDirName method" Url="html/1f7e900c-5646-b2e1-a5f5-12d8bfcc29ab.htm" />
@@ -571,6 +573,8 @@
   <HelpKINode Title="LinqExtensions.AddItem&lt;TSource&gt; method" Url="html/9144f731-d0a6-9b8a-67ad-58890d3c9239.htm" />
   <HelpKINode Title="LinqExtensions.ForEach(Of T) method" Url="html/a11912b9-5f51-6559-7e20-8ff0229b9577.htm" />
   <HelpKINode Title="LinqExtensions.ForEach&lt;T&gt; method" Url="html/a11912b9-5f51-6559-7e20-8ff0229b9577.htm" />
+  <HelpKINode Title="LinqExtensions.ForEachI(Of T) method" Url="html/598a8bdc-f688-4eea-4942-42cf3e580476.htm" />
+  <HelpKINode Title="LinqExtensions.ForEachI&lt;T&gt; method" Url="html/598a8bdc-f688-4eea-4942-42cf3e580476.htm" />
   <HelpKINode Title="LinqExtensions.IsEmpty(Of T) method" Url="html/7921dcc5-be75-50b5-536f-ec597b6175a9.htm" />
   <HelpKINode Title="LinqExtensions.IsEmpty&lt;T&gt; method" Url="html/7921dcc5-be75-50b5-536f-ec597b6175a9.htm" />
   <HelpKINode Title="LinqExtensions.None(Of T) method" Url="html/58419aaf-b521-ae5d-a2ef-71036e4dff74.htm" />
