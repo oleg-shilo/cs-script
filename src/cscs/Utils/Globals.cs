@@ -248,14 +248,21 @@ namespace CSScripting
                         // Win: C:\Program Files\dotnet\sdk\6.0.100-rc.2.21505.57\Roslyn\bincore\csc.dll
                         //      C:\Program Files (x86)\dotnet\sdk\5.0.402\Roslyn\bincore\csc.dll
                         // Linux: ~dotnet/.../3.0.100-preview5-011568/Roslyn/... (cannot find SDK in preview)
+                        //        /snap/dotnet-sdk/current/sdk/6.0.201/Roslyn/bincore/csc.dll
+                        //        /snap/dotnet-sdk/158/sdk/6.0.201/Roslyn/bincore/csc.dll
 
-                        // win: program_files/dotnet/sdk/<version>/Roslyn/csc.exe
+                        // win:   program_files/dotnet/sdk/<version>/Roslyn/bincore/csc.dll
+                        // linux:          root/dotnet/sdk/<version>/Roslyn/bincore/csc.dll
+
                         var dotnet_root = "".GetType().Assembly.Location;
 
-                        // find first "dotnet" parent dir by trimming till the last "dotnet" token
+                        // old algorithm: find first "dotnet" parent dir by trimming till the last "dotnet" token
+                        // new algorithm: go back by 4 levels as on Linux in snap based deployments
+
                         dotnet_root = dotnet_root.Split(Path.DirectorySeparatorChar)
                                                  .Reverse()
-                                                 .SkipWhile(x => x != "dotnet")
+                                                 // .SkipWhile(x => x != "dotnet")
+                                                 .Skip(4)
                                                  .Reverse()
                                                  .JoinBy(Path.DirectorySeparatorChar.ToString());
 

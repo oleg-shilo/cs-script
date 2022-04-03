@@ -189,7 +189,7 @@ namespace csscript
             //http://www.csscript.net/help/Online/index.html
             switch1Help[help2] =
             switch1Help[help] =
-            switch1Help[question] = new ArgInfo("--help|-help|-? [<command>|<scope[:md]>]",
+            switch1Help[question] = new ArgInfo("--help|-help|-? [<command>|<scope[:md]>|<-out:<file>>]",
                                                 "Displays either generic or command specific help info.",
                                                 "```",
                                                 "   <command> - one of the supported CLI commands",
@@ -198,6 +198,7 @@ namespace csscript
                                                 "         `syntax` - print the complete documentation for scripting syntax",
                                                 "         `md`     - print the documentation in GitHub markdown format",
                                                 "         (e.g. `-help cli:md`)",
+                                                "   <file>    - output file for the help content",
                                                 "```",
                                                 "Reversed order of parameters for the command specific help is also acceptable. " +
                                                 "The all following argument combinations print the same help topic for 'cache' command:",
@@ -1114,15 +1115,16 @@ namespace csscript
 
         public static string BuildCommandInterfaceHelp(string arg)
         {
+            // -out:<file>
             // cli:md
-            (string scope, string context) = (arg ?? "").Split(':').ToTupleOf2();
+            (string scope, string context) = (arg ?? "").Split(':', 2).ToTupleOf2();
 
-            var includeCLI = (scope.IsEmpty() || scope == "cli");
-            var includeSyntax = (scope.IsEmpty() || scope == "syntax");
+            var includeCLI = (scope.IsEmpty() || scope == "cli" || scope == "-out");
+            var includeSyntax = (scope.IsEmpty() || scope == "syntax" || scope == "-out");
 
             bool mdFormat = (context == "md" || GetEnvironmentVariable("css_help_md").HasText());
 
-            if (arg != null && !scope.IsOneOf("cli", "syntax"))
+            if (arg != null && !scope.IsOneOf("cli", "syntax", "-out"))
             {
                 return AppArgs.LookupSwitchHelp(arg) ??
                        "Invalid 'cmd' argument. Use '" + AppInfo.appName + " -cmd' for the list of valid commands." + Environment.NewLine + AppArgs.switch1Help[AppArgs.help].GetFullDoc();

@@ -214,7 +214,13 @@ namespace csscript
         /// </summary>
         public void ShowHelpFor(string arg)
         {
-            print?.Invoke(HelpProvider.BuildCommandInterfaceHelp(arg));
+            if (arg?.StartsWith("-out:") == true)
+            {
+                var content = HelpProvider.BuildCommandInterfaceHelp("-out");
+                File.WriteAllText(arg.Substring(5), content);
+            }
+            else
+                print?.Invoke(HelpProvider.BuildCommandInterfaceHelp(arg));
         }
 
         /// <summary>
