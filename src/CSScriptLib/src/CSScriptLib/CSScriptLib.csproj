@@ -53,8 +53,10 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
 
 ### CLI
 
+- Issue #287: NET 6.0.3
 - Added support for `&lt;root&gt;/lib/global-usings.cs` probing when running as fileless assembly (e.g. CS-Scyntaxer loading cscs.dll)
 - Added support for printing windows app script engine version in file (e.g. CS-Scyntaxer loading cscs.dll)
+- Improved runtime stability to address findings of the Linux(Mint) testing of Sublime Text package 
 
 ### CSScriptLib
 
