@@ -167,6 +167,7 @@ namespace CSScriptLib
                 items.dirs.AddRange(splitPathItems(settings.SearchDirs));
 #else
                 items.dirs.AddRange(settings.SearchDirs);
+                items.dirs.AddRange(CSScript.GlobalSettings.SearchDirs);
 #endif
 
                 //if (configFile != null && File.Exists(configFile))
