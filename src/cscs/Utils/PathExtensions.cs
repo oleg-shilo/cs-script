@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -173,7 +173,7 @@ namespace CSScripting
         /// <param name="path">The path.</param>
         /// <param name="handleExceptions">if set to <c>true</c> [handle exceptions].</param>
         /// <returns>The original directory path</returns>
-        public static string DeleteDir(this string path, bool handleExceptions = false)
+        public static string DeleteDir(this string path, bool handleExceptions = false, bool doNotDeletеRoot = false)
         {
             if (Directory.Exists(path))
             {
@@ -208,7 +208,8 @@ namespace CSScripting
 
                     emptyDirs.ForEach(del_dir);
 
-                    del_dir(path);
+                    if (!doNotDeletеRoot)
+                        del_dir(path);
                 }
                 catch
                 {

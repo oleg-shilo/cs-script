@@ -45,7 +45,7 @@ namespace CSScripting.CodeDom
             result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir,
                                                           onOutput: x => result.Output.Add(x),
                                                           onError: x => Console.Error.WriteLine("error> " + x),
-                                                          timeout: 30000);
+                                                          timeout: 20000);
             Profiler.get("compiler").Stop();
             Thread.Sleep(50);
             if (CSExecutor.options.verbose)

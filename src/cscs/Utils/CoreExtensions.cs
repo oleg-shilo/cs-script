@@ -67,7 +67,7 @@ namespace csscript
             onOutput?.Invoke(output);
 
             process.Start(); // important to call even if it is already started, otherwise WLS2 fails to catch the output
-            if (!process.WaitForExit(-1))
+            if (!process.WaitForExit(timeout))
             {
                 if (timeout != -1) // of course it is not -1 if we are here :)
                     onOutput?.Invoke($"Process '{exe}' is taking too long to finish. Terminating it forcefully.");

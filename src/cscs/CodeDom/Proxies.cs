@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using static System.Environment;
 using System.IO;
@@ -181,8 +181,10 @@ namespace CSScripting.CodeDom
             var out_dir = outDir ?? CSExecutor.ScriptCacheDir; // C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284
             var build_dir = out_dir.PathJoin(".build", projectName);
 
-            build_dir.DeleteDir()
-                     .EnsureDir();
+            if (!build_dir.DirExists())
+                build_dir.EnsureDir();
+            else
+                build_dir.DeleteDir(doNotDeletеRoot: true); // dotnet has tendency to lock the folder so delete only content in case of recompilation
 
             // <Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>netcoreapp3.1</TargetFramework></PropertyGroup></Project>
             var project_element = XElement.Parse(File.ReadAllText(template));
