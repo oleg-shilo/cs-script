@@ -219,7 +219,9 @@ namespace CSScriptLib
                 }
                 else
                 {
-                    // foreach (string file in ref_assemblies) refs_args.Add($"/r:\"{file}\"");
+                    foreach (string file in ref_assemblies)
+                        refs_args.Add($"/r:\"{file}\"");
+
                     refs_args.Add($"/r:\"System.Design.dll\"");
                     refs_args.Add($"/r:\"mscorlib.dll\"");
                 }
