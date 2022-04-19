@@ -299,7 +299,7 @@
   <HelpKINode Title="Deconstruct method" Url="html/14f058ed-cdb1-1f3c-700b-94f169032eea.htm" />
   <HelpKINode Title="DefaultConfigFile property" Url="html/c6890f47-e645-1b87-1a7c-dbcbf9fba2d3.htm" />
   <HelpKINode Title="DefaultRefAssemblies property" Url="html/4b3dd18a-95a2-49fd-0a73-ac2b9a6af939.htm" />
-  <HelpKINode Title="DeleteDir method" Url="html/12f2d607-6120-d264-4600-7c67ab2fc707.htm" />
+  <HelpKINode Title="DeleteDir method" Url="html/f6a5cda9-9d9d-2c04-4474-ee4b599e9668.htm" />
   <HelpKINode Title="DeleteImportedFiles method" Url="html/b00547e5-1289-f7d4-4abe-efa0f0411f98.htm" />
   <HelpKINode Title="DeployBuildServer method" Url="html/760a67de-924e-1d8a-ae13-459389a09793.htm" />
   <HelpKINode Title="DesktopAssembliesDir property" Url="html/04267330-9586-d49c-1d7d-626faf002123.htm" />
@@ -625,7 +625,7 @@
   </HelpKINode>
   <HelpKINode Title="PathExtensions.ChangeExtension method" Url="html/1ae6bebe-950d-ef9b-46a2-5ac01a38050c.htm" />
   <HelpKINode Title="PathExtensions.ChangeFileName method" Url="html/c52502a6-2d88-44e7-3b05-46d64cdf7348.htm" />
-  <HelpKINode Title="PathExtensions.DeleteDir method" Url="html/12f2d607-6120-d264-4600-7c67ab2fc707.htm" />
+  <HelpKINode Title="PathExtensions.DeleteDir method" Url="html/f6a5cda9-9d9d-2c04-4474-ee4b599e9668.htm" />
   <HelpKINode Title="PathExtensions.DirExists method" Url="html/6915955a-f704-aee5-07e5-908fff894f0e.htm" />
   <HelpKINode Title="PathExtensions.EnsureDir method" Url="html/41b4f499-427b-76ed-9ec8-96c65e168509.htm" />
   <HelpKINode Title="PathExtensions.EnsureFileDir method" Url="html/4c9fe824-2a48-8d84-1afd-256d3d223ba8.htm" />

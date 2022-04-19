@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.4.3.0</Version>
+    <Version>4.4.4.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -17,8 +17,8 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.4.3.0</AssemblyVersion>
-    <FileVersion>4.4.3.0</FileVersion>
+    <AssemblyVersion>4.4.4.0</AssemblyVersion>
+    <FileVersion>4.4.4.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Deployment
@@ -26,7 +26,7 @@
 _**Ubuntu (terminal)**_
 
 ```
-repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.4.3.0/; file=cs-script_4.4-3.deb; rm $file; wget $repo$file; sudo dpkg -i $file
+repo=https://github.com/oleg-shilo/cs-script/releases/download/v4.4.4.0/; file=cs-script_4.4-4.deb; rm $file; wget $repo$file; sudo dpkg -i $file
 ```
 
 _**Windows (choco)**_
@@ -49,14 +49,12 @@ The same shim/symbolic link is created if you are installing the CS-Script as a 
 
 ### CLI
 
-- Issue #287: NET 6.0.3
-- Added support for `&lt;root&gt;/lib/global-usings.cs` probing when running as fileless assembly (e.g. CS-Scyntaxer loading cscs.dll)
-- Added support for printing windows app script engine version in file (e.g. CS-Scyntaxer loading cscs.dll)
-- Improved runtime stability to address findings of the Linux(Mint) testing of Sublime Text package 
+- Various stability improvements after feedback from integration with IDEs (ST3, Npp, VSCode)
 
 ### CSScriptLib
 
-_no changes_</PackageReleaseNotes>
+- Issue #290: CSScriptLib: CSScript.GlobalSettings.AddSearchDir() probing dirs are not processed
+- Issue #289: CSScriptLib: referenced assemblies are not processed when hosting on .NET Framework</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
