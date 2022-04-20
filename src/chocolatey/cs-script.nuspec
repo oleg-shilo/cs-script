@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.4.2.0</version>
+        <version>4.4.3.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -24,8 +24,7 @@
 
 </description>
         <summary>CS-Script</summary>
-        <releaseNotes> - Issue #286: System.ArgumentNullException: Value cannot be null. (Parameter 'path') on macOS Monterey
-        </releaseNotes>
+        <releaseNotes> Various stability improvements after feedback from integration with IDEs (ST3, Npp, VSCode)</releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>cs-script C# script dynamic hosting</tags>
         <dependencies>

@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v6.0": {
-      "cscs/4.4.4.0": {
+      "cscs/4.4.3.0": {
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp.Scripting": "3.10.0"
         },
@@ -468,7 +468,7 @@
     }
   },
   "libraries": {
-    "cscs/4.4.4.0": {
+    "cscs/4.4.3.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
