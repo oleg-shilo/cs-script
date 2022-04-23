@@ -126,6 +126,16 @@ namespace CSScriptLib
         public bool DebugBuild { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets the compiler options. Since out of two supported compilers (for hosting scenarios) only CodeDom engine (csc.exe)
+        /// supports options effectively this property is a user specified string of CLI arguments for `csc.exe`.
+        /// <para>If you want to specify compiler options per script execution then you can use <see cref="CompileInfo.CompilerOptions"/>.</para>
+        /// </summary>
+        /// <value>
+        /// The compiler options.
+        /// </value>
+        public string CompilerOptions { get; set; } = "";
+
+        /// <summary>
         /// Gets or sets the PDB format. This property is only used if <see cref="EvaluatorConfig.DebugBuild"/> is set to <c>true</c>.
         /// </summary>
         /// <value>

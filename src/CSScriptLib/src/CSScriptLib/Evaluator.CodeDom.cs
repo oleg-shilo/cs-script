@@ -192,6 +192,7 @@ namespace CSScriptLib
                 common_args.Add("/utf8output");
                 common_args.Add("/nostdlib+");
                 common_args.Add("-t:library");
+                common_args.Add(CSScript.EvaluatorConfig.CompilerOptions);
 
                 if (info?.CompilerOptions.HasText() == true)
                     common_args.Add(info.CompilerOptions);
@@ -303,7 +304,7 @@ namespace CSScriptLib
                 }
                 else
                 {
-                    cmd = $@" {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")} ";
+                    cmd = $@" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")} ";
 
                     try
                     {
