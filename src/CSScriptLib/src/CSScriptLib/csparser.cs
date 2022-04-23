@@ -892,7 +892,7 @@ namespace CSScriptLib
                             if (nextNewLine != -1)
                                 endPos = Math.Min(nextNewLine, IndexOfDelimiter(pos, codeToAnalyze.Length - 1, ';'));
                             else
-                                endPos = IndexOfDelimiter(pos, -1, ';');
+                                endPos = IndexOfDelimiter(pos, codeToAnalyze.Length - 1, ';');
                         }
                         else
                             endPos = IndexOfDelimiter(pos, codeToAnalyze.Length - 1, ';');
