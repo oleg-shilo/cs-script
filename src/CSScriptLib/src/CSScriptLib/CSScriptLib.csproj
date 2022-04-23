@@ -13,7 +13,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.4.4.0</Version>
+    <Version>4.4.4.0-pre</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
