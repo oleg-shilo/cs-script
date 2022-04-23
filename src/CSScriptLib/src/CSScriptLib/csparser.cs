@@ -872,11 +872,11 @@ namespace CSScriptLib
             return GetRawStatements(this.code, pattern, endIndex, false);
         }
 
-        string[] GetRawStatements(string codeToanalyze, string pattern, int endIndex, bool ignoreComments)
+        public string[] GetRawStatements(string codeToAnalyze, string pattern, int endIndex, bool ignoreComments)
         {
             List<string> retval = new List<string>();
 
-            int pos = codeToanalyze.IndexOf(pattern);
+            int pos = codeToAnalyze.IndexOf(pattern);
             int endPos = -1;
             while (pos != -1 && pos <= endIndex)
             {
@@ -887,15 +887,21 @@ namespace CSScriptLib
                         pos += pattern.Length;
 
                         if (OpenEndDirectiveSyntax)
-                            endPos = IndexOfDelimiter(pos, codeToanalyze.Length - 1, '\n', ';');
+                        {
+                            var nextNewLine = codeToAnalyze.IndexOfAny(new[] { '\n', '\r' }, pos);
+                            if (nextNewLine != -1)
+                                endPos = Math.Min(nextNewLine, IndexOfDelimiter(pos, codeToAnalyze.Length - 1, ';'));
+                            else
+                                endPos = IndexOfDelimiter(pos, -1, ';');
+                        }
                         else
-                            endPos = IndexOfDelimiter(pos, codeToanalyze.Length - 1, ';');
+                            endPos = IndexOfDelimiter(pos, codeToAnalyze.Length - 1, ';');
 
                         if (endPos != -1)
-                            retval.Add(codeToanalyze.Substring(pos, endPos - pos).Trim());
+                            retval.Add(codeToAnalyze.Substring(pos, endPos - pos).Trim());
                     }
                 }
-                pos = codeToanalyze.IndexOf(pattern, pos + 1);
+                pos = codeToAnalyze.IndexOf(pattern, pos + 1);
             }
             return retval.ToArray();
         }

@@ -290,10 +290,22 @@ namespace EvaluatorTests
         // dynamic script = asm.CreateObject("*"); var result = script.Sum(7, 3); }
 
         [Fact]
+        public void Issue_291()
+        {
+            var code =
+                "//css_include WorldRenderGameComponent\n" +
+                "\n" +
+                "using System;";
+
+            var parser = new CSharpParser(code);
+            string[] statements = parser.GetRawStatements(code, "//css_include", code.Length, false);
+
+            Assert.Single(statements);
+        }
+
+        [Fact]
         public void Issue_185_Referencing()
         {
-            CSScript.EvaluatorConfig.DebugBuild = true;
-
             var root_class_name = $"script_{System.Guid.NewGuid()}".Replace("-", "");
 
             var info = new CompileInfo { RootClass = root_class_name, PreferLoadingFromFile = true };
