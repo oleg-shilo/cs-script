@@ -157,8 +157,12 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Flag that controls if the host AppDo,main referenced assemblies are automatically
+        /// Flag that controls if the host AppDomain referenced assemblies are automatically
         /// referenced at creation of <see cref="CSScriptLib.IEvaluator"/>.
+        /// <para>Note, the assemblies are getting referenced with an automatic call
+        /// <see cref="CSScriptLib.IEvaluator.ReferenceDomainAssemblies(DomainAssemblies)"/> with the default argument.
+        /// This may not be consistent with your intend. If it is the case then it is recommended that you call
+        /// <see cref="CSScriptLib.IEvaluator.ReferenceDomainAssemblies(DomainAssemblies)"/> with the desired argument explicitly.</para>
         /// </summary>
         public bool ReferenceDomainAssemblies
         {
