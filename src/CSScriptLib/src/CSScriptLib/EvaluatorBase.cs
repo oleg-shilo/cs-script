@@ -749,7 +749,7 @@ namespace CSScriptLib
         /// </returns>
         public T LoadMethod<T>(string code) where T : class
         {
-            string scriptText = CSScript.WrapMethodToAutoClass(code, false, false, typeof(T).FullName);
+            string scriptText = CSScript.WrapMethodToAutoClass(code, false, false, CSScript.TypeNameForScript(typeof(T)));
             return LoadCode<T>(scriptText);
         }
 
