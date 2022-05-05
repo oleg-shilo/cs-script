@@ -341,4 +341,18 @@ namespace Testing
     {
         int Sum(int a, int b);
     }
+
+    public interface ICalc<TResult,TParam>
+    {
+        TResult Sum(TParam a, TParam b);
+    }
+
+    public class Wrapped<T>
+    {
+        public Wrapped(T value)
+        {
+            Value = value;
+        }
+        public T Value { get; set; }
+    }
 }

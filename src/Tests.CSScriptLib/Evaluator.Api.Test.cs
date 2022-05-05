@@ -492,6 +492,27 @@ namespace EvaluatorTests
         }
 
         [Fact]
+        public void LoadMethod_T_Generic()
+        {
+            var calc = new_evaluator.LoadMethod<ICalc<int, int>>("int Sum(int a, int b) => a+b;");
+            var result = calc.Sum(7, 3);
+
+            Assert.Equal(10, result);
+        }
+
+        [Fact]
+        public void LoadMethod_T_Generic_Nested()
+        {
+            var script = @"using Testing;
+Wrapped<int> Sum(int a, int b) => new Wrapped<int>(a+b);";
+            var calc = new_evaluator.LoadMethod<ICalc<Wrapped<int>, int>>(script);
+            var result = calc.Sum(7, 3).Value;
+
+            Assert.Equal(10, result);
+        }
+
+
+        [Fact]
         public void CreateDelegate()
         {
             var sum = new_evaluator.CreateDelegate(@"int Sum(int a, int b)

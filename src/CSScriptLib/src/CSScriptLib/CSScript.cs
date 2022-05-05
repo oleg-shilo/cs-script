@@ -475,5 +475,17 @@ namespace CSScriptLib
 
             return code.ToString();
         }
+
+        static internal string TypeNameForScript(Type type)
+        {
+            if (!type.IsGenericType)
+            {
+                return type.FullName;
+            }
+            string typeName = type.Name;
+            //remove generic type suffix from name.
+            typeName = typeName.Substring(0, typeName.IndexOf('`'));
+            return $"{type.Namespace}.{typeName}<{string.Join(", ",type.GenericTypeArguments.Select(TypeNameForScript))}>";
+        }
     }
 }
