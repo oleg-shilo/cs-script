@@ -4,15 +4,19 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using csscript;
-using CSScripting;
-using CSScriptLib;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using csscript;
+using CSScripting;
+using CSScriptLib;
 using Scripting;
 using Testing;
 using Xunit;
+
+#pragma warning disable MethodDocumentationHeader // The method must have a documentation header.
+#pragma warning disable ClassDocumentationHeader // The class must have a documentation header.
+// #pragma warning disable ConstructorDocumentationHeader // The constructor must have a documentation header.
 
 namespace EvaluatorTests
 {
@@ -40,7 +44,7 @@ namespace EvaluatorTests
                                                                        return a+b;
                                                                    }
                                                                }",
-                                                       info);
+                                                         info);
             });
 
             Assert.StartsWith("CompileInfo.RootClass property should only be used with Roslyn evaluator", ex.Message);
@@ -137,7 +141,7 @@ namespace EvaluatorTests
                                                    {
                                                        static public int Sum(int a, int b) => a + b;
                                                    }",
-                                                   calcAsm);
+                                                 calcAsm);
 
             // NOTE!!! Roslyn evaluator will inject class in the extra root class "css_root" Very
             // annoying, but even `css_root.Calc.Sum` will not work when referenced in scrips.
@@ -368,7 +372,7 @@ namespace EvaluatorTests
                                                            return a+b;
                                                        }
                                                    }",
-                                                   info);
+                                                     info);
 
             dynamic script = asm.CreateObject("*");
             var result = script.Sum(7, 3);
@@ -395,7 +399,7 @@ namespace EvaluatorTests
                                                             return a+b;
                                                         }
                                                     }",
-                                        info);
+                                         info);
 
             var css_injected_location = asm.Location();
             var clr_standard_location = asm.Location;
@@ -434,7 +438,7 @@ namespace EvaluatorTests
         public void CompileAssemblyFromCode()
         {
             string asmFile = new_evaluator.CompileAssemblyFromCode(
-                                         @"using System;
+                                           @"using System;
                                            public class Script
                                            {
                                                public int Sum(int a, int b)
@@ -451,7 +455,7 @@ namespace EvaluatorTests
         public void CompileAssemblyFromFile()
         {
             var script = GetTempScript(nameof(CompileAssemblyFromFile),
-                                     @"using System;
+                                       @"using System;
                                        public class Calc
                                        {
                                            public int Sum(int a, int b) => a+b;
@@ -466,7 +470,7 @@ namespace EvaluatorTests
         public void CompileMethod()
         {
             dynamic calc = new_evaluator.CompileMethod("int Sum(int a, int b) => a+b;")
-                                    .CreateObject("*");
+                                        .CreateObject("*");
 
             var result = calc.Sum(7, 3);
 
@@ -504,19 +508,17 @@ namespace EvaluatorTests
         public void LoadMethod_T_Generic_Nested()
         {
             var script = @"using Testing;
-Wrapped<int> Sum(int a, int b) => new Wrapped<int>(a+b);";
+                           Wrapped<int> Sum(int a, int b) => new Wrapped<int>(a+b);";
             var calc = new_evaluator.LoadMethod<ICalc<Wrapped<int>, int>>(script);
             var result = calc.Sum(7, 3).Value;
 
             Assert.Equal(10, result);
         }
 
-
         [Fact]
         public void CreateDelegate()
         {
-            var sum = new_evaluator.CreateDelegate(@"int Sum(int a, int b)
-                                                    => a + b;");
+            var sum = new_evaluator.CreateDelegate(@"int Sum(int a, int b) => a + b;");
 
             int result = (int)sum(7, 3);
 
@@ -538,7 +540,7 @@ Wrapped<int> Sum(int a, int b) => new Wrapped<int>(a+b);";
         public void LoadCode()
         {
             dynamic script = new_evaluator
-                                  .LoadCode(@"using System;
+                                 .LoadCode(@"using System;
                                               public class Script
                                               {
                                                   public int Sum(int a, int b)
@@ -572,7 +574,7 @@ Wrapped<int> Sum(int a, int b) => new Wrapped<int>(a+b);";
         public void LoadFile()
         {
             var script = GetTempScript(nameof(LoadFile),
-                                      @"using System;
+                                       @"using System;
                                         public class Calc
                                         {
                                             public int Sum(int a, int b) => a+b;
@@ -588,7 +590,7 @@ Wrapped<int> Sum(int a, int b) => new Wrapped<int>(a+b);";
         public void LoadFile_Params()
         {
             var script = GetTempScript(nameof(LoadFile),
-                                      @"using System;
+                                       @"using System;
                                         public class Calc
                                         {
                                             public string Name;
@@ -607,14 +609,14 @@ Wrapped<int> Sum(int a, int b) => new Wrapped<int>(a+b);";
         public void LoadFile_T()
         {
             var script = GetTempScript(nameof(LoadFile),
-                                      @"using System;
+                                       @"using System;
                                         public class Calc : Testing.ICalc
                                         {
                                             public int Sum(int a, int b) => a+b;
                                         }");
 
             ICalc calc = new_evaluator.ReferenceDomainAssemblies()
-                                  .LoadFile<ICalc>(script);
+                                      .LoadFile<ICalc>(script);
 
             int result = calc.Sum(1, 2);
 
