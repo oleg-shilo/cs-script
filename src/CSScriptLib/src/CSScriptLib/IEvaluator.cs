@@ -115,7 +115,9 @@ namespace CSScriptLib
 
         /// <summary>
         /// Default value of the <see cref="CSScriptLib.IEvaluator"/>. DebugBuild property
-        /// controlling the generation of the debug symbols. <example>
+        /// controlling the generation of the debug symbols.
+        /// <para>In case of <see cref="CodeDomEvaluator"/> evaluator setting this property to <c>true</c>
+        /// will also set conditional compiling symbol `DEBUG`.</para><example>
         /// <code>
         ///CSScript.EvaluatorConfig.DebugBuild = true;
         ///dynamic script = CSScript.Evaluator
@@ -169,6 +171,8 @@ namespace CSScriptLib
             get { return refDomainAsms; }
             set { refDomainAsms = value; }
         }
+
+        public DomainAssemblies ReferenceDomainAssembliesModel { get; set; } = DomainAssemblies.AllStaticNonGAC;
 
         /// <summary>
         /// Gets or sets the default evaluator engine type.

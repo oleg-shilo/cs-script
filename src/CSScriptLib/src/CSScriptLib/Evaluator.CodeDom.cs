@@ -201,11 +201,14 @@ namespace CSScriptLib
                 // supported even when building dlls
 
                 if (IncludeDebugInformation)
+                {
+                    common_args.Add("-define:DEBUG");
+
                     if (Runtime.IsCore)
                         common_args.Add("/debug:portable");  // on .net full it is "/debug+"
                     else
                         common_args.Add("/debug:full");  // on .net full it is "/debug+"
-
+                }
                 common_args.Add("-define:TRACE;NETCORE;CS_SCRIPT");
 
                 if (Runtime.IsCore)

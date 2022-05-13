@@ -408,10 +408,28 @@ namespace CSScriptLib
 
                 PrepareRefeAssemblies();
 
-                var compilation = CSharpScript.Create(scriptText, CompilerSettings)
+                var scriptOptions = CompilerSettings;
+
+                // unfortunately the next code block will not work. Roslyn scripting fails to
+                // create compilation if PaseOptions are set
+
+                // if (this.IsDebug)
+                //     try
+                //     {
+                //         var WithParseOptions = typeof(ScriptOptions)
+                //                 .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                //                     .FirstOrDefault(x => x.Name.EndsWith("WithParseOptions"));
+
+                //         var po = new CSharpParseOptions(preprocessorSymbols: new[] { "DEBUG", "TRACE" });
+                //         scriptOptions = (ScriptOptions)WithParseOptions.Invoke(scriptOptions, new object[] { po });
+                //     }
+                //     catch
+                //     {
+                //     }
+
+                var compilation = CSharpScript.Create(scriptText, scriptOptions)
                                               .GetCompilation();
 
-                // compilation.Options
                 if (this.IsDebug)
                     compilation = compilation.WithOptions(compilation.Options.WithOptimizationLevel(OptimizationLevel.Debug));
 
