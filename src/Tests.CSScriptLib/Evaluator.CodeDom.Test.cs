@@ -24,7 +24,7 @@ namespace EvaluatorTests
             };
 
             Assembly asm = CSScript.CodeDomEvaluator.CompileCode(
-                    @"using System;
+                     @"using System;
                       public class Script
                       {
                           public int Sum(int a, int b)
@@ -36,7 +36,7 @@ namespace EvaluatorTests
                               #endif
                           }
                       }",
-                      info);
+                     info);
 
             dynamic script = asm.CreateObject("*");
             var result = script.Sum(7, 3);
@@ -153,6 +153,28 @@ namespace EvaluatorTests
         }
 
         [Fact]
+        public void use_resp_file()
+        {
+            var respFile = $"{nameof(use_resp_file)}.resp".GetFullPath();
+            File.WriteAllText(respFile, "/r:Foo.dll");
+
+            CSScript.EvaluatorConfig.CompilerOptions = $"\"@{respFile}\"";
+
+            try
+            {
+                dynamic script = CSScript.CodeDomEvaluator
+                                         .LoadMethod(@"public (int, int) func()
+                                                   {
+                                                       return (0,5);
+                                                   }");
+            }
+            catch (CompilerException e)
+            {
+                Assert.Contains("Metadata file 'Foo.dll' could not be found", e.Message);
+            }
+        }
+
+        [Fact]
         public void use_ScriptCaching()
         {
             var code = "object func() => new[] { 0, 5 };";
@@ -212,7 +234,7 @@ namespace EvaluatorTests
             var script_calc = "calc.cs".GetFullPath();
 
             File.WriteAllText(script_math,
-                            @"using System;
+                              @"using System;
 
                               public class math
                               {
@@ -220,7 +242,7 @@ namespace EvaluatorTests
                               }");
 
             File.WriteAllText(script_calc,
-                            $@"//css_inc {script_math}
+                              $@"//css_inc {script_math}
                                using System;
 
                                public class Calc
