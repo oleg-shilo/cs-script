@@ -495,21 +495,50 @@ namespace CSScriptLib
         /// <returns>Array of the referenced assemblies</returns>
         public string[] GetReferencedAssemblies(string code, params string[] searchDirs)
         {
-            var retval = new List<string>();
+            var tempScriptFile = CSScript.GetScriptTempFile();
+            try
+            {
+                File.WriteAllText(tempScriptFile, code);
+                return GetReferencedAssembliesFromScript(tempScriptFile, searchDirs);
+            }
+            finally
+            {
+                File.Delete(tempScriptFile);
+            }
+        }
 
-            var parser = new CSharpParser(code);
+        /// <summary>
+        /// Analyses the script file code and returns set of locations for the assemblies referenced from
+        /// the code with CS-Script directives (//css_ref).
+        /// </summary>
+        /// <param name="scriptFile">The script file.</param>
+        /// <param name="searchDirs">The assembly search/probing directories.</param>
+        /// <returns>
+        /// Array of the referenced assemblies
+        /// </returns>
+        public string[] GetReferencedAssembliesFromScript(string scriptFile, params string[] searchDirs)
+        {
+            var parser = new ScriptParser(scriptFile, searchDirs.ConcatWith(new[] { scriptFile.GetDirName() }), false);
+            return ProbeAssembliesOf(parser, searchDirs);
+        }
+
+        internal string[] ProbeAssembliesOf(ScriptParser parser, string[] searchDirs)
+        {
+            var retval = new List<string>();
 
             var globalProbingDirs = CSScript.GlobalSettings.SearchDirs
                                                            .Select(Environment.ExpandEnvironmentVariables)
                                                            .Where(x => x.Any());
 
-            var dirs = searchDirs.Concat(parser.ExtraSearchDirs)
+            var dirs = searchDirs.Concat(parser.SearchDirs)
                                  .Concat(globalProbingDirs)
+                                 .Where(x => x.IsNotEmpty())
+                                 .Distinct()
                                  .ToArray();
 
             dirs = dirs.Select(x => Path.GetFullPath(x)).Distinct().ToArray();
 
-            var asms = new List<string>(parser.RefAssemblies);
+            var asms = new List<string>(parser.ReferencedAssemblies);
             var unresolved_asms = new List<string>();
 
             foreach (var asm in asms)
@@ -522,7 +551,7 @@ namespace CSScriptLib
             }
 
             if (!parser.IgnoreNamespaces.Any(x => x == "*"))
-                foreach (var asm in parser.RefNamespaces.Except(parser.IgnoreNamespaces))
+                foreach (var asm in parser.ReferencedNamespaces.Except(parser.IgnoreNamespaces))
                     foreach (string asmFile in AssemblyResolver.FindAssembly(asm, dirs))
                         retval.Add(asmFile);
 

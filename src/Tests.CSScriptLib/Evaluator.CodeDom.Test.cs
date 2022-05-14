@@ -9,6 +9,7 @@ using Xunit;
 
 namespace EvaluatorTests
 {
+    [Collection("Sequential")]
     public class Generic_CodeDom
     {
         [Fact]
@@ -171,6 +172,10 @@ namespace EvaluatorTests
             catch (CompilerException e)
             {
                 Assert.Contains("Metadata file 'Foo.dll' could not be found", e.Message);
+            }
+            finally
+            {
+                CSScript.EvaluatorConfig.CompilerOptions = "";
             }
         }
 

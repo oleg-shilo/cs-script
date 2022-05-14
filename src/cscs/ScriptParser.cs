@@ -185,7 +185,6 @@ namespace CSScriptLib
         /// </summary>
         /// <param name="fileName">Script file name</param>
         /// <param name="searchDirs">Extra ScriptLibrary directory(s)</param>
-
         void Init(string fileName, string[] searchDirs)
         {
             if (fileName.IsValidPath())
@@ -247,7 +246,7 @@ namespace CSScriptLib
             {
                 var fileComparer = new FileParserComparer();
 
-                var importedFile = new FileParser(fileInfo.fileName, fileInfo.parseParams, false, true, this.SearchDirs, throwOnError); //do not parse it yet (the third param is false)
+                var importedFile = new FileParser(fileInfo.fileName, fileInfo.parseParams, true, true, this.SearchDirs, throwOnError); //do not parse it yet (the third param is false)
 
                 if (fileParsers.BinarySearch(importedFile, fileComparer) < 0)
                 {
@@ -437,7 +436,14 @@ namespace CSScriptLib
             var refPkAsms = this.ResolvePackages(true); //suppressDownloading
 
             var refCodeAsms = this.ReferencedAssemblies
-                                  .SelectMany(asm => AssemblyResolver.FindAssembly(asm.Replace("\"", ""), probingDirs)).ToArray();
+                                  .SelectMany(asm =>
+                                  {
+                                      var resolved = AssemblyResolver.FindAssembly(asm.Replace("\"", ""), probingDirs);
+                                      if (resolved.Any())
+                                          return resolved;
+                                      else
+                                          return new[] { asm.GetFullPath() }; // impotrtant to return not found assembly so it is reported by the compiler
+                                  }).ToArray();
 
             // need to add default CLR assemblies as there will be no namespace->GAC assembly
             // resolving as it is .NET Core

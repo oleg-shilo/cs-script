@@ -22,10 +22,10 @@ public interface IPrinter
 
 namespace EvaluatorTests
 {
+    [Collection("Sequential")]
     public class Generic_Roslyn
     {
-        [Fact(Skip = "xUnit runtime is incompatible. But test is valid"
-             )]
+        [Fact(Skip = "xUnit runtime is incompatible. But test is valid")]
         public void call_UnloadAssembly()
         {
             // There is something strange happening under xUnit runtime. This very test runs fine
@@ -301,6 +301,12 @@ namespace EvaluatorTests
             string[] statements = parser.GetRawStatements(code, "//css_include", code.Length, false);
 
             Assert.Single(statements);
+
+            code = @"//css_inc D:\dev\Galos\cs-script\src\Tests.CSScriptLib\bin\Debug\net6.0\depCompileCodeWithNestedImports2.cs";
+            parser = new CSharpParser(code);
+            statements = parser.GetRawStatements(code, "//css_inc", code.Length, false);
+
+            Assert.Single(statements);
         }
 
         [Fact]
@@ -342,7 +348,7 @@ namespace Testing
         int Sum(int a, int b);
     }
 
-    public interface ICalc<TResult,TParam>
+    public interface ICalc<TResult, TParam>
     {
         TResult Sum(TParam a, TParam b);
     }
@@ -353,6 +359,7 @@ namespace Testing
         {
             Value = value;
         }
+
         public T Value { get; set; }
     }
 }

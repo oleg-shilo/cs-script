@@ -872,7 +872,7 @@ namespace CSScriptLib
             return GetRawStatements(this.code, pattern, endIndex, false);
         }
 
-        public string[] GetRawStatements(string codeToAnalyze, string pattern, int endIndex, bool ignoreComments)
+        internal string[] GetRawStatements(string codeToAnalyze, string pattern, int endIndex, bool ignoreComments)
         {
             List<string> retval = new List<string>();
 
@@ -899,6 +899,8 @@ namespace CSScriptLib
 
                         if (endPos != -1)
                             retval.Add(codeToAnalyze.Substring(pos, endPos - pos).Trim());
+                        else
+                            retval.Add(codeToAnalyze.Substring(pos).Trim());
                     }
                 }
                 pos = codeToAnalyze.IndexOf(pattern, pos + 1);

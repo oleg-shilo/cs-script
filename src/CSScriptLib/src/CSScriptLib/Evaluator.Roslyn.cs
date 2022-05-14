@@ -329,12 +329,6 @@ namespace CSScriptLib
                 if (scriptText == null && scriptFile != null)
                     scriptText = File.ReadAllText(scriptFile);
 
-                if (!DisableReferencingFromCode)
-                {
-                    var localDir = this.GetType().Assembly.Location().GetDirName();
-                    ReferenceAssembliesFromCode(scriptText, localDir);
-                }
-
                 int scriptHash = base.GetHashFor(scriptText, scriptFile);
 
                 if (IsCachingEnabled)
@@ -355,6 +349,12 @@ namespace CSScriptLib
 
                 if (scriptFile == null && tempScriptFile == null)
                 {
+                    if (!DisableReferencingFromCode)
+                    {
+                        var localDir = this.GetType().Assembly.Location().GetDirName();
+                        ReferenceAssembliesFromCode(scriptText, localDir);
+                    }
+
                     if (this.IsDebug)
                     {
                         tempScriptFile = CSScript.GetScriptTempFile();
@@ -366,7 +366,8 @@ namespace CSScriptLib
                 }
                 else
                 {
-                    var parser = new ScriptParser(scriptFile ?? tempScriptFile, new[] { scriptFile?.GetDirName() }, false);
+                    var searchDirs = new[] { scriptFile?.GetDirName(), this.GetType().Assembly.Location().GetDirName() };
+                    var parser = new ScriptParser(scriptFile ?? tempScriptFile, searchDirs, false);
 
                     var importedSources = new Dictionary<string, (int, string[])>(); // file, usings count, code lines
                     var combinedScript = new List<string>();
@@ -402,6 +403,10 @@ namespace CSScriptLib
                     }
 
                     scriptText = combinedScript.JoinBy(Environment.NewLine);
+
+                    if (!DisableReferencingFromCode)
+                        foreach (var asm in ProbeAssembliesOf(parser, searchDirs))
+                            ReferenceAssembly(asm);
                 }
 
                 ////////////////////////////////////////

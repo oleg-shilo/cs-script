@@ -20,6 +20,7 @@ using Xunit;
 
 namespace EvaluatorTests
 {
+    [Collection("Sequential")]
     public class API_CodeDom : API_Roslyn
     {
         public API_CodeDom()
@@ -51,6 +52,7 @@ namespace EvaluatorTests
         }
     }
 
+    [Collection("Sequential")]
     public class API_Roslyn
     {
         public string GetTempFileName(string seed)
@@ -122,6 +124,40 @@ namespace EvaluatorTests
                                             {{
                                                 public int Sum(int a, int b) => Calc.Sum(a ,b);
                                             }}");
+
+            var result = script.Sum(7, 3);
+
+            Assert.Equal(10, result);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CompileCodeWithNestedImports(bool isRoslyn)
+        {
+            var dependencyScript1 = $"dep{nameof(CompileCodeWithNestedImports)}1.cs".GetFullPath();
+            var dependencyScript2 = $"dep{nameof(CompileCodeWithNestedImports)}2.cs".GetFullPath();
+
+            File.WriteAllText(dependencyScript2, @"
+                                            using System;
+                                            public class Calc
+                                            {
+                                                static public int Sum(int a, int b)
+                                                {
+                                                    return a+b;
+                                                }
+                                            }");
+
+            File.WriteAllText(dependencyScript1, $"//css_inc {dependencyScript2}");
+
+            var evaluator = isRoslyn ? (IEvaluator)CSScript.RoslynEvaluator : (IEvaluator)CSScript.CodeDomEvaluator;
+
+            dynamic script = evaluator.LoadCode($@"//css_inc {dependencyScript1}
+                                                  using System;
+                                                  public class Script
+                                                  {{
+                                                      public int Sum(int a, int b) => Calc.Sum(a ,b);
+                                                  }}");
 
             var result = script.Sum(7, 3);
 
