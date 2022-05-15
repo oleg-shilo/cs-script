@@ -199,7 +199,6 @@
   <HelpKINode Title="CSharpParser.DoRenaming method" Url="html/e84b0e28-32b7-d255-1029-cf56ef52bb0c.htm" />
   <HelpKINode Title="CSharpParser.EscapeDirectiveDelimiters method" Url="html/fc41bf6b-df51-f7a1-8162-19764192029a.htm" />
   <HelpKINode Title="CSharpParser.ExtraSearchDirs property" Url="html/aa06b467-db5b-91fa-cfee-eafe8a850bba.htm" />
-  <HelpKINode Title="CSharpParser.GetRawStatements method" Url="html/fac8673b-a68f-5ca4-d88f-3360528d8714.htm" />
   <HelpKINode Title="CSharpParser.HostOptions property" Url="html/aada4d22-a321-2e08-5a3a-be3b1294612f.htm" />
   <HelpKINode Title="CSharpParser.IgnoreNamespaces property" Url="html/99715cef-706e-a399-64e1-da83f52f4b31.htm" />
   <HelpKINode Title="CSharpParser.ImportInfo class">
@@ -353,6 +352,7 @@
   <HelpKINode Title="EvaluatorBase(Of T).FilterAssemblies field" Url="html/48137323-2581-27b6-4de5-99b4919108bf.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).GetReferencedAssemblies method" Url="html/cfd82feb-9697-3185-3f1a-e0267b8497b9.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).GetReferencedAssembliesFiles method" Url="html/fe594be8-32a4-9b82-df90-29cee19aab90.htm" />
+  <HelpKINode Title="EvaluatorBase(Of T).GetReferencedAssembliesFromScript method" Url="html/6a7fc74e-1ca3-0e64-8e7b-1ef3f34f2548.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).IsAssemblyUnloadingEnabled property" Url="html/8bc76220-136f-4481-85aa-1c9f1686791d.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).IsCachingEnabled property" Url="html/9c6a6496-93b0-e765-618e-d299c6bb050c.htm" />
   <HelpKINode Title="EvaluatorBase(Of T).IsDebug property" Url="html/e62b52ed-0c39-4ec8-ef9b-af41ff62dafb.htm" />
@@ -392,6 +392,7 @@
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.FilterAssemblies field" Url="html/48137323-2581-27b6-4de5-99b4919108bf.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.GetReferencedAssemblies method" Url="html/cfd82feb-9697-3185-3f1a-e0267b8497b9.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.GetReferencedAssembliesFiles method" Url="html/fe594be8-32a4-9b82-df90-29cee19aab90.htm" />
+  <HelpKINode Title="EvaluatorBase&lt;T&gt;.GetReferencedAssembliesFromScript method" Url="html/6a7fc74e-1ca3-0e64-8e7b-1ef3f34f2548.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.IsAssemblyUnloadingEnabled property" Url="html/8bc76220-136f-4481-85aa-1c9f1686791d.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.IsCachingEnabled property" Url="html/9c6a6496-93b0-e765-618e-d299c6bb050c.htm" />
   <HelpKINode Title="EvaluatorBase&lt;T&gt;.IsDebug property" Url="html/e62b52ed-0c39-4ec8-ef9b-af41ff62dafb.htm" />
@@ -460,7 +461,6 @@
   <HelpKINode Title="GetLines method" Url="html/9f3739e0-2425-4446-7cbf-b5ac70979965.htm" />
   <HelpKINode Title="GetName method" Url="html/d726f61c-e602-cff7-3f56-35875f42e3a4.htm" />
   <HelpKINode Title="GetPath method" Url="html/3e9fef45-9140-7a80-b8d4-9fb0d2f8aeaa.htm" />
-  <HelpKINode Title="GetRawStatements method" Url="html/fac8673b-a68f-5ca4-d88f-3360528d8714.htm" />
   <HelpKINode Title="GetReferencedAssemblies method">
     <HelpKINode Title="CodeDomEvaluator.GetReferencedAssemblies Method " Url="html/2ec33008-23e6-603f-da58-2f3ec1e8d4c3.htm" />
     <HelpKINode Title="EvaluatorBase(T).GetReferencedAssemblies Method " Url="html/cfd82feb-9697-3185-3f1a-e0267b8497b9.htm" />
@@ -471,6 +471,7 @@
     <HelpKINode Title="CodeDomEvaluator.GetReferencedAssembliesFiles Method " Url="html/88d98743-1f06-8b2e-46ca-ebf48cee4f00.htm" />
     <HelpKINode Title="EvaluatorBase(T).GetReferencedAssembliesFiles Method " Url="html/fe594be8-32a4-9b82-df90-29cee19aab90.htm" />
   </HelpKINode>
+  <HelpKINode Title="GetReferencedAssembliesFromScript method" Url="html/6a7fc74e-1ca3-0e64-8e7b-1ef3f34f2548.htm" />
   <HelpKINode Title="GetScriptTempDir method">
     <HelpKINode Title="CSScript.GetScriptTempDir Method " Url="html/83c83aee-4e9d-c68a-b76f-cc8bb0127fb7.htm" />
     <HelpKINode Title="Runtime.GetScriptTempDir Method " Url="html/04ccf43b-fc41-47f1-8aa0-3ddb100810ed.htm" />

@@ -172,7 +172,10 @@ namespace CSScripting
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="handleExceptions">if set to <c>true</c> [handle exceptions].</param>
-        /// <returns>The original directory path</returns>
+        /// <param name="doNotDeletеRoot">if set to <c>true</c> [do not deletе root].</param>
+        /// <returns>
+        /// The original directory path
+        /// </returns>
         public static string DeleteDir(this string path, bool handleExceptions = false, bool doNotDeletеRoot = false)
         {
             if (Directory.Exists(path))

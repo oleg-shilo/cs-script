@@ -172,7 +172,8 @@ namespace CSScriptLib
             set { refDomainAsms = value; }
         }
 
-        public DomainAssemblies ReferenceDomainAssembliesModel { get; set; } = DomainAssemblies.AllStaticNonGAC;
+        // zos will be supported in the next release
+        // public DomainAssemblies ReferenceDomainAssembliesModel { get; set; } = DomainAssemblies.AllStaticNonGAC;
 
         /// <summary>
         /// Gets or sets the default evaluator engine type.

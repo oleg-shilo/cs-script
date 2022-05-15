@@ -1,10 +1,10 @@
-using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using Microsoft.CodeAnalysis;
 
 namespace CSScripting
 {
@@ -31,9 +31,9 @@ namespace CSScripting
         /// how the assemblies (compiled scripts) are loaded.</para>
         /// <para>
         /// Note, unloading of assembly is implemented by CLR not CS-Script. This method extension is simply
-        /// redirecting the call to the .NET <see cref="System.Runtime.Loader.AssemblyLoadContext.Unload"/>
-        /// . Thus it is subject of the 
-        /// underlying limitations. Thus an AssemblyLoadContext can only be unloaded if it is collectible. And 
+        /// redirecting the call to the .NET <see cref="T:System.Runtime.Loader.AssemblyLoadContext.Unload"/>
+        /// . Thus it is subject of the
+        /// underlying limitations. Thus an AssemblyLoadContext can only be unloaded if it is collectible. And
         /// Unloading will occur asynchronously.
         /// </para>
         /// <para>
@@ -265,7 +265,7 @@ namespace CSScripting
             => type.FullName.Contains($"{Globals.RootClassName}+"); // Submission#0+Script
 
         internal static IEnumerable<Type> OrderedUserTypes(this Assembly asm)
-           => asm.ExportedTypes
+            => asm.ExportedTypes
                   .Where(t => !t.IsRoslynInternalType())
                   .OrderBy(t => !t.IsScriptRootClass());  // ScriptRootClass will be on top
 

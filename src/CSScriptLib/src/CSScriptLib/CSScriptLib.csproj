@@ -13,7 +13,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.4.4.0-pre</Version>
+    <Version>4.4.5.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
@@ -34,15 +34,17 @@
 ### CSScriptLib
 
 - Added `CSScript.EvaluatorConfig.CompilerOptions` for defining global compiler options for CodeDomEvaluator (RoslynEvaluator does not support string compiler options)
-- Issue #291: CSScriptLib.CompilerException: error CS2021: File name '' is empty</PackageReleaseNotes>
+- Issue #291: CSScriptLib.CompilerException: error CS2021: File name '' is empty
+- Issue #295: add compiler option -define:DEBUG if debug is set
+- Add support for generic types to LoadMethod&lt;T&gt;</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.4.4.0</AssemblyVersion>
-    <FileVersion>4.4.4.0</FileVersion>
+    <AssemblyVersion>4.4.5.0</AssemblyVersion>
+    <FileVersion>4.4.5.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>CSScriptLib.xml</DocumentationFile>
@@ -84,10 +86,10 @@
     <Compile Include="..\..\..\cscs\Utils\WildCardExtensions.cs" Link="Utils\WildCardExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.6.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="3.6.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.1.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="3.1.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\logo\css_logo.png">
