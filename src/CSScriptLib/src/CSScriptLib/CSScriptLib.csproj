@@ -13,7 +13,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.4.5.0</Version>
+    <Version>4.4.6.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
@@ -38,8 +38,8 @@
 - Issue #295: add compiler option -define:DEBUG if debug is set
 - Add support for generic types to LoadMethod&lt;T&gt;</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.4.5.0</AssemblyVersion>
-    <FileVersion>4.4.5.0</FileVersion>
+    <AssemblyVersion>4.4.6.0</AssemblyVersion>
+    <FileVersion>4.4.6.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>

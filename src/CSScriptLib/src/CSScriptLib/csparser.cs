@@ -888,11 +888,11 @@ namespace CSScriptLib
 
                         if (OpenEndDirectiveSyntax)
                         {
-                            var nextNewLine = codeToAnalyze.IndexOfAny(new[] { '\n', '\r' }, pos);
+                            var nextNewLine = codeToAnalyze.IndexOfAny(new[] { ';', '\n', '\r' }, pos);
                             if (nextNewLine != -1)
-                                endPos = Math.Min(nextNewLine, IndexOfDelimiter(pos, codeToAnalyze.Length - 1, ';'));
+                                endPos = Math.Min(nextNewLine, IndexOfDelimiter(pos, codeToAnalyze.Length - 1, ';', '\n', '\r'));
                             else
-                                endPos = IndexOfDelimiter(pos, codeToAnalyze.Length - 1, ';');
+                                endPos = IndexOfDelimiter(pos, codeToAnalyze.Length - 1, ';', '\n', '\r');
                         }
                         else
                             endPos = IndexOfDelimiter(pos, codeToAnalyze.Length - 1, ';');

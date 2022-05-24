@@ -290,6 +290,20 @@ namespace EvaluatorTests
         // dynamic script = asm.CreateObject("*"); var result = script.Sum(7, 3); }
 
         [Fact]
+        public void Issue_297()
+        {
+            var code =
+                "//css_imp ..\\Common\\V1\\Common1.cs\r\n" +
+                "//css_imp ..\\Common\\V1\\Common2.cs\r\n" +
+                "//css_imp ..\\Common\\V1\\Common3.cs";
+
+            var parser = new CSharpParser(code);
+            string[] statements = parser.GetRawStatements(code, "//css_imp", code.Length, false);
+
+            Assert.Equal(3, statements.Count());
+        }
+
+        [Fact]
         public void Issue_291()
         {
             var code =
