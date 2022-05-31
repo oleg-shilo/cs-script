@@ -667,18 +667,23 @@ namespace CSScriptLib
 
         /// <summary>
         /// Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
-        /// class defined in the script file.
+        /// class defined in the script file assembly.
+        /// <para>
+        /// Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+        /// In such cases you may prefer using <see cref="IEvaluator.CompileCode(string,CompileInfo)" /> or
+        /// <see cref="IEvaluator.CompileAssemblyFromCode(string, string)" /> instead.
+        /// </para>
         /// </summary>
-        /// <example>The following is the simple example of the interface alignment:
-        ///<code>
-        /// dynamic script = CSScript.RoslynEvaluator
-        ///                          .LoadFile("calc.cs");
-        ///
-        /// int result = script.Sum(1, 2);
-        /// </code>
-        /// </example>/// <param name="scriptFile">The C# script file.</param>
+        /// <param name="scriptFile">The C# script file.</param>
         /// <param name="args">Optional non-default constructor arguments.</param>
-        /// <returns>Instance of the class defined in the script file.</returns>
+        /// <returns>
+        /// Instance of the class defined in the script file assembly.
+        /// </returns>
+        /// <example>The following is the simple example of the interface alignment:
+        /// <code>
+        /// dynamic script = CSScript.Evaluator.LoadFile("calc.cs");
+        /// int result = script.Sum(1, 2);
+        /// </code></example>
         public object LoadFile(string scriptFile, params object[] args)
         {
             var code = File.ReadAllText(scriptFile);
@@ -687,28 +692,33 @@ namespace CSScriptLib
 
         /// <summary>
         /// Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
-        /// class defined in the script file.
+        /// class defined in the script file assembly.
+        /// <para>
         /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
         /// <para><c>Note:</c> the script class does not have to inherit from the <c>T</c> parameter as the proxy type
-        /// will be generated anyway.</para>
+        /// will be generated anyway.</para></para><para>
+        /// Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+        /// In such cases you may prefer using <see cref="IEvaluator.CompileCode(string, CompileInfo)" /> or
+        /// <see cref="IEvaluator.CompileAssemblyFromCode(string, string)" /> instead.
+        /// </para>
         /// </summary>
-        /// <example>The following is the simple example of the interface alignment:
-        ///<code>
-        /// public interface ICalc
-        /// {
-        ///     int Sum(int a, int b);
-        /// }
-        /// ....
-        /// ICalc calc = CSScript.Evaluator
-        ///                      .LoadFile&lt;ICalc&gt;("calc.cs");
-        ///
-        /// int result = calc.Sum(1, 2);
-        /// </code>
-        /// </example>
         /// <typeparam name="T">The type of the interface type the script class instance should be aligned to.</typeparam>
         /// <param name="scriptFile">The C# script text.</param>
         /// <param name="args">Optional non-default constructor arguments.</param>
-        /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script file.</returns>
+        /// <returns>
+        /// Aligned to the <c>T</c> interface instance of the class defined in the script file assembly.
+        /// </returns>
+        /// <example>The following is the simple example of the interface alignment:
+        /// <code>
+        ///  public interface ICalc
+        ///  {
+        ///     int Sum(int a, int b);
+        ///  }
+        ///  ....
+        ///  ICalc calc = CSScript.Evaluator
+        ///                       .LoadFile&lt;ICalc&gt;("calc.cs");
+        ///  int result = calc.Sum(1, 2);
+        /// </code></example>
         public T LoadFile<T>(string scriptFile, params object[] args) where T : class
         {
             var asm = CompileCode(File.ReadAllText(scriptFile), scriptFile, null);

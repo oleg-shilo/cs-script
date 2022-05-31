@@ -525,7 +525,12 @@ namespace CSScriptLib
 
         /// <summary>
         /// Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
-        /// class defined in the script file.
+        /// class defined in the script file assembly.
+        /// <para>
+        /// Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+        /// In such cases you may prefer using <see cref="IEvaluator.CompileCode(string, CompileInfo)"/> or
+        /// <see cref="IEvaluator.CompileAssemblyFromCode(string, string)"/> instead.
+        /// </para>
         /// </summary>
         /// <example>The following is the simple example of the interface alignment:
         ///<code>
@@ -537,15 +542,22 @@ namespace CSScriptLib
         /// </example>
         /// <param name="scriptFile">The C# script file.</param>
         /// <param name="args">Optional non-default constructor arguments.</param>
-        /// <returns>Instance of the class defined in the script file.</returns>
+        /// <returns>Instance of the class defined in the script file assembly.</returns>
         object LoadFile(string scriptFile, params object[] args);
 
         /// <summary>
         /// Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
-        /// class defined in the script file.
+        /// class defined in the script file assembly.
+        /// <para>
         /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
         /// <para><c>Note:</c> the script class does not have to inherit from the <c>T</c> parameter as the proxy type
         /// will be generated anyway.</para>
+        /// </para>
+        /// <para>
+        /// Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+        /// In such cases you may prefer using <see cref="IEvaluator.CompileCode(string, CompileInfo)"/> or
+        /// <see cref="IEvaluator.CompileAssemblyFromCode(string, string)"/> instead.
+        /// </para>
         /// </summary>
         /// <example>The following is the simple example of the interface alignment:
         ///<code>
@@ -563,7 +575,7 @@ namespace CSScriptLib
         /// <typeparam name="T">The type of the interface type the script class instance should be aligned to.</typeparam>
         /// <param name="scriptFile">The C# script text.</param>
         /// <param name="args">Optional non-default constructor arguments.</param>
-        /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script file.</returns>
+        /// <returns>Aligned to the <c>T</c> interface instance of the class defined in the script file assembly.</returns>
         T LoadFile<T>(string scriptFile, params object[] args) where T : class;
 
         /// <summary>
@@ -573,17 +585,17 @@ namespace CSScriptLib
         /// <example>
         /// The following is the simple example of the LoadMethod usage:
         /// <code>
-        ///dynamic script = CSScript.Evaluator
-        ///.LoadMethod(@"int Product(int a, int b)
-        ///{
-        ///return a * b;
-        ///}");
+        /// dynamic script = CSScript.Evaluator
+        ///                          .LoadMethod(@"int Product(int a, int b)
+        ///                                        {
+        ///                                            return a * b;
+        ///                                        }");
         ///
-        ///int result = script.Product(3, 2);
+        /// int result = script.Product(3, 2);
         /// </code>
         /// </example>
         /// <param name="code">The C# script text.</param>
-        /// <returns>Instance of the first class defined in the script.</returns>
+        /// <returns>Instance of the first class defined in the script assembly.</returns>
         object LoadMethod(string code);
 
         /// <summary>
@@ -597,22 +609,23 @@ namespace CSScriptLib
         /// <example>
         /// The following is the simple example of the interface alignment:
         /// <code>
-        ///public interface ICalc
-        ///{
-        ///int Sum(int a, int b);
-        ///int Div(int a, int b);
-        ///}
+        /// public interface ICalc
+        /// {
+        ///     int Sum(int a, int b);
+        ///     int Div(int a, int b);
+        /// }
         ///....
         ///ICalc script = CSScript.Evaluator
-        ///.LoadMethod&lt;ICalc&gt;(@"public int Sum(int a, int b)
-        ///{
-        ///return a + b;
-        ///}
-        ///public int Div(int a, int b)
-        ///{
-        ///return a/b;
-        ///}");
-        ///int result = script.Div(15, 3);
+        ///                       .LoadMethod&lt;ICalc&gt;(@"public int Sum(int a, int b)
+        ///                                            {
+        ///                                                return a + b;
+        ///                                            }
+        /// public int Div(int a, int b)
+        /// {
+        ///     return a/b;
+        /// }");
+        ///
+        /// int result = script.Div(15, 3);
         /// </code>
         /// </example>
         /// <typeparam name="T">
