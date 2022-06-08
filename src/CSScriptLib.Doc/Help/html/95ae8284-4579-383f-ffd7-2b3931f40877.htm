@@ -60,14 +60,23 @@
              <p>
              Returns instance of <span class="code">T</span> delegate for the first method in the auto-generated class.
              </p></div></td></tr><tr data="public;declared;notNetfw;"><td><img src="../icons/pubmethod.gif" alt="Public method" title="Public method" /><img src="../icons/CodeExample.png" alt="Code example" title="Code example" /></td><td><a href="991c7241-96e7-0229-61b3-d990b4e0d3e6.htm">LoadFile(String, <span id="LST26AF5A79_19"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_19?cpp=array&lt;");</script>Object<span id="LST26AF5A79_20"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_20?cpp=&gt;|cs=[]|vb=()|nu=[]|fs=[]");</script>)</a></td><td><div class="summary">
-             Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
-             class defined in the script file.
-             </div></td></tr><tr data="public;declared;notNetfw;"><td><img src="../icons/pubmethod.gif" alt="Public method" title="Public method" /><img src="../icons/CodeExample.png" alt="Code example" title="Code example" /></td><td><a href="072ae394-3f5d-317f-314d-8daaf95a02a6.htm">LoadFile<span id="LST26AF5A79_21"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_21?cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=(");</script>T<span id="LST26AF5A79_22"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_22?cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)");</script>(String, <span id="LST26AF5A79_23"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_23?cpp=array&lt;");</script>Object<span id="LST26AF5A79_24"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_24?cpp=&gt;|cs=[]|vb=()|nu=[]|fs=[]");</script>)</a></td><td><div class="summary">
-             Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
-             class defined in the script file.
-             After initializing the class instance it is aligned to the interface specified by the parameter <span class="code">T</span>.
-             <p><span class="code">Note:</span> the script class does not have to inherit from the <span class="code">T</span> parameter as the proxy type
-             will be generated anyway.</p></div></td></tr><tr data="public;declared;notNetfw;"><td><img src="../icons/pubmethod.gif" alt="Public method" title="Public method" /><img src="../icons/CodeExample.png" alt="Code example" title="Code example" /></td><td><a href="71751b67-4bd9-0e7c-593a-92941ba0e002.htm">LoadMethod(String)</a></td><td><div class="summary">
+            Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
+            class defined in the script file assembly.
+            <p>
+            Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+            In such cases you may prefer using <a href="13d95584-7d3c-62fe-b3d7-1cbe59658f8f.htm">CompileCode(String, CompileInfo)</a> or
+            <a href="9444c04e-cf37-e231-e78d-547795d56d5f.htm">CompileAssemblyFromCode(String, String)</a> instead.
+            </p></div></td></tr><tr data="public;declared;notNetfw;"><td><img src="../icons/pubmethod.gif" alt="Public method" title="Public method" /><img src="../icons/CodeExample.png" alt="Code example" title="Code example" /></td><td><a href="072ae394-3f5d-317f-314d-8daaf95a02a6.htm">LoadFile<span id="LST26AF5A79_21"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_21?cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=(");</script>T<span id="LST26AF5A79_22"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_22?cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)");</script>(String, <span id="LST26AF5A79_23"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_23?cpp=array&lt;");</script>Object<span id="LST26AF5A79_24"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_24?cpp=&gt;|cs=[]|vb=()|nu=[]|fs=[]");</script>)</a></td><td><div class="summary">
+            Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
+            class defined in the script file assembly.
+            <p>
+            After initializing the class instance it is aligned to the interface specified by the parameter <span class="code">T</span>.
+            <p><span class="code">Note:</span> the script class does not have to inherit from the <span class="code">T</span> parameter as the proxy type
+            will be generated anyway.</p></p><p>
+            Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+            In such cases you may prefer using <a href="13d95584-7d3c-62fe-b3d7-1cbe59658f8f.htm">CompileCode(String, CompileInfo)</a> or
+            <a href="9444c04e-cf37-e231-e78d-547795d56d5f.htm">CompileAssemblyFromCode(String, String)</a> instead.
+            </p></div></td></tr><tr data="public;declared;notNetfw;"><td><img src="../icons/pubmethod.gif" alt="Public method" title="Public method" /><img src="../icons/CodeExample.png" alt="Code example" title="Code example" /></td><td><a href="71751b67-4bd9-0e7c-593a-92941ba0e002.htm">LoadMethod(String)</a></td><td><div class="summary">
              Wraps C# code fragment into auto-generated class (type name <span class="code">DynamicClass</span>),
              evaluates it and loads the class to the current AppDomain.
              </div></td></tr><tr data="public;declared;notNetfw;"><td><img src="../icons/pubmethod.gif" alt="Public method" title="Public method" /><img src="../icons/CodeExample.png" alt="Code example" title="Code example" /></td><td><a href="d8caa156-d835-9435-07e7-b7d1aec02752.htm">LoadMethod<span id="LST26AF5A79_25"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_25?cs=&lt;|vb=(Of |cpp=&lt;|fs=&lt;'|nu=(");</script>T<span id="LST26AF5A79_26"></span><script type="text/javascript">AddLanguageSpecificTextSet("LST26AF5A79_26?cs=&gt;|vb=)|cpp=&gt;|fs=&gt;|nu=)");</script>(String)</a></td><td><div class="summary">

@@ -528,7 +528,7 @@ namespace CSScriptLib
         /// class defined in the script file assembly.
         /// <para>
         /// Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
-        /// In such cases you may prefer using <see cref="IEvaluator.CompileCode(string, CompileInfo)"/> or
+        /// In such cases you may prefer using <see cref="IEvaluator.CompileCode(string,CompileInfo)"/> or
         /// <see cref="IEvaluator.CompileAssemblyFromCode(string, string)"/> instead.
         /// </para>
         /// </summary>

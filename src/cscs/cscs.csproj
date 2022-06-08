@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.4.5.0</Version>
+    <Version>4.4.6.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -17,8 +17,8 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.4.5.0</AssemblyVersion>
-    <FileVersion>4.4.5.0</FileVersion>
+    <AssemblyVersion>4.4.6.0</AssemblyVersion>
+    <FileVersion>4.4.6.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
@@ -29,10 +29,7 @@
 
 ### CSScriptLib
 
-- Added `CSScript.EvaluatorConfig.CompilerOptions` for defining global compiler options for CodeDomEvaluator (RoslynEvaluator does not support string compiler options)
-- Issue #291: CSScriptLib.CompilerException: error CS2021: File name '' is empty
-- Issue #295: add compiler option -define:DEBUG if debug is set
-- Add support for generic types to LoadMethod&lt;T&gt;</PackageReleaseNotes>
+- Issue #297: No support for nested //css_imp (incorrect multi-line imports handling)</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
