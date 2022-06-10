@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.202
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSScriptLib", "CSScriptLib\src\CSScriptLib\CSScriptLib.csproj", "{55C76AC3-5FD6-4974-AF40-E4966126D09F}"
 	ProjectSection(ProjectDependencies) = postProject
