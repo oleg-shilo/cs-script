@@ -28,6 +28,9 @@ namespace ConsoleApp1
             sw.Restart();
             Test_CodeDom();
             Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
+            sw.Restart();
+            Test_CodeDom_GAC();
+            Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
         }
 
         static void Test_CodeDom()
@@ -40,6 +43,28 @@ namespace ConsoleApp1
                                                    }");
 
             var result = script.func();
+        }
+
+        static void Test_CodeDom_GAC()
+        {
+            // System.Net.Http.dll needs t be referenced from GAC so we need to add its location to the probing dir
+
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .LoadCode(@"
+                                                //_css_dir C:\Windows\Microsoft.NET\assembly\GAC_MSIL\**
+                                                //css_ref System.Net.Http.dll
+                                                using System;
+                                                using System.Net.Http;
+
+                                                public class Test
+                                                {
+                                                    public void Foo()
+                                                    {
+                                                        using (var client = new HttpClient()) { }
+                                                    }
+                                                }");
+
+            script.Foo();
         }
     }
 }
