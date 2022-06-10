@@ -51,7 +51,7 @@ namespace ConsoleApp1
 
             dynamic script = CSScript.CodeDomEvaluator
                                      .LoadCode(@"
-                                                //_css_dir C:\Windows\Microsoft.NET\assembly\GAC_MSIL\**
+                                                //css_dir C:\Windows\Microsoft.NET\assembly\GAC_MSIL\**
                                                 //css_ref System.Net.Http.dll
                                                 using System;
                                                 using System.Net.Http;
