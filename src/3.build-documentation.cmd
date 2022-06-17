@@ -21,5 +21,3 @@ cd ".\out\Windows"
 cd ..\..\
 
 explorer .\out
-
-pause

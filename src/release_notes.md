@@ -1,4 +1,4 @@
-# Release v4.4.6.0
+# Release v4.4.7.0
 
 ---
 
@@ -6,11 +6,11 @@
 
 ### CLI
 
-- no changes
+- Fixed the problem with possible double referencing GAC assemblies for CSC engine due to the nuget dependencies on GAC assemblies of the different version. 
 
 ### CSScriptLib
 
-- Issue #297: No support for nested //css_imp (incorrect multi-line imports handling)
+- no changes
 
 
 

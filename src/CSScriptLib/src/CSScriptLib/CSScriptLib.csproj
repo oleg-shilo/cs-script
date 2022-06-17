@@ -13,7 +13,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.4.6.0</Version>
+    <Version>4.4.7.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
@@ -29,14 +29,14 @@
 
 ### CLI
 
-- no changes
+- Fixed the problem with possible double referencing GAC assemblies for CSC engine due to the nuget dependencies on GAC assemblies of the different version. 
 
 ### CSScriptLib
 
-- Issue #297: No support for nested //css_imp (incorrect multi-line imports handling)</PackageReleaseNotes>
+- no changes</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.4.6.0</AssemblyVersion>
-    <FileVersion>4.4.6.0</FileVersion>
+    <AssemblyVersion>4.4.7.0</AssemblyVersion>
+    <FileVersion>4.4.7.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>

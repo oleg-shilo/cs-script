@@ -8,5 +8,3 @@ rem use `dotnet` to ensure the file is not locked after the execution
 1.build-binaries.cmd
 
 rem explorer .\out
-
-pause
