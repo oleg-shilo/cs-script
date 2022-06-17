@@ -242,7 +242,11 @@ namespace CSScripting.CodeDom
 
             gac_asms.RemoveAll(x => x.Contains(".Native."));
 
-            foreach (string file in gac_asms.Concat(ref_assemblies))
+            // need to remove duplicated assemblies leaving GAC as a preferable reference
+            // IE System.Linq.dll exists in GAC and in packages where it can be of a different version so it should not be used.
+            var new_ref_assemblies = ref_assemblies.Where(x => !gac_asms.Any(y => Path.GetFileName(y) == Path.GetFileName(x)));
+
+            foreach (string file in gac_asms.Concat(new_ref_assemblies))
                 refs_args.Add($"/r:\"{file}\"");
 
             foreach (string file in sources)
