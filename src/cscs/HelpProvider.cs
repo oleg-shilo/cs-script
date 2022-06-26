@@ -928,6 +928,13 @@ namespace csscript
                          " 'CSSCRIPT_INC'",
                          "${<=6}a system wide include directory for the all frequently used user scripts.",
                          "$(csscript_roslyn)",
+                         " ",
+                         " 'CSSCRIPT_CSC_CMD_LOG'",
+                         "${<=6}the location of the log file that will be created during the script execution with the 'csc' compiler engine." +
+                         "the file will contain the command line that is used to start `csc.exe` to compile the script. This behavior is useful for " +
+                         "the advanced debugging scenarios. Of the environment variable is not set or the value is not a valid file path " +
+                         "then no log file will be created.",
+                         "$(csscript_roslyn)",
 
                          "---------",
                          "During the script execution CS-Script always injects a little object inspector class 'dbg'. " +
@@ -1794,7 +1801,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
                         if (settings.DefaultCompilerEngine == Directives.compiler_csc)
                         {
                             builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Globals.csc})");
-                            builder.AppendLine($"                  : dotnet ({Globals.dotnet})");
+                            builder.AppendLine($"                    -> dotnet ({Globals.dotnet})");
                             if (sdkWarning.HasText())
                                 builder.AppendLine($"                    {sdkWarning}");
                         }

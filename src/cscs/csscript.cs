@@ -300,7 +300,7 @@ namespace csscript
 
             if (isRoslyn) // does not support top-level execution (classless)
             {
-                code = $"class EntryScript {{ static void Main(string[] args){{ {code }; }}}}";
+                code = $"class EntryScript {{ static void Main(string[] args){{ {code}; }}}}";
             }
 
             var commonHeader =
@@ -775,7 +775,7 @@ namespace csscript
                         if (options.compilerEngine == Directives.compiler_csc)
                         {
                             Console.WriteLine($"  Compiler engine: {options.compilerEngine} ({Globals.csc})");
-                            Console.WriteLine($"                 : dotnet ({Globals.dotnet})");
+                            Console.WriteLine($"                   -> dotnet ({Globals.dotnet})");
                             if (sdkWarning.HasText())
                                 Console.WriteLine($"                    {sdkWarning}");
                         }
@@ -1235,6 +1235,7 @@ namespace csscript
         internal static PrintDelegate printError =>
 #if WIN_APP
             print;
+
 #else
             Environment.GetEnvironmentVariable("CSS_MERGE_STD_OUT") != null ?
                                                         print :

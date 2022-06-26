@@ -265,6 +265,16 @@ namespace CSScripting.CodeDom
 
             var cmpl_cmd = "";
 
+            void log_cmd(string cmd)
+            {
+                var logFile = Environment.GetEnvironmentVariable("CSSCRIPT_CSC_CMD_LOG");
+                if (logFile.HasText())
+                    try
+                    {
+                        File.WriteAllText(logFile, cmd);
+                    }
+                    catch { } // just ignore as log_cmd is does not reflect any functional requirement
+            }
             if (compile_on_server)
             {
                 Profiler.EngineContext = "Building with csc engine server (Build server)...";
@@ -277,6 +287,9 @@ namespace CSScripting.CodeDom
                               .SplitCommandLine();
 
                 cmpl_cmd = request.JoinBy(" ");
+
+                log_cmd(cmpl_cmd);
+
                 // ensure server running it will gracefully exit if another instance is running
                 var startBuildServerCommand = $"\"{Globals.build_server}\" -listen -port:{BuildServer.serverPort} -csc:\"{Globals.csc}\"";
 
@@ -308,6 +321,9 @@ namespace CSScripting.CodeDom
                 Profiler.EngineContext = "Building with raw csc engine...";
                 cmd = $@"""{Globals.GetCompilerFor(sources.FirstOrDefault())}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
                 cmpl_cmd = cmd;
+
+                log_cmd(cmpl_cmd);
+
                 result.NativeCompilerReturnValue = Globals.dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
             }
 
