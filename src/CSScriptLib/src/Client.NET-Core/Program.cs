@@ -22,7 +22,7 @@ namespace ConsoleApp1
 
             var sw = Stopwatch.StartNew();
 
-            Console.WriteLine($"Hosting runtime: .NET { (Runtime.IsCore ? "Core" : "Framework")}");
+            Console.WriteLine($"Hosting runtime: .NET {(Runtime.IsCore ? "Core" : "Framework")}");
             Console.WriteLine("================\n");
 
             Console.WriteLine("CodeDOM");
@@ -92,6 +92,23 @@ namespace ConsoleApp1
             (script as object).GetType().Assembly.Unload();
         }
 
+        static void call_UnloadAssembly_Crashing_CLR()
+        {
+            CSScript.EvaluatorConfig.PdbFormat = Microsoft.CodeAnalysis.Emit.DebugInformationFormat.Embedded;
+            CSScript.EvaluatorConfig.DebugBuild = true;
+
+            var script = CSScript.Evaluator
+                                 .With(eval => eval.IsAssemblyUnloadingEnabled = true)
+                                 .LoadMethod<ICalc>(@"public int Sum(int a, int b)
+                                                     { return a+b; }");
+
+            script.Sum(1, 2);
+
+            GC.Collect(); // see https://github.com/oleg-shilo/cs-script/issues/301 for details
+
+            script.GetType().Assembly.Unload();
+        }
+
         static void Test_Unloading()
         {
             for (int i = 0; i < 20; i++)
@@ -99,6 +116,7 @@ namespace ConsoleApp1
                 Console.WriteLine("Loaded assemblies count: " + AppDomain.CurrentDomain.GetAssemblies().Count());
                 call_UnloadAssembly();
                 // call_UnloadAssembly_Failing();
+                // call_UnloadAssembly_Crashing_CLR();
                 GC.Collect();
             }
         }
