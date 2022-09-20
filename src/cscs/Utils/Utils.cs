@@ -1679,7 +1679,9 @@ partial class dbg
 
                 using var w = new BinaryWriter(fs);
 
-                char[] data = this.ToString().ToCharArray();
+                var metadata = this.Serialize();
+
+                byte[] data = Encoding.UTF8.GetBytes(metadata);
                 w.Write(data);
                 w.Write((Int32)data.Length);
                 w.Write((Int32)(CSExecutor.options.DBG ? 1 : 0));
@@ -1749,7 +1751,9 @@ partial class dbg
                     if (dataSize != 0)
                     {
                         fs.Seek(-(offset + dataSize), SeekOrigin.End);
-                        var result = this.Parse(new string(r.ReadChars(dataSize)));
+
+                        string metadataItem = Encoding.UTF8.GetString(r.ReadBytes(dataSize));
+                        var result = this.Deserialize(metadataItem);
                         return result;
                     }
                     else
@@ -1763,7 +1767,7 @@ partial class dbg
             return false;
         }
 
-        new string ToString()
+        new string Serialize()
         {
             StringBuilder bs = new StringBuilder();
 
@@ -1779,7 +1783,7 @@ partial class dbg
             return bs.ToString();
         }
 
-        bool Parse(string data)
+        bool Deserialize(string data)
         {
             foreach (string itemData in data.Split("|".ToCharArray()))
             {

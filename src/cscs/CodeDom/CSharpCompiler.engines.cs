@@ -277,6 +277,7 @@ namespace CSScripting.CodeDom
                     }
                     catch { } // just ignore as log_cmd is does not reflect any functional requirement
             }
+
             if (compile_on_server)
             {
                 Profiler.EngineContext = "Building with csc engine server (Build server)...";
@@ -374,7 +375,7 @@ namespace CSScripting.CodeDom
                     try { File.Copy(assembly, result.PathToAssembly, true); } catch { }
                 }
 
-                if (options.GenerateExecutable)
+                if (options.BuildExe)
                 {
                     var runtimeconfig = "{'runtimeOptions': {'framework': {'name': 'Microsoft.NETCore.App', 'version': '{version}'}}}"
                             .Replace("'", "\"")
@@ -385,9 +386,9 @@ namespace CSScripting.CodeDom
                     {
                         // CSUtils.
                         if (Runtime.IsLinux)
-                            File.Copy(assembly, result.PathToAssembly.RemoveAssemblyExtension(), true);
+                            File.Move(result.PathToAssembly, result.PathToAssembly.RemoveAssemblyExtension(), true);
                         else
-                            File.Copy(assembly, result.PathToAssembly.ChangeExtension(".exe"), true);
+                            File.Move(result.PathToAssembly, result.PathToAssembly.ChangeExtension(".exe"), true);
                     }
                     catch { }
                 }
