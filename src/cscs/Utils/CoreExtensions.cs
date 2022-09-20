@@ -58,6 +58,8 @@ namespace csscript
             // starting draining streams from another thread creates a problem as `WaitForExit()`
             // returns before streams are closed (at least in .NET6) so use blocking `ReadToEnd()`
             // Seems to be a problem with .NET implementation.
+            // To make things worse, on some Win systems process (e.g. dotnet.exe) does not return even
+            // if it was successful.
 
             // onErrro will be used when this functionality is restored.
             // var error = StartMonitor(process.StandardError, onError);
@@ -70,11 +72,12 @@ namespace csscript
 
             if (buildArtifact.HasText())
             {
+                // wait only till the desired outcome is achieved
+
                 int count = timeout;
                 int exitCode = 0;
 
                 while (count > 0)
-                {
                     try
                     {
                         if (buildArtifact.FileExists())
@@ -82,7 +85,6 @@ namespace csscript
                         Thread.Sleep(timeout);
                     }
                     catch { }
-                }
 
                 if (!buildArtifact.FileExists())
                 {
@@ -92,18 +94,17 @@ namespace csscript
 
                 try { process.Kill(); } catch { }
 
-                return exitCode ;
-
+                return exitCode;
             }
             else if (!process.WaitForExit(timeout))
             {
                 if (timeout != -1) // of course it is not -1 if we are here :)
                     onOutput?.Invoke($"Process '{exe}' is taking too long to finish. Terminating it forcefully.");
                 try { process.Kill(); } catch { }
-
-                // try { error.Abort(); } catch { } try { output.Abort(); } catch { }
-                return process.ExitCode;
             }
+
+            // try { error.Abort(); } catch { } try { output.Abort(); } catch { }
+            return process.ExitCode;
         }
 
         static internal void NormaliseFileReference(ref string file, ref int line)
