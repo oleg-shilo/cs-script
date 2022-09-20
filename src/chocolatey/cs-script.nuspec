@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.4.7.0</version>
+        <version>4.4.8.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -24,7 +24,11 @@
 
 </description>
         <summary>CS-Script</summary>
-        <releaseNotes>Fixed the problem with possible double referencing GAC assemblies for CSC engine due to the nuget dependencies on GAC assemblies of the different version. </releaseNotes>
+        <releaseNotes>
+- Issue #307: cscs does not use compilation cache when path to the script has unicode characters
+- Fixed problem with `dotnet.exe` not exiting after building the script assembly
+- Added support for `CSSCRIPT_CSC_CMD_LOG` debugging options
+        </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>cs-script C# script dynamic hosting</tags>
         <dependencies>
