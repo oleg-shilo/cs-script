@@ -51,7 +51,7 @@ namespace csscript
             return process;
         }
 
-        internal static int Run(this string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null, int timeout = -1)
+        internal static int Run(this string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null, int timeout = -1, string buildArtifact = null)
         {
             var process = InitProc(exe, args, dir);
 
@@ -59,24 +59,51 @@ namespace csscript
             // returns before streams are closed (at least in .NET6) so use blocking `ReadToEnd()`
             // Seems to be a problem with .NET implementation.
 
-            // onErrro will be used when this functionality is restored. var error =
-            // StartMonitor(process.StandardError, onError); var output =
-            // StartMonitor(process.StandardOutput, onOutput);
+            // onErrro will be used when this functionality is restored.
+            // var error = StartMonitor(process.StandardError, onError);
+            // var output = StartMonitor(process.StandardOutput, onOutput);
 
             var output = process.StandardOutput.ReadToEnd();
             onOutput?.Invoke(output);
 
             process.Start(); // important to call even if it is already started, otherwise WLS2 fails to catch the output
-            if (!process.WaitForExit(timeout))
+
+            if (buildArtifact.HasText())
+            {
+                int count = timeout;
+                int exitCode = 0;
+
+                while (count > 0)
+                {
+                    try
+                    {
+                        if (buildArtifact.FileExists())
+                            break;
+                        Thread.Sleep(timeout);
+                    }
+                    catch { }
+                }
+
+                if (!buildArtifact.FileExists())
+                {
+                    onOutput?.Invoke($"Process '{exe}' is taking too long to finish. Terminating it forcefully.");
+                    exitCode = -1;
+                }
+
+                try { process.Kill(); } catch { }
+
+                return exitCode ;
+
+            }
+            else if (!process.WaitForExit(timeout))
             {
                 if (timeout != -1) // of course it is not -1 if we are here :)
                     onOutput?.Invoke($"Process '{exe}' is taking too long to finish. Terminating it forcefully.");
                 try { process.Kill(); } catch { }
+
+                // try { error.Abort(); } catch { } try { output.Abort(); } catch { }
+                return process.ExitCode;
             }
-
-            // try { error.Abort(); } catch { } try { output.Abort(); } catch { }
-
-            return process.ExitCode;
         }
 
         static internal void NormaliseFileReference(ref string file, ref int line)

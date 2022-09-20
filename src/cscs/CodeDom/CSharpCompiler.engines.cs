@@ -42,10 +42,12 @@ namespace CSScripting.CodeDom
             var cmd = $"build {config} -o {output} {options.CompilerOptions.Replace("/target:winexe", "")}"; // dotnet build command gets "console vs win" from the project file, not the CLI param
 
             Profiler.get("compiler").Start();
+            assembly.DeleteIfExists();
             result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir,
                                                           onOutput: x => result.Output.Add(x),
                                                           onError: x => Console.Error.WriteLine("error> " + x),
-                                                          timeout: 20000);
+                                                          timeout: 20000,
+                                                          assembly);
             Profiler.get("compiler").Stop();
             Thread.Sleep(50);
             if (CSExecutor.options.verbose)
@@ -131,7 +133,7 @@ namespace CSScripting.CodeDom
                 }
             }
 
-            build_dir.DeleteDir(handleExceptions: true);
+            //build_dir.DeleteDir(handleExceptions: true);
 
             return result;
         }
