@@ -48,8 +48,7 @@ namespace EvaluatorTests
             }
         }
 
-        [Fact(Skip = "xUnit runtime is incompatible. But test is valid"
-             )]
+        [Fact(Skip = "xUnit runtime is incompatible. But test is valid")]
         public void call_SuccessfulUnloadAssembly()
         {
             ICalc script = CSScript.RoslynEvaluator

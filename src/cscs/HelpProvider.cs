@@ -230,14 +230,14 @@ namespace csscript
             switch1Help[proj] = new ArgInfo("-proj",
                                             "Shows script 'project info' - script and all its dependencies.");
             switch1Help[vs_init] =
-            switch1Help[vs] = new ArgInfo("-vs|-vs:init [index_of_detected_VS_executable]",
+            switch1Help[vs] = new ArgInfo("-vs <script>|-vs:init [index_of_detected_VS_executable]",
                                           "Generates .NET project file and opens it in Visual Studio.",
                                               "The path to the Visual Studio executable (devenv.exe) needs to be defined in the " +
                                               "environment variable `CSSCRIPT_VSEXE`.",
                                               "You can let CS-Script to detect installed Visual Studio executable and interactively select " +
                                               "the detected executable for integrating it with CS-Script by using `-vs:init` option.",
-                                              "Alternatively you can even ask to integrate the first detected executable with: ",
-                                              "      " + AppInfo.appName + " -vs:init 0)");
+                                              "Alternatively, you can even ask to integrate the first detected executable with: ",
+                                              "      " + AppInfo.appName + " -vs:init 0");
             switch1Help[vscode] = new ArgInfo("-vscode",
                                           "Generates .NET project file and opens it in Visual Studio Code.",
                                               "The path to the Visual Studio Code executable (code.exe) needs to be defined in the " +
