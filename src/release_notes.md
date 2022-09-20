@@ -1,4 +1,4 @@
-# Release v4.4.7.0
+# Release v4.4.8.0
 
 ---
 
@@ -6,7 +6,10 @@
 
 ### CLI
 
-- Fixed the problem with possible double referencing GAC assemblies for CSC engine due to the nuget dependencies on GAC assemblies of the different version. 
+- Issue #307: cscs does not use compilation cache when path to the script has unicode characters
+- Fixed problem with `dotnet.exe` not exiting after building the script assembly
+- Added support for `CSSCRIPT_CSC_CMD_LOG` debugging options
+
 
 ### CSScriptLib
 

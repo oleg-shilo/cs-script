@@ -7,7 +7,7 @@
     <AssemblyName>csws</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.4.7.0</Version>
+    <Version>4.4.8.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -18,15 +18,18 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.4.7.0</AssemblyVersion>
-    <FileVersion>4.4.7.0</FileVersion>
+    <AssemblyVersion>4.4.8.0</AssemblyVersion>
+    <FileVersion>4.4.8.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- Fixed the problem with possible double referencing GAC assemblies for CSC engine due to the nuget dependencies on GAC assemblies of the different version. 
+- Issue #307: cscs does not use compilation cache when path to the script has unicode characters
+- Fixed problem with `dotnet.exe` not exiting after building the script assembly
+- Added support for `CSSCRIPT_CSC_CMD_LOG` debugging options
+
 
 ### CSScriptLib
 

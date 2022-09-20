@@ -1767,7 +1767,7 @@ partial class dbg
             return false;
         }
 
-        new string Serialize()
+        string Serialize()
         {
             StringBuilder bs = new StringBuilder();
 

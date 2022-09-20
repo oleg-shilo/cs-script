@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.4.7.0.
+C# Script execution engine (.NET Core). Version 4.4.8.0.
 Copyright (C) 2004-2020 Oleg Shilo.
 
 
@@ -48,14 +48,14 @@ Copyright (C) 2004-2020 Oleg Shilo.
 -proj
     Shows script 'project info' - script and all its dependencies.
 
--vs|-vs:init [index_of_detected_VS_executable]
+-vs <script>|-vs:init [index_of_detected_VS_executable]
     Generates .NET project file and opens it in Visual Studio.
     The path to the Visual Studio executable (devenv.exe) needs to be defined in the environment variable
     `CSSCRIPT_VSEXE`.
     You can let CS-Script to detect installed Visual Studio executable and interactively select the detected
     executable for integrating it with CS-Script by using `-vs:init` option.
-    Alternatively you can even ask to integrate the first detected executable with: 
-          cscs -vs:init 0)
+    Alternatively, you can even ask to integrate the first detected executable with: 
+          cscs -vs:init 0
 
 -vscode
     Generates .NET project file and opens it in Visual Studio Code.
@@ -758,6 +758,12 @@ The following is the optional set of environment variables that the script engin
  
  'CSSCRIPT_INC'
       a system wide include directory for the all frequently used user scripts.
+ 
+ 'CSSCRIPT_CSC_CMD_LOG'
+      the location of the log file that will be created during the script execution with the 'csc' compiler engine.the
+      file will contain the command line that is used to start `csc.exe` to compile the script. This behavior is
+      useful for the advanced debugging scenarios. Of the environment variable is not set or the value is not a valid
+      file path then no log file will be created.
 ---------
 During the script execution CS-Script always injects a little object inspector class 'dbg'. This class contains static
 printing methods that mimic Python's 'print()'. It is particularly useful for object inspection in the absence of a
