@@ -5,14 +5,15 @@
 
 ---
 
-_Please note that this repository is hosting the releases of CS-Script (v4.0.0 and higher), which targets .NET 5+ for CLI and Standard 2.0 for class library (Nuget package). Meaning the package can be transparently hosted on and interact with both .NET Framework and .NET Core runtimes._
-
-_Note .NET SDK is required to have all features enabled, otherwise .NET Runtime is sufficient. See [details](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine#compiler-technology-comparison)._
-
-_Previous content of this repository and Wiki, which was exclusively dedicated to .NET Framework edition of CS-Script has been  is  has been moved to a new repository: https://github.com/oleg-shilo/cs-script.net-framework_
+This page is a one-minute-read info about the brightest features of the system. The complete overview can be found on [Wiki](https://github.com/oleg-shilo/cs-script/wiki/CS-Script-Overview)    
 
 ---
- 
+_Please note that this repository is hosting the releases of CS-Script (v4.0.0 and higher). Previous content of this repository and wiki (.NET Framework edition of CS-Script) has been been moved to the new repository: https://github.com/oleg-shilo/cs-script.net-framework_
+
+_Note .NET SDK is required to have all features. However the core features can utilized even with .NET Runtime only. See [details](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine#compiler-technology-comparison)._
+
+---
+
 [![Build status](https://ci.appveyor.com/api/projects/status/github/oleg-shilo/cs-script?svg=true)](https://ci.appveyor.com/project/oleg-shilo/cs-script) [![Chocolatey Version](http://img.shields.io/chocolatey/v/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![Chocolatey Downloads](http://img.shields.io/chocolatey/dt/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![NuGet version (CS-Script)](https://img.shields.io/nuget/v/CS-Script.svg?style=flat-square)](https://www.nuget.org/packages/CS-Script/)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://oleg-shilo.github.io/cs-script/Donation.html)
