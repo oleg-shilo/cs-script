@@ -28,6 +28,13 @@ namespace CSScriptLib
     public delegate T MethodDelegate<T>(params object[] paramters);
 
     /// <summary>
+    /// Delegate implementing cs script statement expansion.
+    /// </summary>
+    /// <param name="text">The text to expand.</param>
+    /// <returns>Returns a string with each statement variable replaced by its value.</returns>
+    public delegate string ExpandStatementDelegate(string text);
+
+    /// <summary>
     /// Type of the assemblies to be loaded/referenced.
     /// </summary>
     public enum DomainAssemblies
@@ -187,6 +194,17 @@ namespace CSScriptLib
         {
             get { return engine; }
             set { engine = value; }
+        }
+
+        /// <summary>
+        /// Defines a custom algorithm how to expand script code. The default implementation
+        /// calls <see cref="Environment.ExpandEnvironmentVariables"/> but a host application
+        /// might define a more complex algorithm.
+        /// </summary>
+        public ExpandStatementDelegate ExpandStatementAlgorithm 
+        {
+            get => CoreExtensions.ExpandAlgorithm;
+            set => CoreExtensions.ExpandAlgorithm = value;
         }
     }
 
