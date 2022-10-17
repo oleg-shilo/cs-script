@@ -364,10 +364,23 @@ namespace csscript
             return "\\u" + ((int)c).ToString("x4");
         }
 
+#if class_lib
+
+        internal static ExpandStatementDelegate ExpandAlgorithm { get; set; }
+
+        internal static string Expand(this string text) => ExpandAlgorithm?.Invoke(text) ?? Environment.ExpandEnvironmentVariables(text);
+
+        internal static string UnescapeExpandTrim(this string text) =>
+            CSharpParser.UnescapeDirectiveDelimiters(Expand(text)).Trim();
+
+#else
+
         internal static string Expand(this string text) => Environment.ExpandEnvironmentVariables(text);
 
         internal static string UnescapeExpandTrim(this string text) =>
             CSharpParser.UnescapeDirectiveDelimiters(Environment.ExpandEnvironmentVariables(text)).Trim();
+
+#endif
 
         internal static string NormaliseAsDirectiveOf(this string statement, string parentScript, char multiPathDelimiter)
         {
