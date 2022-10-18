@@ -201,6 +201,10 @@ namespace CSScriptLib
         /// calls <see cref="Environment.ExpandEnvironmentVariables"/> but a host application
         /// might define a more complex algorithm.
         /// </summary>
+        /// <example>
+        /// <code>
+        /// </code>
+        /// </example>
         public ExpandStatementDelegate ExpandStatementAlgorithm 
         {
             get => CoreExtensions.ExpandAlgorithm;

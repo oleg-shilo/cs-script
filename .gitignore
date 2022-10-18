@@ -262,3 +262,4 @@ __pycache__/
 /Source/.NET Core/spike
 /Source/.NET Core/css/spike
 /Source/.NET Core/prepare_publish_cs-script.core.cmd
+src/chocolatey/cs-script.7z

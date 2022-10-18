@@ -13,7 +13,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.4.8.0</Version>
+    <Version>4.4.9.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
@@ -29,17 +29,28 @@
 
 ### CLI
 
-- Issue #307: cscs does not use compilation cache when path to the script has unicode characters
-- Fixed problem with `dotnet.exe` not exiting after building the script assembly
-- Added support for `CSSCRIPT_CSC_CMD_LOG` debugging options
+- No changes
 
 
 ### CSScriptLib
 
-- no changes</PackageReleaseNotes>
+- Define a custom algorithm how to expand script code.
+  Hosting code:
+
+  ```C#
+  CSScript.EvaluatorConfig.ExpandStatementAlgorithm += 
+                statement =&gt; statement.Replace("%secret_folder%", Config.PrivateFolder);
+  ```
+
+  Script code:
+
+  ```cs
+  //css_include %secret_folder%/inputdata.cs
+  . . .
+  ```</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.4.8.0</AssemblyVersion>
-    <FileVersion>4.4.8.0</FileVersion>
+    <AssemblyVersion>4.4.9.0</AssemblyVersion>
+    <FileVersion>4.4.9.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>

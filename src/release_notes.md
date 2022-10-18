@@ -1,4 +1,4 @@
-# Release v4.4.8.0
+# Release v4.4.9.0
 
 ---
 
@@ -6,14 +6,25 @@
 
 ### CLI
 
-- Issue #307: cscs does not use compilation cache when path to the script has unicode characters
-- Fixed problem with `dotnet.exe` not exiting after building the script assembly
-- Added support for `CSSCRIPT_CSC_CMD_LOG` debugging options
+- No changes
 
 
 ### CSScriptLib
 
-- no changes
+- Define a custom algorithm how to expand script code.
+  Hosting code:
+
+  ```C#
+  CSScript.EvaluatorConfig.ExpandStatementAlgorithm += 
+                statement => statement.Replace("%secret_folder%", Config.PrivateFolder);
+  ```
+
+  Script code:
+
+  ```cs
+  //css_include %secret_folder%/inputdata.cs
+  . . .
+  ```
 
 
 
