@@ -80,9 +80,12 @@ namespace csscript
                 while (count > 0)
                     try
                     {
-                        if (buildArtifact.FileExists())
+                        if (buildArtifact.FileExists() || !process.HasExited)
                             break;
-                        Thread.Sleep(timeout);
+
+                        var interval = 100;
+                        Thread.Sleep(interval);
+                        count -= interval;
                     }
                     catch { }
 
