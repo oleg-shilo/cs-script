@@ -825,6 +825,7 @@ namespace csscript
                          "use `-d:DEBUG -d:NET4` instead of `-d:DEBUG;NET4`",
                          " Example: //css_co /d:TRACE pass /d:TRACE option to C# compiler",
                          "          //css_co /platform:x86 to produce Win32 executable\n",
+                         "          //css_co -nullable:enable -warnaserror:nullable to enable nullable reference types.\n",
 
                          section_sep, //------------------------------------
                          "//css_engine <csc|dotnet|roslyn>;",
