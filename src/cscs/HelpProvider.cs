@@ -211,7 +211,9 @@ namespace csscript
             {
             };
             switch1Help[e] = new ArgInfo("-e",
-                                         "Compiles script into console application executable.");
+                                         "Compiles script into console application executable.",
+                                         "Note this switch will force the use of `dotnet` compiler as `csc` is not capable of building " +
+                                         "executable assemblies. Thus `//css_engine` and `-engine` options will always be ignored.");
             switch1Help[ew] = new ArgInfo("-ew",
                                           "Compiles script into Windows application executable (applicable only on Windows).");
             switch1Help[c] = new ArgInfo("-c[:<0|1>]",
