@@ -25,6 +25,8 @@ Copyright (C) 2004-2020 Oleg Shilo.
 
 -e
     Compiles script into console application executable.
+    Note this switch will force the use of `dotnet` compiler as `csc` is not capable of building executable
+    assemblies. Thus `//css_engine` and `-engine` options will always be ignored.
 
 -ew
     Compiles script into Windows application executable (applicable only on Windows).
@@ -657,6 +659,7 @@ Note:
 -d:NET4` instead of `-d:DEBUG;NET4`
  Example: //css_co /d:TRACE pass /d:TRACE option to C# compiler
           //css_co /platform:x86 to produce Win32 executable
+          //css_co -nullable:enable -warnaserror:nullable to enable nullable reference types.
 ------------------------------------
 //css_engine <csc|dotnet|roslyn>;
  

@@ -5,6 +5,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
+#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable CA1050 // Declare types in namespaces
+
 public static class dbg_extensions
 {
     static public T dump<T>(this T @object, params object[] args)

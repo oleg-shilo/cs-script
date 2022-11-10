@@ -241,8 +241,9 @@ namespace CSScriptLib
 
             if (info?.PreferLoadingFromFile == true && info?.AssemblyFile.IsNotEmpty() == true)
             {
-                // return Assembly.LoadFile(info.AssemblyFile); this way the loaded script assembly
-                // can be referenced from other scripts without custom assembly probing
+                // this way the loaded script assembly can be referenced from other scripts without custom assembly probing
+                // Assembly.LoadFile leads to loading assembly twice if it is already loaded so using Assembly.LoadFrom
+
                 scriptAssembly = IsAssemblyUnloadingEnabled
                                      ? AppDomain.CurrentDomain.LoadCollectableAssemblyFrom(info.AssemblyFile)
                                      : Assembly.LoadFrom(info.AssemblyFile);

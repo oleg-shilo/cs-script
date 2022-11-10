@@ -212,7 +212,7 @@ namespace EvaluatorTests
             CSScript.EvaluatorConfig.ReferenceDomainAssemblies = false; // to avoid an accidental referencing
             CSScript.EvaluatorConfig.DebugBuild = true;
 
-            var info = new CompileInfo { RootClass = "script_a", AssemblyFile = "script_a_asm2" };
+            var info = new CompileInfo { RootClass = "script_a", AssemblyFile = "script_a_asm2\\script_a_asm2.dll".EnsureFileDir() };
             try
             {
                 var code2 = @"using System;

@@ -83,7 +83,7 @@ namespace CSScripting.CodeDom
                     "<Project Sdk=\"Microsoft.NET.Sdk\">",
                     "  <PropertyGroup>",
                     "    <OutputType>Exe</OutputType>",
-                    "    <TargetFramework>net6.0</TargetFramework>",
+                    "    <TargetFramework>net7.0</TargetFramework>",
                     "  </PropertyGroup>",
                     "</Project>"
                 });

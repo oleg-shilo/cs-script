@@ -15,13 +15,14 @@ namespace EvaluatorTests
         [Fact]
         public void using_CompilerOptions()
         {
-            // Note if you give AssemblyFile the name with the extension .dll xUnit runtime will lock the file simply
-            // because it was present in the local dir. So hide the assembly by dropping the file extension and giving the name "using_CompilerOptions".
+            // CodeDomEvaluator.CompileOnServer = false;
 
+            // Note if you assign AssemblyFile to the path from the "local directory" xUnit runtime will lock the file simply
+            // because it was present in the local dir. So hide the assembly from xUnit by moving it in a separate folder
             var info = new CompileInfo
             {
                 CompilerOptions = "-define:test",
-                AssemblyFile = nameof(using_CompilerOptions).GetFullPath()
+                AssemblyFile = nameof(using_CompilerOptions).PathJoin("test.dll").EnsureFileDir(),
             };
 
             Assembly asm = CSScript.CodeDomEvaluator.CompileCode(
@@ -109,7 +110,7 @@ namespace EvaluatorTests
             CSScript.EvaluatorConfig.DebugBuild = true;
             CSScript.EvaluatorConfig.ReferenceDomainAssemblies = false;
 
-            var info = new CompileInfo { AssemblyFile = "utils_asm" };
+            var info = new CompileInfo { AssemblyFile = "utils_asm\\utils_asm.dll".EnsureFileDir() };
 
             try
             {
