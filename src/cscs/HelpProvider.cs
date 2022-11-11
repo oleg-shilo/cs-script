@@ -1270,7 +1270,7 @@ winform-vb      Windows Forms (WinForms) VB script application
 wpf             WPF script application
 wpf-cm          Caliburn.Micro based WPF script application
 toplevel|top    Top-level class script application with no entry point
-toplevel-x      Top-level class script application with no entry point an advanced CS-Script integration samples.
+toplevel-x      Top-level class script application with no entry point; an advanced CS-Script integration samples.
 
 {emptyLine}
 Legacy templates:

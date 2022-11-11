@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.4.9.0.
+C# Script execution engine (.NET Core). Version 4.5.0.0.
 Copyright (C) 2004-2020 Oleg Shilo.
 
 
@@ -131,7 +131,7 @@ Copyright (C) 2004-2020 Oleg Shilo.
     wpf             WPF script application
     wpf-cm          Caliburn.Micro based WPF script application
     toplevel|top    Top-level class script application with no entry point
-    toplevel-x      Top-level class script application with no entry point an advanced CS-Script integration samples.
+    toplevel-x      Top-level class script application with no entry point; an advanced CS-Script integration samples.
      
     Legacy templates:
     auto            Auto-class (classless) script application; use 'toplevel' instead

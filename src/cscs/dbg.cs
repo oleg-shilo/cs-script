@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
+#pragma warning disable CS8981 // Naming Styles
 #pragma warning disable IDE1006 // Naming Styles
 #pragma warning disable CA1050 // Declare types in namespaces
 
