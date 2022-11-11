@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.4.8.0</version>
+        <version>4.5.0.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,9 +25,12 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-- Issue #307: cscs does not use compilation cache when path to the script has unicode characters
-- Fixed problem with `dotnet.exe` not exiting after building the script assembly
-- Added support for `CSSCRIPT_CSC_CMD_LOG` debugging options
+Release v4.5.0
+- Rebuild for .NET7
+- Improved CLI documentation (triggered by #314)
+- Added an extra CLI `//css_co` help sample for enabling nullable reference types (#313)
+- Improved responsiveness of the "build-type" scripting scenarios (e.g. `css -check`)
+- Enhancement #310: Add the possibility to use variables in css_include and css_import statements
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>cs-script C# script dynamic hosting</tags>
