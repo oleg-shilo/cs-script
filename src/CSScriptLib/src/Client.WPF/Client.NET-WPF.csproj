@@ -8,6 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="rpi_script.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="rpi_script.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CSScriptLib\CSScriptLib.csproj" />
   </ItemGroup>
 </Project>

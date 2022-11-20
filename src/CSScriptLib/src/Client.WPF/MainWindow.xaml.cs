@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,6 +15,32 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+namespace Aurora.Devices
+{
+    public enum ActionCodes
+    {
+    }
+
+    public enum DeviceKeys
+    {
+        C,
+        CLOSE_BRACKET,
+        OPEN_BRACKET
+    }
+
+    public class Logger
+    {
+        public void LogLine(string message)
+        {
+        }
+    }
+
+    public class Global
+    {
+        public static Logger logger = new Logger();
+    }
+}
+
 namespace Client.WPF
 {
     /// <summary>
@@ -23,10 +50,17 @@ namespace Client.WPF
     {
         public MainWindow()
         {
+            Test_Issue_316();
             Test_CodeDom();
             Test_Roslyn();
 
             InitializeComponent();
+        }
+
+        public void Test_Issue_316()
+        {
+            string scriptAsmPath = CSScript.RoslynEvaluator.CompileAssemblyFromFile("rpi_script.cs", "rpi_script.cs.dll");
+            dynamic scriptObj = CSScript.RoslynEvaluator.LoadFile("rpi_script.cs");
         }
 
         public void Test_CodeDom()
