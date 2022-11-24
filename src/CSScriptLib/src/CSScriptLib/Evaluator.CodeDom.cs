@@ -438,6 +438,7 @@ namespace CSScriptLib
         /// </summary>
         /// <returns>The method result.</returns>
         public override Assembly[] GetReferencedAssemblies()
-            => referencedAssemblies.Select(Assembly.LoadFile).ToArray();
+            // important to use LoadFrom instead of LoadFile and otherwise it can lead to double loading the same assembly
+            => referencedAssemblies.Select(Assembly.LoadFrom).ToArray();
     }
 }
