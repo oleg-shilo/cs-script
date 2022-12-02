@@ -1,0 +1,260 @@
+﻿@page "/"
+@using System.Text.Json.Serialization;
+@using System.Diagnostics;
+@using System.Text.Json;
+@using wdbg.Controllers;
+@inject IJSRuntime JS
+<MudThemeProvider />
+
+@*https://mudblazor.com/docs/overview*@
+
+<PageTitle>CS-Script Debugger</PageTitle>
+
+<MudGrid Spacing="2" Justify="Justify.FlexStart">
+    <MudItem>
+        <MudContainer>
+            <br />
+            <MudGrid>
+                <MudItem xs=7>
+                    <MudText Typo="Typo.h6" GutterBottom="true">CS-Script Debugger - stack analyzer</MudText>
+                </MudItem>
+                <MudItem xs=1>
+                    <span hidden="@NotBusy"> <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" /> </span>
+                </MudItem>
+                <MudItem xs=4>
+                    <span hidden="@IsRunning"><MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnStart" StartIcon="@Icons.Material.Filled.PlayArrow">Start</MudButton> &nbsp;</span>
+                    <span hidden="@IsIdle"><MudButton Variant="Variant.Outlined" Disabled=@(IsIdle || Busy) @onclick="OnResume" StartIcon="@Icons.Material.Outlined.PlayArrow">Resume</MudButton> &nbsp;</span>
+                    <MudButton Variant="Variant.Outlined" Disabled=@(IsIdle || Busy) @onclick="OnStepOver">Step Over</MudButton>&nbsp;
+                    <MudButton Variant="Variant.Outlined" Disabled=@(IsIdle || Busy) @onclick="OnStop" StartIcon="@Icons.Material.Filled.Stop">Stop</MudButton>&nbsp;
+                </MudItem>
+            </MudGrid>
+
+            <br />
+
+            <textarea class="lined" id="sourceCode" rows="50" cols="151"
+                      value="@scriptCode" @onchange="@((args) => scriptCode = args.Value.ToString())">
+
+            </textarea>
+            <MudText Typo="Typo.h6" GutterBottom="true"> Output:</MudText>
+            <textarea class="output-text" readonly>@output</textarea>
+        </MudContainer>
+    </MudItem>
+
+    <MudItem>
+        <MudGrid>
+            <MudItem xs=12>
+                <MudContainer>
+                    <br />
+                    <MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnLoad" StartIcon="@Icons.Material.Filled.Download">Load</MudButton>&nbsp;
+                    <MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnSave" StartIcon="@Icons.Material.Filled.Save">Save</MudButton>
+                    <br />
+                    <MudTextField @bind-Value="scriptFile" FullWidth="true" Label="Script File" Variant="Variant.Text"></MudTextField>
+                    Status: @Status
+                </MudContainer>
+            </MudItem>
+        </MudGrid>
+        <MudContainer>
+            <br />
+            <MudPaper MaxWidth="500px" MinWidth="300px">
+                <MudText Typo="Typo.h6" GutterBottom="true">Locals:</MudText>
+                <MudTable Height="300px" Items="@Variables" OnRowClick="RowClickEvent" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh> <MudTh>Value</MudTh><MudTh>Type</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Value">@context.Value</MudTd>
+                        <MudTd DataLabel="Type">@context.Type</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+            <br />
+            <MudText Typo="Typo.h6" GutterBottom="true">Selected value:</MudText>
+            <textarea class="selected-value" readonly>@selectedValue</textarea>
+        </MudContainer>
+    </MudItem>
+</MudGrid>
+
+
+
+@code {
+
+    List<Variable> Variables = new();
+
+    System.Threading.Timer timer;
+    IJSObjectReference module;
+    int lastBuildHash;
+    string selectedValue;
+    string output;
+    string scriptCode;
+    string scriptFile;
+    bool Busy = false;
+    bool NotBusy => !Busy;
+    bool IsRunning = false;
+    bool IsIdle => !IsRunning;
+    string Status;
+
+
+    async void Init()
+    {
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/Index.razor.js");
+        module?.InvokeAsync<string>("initTextarea");
+
+        DbgController.OnBreak = OnSessionBreak;
+
+        timer = new System.Threading.Timer(_ =>
+        {
+            if (proc?.HasExited == true)
+            {
+                proc = null;
+                OnStop();
+            }
+
+            Refresh();
+        }, null, 0, 2000);
+
+        scriptFile = Session.CurrentStackFrameFileName;
+        if (!string.IsNullOrEmpty(scriptFile))
+        {
+            OnLoad();
+        }
+    }
+
+    void OnSessionBreak(string file, int? line, string variables)
+    {
+        lock (Variables)
+        {
+            int lineNumber = line ?? -1;
+
+            SetCurrentStep(lineNumber);
+
+            Variables.Clear();
+
+            if (variables != null)
+            {
+                var locals = JsonSerializer.Deserialize<Variable[]>(variables);
+                Variables.AddRange(locals);
+            }
+
+            selectedValue = null;
+
+            Refresh();
+        }
+    }
+
+    void SetCurrentStep(int line) => module?.InvokeAsync<string>("setCurrentStep", line);
+
+    void RowClickEvent(TableRowClickEventArgs<Variable> tableRowClickEventArgs)
+    {
+        selectedValue = tableRowClickEventArgs.Item.Value;
+        Refresh();
+    }
+
+    void OnLoad()
+    {
+        try
+        {
+            this.scriptCode = File.ReadAllText(scriptFile);
+        }
+        catch (Exception e)
+        {
+            this.output = e.ToString();
+        }
+    }
+
+    void OnSave()
+    {
+        try
+        {
+            File.WriteAllTextAsync(scriptFile, this.scriptCode);
+        }
+        catch (Exception e)
+        {
+            this.output = e.ToString();
+        }
+    }
+
+    Process proc;
+    int GetStateHash()
+        => $"{scriptCode}:{scriptFile}:{(File.Exists(scriptFile) ? File.GetLastWriteTimeUtc(scriptFile).ToString() : Environment.TickCount.ToString())}".GetHashCode();
+
+    async void OnStart()
+    {
+        OnStop();
+        Busy = true;
+        StateHasChanged();
+
+        await Task.Run(() =>
+        {
+            // if (lastBuildHash != GetStateHash()) // do not enable the optimization just yet
+                try
+                {
+                    var decoratedScript = DbgService.Prepare(scriptFile);
+                    Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_PORT", "5001");
+
+                    proc = DbgService.Start(decoratedScript, "", x => output += x);
+
+                    IsRunning = true;
+                    Status = "running";
+                    lastBuildHash = GetStateHash();
+
+                }
+                catch (Exception e)
+                {
+                    output = e.Message;
+                }
+        });
+
+        Busy = false;
+        StateHasChanged();
+    }
+
+    void OnResume()
+    {
+        Busy = false;
+        IsRunning = false;
+
+        StateHasChanged();
+    }
+
+    void OnStop()
+    {
+        if (proc != null)
+        {
+            try { proc.Kill(); }
+            catch { }
+            proc = null;
+        }
+
+        SetCurrentStep(-1);
+        IsRunning = false;
+        Status = "idle";
+        selectedValue = null;
+
+        Refresh();
+    }
+
+    void OnStepOver()
+    {
+        selectedValue = null;
+        DbgService.StepOver();
+        Refresh();
+    }
+
+    void Refresh() => InvokeAsync(StateHasChanged);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            Init();
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+    
+    public class Variable
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
+        public string Type { get; set; }
+    }
+}
