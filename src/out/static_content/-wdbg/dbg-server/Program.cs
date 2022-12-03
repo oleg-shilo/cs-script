@@ -1,7 +1,9 @@
+using MudBlazor;
 using MudBlazor.Services;
 using System.Diagnostics;
 using System.Xml.Linq;
 using wdbg.Controllers;
+using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +46,18 @@ var preprocessor = args.FirstOrDefault(x => x.StartsWith("-pre:"))?.Replace("-pr
 Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_PREROCESSOR", preprocessor);
 Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_URL", app.Urls.LastOrDefault());
 
-Console.WriteLine("Pre-processor: " + preprocessor);
+void print(string message)
+{
+    Console.ForegroundColor = ConsoleColor.Green;
+    Console.Write("info: ");
+    Console.ForegroundColor = ConsoleColor.White;
+    Console.WriteLine(message);
+}
+
+print("Script: " + Session.CurrentStackFrameFileName);
+print("Pre-processor: " + preprocessor);
+
+app.Urls.ToList().ForEach(x => print($"Now listening on: {x}")); // otherwise enable in appsettings.json
+print("Application started. Press Ctrl+C to shut down.");
 
 process.Wait();

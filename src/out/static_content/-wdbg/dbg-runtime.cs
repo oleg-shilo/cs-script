@@ -14,10 +14,10 @@ public static class DBG
 {
     static DBG()
     {
-        Console.WriteLine("DBG-Server: " + debuggerUrl);
+        // Console.WriteLine("DBG-Server: " + debuggerUrl);
     }
 
-    static string debuggerUrl => Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL");// ?? "https://localhost:5001";
+    static string debuggerUrl => Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL");
 
     public static string PostVars(string data)
     {
@@ -35,10 +35,7 @@ public static class DBG
     {
         get
         {
-            try
-            {
-                return DownloadString($"{debuggerUrl}/dbg/userrequest");
-            }
+            try { return DownloadString($"{debuggerUrl}/dbg/userrequest"); }
             catch { return ""; }
         }
     }
@@ -78,7 +75,7 @@ public static class DBG
         return result;
     }
 
-    public static BreakPoint bp([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+    public static BreakPoint Line([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         => new BreakPoint
         {
             memberName = memberName,
@@ -101,15 +98,22 @@ public class BreakPoint
             Thread.Sleep(700);
     }
 
-    bool IsStopRequested() => DBG.Breakpoints.Contains(id) || true;
+    bool ShouldStop()
+    {
+        return DBG.Breakpoints.Contains(id) || true;
+    }
 
     bool IsStepOverRequested() => DBG.UserRequest == "step_over";
 
+    bool IsStepInRequested() => DBG.UserRequest == "step_in";
+
+    bool IsResumeRequested() => DBG.UserRequest == "resume";
+
     public void Inspect(params (string name, object value)[] variables)
     {
-        // DBG.bp().Inspect(("testVar2", testVar2), ("testVar3", testVar3), ("i", i), ("testVar4", testVar4), ("testVar5", testVar5), ("yyy", yyy))
+        // DBG.bp().Inspect(("testVar2", testVar2), ("testVar3", testVar3), ("i", i));
 
-        if (!IsStopRequested())
+        if (!ShouldStop())
             return;
 
         var localsJson = JsonSerializer.Serialize(

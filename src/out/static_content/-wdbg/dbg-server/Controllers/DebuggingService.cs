@@ -1,13 +1,49 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.JSInterop;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using wdbg.Controllers;
 
 namespace wdbg.Controllers;
+
+public static class InteropKeyPress
+{
+    static public Action<KeyboardEventArgs> OnKeyDown;
+
+    [JSInvokable]
+    public static Task JsKeyDown(KeyboardEventArgs e)
+    {
+        // Console.WriteLine("***********************************************");
+        // Console.WriteLine(e.Key);
+        // Console.WriteLine("***********************************************");
+
+        // if (e.Key == "F11")
+        // {
+        //     Console.WriteLine("Step-in");
+        //     DbgService.StepIn();
+        // }
+
+        // if (e.Key == "F10")
+        // {
+        //     Console.WriteLine("Step-over");
+        //     DbgService.StepOver();
+        // }
+
+        // if (e.Key == "F5")
+        // {
+        //     Console.WriteLine("Step-over");
+        //     DbgService.StepOver();
+        // }
+        OnKeyDown?.Invoke(e);
+        return Task.CompletedTask;
+    }
+}
 
 [ApiController]
 public class DbgController : ControllerBase
@@ -16,7 +52,7 @@ public class DbgController : ControllerBase
     public IEnumerable<string> GetBreakpoints()
     {
         return new string[]{
-               @"D:\dev\Galos\Stack-Analyser\Program.cs:30",
+               @"D:\dev\Galos\Stack-Analyser\Program.cs:32",
                @"D:\dev\Galos\Stack-Analyser\Program.cs:35",
                @"D:\dev\Galos\Stack-Analyser\Program.cs:42",
                @"D:\dev\Galos\Stack-Analyser\Program.cs:35",
@@ -83,9 +119,13 @@ public class DbgService
         => Shell.StartScript(script, args, onOutputData);
 
     static public void StepOver()
-    {
-        Session.CurrentUserRequest = "step_over";
-    }
+        => Session.CurrentUserRequest = "step_over";
+
+    static public void StepIn()
+        => Session.CurrentUserRequest = "step_in";
+
+    static public void Resume()
+        => Session.CurrentUserRequest = "resume";
 }
 
 static class Extensions

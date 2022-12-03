@@ -9,10 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="~/" />
     <link href="css/site.css" rel="stylesheet" />
-    <link href="blazor_min.styles.css" rel="stylesheet" />
+    @*<link href="blazor_min.styles.css" rel="stylesheet" />*@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
-    @*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">*@
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
 <body>
@@ -30,6 +29,21 @@
         <a class="dismiss">🗙</a>
     </div>
 
+    <script type="text/javascript">
+        window.onload = function () {
+            document.onkeydown = function (e) {
+                if ((e.which || e.keyCode) == 122) // F11
+                    return false;
+                if ((e.which || e.keyCode) == 121) // F10
+                    return false;
+                if ((e.which || e.keyCode) == 116) // F5
+                    return false;
+                return true;
+
+                // return (e.which || e.keyCode) != 122; //F11
+            };
+        }
+    </script>
     <script src="_framework/blazor.server.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </body>

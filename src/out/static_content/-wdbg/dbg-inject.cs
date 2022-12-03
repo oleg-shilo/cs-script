@@ -115,7 +115,8 @@ public class Decorator
                                 var inspectionObjects = string.Join(", ", variablesToAnalyse.Select(x => $"(\"{x}\", {x})"));
 
                                 if (scope.File == script && lines.Count() > scope.StartLine)
-                                    lines[lineIndex] += $"/*[{scope.StartLine}:{methodInfo?.Method}]*/DBG.bp().Inspect({inspectionObjects});";
+                                    lines[lineIndex] += $"DBG.Line().Inspect({inspectionObjects});";
+                                    // lines[lineIndex] += $"/*[{scope.StartLine}:{methodInfo?.Method}]*/DBG.Line().Inspect({inspectionObjects});";
                             }
                         }
 

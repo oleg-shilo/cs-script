@@ -19,11 +19,19 @@ static class Scipt
     static void Main(string[] args)
     {
         string urls = "https://localhost:5001";
-
+        
         string script = args.FirstOrDefault()?.GetFullPath();           // first arg is the script to debug
+        if (!File.Exists(script))
+        {
+            if (File.Exists(script + ".cs"))
+                script += ".cs";
+            else
+                throw new Exception($"Cannot script `{args.FirstOrDefault()}`. Try to use full path.");
+        }
+
         var serverArgs = "\"" + args.Skip(1).JoinBy("\" \"") + "\"";    // the rest of the args are to be interpreted by the server
         var serverDir = Path.Combine(Environment.CurrentDirectory, "dbg-server");
-        var preprocessor = Path.Combine(Environment.CurrentDirectory, "dbg-decorate.cs");
+        var preprocessor = Path.Combine(Environment.CurrentDirectory, "dbg-inject.cs");
 
         // --urls "http://localhost:5100;https://localhost:5101"
         urls = args.SkipWhile(x => x != "--urls").Skip(1).FirstOrDefault() ?? urls;

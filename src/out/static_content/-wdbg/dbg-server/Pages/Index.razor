@@ -24,7 +24,8 @@
                 <MudItem xs=4>
                     <span hidden="@IsRunning"><MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnStart" StartIcon="@Icons.Material.Filled.PlayArrow">Start</MudButton> &nbsp;</span>
                     <span hidden="@IsIdle"><MudButton Variant="Variant.Outlined" Disabled=@(IsIdle || Busy) @onclick="OnResume" StartIcon="@Icons.Material.Outlined.PlayArrow">Resume</MudButton> &nbsp;</span>
-                    <MudButton Variant="Variant.Outlined" Disabled=@(IsIdle || Busy) @onclick="OnStepOver">Step Over</MudButton>&nbsp;
+                    <MudButton Variant="Variant.Outlined" Disabled=@(IsIdle || Busy) @onclick="_=>OnStep(false)">Step Over</MudButton>&nbsp;
+                    <MudButton Variant="Variant.Outlined" Disabled=@(IsIdle || Busy) @onclick="_=>OnStep(true)">Step In</MudButton>&nbsp;
                     <MudButton Variant="Variant.Outlined" Disabled=@(IsIdle || Busy) @onclick="OnStop" StartIcon="@Icons.Material.Filled.Stop">Stop</MudButton>&nbsp;
                 </MudItem>
             </MudGrid>
@@ -99,8 +100,21 @@
     {
         module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/Index.razor.js");
         module?.InvokeAsync<string>("initTextarea");
+        await JS.InvokeVoidAsync("JsFunctions.addKeyboardListenerEvent");
 
         DbgController.OnBreak = OnSessionBreak;
+        InteropKeyPress.OnKeyDown = e =>
+        {
+            if (e.Key == "F11") DbgService.StepIn();
+
+            if (e.Key == "F10") DbgService.StepOver();
+
+            if (e.Key == "F5")
+                if (!IsRunning)
+                    OnStart();
+                else
+                    DbgService.Resume();
+        };
 
         timer = new System.Threading.Timer(_ =>
         {
@@ -187,22 +201,22 @@
         await Task.Run(() =>
         {
             // if (lastBuildHash != GetStateHash()) // do not enable the optimization just yet
-                try
-                {
-                    var decoratedScript = DbgService.Prepare(scriptFile);
+            try
+            {
+                var decoratedScript = DbgService.Prepare(scriptFile);
 
-                    proc = DbgService.Start(decoratedScript, "", x => output += x);
+                proc = DbgService.Start(decoratedScript, "", x => output += x);
 
-                    output = "";
-                    IsRunning = true;
-                    Status = $"running (pid:{proc.Id})";
-                    lastBuildHash = GetStateHash();
+                output = "";
+                IsRunning = true;
+                Status = $"running (pid:{proc.Id})";
+                lastBuildHash = GetStateHash();
 
-                }
-                catch (Exception e)
-                {
-                    output = e.Message;
-                }
+            }
+            catch (Exception e)
+            {
+                output = e.Message;
+            }
         });
 
         Busy = false;
@@ -213,8 +227,8 @@
     {
         Busy = false;
         IsRunning = false;
-
-        StateHasChanged();
+        DbgService.Resume();
+        Refresh();
     }
 
     void OnStop()
@@ -234,10 +248,13 @@
         Refresh();
     }
 
-    void OnStepOver()
+    void OnStep(bool stepIn)
     {
         selectedValue = null;
-        DbgService.StepOver();
+        if (stepIn)
+            DbgService.StepIn();
+        else
+            DbgService.StepOver();
         Refresh();
     }
 
@@ -250,7 +267,7 @@
 
         await base.OnAfterRenderAsync(firstRender);
     }
-    
+
     public class Variable
     {
         public string Name { get; set; }
