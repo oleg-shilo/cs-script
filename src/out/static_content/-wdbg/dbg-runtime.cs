@@ -12,17 +12,22 @@ using System.Threading.Tasks;
 
 public static class DBG
 {
-    static string debuggerPort => Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_PORT") ?? "5001";
+    static DBG()
+    {
+        Console.WriteLine("DBG-Server: " + debuggerUrl);
+    }
+
+    static string debuggerUrl => Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL");// ?? "https://localhost:5001";
 
     public static string PostVars(string data)
     {
-        try { return UploadString($"https://localhost:{debuggerPort}/dbg/localvars", data); }
+        try { return UploadString($"{debuggerUrl}/dbg/localvars", data); }
         catch { return ""; }
     }
 
     public static string PostBreak(string data)
     {
-        try { return UploadString($"https://localhost:{debuggerPort}/dbg/break", data); }
+        try { return UploadString($"{debuggerUrl}/dbg/break", data); }
         catch { return ""; }
     }
 
@@ -30,7 +35,10 @@ public static class DBG
     {
         get
         {
-            try { return DownloadString($"https://localhost:{debuggerPort}/dbg/userrequest"); }
+            try
+            {
+                return DownloadString($"{debuggerUrl}/dbg/userrequest");
+            }
             catch { return ""; }
         }
     }
@@ -41,7 +49,7 @@ public static class DBG
         {
             try
             {
-                return DownloadString($"https://localhost:{debuggerPort}/dbg/breakpoints").Split('\n').Select(x => x.Trim()).ToArray();
+                return DownloadString($"{debuggerUrl}/dbg/breakpoints").Split('\n').Select(x => x.Trim()).ToArray();
             }
             catch { return new string[0]; }
         }
@@ -52,7 +60,7 @@ public static class DBG
     static async Task<String> GetAsync(string url)
     {
         using var client = new HttpClient();
-        var result = await client.GetStringAsync("http://webcode.me");
+        var result = await client.GetStringAsync(url);
         return result;
     }
 

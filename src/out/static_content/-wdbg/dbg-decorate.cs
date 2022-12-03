@@ -24,7 +24,6 @@ public class Decorator
     static int Main(string[] args)
 #endif
     {
-        // @"D:\dev\Galos\Stack-Analyser\script.cs"
         var testScript = @"D:\dev\Galos\Stack-Analyser\out\test.cs";
         var decoratedScript = Decorator.InjectDbgInfo(args.FirstOrDefault() ?? testScript);
         Console.WriteLine(Path.GetFullPath(decoratedScript));
@@ -63,72 +62,87 @@ public class Decorator
         string error;
         var decoratedScript = Path.ChangeExtension(script, ".dbg.cs");
         var compiledScript = Compile(script, out error);
+        var dbegAgentScript = Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "dbg-runtime.cs");
+        var pdbFile = Path.ChangeExtension(compiledScript, ".pdb");
 
-        if (compiledScript != null)
+        try
         {
-            MethodSyntaxInfo[] methodDeclarations = GetMethodSignatures(File.ReadAllText(script));
-
-            var invalidVariables = new Dictionary<int, string[]>();
-
-            var pdbFile = Path.ChangeExtension(compiledScript, ".pdb");
-            var pdb = new Pdb(pdbFile);
-            var map = pdb.Map();
-
-            for (int i = 0; i < 3; i++)
+            if (compiledScript != null)
             {
-                var lines = File.ReadAllLines(script).ToList();
+                MethodSyntaxInfo[] methodDeclarations = GetMethodSignatures(File.ReadAllText(script));
 
-                foreach (var method in map)
-                    foreach (var scope in method.Scopes)
-                    {
-                        if (scope.BelongsToFile(script) && scope != method.Scopes.Last())
+                var invalidVariables = new Dictionary<int, string[]>();
+
+                var pdb = new Pdb(pdbFile);
+                var map = pdb.Map();
+
+                for (int i = 0; i < 3; i++)
+                {
+                    var lines = File.ReadAllLines(script).ToList();
+
+                    foreach (var method in map)
+                        foreach (var scope in method.Scopes)
                         {
-                            // scope is 1-based
-                            var lineIndex = scope.StartLine - 1;
-                            var line = lines[lineIndex].TrimEnd();
-
-                            if (!line.EndsWith(";") && !line.EndsWith("{"))
-                                continue;
-
-                            var variablesToAnalyse = scope.ScopeVariables.ToList();
-
-                            // the scope is within the method declaration. Note local function scope will always belong to
-                            // more than one method declaration
-                            var methodInfo = methodDeclarations
-                                .Where(x => (x.StartLine) <= lineIndex && lineIndex <= (x.EndLine))
-                                .OrderBy(x => lineIndex - x.StartLine) // take the internal/nested method declaration (e.g. local function)
-                                .FirstOrDefault();
-
-                            if (methodInfo != null)
-                                variablesToAnalyse.AddRange(methodInfo.Params);
-
-                            if (invalidVariables.Any())
+                            if (scope.BelongsToFile(script) && scope != method.Scopes.Last())
                             {
-                                // if errors are detected then we are dealing with a decorated script with extra line on top
-                                var indexInErrorOutput = scope.StartLine + 1; // adjust for an injected line on top
-                                if (invalidVariables.ContainsKey(indexInErrorOutput))
-                                    variablesToAnalyse = variablesToAnalyse.Except(invalidVariables[indexInErrorOutput]).ToList();
+                                // scope is 1-based
+                                var lineIndex = scope.StartLine - 1;
+                                var line = lines[lineIndex].TrimEnd();
+
+                                if (!line.EndsWith(";") && !line.EndsWith("{"))
+                                    continue;
+
+                                var variablesToAnalyse = scope.ScopeVariables.ToList();
+
+                                // the scope is within the method declaration. Note local function scope will always belong to
+                                // more than one method declaration
+                                var methodInfo = methodDeclarations
+                                    .Where(x => (x.StartLine) <= lineIndex && lineIndex <= (x.EndLine))
+                                    .OrderBy(x => lineIndex - x.StartLine) // take the internal/nested method declaration (e.g. local function)
+                                    .FirstOrDefault();
+
+                                if (methodInfo != null)
+                                    variablesToAnalyse.AddRange(methodInfo.Params);
+
+                                if (invalidVariables.Any())
+                                {
+                                    // if errors are detected then we are dealing with a decorated script with extra line on top
+                                    var indexInErrorOutput = scope.StartLine + 1; // adjust for an injected line on top
+                                    if (invalidVariables.ContainsKey(indexInErrorOutput))
+                                        variablesToAnalyse = variablesToAnalyse.Except(invalidVariables[indexInErrorOutput]).ToList();
+                                }
+
+                                var inspectionObjects = string.Join(", ", variablesToAnalyse.Select(x => $"(\"{x}\", {x})"));
+
+                                if (scope.File == script && lines.Count() > scope.StartLine)
+                                    lines[lineIndex] += $"/*[{scope.StartLine}:{methodInfo?.Method}]*/DBG.bp().Inspect({inspectionObjects});";
                             }
-
-                            var inspectionObjects = string.Join(", ", variablesToAnalyse.Select(x => $"(\"{x}\", {x})"));
-
-                            if (scope.File == script && lines.Count() > scope.StartLine)
-                                lines[lineIndex] += $"/*[{scope.StartLine}:{methodInfo?.Method}]*/DBG.bp().Inspect({inspectionObjects});";
                         }
-                    }
 
-                lines.Insert(0, "//css_ref " + analyser);
+                    lines.Insert(0, "//css_inc " + dbegAgentScript);
 
-                File.WriteAllLines(decoratedScript, lines);
+                    File.WriteAllLines(decoratedScript, lines);
 
-                error = Check(decoratedScript);
+                    error = Check(decoratedScript);
 
-                if (string.IsNullOrEmpty(error))
-                    break;
+                    if (string.IsNullOrEmpty(error))
+                        break;
 
-                foreach (var item in ExtractInvalidVariableDeclarations(error))
-                    invalidVariables[item.Key] = item.Value;
+                    foreach (var item in ExtractInvalidVariableDeclarations(error))
+                        invalidVariables[item.Key] = item.Value;
+                }
+
+                pdb.provider.Dispose();
             }
+        }
+        finally
+        {
+            try
+            {
+                File.Delete(compiledScript);
+                File.Delete(pdbFile);
+            }
+            catch { }
         }
 
         if (error != null)

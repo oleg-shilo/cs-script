@@ -190,12 +190,12 @@
                 try
                 {
                     var decoratedScript = DbgService.Prepare(scriptFile);
-                    Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_PORT", "5001");
 
                     proc = DbgService.Start(decoratedScript, "", x => output += x);
 
+                    output = "";
                     IsRunning = true;
-                    Status = "running";
+                    Status = $"running (pid:{proc.Id})";
                     lastBuildHash = GetStateHash();
 
                 }

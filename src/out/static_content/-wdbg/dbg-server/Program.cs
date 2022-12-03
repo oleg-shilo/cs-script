@@ -3,9 +3,6 @@ using System.Diagnostics;
 using System.Xml.Linq;
 using wdbg.Controllers;
 
-// Shell.StartProcess("dotnet", "--version", "", Console.WriteLine, Console.WriteLine).WaitForExit();
-// return;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,6 +13,7 @@ builder.Services.AddMudServices();
 builder.Services.AddSingleton<DbgService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// builder.WebHost.UseUrls("http://localhost:5003", "https://localhost:5004");
 
 var app = builder.Build();
 
@@ -26,7 +24,6 @@ app.UseSwaggerUI();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
@@ -41,4 +38,12 @@ app.MapFallbackToPage("/_Host");
 
 Session.CurrentStackFrameFileName = args.FirstOrDefault();
 
-app.Run();
+var process = app.RunAsync();
+
+var preprocessor = args.FirstOrDefault(x => x.StartsWith("-pre:"))?.Replace("-pre:", "")?.Trim('"');
+Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_PREROCESSOR", preprocessor);
+Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_URL", app.Urls.LastOrDefault());
+
+Console.WriteLine("Pre-processor: " + preprocessor);
+
+process.Wait();

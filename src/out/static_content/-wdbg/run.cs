@@ -12,30 +12,36 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
+using CSScripting;
 
 static class Scipt
 {
     static void Main(string[] args)
     {
-        int port = 5001;
-        string ip = "https://localhost";
-        string url = $"{ip}:{port}";
+        string urls = "https://localhost:5001";
 
-        string script = args.Take(1).FirstOrDefault();
-        if (script != null)
-            script = Path.GetFullPath(script);
+        string script = args.FirstOrDefault()?.GetFullPath();           // first arg is the script to debug
+        var serverArgs = "\"" + args.Skip(1).JoinBy("\" \"") + "\"";    // the rest of the args are to be interpreted by the server
+        var serverDir = Path.Combine(Environment.CurrentDirectory, "dbg-server");
+        var preprocessor = Path.Combine(Environment.CurrentDirectory, "dbg-decorate.cs");
 
-        Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_PORT", $"{port}");
-        Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_PREROCESSOR", Path.Combine(Environment.CurrentDirectory, "dbg-decorate.cs"));
+        // --urls "http://localhost:5100;https://localhost:5101"
+        urls = args.SkipWhile(x => x != "--urls").Skip(1).FirstOrDefault() ?? urls;
 
-        if (args.Contains("-start-browser"))
-            $"https://localhost:{port}".Start(UseShellExecute: true);
+        // start wdbg server
+        var proc = "dotnet".Start($"run \"{script}\" --urls \"{urls}\" -pre:{preprocessor} {serverArgs}", serverDir);
 
-        var serverArgs = string.Join("\" \"", args.Skip(1));
+        // start browser with wdbg url
+        if (!args.Contains("-suppress-browser"))
+        {
+            var url = urls.Split(';').FirstOrDefault();
+            url.Start(UseShellExecute: true);
+        }
 
-        "dotnet".Start($"run \"{script}\" -url:{url} {serverArgs}", Path.Combine(Environment.CurrentDirectory, "dbg-server"))
-                .WaitForExit();
+        proc.WaitForExit();
     }
+
+    static string GetFullPath(this string path) => path != null ? Path.GetFullPath(path) : null;
 
     static Process Start(this string exe, string args = "", string dir = null, bool UseShellExecute = false)
     {

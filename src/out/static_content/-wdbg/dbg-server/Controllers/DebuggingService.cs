@@ -117,7 +117,7 @@ static class Shell
     {
         return Shell.StartProcess(
                             "dotnet",
-                            $"{cscs.qt()} {script.qt()} {args}",
+                            $"{cscs.qt()} -dbg {script.qt()} {args}",
                             script.GetDirName(),
                             onOutputData,
                             onOutputData);
