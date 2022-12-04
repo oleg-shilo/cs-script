@@ -124,7 +124,7 @@ public class BreakPoint
                                 Type = x.value?.GetType().ToString()
                             }));
 
-        DBG.PostBreak($"{sourceFilePath}|{sourceLineNumber}|{localsJson}");
+        DBG.PostBreak($"{sourceFilePath}|{sourceLineNumber}|{localsJson}"); // let debugger to show BP as the start of the next line
 
         WaitTillResumed();
     }

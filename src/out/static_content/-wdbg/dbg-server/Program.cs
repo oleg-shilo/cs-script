@@ -38,7 +38,7 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-Session.CurrentStackFrameFileName = args.FirstOrDefault();
+Session.CurrentStackFrameFileName = args.FirstOrDefault() ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
 
 var process = app.RunAsync();
 

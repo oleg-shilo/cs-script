@@ -15,31 +15,26 @@ namespace wdbg.Controllers;
 public static class InteropKeyPress
 {
     static public Action<KeyboardEventArgs> OnKeyDown;
+    static public Action<int> BreakpointAreaClicked;
+
+    [JSInvokable]
+    public static Task ToggeBreakpoint(object lineNumber)
+    {
+        // Console.WriteLine($"Toggle: {lineNumber}");
+        try
+        {
+            int i = int.Parse(lineNumber.ToString());
+            BreakpointAreaClicked?.Invoke(i);
+        }
+        catch { }
+
+        return Task.CompletedTask;
+    }
 
     [JSInvokable]
     public static Task JsKeyDown(KeyboardEventArgs e)
     {
-        // Console.WriteLine("***********************************************");
         // Console.WriteLine(e.Key);
-        // Console.WriteLine("***********************************************");
-
-        // if (e.Key == "F11")
-        // {
-        //     Console.WriteLine("Step-in");
-        //     DbgService.StepIn();
-        // }
-
-        // if (e.Key == "F10")
-        // {
-        //     Console.WriteLine("Step-over");
-        //     DbgService.StepOver();
-        // }
-
-        // if (e.Key == "F5")
-        // {
-        //     Console.WriteLine("Step-over");
-        //     DbgService.StepOver();
-        // }
         OnKeyDown?.Invoke(e);
         return Task.CompletedTask;
     }
@@ -108,6 +103,7 @@ public class Session
     public static string CurrentUserRequest;
     public static int? CurrentStackFrameLineNumber;
     public static string CurrentStackFrameFileName;
+    public static List<int> CurrentBreakpoints = new();
 }
 
 public class DbgService

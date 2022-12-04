@@ -100,16 +100,26 @@ h1:focus {
     }
 
     .linedwrap .codelines .lineselect {
-        /*color: red;*/
         color: white;
         background-color: coral;
     }
 
-    .linedwrap .codelines .bp {
-        font-weight: bold;
-        font-family: Arial, sans-serif;
-        color: green;
-    }
+.bp-active {
+    fill: red;
+}
+
+.bp-inactive-selected {
+    fill: coral;
+}
+
+.bp:hover {
+    fill: gray;
+}
+
+.bp-active .bp-inactive-selected {
+    fill: red;
+}
+
 /*===================================*/
 .svg-icon {
     height: 0.625em;
