@@ -39,10 +39,11 @@ app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
 Session.CurrentStackFrameFileName = args.FirstOrDefault() ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
+var preprocessor = args.FirstOrDefault(x => x.StartsWith("-pre:"))?.Replace("-pre:", "")?.Trim('"') ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\dbg-inject.cs";
 
 var process = app.RunAsync();
 
-var preprocessor = args.FirstOrDefault(x => x.StartsWith("-pre:"))?.Replace("-pre:", "")?.Trim('"');
+
 Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_PREROCESSOR", preprocessor);
 Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_URL", app.Urls.LastOrDefault());
 

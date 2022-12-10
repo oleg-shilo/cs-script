@@ -44,27 +44,24 @@ public static class InteropKeyPress
 public class DbgController : ControllerBase
 {
     [HttpGet("dbg/breakpoints")]
-    public IEnumerable<string> GetBreakpoints()
+    public string GetBreakpoints()
     {
-        return new string[]{
-               @"D:\dev\Galos\Stack-Analyser\Program.cs:32",
-               @"D:\dev\Galos\Stack-Analyser\Program.cs:35",
-               @"D:\dev\Galos\Stack-Analyser\Program.cs:42",
-               @"D:\dev\Galos\Stack-Analyser\Program.cs:35",
-               @"D:\dev\Galos\Stack-Analyser\Program.cs:42",
-               @"D:\dev\Galos\Stack-Analyser\Program.cs:24"};
+        return Session.CurrentBreakpoints.Select(x => $"{Session.CurrentStackFrameFileName?.Replace(".dbg.cs", ".cs")}:{x}").JoinBy("\n");
     }
 
     [HttpGet("dbg/userrequest")]
     public ActionResult<string> GetRequest()
     {
-        try
+        lock (typeof(DbgController))
         {
-            return Session.CurrentUserRequest;
-        }
-        finally
-        {
-            Session.CurrentUserRequest = null;
+            try
+            {
+                return Session.CurrentUserRequest;
+            }
+            finally
+            {
+                Session.CurrentUserRequest = null;
+            }
         }
     }
 
@@ -88,7 +85,7 @@ public class DbgController : ControllerBase
         Session.CurrentStackFrameLineNumber.Parse(parts[1]);
         Session.Variables = parts[2];
 
-        OnBreak?.Invoke(Session.CurrentStackFrameFileName, Session.CurrentStackFrameLineNumber - 1, Session.Variables);
+        OnBreak?.Invoke(Session.CurrentStackFrameFileName, Session.CurrentStackFrameLineNumber, Session.Variables);
 
         return "OK";
     }
@@ -129,6 +126,9 @@ static class Extensions
     public static string qt(this string path) => $"\"{path}\"";
 
     public static string GetDirName(this string path) => Path.GetDirectoryName(path);
+
+    public static string JoinBy(this IEnumerable<string> request, string separator)
+        => string.Join(separator, request);
 
     public static string BodyAsString(this HttpRequest request)
     {

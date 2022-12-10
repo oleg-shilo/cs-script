@@ -24,7 +24,7 @@ public class Decorator
     static int Main(string[] args)
 #endif
     {
-        var testScript = @"D:\dev\Galos\Stack-Analyser\out\test.cs";
+        var testScript = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test3.cs";
         var decoratedScript = Decorator.InjectDbgInfo(args.FirstOrDefault() ?? testScript);
         Console.WriteLine(Path.GetFullPath(decoratedScript));
         return 0;
@@ -76,7 +76,7 @@ public class Decorator
                 var pdb = new Pdb(pdbFile);
                 var map = pdb.Map();
 
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 3; i++) // repeat until succeed but no more than 3 times
                 {
                     var lines = File.ReadAllLines(script).ToList();
 
@@ -89,7 +89,8 @@ public class Decorator
                                 var lineIndex = scope.StartLine - 1;
                                 var line = lines[lineIndex].TrimEnd();
 
-                                if (!line.EndsWith(";") && !line.EndsWith("{"))
+                                // if (!line.EndsWith(";") && !line.EndsWith("{"))
+                                if (!line.EndsWith(";") && !line.EndsWith("}"))
                                     continue;
 
                                 var variablesToAnalyse = scope.ScopeVariables.ToList();
@@ -115,8 +116,26 @@ public class Decorator
                                 var inspectionObjects = string.Join(", ", variablesToAnalyse.Select(x => $"(\"{x}\", {x})"));
 
                                 if (scope.File == script && lines.Count() > scope.StartLine)
-                                    lines[lineIndex] += $"DBG.Line().Inspect({inspectionObjects});";
-                                    // lines[lineIndex] += $"/*[{scope.StartLine}:{methodInfo?.Method}]*/DBG.Line().Inspect({inspectionObjects});";
+                                {
+                                    var trimmedLine = lines[lineIndex].TrimStart();
+
+                                    var indent = new string(' ', line.Length - trimmedLine.Length);
+
+                                    if (trimmedLine.TrimStart().StartsWith("{"))
+                                    {
+                                        lines[lineIndex] = $"{indent}{{ DBG.Line().Inspect({inspectionObjects});" + trimmedLine.Substring(1);
+                                    }
+                                    else
+                                    {
+                                        // avoid injecting inspection in the bracketless scope statements like `if(true)\nInspect(...);foo();
+                                        var prevLine = "";
+                                        if (lineIndex > 1)
+                                            prevLine = lines[lineIndex - 1].Trim();
+                                        if (!prevLine.StartsWithAny("if", "until", "do", "foreach", "for"))
+                                            lines[lineIndex] = $"{indent}DBG.Line().Inspect({inspectionObjects});" + trimmedLine;
+                                    }
+                                }
+                                // lines[lineIndex] += $"/*[{scope.StartLine}:{methodInfo?.Method}]*/DBG.Line().Inspect({inspectionObjects});";
                             }
                         }
 
@@ -206,7 +225,6 @@ public class Decorator
     }
 
     static string css => Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_ROOT%\cscs.dll");
-    static string analyser => "D:\\dev\\Galos\\Stack-Analyser\\bin\\Debug\\net7.0\\StackAnalyser.dll";
 }
 
 public class MethodDbgInfo
@@ -228,6 +246,9 @@ public class ScopeInfo
 
 static class Extensions
 {
+    static public bool StartsWithAny(this string text, params string[] patterns)
+        => patterns.Any(x => text.StartsWith(x));
+
     static public int ToInt(this string text)
     {
         int.TryParse(text, out var result);

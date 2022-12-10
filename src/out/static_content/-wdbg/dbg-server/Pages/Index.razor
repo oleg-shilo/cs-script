@@ -22,6 +22,13 @@
                     <span hidden="@NotBusy"> <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" /> </span>
                 </MudItem>
                 <MudItem xs=4>
+                    @*                    <MudButton @onclick="OnStart">Start/Resume</MudButton>
+                    <MudButton @onclick="()=>StateHasChanged()">Refresh</MudButton>
+                    <MudButton @onclick="_=>OnStep(false)">Step Over</MudButton>
+                    <MudButton @onclick="_=>OnStep(true)">Step Into</MudButton>
+                    <MudButton @onclick="OnStop">Stop</MudButton>
+                    <br />
+                    *@
                     @*<MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>*@
                     @*<link href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" rel="stylesheet">*@
                     @*<MudIconButton Icon="fas fa-atom" Color="Color.Error"></MudIconButton>*@
@@ -30,17 +37,16 @@
                     <span hidden="@IsRunning">
                         <MudIconButton title="Start (F5)"
                                        Disabled="@(IsRunning || Busy)"
-                                       @onclick="OnStart"
+                                       @onclick="_=>OnStart()"
                                        Icon="@Icons.Material.Filled.PlayArrow" Color="Color.Success" />
                     </span>
                     <span hidden="@IsIdle">
                         <MudIconButton title="Resume (F5)"
                                        Disabled=@(IsIdle || Busy)
-                                       @onclick="OnStart"
+                                       @onclick="_=>OnStart()"
                                        Icon="@Icons.Material.Outlined.PlayArrow" Color="Color.Warning" />
                     </span>
                     <MudIconButton title="Step Over (F10)"
-                                   Disabled=@(IsIdle || Busy)
                                    @onclick="_=>OnStep(false)"
                                    Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Success" />
                     <MudIconButton title="Step Into (F11)"
@@ -111,6 +117,7 @@
             <tr><td>F11</td><td>Step Into</td></tr>
             <tr><td>F9</td><td>Toggle Breakpoint</td></tr>
             <tr><td>Shift+F9</td><td>Clear Breakpoints</td></tr>
+            <tr><td>Ctrl+S</td><td>Save</td></tr>
         </tbody>
     </MudSimpleTable>
 
@@ -158,6 +165,10 @@
             if (e.Key == "F11") DbgService.StepIn();
 
             if (e.Key == "F10") DbgService.StepOver();
+
+            if (e.Key == "s" && e.CtrlKey) OnSave();
+
+            Console.WriteLine($"Key: {e.Key}");
 
             if (e.Key == "F9")
             {
@@ -277,7 +288,7 @@
     int GetStateHash()
         => $"{scriptCode}:{scriptFile}:{(File.Exists(scriptFile) ? File.GetLastWriteTimeUtc(scriptFile).ToString() : Environment.TickCount.ToString())}".GetHashCode();
 
-    async void OnStart()
+    async void OnStart(bool pauseOnStart = false)
     {
         if (IsRunning)
         {
@@ -296,7 +307,9 @@
                 {
                     var decoratedScript = DbgService.Prepare(scriptFile);
 
-                    proc = DbgService.Start(decoratedScript, "", x => output += x);
+                    Environment.SetEnvironmentVariable("pauseOnStart", pauseOnStart ? "true" : null);
+
+                    proc = DbgService.Start(decoratedScript, "", x => output += x + Environment.NewLine);
 
                     output = "";
                     IsRunning = true;
@@ -335,9 +348,20 @@
     {
         selectedValue = null;
         if (stepIn)
+        {
             DbgService.StepIn();
+        }
         else
-            DbgService.StepOver();
+        {
+            if (IsRunning)
+            {
+                DbgService.StepOver();
+            }
+            else
+            {
+                OnStart(pauseOnStart: true);
+            }
+        }
         Refresh();
     }
 

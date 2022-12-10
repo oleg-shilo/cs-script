@@ -9,14 +9,23 @@ using System.Threading;
 using System.Net.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 public static class DBG
 {
     static DBG()
     {
+        if (Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL") == null)
+            Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_URL", "https://localhost:5001");
+
+        if (Environment.GetEnvironmentVariable("pauseOnStart") != null)
+        {
+            StopOnNextInspectionPointInMethod = "*";
+        }
         // Console.WriteLine("DBG-Server: " + debuggerUrl);
     }
 
+    public static string StopOnNextInspectionPointInMethod;
     static string debuggerUrl => Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL");
 
     public static string PostVars(string data)
@@ -46,7 +55,16 @@ public static class DBG
         {
             try
             {
-                return DownloadString($"{debuggerUrl}/dbg/breakpoints").Split('\n').Select(x => x.Trim()).ToArray();
+                return DownloadString($"{debuggerUrl}/dbg/breakpoints")
+                    .Split('\n')
+                    .Select(x =>
+                    {
+                        // in the decorated script there is an extra line at top so increment the line number
+                        var parts = x.Trim().Split(":");
+                        var bp = $"{string.Join(":", parts[0..^1])}:{int.Parse(parts.Last()) + 1}";
+                        return bp;
+                    })
+                    .ToArray();
             }
             catch { return new string[0]; }
         }
@@ -90,24 +108,69 @@ public class BreakPoint
     public string sourceFilePath = "";
     public int sourceLineNumber = 0;
 
-    string id => $"{sourceFilePath}:{sourceLineNumber}";
+    string id => $"{sourceFilePath.Replace(".dbg.cs", ".cs")}:{sourceLineNumber}";
 
     void WaitTillResumed()
     {
-        while (!IsStepOverRequested())
+        while (true)
+        {
+            var request = DBG.UserRequest;
+            Debug.WriteLine("Waiting for resuming. User request: " + request);
+
+            // StepIn means just continue for the very next point of inspection
+            // which can be either next line in the same method or in the called (child) method
+            if (IsStepInRequested(request))
+            {
+                DBG.StopOnNextInspectionPointInMethod = "*";
+                break;
+            }
+
+            // continue to the next point of inspection but only in the same method
+            if (IsStepOverRequested(request))
+            {
+                DBG.StopOnNextInspectionPointInMethod = memberName;
+                break;
+            }
+
+            if (IsResumeRequested(request))
+            {
+                DBG.StopOnNextInspectionPointInMethod = null;
+                break;
+            }
+
             Thread.Sleep(700);
+        }
     }
 
     bool ShouldStop()
     {
-        return DBG.Breakpoints.Contains(id) || true;
+        if (DBG.StopOnNextInspectionPointInMethod == "*")
+        {
+            DBG.StopOnNextInspectionPointInMethod = null;
+            return true;
+        }
+
+        if (memberName == DBG.StopOnNextInspectionPointInMethod)
+        {
+            DBG.StopOnNextInspectionPointInMethod = null;
+            return true;
+        }
+
+        var bp = DBG.Breakpoints;
+
+        if (DBG.Breakpoints.Contains(id))
+        {
+            DBG.StopOnNextInspectionPointInMethod = null;
+            return true;
+        }
+        return false;
     }
 
-    bool IsStepOverRequested() => DBG.UserRequest == "step_over";
+    bool IsStepOverRequested(string request) => request == "step_over";
 
-    bool IsStepInRequested() => DBG.UserRequest == "step_in";
+    bool IsStepInRequested(string request) => request == "step_in";
 
-    bool IsResumeRequested() => DBG.UserRequest == "resume";
+    bool IsResumeRequested(string request) => request == "resume";
 
     public void Inspect(params (string name, object value)[] variables)
     {
@@ -124,7 +187,7 @@ public class BreakPoint
                                 Type = x.value?.GetType().ToString()
                             }));
 
-        DBG.PostBreak($"{sourceFilePath}|{sourceLineNumber}|{localsJson}"); // let debugger to show BP as the start of the next line
+        DBG.PostBreak($"{sourceFilePath}|{sourceLineNumber - 1}|{localsJson}"); // let debugger to show BP as the start of the next line
 
         WaitTillResumed();
     }

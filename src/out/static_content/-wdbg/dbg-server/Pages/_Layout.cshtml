@@ -38,9 +38,12 @@
                     return false;
                 if ((e.which || e.keyCode) == 116) // F5
                     return false;
+                if (e.ctrlKey && e.key === 's') {
+                    // Prevent the Save dialog to open
+                    e.preventDefault();
+                    return false;
+                }
                 return true;
-
-                // return (e.which || e.keyCode) != 122; //F11
             };
         }
     </script>
