@@ -46,7 +46,10 @@ public class DbgController : ControllerBase
     [HttpGet("dbg/breakpoints")]
     public string GetBreakpoints()
     {
-        return Session.CurrentBreakpoints.Select(x => $"{Session.CurrentStackFrameFileName?.Replace(".dbg.cs", ".cs")}:{x}").JoinBy("\n");
+        lock (Session.CurrentBreakpoints)
+        {
+            return Session.CurrentBreakpoints.Select(x => $"{Session.CurrentStackFrameFileName?.Replace(".dbg.cs", ".cs")}:{x}").JoinBy("\n");
+        }
     }
 
     [HttpGet("dbg/userrequest")]
@@ -101,12 +104,48 @@ public class Session
     public static int? CurrentStackFrameLineNumber;
     public static string CurrentStackFrameFileName;
     public static List<int> CurrentBreakpoints = new();
+
+    public static void UpdateCurrentBreakpoints(int[] validBreakPointLines)
+    {
+        lock (CurrentBreakpoints)
+        {
+            if (validBreakPointLines != null) // valid lines for placing break points are known
+            {
+                var invalidBreakPoints = CurrentBreakpoints.Except(validBreakPointLines).ToArray();
+                var validBreakPoints = CurrentBreakpoints.Except(invalidBreakPoints).ToArray();
+
+                CurrentBreakpoints.Clear();
+                CurrentBreakpoints.AddRange(validBreakPoints);
+
+                foreach (int invalidBreakPoint in invalidBreakPoints)
+                {
+                    var nextValidBreaktPointLine = validBreakPointLines.SkipWhile(x => x < invalidBreakPoint).FirstOrDefault();
+
+                    if (nextValidBreaktPointLine != 0) // since default for int is 0
+                    {
+                        if (!validBreakPoints.Contains(nextValidBreaktPointLine))
+                        {
+                            CurrentBreakpoints.Add(nextValidBreaktPointLine);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 public class DbgService
 {
-    static public string Prepare(string script)
-        => Shell.RunScript(Shell.dbg_inject, script.qt());
+    static public (string decoratedScript, int[] breakpouints) Prepare(string script)
+    {
+        var output = Shell.RunScript(Shell.dbg_inject, script.qt());
+        var lines = output.Split("\n").Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x));
+
+        var decoratedScript = lines.First();
+        var breakpoints = lines.Skip(1).SelectMany(x => x.Split(',').Select(i => int.Parse(i))).ToArray();
+
+        return (decoratedScript, breakpoints);
+    }
 
     static public Process Start(string script, string args, Action<string> onOutputData)
         => Shell.StartScript(script, args, onOutputData);
@@ -167,8 +206,8 @@ static class Shell
                             "dotnet",
                             $"{cscs.qt()} {script.qt()} {args}",
                             script.GetDirName(),
-                            x => output += x,
-                            x => output += x);
+                            x => output += x + Environment.NewLine,
+                            x => output += x + Environment.NewLine);
 
         inject.WaitForExit();
         if (inject.ExitCode == 0)

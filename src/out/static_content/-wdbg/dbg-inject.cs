@@ -13,6 +13,7 @@ using System.Reflection.Metadata.Ecma335;
 using static System.Formats.Asn1.AsnWriter;
 using System.Reflection;
 using System.ComponentModel;
+using CSScripting;
 
 public class Decorator
 {
@@ -24,9 +25,13 @@ public class Decorator
     static int Main(string[] args)
 #endif
     {
-        var testScript = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test3.cs";
-        var decoratedScript = Decorator.InjectDbgInfo(args.FirstOrDefault() ?? testScript);
+        var testScript = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
+
+        (string decoratedScript, int[] breakpoints) = Decorator.InjectDbgInfo(args.FirstOrDefault() ?? testScript);
+
         Console.WriteLine(Path.GetFullPath(decoratedScript));
+        Console.WriteLine(string.Join(",", breakpoints.Select(x => x.ToString())));
+
         return 0;
     }
 
@@ -57,13 +62,15 @@ public class Decorator
                .ToArray();
     }
 
-    public static string InjectDbgInfo(string script)
+    public static (string decoratedScript, int[] breakpoints) InjectDbgInfo(string script)
     {
         string error;
         var decoratedScript = Path.ChangeExtension(script, ".dbg.cs");
         var compiledScript = Compile(script, out error);
         var dbegAgentScript = Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "dbg-runtime.cs");
         var pdbFile = Path.ChangeExtension(compiledScript, ".pdb");
+
+        int[] breakpoints = new int[0]; // line that user can put a break point at.
 
         try
         {
@@ -143,6 +150,11 @@ public class Decorator
 
                     File.WriteAllLines(decoratedScript, lines);
 
+                    breakpoints = lines.Select((x, i) => new { index = i, line = x })
+                                       .Where(x => x.line.Contains("DBG.Line().Inspect("))
+                                       .Select(x => x.index)
+                                       .ToArray();
+
                     error = Check(decoratedScript);
 
                     if (string.IsNullOrEmpty(error))
@@ -168,7 +180,7 @@ public class Decorator
         if (error != null)
             throw new Exception(error);
         else
-            return decoratedScript;
+            return (decoratedScript, breakpoints);
     }
 
     static Dictionary<int, string[]> ExtractInvalidVariableDeclarations(string error)

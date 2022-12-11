@@ -157,6 +157,7 @@
             else
                 Session.CurrentBreakpoints.Add(line);
 
+            Session.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
             SetBpSteps(Session.CurrentBreakpoints);
         };
 
@@ -249,6 +250,7 @@
             else
                 Session.CurrentBreakpoints.Add(currentline);
 
+            Session.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
             SetBpSteps(Session.CurrentBreakpoints);
         }
     }
@@ -263,6 +265,7 @@
     {
         try
         {
+            this.scriptFileValidBreakpoints = null;
             this.scriptCode = File.ReadAllText(scriptFile);
             SetBpSteps(Session.CurrentBreakpoints);
         }
@@ -288,6 +291,8 @@
     int GetStateHash()
         => $"{scriptCode}:{scriptFile}:{(File.Exists(scriptFile) ? File.GetLastWriteTimeUtc(scriptFile).ToString() : Environment.TickCount.ToString())}".GetHashCode();
 
+    int[] scriptFileValidBreakpoints = null;
+
     async void OnStart(bool pauseOnStart = false)
     {
         if (IsRunning)
@@ -305,7 +310,10 @@
                 // if (lastBuildHash != GetStateHash()) // do not enable the optimization just yet
                 try
                 {
-                    var decoratedScript = DbgService.Prepare(scriptFile);
+                    (var decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
+
+                    Session.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
+                    SetBpSteps(Session.CurrentBreakpoints);
 
                     Environment.SetEnvironmentVariable("pauseOnStart", pauseOnStart ? "true" : null);
 
