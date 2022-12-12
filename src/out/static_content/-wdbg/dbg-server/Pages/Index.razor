@@ -59,12 +59,22 @@
                                    Icon="@Icons.Material.Filled.Stop" Color="Color.Error" />
                 </MudItem>
             </MudGrid>
-            <MudTextField id="scriptFile" @bind-Value="scriptFile" FullWidth="true" Margin="Margin.Dense" Label="Script File" Variant="Variant.Text"></MudTextField>
+            <MudTextField id="scriptFile" @bind-Value="scriptFile" FullWidth="true" Margin="Margin.Dense" Label="Script File" Variant="Variant.Outlined"></MudTextField>
             <textarea class="lined" id="sourceCode" rows="50" cols="151"
                       spellcheck="false"
                       value="@scriptCode" @onchange="@((args) => scriptCode = args.Value.ToString())" />
+
+            <br />
+            <EditForm Model="@this" OnValidSubmit="OnStdInput">
+                <MudTextField id="stdInput"
+                              Margin="Margin.Dense"
+                              @bind-Value="userInput" Immediate="true" Disabled="@(IsIdle)"
+                              Placeholder="Type and press Enter ↵ to pass the input to the running script"
+                              Label="Input:"
+                              Variant="Variant.Outlined"></MudTextField>
+            </EditForm>
+
             <MudText Typo="Typo.h6" GutterBottom="true"> Output:</MudText>
-            @*<div id="code_data"></div>*@
             <textarea class="output-text" readonly>@output</textarea>
         </MudContainer>
     </MudItem>
@@ -107,6 +117,7 @@
         <thead>
             <tr>
                 <th>HotKey</th>
+
                 <th>Description</th>
             </tr>
         </thead>
@@ -134,6 +145,7 @@
     string selectedValue;
     string output;
     string scriptCode;
+    public string userInput { get; set; } = default!;
     string scriptFile;
     bool Busy = false;
     bool NotBusy => !Busy;
@@ -141,11 +153,23 @@
     bool IsIdle => !IsRunning;
     string Status;
 
+    void OnStdInput()
+    {
+        if (proc?.HasExited == false)
+            proc.StandardInput.WriteLine(userInput);
+
+        userInput = "";
+        StateHasChanged();
+
+        // for some reason MudBlazor fails to clear unless focus is changed. So doing it from js
+        module?.InvokeVoidAsync("clearStdInput");
+    }
 
     async void Init()
     {
         module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/Index.razor.js");
         module?.InvokeAsync<string>("initTextarea");
+
         await JS.InvokeVoidAsync("JsFunctions.addKeyboardListenerEvent");
 
         DbgController.OnBreak = OnSessionBreak;

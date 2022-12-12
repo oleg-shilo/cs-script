@@ -228,6 +228,7 @@ static class Shell
         proc.StartInfo.UseShellExecute = false;
         proc.StartInfo.RedirectStandardOutput = true;
         proc.StartInfo.RedirectStandardError = true;
+        proc.StartInfo.RedirectStandardInput = true;
         proc.EnableRaisingEvents = true;
         proc.ErrorDataReceived += (_, e) => onErrOut?.Invoke(e.Data);
         proc.OutputDataReceived += (_, e) => onStdOut?.Invoke(e.Data);
