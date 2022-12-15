@@ -1,3 +1,4 @@
+using CSScripting;
 using CSScriptLib;
 using System.Collections.Generic;
 using System.IO;
@@ -45,7 +46,10 @@ namespace csscript
             return name.IndexOfAny(illegalChars) != -1;
         }
 
-        static internal ResolveAssemblyHandler FindAssemblyAlgorithm = DefaultFindAssemblyAlgorithm;
+        /// <summary>
+        /// 
+        /// </summary>
+        static public ResolveAssemblyHandler FindAssemblyAlgorithm = DefaultFindAssemblyAlgorithm;
 
         /// <summary>
         /// Resolves namespace/assembly(file) name into array of assembly locations (local and GAC ones).
@@ -115,8 +119,15 @@ namespace csscript
                 //cannot just check Directory.Exists(dir) as "name" can contain sum subDir parts
                 if (Directory.Exists(Path.GetDirectoryName(asmFile)))
                 {
-                    //test well-known assembly extensions first
-                    foreach (string ext in new string[] { "", ".dll", ".exe" })
+                    //test first the exact file name and then well-known assembly extensions first
+                    var possibleExtensions = new string[] { "", ".dll", ".exe" };
+
+                    // if user specified file name has no extension test first any file that has well-known assembly extension
+                    // triggered by https://github.com/oleg-shilo/cs-script/issues/319
+                    if (name.GetExtension() == "")
+                        possibleExtensions = new string[] { ".dll", ".exe", "" };
+
+                    foreach (string ext in possibleExtensions)
                     {
                         string file = asmFile + ext; //just in case if user did not specify the extension
                         if (ignoreFileName != Path.GetFileName(file) && File.Exists(file))
