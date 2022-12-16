@@ -1,14 +1,7 @@
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.JSInterop;
-using System;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using wdbg.Controllers;
 
 namespace wdbg.Controllers;
 
@@ -68,12 +61,13 @@ public class DbgController : ControllerBase
         }
     }
 
-    [HttpPost("dbg/localvars")]
+
+    [HttpPost("dbg/localvar")]
     [IgnoreAntiforgeryToken]
-    public ActionResult<string> PostLocalVars()
+    public ActionResult<string> PostVar()
     {
-        Session.Variables = this.Request.BodyAsString();
-        OnNewData?.Invoke();
+        var evaluationData = this.Request.BodyAsString();
+        OnVarEvaluation?.Invoke(evaluationData);
 
         return "OK";
     }
@@ -94,6 +88,7 @@ public class DbgController : ControllerBase
     }
 
     static public Action OnNewData;
+    static public Action<string> OnVarEvaluation;
     static public Action<string, int?, string> OnBreak;
 }
 
@@ -150,6 +145,8 @@ public class DbgService
     static public Process Start(string script, string args, Action<string> onOutputData)
         => Shell.StartScript(script, args, onOutputData);
 
+    static public void EvaluateExpression(string expression)
+        => Session.CurrentUserRequest = $"evaluateExpression:{expression}";
     static public void StepOver()
         => Session.CurrentUserRequest = "step_over";
 
@@ -191,11 +188,11 @@ static class Shell
     static public Process StartScript(this string script, string args, Action<string> onOutputData)
     {
         return Shell.StartProcess(
-                            "dotnet",
-                            $"{cscs.qt()} -dbg {script.qt()} {args}",
-                            script.GetDirName(),
-                            onOutputData,
-                            onOutputData);
+                                  "dotnet",
+                                  $"{cscs.qt()} -dbg {script.qt()} {args}",
+                                  script.GetDirName(),
+                                  onOutputData,
+                                  onOutputData);
     }
 
     static public string RunScript(this string script, string args)
@@ -203,8 +200,8 @@ static class Shell
         var output = "";
 
         var inject = Shell.StartProcess(
-                            "dotnet",
-                            $"{cscs.qt()} {script.qt()} {args}",
+                           "dotnet",
+                           $"{cscs.qt()} {script.qt()} {args}",
                             script.GetDirName(),
                             x => output += x + Environment.NewLine,
                             x => output += x + Environment.NewLine);

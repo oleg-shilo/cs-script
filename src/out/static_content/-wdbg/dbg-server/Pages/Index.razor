@@ -143,7 +143,13 @@
     IJSObjectReference module;
     int lastBuildHash;
     string selectedValue;
-    string output;
+    string _output;
+
+    public string output
+    {
+        get => _output;
+        set { _output = value; }
+    }
     string scriptCode;
     public string userInput { get; set; } = default!;
     string scriptFile;
@@ -173,6 +179,7 @@
         await JS.InvokeVoidAsync("JsFunctions.addKeyboardListenerEvent");
 
         DbgController.OnBreak = OnSessionBreak;
+        DbgController.OnVarEvaluation = OnVariableEvalueated;
 
         InteropKeyPress.BreakpointAreaClicked = line =>
         {
@@ -187,13 +194,10 @@
 
         InteropKeyPress.OnKeyDown = e =>
         {
-            if (e.Key == "F11") DbgService.StepIn();
-
-            if (e.Key == "F10") DbgService.StepOver();
+            if (e.Key == "F11") OnStep(stepIn: true);
+            if (e.Key == "F10") OnStep(stepIn: false);
 
             if (e.Key == "s" && e.CtrlKey) OnSave();
-
-            Console.WriteLine($"Key: {e.Key}");
 
             if (e.Key == "F9")
             {
@@ -230,6 +234,14 @@
         }
     }
 
+    void OnVariableEvalueated(string variableInfo)
+    {
+        // "{name}:{data}"
+        var tokens = variableInfo.Split(":".ToCharArray(), 2);
+        selectedValue = tokens[1];
+        Refresh();
+    }
+
     void OnSessionBreak(string file, int? line, string variables)
     {
         lock (Variables)
@@ -246,6 +258,7 @@
                 Variables.AddRange(locals);
             }
 
+
             selectedValue = null;
 
             Refresh();
@@ -259,8 +272,8 @@
 
     void RowClickEvent(TableRowClickEventArgs<Variable> tableRowClickEventArgs)
     {
-        selectedValue = tableRowClickEventArgs.Item.Value;
-        Refresh();
+        DbgService.EvaluateExpression(tableRowClickEventArgs.Item.Name);
+        //Refresh();
     }
 
     async Task ToggleBreakpoingForCurrentLine()
@@ -370,6 +383,7 @@
 
         SetCurrentStep(-1);
         IsRunning = false;
+        Session.CurrentUserRequest = null;
         Status = "idle";
         selectedValue = null;
 

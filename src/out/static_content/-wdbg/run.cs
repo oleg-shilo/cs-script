@@ -30,14 +30,17 @@ static class Scipt
         }
 
         var serverArgs = "\"" + args.Skip(1).JoinBy("\" \"") + "\"";    // the rest of the args are to be interpreted by the server
-        var serverDir = Path.Combine(Environment.CurrentDirectory, "dbg-server");
+        var serverDir = Path.Combine(Environment.CurrentDirectory, "dbg-server", "output");
+        var serverAsm = Path.Combine(serverDir, "server.dll");
         var preprocessor = Path.Combine(Environment.CurrentDirectory, "dbg-inject.cs");
 
         // --urls "http://localhost:5100;https://localhost:5101"
         urls = args.SkipWhile(x => x != "--urls").Skip(1).FirstOrDefault() ?? urls;
 
         // start wdbg server
-        var proc = "dotnet".Start($"run \"{script}\" --urls \"{urls}\" -pre:{preprocessor} {serverArgs}", serverDir);
+        var proc = "dotnet".Start($"\"{serverAsm}\" \"{script}\" --urls \"{urls}\" -pre:{preprocessor} {serverArgs}", serverDir);
+        // var proc = "dotnet".Start($"run \"{script}\" --urls \"{urls}\" -pre:{preprocessor} {serverArgs}", serverDir);
+
 
         // start browser with wdbg url
         if (!args.Contains("-suppress-browser"))

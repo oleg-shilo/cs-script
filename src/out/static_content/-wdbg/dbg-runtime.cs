@@ -1,15 +1,11 @@
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Net;
-using System.Text;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Net.Http;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Diagnostics;
 
 public static class DBG
 {
@@ -28,9 +24,9 @@ public static class DBG
     public static string StopOnNextInspectionPointInMethod;
     static string debuggerUrl => Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL");
 
-    public static string PostVars(string data)
+    public static string PostVar(string name, object data)
     {
-        try { return UploadString($"{debuggerUrl}/dbg/localvars", data); }
+        try { return UploadString($"{debuggerUrl}/dbg/localvar", $"{name}:{data}"); }
         catch { return ""; }
     }
 
@@ -110,12 +106,26 @@ public class BreakPoint
 
     string id => $"{sourceFilePath.Replace(".dbg.cs", ".cs")}:{sourceLineNumber}";
 
-    void WaitTillResumed()
+    void WaitTillResumed((string name, object value)[] variables)
     {
         while (true)
         {
             var request = DBG.UserRequest;
-            Debug.WriteLine("Waiting for resuming. User request: " + request);
+
+            if (request.StartsWith("evaluateExpression:"))
+            {
+                var varName = request.Replace("evaluateExpression:", "");
+
+                if (variables.Any(x => x.name == varName))
+                {
+                    var value = variables.First(x => x.name == varName).value;
+                    var json = JsonSerializer.Serialize(value, new JsonSerializerOptions { WriteIndented = true });
+                    DBG.PostVar(varName, json);
+                }
+                else
+                    DBG.PostVar(varName, "<cannot evaluate>");
+            }
+            // Debug.WriteLine("Waiting for resuming. User request: " + request);
 
             // StepIn means just continue for the very next point of inspection
             // which can be either next line in the same method or in the called (child) method
@@ -183,12 +193,27 @@ public class BreakPoint
                             variables.Select(x => new
                             {
                                 Name = x.name,
-                                Value = x.value?.ToString(),
+                                Value = x.value?.ToString()?.TruncateWithElipses(100),
                                 Type = x.value?.GetType().ToString()
                             }));
 
         DBG.PostBreak($"{sourceFilePath}|{sourceLineNumber - 1}|{localsJson}"); // let debugger to show BP as the start of the next line
 
-        WaitTillResumed();
+        WaitTillResumed(variables);
     }
+}
+
+static class dbg_extensions
+{
+    static Type[] primitiveTypes = new[]
+    { typeof(string),typeof(Boolean) ,typeof(Byte) ,typeof(SByte) ,typeof(Int16) ,typeof(UInt16) ,typeof(Int32) ,typeof(UInt32)
+        ,typeof(Int64) ,typeof(UInt64) ,typeof(Char) ,typeof(Double) ,typeof(Single) };
+    public static bool IsPrimitiveType(this object obj) => primitiveTypes.Contains(obj.GetType());
+    public static string TruncateWithElipses(this string text, int maxLength)
+    {
+        if (text.Length > maxLength - 3)
+            return text.Substring(maxLength - 3) + "...";
+        return text;
+    }
+
 }

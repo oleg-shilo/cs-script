@@ -1,9 +1,13 @@
-using MudBlazor;
+//css_include global-usings
+//css_nuget Swashbuckle.AspNetCore;
+//css_nuget MudBlazor;
+
 using MudBlazor.Services;
-using System.Diagnostics;
-using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Threading;
 using wdbg.Controllers;
-using static System.Net.WebRequestMethods;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,7 +42,7 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-Session.CurrentStackFrameFileName = args.FirstOrDefault() ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test3.cs";
+Session.CurrentStackFrameFileName = args.FirstOrDefault() ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
 var preprocessor = args.FirstOrDefault(x => x.StartsWith("-pre:"))?.Replace("-pre:", "")?.Trim('"') ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\dbg-inject.cs";
 
 var process = app.RunAsync();

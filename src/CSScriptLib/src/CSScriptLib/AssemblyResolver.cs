@@ -46,10 +46,7 @@ namespace csscript
             return name.IndexOfAny(illegalChars) != -1;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        static public ResolveAssemblyHandler FindAssemblyAlgorithm = DefaultFindAssemblyAlgorithm;
+        static internal ResolveAssemblyHandler FindAssemblyAlgorithm = DefaultFindAssemblyAlgorithm;
 
         /// <summary>
         /// Resolves namespace/assembly(file) name into array of assembly locations (local and GAC ones).
