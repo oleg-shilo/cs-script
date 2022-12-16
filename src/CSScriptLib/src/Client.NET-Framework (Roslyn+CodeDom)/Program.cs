@@ -1,9 +1,9 @@
-﻿using System;
+﻿using CSScripting;
+using CSScriptLib;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using CSScripting;
-using CSScriptLib;
 
 namespace ConsoleApp1
 {
@@ -14,25 +14,14 @@ namespace ConsoleApp1
             NetCompiler.EnableLatestSyntax();
             CSScript.EvaluatorConfig.DebugBuild = true;
 
-            var sw = Stopwatch.StartNew();
-
-            Console.WriteLine($"Hosting runtime: .NET { (Runtime.IsCore ? "Core" : "Framework")}");
-            Console.WriteLine("================\n");
-
             Console.WriteLine("CodeDOM");
             Test_CodeDom();
-            Console.WriteLine("  first run: " + sw.ElapsedMilliseconds);
-            sw.Restart();
-            Test_CodeDom();
-            Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
+            Test_CodeDom2();
 
             Console.WriteLine("\nRoslyn");
-            sw.Restart();
             Test_Roslyn();
-            Console.WriteLine("  first run: " + sw.ElapsedMilliseconds);
-            sw.Restart();
-            Test_Roslyn();
-            Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
+            Test_Roslyn2();
+            Console.WriteLine("\nDone...");
         }
 
         static void Test_CodeDom()
@@ -54,6 +43,36 @@ namespace ConsoleApp1
                                                        return (0,5);
                                                    }");
 
+            (int, int) result = script.func();
+        }
+        static void Test_CodeDom2()
+        {
+            dynamic script = CSScript.Evaluator
+                                     .CompileCode(@"using System;
+                                                    class Script
+                                                    {
+                                                        public (int, int) func()
+                                                        {
+                                                            return (0,5);
+                                                        }
+                                                    }")
+                                     .CreateObject("*");
+
+            (int, int) result = script.func();
+        }
+
+        static void Test_Roslyn2()
+        {
+            dynamic script = CSScript.RoslynEvaluator
+                                     .CompileCode(@"using System;
+                                                    class Script
+                                                    {
+                                                        public (int, int) func()
+                                                        {
+                                                            return (0,5);
+                                                        }
+                                                    }")
+                                     .CreateObject("*");
             (int, int) result = script.func();
         }
     }
