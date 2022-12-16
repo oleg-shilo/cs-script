@@ -15,20 +15,13 @@
         <MudContainer>
             <br />
             <MudGrid>
-                <MudItem xs=7>
+                <MudItem xs=8>
                     <MudText Typo="Typo.h6" GutterBottom="true">CS-Script Debugger - stack analyzer</MudText>
                 </MudItem>
                 <MudItem xs=1>
                     <span hidden="@NotBusy"> <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" /> </span>
                 </MudItem>
-                <MudItem xs=4>
-                    @*                    <MudButton @onclick="OnStart">Start/Resume</MudButton>
-                    <MudButton @onclick="()=>StateHasChanged()">Refresh</MudButton>
-                    <MudButton @onclick="_=>OnStep(false)">Step Over</MudButton>
-                    <MudButton @onclick="_=>OnStep(true)">Step Into</MudButton>
-                    <MudButton @onclick="OnStop">Stop</MudButton>
-                    <br />
-                    *@
+                <MudItem xs=3>
                     @*<MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>*@
                     @*<link href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" rel="stylesheet">*@
                     @*<MudIconButton Icon="fas fa-atom" Color="Color.Error"></MudIconButton>*@
@@ -59,7 +52,19 @@
                                    Icon="@Icons.Material.Filled.Stop" Color="Color.Error" />
                 </MudItem>
             </MudGrid>
-            <MudTextField id="scriptFile" @bind-Value="scriptFile" FullWidth="true" Margin="Margin.Dense" Label="Script File" Variant="Variant.Outlined"></MudTextField>
+
+            <MudGrid>
+                <MudItem xs="9">
+                    <MudTextField id="scriptFile" @bind-Value="scriptFile" FullWidth="true" Margin="Margin.Dense" Label="Script File" Variant="Variant.Outlined"></MudTextField>
+                </MudItem>
+                <MudItem xs="1">
+                    <MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnLoad" StartIcon="@Icons.Material.Filled.Download">Load</MudButton>&nbsp;
+                </MudItem>
+                <MudItem xs="1">
+                    <MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnSave" StartIcon="@Icons.Material.Filled.Save">Save</MudButton>
+                </MudItem>
+            </MudGrid>
+
             <textarea class="lined" id="sourceCode" rows="50" cols="151"
                       spellcheck="false"
                       value="@scriptCode" @onchange="@((args) => scriptCode = args.Value.ToString())" />
@@ -79,38 +84,54 @@
         </MudContainer>
     </MudItem>
 
-    <MudItem>
-        <MudGrid>
-            <MudItem xs=12>
-                <MudContainer>
-                    <br />
-                    <MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnLoad" StartIcon="@Icons.Material.Filled.Download">Load</MudButton>&nbsp;
-                    <MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnSave" StartIcon="@Icons.Material.Filled.Save">Save</MudButton>
-                    <br />
-                    Status: @Status
-                </MudContainer>
-            </MudItem>
-        </MudGrid>
+    <MudItem Width="300px" Height="600px">
         <MudContainer>
             <br />
-            <MudPaper MaxWidth="500px" MinWidth="300px">
+            @*<MudText Typo="Typo.h6" GutterBottom="true">Locals:</MudText>*@
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
+                <MudTabPanel Text="Locals">
 
-                <MudText Typo="Typo.h6" GutterBottom="true">Locals:</MudText>
-                <MudTable Height="300px" Items="@Variables" OnRowClick="RowClickEvent" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
-                    <HeaderContent>
-                        <MudTh>Name</MudTh> <MudTh>Value</MudTh><MudTh>Type</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Name">@context.Name</MudTd>
-                        <MudTd DataLabel="Value">@context.Value</MudTd>
-                        <MudTd DataLabel="Type">@context.Type</MudTd>
-                    </RowTemplate>
-                </MudTable>
-                <br />
-                <MudText Typo="Typo.h6" GutterBottom="true">Selected value:</MudText>
-                <textarea class="selected-value" spellcheck="false" readonly>@selectedValue</textarea>
-            </MudPaper>
+                    <MudTable Height="100%" Items="@Variables" OnRowClick="RowClickEvent" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
+                        <HeaderContent>
+                            <MudTh>Name</MudTh> <MudTh>Value</MudTh><MudTh>Type</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Name">@context.Name</MudTd>
+                            <MudTd DataLabel="Value">@context.Value</MudTd>
+                            <MudTd DataLabel="Type">@context.Type</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+
+                </MudTabPanel>
+                <MudTabPanel Text="Watch">
+
+                    @*<MudTextField id="scriptFile" @bind-Value="scriptFile" FullWidth="true" Margin="Margin.Dense" Label="Script File" Variant="Variant.Outlined"></MudTextField>*@
+
+                    <MudIconButton title="Add to watch"
+                                   Disabled="@(IsRunning || Busy)"
+                                   @onclick="_=>OnStart()"
+                                   Icon="@Icons.Material.Filled.PlayArrow" Color="Color.Success" />
+                    <MudTable Height="300px" Items="@Variables" OnRowClick="RowClickEvent" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
+                        <HeaderContent>
+                            <MudTh>Name</MudTh> <MudTh>Value</MudTh><MudTh>Type</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Name">refr</MudTd>
+                            <MudTd DataLabel="Name">@context.Name</MudTd>
+                            <MudTd DataLabel="Value">@context.Value</MudTd>
+                            <MudTd DataLabel="Type">@context.Type</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudTabPanel>
+            </MudTabs>
+
+            <br />
+            <MudText Typo="Typo.h6" GutterBottom="true">Selected value:</MudText>
+            <textarea class="selected-value" spellcheck="false" readonly>@selectedValue</textarea>
+            @* </MudPaper> *@
         </MudContainer>
+
+
     </MudItem>
 
     <MudSimpleTable Style="overflow-x: auto;">
@@ -122,13 +143,13 @@
             </tr>
         </thead>
         <tbody>
-            <tr><td>F5</td><td>Start/Resume</td></tr>
-            <tr><td>Shift+F5</td><td>Stop</td></tr>
-            <tr><td>F10</td><td>Step Over</td></tr>
-            <tr><td>F11</td><td>Step Into</td></tr>
-            <tr><td>F9</td><td>Toggle Breakpoint</td></tr>
-            <tr><td>Shift+F9</td><td>Clear Breakpoints</td></tr>
-            <tr><td>Ctrl+S</td><td>Save</td></tr>
+            <tr><td>F5</td><td><MudLink OnClick="()=>OnStart()">Start/Resume</MudLink>  </td></tr>
+            <tr><td>Shift+F5</td><td><MudLink OnClick="OnStop" Disabled=@(IsIdle || Busy)>Stop</MudLink></td></tr>
+            <tr><td>F10</td><td><MudLink OnClick="()=>OnStep(false)">Step Over</MudLink></td></tr>
+            <tr><td>F11</td><td><MudLink OnClick="()=>OnStep(true)" Disabled=@(IsIdle || Busy)>Step Into</MudLink></td></tr>
+            <tr><td>F9</td><td><MudLink OnClick="ToggleBreakpoingForCurrentLine">Toggle Breakpoint</MudLink> </td></tr>
+            <tr><td>Shift+F9</td><td><MudLink OnClick="ClearBreakpoints">Clear Breakpoints</MudLink> </td></tr>
+            <tr><td>Ctrl+S</td><td><MudLink OnClick="OnSave">Save</MudLink></td></tr>
         </tbody>
     </MudSimpleTable>
 

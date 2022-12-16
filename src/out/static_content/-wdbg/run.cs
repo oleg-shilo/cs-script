@@ -18,8 +18,9 @@ static class Scipt
 {
     static void Main(string[] args)
     {
-        string urls = "https://localhost:5001";
         
+        string urls = "https://localhost:5001";
+                
         string script = args.FirstOrDefault()?.GetFullPath();           // first arg is the script to debug
         if (!File.Exists(script))
         {
@@ -29,17 +30,29 @@ static class Scipt
                 throw new Exception($"Cannot script `{args.FirstOrDefault()}`. Try to use full path.");
         }
 
+        var wdbgDir = Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript"));
+        
+        var runAsAssembly = true; // 'dotnet run'
+        var serverDir = Path.Combine(wdbgDir, "dbg-server", "output");
+        if (!Directory.Exists(serverDir))
+        {
+            runAsAssembly = false; // 'dotnet <assembly>'
+            serverDir = Path.Combine(wdbgDir, "dbg-server", "..");
+        }
+
         var serverArgs = "\"" + args.Skip(1).JoinBy("\" \"") + "\"";    // the rest of the args are to be interpreted by the server
-        var serverDir = Path.Combine(Environment.CurrentDirectory, "dbg-server", "output");
         var serverAsm = Path.Combine(serverDir, "server.dll");
-        var preprocessor = Path.Combine(Environment.CurrentDirectory, "dbg-inject.cs");
+        var preprocessor = Path.Combine(wdbgDir, "dbg-inject.cs");
 
         // --urls "http://localhost:5100;https://localhost:5101"
         urls = args.SkipWhile(x => x != "--urls").Skip(1).FirstOrDefault() ?? urls;
 
         // start wdbg server
-        var proc = "dotnet".Start($"\"{serverAsm}\" \"{script}\" --urls \"{urls}\" -pre:{preprocessor} {serverArgs}", serverDir);
-        // var proc = "dotnet".Start($"run \"{script}\" --urls \"{urls}\" -pre:{preprocessor} {serverArgs}", serverDir);
+        Process proc;
+        if(runAsAssembly)
+            proc = "dotnet".Start($"\"{serverAsm}\" \"{script}\" --urls \"{urls}\" -pre:{preprocessor} {serverArgs}", serverDir);
+        else
+            proc = "dotnet".Start($"run \"{script}\" --urls \"{urls}\" -pre:{preprocessor} {serverArgs}", serverDir);
 
 
         // start browser with wdbg url

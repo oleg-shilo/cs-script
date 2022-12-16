@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="output\**" />
+    <Content Remove="output\**" />
+    <EmbeddedResource Remove="output\**" />
+    <None Remove="output\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Introducing CleanBlazor 🧽🧼🧹. Problem by Francisco Vilches tech-lah Medium.URL" />
     <None Remove="Table - MudBlazor.url" />
   </ItemGroup>
