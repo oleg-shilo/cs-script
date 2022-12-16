@@ -1,10 +1,10 @@
+using CSScripting;
+using CSScriptLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CSScripting;
-using CSScriptLib;
 
 #if !class_lib
 
@@ -88,10 +88,13 @@ namespace CSScriptLib
 
             searchDirs.AddRange(defaultSearchDirs);
 
+#if !class_lib
+
             foreach (var item in defaultSearchDirs)
             {
                 Console.WriteLine("searchdir: " + item);
             }
+#endif
 
             ScriptParser parser;
             using (new CurrentDirGuard())
