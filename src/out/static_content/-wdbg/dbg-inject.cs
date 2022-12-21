@@ -1,19 +1,19 @@
 //css_ref Microsoft.CodeAnalysis.CSharp.dll
 //css_ref Microsoft.CodeAnalysis.dll
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.CSharp;
+using CSScripting;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using static System.Formats.Asn1.AsnWriter;
-using System.Reflection;
-using System.ComponentModel;
-using CSScripting;
 
 public class Decorator
 {
@@ -26,6 +26,7 @@ public class Decorator
 #endif
     {
         var testScript = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
+        // Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", @"D:\dev\Galos\cs-script\src\out\Windows");
 
         (string decoratedScript, int[] breakpoints) = Decorator.InjectDbgInfo(args.FirstOrDefault() ?? testScript);
 
@@ -47,7 +48,9 @@ public class Decorator
                         Method = x.Identifier.Text,
                         Params = x.ParameterList.Parameters.Select(y => y.ToString().Split(' ', '\t').Last()).ToArray(),
                         StartLine = x.GetLocation().GetLineSpan().StartLinePosition.Line,
-                        EndLine = x.GetLocation().GetLineSpan().EndLinePosition.Line
+                        EndLine = x.GetLocation().GetLineSpan().EndLinePosition.Line,
+                        IsStatic = x.Modifiers.Any(x => x.Text == "static")
+
                     }).Concat(
                nodes.OfType<LocalFunctionStatementSyntax>()
                     .OrderBy(x => x.FullSpan.End)
@@ -56,7 +59,8 @@ public class Decorator
                         Method = x.Identifier.Text,
                         Params = x.ParameterList.Parameters.Select(y => y.ToString().Split(' ', '\t').Last()).ToArray(),
                         StartLine = x.GetLocation().GetLineSpan().StartLinePosition.Line,
-                        EndLine = x.GetLocation().GetLineSpan().EndLinePosition.Line
+                        EndLine = x.GetLocation().GetLineSpan().EndLinePosition.Line,
+                        IsStatic = true // while it is not static, local functions cannot dereference "this" so deal with it as with static method
                     }))
                .OrderBy(x => x.StartLine)
                .ToArray();
@@ -78,7 +82,7 @@ public class Decorator
             {
                 MethodSyntaxInfo[] methodDeclarations = GetMethodSignatures(File.ReadAllText(script));
 
-                var invalidVariables = new Dictionary<int, string[]>();
+                var invalidVariables = new Dictionary<int, List<string>>();
 
                 var pdb = new Pdb(pdbFile);
                 var map = pdb.Map();
@@ -97,7 +101,7 @@ public class Decorator
                                 var line = lines[lineIndex].TrimEnd();
 
                                 // if (!line.EndsWith(";") && !line.EndsWith("{"))
-                                if (!line.EndsWith(";") && !line.EndsWith("}"))
+                                if (!line.EndsWith(";") && !line.EndsWith("}") && !line.TrimStart().EndsWith("{"))
                                     continue;
 
                                 var variablesToAnalyse = scope.ScopeVariables.ToList();
@@ -105,9 +109,12 @@ public class Decorator
                                 // the scope is within the method declaration. Note local function scope will always belong to
                                 // more than one method declaration
                                 var methodInfo = methodDeclarations
-                                    .Where(x => (x.StartLine) <= lineIndex && lineIndex <= (x.EndLine))
+                                    .Where(x => x.StartLine <= lineIndex && lineIndex <= x.EndLine)
                                     .OrderBy(x => lineIndex - x.StartLine) // take the internal/nested method declaration (e.g. local function)
                                     .FirstOrDefault();
+
+                                if (!methodInfo.IsStatic)
+                                    variablesToAnalyse.Add("this");
 
                                 if (methodInfo != null)
                                     variablesToAnalyse.AddRange(methodInfo.Params);
@@ -157,11 +164,22 @@ public class Decorator
 
                     error = Check(decoratedScript);
 
-                    if (string.IsNullOrEmpty(error))
+                    if (error.IsEmpty())
                         break;
 
                     foreach (var item in ExtractInvalidVariableDeclarations(error))
-                        invalidVariables[item.Key] = item.Value;
+                    {
+                        if (invalidVariables.ContainsKey(item.Key))
+                        {
+                            foreach (var varName in item.Value.ToList())
+                            {
+                                if (!invalidVariables[item.Key].Contains(varName))
+                                    invalidVariables[item.Key].Add(varName);
+                            }
+                        }
+                        else
+                            invalidVariables[item.Key] = item.Value.ToList();
+                    }
                 }
 
                 pdb.provider.Dispose();
@@ -185,13 +203,19 @@ public class Decorator
 
     static Dictionary<int, string[]> ExtractInvalidVariableDeclarations(string error)
     {
-        // D:\test.cs(24,94): error CS0841:  Cannot use local variable 'testVar3' before it is declared
-        // D:\test.cs(24,111): error CS0103:  The name 'testVar2' does not exist in the current context
-        // D:\test.cs(24,131): error CS0165:  Use of unassigned local variable 'i'
+        // D:\test.cs(24,94): error CS0841:  Cannot use local variable 'testVar3' before it is declared...
+        // D:\test.cs(24,111): error CS0103:  The name 'testVar2' does not exist in the current context...
+        // D:\test.cs(24,131): error CS0165:  Use of unassigned local variable 'i'...
+        // D:\test.cs(28,131): error CS0026:  Keyword 'this' is not valid in a static property, static method...
+
+        bool isVariableNameError(string error) => error.StartsWith("error CS0841:")
+                                               || error.StartsWith("error CS0103:")
+                                               || error.StartsWith("error CS0165:")
+                                               || error.StartsWith("error CS0026:");
 
         return error.Split('\n', '\r')
             .Select(x => x.Split("): "))
-            .Where(x => x.Length > 1 && (x[1].StartsWith("error CS0841:") || x[1].StartsWith("error CS0103:") || x[1].StartsWith("error CS0165:")))
+            .Where(x => x.Length > 1 && isVariableNameError(x[1]))
             .Select(x => new
             {
                 Line = x[0].Split("(").LastOrDefault().Split(',').FirstOrDefault()?.ToInt(),
@@ -258,6 +282,7 @@ public class ScopeInfo
 
 static class Extensions
 {
+
     static public bool StartsWithAny(this string text, params string[] patterns)
         => patterns.Any(x => text.StartsWith(x));
 
@@ -275,6 +300,7 @@ static class Extensions
 
 public class MethodSyntaxInfo
 {
+    public bool IsStatic;
     public string Method;
     public string[] Params;
     public int StartLine;

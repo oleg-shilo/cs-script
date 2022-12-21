@@ -39,9 +39,9 @@ public class DbgController : ControllerBase
     [HttpGet("dbg/breakpoints")]
     public string GetBreakpoints()
     {
-        lock (Session.CurrentBreakpoints)
+        lock (Session.Current.Breakpoints)
         {
-            return Session.CurrentBreakpoints.Select(x => $"{Session.CurrentStackFrameFileName?.Replace(".dbg.cs", ".cs")}:{x}").JoinBy("\n");
+            return Session.Current.Breakpoints.Select(x => $"{Session.Current.StackFrameFileName?.Replace(".dbg.cs", ".cs")}:{x}").JoinBy("\n");
         }
     }
 
@@ -52,65 +52,83 @@ public class DbgController : ControllerBase
         {
             try
             {
-                return Session.CurrentUserRequest;
+                return Session.Current.UserRequest;
             }
             finally
             {
-                Session.CurrentUserRequest = null;
+                Session.Current.UserRequest = null;
             }
         }
     }
 
 
-    [HttpPost("dbg/localvar")]
+    [HttpPost("dbg/object")]
     [IgnoreAntiforgeryToken]
-    public ActionResult<string> PostVar()
+    public ActionResult<string> OnObjectInfo()
     {
         var evaluationData = this.Request.BodyAsString();
-        OnVarEvaluation?.Invoke(evaluationData);
+        OnObjectInspection?.Invoke(evaluationData);
 
         return "OK";
     }
 
     [HttpPost("dbg/break")]
     [IgnoreAntiforgeryToken]
-    public ActionResult<string> PostBreakInfo()
+    public ActionResult<string> OnPostBreakInfo()
     {
         var parts = this.Request.BodyAsString().Split('|', 3);
 
-        Session.CurrentStackFrameFileName = parts[0]?.Replace(".dbg.cs", ".cs");
-        Session.CurrentStackFrameLineNumber.Parse(parts[1]);
-        Session.Variables = parts[2];
+        Session.Current.StackFrameFileName = parts[0]?.Replace(".dbg.cs", ".cs");
+        Session.Current.StackFrameLineNumber.Parse(parts[1]);
+        Session.Current.Variables = parts[2];
 
-        OnBreak?.Invoke(Session.CurrentStackFrameFileName, Session.CurrentStackFrameLineNumber, Session.Variables);
+        OnBreak?.Invoke(Session.Current.StackFrameFileName, Session.Current.StackFrameLineNumber, Session.Current.Variables);
 
         return "OK";
     }
 
-    static public Action OnNewData;
-    static public Action<string> OnVarEvaluation;
+    [HttpPost("dbg/expressions")]
+    [IgnoreAntiforgeryToken]
+    public ActionResult<string> OnExpressionInfo()
+    {
+        Session.Current.Watch = this.Request.BodyAsString();
+
+        OnExpressionEvaluation?.Invoke(Session.Current.Watch);
+
+        return "OK";
+    }
+
+    static public Action<string> OnExpressionEvaluation; // watch expression is added and its details have arrived
+    static public Action<string> OnObjectInspection; // clicked the variable details have arrived
     static public Action<string, int?, string> OnBreak;
 }
 
 public class Session
 {
-    public static string Variables;
-    public static string CurrentUserRequest;
-    public static int? CurrentStackFrameLineNumber;
-    public static string CurrentStackFrameFileName;
-    public static List<int> CurrentBreakpoints = new();
-
-    public static void UpdateCurrentBreakpoints(int[] validBreakPointLines)
+    static Session()
     {
-        lock (CurrentBreakpoints)
+        Current = new Session();
+    }
+
+    public static Session Current;
+    public string Watch;
+    public string Variables;
+    public string UserRequest;
+    public int? StackFrameLineNumber;
+    public string StackFrameFileName;
+    public List<int> Breakpoints = new();
+
+    public void UpdateCurrentBreakpoints(int[] validBreakPointLines)
+    {
+        lock (Breakpoints)
         {
             if (validBreakPointLines != null) // valid lines for placing break points are known
             {
-                var invalidBreakPoints = CurrentBreakpoints.Except(validBreakPointLines).ToArray();
-                var validBreakPoints = CurrentBreakpoints.Except(invalidBreakPoints).ToArray();
+                var invalidBreakPoints = Breakpoints.Except(validBreakPointLines).ToArray();
+                var validBreakPoints = Breakpoints.Except(invalidBreakPoints).ToArray();
 
-                CurrentBreakpoints.Clear();
-                CurrentBreakpoints.AddRange(validBreakPoints);
+                Breakpoints.Clear();
+                Breakpoints.AddRange(validBreakPoints);
 
                 foreach (int invalidBreakPoint in invalidBreakPoints)
                 {
@@ -120,7 +138,7 @@ public class Session
                     {
                         if (!validBreakPoints.Contains(nextValidBreaktPointLine))
                         {
-                            CurrentBreakpoints.Add(nextValidBreaktPointLine);
+                            Breakpoints.Add(nextValidBreaktPointLine);
                         }
                     }
                 }
@@ -145,16 +163,24 @@ public class DbgService
     static public Process Start(string script, string args, Action<string> onOutputData)
         => Shell.StartScript(script, args, onOutputData);
 
-    static public void EvaluateExpression(string expression)
-        => Session.CurrentUserRequest = $"evaluateExpression:{expression}";
+    static public void SerializeObject(string expression)
+    {
+        Debug.WriteLine(expression);
+        Session.Current.UserRequest = $"serializeObject:{expression}";
+
+    }
+
+    static public void Evaluate(string expression)
+        => Session.Current.UserRequest = $"evaluate:{expression}";
+
     static public void StepOver()
-        => Session.CurrentUserRequest = "step_over";
+        => Session.Current.UserRequest = "step_over";
 
     static public void StepIn()
-        => Session.CurrentUserRequest = "step_in";
+        => Session.Current.UserRequest = "step_in";
 
     static public void Resume()
-        => Session.CurrentUserRequest = "resume";
+        => Session.Current.UserRequest = "resume";
 }
 
 static class Extensions
@@ -163,6 +189,8 @@ static class Extensions
 
     public static string GetDirName(this string path) => Path.GetDirectoryName(path);
 
+    public static ValueTask<string>? ClearField(this IJSObjectReference module, string id)
+        => module?.InvokeAsync<string>("clearInputField", id);
     public static string JoinBy(this IEnumerable<string> request, string separator)
         => string.Join(separator, request);
 

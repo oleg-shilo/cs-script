@@ -69,16 +69,19 @@ public class dbg
 
     string indent = "  ";
 
+    public static Action<string> WriteLine = Console.Out.WriteLine;
+    public static Action<string> Write = Console.Out.Write;
+
     void write(object @object = null)
     {
         if (@object != null)
-            Console.Out.Write(@object.ToString().ReplaceClrAliaces());
+            Write(@object.ToString().ReplaceClrAliaces());
     }
 
     void writeLine(object @object = null)
     {
         write(@object);
-        Console.Out.WriteLine();
+        WriteLine("");
     }
 
     string Indent

@@ -1,4 +1,7 @@
+//css_inc dbg-out.cs
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -24,15 +27,21 @@ public static class DBG
     public static string StopOnNextInspectionPointInMethod;
     static string debuggerUrl => Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL");
 
-    public static string PostVar(string name, object data)
+    public static string PostObjectInfo(string name, object data)
     {
-        try { return UploadString($"{debuggerUrl}/dbg/localvar", $"{name}:{data}"); }
+        try { return UploadString($"{debuggerUrl}/dbg/object", $"{name}:{data}"); }
         catch { return ""; }
     }
 
-    public static string PostBreak(string data)
+    public static string PostBreakInfo(string data)
     {
         try { return UploadString($"{debuggerUrl}/dbg/break", data); }
+        catch { return ""; }
+    }
+
+    public static string PostExpressionInfo(string data)
+    {
+        try { return UploadString($"{debuggerUrl}/dbg/expressions", data); }
         catch { return ""; }
     }
 
@@ -71,6 +80,7 @@ public static class DBG
     static async Task<String> GetAsync(string url)
     {
         using var client = new HttpClient();
+        client.Timeout = TimeSpan.FromSeconds(3);
         var result = await client.GetStringAsync(url);
         return result;
     }
@@ -108,23 +118,44 @@ public class BreakPoint
 
     void WaitTillResumed((string name, object value)[] variables)
     {
+        var watchExpressions = new Dictionary<string, object>();
+
         while (true)
         {
             var request = DBG.UserRequest;
 
-            if (request.StartsWith("evaluateExpression:"))
+            if (request.StartsWith("serializeObject:"))
             {
-                var varName = request.Replace("evaluateExpression:", "");
-
+                var varName = request.Replace("serializeObject:", "");
+                Debug.WriteLine(varName);
                 if (variables.Any(x => x.name == varName))
                 {
+
                     var value = variables.First(x => x.name == varName).value;
-                    var json = JsonSerializer.Serialize(value, new JsonSerializerOptions { WriteIndented = true });
-                    DBG.PostVar(varName, json);
+                    var view = value.Serialize();
+                    DBG.PostObjectInfo(varName, view);
                 }
                 else
-                    DBG.PostVar(varName, "<cannot evaluate>");
+                    DBG.PostObjectInfo(varName, "<cannot serialize variable>");
             }
+
+            if (request.StartsWith("evaluate:"))
+            {
+                var expression = request.Replace("evaluate:", "");
+                object expressionValue = "<unknown>";
+
+                var localVar = variables.FirstOrDefault(x => x.name == expression);
+
+                if (localVar.name != null)
+                    expressionValue = localVar.value;
+
+                // if not found then
+                watchExpressions[expression] = expressionValue;
+
+                var info = watchExpressions.Select(x => (x.Key, x.Value)).ToJson();
+                DBG.PostExpressionInfo(info);
+            }
+
             // Debug.WriteLine("Waiting for resuming. User request: " + request);
 
             // StepIn means just continue for the very next point of inspection
@@ -184,20 +215,10 @@ public class BreakPoint
 
     public void Inspect(params (string name, object value)[] variables)
     {
-        // DBG.bp().Inspect(("testVar2", testVar2), ("testVar3", testVar3), ("i", i));
-
         if (!ShouldStop())
             return;
 
-        var localsJson = JsonSerializer.Serialize(
-                            variables.Select(x => new
-                            {
-                                Name = x.name,
-                                Value = x.value?.ToString()?.TruncateWithElipses(100),
-                                Type = x.value?.GetType().ToString()
-                            }));
-
-        DBG.PostBreak($"{sourceFilePath}|{sourceLineNumber - 1}|{localsJson}"); // let debugger to show BP as the start of the next line
+        DBG.PostBreakInfo($"{sourceFilePath}|{sourceLineNumber - 1}|{variables.ToJson()}"); // let debugger to show BP as the start of the next line
 
         WaitTillResumed(variables);
     }
@@ -208,7 +229,25 @@ static class dbg_extensions
     static Type[] primitiveTypes = new[]
     { typeof(string),typeof(Boolean) ,typeof(Byte) ,typeof(SByte) ,typeof(Int16) ,typeof(UInt16) ,typeof(Int32) ,typeof(UInt32)
         ,typeof(Int64) ,typeof(UInt64) ,typeof(Char) ,typeof(Double) ,typeof(Single) };
+
     public static bool IsPrimitiveType(this object obj) => primitiveTypes.Contains(obj.GetType());
+
+    public static string ToJson(this IEnumerable<(string name, object value)> variables)
+    {
+        return JsonSerializer.Serialize(variables.Select(x => new
+        {
+            Name = x.name,
+            Value = x.value?.ToString()?.TruncateWithElipses(100),
+            Type = x.value?.GetType().ToString()
+        }));
+    }
+    public static string Serialize(this object obj)
+    {
+        // does not print read-only props
+        // var view = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true, IgnoreReadOnlyProperties = false });
+        return wdbg.dbg.print(obj);
+    }
+
     public static string TruncateWithElipses(this string text, int maxLength)
     {
         if (text.Length > maxLength - 3)

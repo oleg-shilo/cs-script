@@ -7,6 +7,12 @@ using System.Collections.Generic;
 using System.Threading;
 using wdbg.Controllers;
 
+#if DEBUG
+Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", @"D:\dev\Galos\cs-script\src\out\Windows");
+#else
+
+don 't forget to reste cscs path
+#endif
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,7 +48,7 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-Session.CurrentStackFrameFileName = args.FirstOrDefault() ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
+Session.Current.StackFrameFileName = args.FirstOrDefault() ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
 var preprocessor = args.FirstOrDefault(x => x.StartsWith("-pre:"))?.Replace("-pre:", "")?.Trim('"') ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\dbg-inject.cs";
 
 var process = app.RunAsync();
@@ -58,7 +64,7 @@ void print(string message)
     Console.WriteLine(message);
 }
 
-print("Script: " + Session.CurrentStackFrameFileName);
+print("Script: " + Session.Current.StackFrameFileName);
 print("Pre-processor: " + preprocessor);
 
 app.Urls.ToList().ForEach(x => print($"Now listening on: {x}")); // otherwise enable in appsettings.json

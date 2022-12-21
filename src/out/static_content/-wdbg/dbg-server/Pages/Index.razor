@@ -50,6 +50,7 @@
                                    Disabled=@(IsIdle || Busy)
                                    @onclick="OnStop"
                                    Icon="@Icons.Material.Filled.Stop" Color="Color.Error" />
+
                 </MudItem>
             </MudGrid>
 
@@ -84,14 +85,13 @@
         </MudContainer>
     </MudItem>
 
-    <MudItem Width="300px" Height="600px">
+    <MudItem Width="400px" Height="800px">
         <MudContainer>
-            <br />
             @*<MudText Typo="Typo.h6" GutterBottom="true">Locals:</MudText>*@
             <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
                 <MudTabPanel Text="Locals">
 
-                    <MudTable Height="100%" Items="@Variables" OnRowClick="RowClickEvent" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
+                    <MudTable Height="500px" Items="@Variables" OnRowClick="RowClickEvent" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
                         <HeaderContent>
                             <MudTh>Name</MudTh> <MudTh>Value</MudTh><MudTh>Type</MudTh>
                         </HeaderContent>
@@ -105,18 +105,44 @@
                 </MudTabPanel>
                 <MudTabPanel Text="Watch">
 
-                    @*<MudTextField id="scriptFile" @bind-Value="scriptFile" FullWidth="true" Margin="Margin.Dense" Label="Script File" Variant="Variant.Outlined"></MudTextField>*@
+                    <MudGrid>
 
-                    <MudIconButton title="Add to watch"
-                                   Disabled="@(IsRunning || Busy)"
-                                   @onclick="_=>OnStart()"
-                                   Icon="@Icons.Material.Filled.PlayArrow" Color="Color.Success" />
-                    <MudTable Height="300px" Items="@Variables" OnRowClick="RowClickEvent" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
+                        <MudItem xs=1>
+                            <MudIconButton title="Add to watch" @onclick="AddWatchItem" Icon="@Icons.Material.Filled.ArrowDownward" />
+                        </MudItem>
+                        <MudItem xs=11>
+                            <EditForm Model="@this" OnValidSubmit="AddWatchItem">
+                                <MudTextField id="addToWatch" @bind-Value="expression" Immediate="true" FullWidth="false" Margin="Margin.Dense" Label="Expression" Variant="Variant.Outlined"></MudTextField>
+                            </EditForm>
+                        </MudItem>
+                    </MudGrid>
+
+
+                    <MudTable Height="452px" Items="@Watch" OnRowClick="args=>DbgService.SerializeObject(args.Item.Name)" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
+                        <ColGroup>
+                            <col style="width: 10px;" />
+                            <col />
+                            <col style="width: 60%;" />
+                            <col style="width: 60px;" />
+                        </ColGroup>
                         <HeaderContent>
-                            <MudTh>Name</MudTh> <MudTh>Value</MudTh><MudTh>Type</MudTh>
+                            <MudTh>Name</MudTh><MudTh>Name</MudTh> <MudTh>Value</MudTh><MudTh>Type</MudTh>
                         </HeaderContent>
                         <RowTemplate>
-                            <MudTd DataLabel="Name">refr</MudTd>
+                            <MudTd DataLabel="Operation">
+                                @*<MudIconButton title="Refresh" Icon="@Icons.Material.Filled.Autorenew" Color="Color.Default" />*@
+                                <MudGrid>
+                                    <MudItem xs=1>
+                                        <MudIcon title="Delete" Size="Size.Small" Icon="@Icons.Material.Filled.DeleteForever" @onclick="()=>DeleteWatchItem(context)" Color="Color.Default" />
+                                    </MudItem>
+                                    <MudItem xs=1>
+                                        @if (context.Updating)
+                                        {
+                                            <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+                                        }
+                                    </MudItem>
+                                </MudGrid>
+                            </MudTd>
                             <MudTd DataLabel="Name">@context.Name</MudTd>
                             <MudTd DataLabel="Value">@context.Value</MudTd>
                             <MudTd DataLabel="Type">@context.Type</MudTd>
@@ -150,20 +176,24 @@
             <tr><td>F9</td><td><MudLink OnClick="ToggleBreakpoingForCurrentLine">Toggle Breakpoint</MudLink> </td></tr>
             <tr><td>Shift+F9</td><td><MudLink OnClick="ClearBreakpoints">Clear Breakpoints</MudLink> </td></tr>
             <tr><td>Ctrl+S</td><td><MudLink OnClick="OnSave">Save</MudLink></td></tr>
+            <tr><td>Status</td><td>@Status</td></tr>
         </tbody>
     </MudSimpleTable>
 
 </MudGrid>
 
 
+@*https://github.com/stavroskasidis/BlazorContextMenu*@
 
 @code {
 
     List<Variable> Variables = new();
+    List<Variable> Watch = new();
     System.Threading.Timer timer;
     IJSObjectReference module;
     int lastBuildHash;
     string selectedValue;
+    string expression;
     string _output;
 
     public string output
@@ -178,7 +208,7 @@
     bool NotBusy => !Busy;
     bool IsRunning = false;
     bool IsIdle => !IsRunning;
-    string Status;
+    string Status = "idle";
 
     void OnStdInput()
     {
@@ -189,7 +219,7 @@
         StateHasChanged();
 
         // for some reason MudBlazor fails to clear unless focus is changed. So doing it from js
-        module?.InvokeVoidAsync("clearStdInput");
+        module?.ClearField("stdInput");
     }
 
     async void Init()
@@ -200,17 +230,18 @@
         await JS.InvokeVoidAsync("JsFunctions.addKeyboardListenerEvent");
 
         DbgController.OnBreak = OnSessionBreak;
-        DbgController.OnVarEvaluation = OnVariableEvalueated;
+        DbgController.OnObjectInspection = OnObjectInspected;
+        DbgController.OnExpressionEvaluation = OnExpressionEvalueated;
 
         InteropKeyPress.BreakpointAreaClicked = line =>
         {
-            if (Session.CurrentBreakpoints.Contains(line))
-                Session.CurrentBreakpoints.Remove(line);
+            if (Session.Current.Breakpoints.Contains(line))
+                Session.Current.Breakpoints.Remove(line);
             else
-                Session.CurrentBreakpoints.Add(line);
+                Session.Current.Breakpoints.Add(line);
 
-            Session.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
-            SetBpSteps(Session.CurrentBreakpoints);
+            Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
+            SetBpSteps(Session.Current.Breakpoints);
         };
 
         InteropKeyPress.OnKeyDown = e =>
@@ -248,18 +279,36 @@
             Refresh();
         }, null, 0, 2000);
 
-        scriptFile = Session.CurrentStackFrameFileName;
+        scriptFile = Session.Current.StackFrameFileName;
         if (!string.IsNullOrEmpty(scriptFile))
         {
             OnLoad();
         }
     }
 
-    void OnVariableEvalueated(string variableInfo)
+    void OnObjectInspected(string variableInfo)
     {
         // "{name}:{data}"
         var tokens = variableInfo.Split(":".ToCharArray(), 2);
         selectedValue = tokens[1];
+        Refresh();
+    }
+
+    void OnExpressionEvalueated(string expressionInfo)
+    {
+        var debugFrameObjects = JsonSerializer.Deserialize<Variable[]>(expressionInfo);
+
+        this.Watch
+            .ForEach(expression =>
+            {
+                var objectFromFrame = debugFrameObjects.FirstOrDefault(y => expression.Name == y.Name);
+                if (objectFromFrame != null)
+                {
+                    expression.Value = objectFromFrame.Value;
+                    expression.Updating = false;
+                }
+            });
+
         Refresh();
     }
 
@@ -277,6 +326,8 @@
             {
                 var locals = JsonSerializer.Deserialize<Variable[]>(variables);
                 Variables.AddRange(locals);
+
+                Watch.ForEach(expression => DbgService.Evaluate(expression.Name));
             }
 
 
@@ -293,8 +344,12 @@
 
     void RowClickEvent(TableRowClickEventArgs<Variable> tableRowClickEventArgs)
     {
-        DbgService.EvaluateExpression(tableRowClickEventArgs.Item.Name);
-        //Refresh();
+        DbgService.SerializeObject(tableRowClickEventArgs.Item.Name);
+    }
+
+    void RowClickEvent2(TableRowClickEventArgs<Variable> tableRowClickEventArgs)
+    {
+        DbgService.SerializeObject(tableRowClickEventArgs.Item.Name);
     }
 
     async Task ToggleBreakpoingForCurrentLine()
@@ -303,20 +358,41 @@
 
         if (currentline != -1)
         {
-            if (Session.CurrentBreakpoints.Contains(currentline))
-                Session.CurrentBreakpoints.Remove(currentline);
+            if (Session.Current.Breakpoints.Contains(currentline))
+                Session.Current.Breakpoints.Remove(currentline);
             else
-                Session.CurrentBreakpoints.Add(currentline);
+                Session.Current.Breakpoints.Add(currentline);
 
-            Session.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
-            SetBpSteps(Session.CurrentBreakpoints);
+            Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
+            SetBpSteps(Session.Current.Breakpoints);
         }
+    }
+
+    void DeleteWatchItem(Variable variable)
+    {
+        Watch.Remove(variable);
+        StateHasChanged();
+    }
+
+    void AddWatchItem()
+    {
+        if (!Watch.Any(x => x.Name == this.expression))
+        {
+            var variable = new Variable { Name = this.expression, Updating = true };
+            Watch.Add(variable);
+            this.expression = null;
+
+            DbgService.Evaluate(variable.Name);
+
+        }
+        module?.ClearField("addToWatch");
+        StateHasChanged();
     }
 
     void ClearBreakpoints()
     {
-        Session.CurrentBreakpoints.Clear();
-        SetBpSteps(Session.CurrentBreakpoints);
+        Session.Current.Breakpoints.Clear();
+        SetBpSteps(Session.Current.Breakpoints);
     }
 
     void OnLoad()
@@ -325,7 +401,7 @@
         {
             this.scriptFileValidBreakpoints = null;
             this.scriptCode = File.ReadAllText(scriptFile);
-            SetBpSteps(Session.CurrentBreakpoints);
+            SetBpSteps(Session.Current.Breakpoints);
         }
         catch (Exception e)
         {
@@ -370,8 +446,8 @@
                 {
                     (var decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
 
-                    Session.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
-                    SetBpSteps(Session.CurrentBreakpoints);
+                    Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
+                    SetBpSteps(Session.Current.Breakpoints);
 
                     Environment.SetEnvironmentVariable("pauseOnStart", pauseOnStart ? "true" : null);
 
@@ -404,7 +480,7 @@
 
         SetCurrentStep(-1);
         IsRunning = false;
-        Session.CurrentUserRequest = null;
+        Session.Current.UserRequest = null;
         Status = "idle";
         selectedValue = null;
 
@@ -445,6 +521,7 @@
     public class Variable
     {
         public string Name { get; set; }
+        public bool Updating { get; set; }
         public string Value { get; set; }
         public string Type { get; set; }
     }

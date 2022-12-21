@@ -238,6 +238,8 @@ export function getLineNumber() {
     // console.log("Current line is: " + window.currentLine);
     return window.currentLine;
 }
-export function clearStdInput() {
-    $("#stdInput").val("");
+
+
+export function clearInputField(id) {
+    $("#" + id).val("");
 }
