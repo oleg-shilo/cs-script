@@ -47,16 +47,19 @@ namespace ConsoleApp1
         }
         static void Test_CodeDom2()
         {
-            dynamic script = CSScript.Evaluator
+            dynamic script = CSScript.CodeDomEvaluator
                                      .CompileCode(@"using System;
-                                                    class Script
+                                                    namespace testing
                                                     {
-                                                        public (int, int) func()
+                                                        public class Script
                                                         {
-                                                            return (0,5);
+                                                            public (int, int) func()
+                                                            {
+                                                                return (0,5);
+                                                            }
                                                         }
                                                     }")
-                                     .CreateObject("*");
+                                        .CreateObject("*");
 
             (int, int) result = script.func();
         }
