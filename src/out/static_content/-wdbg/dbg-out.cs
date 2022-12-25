@@ -20,7 +20,7 @@ namespace wdbg
             try
             {
                 if (@object == null)
-                    return "<nul>";
+                    return "<null>";
 
                 var buffer = new StringBuilder();
                 var d = new dbg

@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
@@ -118,6 +120,7 @@ public class BreakPoint
 
     void WaitTillResumed((string name, object value)[] variables)
     {
+        // keep resolved expressions for possible serialization requests 
         var watchExpressions = new Dictionary<string, object>();
 
         while (true)
@@ -125,36 +128,10 @@ public class BreakPoint
             var request = DBG.UserRequest;
 
             if (request.StartsWith("serializeObject:"))
-            {
-                var varName = request.Replace("serializeObject:", "");
-                Debug.WriteLine(varName);
-                if (variables.Any(x => x.name == varName))
-                {
-
-                    var value = variables.First(x => x.name == varName).value;
-                    var view = value.Serialize();
-                    DBG.PostObjectInfo(varName, view);
-                }
-                else
-                    DBG.PostObjectInfo(varName, "<cannot serialize variable>");
-            }
+                SerializeObject(variables, watchExpressions, request.Replace("serializeObject:", ""));
 
             if (request.StartsWith("evaluate:"))
-            {
-                var expression = request.Replace("evaluate:", "");
-                object expressionValue = "<unknown>";
-
-                var localVar = variables.FirstOrDefault(x => x.name == expression);
-
-                if (localVar.name != null)
-                    expressionValue = localVar.value;
-
-                // if not found then
-                watchExpressions[expression] = expressionValue;
-
-                var info = watchExpressions.Select(x => (x.Key, x.Value)).ToJson();
-                DBG.PostExpressionInfo(info);
-            }
+                EvaluateExpression(variables, watchExpressions, request.Replace("evaluate:", ""));
 
             // Debug.WriteLine("Waiting for resuming. User request: " + request);
 
@@ -183,6 +160,169 @@ public class BreakPoint
         }
     }
 
+    private static void SerializeObject((string name, object value)[] variables, Dictionary<string, object> watchExpressions, string varName)
+    {
+        // Debug.WriteLine(varName);
+        if (variables.Any(x => x.name == varName))
+        {
+            var value = variables.First(x => x.name == varName).value;
+            var view = value.Serialize();
+            DBG.PostObjectInfo(varName, view);
+        }
+        else if (watchExpressions.ContainsKey(varName))
+        {
+            var value = watchExpressions[varName];
+            var view = value.Serialize();
+            DBG.PostObjectInfo(varName, view);
+        }
+        else
+            DBG.PostObjectInfo(varName, "<cannot serialize variable>");
+    }
+
+    private static void EvaluateExpression((string name, object value)[] variables, Dictionary<string, object> watchExpressions, string expression)
+    {
+        object expressionValue = null;
+
+        var localVar = variables.FirstOrDefault(x => x.name == expression);
+
+        // expression is a name of the local variable
+        if (localVar.name != null)
+        {
+            expressionValue = localVar.value ?? "null";
+        }
+        else
+        {
+            try
+            {
+                object currrentObject = null;
+
+                object @this = variables.FirstOrDefault(x => x.name == "this").value;
+
+                var tokens = expression.Split('.');
+
+
+                // expression is the local variable member(s) (e.g. `myObj.Name`)
+                var matchingVariable = variables.FirstOrDefault(x => x.name == tokens.First());
+                if (matchingVariable.name != null)
+                {
+                    currrentObject = matchingVariable.value;
+                    if (Dereference(ref currrentObject, tokens.Skip(1)))
+                        expressionValue = currrentObject ?? "null";
+                }
+
+                // expression is the member of 'this' (e.g. `Name.Length`) but user did nos specify "this"
+                if (expressionValue == null && @this != null)
+                {
+                    currrentObject = @this;
+                    if (Dereference(ref currrentObject, tokens))
+                        expressionValue = currrentObject ?? "null";
+                }
+
+                // expression is the chain of static members (e.g. `System.Environment.TickCOunt`)
+                if (expressionValue == null)
+                {
+
+                    if (DereferenceStatic(ref currrentObject, tokens))
+                        expressionValue = currrentObject ?? "null";
+                    else if (DereferenceStatic(ref currrentObject, new[] { "System" }.Concat(tokens))) // in case if user did not specify well knows namespace
+                        expressionValue = currrentObject ?? "null";
+
+                }
+            }
+            catch (Exception ex)
+            {
+                expressionValue = $"<cannot evaluate '{ex.Message}'>";
+            }
+        }
+
+        watchExpressions[expression] = expressionValue;
+
+        var info = watchExpressions.Select(x => (x.Key, x.Value)).ToJson();
+        DBG.PostExpressionInfo(info);
+    }
+
+    static bool DereferenceStatic(ref object obj, IEnumerable<string> expression)
+    {
+        bool dereferenced = false;
+        Type rootType = null;
+        string typeName = "";
+        object currentObject = null;
+        obj = null;
+
+        foreach (var item in expression)
+        {
+            if (rootType == null)
+            {
+                if (typeName.Any())
+                    typeName += "." + item;
+                else
+                    typeName = item;
+
+                var matchingTypes = AppDomain.CurrentDomain.GetAssemblies().Select(asm => asm.GetType(typeName)).Distinct().Where(x => x != null);
+                if (matchingTypes.Any())
+                {
+                    if (matchingTypes.Count() > 1)
+                    {
+                        obj = "<the type is defined in multiple assemblies>";
+                        break;
+                    }
+                    rootType = matchingTypes.First();
+                }
+            }
+            else
+            {
+                var typeProp = rootType.GetProperty(item);
+                var typeField = rootType.GetField(item);
+
+
+                if (typeProp != null || typeField == null)
+                {
+                    if (typeProp != null)
+                        currentObject = typeProp.GetValue(null);
+                    else if (typeField != null)
+                        currentObject = typeField.GetValue(null);
+
+                    dereferenced = true;
+                    rootType = currentObject?.GetType();
+                }
+                else
+                {
+                    obj = $"<cannot evaluate name '{item}'>";
+                    break;
+                }
+            }
+        }
+
+        if (obj == null)
+        {
+            if (dereferenced)
+                obj = currentObject;
+            else
+                obj = $"<cannot evaluate name '{string.Join('.', expression)}'>";
+        }
+        return dereferenced;
+    }
+    static bool Dereference(ref object obj, IEnumerable<string> members)
+    {
+
+        object currrentObject = obj;
+
+        foreach (var memberName in members)
+        {
+            var objProp = currrentObject.GetType().GetProperty(memberName);
+            var objField = currrentObject.GetType().GetField(memberName);
+
+            if (objProp != null)
+                currrentObject = objProp.GetValue(currrentObject);
+            else if (objField != null)
+                currrentObject = objField.GetValue(currrentObject);
+            else
+                return false;
+        }
+
+        obj = currrentObject;
+        return true;
+    }
     bool ShouldStop()
     {
         if (DBG.StopOnNextInspectionPointInMethod == "*")
@@ -226,11 +366,28 @@ public class BreakPoint
 
 static class dbg_extensions
 {
-    static Type[] primitiveTypes = new[]
-    { typeof(string),typeof(Boolean) ,typeof(Byte) ,typeof(SByte) ,typeof(Int16) ,typeof(UInt16) ,typeof(Int32) ,typeof(UInt32)
-        ,typeof(Int64) ,typeof(UInt64) ,typeof(Char) ,typeof(Double) ,typeof(Single) };
+    public static bool IsPrimitiveType(this object obj) => Aliases.ContainsKey(obj.GetType());
+    public static string ToView(this Type type) => Aliases.ContainsKey(type) ? Aliases[type] : type.ToString();
 
-    public static bool IsPrimitiveType(this object obj) => primitiveTypes.Contains(obj.GetType());
+    public static readonly Dictionary<Type, string> Aliases = new Dictionary<Type, string>()
+        {
+            { typeof(byte), "byte" },
+            { typeof(sbyte), "sbyte" },
+            { typeof(short), "short" },
+            { typeof(ushort), "ushort" },
+            { typeof(int), "int" },
+            { typeof(uint), "uint" },
+            { typeof(long), "long" },
+            { typeof(ulong), "ulong" },
+            { typeof(float), "float" },
+            { typeof(double), "double" },
+            { typeof(decimal), "decimal" },
+            { typeof(object), "object" },
+            { typeof(bool), "bool" },
+            { typeof(char), "char" },
+            { typeof(string), "string" },
+            { typeof(void), "void" }
+        };
 
     public static string ToJson(this IEnumerable<(string name, object value)> variables)
     {
@@ -238,7 +395,7 @@ static class dbg_extensions
         {
             Name = x.name,
             Value = x.value?.ToString()?.TruncateWithElipses(100),
-            Type = x.value?.GetType().ToString()
+            Type = x.value?.GetType()?.ToView()
         }));
     }
     public static string Serialize(this object obj)
