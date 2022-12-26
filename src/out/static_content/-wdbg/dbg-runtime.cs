@@ -104,7 +104,8 @@ public static class DBG
     public static BreakPoint Line([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         => new BreakPoint
         {
-            memberName = memberName,
+            methodDeclaringType = new StackFrame(1).GetMethod().ReflectedType.ToString(),
+            methodName = memberName,
             sourceFilePath = sourceFilePath,
             sourceLineNumber = sourceLineNumber
         };
@@ -112,7 +113,8 @@ public static class DBG
 
 public class BreakPoint
 {
-    public string memberName = "";
+    public string methodDeclaringType = "";
+    public string methodName = "";
     public string sourceFilePath = "";
     public int sourceLineNumber = 0;
 
@@ -146,7 +148,7 @@ public class BreakPoint
             // continue to the next point of inspection but only in the same method
             if (IsStepOverRequested(request))
             {
-                DBG.StopOnNextInspectionPointInMethod = memberName;
+                DBG.StopOnNextInspectionPointInMethod = methodName;
                 break;
             }
 
@@ -179,7 +181,7 @@ public class BreakPoint
             DBG.PostObjectInfo(varName, "<cannot serialize variable>");
     }
 
-    private static void EvaluateExpression((string name, object value)[] variables, Dictionary<string, object> watchExpressions, string expression)
+    void EvaluateExpression((string name, object value)[] variables, Dictionary<string, object> watchExpressions, string expression)
     {
         object expressionValue = null;
 
@@ -223,6 +225,8 @@ public class BreakPoint
                 {
 
                     if (DereferenceStatic(ref currrentObject, tokens))
+                        expressionValue = currrentObject ?? "null";
+                    else if (DereferenceStatic(ref currrentObject, new[] { methodDeclaringType }.Concat(tokens))) // in case if user did not specify well knows namespace
                         expressionValue = currrentObject ?? "null";
                     else if (DereferenceStatic(ref currrentObject, new[] { "System" }.Concat(tokens))) // in case if user did not specify well knows namespace
                         expressionValue = currrentObject ?? "null";
@@ -331,7 +335,7 @@ public class BreakPoint
             return true;
         }
 
-        if (memberName == DBG.StopOnNextInspectionPointInMethod)
+        if (methodName == DBG.StopOnNextInspectionPointInMethod)
         {
             DBG.StopOnNextInspectionPointInMethod = null;
             return true;
@@ -366,27 +370,34 @@ public class BreakPoint
 
 static class dbg_extensions
 {
-    public static bool IsPrimitiveType(this object obj) => Aliases.ContainsKey(obj.GetType());
-    public static string ToView(this Type type) => Aliases.ContainsKey(type) ? Aliases[type] : type.ToString();
-
-    public static readonly Dictionary<Type, string> Aliases = new Dictionary<Type, string>()
+    public static string ToView(this Type type)
+    {
+        string view = type.ToString();
+        foreach (var key in Aliases.Keys)
         {
-            { typeof(byte), "byte" },
-            { typeof(sbyte), "sbyte" },
-            { typeof(short), "short" },
-            { typeof(ushort), "ushort" },
-            { typeof(int), "int" },
-            { typeof(uint), "uint" },
-            { typeof(long), "long" },
-            { typeof(ulong), "ulong" },
-            { typeof(float), "float" },
-            { typeof(double), "double" },
-            { typeof(decimal), "decimal" },
-            { typeof(object), "object" },
-            { typeof(bool), "bool" },
-            { typeof(char), "char" },
-            { typeof(string), "string" },
-            { typeof(void), "void" }
+            view = view.Replace(key, Aliases[key]);
+        }
+        return view;
+    }
+
+    public static readonly Dictionary<string, string> Aliases = new Dictionary<string, string>()
+        {
+            { typeof(byte).ToString(), "byte" },
+            { typeof(sbyte).ToString(), "sbyte" },
+            { typeof(short).ToString(), "short" },
+            { typeof(ushort).ToString(), "ushort" },
+            { typeof(int).ToString(), "int" },
+            { typeof(uint).ToString(), "uint" },
+            { typeof(long).ToString(), "long" },
+            { typeof(ulong).ToString(), "ulong" },
+            { typeof(float).ToString(), "float" },
+            { typeof(double).ToString(), "double" },
+            { typeof(decimal).ToString(), "decimal" },
+            { typeof(object).ToString(), "object" },
+            { typeof(bool).ToString(), "bool" },
+            { typeof(char).ToString(), "char" },
+            { typeof(string).ToString(), "string" },
+            { typeof(void).ToString(), "void" }
         };
 
     public static string ToJson(this IEnumerable<(string name, object value)> variables)

@@ -118,9 +118,9 @@
                     </MudGrid>
 
 
-                    <MudTable Height="452px" Items="@Watch" OnRowClick="args=>DbgService.SerializeObject(args.Item.Name)" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
+                    <MudTable Height="452px" Items="@Watch" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
                         <ColGroup>
-                            <col style="width: 10px;" />
+                            <col style="width: 15px;" />
                             <col />
                             <col style="width: 60%;" />
                             <col style="width: 60px;" />
@@ -140,11 +140,15 @@
                                         {
                                             <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
                                         }
+                                        else
+                                        {
+                                            <MudIcon title="Refresh" Size="Size.Small" Icon="@Icons.Material.Filled.Autorenew" @onclick="()=>ReevaluateExpression(context)" Color="Color.Default" />
+                                        }
                                     </MudItem>
                                 </MudGrid>
                             </MudTd>
-                            <MudTd DataLabel="Name">@context.Name</MudTd>
-                            <MudTd DataLabel="Value">@context.Value</MudTd>
+                            <MudTd DataLabel="Name" @onclick="()=>DbgService.SerializeObject(context.Name)">@context.Name</MudTd>
+                            <MudTd DataLabel="Value" @onclick="()=>DbgService.SerializeObject(context.Name)">@context.Value</MudTd>
                             <MudTd DataLabel="Type">@context.Type</MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -176,7 +180,7 @@
             <tr><td>F9</td><td><MudLink OnClick="ToggleBreakpoingForCurrentLine">Toggle Breakpoint</MudLink> </td></tr>
             <tr><td>Shift+F9</td><td><MudLink OnClick="ClearBreakpoints">Clear Breakpoints</MudLink> </td></tr>
             <tr><td>Ctrl+S</td><td><MudLink OnClick="OnSave">Save</MudLink></td></tr>
-            <tr><td>Status</td><td>@Status</td></tr>
+            <tr><td>Status:</td><td>@Status</td></tr>
         </tbody>
     </MudSimpleTable>
 
@@ -367,6 +371,15 @@
             Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
             SetBpSteps(Session.Current.Breakpoints);
         }
+    }
+
+    void ReevaluateExpression(Variable variable)
+    {
+        Debug.WriteLine($"ReevaluateExpression: '{variable.Name}'");
+        variable.Updating = true;
+        Thread.Sleep(300);
+        StateHasChanged();
+        DbgService.Evaluate(variable.Name);
     }
 
     void DeleteWatchItem(Variable variable)
