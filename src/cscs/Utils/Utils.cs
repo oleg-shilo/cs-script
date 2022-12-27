@@ -30,11 +30,13 @@
 
 #endregion Licence...
 
+using csscript;
+using CSScripting.CodeDom;
+using CSScriptLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using static System.Environment;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -43,9 +45,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using csscript;
-using CSScripting.CodeDom;
-using CSScriptLib;
+using static System.Environment;
 
 namespace CSScripting
 {
@@ -1639,23 +1639,7 @@ partial class dbg
             else
             {
                 foreach (string file in files)
-                {
-                    string fullPath = Path.GetFullPath(file);
-
-                    bool local = false;
-
-                    foreach (string dir in searchDirs)
-                    {
-                        local = dir.SamePathAs(fullPath.GetDirName());
-                        if (local)
-                            break;
-                    }
-
-                    if (local)
-                        AddItem(Path.GetFileName(file), File.GetLastWriteTimeUtc(file), false);
-                    else
-                        AddItem(file, File.GetLastWriteTimeUtc(file), false);
-                }
+                    AddItem(file, File.GetLastWriteTimeUtc(file), false);
             }
             return newProbingDirs.ToArray();
         }

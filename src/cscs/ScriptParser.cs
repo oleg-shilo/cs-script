@@ -1,9 +1,9 @@
+using csscript;
+using CSScripting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using csscript;
-using CSScripting;
 
 namespace CSScriptLib
 {
@@ -254,6 +254,12 @@ namespace CSScriptLib
                     {
                         importedFile.ProcessFile(); //parse now namespaces, ref. assemblies and scripts; also it will do namespace renaming
 
+
+                        this.SearchDirs = this.SearchDirs.ToList()
+                                              .AddIfNotThere(importedFile.fileName.GetDirName())
+                                              .ToArray();
+
+
                         this.fileParsers.Add(importedFile);
                         this.fileParsers.Sort(fileComparer);
 
@@ -284,6 +290,7 @@ namespace CSScriptLib
                                 dirs.Add(Path.GetFullPath(dir));
                             else
                                 dirs.Add(Path.Combine(Path.GetDirectoryName(importedFile.fileName), dir));
+
                         this.SearchDirs = dirs.ToArray();
                     }
                     else
