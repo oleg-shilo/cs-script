@@ -21,10 +21,14 @@ md "out\Linux\-self\-test"
 md "out\Windows\-self"
 md "out\Windows\-self\-exe"
 md "out\Windows\-self\-test"
+md "out\Windows\-wdbg"
+md "out\Windows\-wdbg\dbg-server"
 
-rem in case some contentis already there
+rem in case some content is already there
 del /S /Q "out\Linux\"
 del /S /Q "out\Windows\"
+rd /S /Q "out\Linux\-wdbg"
+rd /S /Q "out\Windows\-wdbg"
 del "CSScriptLib\src\CSScriptLib\output\*.nupkg"
 del "CSScriptLib\src\CSScriptLib\output\*.snupkg"
 del "out\cs-script.win.7z"
@@ -75,6 +79,15 @@ dotnet build -c Release
 
 cd ..\..\..
 
+pushd .\
+
+cd .\out\static_content\-wdbg\dbg-server
+echo ----------------
+echo Building WDBG from %cd%
+dotnet publish -o .\output
+popd
+
+
 echo =====================
 echo Aggregating (cd: %cd%)
 echo =====================
@@ -96,6 +109,15 @@ copy "out\static_content\-self\-exe\*" "out\Linux\-self\-exe\"
 
 copy "out\static_content\-self\-test\*" "out\Windows\-self\-test\" 
 copy "out\static_content\-self\-test\*" "out\Linux\-self\-test\" 
+
+xcopy /s /q "out\static_content\-wdbg\*" "out\Windows\-wdbg\" 
+xcopy /s /q "out\static_content\-wdbg\*" "out\Linux\-wdbg\" 
+rd /S /Q .\out\Linux\-wdbg\dbg-server\bin\
+rd /S /Q .\out\Windows\-wdbg\dbg-server\bin\
+rd /S /Q .\out\WindowLinux\-wdbg\dbg-server\obj\
+rd /S /Q .\out\Windows\-wdbg\dbg-server\obj\
+del out\Linux\-wdbg\test*.cs
+del out\Windows\-wdbg\test*.cs
 
 copy "Tests.cscs\cli.cs" "out\Linux\-self\-test\cli.cs" 
 copy "Tests.cscs\cli.cs" "out\Windows\-self\-test\cli.cs" 

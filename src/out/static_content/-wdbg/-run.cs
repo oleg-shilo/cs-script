@@ -1,26 +1,36 @@
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Net;
-using System.Text;
+//css_args -l:0
+using CSScripting;
 using System;
-using System.Linq;
-using System.Threading;
-using System.Net.Http;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Numerics;
-using CSScripting;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 static class Scipt
 {
     static void Main(string[] args)
     {
-        
+        if (args.Contains("-?") || args.Contains("-help"))
+        {
+            Console.WriteLine("Start web-based debugger (wdbg) for the specified script.");
+            Console.WriteLine("  css -wdbg <script_file> [server args]");
+            Console.WriteLine();
+            Console.WriteLine("You can use CLI arguments to be tunneled to the debugger WebAPI server as in `dotnet run <arguments>`.");
+            Console.WriteLine("  Example: `css -wdbg script.cs --urls \"http://localhost:5100;https://localhost:5101\"`");
+            return;
+        }
+
         string urls = "https://localhost:5001";
-                
+
         string script = args.FirstOrDefault()?.GetFullPath();           // first arg is the script to debug
         if (!File.Exists(script))
         {
@@ -31,7 +41,7 @@ static class Scipt
         }
 
         var wdbgDir = Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript"));
-        
+
         var runAsAssembly = true; // 'dotnet run'
         var serverDir = Path.Combine(wdbgDir, "dbg-server", "output");
         if (!Directory.Exists(serverDir))
@@ -49,7 +59,7 @@ static class Scipt
 
         // start wdbg server
         Process proc;
-        if(runAsAssembly)
+        if (runAsAssembly)
             proc = "dotnet".Start($"\"{serverAsm}\" \"{script}\" --urls \"{urls}\" -pre:{preprocessor} {serverArgs}", serverDir);
         else
             proc = "dotnet".Start($"run \"{script}\" --urls \"{urls}\" -pre:{preprocessor} {serverArgs}", serverDir);

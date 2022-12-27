@@ -25,7 +25,7 @@ public class Decorator
     static int Main(string[] args)
 #endif
     {
-        var testScript = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
+        var testScript = @"D:\dev\Galos\cs-script\src\out\Windows\text.cs";
         // Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", @"D:\dev\Galos\cs-script\src\out\Windows");
 
         (string decoratedScript, int[] breakpoints) = Decorator.InjectDbgInfo(args.FirstOrDefault() ?? testScript);
@@ -113,7 +113,7 @@ public class Decorator
                                     .OrderBy(x => lineIndex - x.StartLine) // take the internal/nested method declaration (e.g. local function)
                                     .FirstOrDefault();
 
-                                if (!methodInfo.IsStatic)
+                                if (methodInfo?.IsStatic == false)
                                     variablesToAnalyse.Add("this");
 
                                 if (methodInfo != null)
@@ -195,7 +195,7 @@ public class Decorator
             catch { }
         }
 
-        if (error != null)
+        if (error?.Trim().IsNotEmpty() == true)
             throw new Exception(error);
         else
             return (decoratedScript, breakpoints);
@@ -251,7 +251,8 @@ public class Decorator
         var output = "";
         var err = "";
         var compilation = Shell.StartProcess(
-            "dotnet", $"\"{css}\" -cd -dbg -out:\"{assembly}\" \"{script}\"",
+            "dotnet", $"\"{css}\" -e -dbg -out:\"{assembly}\" \"{script}\"",
+            // "dotnet", $"\"{css}\" -cd -dbg -out:\"{assembly}\" \"{script}\"",
             Path.GetDirectoryName(script),
             line => output += line + "\n",
             line => err += line + "\n");

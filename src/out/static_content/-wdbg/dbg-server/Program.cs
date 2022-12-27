@@ -7,11 +7,20 @@ using System.Collections.Generic;
 using System.Threading;
 using wdbg.Controllers;
 
+Session.Current.StackFrameFileName = args.FirstOrDefault();
+var preprocessor = args.FirstOrDefault(x => x.StartsWith("-pre:"))?.Replace("-pre:", "")?.Trim('"');
+
+
 #if DEBUG
 Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", @"D:\dev\Galos\cs-script\src\out\Windows");
+if (Session.Current.StackFrameFileName == null)
+    Session.Current.StackFrameFileName = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
+
+if (preprocessor == null)
+    preprocessor = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\dbg-inject.cs";
 #else
 
-don 't forget to reste cscs path
+don 't forget to reset cscs path
 #endif
 
 
@@ -48,8 +57,6 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-Session.Current.StackFrameFileName = args.FirstOrDefault() ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
-var preprocessor = args.FirstOrDefault(x => x.StartsWith("-pre:"))?.Replace("-pre:", "")?.Trim('"') ?? @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\dbg-inject.cs";
 
 var process = app.RunAsync();
 

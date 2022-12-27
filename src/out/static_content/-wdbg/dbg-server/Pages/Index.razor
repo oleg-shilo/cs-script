@@ -248,7 +248,7 @@
             SetBpSteps(Session.Current.Breakpoints);
         };
 
-        InteropKeyPress.OnKeyDown = e =>
+        InteropKeyPress.OnKeyDown = async e =>
         {
             if (e.Key == "F11") OnStep(stepIn: true);
             if (e.Key == "F10") OnStep(stepIn: false);
@@ -260,7 +260,7 @@
                 if (e.ShiftKey)
                     ClearBreakpoints();
                 else
-                    ToggleBreakpoingForCurrentLine();
+                    await ToggleBreakpoingForCurrentLine();
             }
 
             if (e.Key == "F5")
