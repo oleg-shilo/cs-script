@@ -1,10 +1,10 @@
 ﻿using csscript;
+using CSScripting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using CSScripting;
 
 namespace CSScriptLib
 {
@@ -269,8 +269,14 @@ namespace CSScriptLib
                 retval = _ResolveFiles(file, extraDirs, ".csl"); //script link file
             if (retval.Length == 0)
             {
-                // a complex command folder. IE: ├── -self │ └── -test │ ├── run.cs │ ├── utils.cs │
-                // ├── log.cs │ └── test_definitions.cs.
+                // a complex command folder. IE:
+                // ├── -self
+                // │ └── -test
+                // │ ├── -run.cs
+                // │ ├── utils.cs
+                // │
+                // ├── log.cs │
+                // └── test_definitions.cs.
 
                 // possible CLI command: css -self-test css -self-test-run css -self-test-log
                 if (file.GetFileName().StartsWith("-"))
