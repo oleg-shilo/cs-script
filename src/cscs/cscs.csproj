@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.5.0.0 </Version>
+    <Version>4.6.0.0 </Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -17,43 +17,24 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.5.0.0</AssemblyVersion>
-    <FileVersion>4.5.0.0</FileVersion>
+    <AssemblyVersion>4.6.0.0</AssemblyVersion>
+    <FileVersion>4.6.0.0</FileVersion>
     <PackageReleaseNotes>---
-
-Due to the quick progression v4.4.9-&gt;v4.5.0 this document contains v4.4.9 changes too.
 
 ## Changes
 
 ### CLI
 
-v4.5.0
-- Rebuild for .NET7
-- Improved CLI documentation (triggered by #314)
-- Added an extra CLI `//css_co` help sample for enabling nullable reference types (#313)
-- Improved responsiveness of the "build-type" scripting scenarios (e.g. `css -check`)
-
-v4.4.9
--  Enhancement #310: Add the possibility to use variables in css_include and css_import statements
+- WDBG: implemented fully functional web based debugger
+  ```
+  css -wdbg script.cs
+  ``` 
+- Issue #319: "Bad IL format" on self-contained linux-x64 builds if using namespace with same name as assembly
 
 
 ### CSScriptLib
 
-v4.4.9
-
-- It's possible to define a custom algorithm of how to expand script directives.
-
-  Hosting code:
-  ```C#
-  CSScript.EvaluatorConfig.ExpandStatementAlgorithm += 
-                  statement =&gt; statement.Replace("%secret_folder%", Config.PrivateFolder);
-  ```
-  
-  Script code:
-  ```c#
-  //css_include %secret_folder%/inputdata.cs
-  . . .
-  ```</PackageReleaseNotes>
+- no chnges</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>

@@ -1,0 +1,8 @@
+﻿@page "/"
+@namespace blazor_min.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_Layout";
+}
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<component type="typeof(server.App)" render-mode="ServerPrerendered" />

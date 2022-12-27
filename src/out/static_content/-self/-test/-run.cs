@@ -17,6 +17,12 @@ class Script
 {
     static public void Main(string[] args)
     {
+        if (args.Contains("-?") || args.Contains("-help"))
+        {
+            Console.WriteLine("Execute self-testing (unit-tests) of the script engine.");
+            return;
+        }
+
         Environment.SetEnvironmentVariable("css_test_asm", Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", "..", @"cscs.dll")));
 
         var test_class = new cscs_cli();

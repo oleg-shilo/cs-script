@@ -1,9 +1,9 @@
+using CSScripting;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
-using CSScripting;
 
 #if class_lib
 
@@ -207,7 +207,9 @@ namespace csscript
         public static bool IsCore { get; } = "".GetType().Assembly.Location.Split(Path.DirectorySeparatorChar).Contains("Microsoft.NETCore.App");
 
         static internal string CustomCommandsDir
-            => Environment.SpecialFolder.CommonApplicationData.GetPath()
+            => "CSSCRIPT_COMMANDS".GetEnvar() ??
+               Environment.SpecialFolder.CommonApplicationData.GetPath()
+
                                         .PathJoin("cs-script", "commands")
                                         .EnsureDir(false);
 

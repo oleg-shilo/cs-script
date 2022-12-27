@@ -1,0 +1,542 @@
+﻿@page "/"
+@using System.Text.Json.Serialization;
+@using System.Diagnostics;
+@using System.Text.Json;
+@using wdbg.Controllers;
+@inject IJSRuntime JS
+<MudThemeProvider />
+
+@*https://mudblazor.com/docs/overview*@
+
+<PageTitle>CS-Script Debugger</PageTitle>
+
+<MudGrid Spacing="2" Justify="Justify.FlexStart">
+    <MudItem>
+        <MudContainer>
+            <br />
+            <MudGrid>
+                <MudItem xs=8>
+                    <MudText Typo="Typo.h6" GutterBottom="true">CS-Script Debugger - stack analyzer</MudText>
+                </MudItem>
+                <MudItem xs=1>
+                    <span hidden="@NotBusy"> <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" /> </span>
+                </MudItem>
+                <MudItem xs=3>
+                    @*<MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>*@
+                    @*<link href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" rel="stylesheet">*@
+                    @*<MudIconButton Icon="fas fa-atom" Color="Color.Error"></MudIconButton>*@
+
+                    @*can use MudIconButton/MadFab too*@
+                    <span hidden="@IsRunning">
+                        <MudIconButton title="Start (F5)"
+                                       Disabled="@(IsRunning || Busy)"
+                                       @onclick="_=>OnStart()"
+                                       Icon="@Icons.Material.Filled.PlayArrow" Color="Color.Success" />
+                    </span>
+                    <span hidden="@IsIdle">
+                        <MudIconButton title="Resume (F5)"
+                                       Disabled=@(IsIdle || Busy)
+                                       @onclick="_=>OnStart()"
+                                       Icon="@Icons.Material.Outlined.PlayArrow" Color="Color.Warning" />
+                    </span>
+                    <MudIconButton title="Step Over (F10)"
+                                   @onclick="_=>OnStep(false)"
+                                   Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Success" />
+                    <MudIconButton title="Step Into (F11)"
+                                   Disabled=@(IsIdle || Busy)
+                                   @onclick="_=>OnStep(true)"
+                                   Icon="@Icons.Filled.ArrowDownward" Color="Color.Success" />
+                    <MudIconButton title="Stop (Shift+F5)"
+                                   Disabled=@(IsIdle || Busy)
+                                   @onclick="OnStop"
+                                   Icon="@Icons.Material.Filled.Stop" Color="Color.Error" />
+
+                </MudItem>
+            </MudGrid>
+
+            <MudGrid>
+                <MudItem xs="9">
+                    <MudTextField id="scriptFile" @bind-Value="scriptFile" FullWidth="true" Margin="Margin.Dense" Label="Script File" Variant="Variant.Outlined"></MudTextField>
+                </MudItem>
+                <MudItem xs="1">
+                    <MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnLoad" StartIcon="@Icons.Material.Filled.Download">Load</MudButton>&nbsp;
+                </MudItem>
+                <MudItem xs="1">
+                    <MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnSave" StartIcon="@Icons.Material.Filled.Save">Save</MudButton>
+                </MudItem>
+            </MudGrid>
+
+            <textarea class="lined" id="sourceCode" rows="50" cols="151"
+                      spellcheck="false"
+                      value="@scriptCode" @onchange="@((args) => scriptCode = args.Value.ToString())" />
+
+            <br />
+            <EditForm Model="@this" OnValidSubmit="OnStdInput">
+                <MudTextField id="stdInput"
+                              Margin="Margin.Dense"
+                              @bind-Value="userInput" Immediate="true" Disabled="@(IsIdle)"
+                              Placeholder="Type and press Enter ↵ to pass the input to the running script"
+                              Label="Input:"
+                              Variant="Variant.Outlined"></MudTextField>
+            </EditForm>
+
+            <MudText Typo="Typo.h6" GutterBottom="true"> Output:</MudText>
+            <textarea class="output-text" readonly>@output</textarea>
+        </MudContainer>
+    </MudItem>
+
+    <MudItem Width="400px" Height="800px">
+        <MudContainer>
+            @*<MudText Typo="Typo.h6" GutterBottom="true">Locals:</MudText>*@
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
+                <MudTabPanel Text="Locals">
+
+                    <MudTable Height="500px" Items="@Variables" OnRowClick="RowClickEvent" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
+                        <HeaderContent>
+                            <MudTh>Name</MudTh> <MudTh>Value</MudTh><MudTh>Type</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Name">@context.Name</MudTd>
+                            <MudTd DataLabel="Value">@context.Value</MudTd>
+                            <MudTd DataLabel="Type">@context.Type</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+
+                </MudTabPanel>
+                <MudTabPanel Text="Watch">
+
+                    <MudGrid>
+
+                        <MudItem xs=1>
+                            <MudIconButton title="Add to watch" @onclick="AddWatchItem" Icon="@Icons.Material.Filled.ArrowDownward" />
+                        </MudItem>
+                        <MudItem xs=11>
+                            <EditForm Model="@this" OnValidSubmit="AddWatchItem">
+                                <MudTextField id="addToWatch" @bind-Value="expression" Immediate="true" FullWidth="false" Margin="Margin.Dense" Label="Expression" Variant="Variant.Outlined"></MudTextField>
+                            </EditForm>
+                        </MudItem>
+                    </MudGrid>
+
+
+                    <MudTable Height="452px" Items="@Watch" T="Variable" Dense="true" Hover="true" Bordered="true" Striped="true" FixedHeader="true">
+                        <ColGroup>
+                            <col style="width: 15px;" />
+                            <col />
+                            <col style="width: 60%;" />
+                            <col style="width: 60px;" />
+                        </ColGroup>
+                        <HeaderContent>
+                            <MudTh>Name</MudTh><MudTh>Name</MudTh> <MudTh>Value</MudTh><MudTh>Type</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Operation">
+                                @*<MudIconButton title="Refresh" Icon="@Icons.Material.Filled.Autorenew" Color="Color.Default" />*@
+                                <MudGrid>
+                                    <MudItem xs=1>
+                                        <MudIcon title="Delete" Size="Size.Small" Icon="@Icons.Material.Filled.DeleteForever" @onclick="()=>DeleteWatchItem(context)" Color="Color.Default" />
+                                    </MudItem>
+                                    <MudItem xs=1>
+                                        @if (context.Updating)
+                                        {
+                                            <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+                                        }
+                                        else
+                                        {
+                                            <MudIcon title="Refresh" Size="Size.Small" Icon="@Icons.Material.Filled.Autorenew" @onclick="()=>ReevaluateExpression(context)" Color="Color.Default" />
+                                        }
+                                    </MudItem>
+                                </MudGrid>
+                            </MudTd>
+                            <MudTd DataLabel="Name" @onclick="()=>DbgService.SerializeObject(context.Name)">@context.Name</MudTd>
+                            <MudTd DataLabel="Value" @onclick="()=>DbgService.SerializeObject(context.Name)">@context.Value</MudTd>
+                            <MudTd DataLabel="Type">@context.Type</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudTabPanel>
+            </MudTabs>
+
+            <br />
+            <MudText Typo="Typo.h6" GutterBottom="true">Selected value:</MudText>
+            <textarea class="selected-value" spellcheck="false" readonly>@selectedValue</textarea>
+            @* </MudPaper> *@
+        </MudContainer>
+
+
+    </MudItem>
+
+    <MudSimpleTable Style="overflow-x: auto;">
+        <thead>
+            <tr>
+                <th>HotKey</th>
+
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>F5</td><td><MudLink OnClick="()=>OnStart()">Start/Resume</MudLink>  </td></tr>
+            <tr><td>Shift+F5</td><td><MudLink OnClick="OnStop" Disabled=@(IsIdle || Busy)>Stop</MudLink></td></tr>
+            <tr><td>F10</td><td><MudLink OnClick="()=>OnStep(false)">Step Over</MudLink></td></tr>
+            <tr><td>F11</td><td><MudLink OnClick="()=>OnStep(true)" Disabled=@(IsIdle || Busy)>Step Into</MudLink></td></tr>
+            <tr><td>F9</td><td><MudLink OnClick="ToggleBreakpoingForCurrentLine">Toggle Breakpoint</MudLink> </td></tr>
+            <tr><td>Shift+F9</td><td><MudLink OnClick="ClearBreakpoints">Clear Breakpoints</MudLink> </td></tr>
+            <tr><td>Ctrl+S</td><td><MudLink OnClick="OnSave">Save</MudLink></td></tr>
+            <tr><td>Status:</td><td>@Status</td></tr>
+        </tbody>
+    </MudSimpleTable>
+
+</MudGrid>
+
+
+@*https://github.com/stavroskasidis/BlazorContextMenu*@
+
+@code {
+
+    List<Variable> Variables = new();
+    List<Variable> Watch = new();
+    System.Threading.Timer timer;
+    IJSObjectReference module;
+    int lastBuildHash;
+    string selectedValue;
+    string expression;
+    string _output;
+
+    public string output
+    {
+        get => _output;
+        set { _output = value; }
+    }
+    string scriptCode;
+    public string userInput { get; set; } = default!;
+    string scriptFile;
+    bool Busy = false;
+    bool NotBusy => !Busy;
+    bool IsRunning = false;
+    bool IsIdle => !IsRunning;
+    string Status = "idle";
+
+    void OnStdInput()
+    {
+        if (proc?.HasExited == false)
+            proc.StandardInput.WriteLine(userInput);
+
+        userInput = "";
+        StateHasChanged();
+
+        // for some reason MudBlazor fails to clear unless focus is changed. So doing it from js
+        module?.ClearField("stdInput");
+    }
+
+    async void Init()
+    {
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/Index.razor.js");
+        module?.InvokeAsync<string>("initTextarea");
+
+        await JS.InvokeVoidAsync("JsFunctions.addKeyboardListenerEvent");
+
+        DbgController.OnBreak = OnSessionBreak;
+        DbgController.OnObjectInspection = OnObjectInspected;
+        DbgController.OnExpressionEvaluation = OnExpressionEvalueated;
+
+        InteropKeyPress.BreakpointAreaClicked = line =>
+        {
+            if (Session.Current.Breakpoints.Contains(line))
+                Session.Current.Breakpoints.Remove(line);
+            else
+                Session.Current.Breakpoints.Add(line);
+
+            Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
+            SetBpSteps(Session.Current.Breakpoints);
+        };
+
+        InteropKeyPress.OnKeyDown = async e =>
+        {
+            if (e.Key == "F11") OnStep(stepIn: true);
+            if (e.Key == "F10") OnStep(stepIn: false);
+
+            if (e.Key == "s" && e.CtrlKey) OnSave();
+
+            if (e.Key == "F9")
+            {
+                if (e.ShiftKey)
+                    ClearBreakpoints();
+                else
+                    await ToggleBreakpoingForCurrentLine();
+            }
+
+            if (e.Key == "F5")
+            {
+                if (e.ShiftKey)
+                    OnStop();
+                else
+                    OnStart();
+            }
+        };
+
+        timer = new System.Threading.Timer(_ =>
+        {
+            if (proc?.HasExited == true)
+            {
+                proc = null;
+                OnStop();
+            }
+
+            Refresh();
+        }, null, 0, 2000);
+
+        scriptFile = Session.Current.StackFrameFileName;
+        if (!string.IsNullOrEmpty(scriptFile))
+        {
+            OnLoad();
+        }
+    }
+
+    void OnObjectInspected(string variableInfo)
+    {
+        // "{name}:{data}"
+        var tokens = variableInfo.Split(":".ToCharArray(), 2);
+        selectedValue = tokens[1];
+        Refresh();
+    }
+
+    void OnExpressionEvalueated(string expressionInfo)
+    {
+        var debugFrameObjects = JsonSerializer.Deserialize<Variable[]>(expressionInfo);
+
+        this.Watch
+            .ForEach(expression =>
+            {
+                var objectFromFrame = debugFrameObjects.FirstOrDefault(y => expression.Name == y.Name);
+                if (objectFromFrame != null)
+                {
+                    expression.Value = objectFromFrame.Value;
+                    expression.Type = objectFromFrame.Type;
+                    expression.Updating = false;
+                }
+            });
+
+        Refresh();
+    }
+
+    void OnSessionBreak(string file, int? line, string variables)
+    {
+        lock (Variables)
+        {
+            int lineNumber = line ?? -1;
+
+            SetCurrentStep(lineNumber);
+
+            Variables.Clear();
+
+            if (variables != null)
+            {
+                var locals = JsonSerializer.Deserialize<Variable[]>(variables);
+                Variables.AddRange(locals);
+
+                Watch.ForEach(expression => DbgService.Evaluate(expression.Name));
+            }
+
+
+            selectedValue = null;
+
+            Refresh();
+        }
+    }
+
+    void SetCurrentStep(int line) => module?.InvokeAsync<string>("setCurrentStep", line);
+    void SetBpSteps(List<int> breakpoints) => module?.InvokeAsync<string>("setBpSteps", string.Join(',', breakpoints.Select(x => x.ToString())));
+    ValueTask<int> GetCurretLineNumber() => module.InvokeAsync<int>("getLineNumber");
+
+
+    void RowClickEvent(TableRowClickEventArgs<Variable> tableRowClickEventArgs)
+    {
+        DbgService.SerializeObject(tableRowClickEventArgs.Item.Name);
+    }
+
+    void RowClickEvent2(TableRowClickEventArgs<Variable> tableRowClickEventArgs)
+    {
+        DbgService.SerializeObject(tableRowClickEventArgs.Item.Name);
+    }
+
+    async Task ToggleBreakpoingForCurrentLine()
+    {
+        var currentline = await GetCurretLineNumber();
+
+        if (currentline != -1)
+        {
+            if (Session.Current.Breakpoints.Contains(currentline))
+                Session.Current.Breakpoints.Remove(currentline);
+            else
+                Session.Current.Breakpoints.Add(currentline);
+
+            Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
+            SetBpSteps(Session.Current.Breakpoints);
+        }
+    }
+
+    void ReevaluateExpression(Variable variable)
+    {
+        Debug.WriteLine($"ReevaluateExpression: '{variable.Name}'");
+        variable.Updating = true;
+        Thread.Sleep(300);
+        StateHasChanged();
+        DbgService.Evaluate(variable.Name);
+    }
+
+    void DeleteWatchItem(Variable variable)
+    {
+        Watch.Remove(variable);
+        StateHasChanged();
+    }
+
+    void AddWatchItem()
+    {
+        if (!Watch.Any(x => x.Name == this.expression))
+        {
+            var variable = new Variable { Name = this.expression, Updating = true };
+            Watch.Add(variable);
+            this.expression = null;
+
+            DbgService.Evaluate(variable.Name);
+
+        }
+        module?.ClearField("addToWatch");
+        StateHasChanged();
+    }
+
+    void ClearBreakpoints()
+    {
+        Session.Current.Breakpoints.Clear();
+        SetBpSteps(Session.Current.Breakpoints);
+    }
+
+    void OnLoad()
+    {
+        try
+        {
+            this.scriptFileValidBreakpoints = null;
+            this.scriptCode = File.ReadAllText(scriptFile);
+            SetBpSteps(Session.Current.Breakpoints);
+        }
+        catch (Exception e)
+        {
+            this.output = e.ToString();
+        }
+    }
+
+    void OnSave()
+    {
+        try
+        {
+            File.WriteAllTextAsync(scriptFile, this.scriptCode);
+        }
+        catch (Exception e)
+        {
+            this.output = e.ToString();
+        }
+    }
+
+    Process proc;
+    int GetStateHash()
+        => $"{scriptCode}:{scriptFile}:{(File.Exists(scriptFile) ? File.GetLastWriteTimeUtc(scriptFile).ToString() : Environment.TickCount.ToString())}".GetHashCode();
+
+    int[] scriptFileValidBreakpoints = null;
+
+    async void OnStart(bool pauseOnStart = false)
+    {
+        if (IsRunning)
+        {
+            DbgService.Resume();
+        }
+        else
+        {
+            OnStop();
+            Busy = true;
+            StateHasChanged();
+
+            await Task.Run(() =>
+            {
+                // if (lastBuildHash != GetStateHash()) // do not enable the optimization just yet
+                try
+                {
+                    (var decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
+
+                    Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
+                    SetBpSteps(Session.Current.Breakpoints);
+
+                    Environment.SetEnvironmentVariable("pauseOnStart", pauseOnStart ? "true" : null);
+
+                    proc = DbgService.Start(decoratedScript, "", x => output += x + Environment.NewLine);
+
+                    output = "";
+                    IsRunning = true;
+                    Status = $"running (pid:{proc.Id})";
+                    lastBuildHash = GetStateHash();
+
+                }
+                catch (Exception e)
+                {
+                    output = e.Message;
+                }
+            });
+
+            Busy = false;
+        }
+    }
+
+    void OnStop()
+    {
+        if (proc != null)
+        {
+            try { proc.Kill(); }
+            catch { }
+            proc = null;
+        }
+
+        SetCurrentStep(-1);
+        IsRunning = false;
+        Session.Current.UserRequest = null;
+        Status = "idle";
+        selectedValue = null;
+
+        Refresh();
+    }
+
+    void OnStep(bool stepIn)
+    {
+        selectedValue = null;
+        if (stepIn)
+        {
+            DbgService.StepIn();
+        }
+        else
+        {
+            if (IsRunning)
+            {
+                DbgService.StepOver();
+            }
+            else
+            {
+                OnStart(pauseOnStart: true);
+            }
+        }
+        Refresh();
+    }
+
+    void Refresh() => InvokeAsync(StateHasChanged);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            Init();
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public class Variable
+    {
+        public string Name { get; set; }
+        public bool Updating { get; set; }
+        public string Value { get; set; }
+        public string Type { get; set; }
+    }
+}
