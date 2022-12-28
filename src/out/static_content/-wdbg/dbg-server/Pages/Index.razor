@@ -2,6 +2,7 @@
 @using System.Text.Json.Serialization;
 @using System.Diagnostics;
 @using System.Text.Json;
+@using System.Reflection;
 @using wdbg.Controllers;
 @inject IJSRuntime JS
 <MudThemeProvider />
@@ -16,7 +17,7 @@
             <br />
             <MudGrid>
                 <MudItem xs=8>
-                    <MudText Typo="Typo.h6" GutterBottom="true">CS-Script Debugger - stack analyzer</MudText>
+                    <MudText Typo="Typo.h6" GutterBottom="true">CS-Script Debugger - stack analyzer (v@version)</MudText>
                 </MudItem>
                 <MudItem xs=1>
                     <span hidden="@NotBusy"> <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" /> </span>
@@ -199,6 +200,7 @@
     string selectedValue;
     string expression;
     string _output;
+    string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
     public string output
     {

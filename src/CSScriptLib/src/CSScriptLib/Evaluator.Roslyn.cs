@@ -30,6 +30,17 @@
 
 #endregion License...
 
+using csscript;
+using CSScripting;
+using CSScripting.CodeDom;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Emit;
+//using Microsoft.CodeAnalysis;
+//using Microsoft.CodeAnalysis.CSharp.Scripting
+using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,18 +48,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Emit;
-
-//using Microsoft.CodeAnalysis;
-//using Microsoft.CodeAnalysis.CSharp.Scripting
-using Microsoft.CodeAnalysis.Scripting;
-using csscript;
-using CSScripting;
-using CSScripting.CodeDom;
 
 // <summary>
 //<package id="Microsoft.Net.Compilers" version="1.2.0-beta-20151211-01" targetFramework="net45" developmentDependency="true" />
@@ -71,7 +70,7 @@ namespace CSScriptLib
         /// <summary>
         /// Gets or sets the compiler options for csc.exe.
         /// <para>
-        /// This property is only applcable for CodeDOM based script execution as Roslyn engine does
+        /// This property is only applicable for CodeDOM based script execution as Roslyn engine does
         /// not accept string options for compilation.
         /// </para>
         /// </summary>
@@ -482,7 +481,7 @@ namespace CSScriptLib
 
                                 // the actual source contains an injected '#line' directive of
                                 // compiled with debug symbols so increment line after formatting
-                                error_location = $"{(source.HasText() ? source : "<script>")}({error_line},{ error_column}): ";
+                                error_location = $"{(source.HasText() ? source : "<script>")}({error_line},{error_column}): ";
                             }
                             message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
                         }

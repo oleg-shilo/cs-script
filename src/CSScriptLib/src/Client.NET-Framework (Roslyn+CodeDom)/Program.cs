@@ -1,9 +1,9 @@
-﻿using System;
+﻿using CSScripting;
+using CSScriptLib;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using CSScripting;
-using CSScriptLib;
 
 namespace ConsoleApp1
 {
@@ -16,7 +16,7 @@ namespace ConsoleApp1
 
             var sw = Stopwatch.StartNew();
 
-            Console.WriteLine($"Hosting runtime: .NET { (Runtime.IsCore ? "Core" : "Framework")}");
+            Console.WriteLine($"Hosting runtime: .NET {(Runtime.IsCore ? "Core" : "Framework")}");
             Console.WriteLine("================\n");
 
             Console.WriteLine("CodeDOM");
