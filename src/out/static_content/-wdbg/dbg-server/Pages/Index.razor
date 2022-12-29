@@ -15,9 +15,14 @@
     <MudItem>
         <MudContainer>
             <br />
+            @{
+                var ver = this.version;
+            }
             <MudGrid>
                 <MudItem xs=8>
-                    <MudText Typo="Typo.h6" GutterBottom="true">CS-Script Debugger - stack analyzer (v@version)</MudText>
+                    <MudText Typo="Typo.h6" GutterBottom="true">
+                        CS-Script Debugger - stack analyzer
+                    </MudText>
                 </MudItem>
                 <MudItem xs=1>
                     <span hidden="@NotBusy"> <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" /> </span>
@@ -167,21 +172,49 @@
 
     <MudSimpleTable Style="overflow-x: auto;">
         <thead>
-            <tr>
+            <tr bgcolor="GhostWhite">
+                <th>Command</th>
                 <th>HotKey</th>
-
-                <th>Description</th>
             </tr>
         </thead>
         <tbody>
-            <tr><td>F5</td><td><MudLink OnClick="()=>OnStart()">Start/Resume</MudLink>  </td></tr>
-            <tr><td>Shift+F5</td><td><MudLink OnClick="OnStop" Disabled=@(IsIdle || Busy)>Stop</MudLink></td></tr>
-            <tr><td>F10</td><td><MudLink OnClick="()=>OnStep(false)">Step Over</MudLink></td></tr>
-            <tr><td>F11</td><td><MudLink OnClick="()=>OnStep(true)" Disabled=@(IsIdle || Busy)>Step Into</MudLink></td></tr>
-            <tr><td>F9</td><td><MudLink OnClick="ToggleBreakpoingForCurrentLine">Toggle Breakpoint</MudLink> </td></tr>
-            <tr><td>Shift+F9</td><td><MudLink OnClick="ClearBreakpoints">Clear Breakpoints</MudLink> </td></tr>
-            <tr><td>Ctrl+S</td><td><MudLink OnClick="OnSave">Save</MudLink></td></tr>
+            <tr>
+                <td><MudLink OnClick="()=>OnStart()">Start/Resume</MudLink>  </td>
+                <td>F5</td>
+            </tr>
+            <tr>
+                <td><MudLink OnClick="OnStop" Disabled=@(IsIdle || Busy)>Stop</MudLink></td>
+                <td>Shift+F5</td>
+            </tr>
+            <tr>
+                <td><MudLink OnClick="()=>OnStep(false)">Step Over</MudLink></td>
+                <td>F10</td>
+            </tr>
+            <tr>
+                <td><MudLink OnClick="()=>OnStep(true)" Disabled=@(IsIdle || Busy)>Step Into</MudLink></td>
+                <td>F11</td>
+            </tr>
+            <tr>
+                <td><MudLink OnClick="ToggleBreakpoingForCurrentLine">Toggle Breakpoint</MudLink> </td>
+                <td>F9</td>
+            </tr>
+            <tr>
+                <td><MudLink OnClick="ClearBreakpoints">Clear Breakpoints</MudLink> </td>
+                <td>Shift+F9</td>
+            </tr>
+            <tr>
+                <td><MudLink OnClick="OnSave">Save</MudLink></td>
+                <td>Ctrl+S</td>
+            </tr>
+            <tr>
+                <td><MudLink OnClick="()=> output = null ">Clear Output</MudLink></td>
+                <td></td>
+            </tr>
+
+            <tr bgcolor="GhostWhite"><td><b>Info:</b></td><td></td></tr>
             <tr><td>Status:</td><td>@Status</td></tr>
+            <tr><td>Version:</td><td>@version</td></tr>
+            <tr><td><MudLink Href="https://github.com/oleg-shilo/cs-script/wiki/WDBG">Documentation</MudLink></td></tr>
         </tbody>
     </MudSimpleTable>
 
@@ -199,14 +232,8 @@
     int lastBuildHash;
     string selectedValue;
     string expression;
-    string _output;
     string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
-    public string output
-    {
-        get => _output;
-        set { _output = value; }
-    }
+    public string output;
     string scriptCode;
     public string userInput { get; set; } = default!;
     string scriptFile;
@@ -439,9 +466,21 @@
 
     Process proc;
     int GetStateHash()
-        => $"{scriptCode}:{scriptFile}:{(File.Exists(scriptFile) ? File.GetLastWriteTimeUtc(scriptFile).ToString() : Environment.TickCount.ToString())}".GetHashCode();
+        => $"{scriptCode}:{scriptFile}:{(File.Exists(scriptFile) ? (File.GetLastWriteTimeUtc(scriptFile).ToString()) : Environment.TickCount.ToString())}".GetHashCode();
 
+    bool isDirty()
+    {
+        if (!string.IsNullOrEmpty(scriptFile))
+        {
+            if (File.Exists(scriptFile))
+                return scriptCode != File.ReadAllText(scriptFile);
+            else
+                return true;
+        }
+        return false;
+    }
     int[] scriptFileValidBreakpoints = null;
+    string decoratedScript;
 
     async void OnStart(bool pauseOnStart = false)
     {
@@ -457,10 +496,13 @@
 
             await Task.Run(() =>
             {
-                // if (lastBuildHash != GetStateHash()) // do not enable the optimization just yet
                 try
                 {
-                    (var decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
+                    if (isDirty())
+                        File.WriteAllTextAsync(scriptFile, this.scriptCode);
+
+                    if (lastBuildHash != GetStateHash())
+                        (this.decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
 
                     Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
                     SetBpSteps(Session.Current.Breakpoints);
@@ -473,6 +515,7 @@
                     IsRunning = true;
                     Status = $"running (pid:{proc.Id})";
                     lastBuildHash = GetStateHash();
+                    Refresh();
 
                 }
                 catch (Exception e)

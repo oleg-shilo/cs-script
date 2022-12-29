@@ -11,17 +11,14 @@ Session.Current.StackFrameFileName = args.FirstOrDefault();
 var preprocessor = args.FirstOrDefault(x => x.StartsWith("-pre:"))?.Replace("-pre:", "")?.Trim('"');
 
 
-#if DEBUG
-Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", @"D:\dev\Galos\cs-script\src\out\Windows");
-if (Session.Current.StackFrameFileName == null)
-    Session.Current.StackFrameFileName = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test2.cs";
+// #if DEBUG
+// Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", @"D:\dev\Galos\cs-script\src\out\Windows");
+// if (Session.Current.StackFrameFileName == null)
+//     Session.Current.StackFrameFileName = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test1.cs";
 
-if (preprocessor == null)
-    preprocessor = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\dbg-inject.cs";
-#else
-
-don 't forget to reset cscs path
-#endif
+// if (preprocessor == null)
+//     preprocessor = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\dbg-inject.cs";
+// #endif
 
 
 var builder = WebApplication.CreateBuilder(args);
