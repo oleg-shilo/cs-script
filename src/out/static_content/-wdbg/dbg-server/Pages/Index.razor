@@ -392,7 +392,7 @@
 
         if (currentline != -1)
         {
-            if (Session.Current.Breakpoints.Contains(currentline))
+            if (Session.Current.Breakpoints.Contains(currentline) || isDirty())
                 Session.Current.Breakpoints.Remove(currentline);
             else
                 Session.Current.Breakpoints.Add(currentline);

@@ -7,19 +7,13 @@ using System.Collections.Generic;
 using System.Threading;
 using wdbg.Controllers;
 
-Session.Current.StackFrameFileName = args.FirstOrDefault();
-var preprocessor = args.FirstOrDefault(x => x.StartsWith("-pre:"))?.Replace("-pre:", "")?.Trim('"');
+// starting VS solution is more convenient from console:
+// 1. set CSSCRIPT_ROOT=D:\dev\Galos\cs-script\src\out\Windows
+// 2. server.sln
 
+string arg(string name) => args.SkipWhile(x => x != name).Skip(1).Take(1).FirstOrDefault();
 
-// #if DEBUG
-// Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", @"D:\dev\Galos\cs-script\src\out\Windows");
-// if (Session.Current.StackFrameFileName == null)
-//     Session.Current.StackFrameFileName = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\test1.cs";
-
-// if (preprocessor == null)
-//     preprocessor = @"D:\dev\Galos\cs-script\src\out\static_content\-wdbg\dbg-inject.cs";
-// #endif
-
+// ======================================
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,9 +25,21 @@ builder.Services.AddMudServices();
 builder.Services.AddSingleton<DbgService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// builder.WebHost.UseUrls("http://localhost:5003", "https://localhost:5004");
+
+var script = arg("-script");
+var urls = arg("--urls")?.Split(';');
+
+if (script == null || urls == null)
+{
+    Console.WriteLine("Error: ensure you specify hosting URL (arg '--urls <url>') and script to debug (arg '-script <script_file>')");
+    return;
+}
+
 
 var app = builder.Build();
+
+Session.Current.StackFrameFileName = script;
+builder.WebHost.UseUrls(urls);
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -55,10 +61,14 @@ app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
 
-var process = app.RunAsync();
 
-Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_PREROCESSOR", preprocessor);
+// let consumers down the chain know the environment context
+string preprocessor = arg("-pre");
+if (preprocessor != null)
+    Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_PREROCESSOR", preprocessor); // the envar may be already set so only overwrite it if user asked 
 Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_URL", app.Urls.LastOrDefault());
+
+var process = app.RunAsync();
 
 void print(string message)
 {
@@ -70,7 +80,6 @@ void print(string message)
 
 print("Script: " + Session.Current.StackFrameFileName);
 print("Pre-processor: " + preprocessor);
-
 app.Urls.ToList().ForEach(x => print($"Now listening on: {x}")); // otherwise enable in appsettings.json
 print("Application started. Press Ctrl+C to shut down.");
 

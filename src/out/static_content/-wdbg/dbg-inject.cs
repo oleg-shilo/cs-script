@@ -17,18 +17,9 @@ using static System.Formats.Asn1.AsnWriter;
 
 public class Decorator
 {
-#if EXPERIMENT
-
-    static int _Main(string[] args)
-#else
-
     static int Main(string[] args)
-#endif
     {
-        var testScript = @"D:\dev\Galos\cs-script\src\out\Windows\text.cs";
-        // Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", @"D:\dev\Galos\cs-script\src\out\Windows");
-
-        (string decoratedScript, int[] breakpoints) = Decorator.InjectDbgInfo(args.FirstOrDefault() ?? testScript);
+        (string decoratedScript, int[] breakpoints) = Decorator.InjectDbgInfo(args.FirstOrDefault() ?? "<unknown script>");
 
         Console.WriteLine(Path.GetFullPath(decoratedScript));
         Console.WriteLine(string.Join(",", breakpoints.Select(x => x.ToString())));
@@ -70,128 +61,123 @@ public class Decorator
     {
         string error;
         var decoratedScript = Path.ChangeExtension(script, ".dbg.cs");
-        var compiledScript = Compile(script, out error);
-        var dbegAgentScript = Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "dbg-runtime.cs");
-        var pdbFile = Path.ChangeExtension(compiledScript, ".pdb");
+
+        var pdbFile = BuildPdb(script, out error);
+        var compildScriptTempFile = Path.ChangeExtension(script, ".runtimeconfig.json");
+
+        var dbgAgentScript = Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "dbg-runtime.cs");
 
         int[] breakpoints = new int[0]; // line that user can put a break point at.
 
         try
         {
-            if (compiledScript != null)
+            MethodSyntaxInfo[] methodDeclarations = GetMethodSignatures(File.ReadAllText(script));
+
+            var invalidVariables = new Dictionary<int, List<string>>();
+
+            var pdb = new Pdb(pdbFile);
+            var map = pdb.Map();
+
+            for (int i = 0; i < 3; i++) // repeat until succeed but no more than 3 times
             {
-                MethodSyntaxInfo[] methodDeclarations = GetMethodSignatures(File.ReadAllText(script));
+                var lines = File.ReadAllLines(script).ToList();
 
-                var invalidVariables = new Dictionary<int, List<string>>();
-
-                var pdb = new Pdb(pdbFile);
-                var map = pdb.Map();
-
-                for (int i = 0; i < 3; i++) // repeat until succeed but no more than 3 times
-                {
-                    var lines = File.ReadAllLines(script).ToList();
-
-                    foreach (var method in map)
-                        foreach (var scope in method.Scopes)
-                        {
-                            if (scope.BelongsToFile(script) && scope != method.Scopes.Last())
-                            {
-                                // scope is 1-based
-                                var lineIndex = scope.StartLine - 1;
-                                var line = lines[lineIndex].TrimEnd();
-
-                                // if (!line.EndsWith(";") && !line.EndsWith("{"))
-                                if (!line.EndsWith(";") && !line.EndsWith("}") && !line.TrimStart().EndsWith("{"))
-                                    continue;
-
-                                var variablesToAnalyse = scope.ScopeVariables.ToList();
-
-                                // the scope is within the method declaration. Note local function scope will always belong to
-                                // more than one method declaration
-                                var methodInfo = methodDeclarations
-                                    .Where(x => x.StartLine <= lineIndex && lineIndex <= x.EndLine)
-                                    .OrderBy(x => lineIndex - x.StartLine) // take the internal/nested method declaration (e.g. local function)
-                                    .FirstOrDefault();
-
-                                if (methodInfo?.IsStatic == false)
-                                    variablesToAnalyse.Add("this");
-
-                                if (methodInfo != null)
-                                    variablesToAnalyse.AddRange(methodInfo.Params);
-
-                                if (invalidVariables.Any())
-                                {
-                                    // if errors are detected then we are dealing with a decorated script with extra line on top
-                                    var indexInErrorOutput = scope.StartLine + 1; // adjust for an injected line on top
-                                    if (invalidVariables.ContainsKey(indexInErrorOutput))
-                                        variablesToAnalyse = variablesToAnalyse.Except(invalidVariables[indexInErrorOutput]).ToList();
-                                }
-
-                                var inspectionObjects = string.Join(", ", variablesToAnalyse.Select(x => $"(\"{x}\", {x})"));
-
-                                if (scope.File == script && lines.Count() > scope.StartLine)
-                                {
-                                    var trimmedLine = lines[lineIndex].TrimStart();
-
-                                    var indent = new string(' ', line.Length - trimmedLine.Length);
-
-                                    if (trimmedLine.TrimStart().StartsWith("{"))
-                                    {
-                                        lines[lineIndex] = $"{indent}{{ DBG.Line().Inspect({inspectionObjects});" + trimmedLine.Substring(1);
-                                    }
-                                    else
-                                    {
-                                        // avoid injecting inspection in the bracketless scope statements like `if(true)\nInspect(...);foo();
-                                        var prevLine = "";
-                                        if (lineIndex > 1)
-                                            prevLine = lines[lineIndex - 1].Trim();
-                                        if (!prevLine.StartsWithAny("if", "until", "do", "foreach", "for"))
-                                            lines[lineIndex] = $"{indent}DBG.Line().Inspect({inspectionObjects});" + trimmedLine;
-                                    }
-                                }
-                                // lines[lineIndex] += $"/*[{scope.StartLine}:{methodInfo?.Method}]*/DBG.Line().Inspect({inspectionObjects});";
-                            }
-                        }
-
-                    lines.Insert(0, "//css_inc " + dbegAgentScript);
-
-                    File.WriteAllLines(decoratedScript, lines);
-
-                    breakpoints = lines.Select((x, i) => new { index = i, line = x })
-                                       .Where(x => x.line.Contains("DBG.Line().Inspect("))
-                                       .Select(x => x.index)
-                                       .ToArray();
-
-                    error = Check(decoratedScript);
-
-                    if (error.IsEmpty())
-                        break;
-
-                    foreach (var item in ExtractInvalidVariableDeclarations(error))
+                foreach (var method in map)
+                    foreach (var scope in method.Scopes)
                     {
-                        if (invalidVariables.ContainsKey(item.Key))
+                        if (scope.BelongsToFile(script) && scope != method.Scopes.Last())
                         {
-                            foreach (var varName in item.Value.ToList())
-                            {
-                                if (!invalidVariables[item.Key].Contains(varName))
-                                    invalidVariables[item.Key].Add(varName);
-                            }
-                        }
-                        else
-                            invalidVariables[item.Key] = item.Value.ToList();
-                    }
-                }
+                            // scope is 1-based
+                            var lineIndex = scope.StartLine - 1;
+                            var line = lines[lineIndex].TrimEnd();
 
-                pdb.provider.Dispose();
+                            // if (!line.EndsWith(";") && !line.EndsWith("{"))
+                            if (!line.EndsWith(";") && !line.EndsWith("}") && !line.TrimStart().EndsWith("{"))
+                                continue;
+
+                            var variablesToAnalyse = scope.ScopeVariables.ToList();
+
+                            // the scope is within the method declaration. Note local function scope will always belong to
+                            // more than one method declaration
+                            var methodInfo = methodDeclarations
+                                .Where(x => x.StartLine <= lineIndex && lineIndex <= x.EndLine)
+                                .OrderBy(x => lineIndex - x.StartLine) // take the internal/nested method declaration (e.g. local function)
+                                .FirstOrDefault();
+
+                            if (methodInfo?.IsStatic == false)
+                                variablesToAnalyse.Add("this");
+
+                            if (methodInfo != null)
+                                variablesToAnalyse.AddRange(methodInfo.Params);
+
+                            if (invalidVariables.Any())
+                            {
+                                // if errors are detected then we are dealing with a decorated script with extra line on top
+                                var indexInErrorOutput = scope.StartLine + 1; // adjust for an injected line on top
+                                if (invalidVariables.ContainsKey(indexInErrorOutput))
+                                    variablesToAnalyse = variablesToAnalyse.Except(invalidVariables[indexInErrorOutput]).ToList();
+                            }
+
+                            var inspectionObjects = string.Join(", ", variablesToAnalyse.Select(x => $"(\"{x}\", {x})"));
+
+                            if (scope.File == script && lines.Count() > scope.StartLine)
+                            {
+                                var trimmedLine = lines[lineIndex].TrimStart();
+
+                                var indent = new string(' ', line.Length - trimmedLine.Length);
+
+                                if (trimmedLine.TrimStart().StartsWith("{"))
+                                {
+                                    lines[lineIndex] = $"{indent}{{ DBG.Line().Inspect({inspectionObjects});" + trimmedLine.Substring(1);
+                                }
+                                else
+                                {
+                                    // avoid injecting inspection in the bracketless scope statements like `if(true)\nInspect(...);foo();
+                                    var prevLine = "";
+                                    if (lineIndex > 1)
+                                        prevLine = lines[lineIndex - 1].Trim();
+                                    if (!prevLine.StartsWithAny("if", "until", "do", "foreach", "for"))
+                                        lines[lineIndex] = $"{indent}DBG.Line().Inspect({inspectionObjects});" + trimmedLine;
+                                }
+                            }
+                            // lines[lineIndex] += $"/*[{scope.StartLine}:{methodInfo?.Method}]*/DBG.Line().Inspect({inspectionObjects});";
+                        }
+                    }
+
+                lines.Insert(0, "//css_inc " + dbgAgentScript);
+
+                File.WriteAllLines(decoratedScript, lines);
+
+                breakpoints = lines.Select((x, i) => new { index = i, line = x })
+                                   .Where(x => x.line.Contains("DBG.Line().Inspect("))
+                                   .Select(x => x.index)
+                                   .ToArray();
+
+                error = Check(decoratedScript);
+
+                if (error.IsEmpty())
+                    break;
+
+                foreach (var item in ExtractInvalidVariableDeclarations(error))
+                {
+                    if (invalidVariables.ContainsKey(item.Key))
+                    {
+                        foreach (var varName in item.Value.ToList())
+                        {
+                            if (!invalidVariables[item.Key].Contains(varName))
+                                invalidVariables[item.Key].Add(varName);
+                        }
+                    }
+                    else
+                        invalidVariables[item.Key] = item.Value.ToList();
+                }
             }
+
+            pdb.provider.Dispose();
         }
         finally
         {
-            try
-            {
-                File.Delete(compiledScript);
-                File.Delete(pdbFile);
-            }
+            try { File.Delete(pdbFile); }
             catch { }
         }
 
@@ -245,20 +231,35 @@ public class Decorator
             return output;
     }
 
-    static string Compile(string script, out string error)
+    static string BuildPdb(string script, out string error)
     {
-        var assembly = script + ".dll";
-        var output = "";
-        var err = "";
-        var compilation = Shell.StartProcess(
-            "dotnet", $"\"{css}\" -e -dbg -out:\"{assembly}\" \"{script}\"",
-            // "dotnet", $"\"{css}\" -cd -dbg -out:\"{assembly}\" \"{script}\"",
-            Path.GetDirectoryName(script),
-            line => output += line + "\n",
-            line => err += line + "\n");
-        compilation.WaitForExit();
-        error = err;
-        return compilation.ExitCode == 0 ? assembly : null;
+
+        List<string> tempFiles = new();
+        tempFiles.Add(script + ".exe");
+        tempFiles.Add(script + ".dll");
+        tempFiles.Add(script + ".runtimeconfig.json");
+
+        try
+        {
+            var assembly = script + ".exe";
+
+            var output = "";
+            var err = "";
+            var compilation = Shell.StartProcess(
+                "dotnet", $"\"{css}\" -e -dbg -out:\"{assembly}\" \"{script}\"",
+                // "dotnet", $"\"{css}\" -cd -dbg -out:\"{assembly}\" \"{script}\"",
+                Path.GetDirectoryName(script),
+                line => output += line + "\n",
+                line => err += line + "\n");
+            compilation.WaitForExit();
+            error = err;
+            return compilation.ExitCode == 0 ? (script + ".pdb") : null;
+        }
+        finally
+        {
+            foreach (var item in tempFiles)
+                try { File.Delete(item); } catch { }
+        }
     }
 
     static string css => Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_ROOT%\cscs.dll");
