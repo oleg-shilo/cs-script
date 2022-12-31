@@ -32,7 +32,7 @@ static class Scipt
             return;
         }
 
-        string urls = arg("--urls") ?? "https://localhost:5001";
+        string urls = arg("--urls") ?? "http://localhost:5001";
 
         string script = args.FirstOrDefault()?.GetFullPath();           // first arg is the script to debug
         if (!File.Exists(script))

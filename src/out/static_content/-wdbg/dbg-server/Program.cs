@@ -60,13 +60,11 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-
-
 // let consumers down the chain know the environment context
 string preprocessor = arg("-pre");
 if (preprocessor != null)
     Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_PREROCESSOR", preprocessor); // the envar may be already set so only overwrite it if user asked 
-Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_URL", app.Urls.LastOrDefault());
+Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_URL", urls.LastOrDefault());
 
 var process = app.RunAsync();
 

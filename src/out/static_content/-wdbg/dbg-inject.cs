@@ -120,7 +120,7 @@ public class Decorator
 
                             if (scope.File == script && lines.Count() > scope.StartLine)
                             {
-                                var trimmedLine = lines[lineIndex].TrimStart();
+                                var trimmedLine = line.TrimStart();
 
                                 var indent = new string(' ', line.Length - trimmedLine.Length);
 

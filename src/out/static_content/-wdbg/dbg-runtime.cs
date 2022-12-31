@@ -17,13 +17,12 @@ public static class DBG
     static DBG()
     {
         if (Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL") == null)
-            Environment.SetEnvironmentVariable("CSS_WEB_DEBUGGING_URL", "https://localhost:5001");
+            throw new Exception("Server URL is unknown");
 
         if (Environment.GetEnvironmentVariable("pauseOnStart") != null)
         {
             StopOnNextInspectionPointInMethod = "*";
         }
-        // Console.WriteLine("DBG-Server: " + debuggerUrl);
     }
 
     public static string StopOnNextInspectionPointInMethod;
@@ -60,10 +59,12 @@ public static class DBG
     {
         get
         {
+            var url = $"{debuggerUrl}/dbg/breakpoints";
             try
             {
                 return DownloadString($"{debuggerUrl}/dbg/breakpoints")
                     .Split('\n')
+                    .Where(x=>!string.IsNullOrEmpty(x))
                     .Select(x =>
                     {
                         // in the decorated script there is an extra line at top so increment the line number
@@ -73,7 +74,12 @@ public static class DBG
                     })
                     .ToArray();
             }
-            catch { return new string[0]; }
+            catch (Exception e) 
+            {
+                Console.WriteLine("Cannot get breakpoints from " + url);
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 
@@ -144,7 +150,7 @@ public class BreakPoint
                 DBG.StopOnNextInspectionPointInMethod = "*";
                 break;
             }
-
+            
             // continue to the next point of inspection but only in the same method
             if (IsStepOverRequested(request))
             {
@@ -220,7 +226,7 @@ public class BreakPoint
                         expressionValue = currrentObject ?? "null";
                 }
 
-                // expression is the chain of static members (e.g. `System.Environment.TickCOunt`)
+                // expression is the chain of static members (e.g. `System.Environment.TickCount`)
                 if (expressionValue == null)
                 {
 
@@ -342,7 +348,7 @@ public class BreakPoint
         }
 
         var bp = DBG.Breakpoints;
-
+        
         if (DBG.Breakpoints.Contains(id))
         {
             DBG.StopOnNextInspectionPointInMethod = null;

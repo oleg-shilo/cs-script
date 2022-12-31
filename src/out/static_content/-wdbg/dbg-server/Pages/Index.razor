@@ -491,6 +491,7 @@
     async void OnPrepare()
     {
         Busy = true;
+        output = "Preparing script for debugging...";
         StateHasChanged();
 
         await Task.Run(() =>
@@ -501,19 +502,15 @@
                 if (isDirty())
                     File.WriteAllTextAsync(scriptFile, this.scriptCode);
 
-
-                if (lastBuildHash != GetStateHash())
-                {
-                    // Console.WriteLine("Preparing");
-                    (this.decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
-                    // Console.WriteLine("Preparing done");
-                }
+                (this.decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
 
                 Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
                 SetBpSteps(Session.Current.Breakpoints);
 
                 lastBuildHash = GetStateHash();
-
+        
+                output += Environment.NewLine + "Done";
+                Refresh();
             }
             catch (Exception e)
             {
@@ -534,6 +531,7 @@
         {
             OnStop();
             Busy = true;
+            output = "";
             StateHasChanged();
 
             await Task.Run(() =>
@@ -545,8 +543,13 @@
 
                     if (lastBuildHash != GetStateHash())
                     {
+                        output = "Preparing script for debugging..."; Refresh();
                         (this.decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
+                        output = ""; Refresh();
                     }
+
+                    output = "";
+                    Refresh();
 
                     Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
                     SetBpSteps(Session.Current.Breakpoints);

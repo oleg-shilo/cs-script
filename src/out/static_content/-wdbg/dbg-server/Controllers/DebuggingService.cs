@@ -228,6 +228,7 @@ static class Shell
         var output = "";
 
         // Console.WriteLine($"{cscs.qt()} {script.qt()} {args}");
+
         var inject = Shell.StartProcess(
                            "dotnet",
                            $"{cscs.qt()} {script.qt()} {args}",
@@ -255,6 +256,7 @@ static class Shell
         proc.StartInfo.RedirectStandardOutput = true;
         proc.StartInfo.RedirectStandardError = true;
         proc.StartInfo.RedirectStandardInput = true;
+        proc.StartInfo.EnvironmentVariables["CSS_WEB_DEBUGGING_URL"] = Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL");
         proc.EnableRaisingEvents = true;
         proc.ErrorDataReceived += (_, e) => onErrOut?.Invoke(e.Data);
         proc.OutputDataReceived += (_, e) => onStdOut?.Invoke(e.Data);
