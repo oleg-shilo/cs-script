@@ -51,7 +51,7 @@ public class Decorator
                         Params = x.ParameterList.Parameters.Select(y => y.ToString().Split(' ', '\t').Last()).ToArray(),
                         StartLine = x.GetLocation().GetLineSpan().StartLinePosition.Line,
                         EndLine = x.GetLocation().GetLineSpan().EndLinePosition.Line,
-                        IsStatic = true // while it is not static, local functions cannot dereference "this" so deal with it as with static method
+                        IsStatic = true // while it is not static, local functions cannot difference "this" so deal with it as with static method
                     }))
                .OrderBy(x => x.StartLine)
                .ToArray();
@@ -61,9 +61,7 @@ public class Decorator
     {
         string error;
         var decoratedScript = Path.ChangeExtension(script, ".dbg.cs");
-
         var pdbFile = BuildPdb(script, out error);
-        var compildScriptTempFile = Path.ChangeExtension(script, ".runtimeconfig.json");
 
         var dbgAgentScript = Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "dbg-runtime.cs");
 
@@ -235,25 +233,26 @@ public class Decorator
     {
 
         List<string> tempFiles = new();
-        tempFiles.Add(script + ".exe");
-        tempFiles.Add(script + ".dll");
-        tempFiles.Add(script + ".runtimeconfig.json");
+        tempFiles.Add(script + ".x");
+        tempFiles.Add(script + ".x.exe");
+        tempFiles.Add(script + ".x.dll");
+        tempFiles.Add(script + ".x.runtimeconfig.json");
 
         try
         {
-            var assembly = script + ".exe";
+            var assembly = script + ".x.exe";
 
             var output = "";
             var err = "";
             var compilation = Shell.StartProcess(
                 "dotnet", $"\"{css}\" -e -dbg -out:\"{assembly}\" \"{script}\"",
-                // "dotnet", $"\"{css}\" -cd -dbg -out:\"{assembly}\" \"{script}\"",
                 Path.GetDirectoryName(script),
                 line => output += line + "\n",
                 line => err += line + "\n");
             compilation.WaitForExit();
             error = err;
-            return compilation.ExitCode == 0 ? (script + ".pdb") : null;
+
+            return compilation.ExitCode == 0 ? (script + ".x.pdb") : null;
         }
         finally
         {
@@ -262,7 +261,7 @@ public class Decorator
         }
     }
 
-    static string css => Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_ROOT%\cscs.dll");
+    static string css => Path.Combine(Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_ROOT%"), "cscs.dll");
 }
 
 public class MethodDbgInfo

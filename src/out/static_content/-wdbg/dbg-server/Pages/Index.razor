@@ -19,7 +19,7 @@
                 var ver = this.version;
             }
             <MudGrid>
-                <MudItem xs=8>
+                <MudItem xs=7>
                     <MudText Typo="Typo.h6" GutterBottom="true">
                         CS-Script Debugger - stack analyzer
                     </MudText>
@@ -27,12 +27,18 @@
                 <MudItem xs=1>
                     <span hidden="@NotBusy"> <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" /> </span>
                 </MudItem>
-                <MudItem xs=3>
+                <MudItem xs=4>
                     @*<MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>*@
                     @*<link href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" rel="stylesheet">*@
-                    @*<MudIconButton Icon="fas fa-atom" Color="Color.Error"></MudIconButton>*@
+                    @*<MudIconButton Icon="fas fa-atom" Color="Colors.Blue.Default"></MudIconButton>*@
 
                     @*can use MudIconButton/MadFab too*@
+                    <span >
+                        <MudIconButton title="Prepare (generate debug information)"
+                                       Disabled="@(IsRunning || Busy)"
+                                       @onclick="_=>OnPrepare()"
+                                       Icon="@Icons.Material.Filled.Check" Color="Color.Warning" />
+                    </span>
                     <span hidden="@IsRunning">
                         <MudIconButton title="Start (F5)"
                                        Disabled="@(IsRunning || Busy)"
@@ -482,6 +488,42 @@
     int[] scriptFileValidBreakpoints = null;
     string decoratedScript;
 
+    async void OnPrepare()
+    {
+        Busy = true;
+        StateHasChanged();
+
+        await Task.Run(() =>
+        {
+            try
+            {
+
+                if (isDirty())
+                    File.WriteAllTextAsync(scriptFile, this.scriptCode);
+
+
+                if (lastBuildHash != GetStateHash())
+                {
+                    // Console.WriteLine("Preparing");
+                    (this.decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
+                    // Console.WriteLine("Preparing done");
+                }
+
+                Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
+                SetBpSteps(Session.Current.Breakpoints);
+
+                lastBuildHash = GetStateHash();
+
+            }
+            catch (Exception e)
+            {
+                output = e.Message;
+            }
+        });
+
+        Busy = false;
+    }
+    
     async void OnStart(bool pauseOnStart = false)
     {
         if (IsRunning)
@@ -502,7 +544,9 @@
                         File.WriteAllTextAsync(scriptFile, this.scriptCode);
 
                     if (lastBuildHash != GetStateHash())
+                    {
                         (this.decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
+                    }
 
                     Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
                     SetBpSteps(Session.Current.Breakpoints);

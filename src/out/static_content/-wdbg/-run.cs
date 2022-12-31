@@ -47,11 +47,14 @@ static class Scipt
 
         var runAsAssembly = true; // 'dotnet run'
         var serverDir = Path.Combine(wdbgDir, "dbg-server", "output");
-        if (!Directory.Exists(serverDir))
+
+        bool forceProjectRun = true; 
+        if (!Directory.Exists(serverDir) || forceProjectRun)
         {
             runAsAssembly = false; // 'dotnet <assembly>'
-            serverDir = Path.Combine(wdbgDir, "dbg-server", "..");
+            serverDir = Path.Combine(wdbgDir, "dbg-server").GetFullPath();
         }
+        Console.WriteLine("serverDir: "+serverDir);
 
         var serverArgs = "\"" + args.Skip(1).JoinBy("\" \"") + "\"";    // the rest of the args are to be interpreted by the server
         var serverAsm = Path.Combine(serverDir, "server.dll");
@@ -63,13 +66,18 @@ static class Scipt
             proc = "dotnet".Start($"\"{serverAsm}\" -script \"{script}\" --urls \"{urls}\" -pre \"{preprocessor}\" {serverArgs}", serverDir);
         else
             proc = "dotnet".Start($"run -script \"{script}\" --urls \"{urls}\" -pre \"{preprocessor}\" {serverArgs}", serverDir);
-
-
+        
         // start browser with wdbg url
         if (!args.Contains("-suppress-browser"))
         {
+            Console.WriteLine($"---");
             var url = urls.Split(';').FirstOrDefault();
-            url.Start(UseShellExecute: true);
+            Console.WriteLine($"Trying to start the browser at {url}...");
+            try{
+                url.Start(UseShellExecute: true);
+            }
+            catch{}
+            Console.WriteLine($"---");
         }
 
         proc.WaitForExit();

@@ -210,7 +210,7 @@ static class Extensions
 
 static class Shell
 {
-    public static string cscs => Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_ROOT%\cscs.dll");
+    public static string cscs => Path.Combine(Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_ROOT%"), "cscs.dll");
     public static string dbg_inject => Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_PREROCESSOR") ?? "<unknown path to dbg-inject.cs>";
 
     static public Process StartScript(this string script, string args, Action<string> onOutputData)
@@ -227,6 +227,7 @@ static class Shell
     {
         var output = "";
 
+        // Console.WriteLine($"{cscs.qt()} {script.qt()} {args}");
         var inject = Shell.StartProcess(
                            "dotnet",
                            $"{cscs.qt()} {script.qt()} {args}",
