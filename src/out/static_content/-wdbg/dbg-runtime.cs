@@ -77,7 +77,18 @@ public static class DBG
             catch (Exception e) 
             {
                 Console.WriteLine("Cannot get breakpoints from " + url);
-                Console.WriteLine(e);
+                if (e.InnerException is System.Net.Http.HttpRequestException &&
+                    e.InnerException.InnerException is  System.Security.Authentication.AuthenticationException)
+                {
+
+                    Console.WriteLine("=========");
+                    Console.WriteLine("You may experience problems with self-signed SSL certificates in some environments. "+
+                                      "In such cases you may switch to HTTP protocol. You can do it either via CLI argument "+
+                                      "when you start the debugger or you can do it globally by setting the environment variable "+
+                                      "'CSS_WEB_DEBUGGING_URL' to the desired URL (e.g. 'http://localhost:5001').");
+                    Console.WriteLine("=========");
+                    Console.WriteLine(e.InnerException);
+                }    
                 throw;
             }
         }
