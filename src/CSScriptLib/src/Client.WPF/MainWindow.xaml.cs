@@ -1,4 +1,5 @@
-﻿using CSScriptLib;
+﻿using Client.NET_6_WPF;
+using CSScriptLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,6 +84,13 @@ namespace Client.WPF
                                                    }");
 
             (int, int) result = script.func();
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            new SecondWindow().Show();
         }
     }
 }
