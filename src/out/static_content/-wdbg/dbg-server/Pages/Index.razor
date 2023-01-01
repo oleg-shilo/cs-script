@@ -19,7 +19,7 @@
                 var ver = this.version;
             }
             <MudGrid>
-                <MudItem xs=7>
+                <MudItem xs=8>
                     <MudText Typo="Typo.h6" GutterBottom="true">
                         CS-Script Debugger - stack analyzer
                     </MudText>
@@ -33,12 +33,12 @@
                     @*<MudIconButton Icon="fas fa-atom" Color="Colors.Blue.Default"></MudIconButton>*@
 
                     @*can use MudIconButton/MadFab too*@
-                    <span >
-                        <MudIconButton title="Prepare (generate debug information)"
-                                       Disabled="@(IsRunning || Busy)"
-                                       @onclick="_=>OnPrepare()"
-                                       Icon="@Icons.Material.Filled.Check" Color="Color.Warning" />
-                    </span>
+                    @* <span>
+                    <MudIconButton title="Prepare (generate debug information)"
+                    Disabled="@(IsRunning || Busy)"
+                    @onclick="_=>OnPrepare()"
+                    Icon="@Icons.Material.Filled.Check" Color="Color.Warning" />
+                    </span>*@
                     <span hidden="@IsRunning">
                         <MudIconButton title="Start (F5)"
                                        Disabled="@(IsRunning || Busy)"
@@ -52,6 +52,7 @@
                                        Icon="@Icons.Material.Outlined.PlayArrow" Color="Color.Warning" />
                     </span>
                     <MudIconButton title="Step Over (F10)"
+                                   Disabled="@(IsRunning || Busy)"
                                    @onclick="_=>OnStep(false)"
                                    Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Success" />
                     <MudIconButton title="Step Into (F11)"
@@ -322,6 +323,7 @@
         if (!string.IsNullOrEmpty(scriptFile))
         {
             OnLoad();
+            OnPrepare();
         }
     }
 
@@ -463,6 +465,7 @@
         try
         {
             File.WriteAllTextAsync(scriptFile, this.scriptCode);
+            OnPrepare();
         }
         catch (Exception e)
         {
@@ -472,14 +475,33 @@
 
     Process proc;
     int GetStateHash()
-        => $"{scriptCode}:{scriptFile}:{(File.Exists(scriptFile) ? (File.GetLastWriteTimeUtc(scriptFile).ToString()) : Environment.TickCount.ToString())}".GetHashCode();
+    {
+        var state = $"{scriptCode}:{scriptFile}:{(File.Exists(scriptFile) ? (File.GetLastWriteTimeUtc(scriptFile).ToString()) : Environment.TickCount.ToString())}";
+        // Debug.WriteLine($"state: {state}");
+        return state.GetHashCode();
+    }
 
     bool isDirty()
     {
         if (!string.IsNullOrEmpty(scriptFile))
         {
             if (File.Exists(scriptFile))
-                return scriptCode != File.ReadAllText(scriptFile);
+            {
+                string fileCode;
+
+                try
+                {
+                    fileCode = File.ReadAllText(scriptFile);
+                }
+                catch
+                {
+                    // need to retry as in my environment the antivirus locks the file.
+                    Thread.Sleep(100);
+                    fileCode = File.ReadAllText(scriptFile); 
+                }
+
+                return scriptCode != fileCode;
+            }
             else
                 return true;
         }
@@ -488,7 +510,7 @@
     int[] scriptFileValidBreakpoints = null;
     string decoratedScript;
 
-    async void OnPrepare()
+    async Task OnPrepare()
     {
         Busy = true;
         output = "Preparing script for debugging...";
@@ -496,31 +518,34 @@
 
         await Task.Run(() =>
         {
-            try
+            lock (this.GetType())
             {
+                try
+                {
 
-                if (isDirty())
-                    File.WriteAllTextAsync(scriptFile, this.scriptCode);
+                    if (isDirty())
+                        File.WriteAllTextAsync(scriptFile, this.scriptCode);
 
-                (this.decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
+                    (this.decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
 
-                Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
-                SetBpSteps(Session.Current.Breakpoints);
+                    Session.Current.UpdateCurrentBreakpoints(this.scriptFileValidBreakpoints);
+                    SetBpSteps(Session.Current.Breakpoints);
 
-                lastBuildHash = GetStateHash();
-        
-                output += Environment.NewLine + "Done";
-                Refresh();
-            }
-            catch (Exception e)
-            {
-                output = e.Message;
+                    lastBuildHash = GetStateHash();
+
+                    output += Environment.NewLine + "Done";
+                    Refresh();
+                }
+                catch (Exception e)
+                {
+                    output = e.Message;
+                }
             }
         });
 
         Busy = false;
     }
-    
+
     async void OnStart(bool pauseOnStart = false)
     {
         if (IsRunning)
@@ -530,6 +555,9 @@
         else
         {
             OnStop();
+            if (lastBuildHash != GetStateHash())
+                await OnPrepare();
+
             Busy = true;
             output = "";
             StateHasChanged();
@@ -538,15 +566,17 @@
             {
                 try
                 {
-                    if (isDirty())
-                        File.WriteAllTextAsync(scriptFile, this.scriptCode);
+                    // if (isDirty())
+                    //     File.WriteAllTextAsync(scriptFile, this.scriptCode);
 
-                    if (lastBuildHash != GetStateHash())
-                    {
-                        output = "Preparing script for debugging..."; Refresh();
-                        (this.decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
-                        output = ""; Refresh();
-                    }
+                    // if (lastBuildHash != GetStateHash())
+                    // {
+                    //     output = "Preparing script for debugging..."; Refresh();
+                    //     (this.decoratedScript, this.scriptFileValidBreakpoints) = DbgService.Prepare(scriptFile);
+                    //     output = "";
+                    //     Refresh();
+                    //     lastBuildHash = GetStateHash();
+                    // }
 
                     output = "";
                     Refresh();
@@ -561,7 +591,6 @@
                     output = "";
                     IsRunning = true;
                     Status = $"running (pid:{proc.Id})";
-                    lastBuildHash = GetStateHash();
                     Refresh();
 
                 }

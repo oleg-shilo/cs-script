@@ -7,7 +7,7 @@
     <AssemblyName>csws</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.6.1 </Version>
+    <Version>4.6.2 </Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -18,20 +18,15 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.6.1</AssemblyVersion>
-    <FileVersion>4.6.1</FileVersion>
+    <AssemblyVersion>4.6.2</AssemblyVersion>
+    <FileVersion>4.6.2</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- WDBG: implemented fully functional web based debugger
-  ```
-  css -wdbg script.cs
-  ``` 
-- Issue #319: "Bad IL format" on self-contained linux-x64 builds if using namespace with same name as assembly
-- Fixed false positive of OutOfDate detection. Caused by the imported files stored in the script file stamp without their full path
+- WDBG: Verified working on Linux
 
 ### CSScriptLib
 

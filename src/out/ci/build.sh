@@ -1,3 +1,3 @@
 cd /home/user/lnx-build
-sudo chmod 775 cs-script_4.6-1/DEBIAN/p*
-dpkg-deb --build cs-script_4.6-1
+sudo chmod 775 cs-script_4.6-2/DEBIAN/p*
+dpkg-deb --build cs-script_4.6-2

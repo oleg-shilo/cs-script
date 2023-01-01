@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -13,7 +14,9 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
-using static System.Formats.Asn1.AsnWriter;
+using System.Text;
+using System.Text.RegularExpressions;
+// using static System.Formats.Asn1.AsnWriter;
 
 public class Decorator
 {
@@ -83,14 +86,36 @@ public class Decorator
                 foreach (var method in map)
                     foreach (var scope in method.Scopes)
                     {
-                        if (scope.BelongsToFile(script) && scope != method.Scopes.Last())
+                        // if (scope.BelongsToFile(script) && scope != method.Scopes.Last())
+                        if (scope.BelongsToFile(script))
                         {
                             // scope is 1-based
                             var lineIndex = scope.StartLine - 1;
                             var line = lines[lineIndex].TrimEnd();
+                            // string prevLine = ";";
+                            var trimmedLine = line.TrimStart();
 
                             // if (!line.EndsWith(";") && !line.EndsWith("{"))
-                            if (!line.EndsWith(";") && !line.EndsWith("}") && !line.TrimStart().EndsWith("{"))
+
+                            bool certainlyValidLine = line.EndsWith("{") || line.EndsWith("}");
+                            bool certainlyInvalidLine = line.EndsWith(".") || trimmedLine.StartsWith(".") || trimmedLine.Length == 0;
+
+                            // if (line.Trim().Any() && // not empty
+                            //    !line.TrimStart().StartsWith("//") && // not a comment
+                            //    (line.EndsWith("{"))
+                            //    (prevLine.EndsWith({))
+
+
+
+
+                            //         line.EndsWith(";")  // fully defined line (to avoid injection in Fluent blocks)
+
+
+
+                            // )
+
+                            // if (!line.EndsWith(";") && !line.EndsWith("}") && !line.TrimStart().EndsWith("{"))
+                            if (certainlyValidLine && certainlyInvalidLine)
                                 continue;
 
                             var variablesToAnalyse = scope.ScopeVariables.ToList();
@@ -120,7 +145,6 @@ public class Decorator
 
                             if (scope.File == script && lines.Count() > scope.StartLine)
                             {
-                                var trimmedLine = line.TrimStart();
 
                                 var indent = new string(' ', line.Length - trimmedLine.Length);
 

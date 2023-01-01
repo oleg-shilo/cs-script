@@ -116,6 +116,8 @@ rd /S /Q .\out\Linux\-wdbg\dbg-server\bin\
 rd /S /Q .\out\Windows\-wdbg\dbg-server\bin\
 rd /S /Q .\out\WindowLinux\-wdbg\dbg-server\obj\
 rd /S /Q .\out\Windows\-wdbg\dbg-server\obj\
+rd /S /Q .\out\WindowLinux\-wdbg\test\
+rd /S /Q .\out\Windows\-wdbg\test\
 del out\Linux\-wdbg\test*.cs
 del out\Windows\-wdbg\test*.cs
 

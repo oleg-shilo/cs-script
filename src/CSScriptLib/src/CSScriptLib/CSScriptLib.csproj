@@ -13,7 +13,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.6.1 </Version>
+    <Version>4.6.2 </Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
@@ -29,19 +29,14 @@
 
 ### CLI
 
-- WDBG: implemented fully functional web based debugger
-  ```
-  css -wdbg script.cs
-  ``` 
-- Issue #319: "Bad IL format" on self-contained linux-x64 builds if using namespace with same name as assembly
-- Fixed false positive of OutOfDate detection. Caused by the imported files stored in the script file stamp without their full path
+- WDBG: Verified working on Linux
 
 ### CSScriptLib
 
 - no changes</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.6.1</AssemblyVersion>
-    <FileVersion>4.6.1</FileVersion>
+    <AssemblyVersion>4.6.2</AssemblyVersion>
+    <FileVersion>4.6.2</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>
