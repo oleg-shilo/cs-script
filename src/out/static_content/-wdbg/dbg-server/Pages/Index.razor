@@ -19,7 +19,7 @@
                 var ver = this.version;
             }
             <MudGrid>
-                <MudItem xs=8>
+                <MudItem xs=7>
                     <MudText Typo="Typo.h6" GutterBottom="true">
                         CS-Script Debugger - stack analyzer
                     </MudText>
@@ -52,7 +52,7 @@
                                        Icon="@Icons.Material.Outlined.PlayArrow" Color="Color.Warning" />
                     </span>
                     <MudIconButton title="Step Over (F10)"
-                                   Disabled="@(IsRunning || Busy)"
+                                   Disabled="@Busy"
                                    @onclick="_=>OnStep(false)"
                                    Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Success" />
                     <MudIconButton title="Step Into (F11)"
@@ -497,7 +497,7 @@
                 {
                     // need to retry as in my environment the antivirus locks the file.
                     Thread.Sleep(100);
-                    fileCode = File.ReadAllText(scriptFile); 
+                    fileCode = File.ReadAllText(scriptFile);
                 }
 
                 return scriptCode != fileCode;

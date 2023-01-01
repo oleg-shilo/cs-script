@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.5.0.0</version>
+        <version>4.6.2.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,12 +25,10 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-Release v4.5.0
-- Rebuild for .NET7
-- Improved CLI documentation (triggered by #314)
-- Added an extra CLI `//css_co` help sample for enabling nullable reference types (#313)
-- Improved responsiveness of the "build-type" scripting scenarios (e.g. `css -check`)
-- Enhancement #310: Add the possibility to use variables in css_include and css_import statements
+Release v4.6.2
+- WDBG: implemented fully functional web-based debugger
+- Issue #319: "Bad IL format" on self-contained linux-x64 builds if using namespace with same name as assembly
+- Fixed false positive of OutOfDate detection. Caused by the imported files stored in the script file stamp without their full path
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>cs-script C# script dynamic hosting</tags>

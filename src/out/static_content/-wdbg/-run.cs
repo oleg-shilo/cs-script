@@ -49,7 +49,7 @@ static class Scipt
         var runAsAssembly = true; // 'dotnet run'
         var serverDir = Path.Combine(wdbgDir, "dbg-server", "output");
 
-        bool forceProjectRun = true; 
+        bool forceProjectRun = false; 
         if (!Directory.Exists(serverDir) || forceProjectRun)
         {
             runAsAssembly = false; // 'dotnet <assembly>'
