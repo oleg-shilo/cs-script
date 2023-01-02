@@ -52,8 +52,8 @@ namespace Client.WPF
         public MainWindow()
         {
             Test_Issue_316();
-            // Test_CodeDom();
-            // Test_Roslyn();
+            Test_CodeDom();
+            Test_Roslyn();
 
             InitializeComponent();
         }

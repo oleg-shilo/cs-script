@@ -30,6 +30,10 @@
 
 #endregion License...
 
+using csscript;
+using CSScripting;
+using CSScripting.CodeDom;
+using Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -38,11 +42,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using csscript;
-using CSScripting;
-using CSScripting.CodeDom;
 using static CSScripting.Globals;
-using Scripting;
 
 namespace CSScriptLib
 {
@@ -438,6 +438,6 @@ namespace CSScriptLib
         /// </summary>
         /// <returns>The method result.</returns>
         public override Assembly[] GetReferencedAssemblies()
-            => referencedAssemblies.Select(Assembly.LoadFile).ToArray();
+            => referencedAssemblies.Select(Assembly.LoadFrom).ToArray();
     }
 }
