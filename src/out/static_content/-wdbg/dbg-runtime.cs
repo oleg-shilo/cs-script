@@ -81,7 +81,6 @@ public static class DBG
                 if (e.InnerException is System.Net.Http.HttpRequestException &&
                     e.InnerException.InnerException is System.Security.Authentication.AuthenticationException)
                 {
-
                     Console.WriteLine("=========");
                     Console.WriteLine("You may experience problems with self-signed SSL certificates in some environments. " +
                                       "In such cases you may switch to HTTP protocol. You can do it either via CLI argument " +
@@ -140,7 +139,7 @@ public class BreakPoint
 
     void WaitTillResumed((string name, object value)[] variables)
     {
-        // keep resolved expressions for possible serialization requests 
+        // keep resolved expressions for possible serialization requests
         var watchExpressions = new Dictionary<string, object>();
 
         while (true)
@@ -220,7 +219,6 @@ public class BreakPoint
 
                 var tokens = expression.Split('.');
 
-
                 // expression is the local variable member(s) (e.g. `myObj.Name`)
                 var matchingVariable = variables.FirstOrDefault(x => x.name == tokens.First());
                 if (matchingVariable.name != null)
@@ -241,14 +239,12 @@ public class BreakPoint
                 // expression is the chain of static members (e.g. `System.Environment.TickCount`)
                 if (expressionValue == null)
                 {
-
                     if (DereferenceStatic(ref currrentObject, tokens))
                         expressionValue = currrentObject ?? "null";
                     else if (DereferenceStatic(ref currrentObject, new[] { methodDeclaringType }.Concat(tokens))) // in case if user did not specify well knows namespace
                         expressionValue = currrentObject ?? "null";
                     else if (DereferenceStatic(ref currrentObject, new[] { "System" }.Concat(tokens))) // in case if user did not specify well knows namespace
                         expressionValue = currrentObject ?? "null";
-
                 }
             }
             catch (Exception ex)
@@ -296,7 +292,6 @@ public class BreakPoint
                 var typeProp = rootType.GetProperty(item);
                 var typeField = rootType.GetField(item);
 
-
                 if (typeProp != null || typeField == null)
                 {
                     if (typeProp != null)
@@ -324,9 +319,9 @@ public class BreakPoint
         }
         return dereferenced;
     }
+
     static bool Dereference(ref object obj, IEnumerable<string> members)
     {
-
         object currrentObject = obj;
 
         foreach (var memberName in members)
@@ -345,6 +340,7 @@ public class BreakPoint
         obj = currrentObject;
         return true;
     }
+
     bool ShouldStop()
     {
         if (DBG.StopOnNextInspectionPointInMethod == "*")
@@ -427,6 +423,7 @@ static class dbg_extensions
             Type = x.value?.GetType()?.ToView()
         }));
     }
+
     public static string Serialize(this object obj)
     {
         // does not print read-only props
@@ -440,13 +437,10 @@ static class dbg_extensions
             return text.Substring(maxLength - 3) + "...";
         return text;
     }
-
 }
-
 
 namespace wdbg
 {
-
     public class dbg
     {
         public static bool publicOnly = true;
@@ -646,7 +640,7 @@ namespace wdbg
                 relevant_types = x => x.MemberType == MemberTypes.Property;
 
             MemberInfo[] members = obj.GetType()
-                                          .GetMembers(BindingFlags.Public | BindingFlags.Instance)
+                                      .GetMembers(BindingFlags.Public | BindingFlags.Instance)
                                           .Where(relevant_types)
                                           .OrderBy(x => x.Name)
                                           .ToArray();
@@ -655,12 +649,12 @@ namespace wdbg
 
             if (!publicOnly)
                 private_members = obj.GetType()
-                                          .GetMembers(BindingFlags.NonPublic | BindingFlags.Instance)
-                                          .Where(relevant_types)
-                                          .OrderBy(x => x.Name)
-                                          .OrderBy(x => char.IsLower(x.Name[0]))
-                                          .OrderBy(x => x.Name.StartsWith("_"))
-                                          .ToArray();
+                                              .GetMembers(BindingFlags.NonPublic | BindingFlags.Instance)
+                                              .Where(relevant_types)
+                                              .OrderBy(x => x.Name)
+                                              .OrderBy(x => char.IsLower(x.Name[0]))
+                                              .OrderBy(x => x.Name.StartsWith("_"))
+                                              .ToArray();
 
             var items = members.Concat(private_members);
             return items.ToArray();
