@@ -63,7 +63,7 @@ public static class DBG
             var url = $"{debuggerUrl}/dbg/breakpoints";
             try
             {
-                return DownloadString($"{debuggerUrl}/dbg/breakpoints")
+                return DownloadString(url)
                     .Split('\n')
                     .Where(x => !string.IsNullOrEmpty(x))
                     .Select(x =>
@@ -292,7 +292,7 @@ public class BreakPoint
                 var typeProp = rootType.GetProperty(item);
                 var typeField = rootType.GetField(item);
 
-                if (typeProp != null || typeField == null)
+                if (typeProp != null || typeField != null)
                 {
                     if (typeProp != null)
                         currentObject = typeProp.GetValue(null);

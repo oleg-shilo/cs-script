@@ -452,6 +452,7 @@
         {
             this.scriptFileValidBreakpoints = null;
             this.scriptCode = File.ReadAllText(scriptFile);
+            Session.Current.StackFrameFileName = scriptFile;
             SetBpSteps(Session.Current.Breakpoints);
         }
         catch (Exception e)
