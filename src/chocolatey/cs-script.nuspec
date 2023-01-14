@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.6.2.0</version>
+        <version>4.6.3.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,10 +25,10 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-Release v4.6.2
-- WDBG: implemented fully functional web-based debugger
-- Issue #319: "Bad IL format" on self-contained linux-x64 builds if using namespace with same name as assembly
-- Fixed false positive of OutOfDate detection. Caused by the imported files stored in the script file stamp without their full path
+Release v4.6.3
+- WDBG: Fixed problem with invalid breakpoint info passing to client 
+- Added `-new:webapi` support 
+
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>cs-script C# script dynamic hosting</tags>
