@@ -1,4 +1,4 @@
-# Release v4.6.2 
+# Release v4.6.3
 
 ---
 
@@ -6,7 +6,8 @@
 
 ### CLI
 
-- WDBG: Verified working on Linux
+- WDBG: Fixed problem with invalid breakpoint info passing to client 
+- Added `-new:webapi` support 
 
 ### CSScriptLib
 
