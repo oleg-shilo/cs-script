@@ -1,5 +1,3 @@
-using CSScripting;
-using CSScripting.CodeDom;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using CSScripting;
+using CSScripting.CodeDom;
 
 namespace csscript
 {
@@ -54,8 +54,8 @@ namespace csscript
         //https://docs.microsoft.com/en-us/nuget/consume-packages/managing-the-global-packages-and-cache-folders
         // .NET Mono, .NET Core
         static public string NuGetCache => Runtime.IsWin ?
-                                            Environment.ExpandEnvironmentVariables(@"%userprofile%\.nuget\packages") :
-                                            "~/.nuget/packages";
+                                           Environment.ExpandEnvironmentVariables(@"%userprofile%\.nuget\packages") :
+                                           "~/.nuget/packages";
 
         static public string NuGetExe => "dotnet";
 
@@ -86,8 +86,8 @@ namespace csscript
 
             // C:\Users\user\AppData\Local\Temp\csscript.core\.nuget\333
             var nuget_dir = Runtime.GetScriptTempDir()
-                                      .PathJoin(".nuget", Process.GetCurrentProcess().Id)
-                                      .EnsureDir();
+                                   .PathJoin(".nuget", Process.GetCurrentProcess().Id)
+                                       .EnsureDir();
 
             try
             {
@@ -277,7 +277,7 @@ namespace csscript
                 else // host runtime
                 {
                     if (Runtime.IsCore)
-                        return (frameworks.FirstOrDefault(x => x.Runtime.StartsWith("netcore", ignoreCase: true))
+                        return (frameworks.FirstOrDefault(x => x.Runtime.StartsWith("net", ignoreCase: true))
                                 ?? frameworks.FirstOrDefault(x => x.Runtime.StartsWith("netstandard", ignoreCase: true)))?.Path;
                     else
                         return frameworks.FirstOrDefault(x => x.Runtime.StartsWith("net", ignoreCase: true)
@@ -323,7 +323,7 @@ namespace csscript
                 Directory.CreateDirectory(NuGetCache);
 
             var packages = Directory.GetDirectories(NuGetCache, name, SearchOption.TopDirectoryOnly)
-                            .SelectMany(x =>
+                           .SelectMany(x =>
                             {
                                 return Directory.GetFiles(x, "*.nuspec", SearchOption.AllDirectories)
                                                 .Select(spec =>
@@ -341,12 +341,12 @@ namespace csscript
                                                             return null;
                                                         });
                             })
-                            .OrderByDescending(x => x.Version)
-                            .Where(x => x != null)
-                            .ToArray();
+                           .OrderByDescending(x => x.Version)
+                           .Where(x => x != null)
+                           .ToArray();
 
             return packages.FirstOrDefault(x => string.Compare(x.Name, name, StringComparison.OrdinalIgnoreCase) == 0 &&
-                                                              (version.IsEmpty() || version == x.Version));
+                                                               (version.IsEmpty() || version == x.Version));
         }
 
         static public string[] Resolve(string[] packages, bool suppressDownloading, string script)

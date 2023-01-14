@@ -1250,6 +1250,8 @@ namespace csscript
             { "winform", CSharp_winforms_Sample},
             { "cmd", CSharp_command_Sample},
             { "winform-vb", DefaultVbDesktopSample},
+            { "webapi", context => CSharp_webipi_Sample(context, addOpenApi:false) },
+            { "webapi-openapi", context => CSharp_webipi_Sample(context, addOpenApi:true) },
             { "wpf", CSharp_wpf_Sample },
             { "wpf-cm", CSharp_wpf_ss_Sample },
         };
@@ -1320,6 +1322,47 @@ if (""?,-?,-help,--help"".Split(',').Contains(args.FirstOrDefault()))
 
 WriteLine($""Executing {context} for: [{{string.Join(args, "","")}}]"");
 ";
+            return new[] { new SampleInfo(cs.NormalizeNewLines(), ".cs") };
+        }
+
+        static SampleInfo[] CSharp_webipi_Sample(string context, bool addOpenApi)
+        {
+            var cs =
+@"//css_webapp
+$extrapackages$//css_nuget Swashbuckle.AspNetCore
+//css_inc global-usings
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+app.UseSwagger()
+   .UseSwaggerUI()
+   .UseHttpsRedirection()
+   .UseStaticFiles();
+
+app.MapGet(""/test"", (HttpRequest request) => new { Name = ""Test Response"" })$extracode$;
+
+app.Run();
+";
+            if (addOpenApi)
+            {
+                cs = cs.Replace("$extracode$", $"{Environment.NewLine}   .WithOpenApi()")
+                       .Replace("$extrapackages$", $"//css_nuget Microsoft.AspNetCore.OpenApi -ver:7.0.0 -rt:net7.0{Environment.NewLine}" +
+                                                $"//css_nuget Microsoft.OpenApi{Environment.NewLine}");
+            }
+            else
+            {
+                cs = cs.Replace("$extracode$", "")
+                       .Replace("$extrapackages$", "");
+            }
+
             return new[] { new SampleInfo(cs.NormalizeNewLines(), ".cs") };
         }
 
