@@ -1251,7 +1251,8 @@ namespace csscript
             { "cmd", CSharp_command_Sample},
             { "winform-vb", DefaultVbDesktopSample},
             { "webapi", context => CSharp_webipi_Sample(context, addOpenApi:false) },
-            { "webapi-openapi", context => CSharp_webipi_Sample(context, addOpenApi:true) },
+            { "webapi-min", CSharp_webipi_min},
+            // { "webapi-openapi", context => CSharp_webipi_Sample(context, addOpenApi:true) },
             { "wpf", CSharp_wpf_Sample },
             { "wpf-cm", CSharp_wpf_ss_Sample },
         };
@@ -1342,6 +1343,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+Console.WriteLine(""URL sample: http://localhost:5000/test\n"");
+
 var app = builder.Build();
 
 app.UseSwagger()
@@ -1349,11 +1352,8 @@ app.UseSwagger()
    .UseHttpsRedirection()
    .UseStaticFiles();
 
-app.MapGet(""/test"", (HttpRequest request) => new
-                                               {
-                                                   Name = ""Test Response"",
-                                                   Time = Environment.TickCount;
-                                               })$extracode$;
+app.MapGet(""/test"",
+           (HttpRequest request) => new { Name = ""Test Response"", Time = Environment.TickCount })$extracode$;
 
 app.Run();
 ";
@@ -1369,6 +1369,27 @@ app.Run();
                        .Replace("$extrapackages$", "");
             }
 
+            return new[] { new SampleInfo(cs.NormalizeNewLines(), ".cs") };
+        }
+
+        static SampleInfo[] CSharp_webipi_min(string context)
+        {
+            // using roslyn engine seems also possible but it will require manually referencing all asp.core assemblies
+            var cs =
+@"//css_webapp
+//css_ng csc; // roslyn engine will require referencing all ASP.NET assemblies and full class
+//css_inc global-usings
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+
+Console.WriteLine(""URL sample: http://localhost:5000/test"");
+
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+app.MapGet(""/test"",
+           (HttpRequest request) => new { Name = ""Test Response"", Time = Environment.TickCount });
+app.Run();
+";
             return new[] { new SampleInfo(cs.NormalizeNewLines(), ".cs") };
         }
 
