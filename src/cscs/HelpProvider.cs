@@ -1327,8 +1327,10 @@ WriteLine($""Executing {context} for: [{{string.Join(args, "","")}}]"");
 
         static SampleInfo[] CSharp_webipi_Sample(string context, bool addOpenApi)
         {
+            // using roslyn engine seems also possible but it will require manually referencing all asp.core assemblies
             var cs =
 @"//css_webapp
+//css_ng csc
 $extrapackages$//css_nuget Swashbuckle.AspNetCore
 //css_inc global-usings
 using Microsoft.AspNetCore.Builder;
@@ -1347,7 +1349,11 @@ app.UseSwagger()
    .UseHttpsRedirection()
    .UseStaticFiles();
 
-app.MapGet(""/test"", (HttpRequest request) => new { Name = ""Test Response"" })$extracode$;
+app.MapGet(""/test"", (HttpRequest request) => new
+                                               {
+                                                   Name = ""Test Response"",
+                                                   Time = Environment.TickCount;
+                                               })$extracode$;
 
 app.Run();
 ";

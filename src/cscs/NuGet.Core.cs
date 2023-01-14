@@ -277,7 +277,7 @@ namespace csscript
                 else // host runtime
                 {
                     if (Runtime.IsCore)
-                        return (frameworks.FirstOrDefault(x => x.Runtime.StartsWith("net", ignoreCase: true))
+                        return (frameworks.FirstOrDefault(x => x.Runtime.StartsWith("netcore", ignoreCase: true))
                                 ?? frameworks.FirstOrDefault(x => x.Runtime.StartsWith("netstandard", ignoreCase: true)))?.Path;
                     else
                         return frameworks.FirstOrDefault(x => x.Runtime.StartsWith("net", ignoreCase: true)

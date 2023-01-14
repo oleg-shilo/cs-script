@@ -1,9 +1,7 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Emit;
-
-// using Microsoft.CodeAnalysis.Emit;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Emit;
 
 namespace csscript
 {
@@ -28,7 +26,7 @@ namespace csscript
                     Location_IsInSource = data.Location.IsInSource,
                     Location_StartLinePosition_Line = data.Location.GetLineSpan().StartLinePosition.Line,
                     Location_StartLinePosition_Character = data.Location.GetLineSpan().StartLinePosition.Character,
-                    Location_FilePath = data.Location.SourceTree.FilePath,
+                    Location_FilePath = data.Location.SourceTree?.FilePath,
                     Id = data.Id,
                     Message = data.GetMessage()
                 };
