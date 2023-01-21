@@ -1809,6 +1809,10 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
 }".NormalizeNewLines();
         }
 
+        // Needed to be a separate property to avoid premature loading of *.CSharp.Scripting.CSharpScript.dll simply because we want to display the engine info
+        // Addresses the situation when Roslyn is not a current compiler and cscs is distributed as a single file
+        static string Microsoft_CodeAnalysis_CSharp_Scripting_CSharpScript_Assembly_Location => typeof(Microsoft.CodeAnalysis.CSharp.Scripting.CSharpScript).Assembly.Location;
+
         public static string BuildVersionInfo(string arg)
         {
             StringBuilder builder = new StringBuilder();
@@ -1836,7 +1840,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
                 }
                 catch { }
 
-                builder.AppendLine("   Config file:     " + (Settings.DefaultConfigFile.FileExists() ? Settings.DefaultConfigFile : "<none>"));
+                // builder.AppendLine("   Config file:     " + (Settings.DefaultConfigFile.FileExists() ? Settings.DefaultConfigFile : "<none>"));
                 var compiler = "<default>";
 
                 if (!string.IsNullOrEmpty(asm_path))
@@ -1880,7 +1884,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
                         }
                         else if (settings.DefaultCompilerEngine == Directives.compiler_roslyn)
                         {
-                            builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({typeof(Microsoft.CodeAnalysis.CSharp.Scripting.CSharpScript).Assembly.Location})");
+                            builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Microsoft_CodeAnalysis_CSharp_Scripting_CSharpScript_Assembly_Location})");
                         }
                         else if (settings.DefaultCompilerEngine == Directives.compiler_dotnet)
                         {
