@@ -7,7 +7,7 @@
     <AssemblyName>csws</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.6.3</Version>
+    <Version>4.6.4</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -18,16 +18,15 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.6.3</AssemblyVersion>
-    <FileVersion>4.6.3</FileVersion>
+    <AssemblyVersion>4.6.4</AssemblyVersion>
+    <FileVersion>4.6.4</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- WDBG: Fixed problem with invalid breakpoint info passing to client 
-- Added `-new:webapi` support 
+- CLI: Removed runtime dependency on `*.CSharp.Scripting.CSharpScript.dll` if Roslyn is not used as an engine.
 
 ### CSScriptLib
 

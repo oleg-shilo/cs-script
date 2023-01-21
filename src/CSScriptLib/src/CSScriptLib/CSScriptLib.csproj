@@ -13,7 +13,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.6.3</Version>
+    <Version>4.6.4</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
@@ -29,15 +29,14 @@
 
 ### CLI
 
-- WDBG: Fixed problem with invalid breakpoint info passing to client 
-- Added `-new:webapi` support 
+- CLI: Removed runtime dependency on `*.CSharp.Scripting.CSharpScript.dll` if Roslyn is not used as an engine.
 
 ### CSScriptLib
 
 - no changes</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.6.3</AssemblyVersion>
-    <FileVersion>4.6.3</FileVersion>
+    <AssemblyVersion>4.6.4</AssemblyVersion>
+    <FileVersion>4.6.4</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>

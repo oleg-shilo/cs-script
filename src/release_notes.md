@@ -1,4 +1,4 @@
-# Release v4.6.3
+# Release v4.6.4
 
 ---
 
@@ -6,8 +6,7 @@
 
 ### CLI
 
-- WDBG: Fixed problem with invalid breakpoint info passing to client 
-- Added `-new:webapi` support 
+- CLI: Removed runtime dependency on `*.CSharp.Scripting.CSharpScript.dll` if Roslyn is not used as an engine.
 
 ### CSScriptLib
 

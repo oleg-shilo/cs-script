@@ -42,7 +42,7 @@ rem copy .\css\bin\Release\css.exe ".\out\Windows\css.exe"
 
 echo =====================
 echo Building (cd: %cd%)
-echo =====================
+echo ---------------------
 
 del .\out\*.*nupkg 
 
@@ -90,7 +90,7 @@ popd
 
 echo =====================
 echo Aggregating (cd: %cd%)
-echo =====================
+echo ---------------------
 copy "out\Windows\win" "out\Windows" /Y
 copy "out\Windows\console" "out\Windows" /Y
 del "out\Linux\*.pdb" 
@@ -112,12 +112,15 @@ copy "out\static_content\-self\-test\*" "out\Linux\-self\-test\"
 
 xcopy /s /q "out\static_content\-wdbg\*" "out\Windows\-wdbg\" 
 xcopy /s /q "out\static_content\-wdbg\*" "out\Linux\-wdbg\" 
+
+
+echo =====================
+echo Clearing possible WDBG test/dev files
+echo ---------------------
 rd /S /Q .\out\Linux\-wdbg\dbg-server\bin\
 rd /S /Q .\out\Windows\-wdbg\dbg-server\bin\
 rd /S /Q .\out\WindowLinux\-wdbg\dbg-server\obj\
 rd /S /Q .\out\Windows\-wdbg\dbg-server\obj\
-rd /S /Q .\out\WindowLinux\-wdbg\test\
-rd /S /Q .\out\Windows\-wdbg\test\
 del out\Linux\-wdbg\test*.cs
 del out\Windows\-wdbg\test*.cs
 
@@ -131,7 +134,7 @@ cd out\Windows
 
 echo =====================
 echo Aggregating packages (cd: %cd%)
-echo =====================
+echo ---------------------
 .\cscs -c:0 ..\..\CSScriptLib\src\CSScriptLib\output\aggregate.cs
 cd ..\..
 
@@ -139,7 +142,7 @@ copy CSScriptLib\src\CSScriptLib\output\*.*nupkg out\
 
 echo =====================
 echo Packaging (cd: %cd%)
-echo =====================
+echo ---------------------
 
 cd out\Linux
 echo cd: %cd%
@@ -153,7 +156,7 @@ cd ..\..
 
 echo =====================
 echo Injecting version in file names
-echo =====================
+echo ---------------------
 
 cd out\Windows
 .\cscs -c:0 ..\..\CSScriptLib\src\CSScriptLib\output\aggregate.cs

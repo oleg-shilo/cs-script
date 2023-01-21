@@ -1,9 +1,9 @@
-using CSScripting;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
+using CSScripting;
 
 #if class_lib
 
@@ -208,10 +208,10 @@ namespace csscript
 
         static internal string CustomCommandsDir
             => "CSSCRIPT_COMMANDS".GetEnvar() ??
-               Environment.SpecialFolder.CommonApplicationData.GetPath()
+                Environment.SpecialFolder.CommonApplicationData.GetPath()
 
-                                        .PathJoin("cs-script", "commands")
-                                        .EnsureDir(false);
+                                         .PathJoin("cs-script", "commands")
+                                         .EnsureDir(false);
 
         static internal string GlobalIncludsDir
         {

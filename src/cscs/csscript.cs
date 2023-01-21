@@ -314,7 +314,7 @@ namespace csscript
             "   using static dbg;" + NewLine +
             "   using static System.Environment;" + NewLine;
 
-            var customHeaderFile = this.GetType().Assembly.Location.GetDirName().PathJoin("-code.header");
+            var customHeaderFile = Runtime.GlobalIncludsDir.PathJoin("-code.header");
 
             if (File.Exists(customHeaderFile))
             {
