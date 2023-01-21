@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using CSScripting;
 
 namespace csscript
@@ -16,7 +18,7 @@ namespace csscript
             print($"csc    - {Globals.csc}");
             print($"roslyn - {Globals.roslyn}");
             print($"---");
-            print($".NET SDK - {(Runtime.IsSdkInstalled() ? "installed" : "not unstalled") }");
+            print($".NET SDK - {(Runtime.IsSdkInstalled() ? "installed" : "not unstalled")}");
         }
 
         public void ProcessConfigCommand(string command)
