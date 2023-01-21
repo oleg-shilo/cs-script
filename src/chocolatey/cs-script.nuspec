@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.6.3.0</version>
+        <version>4.6.4.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,9 +25,8 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-Release v4.6.3
-- WDBG: Fixed problem with invalid breakpoint info passing to client 
-- Added `-new:webapi` support 
+# Release v4.6.4
+- Removed runtime dependency on `*.CSharp.Scripting.CSharpScript.dll` if Roslyn is not used as an engine.
 
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
