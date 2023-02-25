@@ -58,6 +58,20 @@ namespace CSScriptLib
         public static bool CompileOnServer = true;
 
         /// <summary>
+        /// Timeout for the C# CLI compiler `csc.exe`.
+        /// <para>
+        /// This compiler is a part of .NET SDK and it is the actual
+        /// tool that compiles C# code into assembly when CodeDomEvaluator is used.
+        /// This tool under certain circumstances has tendency to hang after even if it successfully
+        /// finished the compilation. Thus configurable timeout allows user to configure forcible termination
+        /// of the csc.exe process.
+        /// </para>
+        /// <para>
+        /// The default value is -1 (infinite).</para>
+        /// </summary>
+        public static int CscTimeout = -1;
+
+        /// <summary>
         /// The low level output of the last script compilation. This member is not designed to be a
         /// part of script error handling. For this purpose a normal exception based mechanism the
         /// is a more appropriate choice.
@@ -302,7 +316,7 @@ namespace CSScriptLib
                     {
                         cmd = $@"""{Globals.csc}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
 
-                        result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+                        result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x, CodeDomEvaluator.CscTimeout);
                     }
                 }
                 else
@@ -311,7 +325,7 @@ namespace CSScriptLib
 
                     try
                     {
-                        result.NativeCompilerReturnValue = Globals.csc.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+                        result.NativeCompilerReturnValue = Globals.csc.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x, CodeDomEvaluator.CscTimeout);
                     }
                     catch (Exception e)
                     {
