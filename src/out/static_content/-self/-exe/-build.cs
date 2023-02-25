@@ -1,23 +1,27 @@
-using static System.Reflection.Assembly; 
-using static System.IO.Path; 
-using static System.IO.File; 
-using static System.Diagnostics.Process; 
+using static System.Reflection.Assembly;
+using static System.IO.Path;
+using static System.IO.File;
+using static System.Environment;
+using static System.Diagnostics.Process;
 
 using System;
 using System.IO;
-using System.Diagnostics; 
-
+using System.Diagnostics;
 
 var engine_asm = GetEntryAssembly().Location;
 
-string cscs; 
-
 // to ensure we are not picking cscs.dll
-if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-	cscs = ChangeExtension(engine_asm, ".exe"); 
-else
-    cscs = Combine(GetDirectoryName(engine_asm), GetFileNameWithoutExtension(engine_asm));
+if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+{
+    Console.WriteLine("Building `css.exe` executable is only useful on windows. On Linux you " +
+                      "have a much better option `alias`. You can enable it as below: " + NewLine +
+                      "alias css='dotnet /usr/local/bin/cs-script/cscs.dll'" + NewLine +
+                      "After that you can invoke CS-Script engine from anywhere by just typing 'css'.");
 
+    return;
+}
+
+var cscs = ChangeExtension(engine_asm, ".exe");
 var css_cs = Combine(GetDirectoryName(cscs), "css.cs");
 
 WriteAllText(css_cs, @"
