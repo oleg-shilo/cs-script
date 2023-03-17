@@ -1,8 +1,9 @@
-using CSScripting;
 using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using CSScripting;
 
 namespace csscript
 {
@@ -155,11 +156,22 @@ namespace csscript
 
                 if (retval != null)
                 {
-                    try
+                    if (retval is Task<int>)
                     {
-                        Environment.ExitCode = int.Parse(retval.ToString());
+                        Environment.ExitCode = (retval as Task<int>).Result;
                     }
-                    catch { }
+                    else if (retval is Task)
+                    {
+                        (retval as Task).Wait();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            Environment.ExitCode = int.Parse(retval.ToString());
+                        }
+                        catch { }
+                    }
                 }
             }
             else
