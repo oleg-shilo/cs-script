@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using CSScripting;
 
@@ -130,7 +131,7 @@ namespace csscript
                 Environment.SetEnvironmentVariable("EntryScriptAssembly", location);
         }
 
-        public void InvokeStaticMain(Assembly compiledAssembly, string[] scriptArgs)
+        public async void InvokeStaticMain(Assembly compiledAssembly, string[] scriptArgs)
         {
             var bf = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Static;
 
@@ -158,19 +159,16 @@ namespace csscript
                 {
                     if (retval is Task<int>)
                     {
-                        Environment.ExitCode = (retval as Task<int>).Result;
+                        Environment.ExitCode = await (retval as Task<int>);
                     }
                     else if (retval is Task)
                     {
-                        (retval as Task).Wait();
+                        await (retval as Task);
                     }
                     else
                     {
-                        try
-                        {
-                            Environment.ExitCode = int.Parse(retval.ToString());
-                        }
-                        catch { }
+                        if (int.TryParse(retval?.ToString(), out var i))
+                            Environment.ExitCode = i;
                     }
                 }
             }
