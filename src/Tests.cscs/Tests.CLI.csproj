@@ -15,6 +15,7 @@
   <ItemGroup>
     <Compile Remove="linux\run.cs" />
     <Compile Remove="linux\xunit.polyfill.cs" />
+    <Compile Remove="test.cs" />
     <Compile Remove="tests.cs" />
     <Compile Remove="xunit.polyfill.cs" />
   </ItemGroup>

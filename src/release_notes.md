@@ -1,4 +1,4 @@
-# Release v4.6.4
+# Release v4.6.5
 
 ---
 
@@ -6,11 +6,12 @@
 
 ### CLI
 
-- CLI: Removed runtime dependency on `*.CSharp.Scripting.CSharpScript.dll` if Roslyn is not used as an engine.
+- Issue #327: CS-Script file with async calls suddenly terminates
+- Updated Linux distro with `css` executable replaced with Linux `alias` functionality.
 
 ### CSScriptLib
 
-- no changes
+- Added `CodeDomEvaluator.CscTimeout` to allow auto-termination of the `csc.exe` when it hangs. Triggered by #318
 
 
 
