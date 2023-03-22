@@ -1,7 +1,7 @@
-using CSScripting;
 using System;
 using System.Globalization;
 using System.Threading;
+using CSScripting;
 
 namespace csscript
 {
@@ -15,21 +15,25 @@ namespace csscript
     class WinSystemWideLock : ISystemWideLock, IDisposable
     {
         Mutex mutex;
+        bool signaled = false;
 
         public WinSystemWideLock(string name)
         {
-            mutex = new Mutex(false, name);
+            signaled = false;
+            mutex = new Mutex(signaled, name);
         }
 
         public bool Wait(int millisecondsTimeout)
         {
-            //even if locked Mutex will handle it. It will return immediately
-            return mutex.WaitOne(millisecondsTimeout, false);
+            // even if locked Mutex will handle it. It will return immediately
+            return signaled = mutex.WaitOne(millisecondsTimeout, false);
         }
 
         public void Release()
         {
-            try { mutex.ReleaseMutex(); }
+            // `try catch` would do the job but it's better to avoid exceptions
+            // See https://github.com/oleg-shilo/cs-script/issues/327#issuecomment-1479273740
+            try { if (signaled) mutex.ReleaseMutex(); signaled = false; }
             catch { }
         }
 
