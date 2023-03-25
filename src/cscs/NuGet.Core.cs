@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Microsoft.CodeAnalysis.Scripting;
 using CSScripting;
 using CSScripting.CodeDom;
 
@@ -457,10 +458,30 @@ namespace csscript
 
     class NuGetDotnet
     {
+        static string[] GetPackagesFromConfigFileOfScript(string scriptFile)
+        {
+            var packages = new List<string>();
+
+            string packagesConfig = scriptFile.ChangeFileName("packages.config");
+            if (packagesConfig.FileExists())
+                packages.AddRange(XDocument.Load(packagesConfig)
+                                                 .Descendants("package")
+                                                 .Select(n =>
+                                            {
+                                                var package = n.Attribute("id").Value;
+                                                if (n.Attribute("version") != null)
+                                                    package += $" -ver:\"{n.Attribute("version").Value}\"";
+                                                return package;
+                                            }));
+            return packages.ToArray();
+        }
+
         public static string[] FindAssembliesOf(string[] packages, bool suppressDownloading, string script)
         {
+            var allPackages = packages.Concat(GetPackagesFromConfigFileOfScript(script));
+
             var forceRestore = Environment.GetEnvironmentVariable("CSS_RESTORE_NUGET_PACKAGES") != null;
-            var packagesId = $"// packages: {packages.OrderBy(x => x).JoinBy(", ")}";
+            var packagesId = $"// packages: {allPackages.OrderBy(x => x).JoinBy(", ")}";
 
             var assembliesList = CSExecutor.GetCacheDirectory(script).PathJoin(script + ".nuget.cs");
 
@@ -472,7 +493,7 @@ namespace csscript
                     return lines.Skip(1).Select(x => x.Replace("//css_ref ", "")).ToArray();
             }
 
-            assemblies = FindAssembliesOf(packages);
+            assemblies = FindAssembliesOf(allPackages);
 
             File.WriteAllText(assembliesList, packagesId + NewLine);
             File.AppendAllLines(assembliesList, assemblies.Select(x => "//css_ref " + x));
@@ -494,17 +515,32 @@ namespace csscript
             var projectDir = SpecialFolder.LocalApplicationData.GetPath("Temp", "csscript.core", "nuget", Guid.NewGuid().ToString());
             Directory.CreateDirectory(projectDir);
 
+            var packagsSection = "";
+            var restoreArgs = "";
+            foreach (var item in packages)
+            {
+                string[] packageArgs = item.SplitCommandLine();
+                string package = packageArgs.FirstOrDefault(x => !x.StartsWith("-"));
+
+                restoreArgs += packageArgs.ArgValue("-ng") + " "; // temp, until `-ng` is dropped
+                restoreArgs += packageArgs.ArgValue("-restore") + " ";
+
+                string packageVersion = packageArgs.ArgValue("-ver") ?? "*"; // latest available version
+
+                packagsSection += $"<PackageReference Include=\"{package}\" Version=\"{packageVersion}\"/> {NewLine}";
+            }
+
             try
             {
                 var projectFile = projectDir.PathJoin("nuget.ref.csproj");
 
-                File.WriteAllText(projectFile, @"<Project Sdk=""Microsoft.NET.Sdk"">
+                File.WriteAllText(projectFile, $@"<Project Sdk=""Microsoft.NET.Sdk"">
 	                                                  <PropertyGroup>
 		                                                  <OutputType>Library</OutputType>
 		                                                  <TargetFramework>net7.0</TargetFramework>
 	                                                  </PropertyGroup>
 	                                                  <ItemGroup>
-                                                      " + packages.Select(x => $"<PackageReference Include=\"{x}\" Version=\"*\"/>").JoinBy(NewLine) + @"
+                                                          {packagsSection}
 	                                                  </ItemGroup>
                                                   </Project>");
 
@@ -516,7 +552,15 @@ namespace csscript
 
                 var p = new Process();
                 p.StartInfo.FileName = "dotnet";
-                p.StartInfo.Arguments = "publish -o ./publish";
+                p.StartInfo.Arguments = "restore " + restoreArgs.Trim();
+                p.StartInfo.WorkingDirectory = projectDir;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.Start();
+                p.WaitForExit();
+
+                p = new Process();
+                p.StartInfo.FileName = "dotnet";
+                p.StartInfo.Arguments = "publish --no-restore -o ./publish";
                 p.StartInfo.WorkingDirectory = projectDir;
                 p.StartInfo.RedirectStandardOutput = true;
                 p.Start();
