@@ -555,24 +555,32 @@ namespace csscript
                                                     "if it is found in the same folder where the script engine is. Automatic CSSRoslynProvider.dll " +
                                                     "loading can be disabled with a special 'none' argument: -pvdr:none.",
                                                     $"(see {help_url}/help/non_cs_compilers.html)");
-            switch2Help[nuget] = new ArgInfo("-nuget[:<package|purge>]",
-                                             "Installs new or updates existing NuGet package.",
+            switch2Help[nuget] = new ArgInfo("-nuget[:<package|restore>]",
+                                             "Note: A new NuGet support available from version 4.7.0 will obsolete some of the options of this command",
+                                             "      New NuGet support can be enabled by setting `LegacyNugetSupport` option to false with `css -config:set:LegacyNugetSupport=false`)",
+                                             "      Read more: https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support",
+                                             " ",
+                                             "Imports new or updates existing NuGet package.",
                                                  "This command allows light management of the NuGet packages in the CS-Script local package repository (%PROGRAMDATA%\\CS-Script\\nuget).",
                                                      "The tasks are limited to installing, updating and listing the local packages.",
                                                      " ",
                                                      "```",
                                                      " -nuget           - ${<==}prints the list of all root packages in the repository",
-                                                     // " -nuget:purge - ${<==}detects multiple
-                                                     // versions of the same package and removes all
-                                                     // but the latest one. ",
+                                                     "                    ${<==}(Not available with new NuGet support)",
                                                      " -nuget:<package> - ${<==}downloads and installs the latest version of the package(s). ",
                                                      "                    ${<==}Wild cards can be used to update multiple packages. For example '-nuget:ServiceStack*' will update all " +
                                                      "already installed ServiceStack packages.",
                                                      "                    ${<==}You can also use the index of the package instead of its full name.",
+                                                     "                    ${<==}(Not available with new NuGet support)",
                                                      "```",
                                                      " ",
                                                      "Installing packages this way is an alternative to having '//css_nuget -force ...' directive in the script code as it may be " +
-                                                     "more convenient for the user to update packages manually instead of having them updated on every script execution/recompilation.");
+                                                     "more convenient for the user to update packages manually instead of having them updated on every script execution/recompilation.",
+                                                     "```",
+                                                     " -nuget:restore - ${<==}downloads and installs all packages specified in the script without executing the script. " +
+                                                     "```",
+                                                     "Available only with new NuGet support."
+                                            );
             switch2Help[syntax] = new ArgInfo("-syntax",
                                               "Prints documentation for CS-Script specific C# syntax.");
             switch2Help[commands] =
@@ -649,6 +657,9 @@ namespace csscript
                          " ",
                          "Downloads/Installs the NuGet package. It also automatically references the downloaded package assemblies.",
                          "Note: The directive switches need to be in the order as above.",
+                         "      A new NuGet support available from version 4.7.0 will obsolete some of the options of this directive",
+                         "      New NuGet support can be enabled by setting `LegacyNugetSupport` option to false with `css -config:set:LegacyNugetSupport=false`)",
+                         "      Read more: https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support",
                          " ",
                          "By default the package is not downloaded again if it was already downloaded.",
                          "If no version is specified then the highest downloaded version (if any) will be used.",
@@ -656,14 +667,17 @@ namespace csscript
                          "You should use '-noref' switch and reference assemblies manually for all other cases. For example multiple assemblies with the same file name that " +
                          "target different CLRs (e.g. v3.5 vs v4.0) in the same package.",
                          "Switches:",
-                         " -noref         - ${<==}switch for individual packages if automatic referencing isn't desired. ",
+                         " -noref         - ${<==}switch for individual packages if automatic referencing isn't desired.",
                          "                  ${<==}You can use 'css_nuget' environment variable for further referencing package content (e.g. //css_dir %css_nuget%\\WixSharp\\**)",
+                         "                  ${<==}(Not available with new NuGet support)",
                          " -force[:delay] - ${<==}switch to force individual packages downloading even when they were already downloaded.",
                          "                  ${<==}You can optionally specify delay for the next forced downloading by number of seconds since last download.",
                          "                  ${<==}'-force:3600' will delay it for one hour. This option is useful for preventing frequent download interruptions during active script development.",
+                         "                  ${<==}(Not available with new NuGet support)",
                          " -ver:<version> - ${<==}switch to download/reference a specific package version.",
                          " -rt:<runtime>  - ${<==}switch to use specific runtime binaries (e.g. '-rt:netstandard1.3').",
-                         " -ng:<args>     - ${<==}switch to pass NuGet arguments for every individual package.",
+                         "                  ${<==}(Not available with new NuGet support)",
+                         " -ng:<args>     - ${<==}switch to pass `nuget.exe`/`dotnet restore` arguments for every individual package.",
                          " ",
                          "Example: //css_nuget cs-script;",
                          "         //css_nuget -ver:4.1.2 NLog",

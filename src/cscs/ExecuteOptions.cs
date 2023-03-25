@@ -71,6 +71,7 @@ namespace csscript
             clone.altCompiler = this.altCompiler;
             clone.consoleEncoding = this.consoleEncoding;
             clone.resolveAutogenFilesRefs = this.resolveAutogenFilesRefs;
+            clone.legacyNugetSupport = this.legacyNugetSupport;
             clone.preCompilers = this.preCompilers;
             clone.compilerOptions = this.compilerOptions;
             clone.reportDetailedErrorInfo = this.reportDetailedErrorInfo;
@@ -115,6 +116,7 @@ namespace csscript
             clone.useSmartCaching = this.useSmartCaching;
             clone.suppressExecution = this.suppressExecution;
             clone.InjectScriptAssemblyAttribute = this.InjectScriptAssemblyAttribute;
+            clone.legacyNugetSupport = this.legacyNugetSupport;
             clone.resolveAutogenFilesRefs = this.resolveAutogenFilesRefs;
             clone.DBG = this.DBG;
             clone.TargetFramework = this.TargetFramework;
@@ -187,6 +189,7 @@ namespace csscript
         public bool buildWinExecutable = false;
         public bool openEndDirectiveSyntax = true;
         public bool resolveAutogenFilesRefs = true;
+        public bool legacyNugetSupport = true;
         public string altCompiler = "";
         public string consoleEncoding = "utf-8";
         public string defaultCompilerEngine = "dotnet";

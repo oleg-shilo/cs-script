@@ -206,6 +206,7 @@ namespace csscript
                 if (options.preCompilers == "") //it may be set from command-line args, which have higher precedence
                     options.preCompilers = settings.Precompiler;
                 options.altCompiler = settings.ExpandUseAlternativeCompiler();
+                options.altCompiler = settings.ExpandUseAlternativeCompiler();
                 options.defaultRefAssemblies = settings.ExpandDefaultRefAssemblies();
                 options.reportDetailedErrorInfo = settings.ReportDetailedErrorInfo;
                 options.openEndDirectiveSyntax = settings.OpenEndDirectiveSyntax;
@@ -399,7 +400,9 @@ namespace csscript
                         firstScriptArg = this.ParseAppArgs(args);
                     }
 
+                    options.legacyNugetSupport = settings.LegacyNugetSupport;
                     options.resolveAutogenFilesRefs = settings.ResolveAutogenFilesRefs;
+
                     if (!options.processFile)
                     {
                         // No further processing is required. Some primitive request (e.g. print

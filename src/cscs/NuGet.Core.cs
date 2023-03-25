@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,14 +27,15 @@ namespace csscript
     {
         static NuGetCore nuget = new NuGetCore();
 
-        static public string NuGetCacheView => Directory.Exists(NuGetCore.NuGetCache) ? NuGetCore.NuGetCache : "<not found>";
-        static public string NuGetCache => NuGetCore.NuGetCache;
+        static public string NuGetCacheView => Directory.Exists(NuGetCache) ? NuGetCache : "<not found>";
+        static public string NuGetCache => CSExecutor.options.legacyNugetSupport ? NuGetCore.NuGetCache : NuGetDotnet.NuGetCache;
 
         static public string NuGetExeView
             => (NuGetCore.NuGetExe.FileExists() || NuGetCore.NuGetExe == "dotnet") ? NuGetCore.NuGetExe : "<not found>";
 
         static public bool newPackageWasInstalled => NuGetCore.NewPackageWasInstalled;
 
+        [Obsolete("Not to be used with new NuGet support algorithm")]
         static public void InstallPackage(string packageNameMask, string nugetConfig = null) => NuGetCore.InstallPackage(packageNameMask, nugetConfig);
 
         static public void ListPackages()
@@ -46,7 +48,9 @@ namespace csscript
         }
 
         static public string[] Resolve(string[] packages, bool suppressDownloading, string script)
-            => NuGetCore.Resolve(packages, suppressDownloading, script);
+            => CSExecutor.options.legacyNugetSupport ?
+                NuGetCore.Resolve(packages, suppressDownloading, script) :
+                NuGetDotnet.FindAssembliesOf(packages, suppressDownloading, script);
     }
 
     class NuGetCore
@@ -448,6 +452,129 @@ namespace csscript
             }
 
             return assemblies.ToArray().RemovePathDuplicates();
+        }
+    }
+
+    class NuGetDotnet
+    {
+        public static string[] FindAssembliesOf(string[] packages, bool suppressDownloading, string script)
+        {
+            var forceRestore = Environment.GetEnvironmentVariable("CSS_RESTORE_NUGET_PACKAGES") != null;
+            var packagesId = $"// packages: {packages.OrderBy(x => x).JoinBy(", ")}";
+
+            var assembliesList = CSExecutor.GetCacheDirectory(script).PathJoin(script + ".nuget.cs");
+
+            string[] assemblies;
+            if (!forceRestore && File.Exists(assembliesList))
+            {
+                var lines = File.ReadAllLines(assembliesList);
+                if (lines.FirstOrDefault() == packagesId)
+                    return lines.Skip(1).Select(x => x.Replace("//css_ref ", "")).ToArray();
+            }
+
+            assemblies = FindAssembliesOf(packages);
+
+            File.WriteAllText(assembliesList, packagesId + NewLine);
+            File.AppendAllLines(assembliesList, assemblies.Select(x => "//css_ref " + x));
+
+            return assemblies;
+        }
+
+        public static string NuGetCache => GetEnvironmentVariable("CSSCRIPT_NUGET_PACKAGES") ??
+                                           SpecialFolder.UserProfile.GetPath(".nuget", "packages");
+
+        public static string[] FindAssembliesOf(IEnumerable<string> packages)
+        {
+            // TODO
+            // - create a project template based on "dotnet new classlib" output
+            // - analyse only directories that are listed in `*.nuget.cache` file (e.g. test\obj\project.nuget.cache)
+
+            var result = new List<string>();
+
+            var projectDir = SpecialFolder.LocalApplicationData.GetPath("Temp", "csscript.core", "nuget", Guid.NewGuid().ToString());
+            Directory.CreateDirectory(projectDir);
+
+            try
+            {
+                var projectFile = projectDir.PathJoin("nuget.ref.csproj");
+
+                File.WriteAllText(projectFile, @"<Project Sdk=""Microsoft.NET.Sdk"">
+	                                                  <PropertyGroup>
+		                                                  <OutputType>Library</OutputType>
+		                                                  <TargetFramework>net7.0</TargetFramework>
+	                                                  </PropertyGroup>
+	                                                  <ItemGroup>
+                                                      " + packages.Select(x => $"<PackageReference Include=\"{x}\" Version=\"*\"/>").JoinBy(NewLine) + @"
+	                                                  </ItemGroup>
+                                                  </Project>");
+
+                packages = packages.OrderBy(x => x).ToArray();
+
+                var sw = Stopwatch.StartNew();
+                Console.WriteLine("Restoring packages...");
+                // Console.WriteLine(packages.JoinBy(NewLine));
+
+                var p = new Process();
+                p.StartInfo.FileName = "dotnet";
+                p.StartInfo.Arguments = "publish -o ./publish";
+                p.StartInfo.WorkingDirectory = projectDir;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.Start();
+                p.WaitForExit();
+
+                var allRefAssemblies = Directory.GetFiles(Path.Combine(projectDir, "publish"), "*.dll")
+                                           .Concat(
+                                       Directory.GetFiles(Path.Combine(projectDir, "publish"), "*.exe"))
+                                           .Where(x => !x.EndsWith("nuget.ref.dll"))
+                                           .OrderBy(x => x);
+
+                bool isSameData(byte[] a, byte[] b)
+                {
+                    if (a.Length == b.Length)
+                    {
+                        for (int i = 0; i < a.Length; i++)
+                            if (a[i] != b[i])
+                                return false;
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+
+                // Console.WriteLine("    " + sw.Elapsed.ToString());
+                sw.Restart();
+                Console.WriteLine("Mapping packages to assemblies...");
+
+                foreach (var x in allRefAssemblies)
+                {
+                    var packageName = Path.GetFileNameWithoutExtension(x);
+
+                    var refAssemblyVersion = FileVersionInfo.GetVersionInfo(x).FileVersion;
+                    var refAssemblySize = new FileInfo(x).Length;
+                    byte[] refAssemblyBytes = File.ReadAllBytes(x);
+
+                    var matchingAssemblies = Directory
+                            // .GetDirectories(nugetRepo, $"{packageName}*") // quicker but less reliable as the package name may not be the same as the assembly name. IE `ICSharpCode.SharpZipLib.dll` vs `SharpZipLib.dll`
+                            .GetDirectories(NuGetCache, $"*")
+                            .SelectMany(d => Directory
+                                                 .GetFiles(d, Path.GetFileName(x), SearchOption.AllDirectories)
+                                                 .Where(f =>
+                                                        refAssemblyVersion == FileVersionInfo.GetVersionInfo(f).FileVersion
+                                                        && refAssemblySize == new FileInfo(f).Length
+                                                        && isSameData(refAssemblyBytes, File.ReadAllBytes(f))
+                                                       ));
+
+                    var assembly = matchingAssemblies.FirstOrDefault() ?? $"{packageName} - not found";
+                    result.Add(assembly);
+                }
+                // Console.WriteLine("    " + sw.Elapsed.ToString());
+            }
+            finally
+            {
+                try { Directory.Delete(projectDir, true); }
+                catch { }
+            }
+            return result.ToArray();
         }
     }
 }

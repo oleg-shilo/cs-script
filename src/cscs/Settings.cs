@@ -1,14 +1,14 @@
-using CSScripting;
-using CSScripting.CodeDom;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-using static System.Environment;
+using CSScripting;
+using CSScripting.CodeDom;
 
 namespace csscript
 {
@@ -126,9 +126,19 @@ If this flag is set the all references in the compile errors text to the path of
         public bool ResolveAutogenFilesRefs { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets a value indicating whether legacy NuGet support is enabled (default) or disabled.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if legacy NuGet support is enabled; otherwise, <c>false</c>.
+        /// </value>
+        [Description(@"Gets or sets a value indicating whether legacy NuGet support is enabled (default) or disabled.
+
+`true` if legacy NuGet support is enabled; otherwise, `false`.")]
+        public bool LegacyNugetSupport { get; set; } = true;
+
+        /// <summary>
         /// Enables omitting closing character (";") for CS-Script directives (e.g. "//css_ref System.Xml.dll" instead of "//css_ref System.Xml.dll;").
         /// </summary>
-
         [Description(@"Enables omitting closing character ("";"") for CS-Script directives (e.g. ""//css_ref System.Xml.dll"" instead of ""//css_ref System.Xml.dll;"").
 
 `true` if the option is enabled; otherwise, `false`")]
@@ -175,7 +185,6 @@ If this flag is set the all references in the compile errors text to the path of
         /// <value>
         ///   <c>true</c> if to suppress timestamping; otherwise, <c>false</c>.
         /// </value>
-
         [Description(@"Gets or sets a value indicating whether to enforce timestamping the compiled script assembly.
 Some reports indicated that changing assembly timestamp can affect CLR caching (shadow copying)due to some unknown/undocumented CLR feature(s).
 
@@ -536,6 +545,7 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
                 doc.DocumentElement.AppendChild(doc.CreateElement(nameof(HideCompilerWarnings))).AppendChild(doc.CreateTextNode(HideCompilerWarnings.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement(nameof(ReportDetailedErrorInfo))).AppendChild(doc.CreateTextNode(ReportDetailedErrorInfo.ToString()));
                 doc.DocumentElement.AppendChild(doc.CreateElement(nameof(EnableDbgPrint))).AppendChild(doc.CreateTextNode(EnableDbgPrint.ToString()));
+                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(LegacyNugetSupport))).AppendChild(doc.CreateTextNode(LegacyNugetSupport.ToString()));
 
                 if (ResolveRelativeFromParentScriptLocation != false)
                     doc.DocumentElement.AppendChild(doc.CreateElement(nameof(ResolveRelativeFromParentScriptLocation))).AppendChild(doc.CreateTextNode(ResolveRelativeFromParentScriptLocation.ToString()));
@@ -684,10 +694,10 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
                     node = data.SelectSingleNode(nameof(OpenEndDirectiveSyntax)); if (node != null) settings.OpenEndDirectiveSyntax = node.InnerText.ToBool();
                     node = data.SelectSingleNode(nameof(Precompiler)); if (node != null) settings.Precompiler = node.InnerText;
                     node = data.SelectSingleNode(nameof(CustomHashing)); if (node != null) settings.CustomHashing = node.InnerText.ToBool();
-                    node = data.SelectSingleNode(nameof(ConsoleEncoding)); if (node != null) settings.ConsoleEncoding = node.InnerText;
                     node = data.SelectSingleNode(nameof(CustomTempDirectory)); if (node != null) settings.CustomTempDirectory = node.InnerText;
                     node = data.SelectSingleNode(nameof(Precompiler)); if (node != null) settings.Precompiler = node.InnerText;
                     node = data.SelectSingleNode(nameof(ConsoleEncoding)); if (node != null) settings.ConsoleEncoding = node.InnerText;
+                    node = data.SelectSingleNode(nameof(LegacyNugetSupport)); if (node != null) settings.LegacyNugetSupport = node.InnerText.ToBool();
                 }
                 catch
                 {
