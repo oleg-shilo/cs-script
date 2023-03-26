@@ -478,6 +478,9 @@ namespace csscript
 
         public static string[] FindAssembliesOf(string[] packages, bool suppressDownloading, string script)
         {
+            if (packages.IsEmpty())
+                return new string[0];
+
             var allPackages = packages.Concat(GetPackagesFromConfigFileOfScript(script));
 
             var forceRestore = Environment.GetEnvironmentVariable("CSS_RESTORE_NUGET_PACKAGES") != null;
@@ -587,7 +590,8 @@ namespace csscript
 
                 // Console.WriteLine("    " + sw.Elapsed.ToString());
                 sw.Restart();
-                Console.WriteLine("Mapping packages to assemblies...");
+                Console.WriteLine("Mapping packages to assemblies1111...");
+                // Debug.Assert(false);
 
                 foreach (var x in allRefAssemblies)
                 {

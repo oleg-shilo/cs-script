@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.6.5</Version>
+    <Version>4.6.5.2</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -17,20 +17,25 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.6.5</AssemblyVersion>
-    <FileVersion>4.6.5</FileVersion>
+    <AssemblyVersion>4.6.5.2</AssemblyVersion>
+    <FileVersion>4.6.5.2</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
+- Issue #327:  CS-Script file with async calls suddenly terminates
+- Implemented new NuGet support (https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support)
+  - Issue #326: Types from .NET 7 NuGet package are not found
+  - Issue #328: Using CS-Script inside a GitLab CI/CD Docker Runner
+
 - Issue #327: CS-Script file with async calls suddenly terminates
 - Updated Linux distro with `css` executable replaced with Linux `alias` functionality.
 
 ### CSScriptLib
 
-- Added `CodeDomEvaluator.CscTimeout` to allow auto-termination of the `csc.exe` when it hangs. Triggered by #318</PackageReleaseNotes>
+- &lt;no changes&gt;</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
