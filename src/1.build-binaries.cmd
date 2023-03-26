@@ -59,6 +59,13 @@ echo ----------------
 dotnet publish -c Release -f %target% -o "..\out\Windows\console"
 
 echo ----------------
+echo Building cs-script.cli .NET tool from %cd%
+echo ----------------
+del .\nupkg\*.*nupkg 
+dotnet pack
+copy .\nupkg\*  ..\out\
+
+echo ----------------
 echo Building cscs.dll (Linux) from %cd%
 echo ----------------
 
