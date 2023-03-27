@@ -1,126 +1,123 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<AssemblyName>CSScriptLib</AssemblyName>
-		<PackageId>CS-Script</PackageId>
-		<!--<NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>-->
-		<!--<PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>-->
-		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>4.6.5.2</Version>
-		<Authors>Oleg Shilo</Authors>
-		<Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
-		<Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
-		<PackageLicenseUrl></PackageLicenseUrl>
-		<PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
-		<PackageIconUrl></PackageIconUrl>
-		<RepositoryUrl>https://github.com/oleg-shilo/cs-script.git</RepositoryUrl>
-		<RepositoryType>Git</RepositoryType>
-		<PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
-		<PackageReleaseNotes>
-			---
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>CSScriptLib</AssemblyName>
+    <PackageId>CS-Script</PackageId>
+    <!--<NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>-->
+    <!--<PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>-->
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>4.7.0.0 </Version>
+    <Authors>Oleg Shilo</Authors>
+    <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
+    <Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <RepositoryUrl>https://github.com/oleg-shilo/cs-script.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
+    <PackageReleaseNotes>---
 
-			## Changes
+## Changes
 
-			### CLI
+### CLI
 
-			- Issue #327:  CS-Script file with async calls suddenly terminates
-			- Implemented new NuGet support (https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support)
-			- Issue #326: Types from .NET 7 NuGet package are not found
-			- Issue #328: Using CS-Script inside a GitLab CI/CD Docker Runner
+- Issue #317: could it be installed by dotnet tool install
+- Issue #327:  CS-Script file with async calls suddenly terminates
+- Implemented new NuGet support (https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support)
+  - Issue #326: Types from .NET 7 NuGet package are not found
+  - Issue #328: Using CS-Script inside a GitLab CI/CD Docker Runner
+- Updated Linux distro with `css` executable replaced with Linux `alias` functionality.
 
-			- Issue #327: CS-Script file with async calls suddenly terminates
-			- Updated Linux distro with `css` executable replaced with Linux `alias` functionality.
+### CSScriptLib
 
-			### CSScriptLib
-
-			- &lt;no changes&gt;
-		</PackageReleaseNotes>
-		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<AssemblyVersion>4.6.5.2</AssemblyVersion>
-		<FileVersion>4.6.5.2</FileVersion>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageIcon>css_logo.png</PackageIcon>
-	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-	</ItemGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DocumentationFile>CSScriptLib.xml</DocumentationFile>
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DefineConstants>TRACE;class_lib</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DocumentationFile>CSScriptLib.xml</DocumentationFile>
-		<DefineConstants>TRACE;class_lib</DefineConstants>
-	</PropertyGroup>
-	<ItemGroup>
-		<Compile Remove="CSScriptLib.Eval.CodeDom.cs" />
-		<Compile Remove="output\aggregate.cs" />
-		<Compile Remove="output\Test.cs" />
-		<Compile Remove="sample.cs" />
-		<Compile Remove="samples.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Remove="nuget-samples.cmd" />
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Include="..\..\..\cscs\CodeDom\CompilerResults.cs" Link="CodeDom\CompilerResults.cs" />
-		<Compile Include="..\..\..\cscs\CodeDom\CompilerError.cs" Link="CodeDom\CompilerError.cs" />
-		<Compile Include="..\..\..\cscs\fileparser.cs" Link="fileparser.cs" />
-		<Compile Include="..\..\..\cscs\Project.cs" Link="Project.cs" />
-		<Compile Include="..\..\..\cscs\ScriptParser.cs" Link="ScriptParser.cs" />
-		<Compile Include="..\..\..\cscs\ScriptParsingResult.cs" Link="ScriptParsingResult.cs" />
-		<Compile Include="..\..\..\cscs\Utils\CoreExtensions.cs" Link="Utils\CoreExtensions.cs" />
-		<Compile Include="..\..\..\cscs\Utils\CurrentDirGuard.cs" Link="Utils\CurrentDirGuard.cs" />
-		<Compile Include="..\..\..\cscs\Utils\LinqExtensions.cs" Link="Utils\LinqExtensions.cs" />
-		<Compile Include="..\..\..\cscs\Utils\PathExtensions.cs" Link="Utils\PathExtensions.cs" />
-		<Compile Include="..\..\..\cscs\Utils\Globals.cs" Link="Utils\Globals.cs" />
-		<Compile Include="..\..\..\cscs\Utils\Profiler.cs" Link="Profiler.cs" />
-		<Compile Include="..\..\..\cscs\Utils\ReflectionExtensions.cs" Link="Utils\ReflectionExtensions.cs" />
-		<Compile Include="..\..\..\cscs\Utils\Runtime.cs" Link="Utils\Runtime.cs" />
-		<Compile Include="..\..\..\cscs\Utils\SimpleAsmProbing.cs" Link="SimpleAsmProbing.cs" />
-		<Compile Include="..\..\..\cscs\Utils\SocketExtensions.cs" Link="SocketExtensions.cs" />
-		<Compile Include="..\..\..\cscs\Utils\StringExtensions.cs" Link="Utils\StringExtensions.cs" />
-		<Compile Include="..\..\..\cscs\Utils\WildCardExtensions.cs" Link="Utils\WildCardExtensions.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.1.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.1.0" />
-		<PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="..\..\..\logo\css_logo.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="samples.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="CodeDom\" />
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Update="Properties\Resources.Designer.cs">
-			<DependentUpon>Resources.resx</DependentUpon>
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-		</Compile>
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Update="Properties\Resources.resx">
-			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
-			<Generator>ResXFileCodeGenerator</Generator>
-			<CustomToolNamespace>CSScripting</CustomToolNamespace>
-		</EmbeddedResource>
-	</ItemGroup>
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="IF exist &quot;$(ProjectDir)out&quot; ( echo . ) ELSE ( md &quot;$(ProjectDir)out&quot;)&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;$(ProjectDir)output\$(TargetFileName)&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(ProjectName).xml&quot; &quot;$(ProjectDir)output\$(ProjectName).xml&quot;&#xD;&#xA;rem copy &quot;$(ProjectDir)..\..\src\CSScriptLib.Client\Test.cs&quot; &quot;$(ProjectDir)output\Test.cs&quot;&#xD;&#xA;rem copy &quot;$(ProjectDir)..\..\src\CSScriptLib.Client\Test.cs&quot; &quot;$(ProjectDir)bin\$(ConfigurationName)\Test.cs&quot;&#xD;&#xA;&#xD;&#xA;" />
-	</Target>
+- &lt;no changes&gt;</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <AssemblyVersion>4.7.0.0</AssemblyVersion>
+    <FileVersion>4.7.0.0</FileVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>css_logo.png</PackageIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>CSScriptLib.xml</DocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DefineConstants>TRACE;class_lib</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>CSScriptLib.xml</DocumentationFile>
+    <DefineConstants>TRACE;class_lib</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="CSScriptLib.Eval.CodeDom.cs" />
+    <Compile Remove="output\aggregate.cs" />
+    <Compile Remove="output\Test.cs" />
+    <Compile Remove="sample.cs" />
+    <Compile Remove="samples.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="nuget-samples.cmd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\cscs\CodeDom\CompilerResults.cs" Link="CodeDom\CompilerResults.cs" />
+    <Compile Include="..\..\..\cscs\CodeDom\CompilerError.cs" Link="CodeDom\CompilerError.cs" />
+    <Compile Include="..\..\..\cscs\fileparser.cs" Link="fileparser.cs" />
+    <Compile Include="..\..\..\cscs\Project.cs" Link="Project.cs" />
+    <Compile Include="..\..\..\cscs\ScriptParser.cs" Link="ScriptParser.cs" />
+    <Compile Include="..\..\..\cscs\ScriptParsingResult.cs" Link="ScriptParsingResult.cs" />
+    <Compile Include="..\..\..\cscs\Utils\CoreExtensions.cs" Link="Utils\CoreExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\CurrentDirGuard.cs" Link="Utils\CurrentDirGuard.cs" />
+    <Compile Include="..\..\..\cscs\Utils\LinqExtensions.cs" Link="Utils\LinqExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\PathExtensions.cs" Link="Utils\PathExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\Globals.cs" Link="Utils\Globals.cs" />
+    <Compile Include="..\..\..\cscs\Utils\Profiler.cs" Link="Profiler.cs" />
+    <Compile Include="..\..\..\cscs\Utils\ReflectionExtensions.cs" Link="Utils\ReflectionExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\Runtime.cs" Link="Utils\Runtime.cs" />
+    <Compile Include="..\..\..\cscs\Utils\SimpleAsmProbing.cs" Link="SimpleAsmProbing.cs" />
+    <Compile Include="..\..\..\cscs\Utils\SocketExtensions.cs" Link="SocketExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\StringExtensions.cs" Link="Utils\StringExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\WildCardExtensions.cs" Link="Utils\WildCardExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.1.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\logo\css_logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="samples.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CodeDom\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <CustomToolNamespace>CSScripting</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="IF exist &quot;$(ProjectDir)out&quot; ( echo . ) ELSE ( md &quot;$(ProjectDir)out&quot;)&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;$(ProjectDir)output\$(TargetFileName)&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(ProjectName).xml&quot; &quot;$(ProjectDir)output\$(ProjectName).xml&quot;&#xD;&#xA;rem copy &quot;$(ProjectDir)..\..\src\CSScriptLib.Client\Test.cs&quot; &quot;$(ProjectDir)output\Test.cs&quot;&#xD;&#xA;rem copy &quot;$(ProjectDir)..\..\src\CSScriptLib.Client\Test.cs&quot; &quot;$(ProjectDir)bin\$(ConfigurationName)\Test.cs&quot;&#xD;&#xA;&#xD;&#xA;" />
+  </Target>
 </Project>

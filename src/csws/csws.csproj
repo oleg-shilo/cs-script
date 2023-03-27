@@ -1,126 +1,123 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
-		<TargetFramework>net7.0-windows</TargetFramework>
-		<UseWPF>true</UseWPF>
-		<AssemblyName>csws</AssemblyName>
-		<RootNamespace>CSScripting</RootNamespace>
-		<StartupObject />
-		<Version>4.6.5.2</Version>
-		<Authors>Oleg Shilo</Authors>
-		<Product>CS-Script</Product>
-		<Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
-		<Description>C# Script engine .NET Core executable</Description>
-		<PackageLicenseUrl></PackageLicenseUrl>
-		<PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
-		<PackageIconUrl></PackageIconUrl>
-		<RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageTags>C# script dynamic</PackageTags>
-		<AssemblyVersion>4.6.5.2</AssemblyVersion>
-		<FileVersion>4.6.5.2</FileVersion>
-		<PackageReleaseNotes>
-			---
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>csws</AssemblyName>
+    <RootNamespace>CSScripting</RootNamespace>
+    <StartupObject />
+    <Version>4.7.0.0 </Version>
+    <Authors>Oleg Shilo</Authors>
+    <Product>CS-Script</Product>
+    <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
+    <Description>C# Script engine .NET Core executable</Description>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>C# script dynamic</PackageTags>
+    <AssemblyVersion>4.7.0.0</AssemblyVersion>
+    <FileVersion>4.7.0.0</FileVersion>
+    <PackageReleaseNotes>---
 
-			## Changes
+## Changes
 
-			### CLI
+### CLI
 
-			- Issue #327:  CS-Script file with async calls suddenly terminates
-			- Implemented new NuGet support (https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support)
-			- Issue #326: Types from .NET 7 NuGet package are not found
-			- Issue #328: Using CS-Script inside a GitLab CI/CD Docker Runner
+- Issue #317: could it be installed by dotnet tool install
+- Issue #327:  CS-Script file with async calls suddenly terminates
+- Implemented new NuGet support (https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support)
+  - Issue #326: Types from .NET 7 NuGet package are not found
+  - Issue #328: Using CS-Script inside a GitLab CI/CD Docker Runner
+- Updated Linux distro with `css` executable replaced with Linux `alias` functionality.
 
-			- Issue #327: CS-Script file with async calls suddenly terminates
-			- Updated Linux distro with `css` executable replaced with Linux `alias` functionality.
+### CSScriptLib
 
-			### CSScriptLib
-
-			- &lt;no changes&gt;
-		</PackageReleaseNotes>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<ApplicationIcon>css_logo.ico</ApplicationIcon>
-		<PackageIcon>..\logo\css_logo.png</PackageIcon>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>TRACE;TRACE, WIN_APP</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DefineConstants>TRACE;TRACE, WIN_APP</DefineConstants>
-	</PropertyGroup>
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).dll&#xD;&#xA;copy &quot;$(TargetDir)csws.exe&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).exe&#xD;&#xA;copy &quot;$(TargetDir)csws.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\csws.runtimeconfig.json&quot;&#xD;&#xA;" />
-	</Target>
-	<ItemGroup>
-		<Compile Include="..\cscs\AssemblyExecutor.cs" Link="AssemblyExecutor.cs" />
-		<Compile Include="..\cscs\AssemblyResolver.cs" Link="AssemblyResolver.cs" />
-		<Compile Include="..\cscs\BuildServer.cs" Link="BuildServer.cs" />
-		<Compile Include="..\cscs\CodeDom\CSharpCompiler.engines.cs" Link="CSharpCompiler.engines.cs" />
-		<Compile Include="..\cscs\CSExecutionClient.cs" Link="CSExecutionClient.cs" />
-		<Compile Include="..\cscs\csparser.cs" Link="csparser.cs" />
-		<Compile Include="..\cscs\csscript.cli.cs" Link="\csscript.cli.cs" />
-		<Compile Include="..\cscs\csscript.cs" Link="csscript.cs" />
-		<Compile Include="..\cscs\dbg.cs" Link="dbg.cs" />
-		<Compile Include="..\cscs\dbg.res.cs" Link="dbg.res.cs" />
-		<Compile Include="..\cscs\Exceptions.cs" Link="Exceptions.cs" />
-		<Compile Include="..\cscs\ExecuteOptions.cs" Link="ExecuteOptions.cs" />
-		<Compile Include="..\cscs\fileparser.cs" Link="fileparser.cs" />
-		<Compile Include="..\cscs\HelpProvider.cs" Link="HelpProvider.cs" />
-		<Compile Include="..\cscs\Models\BuildResult.cs" Link="BuildResult.cs" />
-		<Compile Include="..\cscs\Models\CompilingInfo.cs" Link="Models\CompilingInfo.cs" />
-		<Compile Include="..\cscs\Models\Interfaces.cs" Link="Models\Interfaces.cs" />
-		<Compile Include="..\cscs\NuGet.Core.cs" Link="NuGet.Core.cs" />
-		<Compile Include="..\cscs\Precompiler.cs" Link="Precompiler.cs" />
-		<Compile Include="..\cscs\Program.cs" Link="Program.cs" />
-		<Compile Include="..\cscs\Project.cs" Link="Project.cs" />
-		<Compile Include="..\cscs\CodeDom\Proxies.cs" Link="Proxies.cs" />
-		<Compile Include="..\cscs\CodeDom\CompilerResults.cs" Link="CompilerResults.cs" />
-		<Compile Include="..\cscs\CodeDom\CompilerError.cs" Link="CompilerError.cs" />
-		<Compile Include="..\cscs\ScriptParser.cs" Link="ScriptParser.cs" />
-		<Compile Include="..\cscs\ScriptParsingResult.cs" Link="ScriptParsingResult.cs" />
-		<Compile Include="..\cscs\Services.Roslyn.cs" Link="Services.Roslyn.cs" />
-		<Compile Include="..\cscs\Settings.cs" Link="Settings.cs" />
-		<Compile Include="..\cscs\Utils\CLIExtensions.cs" Link="Utils\CLIExtensions.cs" />
-		<Compile Include="..\cscs\Utils\ConsoleExtensions.cs" Link="Utils\ConsoleExtensions.cs" />
-		<Compile Include="..\cscs\Utils\CoreExtensions.cs" Link="Utils\CoreExtensions.cs" />
-		<Compile Include="..\cscs\Utils\CurrentDirGuard.cs" Link="Utils\CurrentDirGuard.cs" />
-		<Compile Include="..\cscs\Utils\LinqExtensions.cs" Link="Utils\LinqExtensions.cs" />
-		<Compile Include="..\cscs\Utils\PathExtensions.cs" Link="Utils\PathExtensions.cs" />
-		<Compile Include="..\cscs\Utils\Globals.cs" Link="Utils\Globals.cs" />
-		<Compile Include="..\cscs\Utils\Profiler.cs" Link="Utils\Profiler.cs" />
-		<Compile Include="..\cscs\Utils\ReflectionExtensions.cs" Link="Utils\ReflectionExtensions.cs" />
-		<Compile Include="..\cscs\Utils\Runtime.cs" Link="Utils\Runtime.cs" />
-		<Compile Include="..\cscs\Utils\VSConfig.cs" Link="Utils\VSConfig.cs" />
-		<Compile Include="..\cscs\Utils\SerializationExtensions.cs" Link="Utils\SerializationExtensions.cs" />
-		<Compile Include="..\cscs\Utils\SimpleAsmProbing.cs" Link="SimpleAsmProbing.cs" />
-		<Compile Include="..\cscs\Utils\SocketExtensions.cs" Link="Utils\SocketExtensions.cs" />
-		<Compile Include="..\cscs\Utils\StringExtensions.cs" Link="Utils\StringExtensions.cs" />
-		<Compile Include="..\cscs\Utils\SystemWideLock.cs" Link="Utils\SystemWideLock.cs" />
-		<Compile Include="..\cscs\Utils\Utils.cs" Link="Utils\Utils.cs" />
-		<Compile Include="..\cscs\Utils\WildCardExtensions.cs" Link="Utils\WildCardExtensions.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="..\logo\css_logo.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.10.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Update="Properties\Resources.Designer.cs">
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>Resources.resx</DependentUpon>
-		</Compile>
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Update="Properties\Resources.resx">
-			<Generator>ResXFileCodeGenerator</Generator>
-			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
-			<CustomToolNamespace>CSScripting</CustomToolNamespace>
-		</EmbeddedResource>
-	</ItemGroup>
+- &lt;no changes&gt;</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <ApplicationIcon>css_logo.ico</ApplicationIcon>
+    <PackageIcon>..\logo\css_logo.png</PackageIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;TRACE, WIN_APP</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;TRACE, WIN_APP</DefineConstants>
+  </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).dll&#xD;&#xA;copy &quot;$(TargetDir)csws.exe&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).exe&#xD;&#xA;copy &quot;$(TargetDir)csws.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\csws.runtimeconfig.json&quot;&#xD;&#xA;" />
+  </Target>
+  <ItemGroup>
+    <Compile Include="..\cscs\AssemblyExecutor.cs" Link="AssemblyExecutor.cs" />
+    <Compile Include="..\cscs\AssemblyResolver.cs" Link="AssemblyResolver.cs" />
+    <Compile Include="..\cscs\BuildServer.cs" Link="BuildServer.cs" />
+    <Compile Include="..\cscs\CodeDom\CSharpCompiler.engines.cs" Link="CSharpCompiler.engines.cs" />
+    <Compile Include="..\cscs\CSExecutionClient.cs" Link="CSExecutionClient.cs" />
+    <Compile Include="..\cscs\csparser.cs" Link="csparser.cs" />
+    <Compile Include="..\cscs\csscript.cli.cs" Link="\csscript.cli.cs" />
+    <Compile Include="..\cscs\csscript.cs" Link="csscript.cs" />
+    <Compile Include="..\cscs\dbg.cs" Link="dbg.cs" />
+    <Compile Include="..\cscs\dbg.res.cs" Link="dbg.res.cs" />
+    <Compile Include="..\cscs\Exceptions.cs" Link="Exceptions.cs" />
+    <Compile Include="..\cscs\ExecuteOptions.cs" Link="ExecuteOptions.cs" />
+    <Compile Include="..\cscs\fileparser.cs" Link="fileparser.cs" />
+    <Compile Include="..\cscs\HelpProvider.cs" Link="HelpProvider.cs" />
+    <Compile Include="..\cscs\Models\BuildResult.cs" Link="BuildResult.cs" />
+    <Compile Include="..\cscs\Models\CompilingInfo.cs" Link="Models\CompilingInfo.cs" />
+    <Compile Include="..\cscs\Models\Interfaces.cs" Link="Models\Interfaces.cs" />
+    <Compile Include="..\cscs\NuGet.Core.cs" Link="NuGet.Core.cs" />
+    <Compile Include="..\cscs\Precompiler.cs" Link="Precompiler.cs" />
+    <Compile Include="..\cscs\Program.cs" Link="Program.cs" />
+    <Compile Include="..\cscs\Project.cs" Link="Project.cs" />
+    <Compile Include="..\cscs\CodeDom\Proxies.cs" Link="Proxies.cs" />
+    <Compile Include="..\cscs\CodeDom\CompilerResults.cs" Link="CompilerResults.cs" />
+    <Compile Include="..\cscs\CodeDom\CompilerError.cs" Link="CompilerError.cs" />
+    <Compile Include="..\cscs\ScriptParser.cs" Link="ScriptParser.cs" />
+    <Compile Include="..\cscs\ScriptParsingResult.cs" Link="ScriptParsingResult.cs" />
+    <Compile Include="..\cscs\Services.Roslyn.cs" Link="Services.Roslyn.cs" />
+    <Compile Include="..\cscs\Settings.cs" Link="Settings.cs" />
+    <Compile Include="..\cscs\Utils\CLIExtensions.cs" Link="Utils\CLIExtensions.cs" />
+    <Compile Include="..\cscs\Utils\ConsoleExtensions.cs" Link="Utils\ConsoleExtensions.cs" />
+    <Compile Include="..\cscs\Utils\CoreExtensions.cs" Link="Utils\CoreExtensions.cs" />
+    <Compile Include="..\cscs\Utils\CurrentDirGuard.cs" Link="Utils\CurrentDirGuard.cs" />
+    <Compile Include="..\cscs\Utils\LinqExtensions.cs" Link="Utils\LinqExtensions.cs" />
+    <Compile Include="..\cscs\Utils\PathExtensions.cs" Link="Utils\PathExtensions.cs" />
+    <Compile Include="..\cscs\Utils\Globals.cs" Link="Utils\Globals.cs" />
+    <Compile Include="..\cscs\Utils\Profiler.cs" Link="Utils\Profiler.cs" />
+    <Compile Include="..\cscs\Utils\ReflectionExtensions.cs" Link="Utils\ReflectionExtensions.cs" />
+    <Compile Include="..\cscs\Utils\Runtime.cs" Link="Utils\Runtime.cs" />
+    <Compile Include="..\cscs\Utils\VSConfig.cs" Link="Utils\VSConfig.cs" />
+    <Compile Include="..\cscs\Utils\SerializationExtensions.cs" Link="Utils\SerializationExtensions.cs" />
+    <Compile Include="..\cscs\Utils\SimpleAsmProbing.cs" Link="SimpleAsmProbing.cs" />
+    <Compile Include="..\cscs\Utils\SocketExtensions.cs" Link="Utils\SocketExtensions.cs" />
+    <Compile Include="..\cscs\Utils\StringExtensions.cs" Link="Utils\StringExtensions.cs" />
+    <Compile Include="..\cscs\Utils\SystemWideLock.cs" Link="Utils\SystemWideLock.cs" />
+    <Compile Include="..\cscs\Utils\Utils.cs" Link="Utils\Utils.cs" />
+    <Compile Include="..\cscs\Utils\WildCardExtensions.cs" Link="Utils\WildCardExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\logo\css_logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.10.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>CSScripting</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
