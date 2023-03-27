@@ -131,7 +131,7 @@ namespace csscript
                 Environment.SetEnvironmentVariable("EntryScriptAssembly", location);
         }
 
-        public async void InvokeStaticMain(Assembly compiledAssembly, string[] scriptArgs)
+        public void InvokeStaticMain(Assembly compiledAssembly, string[] scriptArgs)
         {
             var bf = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.Static;
 
@@ -159,11 +159,12 @@ namespace csscript
                 {
                     if (retval is Task<int>)
                     {
-                        Environment.ExitCode = await (retval as Task<int>);
+                        // Environment.ExitCode = await (retval as Task<int>); // does not work
+                        Environment.ExitCode = (retval as Task<int>).Result;
                     }
                     else if (retval is Task)
                     {
-                        await (retval as Task);
+                        (retval as Task).Wait();
                     }
                     else
                     {
