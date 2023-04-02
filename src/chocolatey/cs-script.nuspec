@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.7.0.0</version>
+        <version>4.7.1.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -26,14 +26,10 @@
         <summary>CS-Script</summary>
         <releaseNotes>
 # Release v4.7.0
-
-- Issue #327: CS-Script file with async calls suddenly terminates
-- Implemented new NuGet support (https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support)
-  - Issue #326: Types from .NET 7 NuGet package are not found
-  - Issue #328: Using CS-Script inside a GitLab CI/CD Docker Runner
-- Updated Linux distro with css executable replaced with Linux alias functionality.
-- CS-Script CLI is published on nuget.org as a .NET tool cs-script.cli.
-
+---
+- Issue #327:  CS-Script file with async calls suddenly terminates
+- Added `-install` (`-uninstall`) command to set CSSCRIPT_ROOT environment variable.   
+- Added `-kill` command to stop all CS-Script servers (if any).   
 
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>

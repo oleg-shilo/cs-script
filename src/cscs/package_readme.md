@@ -1,4 +1,4 @@
-# CS-Script v4.7.0.0 (CLI)
+# CS-Script (CLI)
 
 CS-Script is a CLR based scripting system which uses ECMA-compliant C# as a programming language.
 
@@ -34,4 +34,4 @@ From the start, CS-Script was heavily influenced by Python and the developer exp
     - Scripts can be executed on Windows, Linux and MacOS (.NET5 needs to be present).
     - Full integration with Windows, Visual Studio, VSCode, Notepad++ (CS-Script plugin for Notepad++ brings true IntelliSense to the 'peoples editor'), Sublime Text 3
 
-Note, when upgrading or uninstalling CS-Script CLI .NET tool you may need to ensure that you stop any running instances of the script engine. You can do that by executing this simple command: `css -servers:stop`.
+Note, when upgrading or uninstalling CS-Script CLI .NET tool you may need to ensure that you stop any running instances of the script engine. You can do that by executing this simple command: `css -servers:stop` (or even simpler: `css -kill`).
