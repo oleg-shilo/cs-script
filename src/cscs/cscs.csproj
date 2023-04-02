@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.7.0.0 </Version>
+    <Version>4.7.1.0 </Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
@@ -17,20 +17,17 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.7.0.0</AssemblyVersion>
-    <FileVersion>4.7.0.0</FileVersion>
+    <AssemblyVersion>4.7.1.0</AssemblyVersion>
+    <FileVersion>4.7.1.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- Issue #317: could it be installed by dotnet tool install
 - Issue #327:  CS-Script file with async calls suddenly terminates
-- Implemented new NuGet support (https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support)
-  - Issue #326: Types from .NET 7 NuGet package are not found
-  - Issue #328: Using CS-Script inside a GitLab CI/CD Docker Runner
-- Updated Linux distro with `css` executable replaced with Linux `alias` functionality.
+- Added `-install` (`-uninstall`) command to set CSSCRIPT_ROOT environment variable.   
+- Added `-kill` command to stop all CS-Script servers (if any).   
 
 ### CSScriptLib
 

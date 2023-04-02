@@ -1,4 +1,4 @@
-# Release v4.7.0.0 
+# Release v4.7.1.0 
 
 ---
 
@@ -6,18 +6,10 @@
 
 ### CLI
 
-- Issue #317: could it be installed by dotnet tool install
 - Issue #327:  CS-Script file with async calls suddenly terminates
-- Implemented new NuGet support (https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support)
-  - Issue #326: Types from .NET 7 NuGet package are not found
-  - Issue #328: Using CS-Script inside a GitLab CI/CD Docker Runner
-- Updated Linux distro with `css` executable replaced with Linux `alias` functionality.
+- Added `-install` (`-uninstall`) command to set CSSCRIPT_ROOT environment variable.   
+- Added `-kill` command to stop all CS-Script servers (if any).   
 
 ### CSScriptLib
 
 - <no changes>
-
-
-
-
-

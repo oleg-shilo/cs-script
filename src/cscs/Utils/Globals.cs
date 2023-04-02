@@ -21,6 +21,26 @@ namespace CSScripting
         // Roslyn still does not support anything else but `Submission#0` (17 Jul 2019) [update]
         // Roslyn now does support alternative class names (1 Jan 2020)
 
+        static internal void IntegrateWithOS(bool install = true)
+        {
+            try
+            {
+                var installDir = Assembly.GetExecutingAssembly().Location.GetDirName();
+
+                Console.WriteLine($"Setting `Install dir` environment variable CSSCRIPT_ROOT: ");
+                Console.WriteLine($"    get:CSSCRIPT_ROOT: {Environment.GetEnvironmentVariable("CSSCRIPT_ROOT")}");
+                Console.WriteLine($"    set:CSSCRIPT_ROOT= {installDir}");
+                Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", install ? installDir : null, EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", install ? installDir : null, EnvironmentVariableTarget.User);
+                Environment.SetEnvironmentVariable("CSSCRIPT_ROOT", install ? installDir : null, EnvironmentVariableTarget.Machine);
+                Console.WriteLine($"    get:CSSCRIPT_ROOT: {Environment.GetEnvironmentVariable("CSSCRIPT_ROOT")}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
         static internal void StartBuildServer(bool report = false)
         {
             if (Globals.BuildServerIsDeployed)
@@ -67,20 +87,20 @@ namespace CSScripting
             }
         }
 
-        static internal void Install(bool installRequest)
-        {
-            if (Globals.BuildServerIsDeployed)
-            {    // CSScriptLib.CoreExtensions.RunAsync(
-                Console.WriteLine($"Build server: {Globals.build_server.GetFullPath()}");
-                Console.WriteLine($"Build server compiler: {Globals.csc.GetFullPath()}");
-                Console.WriteLine($"Build server is {(BuildServer.IsServerAlive(null) ? "" : "not ")}running.");
-            }
-            else
-            {
-                Console.WriteLine("Build server is not deployed.");
-                Console.WriteLine($"Expected deployment: {Globals.build_server.GetFullPath()}");
-            }
-        }
+        // static internal void Install(bool installRequest)
+        // {
+        //     if (Globals.BuildServerIsDeployed)
+        //     {    // CSScriptLib.CoreExtensions.RunAsync(
+        //         Console.WriteLine($"Build server: {Globals.build_server.GetFullPath()}");
+        //         Console.WriteLine($"Build server compiler: {Globals.csc.GetFullPath()}");
+        //         Console.WriteLine($"Build server is {(BuildServer.IsServerAlive(null) ? "" : "not ")}running.");
+        //     }
+        //     else
+        //     {
+        //         Console.WriteLine("Build server is not deployed.");
+        //         Console.WriteLine($"Expected deployment: {Globals.build_server.GetFullPath()}");
+        //     }
+        // }
 
         static internal void StopBuildServer()
         {

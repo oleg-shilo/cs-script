@@ -52,6 +52,7 @@ namespace cscs
                 Runtime.CustomCommandsDir.EnsureDir(rethrow: false);
 
                 var serverCommand = args.LastOrDefault(x => x.StartsWith("-server"));
+                var installCommand = args.LastOrDefault(x => x.StartsWith("-install") || x.StartsWith("-uninstall"));
 
                 if (serverCommand.HasText() && !args.Any(x => x == "?"))
                 {
@@ -64,9 +65,15 @@ namespace cscs
                     else if (serverCommand == "-server:remove") Globals.RemoveBuildServer();
                     else if (serverCommand == "-servers:start") { CSScripting.Roslyn.BuildServer.Start(); Globals.StartBuildServer(); }
                     else if (serverCommand == "-servers:stop") { CSScripting.Roslyn.BuildServer.Stop(); Globals.StopBuildServer(); }
+                    else if (serverCommand == "-kill") { CSScripting.Roslyn.BuildServer.Stop(); Globals.StopBuildServer(); }
                     else if (serverCommand == "-server_r:start") CSScripting.Roslyn.BuildServer.Start();
                     else if (serverCommand == "-server_r:stop") CSScripting.Roslyn.BuildServer.Stop();
                     else Globals.PrintBuildServerInfo();
+                }
+                if (OSVersion.Platform == PlatformID.Win32NT && installCommand.HasText() && !args.Any(x => x == "?"))
+                {
+                    if (installCommand == "-install") { Globals.IntegrateWithOS(install: true); }
+                    else if (installCommand == "-uninstall") { Globals.IntegrateWithOS(install: false); }
                 }
                 else
                     CSExecutionClient.Run(args);

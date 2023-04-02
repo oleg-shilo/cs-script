@@ -768,6 +768,13 @@ partial class dbg
                         else
                             executor.WaitForInputBeforeExit = "Press any key to continue . . .";
                     }
+                    else if (Runtime.IsWin && (Args.Same(arg, AppArgs.install)
+                                               ||
+                                               Args.Same(arg, AppArgs.uninstall)))
+                    {
+                        executor.ShowHelp(arg, options);
+                        CLIExitRequest.Throw();
+                    }
                     else if (Args.ParseValuedArg(arg, AppArgs.config, out argValue)) // -config:<file>
                     {
                         //-config:none             - ignore config file (use default settings)

@@ -24,6 +24,8 @@ namespace csscript
         public const string cmd = "cmd";
         public const string syntax = "syntax";
         public const string server = "server";
+        public const string install = "install";
+        public const string uninstall = "uninstall";
         public const string commands = "commands";
         public const string config = "config";
         public const string s = "s";
@@ -432,6 +434,16 @@ namespace csscript
                                              "Prints script initialization/compilation time information of the .NET compiler. ",
                                              "You can use -ng option () ",
                                              "It is a convenient way of testing performance of the .NET distribution.");
+            if (Runtime.IsWin)
+            {
+                switch2Help[uninstall] =
+                switch2Help[install] = new ArgInfo("-install/-uninstall",
+                                                   "Sets/unsets CSSCRIPT_ROOT environment variable to the location of the script engine" +
+                                                   "being executed.",
+                                                   "This environment variable is required for integration of CS-Script with Notepad++," +
+                                                   "Sublime Text and some other editors, which require CS-Script installed on the host OS.",
+                                                   "This command is only supported on Windows");
+            }
 
             switch2Help[server] = new ArgInfo("-server[:<start|stop|restart|add|remove|ping>]",
                                           "Prints the information about build server.",
@@ -461,7 +473,8 @@ namespace csscript
                                           "And this is how you can start and stop both Roslyn and csc build servers with a single command:",
                                           "```",
                                           " -servers:start - ${<==}deploys and starts both Roslyn and csc build server",
-                                          " -servers:stop - ${<==}stops both Roslyn and csc build server",
+                                          " -servers:stop  - ${<==}stops both Roslyn and csc build server",
+                                          " -kill          - ${<==}a complete equivalent of -servers:stop",
                                           "```"
                                              );
 
