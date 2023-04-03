@@ -590,7 +590,7 @@ namespace csscript
 
                 // Console.WriteLine("    " + sw.Elapsed.ToString());
                 sw.Restart();
-                Console.WriteLine("Mapping packages to assemblies1111...");
+                Console.WriteLine("Mapping packages to assemblies...");
                 // Debug.Assert(false);
 
                 foreach (var x in allRefAssemblies)
