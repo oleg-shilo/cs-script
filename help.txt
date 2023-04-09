@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.7.0.0.
+C# Script execution engine (.NET Core). Version 4.7.1.0.
 Copyright (C) 2004-2020 Oleg Shilo.
 
 
@@ -262,6 +262,12 @@ Copyright (C) 2004-2020 Oleg Shilo.
     You can use -ng option () 
     It is a convenient way of testing performance of the .NET distribution.
 
+-install/-uninstall
+    Sets/unsets CSSCRIPT_ROOT environment variable to the location of the script enginebeing executed.
+    This environment variable is required for integration of CS-Script with Notepad++,Sublime Text and some other
+    editors, which require CS-Script installed on the host OS.
+    This command is only supported on Windows
+
 -server[:<start|stop|restart|add|remove|ping>]
     Prints the information about build server.
     Note, the server starts automatically on the script execution that is configured to use the 'csc' or 'roslyn'
@@ -287,7 +293,8 @@ Copyright (C) 2004-2020 Oleg Shilo.
     And this is how you can start and stop both Roslyn and csc build servers with a single command:
     
      -servers:start - deploys and starts both Roslyn and csc build server
-     -servers:stop - stops both Roslyn and csc build server
+     -servers:stop  - stops both Roslyn and csc build server
+     -kill          - a complete equivalent of -servers:stop
 
 -tc
     Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.
