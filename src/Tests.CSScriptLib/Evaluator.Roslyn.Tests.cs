@@ -1,3 +1,7 @@
+using csscript;
+using CSScripting;
+using CSScriptLib;
+using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -5,9 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
-using csscript;
-using CSScripting;
-using CSScriptLib;
 using Testing;
 using Xunit;
 
@@ -84,6 +85,10 @@ namespace EvaluatorTests
             var code = "object func() => new[] { 0, 5 }; // " + Guid.NewGuid();
 
             // cache is created and the compilation result is saved
+            var script = CSScript.RoslynEvaluator
+                    .With(eval => eval.IsCachingEnabled = true)
+                    .LoadMethod(code);
+
             CSScript.RoslynEvaluator
                     .With(eval => eval.IsCachingEnabled = true)
                     .LoadMethod(code);
@@ -111,6 +116,29 @@ namespace EvaluatorTests
         [Fact]
         public void call_LoadMethod()
         {
+            var info = new CompileInfo
+            {
+                AssemblyFile = @"D:\out\asm.dll"
+            };
+
+            var asm1 = CSScript.Evaluator
+                .With(e => e.IsCachingEnabled = true)
+                .LoadFile(@"D:\out\test.cs");
+
+            Assembly asm2 = CSScript.Evaluator
+                                    .CompileCode(@"using System;
+                                                public class Script
+                                                {
+                                                    public int Sum(int a, int b)
+                                                    {
+                                                        return a+b;
+                                                    }
+                                                }",
+                                                    info);
+
+            // dynamic script = asm.CreateObject("*");
+            // var result = script.Sum(7, 3);
+
             dynamic script = CSScript.RoslynEvaluator
                                      .LoadMethod(@"public object func()
                                                {
@@ -120,6 +148,8 @@ namespace EvaluatorTests
             var result = (int[])script.func();
 
             var asm_type = (Type)script.GetType();
+
+            var asm = asm_type.Assembly.Location();
 
             Assert.Equal(0, result[0]);
             Assert.Equal(5, result[1]);
@@ -150,7 +180,7 @@ namespace EvaluatorTests
             // -----
 
             Assembly asm = CSScript.Evaluator
-                                    .With(e => e.IsCachingEnabled = true)
+                                   .With(e => e.IsCachingEnabled = true)
                                    .CompileCode(@"using System;
                                                    public class Script
                                                    {
@@ -159,8 +189,9 @@ namespace EvaluatorTests
                                                            Console.WriteLine(message);
                                                        }
                                                    }");
-
             asm.CreateObject("*");
+
+            var asmFile = asm.Location();
 
             var after = AppDomain.CurrentDomain.GetAssemblies().Count();
         }
