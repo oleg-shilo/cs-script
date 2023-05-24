@@ -30,6 +30,10 @@
 
 #endregion License...
 
+using csscript;
+using CSScripting;
+using CSScripting.CodeDom;
+using Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -38,11 +42,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using csscript;
-using CSScripting;
-using CSScripting.CodeDom;
 using static CSScripting.Globals;
-using Scripting;
 
 namespace CSScriptLib
 {
@@ -223,7 +223,12 @@ namespace CSScriptLib
                     else
                         common_args.Add("/debug:full");  // on .net full it is "/debug+"
                 }
-                common_args.Add("-define:TRACE;NETCORE;CS_SCRIPT");
+
+                // #330 suggested adding multiple `-define` as a safer option instead of separating the constants by
+                // the context specific delimiters
+                common_args.Add("-define:TRACE");
+                common_args.Add("-define:NETCORE");
+                common_args.Add("-define:CS_SCRIPT");
 
                 if (Runtime.IsCore)
                 {
