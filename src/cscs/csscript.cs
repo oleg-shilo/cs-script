@@ -1,16 +1,24 @@
 using CSScripting;
 using CSScripting.CodeDom;
 using CSScriptLib;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.ConstrainedExecution;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using static System.Environment;
+using static System.Net.WebRequestMethods;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace csscript
 {
@@ -823,6 +831,8 @@ namespace csscript
                         Console.WriteLine("");
                     }
 
+                    #region Concurrency Documentation
+
                     // The following long comment is also reflected on Wiki
 
                     // Execution consist of multiple stages and some of them need to be atomic and need to be synchronized
@@ -908,24 +918,33 @@ namespace csscript
                     // and uses its "lock mirror" instead.
 
                     // ===========================================================================
+                    // Why the default timeout is not infinite(-1) but 3 seconds ?
+                    // Achieving a reliable release of the system-wide synch object `compilingFileLock` was and still is problematic:
+                    // - Win and Linux have different implementations for their mutex equivalents.
+                    // - .NET Framework and Mono did not offer a consistent implementation either.
+                    // - What is even more challenging is that the actual compilers csc.exe / mono.exe had the tendency to hang in
+                    // memory even after successful compilation of the assembly. .NET Core is even more guilty of this.IE not
+                    // terminating the forked dotnet.exe process in case of a compilation error.
+                    //
+                    // All this led to the frequent cases of the script engine waiting endlessly for no reason.
+                    // Thus the ugly but more practical solution was to wait very conservatively for 3 seconds and then let
+                    // cs-script proceed and either succeed(there is no active compiling at the time) or controllably fail
+                    // (another compilation is still in progress).
+                    //
+                    // Thus, unfortunately, the initial proper implementation of `ConcurrencyControl` had to be diluted over
+                    // time to the less reliable but more pragmatic level.Meaning that the only way to implement a deterministic
+                    // concurrency control is to do it from the script engine host process(shell or app).
+                    //
+                    // What you can do in the situation. You can ensure that you are using in-memory assembly(`InMemoryAssembly: True`)
+                    // and/or set the timeout to any other value.It might help if in your environment you do not experience those
+                    // mutex-release problems.
+                    //
+                    // Setting custom timeout is implemented a response to the request:
+                    //    https://github.com/oleg-shilo/cs-script/commit/34e2cccdb69e8d0529fb2c2da72cc2ede41179be).
+                    //
 
-                    // Why the default timeout is not infinite (-1)? Because achieving a reliable release of the system-wide
-                    // synch object was and still is problematic.
-                    // - Win and Linux have different implementations for mutex equivalent.
-                    // -.NET Framework and Mono did not offer consistent implementation.
-                    // - What is even more challenging is that the actual compilers csc.exe/mono.exe had tendency to hang
-                    // in memory even after successful compilation of the assembly. .NET Core is even more guilty of this.
-                    // IE not terminating the forked dotnet.exe process in case of the compilation error.
-                    //
-                    // All this led to the it frequent cases of script engine waiting endlessly for no reason.
-                    // Thus the ugly but the only practical solution was to wait very conservatively for 3 seconds and then let
-                    // waiting 3 seconds and then let cs-script to proceed and either succeed (there is n0 compilation at the time)
-                    // or to controllable fail (another compilation is still in progress).
-                    //
-                    // Thus, unfortunately, the initial proper implementation of ConcurrencyControl had to be diluted
-                    // over the time to the less reliable but more pragmatic level. Meaning that the only way to implement a
-                    // deterministic concurrency control is to do it from the script engine host process (shell or app).
-                    //
+                    #endregion Concurrency Documentation
+
                     int defaultWaitTimeout = "CSSCRIPT_CONCURRENCY_TIMEOUT".GetEnvar().ToInt(defaultValue: 3000);
 
                     using (var validatingFileLock = new SystemWideLock(options.scriptFileName, "v"))
