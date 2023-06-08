@@ -1,4 +1,4 @@
-# Release v4.7.1.0 
+# Release v4.7.2.0 
 
 ---
 
@@ -6,9 +6,7 @@
 
 ### CLI
 
-- Issue #327:  CS-Script file with async calls suddenly terminates
-- Added `-install` (`-uninstall`) command to set CSSCRIPT_ROOT environment variable.   
-- Added `-kill` command to stop all CS-Script servers (if any).   
+- Issue #334:  Concurrent compilation   
 
 ### CSScriptLib
 

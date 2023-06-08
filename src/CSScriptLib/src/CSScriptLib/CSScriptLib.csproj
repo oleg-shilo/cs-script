@@ -13,7 +13,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.7.1.0 </Version>
+    <Version>4.7.2.0 </Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
@@ -29,16 +29,14 @@
 
 ### CLI
 
-- Issue #327:  CS-Script file with async calls suddenly terminates
-- Added `-install` (`-uninstall`) command to set CSSCRIPT_ROOT environment variable.   
-- Added `-kill` command to stop all CS-Script servers (if any).   
+- Issue #334:  Concurrent compilation   
 
 ### CSScriptLib
 
 - &lt;no changes&gt;</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.7.1.0</AssemblyVersion>
-    <FileVersion>4.7.1.0</FileVersion>
+    <AssemblyVersion>4.7.2.0</AssemblyVersion>
+    <FileVersion>4.7.2.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>

@@ -17,7 +17,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using static System.Environment;
-using static System.Net.WebRequestMethods;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace csscript
