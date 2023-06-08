@@ -1,14 +1,14 @@
+using CSScripting;
+using CSScripting.CodeDom;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-using CSScripting;
-using CSScripting.CodeDom;
+using static System.Environment;
 
 namespace csscript
 {
@@ -406,7 +406,7 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
         /// <value>The concurrency control.</value>
         [Description("Gets or sets the concurrency control model.\n" +
             "Possible values are:\n" +
-            " Standard - Simple model. The script engine doesn't start the timestamp validation and the script compilation until another engine validating finishes its job.\n" +
+            " Standard - Simple model. The script engine doesn't start the timestamp validation and the script compilation until another engine validating/compiling finishes its job.\n" +
             " HighResolution - A legacy synchronization model available on Windows only. While it can be beneficial in the intense concurrent 'border line' scenarios, its practical value very limited.\n" +
             " None - No concurrency control is done by the script engine. All synchronization is the responsibility of the hosting environment.\n" +
             "(See https://github.com/oleg-shilo/cs-script/wiki/Performance,-Caching-and-Concurrency#concurrency for details)")]
