@@ -1,11 +1,18 @@
+using CSScripting;
+using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
-using static System.Environment;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ConstrainedExecution;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
-using CSScripting;
+using static System.Environment;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace csscript
 {
@@ -634,11 +641,11 @@ namespace csscript
                          alias_prefix + "//css_inc",
                          "file - name of a script file to be included at compile-time.",
                          " ",
-                         "This directive is used to include one script into another one. It is a logical equivalent of '#include' in C++. " +
+                         "This directive is used to import one script into another one. It is a logical equivalent of '#include' in C++. " +
                          "This directive is a full but more convenient equivalent of //css_import <file>, preserve_main;",
                          " ",
                          "If a relative file path is specified with a single-dot prefix it will be automatically converted into the absolute path " +
-                         "with respect to the location of the file containing the directive being resolved. " +
+                         "with respect to the location of the script file containing the `//css_include` directive. " +
                          "Otherwise it will be resolved with respect to the process current directory.",
                          " ",
                          "If for whatever reason it is preferred to always resolve path expression with respect to the parent script location " +
@@ -654,16 +661,24 @@ namespace csscript
                          "//css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];",
                          " ",
                          alias_prefix + "//css_imp",
-                         "There are also another two aliases //css_include and //css_inc. They are equivalents of //css_import <file>, preserve_main",
+                         "There are also another two aliases: //css_include and //css_inc. They are equivalents of `//css_import <file>, preserve_main`.",
+                         "This makes //css_import a more advanced version of //css_include. So you can use it to solve some more unusual runtime " +
+                         "scenarios. It is recommended that you use //css_include if you can. And //css_import if you have to. The //css_include " +
+                         "directive is simpler and requires no processing of the file being imported.",
+                         "This section only describes behavior specific for //css_import. Thus for the generic behavior of the directive go to the //css_include help.",
                          "If $this (or $this.name) is specified as part of <file> it will be replaced at execution time with the main script full name (or file name only).",
                          " ",
                          "file            - ${<==}name of a script file to be imported at compile-time.",
-                         "<preserve_main> - ${<==}do not rename 'static Main'",
+                         "<preserve_main> - ${<==}do not rename 'static Main'. ",
+                         "                  ${<==}.NET allows only one entry point 'static Main' method per application.Thus it is a problem if the primary and " +
+                         "the imported scripts both contain 'static Main'.To avoid this the script engine searches the imported script for 'static Main' method " +
+                         "and renames it in 'i_Main' and then uses a temporary copy of the processed imported script during the execution. If you need to use the " +
+                         "imported script as is, then you should use 'preserve_main' argument with the '//css_import' directive.",
                          "oldName         - ${<==}name of a namespace to be renamed during importing",
                          "newName         - ${<==}new name of a namespace to be renamed during importing",
                          " ",
-                         "This directive is used to inject one script into another at compile time. Thus code from one script can be exercised in another one." +
-                         "'Rename' clause can appear in the directive multiple times.",
+                         "This directive is used to import one script into another at compile time. Thus code from one script can be exercised in another one." +
+                         "the `rename_namespace` clause can appear in the directive multiple times.",
                          section_sep, //------------------------------------
                          " ",
                          "//css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-rt:<runtime>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];",

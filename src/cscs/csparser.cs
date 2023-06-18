@@ -1,14 +1,14 @@
+using CSScripting;
+using CSScriptLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using static System.Environment;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using CSScripting;
-using CSScriptLib;
+using static System.Environment;
 
 namespace csscript
 {
@@ -694,7 +694,7 @@ namespace csscript
         /// </summary>
         /// <param name="renamingMap">Renaming instructions (old_name vs. new_name).</param>
         /// <param name="preserveMain">
-        /// /// If set to 'true' "static...Main" in the imported script is not renamed.
+        /// If set to 'true' "static...Main" in the imported script is not renamed.
         /// </param>
         public void DoRenaming(string[][] renamingMap, bool preserveMain)
         {
