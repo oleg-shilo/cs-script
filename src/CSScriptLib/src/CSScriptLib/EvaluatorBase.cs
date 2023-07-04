@@ -33,6 +33,7 @@
 using csscript;
 using CSScripting;
 using Microsoft.CodeAnalysis;
+
 //using Microsoft.CodeAnalysis;
 //using Microsoft.CodeAnalysis.CSharp.Scripting
 using Microsoft.CodeAnalysis.Scripting;
@@ -40,6 +41,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.Loader;
 
@@ -1059,6 +1061,24 @@ namespace CSScriptLib
                 ReferenceDomainAssemblies();
 
             return this;
+        }
+
+        /// <summary>
+        /// Compiles C# file (script) into assembly file according the compiling context
+        /// specified in the <see cref="CompileInfo" /> argument.
+        /// <para>Note, <see cref="CompileInfo.PreferLoadingFromFile" /> value will be ignored since the
+        /// script engine will only build the assembly without loading it.</para>
+        /// </summary>
+        /// <param name="scriptFile">The C# script file.</param>
+        /// <param name="info">The information about compilation context (e.g. location of the compiler output -
+        /// assembly and pdb file).</param>
+        /// <returns>
+        /// The compiled assembly file path.
+        /// </returns>
+        public string CompileAssemblyFromFile(string scriptFile, CompileInfo info)
+        {
+            Compile(null, scriptFile, info);
+            return info.AssemblyFile;
         }
     }
 }
