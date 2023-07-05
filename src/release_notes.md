@@ -1,4 +1,4 @@
-# Release v4.7.2.0 
+# Release v4.8.0.0
 
 ---
 
@@ -6,8 +6,8 @@
 
 ### CLI
 
-- Issue #334:  Concurrent compilation   
+- Improved CLI-help content.
 
 ### CSScriptLib
 
-- <no changes>
+- Issue #335: CompileAssemblyFromFile with CompileInfo

@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.7.2.0 </Version>
+    <Version>4.8.0.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
@@ -17,19 +17,19 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.7.2.0</AssemblyVersion>
-    <FileVersion>4.7.2.0</FileVersion>
+    <AssemblyVersion>4.8.0.0</AssemblyVersion>
+    <FileVersion>4.8.0.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- Issue #334:  Concurrent compilation   
+- Improved CLI-help content.
 
 ### CSScriptLib
 
-- &lt;no changes&gt;</PackageReleaseNotes>
+- Issue #335: CompileAssemblyFromFile with CompileInfo</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
