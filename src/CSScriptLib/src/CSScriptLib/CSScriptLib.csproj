@@ -13,7 +13,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.8.0.0</Version>
+    <Version>4.8.1.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2022 Oleg Shilo</Copyright>
@@ -29,14 +29,15 @@
 
 ### CLI
 
-- Improved CLI-help content.
+- Issue #336: Huge script startup delay with v4.7.2.0 compared to v4.2.0.0
 
 ### CSScriptLib
-
-- Issue #335: CompileAssemblyFromFile with CompileInfo</PackageReleaseNotes>
+			
+- Added `CSScriptLib.ScriptParser.ImportedSourceFiles` to allow access to dependency scripts raw files
+- Added option to set assembly name when compiling script with Roslyn; Triggered by #337</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.8.0.0</AssemblyVersion>
-    <FileVersion>4.8.0.0</FileVersion>
+    <AssemblyVersion>4.8.1.0</AssemblyVersion>
+    <FileVersion>4.8.1.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>

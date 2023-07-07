@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+﻿using csscript;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Scripting;
-
-using csscript;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace CSScripting.CodeDom
 {
@@ -173,7 +172,7 @@ namespace CSScripting.CodeDom
                         }
 
                         error_line++;
-                        error_location = $"{source}({error_line},{ error_column}): ";
+                        error_location = $"{source}({error_line},{error_column}): ";
                     }
                     message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.Message}");
                 }

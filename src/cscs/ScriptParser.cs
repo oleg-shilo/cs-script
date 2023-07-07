@@ -59,15 +59,28 @@ namespace CSScriptLib
         public System.Threading.ApartmentState apartmentState = System.Threading.ApartmentState.Unknown;
 
         /// <summary>
-        /// Collection of the files to be compiled (including dependent scripts)
+        /// Collection of the files to be compiled (including dependent scripts) used for script compilation/execution.
         /// </summary>
         public string[] FilesToCompile => fileParsers.Select(x => x.FileToCompile).ToArray();
 
         /// <summary>
-        /// Collection of the imported files (dependent scripts)
+        /// Collection of the imported files (dependent scripts) that were used for script execution.
+        /// <para>Note, some of the imported scripts can be temporary files containing scripts processed
+        /// according the importing specification (e.g. renamed `static Main`, renamed namespaces).</para>
+        /// <para>Use <see cref="ImportedSourceFiles"/> for the names of the original names of the imported scripts</para>
         /// </summary>
         public string[] ImportedFiles
             => fileParsers.Where(x => x.Imported).Select(x => x.FileToCompile).ToArray();
+
+        /// <summary>
+        /// Collection of the imported files (dependent scripts).
+        /// <para>Note, some of the imported scripts can be converted in the temporary files containing scripts processed
+        /// according the importing specification (e.g. renamed `static Main`, renamed namespaces).</para>
+        /// <para>Use <see cref="ImportedFiles"/> and/or <see cref="FilesToCompile"/> for the names of the actual
+        /// files used on compilation/execution.</para>
+        /// </summary>
+        public string[] ImportedSourceFiles
+            => fileParsers.Where(x => x.Imported).Select(x => x.fileName).ToArray();
 
         /// <summary>
         /// Collection of resource files referenced from code
@@ -246,19 +259,17 @@ namespace CSScriptLib
             {
                 var fileComparer = new FileParserComparer();
 
-                var importedFile = new FileParser(fileInfo.fileName, fileInfo.parseParams, true, true, this.SearchDirs, throwOnError); //do not parse it yet (the third param is false)
+                var importedFile = new FileParser(fileInfo.fileName, fileInfo.parseParams, true, true, this.SearchDirs, throwOnError);
 
                 if (fileParsers.BinarySearch(importedFile, fileComparer) < 0)
                 {
                     if (File.Exists(importedFile.fileName))
                     {
-                        importedFile.ProcessFile(); //parse now namespaces, ref. assemblies and scripts; also it will do namespace renaming
-
+                        // importedFile.ProcessFile(); //parse now namespaces, ref. assemblies and scripts; also it will do namespace renaming
 
                         this.SearchDirs = this.SearchDirs.ToList()
                                               .AddIfNotThere(importedFile.fileName.GetDirName())
                                               .ToArray();
-
 
                         this.fileParsers.Add(importedFile);
                         this.fileParsers.Sort(fileComparer);

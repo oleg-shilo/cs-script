@@ -243,7 +243,13 @@ namespace EvaluatorTests
             CSScript.EvaluatorConfig.ReferenceDomainAssemblies = false; // to avoid an accidental referencing
             CSScript.EvaluatorConfig.DebugBuild = true;
 
-            var info = new CompileInfo { RootClass = "script_a", AssemblyFile = "script_a_asm2\\script_a_asm2.dll".EnsureFileDir() };
+            var info = new CompileInfo
+            {
+                RootClass = "script_a",
+                AssemblyName = "script_a",
+                AssemblyFile = "script_a_asm2\\script_a_asm2.dll".EnsureFileDir()
+            };
+
             try
             {
                 var code2 = @"using System;
@@ -263,7 +269,7 @@ namespace EvaluatorTests
                           }
                       }";
 
-                CSScript.RoslynEvaluator
+                var asm = CSScript.RoslynEvaluator
                         .With(e => e.IsCachingEnabled = false) // required to not interfere with xUnit
                         .CompileCode(code2, info);
 
@@ -318,6 +324,40 @@ namespace EvaluatorTests
         // End Class");
 
         // dynamic script = asm.CreateObject("*"); var result = script.Sum(7, 3); }
+
+        [Fact]
+        public void Issue_337()
+        {
+            var info = new CompileInfo
+            {
+                RootClass = "AccountingScript",
+                AssemblyFile = "D:\\AccountingScript.dll",
+            };
+
+            var accounting_assm2 = CSScript.Evaluator
+                            .With(e => e.IsCachingEnabled = false)
+                            .CompileCode(@"public class TXBase
+                             {
+                                 public string TranId { get; set; }
+                                 public string HashKey { get; set; }
+                             }", info);
+
+            dynamic script1 = CSScript.Evaluator
+                            .ReferenceAssembly(accounting_assm2)
+                            .LoadCode(@"public class TXPayment
+                            {
+                                public string Reason { get; set; }
+                                public string Test()
+                                {
+                                    var tx = new AccountingScript.TXBase();
+                                    tx.TranId = ""1"";
+                                    return tx.TranId;
+                                }
+                            }");
+
+            string r = script1.Test().ToString();
+            // Assert.Equal(3, statements.Count());
+        }
 
         [Fact]
         public void Issue_297()

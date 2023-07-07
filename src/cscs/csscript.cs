@@ -1989,7 +1989,7 @@ namespace csscript
                         depInfo.AddItem(scriptFileName, scriptFile.LastWriteTimeUtc, false);
 
                         //save imported scripts info
-                        depInfo.AddItems(parser.ImportedFiles, false, searchDirs);
+                        depInfo.AddItems(parser.ImportedSourceFiles, false, searchDirs);
 
                         //additionalDependencies (precompilers) are warranted to be as absolute path so no need to pass searchDirs or isAssembly
                         depInfo.AddItems(additionalDependencies, false, new string[0]);
