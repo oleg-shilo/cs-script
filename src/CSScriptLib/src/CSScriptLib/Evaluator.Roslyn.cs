@@ -38,6 +38,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Emit;
+
 //using Microsoft.CodeAnalysis;
 //using Microsoft.CodeAnalysis.CSharp.Scripting
 using Microsoft.CodeAnalysis.Scripting;
@@ -119,6 +120,14 @@ namespace CSScriptLib
         /// </summary>
         /// <value>The root class name.</value>
         public string RootClass { set; get; } = Globals.RootClassName;
+
+        /// <summary>
+        /// Gets or sets the name of the assembly to be built from the script.
+        /// </summary>
+        /// <value>
+        /// The name of the assembly.
+        /// </value>
+        public string AssemblyName { set; get; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to prefer loading compiled script from the
@@ -415,7 +424,7 @@ namespace CSScriptLib
                 var scriptOptions = CompilerSettings;
 
                 // unfortunately the next code block will not work. Roslyn scripting fails to
-                // create compilation if PaseOptions are set
+                // create compilation if ParseOptions are set
 
                 // if (this.IsDebug)
                 //     try
@@ -433,6 +442,9 @@ namespace CSScriptLib
 
                 var compilation = CSharpScript.Create(scriptText, scriptOptions)
                                               .GetCompilation();
+
+                if (info?.AssemblyName.HasText() == true)
+                    compilation = compilation.WithAssemblyName(info.AssemblyName);
 
                 if (this.IsDebug)
                     compilation = compilation.WithOptions(compilation.Options.WithOptimizationLevel(OptimizationLevel.Debug));
