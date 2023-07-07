@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.7.1.0</version>
+        <version>4.8.1.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,11 +25,9 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-# Release v4.7.0
----
-- Issue #327:  CS-Script file with async calls suddenly terminates
-- Added `-install` (`-uninstall`) command to set CSSCRIPT_ROOT environment variable.   
-- Added `-kill` command to stop all CS-Script servers (if any).   
+# Release v4.8.1.0
+- Issue #336: Huge script startup delay with v4.7.2.0 compared to v4.2.0.0
+
 
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
