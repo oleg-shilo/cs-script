@@ -259,13 +259,13 @@ namespace CSScriptLib
             {
                 var fileComparer = new FileParserComparer();
 
-                var importedFile = new FileParser(fileInfo.fileName, fileInfo.parseParams, true, true, this.SearchDirs, throwOnError);
+                var importedFile = new FileParser(fileInfo.fileName, fileInfo.parseParams, false, true, this.SearchDirs, throwOnError);
 
                 if (fileParsers.BinarySearch(importedFile, fileComparer) < 0)
                 {
                     if (File.Exists(importedFile.fileName))
                     {
-                        // importedFile.ProcessFile(); //parse now namespaces, ref. assemblies and scripts; also it will do namespace renaming
+                        importedFile.ProcessFile(); //parse now namespaces, ref. assemblies and scripts; also it will do namespace renaming
 
                         this.SearchDirs = this.SearchDirs.ToList()
                                               .AddIfNotThere(importedFile.fileName.GetDirName())
