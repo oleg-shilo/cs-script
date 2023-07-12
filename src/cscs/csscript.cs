@@ -576,6 +576,8 @@ namespace csscript
                             options.searchDirs = newSearchDirs.ToArray();
                         }
 
+                        newSearchDirs.Clear();
+
                         var preScripts = new List<CSharpParser.CmdScriptInfo>(parser.CmdScripts);
 
                         foreach (CSharpParser.ImportInfo info in parser.Imports)
@@ -595,19 +597,20 @@ namespace csscript
                                             foreach (string asmName in packageAsms)
                                             {
                                                 var packageDir = Path.GetDirectoryName(asmName);
-                                                newSearchDirs.Add(packageDir);
+                                                newSearchDirs.AddIfNotThere(packageDir);
                                             }
 
                                             foreach (string dir in impParser.ExtraSearchDirs)
                                                 newSearchDirs.AddIfNotThere(Path.GetFullPath(dir));
-
-                                            options.searchDirs = newSearchDirs.ToArray();
                                         }
                                         preScripts.AddRange(new CSharpParser(file, true, null, options.searchDirs).CmdScripts);
                                     }
                             }
                             catch { } //some files may not be generated yet
                         }
+
+                        newSearchDirs.ForEach(dir =>
+                            options.AddSearchDir(Path.GetFullPath(dir), Settings.code_dirs_section));
 
                         cmdScripts = preScripts.ToArray();
 
