@@ -599,7 +599,7 @@ namespace csscript
                                             }
 
                                             foreach (string dir in impParser.ExtraSearchDirs)
-                                                newSearchDirs.Add(Path.GetFullPath(dir));
+                                                newSearchDirs.AddIfNotThere(Path.GetFullPath(dir));
 
                                             options.searchDirs = newSearchDirs.ToArray();
                                         }
