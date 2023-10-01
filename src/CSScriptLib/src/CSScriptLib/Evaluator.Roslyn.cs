@@ -448,6 +448,8 @@ namespace CSScriptLib
 
                 ////////////////////////////////////////
 
+                // PrepareRefAssemblies just updates CompilerSettings.MetadataReferences
+                // however SourceCodeKind.Script will require completely different referencing mechanizm
                 if (info == null || info.CodeKind != SourceCodeKind.Script)
                     PrepareRefAssemblies();
 
@@ -482,11 +484,8 @@ namespace CSScriptLib
 
                     var references = new List<MetadataReference>();
 
-                    // foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                    // refAssemblies
-                    // var ttt = this.GetReferencedAssemblies();
-                    var refs = AppDomain.CurrentDomain.GetAssemblies();
-                    var explicitRefs = this.refAssemblies.Except(refs);
+                    var refs = AppDomain.CurrentDomain.GetAssemblies(); // from appdomain
+                    var explicitRefs = this.refAssemblies.Except(refs); // from code
                     foreach (var asm in refs.Concat(explicitRefs))
                     {
                         unsafe
@@ -668,8 +667,6 @@ namespace CSScriptLib
         /// Note <see cref="IEvaluator.Eval" /> compiles and executes the script in the current AppDoman.
         /// All AppDomain loaded assemblies of the AppDomain being referenced from the script regardless of
         /// <see cref="EvaluatorConfig.ReferenceDomainAssemblies"></see> setting.
-        /// Any other assemblies referenced via evaluator (e.g. <see cref="IEvaluator.ReferenceAssembly(Assembly)" />)
-        /// will be ignored.
         /// </remarks>
         /// <para>This method is the only option that supports script execution for applications published with
         /// PublishSingleFile option.</para>

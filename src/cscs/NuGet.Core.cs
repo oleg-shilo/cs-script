@@ -1,14 +1,14 @@
+using CSScripting;
+using CSScripting.CodeDom;
+using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Microsoft.CodeAnalysis.Scripting;
-using CSScripting;
-using CSScripting.CodeDom;
+using static System.Environment;
 
 namespace csscript
 {
@@ -36,7 +36,7 @@ namespace csscript
 
         static public bool newPackageWasInstalled => NuGetCore.NewPackageWasInstalled;
 
-        [Obsolete("Not to be used with new NuGet support algorithm")]
+        [Obsolete("Not to be used with new NuGet support algorithm", true)]
         static public void InstallPackage(string packageNameMask, string nugetConfig = null) => NuGetCore.InstallPackage(packageNameMask, nugetConfig);
 
         static public void ListPackages()

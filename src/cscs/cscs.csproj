@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.8.2.0</Version>
+    <Version>4.8.3.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
@@ -17,8 +17,8 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.8.2.0</AssemblyVersion>
-    <FileVersion>4.8.2.0</FileVersion>
+    <AssemblyVersion>4.8.3.0</AssemblyVersion>
+    <FileVersion>4.8.3.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
@@ -28,8 +28,9 @@
 - Issue #336 (further optimization)
 
 ### CSScriptLib
-			
-- no changes</PackageReleaseNotes>
+
+- Issue #343: Publish to single file gives an empty Assembly.Location which crashes Roslyn Evaluator			
+- Added support for single-file published host applications</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>

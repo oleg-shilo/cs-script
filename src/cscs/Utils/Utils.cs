@@ -30,11 +30,13 @@
 
 #endregion Licence...
 
+using csscript;
+using CSScripting.CodeDom;
+using CSScriptLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using static System.Environment;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -43,9 +45,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using csscript;
-using CSScripting.CodeDom;
-using CSScriptLib;
+using static System.Environment;
 
 namespace CSScripting
 {
@@ -942,9 +942,7 @@ partial class dbg
                         }
                         else
                         {
-                            if (argValue.NotEmpty())
-                                NuGet.InstallPackage(argValue);
-                            else
+                            if (argValue.IsEmpty())
                                 NuGet.ListPackages();
                             CLIExitRequest.Throw();
                         }

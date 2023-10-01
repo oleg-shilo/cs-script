@@ -15,14 +15,14 @@ Console.WriteLine(div);
 // evaluation of a complex script
 var calc = CSScript.Evaluator
                    .Eval(@"using System;
-                              public class Script
-                              {
-                                  public int Sum(int a, int b)
-                                  {
-                                      return a+b;
-                                  }
-                              }
-                              return new Script();");
+                           public class Script
+                           {
+                               public int Sum(int a, int b)
+                               {
+                                   return a+b;
+                               }
+                           }
+                           return new Script();");
 
 int sum = calc.Sum(1, 2);
 Console.WriteLine(sum);
