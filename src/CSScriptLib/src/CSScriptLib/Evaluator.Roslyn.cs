@@ -42,13 +42,18 @@ using Microsoft.CodeAnalysis.Emit;
 //using Microsoft.CodeAnalysis;
 //using Microsoft.CodeAnalysis.CSharp.Scripting
 using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 // <summary>
 //<package id="Microsoft.Net.Compilers" version="1.2.0-beta-20151211-01" targetFramework="net45" developmentDependency="true" />
@@ -88,7 +93,7 @@ namespace CSScriptLib
             get
             {
                 if (assemblyFile == null)
-                    return $"{RootClass}.dll".GetFullPath();
+                    return this.CodeKind == SourceCodeKind.Script ? null : $"{RootClass}.dll".GetFullPath();
                 else
                     return assemblyFile.GetFullPath();
             }
@@ -135,6 +140,28 @@ namespace CSScriptLib
         /// </summary>
         /// <value><c>true</c> if [prefer loading from file]; otherwise, <c>false</c>.</value>
         public bool PreferLoadingFromFile { set; get; } = true;
+
+        /// <summary>
+        /// Gets or sets the kind of the script code. This property is used to control the way Roslyn engine is compiling the script code.
+        /// <para>
+        /// By default it is <see cref="SourceCodeKind.Regular"/> used for processing the scripts the same way as .cs/.vb files.
+        /// While <see cref="SourceCodeKind.Script"/> used for processing the scripts as a canonical single file script with the
+        /// top-level code.
+        /// </para>
+        /// <para>
+        /// The <see cref="SourceCodeKind.Script"/> is the code kind that is used by <see cref="IEvaluator.Eval"/> setting which is
+        /// the only API supported in the .NET applications published as single-file. Though this value can also be used in other Roslyn
+        /// evaluator scenarios too (e.g. <see cref="IEvaluator.CompileCode(string, CompileInfo)"/>).
+        /// </para>
+        ///
+        /// </summary>
+        /// <value>
+        /// The kind of the code.
+        /// </value>
+        public SourceCodeKind CodeKind { set; get; } = SourceCodeKind.Regular;
+
+        internal string ScriptEntryPointType;
+        internal string ScriptEntryPoint;
     }
 
     /// <summary>
@@ -357,10 +384,12 @@ namespace CSScriptLib
 
                 if (scriptFile == null && tempScriptFile == null)
                 {
+                    // if (!DisableReferencingFromCode && info?.CodeKind != SourceCodeKind.Script)
                     if (!DisableReferencingFromCode)
                     {
-                        var localDir = this.GetType().Assembly.Location().GetDirName();
-                        ReferenceAssembliesFromCode(scriptText, localDir);
+                        var localDir = this.GetType().Assembly.Location()?.GetDirName();
+                        if (localDir.HasText())
+                            ReferenceAssembliesFromCode(scriptText, localDir);
                     }
 
                     if (this.IsDebug)
@@ -374,7 +403,7 @@ namespace CSScriptLib
                 }
                 else
                 {
-                    var searchDirs = new[] { scriptFile?.GetDirName(), this.GetType().Assembly.Location().GetDirName() };
+                    var searchDirs = new[] { scriptFile?.GetDirName(), this.GetType().Assembly.Location()?.GetDirName() };
                     var parser = new ScriptParser(scriptFile ?? tempScriptFile, searchDirs, false);
 
                     var importedSources = new Dictionary<string, (int, string[])>(); // file, usings count, code lines
@@ -419,7 +448,8 @@ namespace CSScriptLib
 
                 ////////////////////////////////////////
 
-                PrepareRefeAssemblies();
+                if (info == null || info.CodeKind != SourceCodeKind.Script)
+                    PrepareRefAssemblies();
 
                 var scriptOptions = CompilerSettings;
 
@@ -433,15 +463,56 @@ namespace CSScriptLib
                 //                 .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
                 //                     .FirstOrDefault(x => x.Name.EndsWith("WithParseOptions"));
 
-                //         var po = new CSharpParseOptions(preprocessorSymbols: new[] { "DEBUG", "TRACE" });
+                //         var op = new CSharpParseOptions(preprocessorSymbols: new[] { "DEBUG", "TRACE" });
                 //         scriptOptions = (ScriptOptions)WithParseOptions.Invoke(scriptOptions, new object[] { po });
                 //     }
                 //     catch
                 //     {
                 //     }
 
-                var compilation = CSharpScript.Create(scriptText, scriptOptions)
+                Compilation compilation;
+
+                if (info?.CodeKind == SourceCodeKind.Script)
+                {
+                    var syntaxTree = SyntaxFactory.ParseSyntaxTree(
+                            scriptText,
+                            new CSharpParseOptions(
+                                kind: SourceCodeKind.Script,
+                                languageVersion: LanguageVersion.Latest));
+
+                    var references = new List<MetadataReference>();
+
+                    // foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                    // refAssemblies
+                    // var ttt = this.GetReferencedAssemblies();
+                    var refs = AppDomain.CurrentDomain.GetAssemblies();
+                    var explicitRefs = this.refAssemblies.Except(refs);
+                    foreach (var asm in refs.Concat(explicitRefs))
+                    {
+                        unsafe
+                        {
+                            if (asm.TryGetRawMetadata(out var blob, out var length))
+                                references.Add(AssemblyMetadata.Create(ModuleMetadata.CreateFromMetadata((IntPtr)blob, length)).GetReference());
+                        }
+                    }
+
+                    // add references from code and host-specified
+
+                    compilation = CSharpCompilation.CreateScriptCompilation(
+                                           assemblyName: "Script" + Guid.NewGuid(),
+                                           syntaxTree,
+                                           references,
+                                           returnType: typeof(object));
+
+                    var entryPoint = compilation.GetEntryPoint(CancellationToken.None);
+                    info.ScriptEntryPoint = entryPoint.MetadataName;
+                    info.ScriptEntryPointType = $"{entryPoint.ContainingNamespace.MetadataName}.{entryPoint.ContainingType.MetadataName}";
+                }
+                else
+                {
+                    compilation = CSharpScript.Create(scriptText, scriptOptions)
                                               .GetCompilation();
+                }
 
                 if (info?.AssemblyName.HasText() == true)
                     compilation = compilation.WithAssemblyName(info.AssemblyName);
@@ -508,7 +579,7 @@ namespace CSScriptLib
                         asm.Seek(0, SeekOrigin.Begin);
                         byte[] buffer = asm.GetBuffer();
 
-                        if (info?.AssemblyFile != null)
+                        if (info?.AssemblyFile != null && info?.CodeKind != SourceCodeKind.Script)
                             File.WriteAllBytes(info.AssemblyFile, buffer);
 
                         if (IsDebug && CSScript.EvaluatorConfig.PdbFormat != DebugInformationFormat.Embedded)
@@ -561,7 +632,7 @@ namespace CSScriptLib
         public override IEvaluator ReferenceAssembly(Assembly assembly)
         {
             //Microsoft.Net.Compilers.1.2.0 - beta
-            if (assembly.Location.IsEmpty())
+            if (assembly.Location.IsEmpty() && !Runtime.IsSingleFileApplication)
                 throw new Exception(
                     $"Current version of Roslyn-based evaluator does not support referencing assemblies " +
                      "which are not loaded from the file location.");
@@ -571,25 +642,95 @@ namespace CSScriptLib
             return this;
         }
 
+        /// <summary>
+        /// Evaluates (executes) the specified script text, which is a top-level C# code.
+        /// <para>It is the most direct equivalent of "eval" available in dynamic languages. This method is only
+        /// available for Roslyn evaluator.</para>
+        /// You can evaluate simple expressions:
+        /// <code>
+        /// var result = CSScript.Evaluator.Eval("1 + 2");
+        /// </code>
+        /// Or it can be a complex script, which defines its own types:
+        /// <code>
+        /// var calc = CSScript.Evaluator
+        ///                    .Eval(@"using System;
+        ///                            public class Script
+        ///                            {
+        ///                                public int Sum(int a, int b)
+        ///                                {
+        ///                                    return a+b;
+        ///                                }
+        ///                            }
+        ///
+        ///                            return new Script();");
+        /// int sum = calc.Sum(1, 2);
+        /// </code><remarks>
+        /// Note <see cref="IEvaluator.Eval" /> compiles and executes the script in the current AppDoman.
+        /// All AppDomain loaded assemblies of the AppDomain being referenced from the script regardless of
+        /// <see cref="EvaluatorConfig.ReferenceDomainAssemblies"></see> setting.
+        /// Any other assemblies referenced via evaluator (e.g. <see cref="IEvaluator.ReferenceAssembly(Assembly)" />)
+        /// will be ignored.
+        /// </remarks>
+        /// <para>This method is the only option that supports script execution for applications published with
+        /// PublishSingleFile option.</para>
+        /// </summary>
+        /// <param name="scriptText">The script text.</param>
+        /// <returns>
+        /// The object returned by the script.
+        /// </returns>
+        /// <exception cref="System.Exception">This method is only available for Roslyn evaluator.</exception>
+        /// <exception cref="System.InvalidOperationException">Script entry point method could be found.</exception>
+        public new dynamic Eval(string scriptText)
+        {
+            if (this.GetType() != typeof(RoslynEvaluator))
+                throw new Exception("This method is only available for Roslyn evaluator.");
+
+            var info = new CompileInfo { CodeKind = SourceCodeKind.Script };
+            var asm = CompileCode(scriptText, info);
+
+            var entryPointType = asm.GetType($".{info.RootClass}", true, false);
+            var entryPointMethod = entryPointType?.GetTypeInfo().GetDeclaredMethod(info.ScriptEntryPoint) ?? throw new InvalidOperationException("Script entry point method could be found.");
+
+            // var allTypes = asm.GetTypes(); // [1] is our method. Will be needed if SourceCodeKind.Script support is extended to "LoadCode" API
+
+            var submissionFactory = (Func<object[], Task<object>>)entryPointMethod.CreateDelegate(typeof(Func<object[], Task<object>>));
+            dynamic instance = submissionFactory.Invoke(new object[] { null, null }).Result;
+
+            return instance;
+        }
+
         List<Assembly> refAssemblies = new List<Assembly>();
 
-        IEvaluator PrepareRefeAssemblies()
+        IEvaluator PrepareRefAssemblies()
         {
             foreach (var assembly in FilterAssemblies(refAssemblies))
+            {
                 if (assembly != null)//this check is needed when trying to load partial name assemblies that result in null
                 {
-                    if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
-                        .Any(r => r.FilePath.SamePathAs(assembly.Location)))
-                        // Future assembly aliases support:
+                    if (assembly.Location() == null)
+                    {
+                        // unsafe
+                        {
+                            // if (asm.TryGetRawMetadata(out var blob, out var length))
+                            //     references.Add(AssemblyMetadata.Create(ModuleMetadata.CreateFromMetadata((IntPtr)blob, length)).GetReference());
+
+                            CompilerSettings = CompilerSettings.AddReferences(assembly);
+                        }
+                    }
+                    else if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>().Any(r => r.FilePath.SamePathAs(assembly.Location)))
+                    {    // Future assembly aliases support:
                         // MetadataReference.CreateFromFile("asm.dll", new
                         // MetadataReferenceProperties().WithAliases(new[] { "lib_a",
                         // "external_lib_a" } })
                         CompilerSettings = CompilerSettings.AddReferences(assembly);
+                    }
                 }
-            var refs = CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
-                                       .Select(r => r.FilePath.GetFileName())
-                                       .OrderBy(x => x)
-                                       .ToArray();
+            }
+
+            // var refs = CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
+            //                            .Select(r => r.FilePath.GetFileName())
+            //                            .OrderBy(x => x)
+            //                            .ToArray();
             return this;
         }
 

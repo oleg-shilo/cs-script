@@ -47,6 +47,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.SingleFileBuild", "CSScriptLib\src\Client.SingleFileBuild\Client.SingleFileBuild.csproj", "{ABB37908-97F9-4FEF-B63F-4785755D219D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{67314C02-51A5-48CF-A4F1-43307928F372}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67314C02-51A5-48CF-A4F1-43307928F372}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67314C02-51A5-48CF-A4F1-43307928F372}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABB37908-97F9-4FEF-B63F-4785755D219D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABB37908-97F9-4FEF-B63F-4785755D219D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABB37908-97F9-4FEF-B63F-4785755D219D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABB37908-97F9-4FEF-B63F-4785755D219D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,6 +115,7 @@ Global
 		{737D212F-67D8-4695-BE1C-C98243ADE993} = {067A70CC-5214-43E0-AED8-908C710459FC}
 		{4EB601D3-3643-464E-90C6-A49F97420CDF} = {067A70CC-5214-43E0-AED8-908C710459FC}
 		{67314C02-51A5-48CF-A4F1-43307928F372} = {067A70CC-5214-43E0-AED8-908C710459FC}
+		{ABB37908-97F9-4FEF-B63F-4785755D219D} = {067A70CC-5214-43E0-AED8-908C710459FC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {10FFEE83-12D5-4B24-8AAF-CAF6DDCDD953}

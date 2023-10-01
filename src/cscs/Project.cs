@@ -174,8 +174,8 @@ namespace CSScriptLib
 #endif
 
                 //if (configFile != null && File.Exists(configFile))
-                if (Assembly.GetExecutingAssembly().Location.HasText())
-                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "lib"));
+                if (Assembly.GetExecutingAssembly().Location().HasText())
+                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location()), "lib"));
                 else if (Environment.GetEnvironmentVariable("CSS_ENTRY_ASM") != null)
                     items.dirs.Add(Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("CSS_ENTRY_ASM")), "lib"));
 

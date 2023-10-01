@@ -1,3 +1,4 @@
+using CSScriptLib;
 using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
@@ -5,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
 
 namespace CSScripting
 {
@@ -157,34 +159,46 @@ namespace CSScripting
         /// <returns>The path to the assembly file</returns>
         public static string Location(this Assembly asm)
         {
-            if (asm.IsDynamic())
+            try
             {
-                string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
-                if (location == null)
+                if (asm.IsDynamic())
                 {
-                    // Note assembly can contain only single AssemblyDescriptionAttribute
-                    var locationFromDescAttr = asm
-                        .GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true)?
-                        .Cast<AssemblyDescriptionAttribute>()
-                        .FirstOrDefault()?
-                        .Description;
-                    if (locationFromDescAttr.FileExists())
-                        return locationFromDescAttr;
+                    string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
+                    if (location == null)
+                    {
+                        // Note assembly can contain only single AssemblyDescriptionAttribute
+                        var locationFromDescAttr = asm
+                            .GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true)?
+                            .Cast<AssemblyDescriptionAttribute>()
+                            .FirstOrDefault()?
+                            .Description;
+                        if (locationFromDescAttr.FileExists())
+                            return locationFromDescAttr;
 
 #pragma warning disable SYSLIB0012
-                    var validPath = asm.CodeBase?.FromUriToPath();
+                        var validPath = asm.CodeBase?.FromUriToPath();
 #pragma warning restore SYSLIB0012
 
-                    if (validPath.FileExists())
-                        return validPath;
+                        if (validPath.FileExists())
+                            return validPath;
 
-                    return "";
+                        return "";
+                    }
+                    else
+                        return location;
                 }
                 else
-                    return location;
+                    return asm.Location;
             }
-            else
-                return asm.Location;
+            catch
+            {
+#if class_lib
+                if (Runtime.IsSingleFileApplication)
+                    return null; // a single file compilation (published with PublishSingleFile option)
+                else
+#endif
+                    throw;
+            }
         }
 
         internal static string FromUriToPath(this string uri)

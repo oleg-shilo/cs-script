@@ -158,7 +158,7 @@ namespace CSScriptLib
         /// Flag that controls if the host AppDo,main referenced assemblies are automatically
         /// referenced at creation of <see cref="CSScriptLib.IEvaluator"/>.
         /// </summary>
-        [Obsolete("The name of the property method is misspelled. Use `ReferenceDomainAssemblies` instead", false)]
+        [Obsolete("The name of the property method is misspelled. Use `ReferenceDomainAssemblies` instead", true)]
         public bool RefernceDomainAsemblies
         {
             get { return refDomainAsms; }
@@ -529,8 +529,43 @@ namespace CSScriptLib
         /// <typeparam name="T">The type of the script class instance should be type casted to.</typeparam>
         /// <param name="scriptText">The C# script text.</param>
         /// <param name="args">The non default type <c>T</c> constructor arguments.</param>
-        /// <returns>Typecasted to the <c>T</c> interface instance of the class defined in the script.</returns>
+        /// <returns>Type-casted to the <c>T</c> interface instance of the class defined in the script.</returns>
         T LoadCode<T>(string scriptText, params object[] args) where T : class;
+
+        /// <summary>
+        /// Evaluates (executes) the specified script text, which is a top-level C# code.
+        /// <para>It is the most direct equivalent of "eval" available in dynamic languages. This method is only
+        /// available for Roslyn evaluator.</para>
+        /// You can evaluate simple expressions:
+        /// <code>
+        /// var result = CSScript.Evaluator.Eval("1 + 2");
+        /// </code>
+        /// Or it can be a complex script, which defines its own types:
+        /// <code>
+        /// var calc = CSScript.Evaluator
+        ///                    .Eval(@"using System;
+        ///                            public class Script
+        ///                            {
+        ///                                public int Sum(int a, int b)
+        ///                                {
+        ///                                    return a+b;
+        ///                                }
+        ///                            }
+        ///
+        ///                            return new Script();");
+        ///
+        /// int sum = calc.Sum(1, 2);
+        /// </code>
+        /// <remarks>
+        /// Note <see cref="IEvaluator.Eval"/> compiles and executes the script in the current AppDoman.
+        /// All AppDomain loaded assemblies of the AppDomain being referenced from the script regardless of
+        /// <see cref="CSScript.EvaluatorConfig"></see> setting.</remarks>
+        /// <para>This method is the only option that supports script execution for applications published with
+        /// PublishSingleFile option.</para>
+        /// </summary>
+        /// <param name="scriptText">The script text.</param>
+        /// <returns>The object returned by the script.</returns>
+        dynamic Eval(string scriptText);
 
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),

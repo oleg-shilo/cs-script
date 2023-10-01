@@ -44,6 +44,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
 
 namespace CSScriptLib
 {
@@ -612,21 +613,21 @@ namespace CSScriptLib
         /// <example>
         /// The following is the simple example of the interface alignment:
         /// <code>
-        ///public interface ICalc
-        ///{
-        ///int Sum(int a, int b);
-        ///}
-        ///....
-        ///ICalc calc = CSScript.Evaluator
-        ///.LoadCode&lt;ICalc&gt;(@"using System;
-        ///public class Script
-        ///{
-        ///public int Sum(int a, int b)
-        ///{
-        ///return a+b;
-        ///}
-        ///}");
-        ///int result = calc.Sum(1, 2);
+        /// public interface ICalc
+        /// {
+        ///     int Sum(int a, int b);
+        /// }
+        /// ....
+        /// ICalc calc = CSScript.Evaluator
+        ///     .LoadCode&lt;ICalc&gt;(@"using System;
+        ///           public class Script
+        ///           {
+        ///               public int Sum(int a, int b)
+        ///               {
+        ///                   return a+b;
+        ///               }
+        ///           }");
+        ///           int result = calc.Sum(1, 2);
         /// </code>
         /// </example>
         public T LoadCode<T>(string scriptText, params object[] args) where T : class
@@ -864,7 +865,7 @@ namespace CSScriptLib
         /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
         /// </returns>
         public virtual IEvaluator ReferenceAssembly(Assembly assembly)
-        => throw new NotImplementedException();
+            => throw new NotImplementedException();
 
         /// <summary>
         /// References the name of the assembly by its partial name.
@@ -1079,6 +1080,44 @@ namespace CSScriptLib
         {
             Compile(null, scriptFile, info);
             return info.AssemblyFile;
+        }
+
+        /// <summary>
+        /// Evaluates (executes) the specified script text, which is a top-level C# code.
+        /// <para>It is the most direct equivalent of "eval" available in dynamic languages. This method is only
+        /// available for Roslyn evaluator.</para>
+        /// You can evaluate simple expressions:
+        /// <code>
+        /// var result = CSScript.Evaluator.Eval("1 + 2");
+        /// </code>
+        /// Or it can be a complex script, which defines its own types:
+        /// <code>
+        /// var calc = CSScript.Evaluator
+        ///                    .Eval(@"using System;
+        ///                            public class Script
+        ///                            {
+        ///                                public int Sum(int a, int b)
+        ///                                {
+        ///                                    return a+b;
+        ///                                }
+        ///                            }
+        ///                            return new Script();");
+        /// int sum = calc.Sum(1, 2);
+        /// </code><remarks>
+        /// Note <see cref="IEvaluator.Eval" /> compiles and executes the script in the current AppDoman.
+        /// All AppDomain loaded assemblies of the AppDomain being referenced from the script regardless of
+        /// <see cref="EvaluatorConfig.ReferenceDomainAssemblies"></see> setting.
+        /// </remarks><para>This method is the only option that supports script execution for
+        /// applications published with PublishSingleFile option.</para>
+        /// </summary>
+        /// <param name="scriptText">The script text.</param>
+        /// <returns>
+        /// The object returned by the script.
+        /// </returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public dynamic Eval(string scriptText)
+        {
+            throw new NotImplementedException();
         }
     }
 }

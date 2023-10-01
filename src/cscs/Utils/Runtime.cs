@@ -1,9 +1,9 @@
+using CSScripting;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
-using CSScripting;
 
 #if class_lib
 
@@ -199,6 +199,14 @@ namespace csscript
         /// file system. For example path being case sensitive
         /// </summary>
         public static bool IsLinux { get; } = (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
+
+        /// <summary>
+        /// Gets a value indicating whether this process is an application compiled as a single file (published with PublishSingleFile option).
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is single file application; otherwise, <c>false</c>.
+        /// </value>
+        public static bool IsSingleFileApplication { get; } = "".GetType().Assembly.Location.IsEmpty();
 
         /// <summary>
         /// Gets a value indicating whether the runtime is core.
