@@ -449,7 +449,7 @@ namespace CSScriptLib
                 ////////////////////////////////////////
 
                 // PrepareRefAssemblies just updates CompilerSettings.MetadataReferences
-                // however SourceCodeKind.Script will require completely different referencing mechanizm
+                // however SourceCodeKind.Script will require completely different referencing mechanism
                 if (info == null || info.CodeKind != SourceCodeKind.Script)
                     PrepareRefAssemblies();
 
@@ -663,10 +663,17 @@ namespace CSScriptLib
         ///
         ///                            return new Script();");
         /// int sum = calc.Sum(1, 2);
-        /// </code><remarks>
-        /// Note <see cref="IEvaluator.Eval" /> compiles and executes the script in the current AppDoman.
+        /// </code>
+        /// <remarks>
+        /// Note <see cref="IEvaluator.Eval"/> compiles and executes the script in the current AppDoman.
         /// All AppDomain loaded assemblies of the AppDomain being referenced from the script regardless of
-        /// <see cref="EvaluatorConfig.ReferenceDomainAssemblies"></see> setting.
+        /// <see cref="CSScript.EvaluatorConfig"></see> setting.
+        /// <para>During the script compilation, this method uses:
+        /// <para>
+        /// <c>CompileInfo.CodeKind=Microsoft.CodeAnalysis.SourceCodeKind.Script</c>.
+        /// </para>
+        /// This is the only option that supports script execution for applications published with
+        /// PublishSingleFile option.</para>
         /// </remarks>
         /// <para>This method is the only option that supports script execution for applications published with
         /// PublishSingleFile option.</para>
