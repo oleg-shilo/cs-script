@@ -161,3 +161,6 @@ var log = CSScript.Evaluator
 log("Test message");
 ```
 
+```C#
+int sum = CSScript.Evaluator.Eval("6 + 3");
+```
