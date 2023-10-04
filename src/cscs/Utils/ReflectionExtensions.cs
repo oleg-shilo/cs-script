@@ -190,6 +190,7 @@ namespace CSScripting
                 else
                     return asm.Location;
             }
+#pragma warning disable CS0168
             catch (Exception ex)
             {
 #if class_lib
@@ -200,6 +201,7 @@ namespace CSScripting
                     return null;
 #endif
                 throw;
+#pragma warning restore CS0168
             }
         }
 

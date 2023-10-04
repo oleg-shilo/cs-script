@@ -3,6 +3,8 @@ using CSScripting;
 using CSScriptLib;
 using Microsoft.CodeAnalysis;
 
+// publishing as a single-file with and without runtime dependency
+// dotnet publish --configuration Release --output .\publish --self-contained false
 // dotnet publish --configuration Release --output .\publish --self-contained true
 
 // ---------------------------
