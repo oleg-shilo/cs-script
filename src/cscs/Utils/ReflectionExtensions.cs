@@ -190,14 +190,16 @@ namespace CSScripting
                 else
                     return asm.Location;
             }
-            catch
+            catch (Exception ex)
             {
 #if class_lib
                 if (Runtime.IsSingleFileApplication)
                     return null; // a single file compilation (published with PublishSingleFile option)
-                else
+                else if (ex.Message.Contains("CodeBase is not supported on assemblies loaded from a single-file bundle")
+                      || ex.StackTrace.Contains("at System.Reflection.RuntimeAssembly.get_CodeBase()"))
+                    return null;
 #endif
-                    throw;
+                throw;
             }
         }
 

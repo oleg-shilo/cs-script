@@ -3,7 +3,7 @@ using CSScripting;
 using CSScriptLib;
 using Microsoft.CodeAnalysis;
 
-// dotnet publish --configuration Release --output .\publish
+// dotnet publish --configuration Release --output .\publish --self-contained true
 
 // ---------------------------
 // evaluation of a simple expression
