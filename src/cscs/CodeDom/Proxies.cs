@@ -173,13 +173,26 @@ namespace CSScripting.CodeDom
 
         internal static string CreateProject(CompilerParameters options, string[] fileNames, string outDir = null)
         {
-            string projectName = fileNames.First().GetFileName();
-            string projectShortName = Path.GetFileNameWithoutExtension(projectName);
+            string projectShortName = fileNames.First().GetFileNameWithoutExtension();
+            string projectName = projectShortName;
+            string fileType = "";
 
-            var template = InitBuildTools(Path.GetExtension(fileNames.First().GetFileName()));
+            // to allow compilation of scripts like script.csx
+            if (fileNames.First().GetExtension().ToLower().StartsWith(".vb"))
+            {
+                fileType = ".vbs";
+                projectName += ".vbproj";
+            }
+            else
+            {
+                fileType = ".cs";
+                projectName += ".csproj";
+            }
+
+            var template = InitBuildTools(fileType);
 
             var out_dir = outDir ?? CSExecutor.ScriptCacheDir; // C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284
-            var build_dir = out_dir.PathJoin(".build", projectName);
+            var build_dir = out_dir.PathJoin(".build", fileNames.First().GetFileName());
 
             if (!build_dir.DirExists())
                 build_dir.EnsureDir();
@@ -190,7 +203,7 @@ namespace CSScripting.CodeDom
             var project_element = XElement.Parse(File.ReadAllText(template));
 
             var compileConstantsDelimiter = ";";
-            if (projectName.GetExtension().SameAs(".vb"))
+            if (projectName.GetExtension().SameAs(".vbproj"))
                 compileConstantsDelimiter = ",";
 
             project_element.Add(new XElement("PropertyGroup",

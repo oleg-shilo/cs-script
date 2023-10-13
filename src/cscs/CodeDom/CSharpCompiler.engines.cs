@@ -284,7 +284,9 @@ namespace CSScripting.CodeDom
 
                 // using sockets directly
 
-                var compiler = $"{sources.FirstOrDefault()?.GetExtension().Trim('.')}c";
+                var fileType = $"{sources.FirstOrDefault()?.GetExtension().Trim('.')}".ToLower();
+
+                var compiler = (fileType.StartsWith("vb") ? "vbc" : "csc");   // all other scripts will be treated as C#
 
                 var request = $@"{compiler} {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}"
                               .SplitCommandLine();
