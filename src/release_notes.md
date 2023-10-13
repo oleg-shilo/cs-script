@@ -1,4 +1,4 @@
-# Pre-Release v4.8.4.0
+# Pre-Release v4.8.5.0
 
 ---
 
@@ -6,9 +6,8 @@
 
 ### CLI
 
-- no changes
+- Issue #344: Support .csx file extension?
 
 ### CSScriptLib
 
-- Issue #343: Publish to single file gives an empty Assembly.Location which crashes Roslyn Evaluator			
-  Added support for single-file publishing with runtime dependency
+- no changes

@@ -14,7 +14,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.8.4.0</Version>
+    <Version>4.8.5.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
@@ -30,15 +30,14 @@
 
 ### CLI
 
-- no changes
+- Issue #344: Support .csx file extension?
 
 ### CSScriptLib
 
-- Issue #343: Publish to single file gives an empty Assembly.Location which crashes Roslyn Evaluator			
-  Added support for single-file publishing with runtime dependency</PackageReleaseNotes>
+- no changes</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.8.4.0</AssemblyVersion>
-    <FileVersion>4.8.4.0</FileVersion>
+    <AssemblyVersion>4.8.5.0</AssemblyVersion>
+    <FileVersion>4.8.5.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>

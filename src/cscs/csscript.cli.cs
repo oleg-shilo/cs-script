@@ -1,12 +1,12 @@
+using CSScripting;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using CSScripting;
+using static System.Environment;
 
 namespace csscript
 {
@@ -131,7 +131,8 @@ namespace csscript
                 if (appType == "cmd")
                     context = outFile ?? "-new_command";
 
-                foreach (var sample in HelpProvider.BuildSampleCode(appType, context))
+                var samples = HelpProvider.BuildSampleCode(appType, context);
+                foreach (var sample in samples)
                 {
                     if (outFile.IsNotEmpty())
                     {
@@ -141,9 +142,21 @@ namespace csscript
                             outFile = Runtime.CustomCommandsDir.PathJoin(outFile);
                         }
 
-                        var file = Path.GetFullPath(outFile).ChangeExtension(sample.FileExtension).EnsureFileDir();
+                        string file;
 
-                        print?.Invoke($"Created: {file}");
+                        if (sample == samples.First())
+                        {
+                            if (outFile.GetExtension() == "")
+                                file = outFile + sample.FileExtension;
+                            else
+                                file = outFile;
+                        }
+                        else
+                            file = outFile.ChangeExtension(sample.FileExtension); // IE script.xaml
+
+                        file = file.GetFullPath().EnsureFileDir();
+
+                        print?.Invoke($"Created: {outFile}");
                         File.WriteAllText(file, sample.Code);
                     }
                     else

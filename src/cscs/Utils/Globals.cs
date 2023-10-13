@@ -1,3 +1,6 @@
+using csscript;
+using CSScripting.CodeDom;
+using CSScriptLib;
 using System;
 using System.IO;
 using System.Linq;
@@ -5,9 +8,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
-using csscript;
-using CSScripting.CodeDom;
-using CSScriptLib;
 
 namespace CSScripting
 {
@@ -231,7 +231,7 @@ namespace CSScripting
         }
 
         static internal string GetCompilerFor(string file)
-            => file.GetExtension().SameAs(".cs") ? csc : csc.ChangeFileName("vbc.dll");
+            => file.GetExtension().ToLower().StartsWith(".vb") ? csc.ChangeFileName("vbc.dll") : csc;
 
         static internal string CheckAndGenerateSdkWarning()
         {
