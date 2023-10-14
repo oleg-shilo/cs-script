@@ -293,6 +293,8 @@ global using global::System.Threading.Tasks;");
 
             if (!Runtime.IsLinux)
             {
+                var ttt = "console".ChangeExtension(".cs");
+
                 var script_file = nameof(new_wpf_with_cscs) + ".cs";
 
                 var output = cscs_run($"-new:wpf {script_file}");

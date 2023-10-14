@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.8.3.0</version>
+        <version>4.8.5.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,9 +25,8 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-# Release v4.8.3.0
-- Issue #336: Huge script startup delay with v4.7.2.0 compared to v4.2.0.0 (further optimization)
-
+# Release v4.8.5.0
+- Issue #344: Support .csx file extension?
 
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
