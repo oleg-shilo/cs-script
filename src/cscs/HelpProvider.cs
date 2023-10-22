@@ -456,9 +456,11 @@ namespace csscript
                                           "Prints the information about build server.",
                                           "Note, the server starts automatically on the script execution that is configured to use the 'csc' " +
                                           "or 'roslyn' engine.",
-                                          "Build server is a background process, which implements hop loading of C# compiler csc.exe. " +
+                                          "Build server is a background process, which implements top loading of C# compiler csc.exe. " +
                                           "Somewhat similar to VBCSCompiler.exe.",
                                           "These options are only relevant if the compiler engine is set to 'csc' (see '-engine' command).",
+                                          "Note, the build server is deployed on the first execution of the script with `csc` or `roslyn` engine.",
+                                          "Though on Linux it has to be an execution with root privileges. Or you can just run `sudo css -server:add`.",
                                           "```",
                                           " -server:start   - ${<==}deploys and starts build server. Useful if you want to start the server " +
                                               "on system startup.",
