@@ -156,6 +156,13 @@ namespace CSScripting
                 File.WriteAllBytes(build_server, Resources.build);
                 File.WriteAllBytes(build_server.ChangeExtension(".deps.json"), Resources.build_deps);
                 File.WriteAllBytes(build_server.ChangeExtension(".runtimeconfig.json"), Resources.build_runtimeconfig);
+
+                Console.WriteLine($"Build server has been deployed to '{build_server.GetDirName()}'");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Ensure you are running the command as administrator.");
             }
             catch (Exception ex)
             {

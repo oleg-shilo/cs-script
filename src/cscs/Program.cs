@@ -1,15 +1,15 @@
-﻿using System;
+﻿using csscript;
+using CSScripting;
+using CSScripting.CodeDom;
+using System;
 using System.Diagnostics;
-using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Xml.Linq;
-using csscript;
-using CSScripting;
-using CSScripting.CodeDom;
+using static System.Environment;
 
 /*
  TODO:
@@ -70,7 +70,7 @@ namespace cscs
                     else if (serverCommand == "-server_r:stop") CSScripting.Roslyn.BuildServer.Stop();
                     else Globals.PrintBuildServerInfo();
                 }
-                if (OSVersion.Platform == PlatformID.Win32NT && installCommand.HasText() && !args.Any(x => x == "?"))
+                else if (OSVersion.Platform == PlatformID.Win32NT && installCommand.HasText() && !args.Any(x => x == "?"))
                 {
                     if (installCommand == "-install") { Globals.IntegrateWithOS(install: true); }
                     else if (installCommand == "-uninstall") { Globals.IntegrateWithOS(install: false); }
