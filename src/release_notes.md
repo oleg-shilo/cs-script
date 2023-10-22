@@ -1,4 +1,4 @@
-# Pre-Release v4.8.5.0
+# Pre-Release v4.8.6.0
 
 ---
 
@@ -6,7 +6,8 @@
 
 ### CLI
 
-- Issue #344: Support .csx file extension?
+- Issue #345: cs-script 4.8.5 does not see cache directory on Linux
+- Issue #346: cs-script 4.8.5 doesn't show information about server on Linux
 
 ### CSScriptLib
 

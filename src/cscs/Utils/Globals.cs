@@ -14,12 +14,17 @@ namespace CSScripting
     /// <summary>
     /// The configuration and methods of the global context.
     /// </summary>
-    public partial class Globals
+    public static partial class Globals
     {
         static internal string DynamicWrapperClassName = "DynamicClass";
         static internal string RootClassName = "css_root";
         // Roslyn still does not support anything else but `Submission#0` (17 Jul 2019) [update]
         // Roslyn now does support alternative class names (1 Jan 2020)
+
+        static string GetServerCommandError(this Exception ex)
+            => ex.Message + (ex is UnauthorizedAccessException ?
+                               $"{Environment.NewLine}Ensure you are running the command as administrator." :
+                                "");
 
         static internal void IntegrateWithOS(bool install = true)
         {
@@ -87,21 +92,6 @@ namespace CSScripting
             }
         }
 
-        // static internal void Install(bool installRequest)
-        // {
-        //     if (Globals.BuildServerIsDeployed)
-        //     {    // CSScriptLib.CoreExtensions.RunAsync(
-        //         Console.WriteLine($"Build server: {Globals.build_server.GetFullPath()}");
-        //         Console.WriteLine($"Build server compiler: {Globals.csc.GetFullPath()}");
-        //         Console.WriteLine($"Build server is {(BuildServer.IsServerAlive(null) ? "" : "not ")}running.");
-        //     }
-        //     else
-        //     {
-        //         Console.WriteLine("Build server is not deployed.");
-        //         Console.WriteLine($"Expected deployment: {Globals.build_server.GetFullPath()}");
-        //     }
-        // }
-
         static internal void StopBuildServer()
         {
             if (Globals.BuildServerIsDeployed)
@@ -139,8 +129,9 @@ namespace CSScripting
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.GetServerCommandError());
             }
+
             return !File.Exists(build_server);
         }
 
@@ -159,14 +150,9 @@ namespace CSScripting
 
                 Console.WriteLine($"Build server has been deployed to '{build_server.GetDirName()}'");
             }
-            catch (UnauthorizedAccessException ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("Ensure you are running the command as administrator.");
-            }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.GetServerCommandError());
             }
             return File.Exists(build_server);
         }
