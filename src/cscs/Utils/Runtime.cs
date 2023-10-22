@@ -23,6 +23,8 @@ namespace csscript
         /// </summary>
         static public event UnhandledExceptionEventHandler UnhandledException;
 
+        internal static string CacheDir = GetScriptTempDir().PathJoin("cache");
+
         internal static bool RaiseUnhandledExceptionIfSubscribed(object sender, UnhandledExceptionEventArgs e)
         {
             var handlers = UnhandledException?.GetInvocationList();
@@ -64,7 +66,7 @@ namespace csscript
         /// </summary>
         public static void CleanAbandonedCache()
         {
-            var rootDir = GetScriptTempDir().PathJoin("cache");
+            var rootDir = Runtime.CacheDir;
 
             if (Directory.Exists(rootDir))
             {

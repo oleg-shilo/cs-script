@@ -1922,7 +1922,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
                         if (settings.DefaultCompilerEngine == Directives.compiler_csc)
                         {
                             builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Globals.csc})");
-                            builder.AppendLine($"                    -> dotnet ({Globals.dotnet})");
+                            builder.AppendLine($"                    of dotnet ({Globals.dotnet})");
                             if (sdkWarning.HasText())
                                 builder.AppendLine($"                    {sdkWarning}");
                         }
@@ -1943,6 +1943,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
 
                 builder.AppendLine("   NuGet manager:   " + NuGet.NuGetExeView)
                        .AppendLine("   NuGet cache:     " + NuGet.NuGetCacheView)
+                       .AppendLine("   Script cache:     " + Runtime.CacheDir)
                        .AppendLine("   Custom commands: " + Runtime.CustomCommandsDir)
                        .AppendLine("   Global includes: " + Runtime.GlobalIncludsDir);
             }

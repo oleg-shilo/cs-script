@@ -788,7 +788,7 @@ namespace csscript
                         if (options.compilerEngine == Directives.compiler_csc)
                         {
                             Console.WriteLine($"  Compiler engine: {options.compilerEngine} ({Globals.csc})");
-                            Console.WriteLine($"                   -> dotnet ({Globals.dotnet})");
+                            Console.WriteLine($"                   of dotnet ({Globals.dotnet})");
                             if (sdkWarning.HasText())
                                 Console.WriteLine($"                    {sdkWarning}");
                         }
@@ -812,6 +812,7 @@ namespace csscript
                         Console.WriteLine("  CurrentDirectory: " + Environment.CurrentDirectory);
                         Console.WriteLine("  NuGet manager: " + NuGet.NuGetExeView);
                         Console.WriteLine("  NuGet cache: " + NuGet.NuGetCacheView);
+                        Console.WriteLine("  Script cache: " + Runtime.CacheDir);
                         Console.WriteLine("  Executing: " + Path.GetFullPath(options.scriptFileName));
                         Console.WriteLine("  Script arguments: ");
                         for (int i = 0; i < scriptArgs.Length; i++)
@@ -2067,7 +2068,7 @@ namespace csscript
         /// <returns>Cache directory name.</returns>
         public static string GetCacheDirectory(string file)
         {
-            string commonCacheDir = Path.Combine(Runtime.GetScriptTempDir(), "cache");
+            string commonCacheDir = Runtime.CacheDir;
 
             string cacheDir;
             string directoryPath = Path.GetDirectoryName(Path.GetFullPath(file));

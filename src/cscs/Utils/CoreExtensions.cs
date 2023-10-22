@@ -1,3 +1,7 @@
+using csscript;
+using CSScripting;
+using CSScripting.CodeDom;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,10 +12,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
-using Microsoft.CodeAnalysis;
-using csscript;
-using CSScripting;
-using CSScripting.CodeDom;
 
 #if class_lib
 
@@ -114,7 +114,8 @@ namespace csscript
         {
             try
             {
-                if (file.EndsWith(".g.csx") || file.EndsWith(".g.cs") && file.Contains(Path.Combine("CSSCRIPT", "Cache")))
+                if ((file.EndsWith(".g.csx") || file.EndsWith(".g.cs"))
+                    && file.Contains(Runtime.CacheDir, ignoreCase: true))
                 {
                     //it is an auto-generated file so try to find the original source file (logical file)
                     string dir = Path.GetDirectoryName(file);

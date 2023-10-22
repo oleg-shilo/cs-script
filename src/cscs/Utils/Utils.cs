@@ -323,7 +323,7 @@ partial class dbg
 
         internal static string CreateDbgInjectionInterfaceCode(string scriptFileName)
         {
-            var file = Runtime.GetScriptTempDir().PathJoin("Cache", "dbg.cs");
+            var file = Runtime.CacheDir.PathJoin("dbg.cs");
 
             try { File.WriteAllText(file, DbgInjectionCodeInterface); }
             catch { }
@@ -344,7 +344,7 @@ partial class dbg
             if (Runtime.IsWin)
                 fileLock.Wait(1000);
 
-            var cache_dir = Path.Combine(Runtime.GetScriptTempDir(), "Cache");
+            var cache_dir = Runtime.CacheDir;
             var dbg_file = Path.Combine(cache_dir, "dbg.inject." + dbg_injection_version + ".cs");
             var dbg_interface_file = Path.Combine(cache_dir, "dbg.cs");
 
@@ -1813,8 +1813,6 @@ partial class dbg
 
     internal class Cache
     {
-        static string cacheRootDir = Path.Combine(Runtime.GetScriptTempDir(), "Cache");
-
         static void deleteFile(string path)
         {
             try
@@ -1861,7 +1859,7 @@ partial class dbg
         static string Do(Op operation)
         {
             StringBuilder result = new StringBuilder();
-            result.AppendLine("Cache root: " + cacheRootDir);
+            result.AppendLine("Cache root: " + Runtime.CacheDir);
             if (operation == Op.List)
                 result.AppendLine("Listing cache items:");
             else if (operation == Op.Trim)
@@ -1871,8 +1869,8 @@ partial class dbg
 
             result.AppendLine("");
 
-            if (Directory.Exists(cacheRootDir))
-                foreach (string cacheDir in Directory.GetDirectories(cacheRootDir))
+            if (Directory.Exists(Runtime.CacheDir))
+                foreach (string cacheDir in Directory.GetDirectories(Runtime.CacheDir))
                 {
                     string infoFile = Path.Combine(cacheDir, "css_info.txt");
 
