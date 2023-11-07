@@ -1,7 +1,3 @@
-using csscript;
-using CSScripting;
-using CSScriptLib;
-using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using Microsoft.CodeAnalysis.Scripting;
+using csscript;
+using CSScripting;
+using CSScriptLib;
 using Testing;
 using Xunit;
 
@@ -61,7 +61,7 @@ namespace EvaluatorTests
             script.GetType().Assembly.Unload();
         }
 
-        private void call_FailingUnloadAssembly()
+        void call_FailingUnloadAssembly()
         {
             // dynamic will trigger an accidental referencing the assembly under the hood of CLR and
             // it will not be collected.
@@ -116,29 +116,6 @@ namespace EvaluatorTests
         [Fact]
         public void call_LoadMethod()
         {
-            var info = new CompileInfo
-            {
-                AssemblyFile = @"D:\out\asm.dll"
-            };
-
-            var asm1 = CSScript.Evaluator
-                .With(e => e.IsCachingEnabled = true)
-                .LoadFile(@"D:\out\test.cs");
-
-            Assembly asm2 = CSScript.Evaluator
-                                    .CompileCode(@"using System;
-                                                public class Script
-                                                {
-                                                    public int Sum(int a, int b)
-                                                    {
-                                                        return a+b;
-                                                    }
-                                                }",
-                                                    info);
-
-            // dynamic script = asm.CreateObject("*");
-            // var result = script.Sum(7, 3);
-
             dynamic script = CSScript.RoslynEvaluator
                                      .LoadMethod(@"public object func()
                                                {
@@ -335,16 +312,16 @@ namespace EvaluatorTests
             };
 
             var accounting_assm2 = CSScript.Evaluator
-                            .With(e => e.IsCachingEnabled = false)
-                            .CompileCode(@"public class TXBase
+                                   .With(e => e.IsCachingEnabled = false)
+                                   .CompileCode(@"public class TXBase
                              {
                                  public string TranId { get; set; }
                                  public string HashKey { get; set; }
                              }", info);
 
             dynamic script1 = CSScript.Evaluator
-                            .ReferenceAssembly(accounting_assm2)
-                            .LoadCode(@"public class TXPayment
+                              .ReferenceAssembly(accounting_assm2)
+                              .LoadCode(@"public class TXPayment
                             {
                                 public string Reason { get; set; }
                                 public string Test()

@@ -77,7 +77,6 @@ echo Building csws.dll from %cd%
 echo ----------------
 dotnet publish -c Release -f %target%-windows -o "..\out\Windows\win"
 
-
 cd ..\CSScriptLib\src\CSScriptLib
 echo ----------------
 echo Building CSScriptLib.dll from %cd%

@@ -2,8 +2,7 @@
   "profiles": {
     "csws": {
       "commandName": "Project",
-      "commandLineArgs": "--version ver.log",
-      "workingDirectory": "D:\\dev\\Galos\\cs-script\\src"
+      "commandLineArgs": "--version ver.log"
     }
   }
 }

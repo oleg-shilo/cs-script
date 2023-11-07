@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.8.6.0</Version>
+    <Version>4.8.7.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
@@ -17,16 +17,17 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.8.6.0</AssemblyVersion>
-    <FileVersion>4.8.6.0</FileVersion>
+    <AssemblyVersion>4.8.7.0</AssemblyVersion>
+    <FileVersion>4.8.7.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- Issue #345: cs-script 4.8.5 does not see cache directory on Linux
-- Issue #346: cs-script 4.8.5 doesn't show information about server on Linux
+- Fixed accidental ignoring of CLI arguments: `-v`, `-ver`, `-version`
+- Improved CLI help formatting 
+- Improved build script
 
 ### CSScriptLib
 

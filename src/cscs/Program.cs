@@ -1,35 +1,15 @@
-﻿using csscript;
-using CSScripting;
-using CSScripting.CodeDom;
-using System;
+﻿using System;
 using System.Diagnostics;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Xml.Linq;
-using static System.Environment;
-
-/*
- TODO:
-
-   csc_builder
-     - add configurable exit on idle
-
-   cscs
-     - code cleanup
-     - VB support
-     - Unify namespaces
-     - Migrate app settings to json
-     - remove old not used settings
-     - clean help content from unused stuff
-     - implement config for port number
-
-   CSSCriptLib
-     - VB support
-     - implement config for port number
-*/
+using csscript;
+using CSScripting;
+using CSScripting.CodeDom;
 
 namespace cscs
 {

@@ -1,3 +1,5 @@
+// Ignore Spelling: Dirs
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -485,7 +487,7 @@ namespace CSScriptLib
             string typeName = type.Name;
             //remove generic type suffix from name.
             typeName = typeName.Substring(0, typeName.IndexOf('`'));
-            return $"{type.Namespace}.{typeName}<{string.Join(", ",type.GenericTypeArguments.Select(TypeNameForScript))}>";
+            return $"{type.Namespace}.{typeName}<{string.Join(", ", type.GenericTypeArguments.Select(TypeNameForScript))}>";
         }
     }
 }

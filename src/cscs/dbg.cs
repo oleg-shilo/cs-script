@@ -11,13 +11,13 @@ using System.Text.RegularExpressions;
 
 public static class dbg_extensions
 {
-    static public T dump<T>(this T @object, params object[] args)
+    public static T dump<T>(this T @object, params object[] args)
     {
         dbg.print(@object, args);
         return @object;
     }
 
-    static public T print<T>(this T @object, params object[] args)
+    public static T print<T>(this T @object, params object[] args)
     {
         dbg.print(@object, args);
         return @object;
@@ -65,31 +65,31 @@ public class dbg
     }
 
     //===============================
-    int level = 0;
+    private int level = 0;
 
-    string indent = "  ";
+    private string indent = "  ";
 
     public static Action<string> WriteLine = Console.Out.WriteLine;
     public static Action<string> Write = Console.Out.Write;
 
-    void write(object @object = null)
+    private void write(object @object = null)
     {
         if (@object != null)
             Write(@object.ToString().ReplaceClrAliaces());
     }
 
-    void writeLine(object @object = null)
+    private void writeLine(object @object = null)
     {
         write(@object);
         WriteLine("");
     }
 
-    string Indent
+    private string Indent
     {
         get { return new string('0', level).Replace("0", indent); }
     }
 
-    string DisplayName(IEnumerable obj)
+    private string DisplayName(IEnumerable obj)
     {
         if (obj is Array)
         {
@@ -113,9 +113,9 @@ public class dbg
         }
     }
 
-    static public string CustomPrimitiveTypes = "Newtonsoft.Json.Linq.JValue;";
+    public static string CustomPrimitiveTypes = "Newtonsoft.Json.Linq.JValue;";
 
-    static bool isPrimitive(object obj)
+    private static bool isPrimitive(object obj)
     {
         if (obj == null || obj.GetType().IsPrimitive || obj is decimal || obj is string)
             return true;
@@ -124,7 +124,7 @@ public class dbg
         return false;
     }
 
-    void WriteObject(object obj)
+    private void WriteObject(object obj)
     {
         level++;
         if (isPrimitive(obj))
@@ -188,7 +188,7 @@ public class dbg
         level--;
     }
 
-    object GetMemberValue(object element, MemberInfo m)
+    private object GetMemberValue(object element, MemberInfo m)
     {
         FieldInfo f = m as FieldInfo;
         PropertyInfo p = m as PropertyInfo;
@@ -208,7 +208,7 @@ public class dbg
         return null;
     }
 
-    void WriteValue(object o)
+    private void WriteValue(object o)
     {
         if (o == null)
             write("{null}");
@@ -228,7 +228,7 @@ public class dbg
             write("{" + o.ToString().TrimStart('{').TrimEnd('}') + "}");
     }
 
-    MemberInfo[] GetMembers(object obj)
+    private MemberInfo[] GetMembers(object obj)
     {
         Func<MemberInfo, bool> relevant_types = x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property;
 
@@ -259,12 +259,12 @@ public class dbg
 
 internal static class Extension
 {
-    static public string ReplaceWholeWord(this string text, string pattern, string replacement)
+    public static string ReplaceWholeWord(this string text, string pattern, string replacement)
     {
         return Regex.Replace(text, @"\b(" + pattern + @")\b", replacement);
     }
 
-    static public string ReplaceClrAliaces(this string text, bool hideSystemNamespace = false)
+    public static string ReplaceClrAliaces(this string text, bool hideSystemNamespace = false)
     {
         if (string.IsNullOrEmpty(text))
             return text;

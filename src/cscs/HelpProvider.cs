@@ -1,18 +1,18 @@
-using CSScripting;
-using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using static System.Environment;
 using System.IO;
 using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 using System.Reflection;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
-using static System.Environment;
-using static System.Net.Mime.MediaTypeNames;
+using Microsoft.CodeAnalysis.Scripting;
+using CSScripting;
 
 namespace csscript
 {
@@ -26,7 +26,6 @@ namespace csscript
         public const string help3 = "--help";
         public const string question = "?";
         public const string question2 = "-?";
-        public const string ver = "ver";
         public const string wpf = "wpf";
         public const string cmd = "cmd";
         public const string syntax = "syntax";
@@ -41,8 +40,9 @@ namespace csscript
         public const string verbose = "verbose";
         public const string verbose2 = "verbose2";
         public const string profile = "profile";
-        public const string v = "v";
         public const string version = "version";
+        public const string ver = "ver";
+        public const string v = "v";
         public const string version2 = "-version";
         public const string c = "c";
         public const string cd = "cd";
@@ -445,7 +445,7 @@ namespace csscript
             {
                 switch2Help[uninstall] =
                 switch2Help[install] = new ArgInfo("-install/-uninstall",
-                                                   "Sets/unsets CSSCRIPT_ROOT environment variable to the location of the script engine" +
+                                                   "Sets/unsets CSSCRIPT_ROOT environment variable to the location of the script engine " +
                                                    "being executed.",
                                                    "This environment variable is required for integration of CS-Script with Notepad++," +
                                                    "Sublime Text and some other editors, which require CS-Script installed on the host OS.",
@@ -1141,13 +1141,13 @@ namespace csscript
                                 {
                                     string capturedArg = map[description];
 
-                                    if (capturedArg.Length > arg.Length)
-                                        map[description] = capturedArg + "|" + arg;
-                                    else
-                                        map[description] = arg + "|" + capturedArg;
+                                    // if (capturedArg.Length > arg.Length)
+                                    map[description] = capturedArg + "|" + $"-{arg}";
+                                    // else
+                                    // map[description] = $"-{arg}" + "|" + capturedArg;
                                 }
                                 else
-                                    map[description] = arg;
+                                    map[description] = $"-{arg}";
 
                                 longestArg = Math.Max(map[description].Length, longestArg);
                             }
@@ -1865,7 +1865,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
 
             string dotNetVer = null;
 
-            if (arg == "--version")
+            if (arg is not null)
             {
                 builder.Append($"{Assembly.GetExecutingAssembly().GetName().Version}");
             }
@@ -1945,7 +1945,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
 
                 builder.AppendLine("   NuGet manager:   " + NuGet.NuGetExeView)
                        .AppendLine("   NuGet cache:     " + NuGet.NuGetCacheView)
-                       .AppendLine("   Script cache:     " + Runtime.CacheDir)
+                       .AppendLine("   Script cache:    " + Runtime.CacheDir)
                        .AppendLine("   Custom commands: " + Runtime.CustomCommandsDir)
                        .AppendLine("   Global includes: " + Runtime.GlobalIncludsDir);
             }

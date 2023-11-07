@@ -1,4 +1,4 @@
-# Pre-Release v4.8.6.0
+# Release v4.8.7.0
 
 ---
 
@@ -6,8 +6,9 @@
 
 ### CLI
 
-- Issue #345: cs-script 4.8.5 does not see cache directory on Linux
-- Issue #346: cs-script 4.8.5 doesn't show information about server on Linux
+- Fixed accidental ignoring of CLI arguments: `-v`, `-ver`, `-version`
+- Improved CLI help formatting 
+- Improved build script
 
 ### CSScriptLib
 

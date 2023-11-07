@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using CSScripting;
 using System.Text;
-using static System.Environment;
+using CSScripting;
 
 [assembly: InternalsVisibleTo("cscs.tests")]
 /*
@@ -131,7 +131,7 @@ namespace csscript
 
         public static string appLogo =>
             $"C# Script execution engine (.NET Core). Version {Assembly.GetExecutingAssembly().GetName().Version}.{NewLine}" +
-            "Copyright (C) 2004-2020 Oleg Shilo." + NewLine;
+            "Copyright (C) 2004-2023 Oleg Shilo." + NewLine;
 
         public static string appLogoShort =>
             $"C# Script execution engine (.NET Core). Version{Assembly.GetExecutingAssembly().GetName().Version}.{NewLine}";
