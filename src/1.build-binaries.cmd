@@ -34,12 +34,6 @@ del "CSScriptLib\src\CSScriptLib\output\*.snupkg"
 del "out\cs-script.win.7z"
 del "out\cs-script.linux.7z"
 
-
-rem set msbuild="C:\Program Files (x86)\Microsoft Visual Studio\2019\%vs_edition%\MSBuild\Current\Bin\MSBuild.exe"
-rem %msbuild% ".\css\css (win launcher).csproj" -p:Configuration=Release -t:rebuild
-rem copy .\css\bin\Release\css.exe ".\out\Windows\css.exe"
-
-
 echo =====================
 echo Building (cd: %cd%)
 echo ---------------------
@@ -122,6 +116,7 @@ xcopy /s /q "out\static_content\-wdbg\*" "out\Linux\-wdbg\"
 
 echo =====================
 echo Clearing possible WDBG test/dev files
+echo (it's normal if files are not found)
 echo ---------------------
 rd /S /Q .\out\Linux\-wdbg\dbg-server\bin\
 rd /S /Q .\out\Windows\-wdbg\dbg-server\bin\
@@ -136,7 +131,8 @@ copy "Tests.cscs\cli.cs" "out\Windows\-self\-test\cli.cs"
 copy "out\static_content\readme.md" "out\Linux\readme.md" 
 
 cd out\Windows
-.\cscs.exe -self-exe-build 
+
+rem .\cscs.exe -self-exe-build 
 
 echo =====================
 echo Aggregating packages (cd: %cd%)
@@ -158,6 +154,7 @@ cd ..\..
 cd out\Windows
 echo cd: %cd%
 ..\ci\7z.exe a -r "..\cs-script.win.7z" "*.*"
+..\ci\7z.exe a -r "..\cs-script.win.zip" "*.*"
 cd ..\..
 
 echo =====================
@@ -168,6 +165,7 @@ cd out\Windows
 .\cscs -c:0 ..\..\CSScriptLib\src\CSScriptLib\output\aggregate.cs
 .\cscs -engine:dotnet -code Console.WriteLine(Assembly.LoadFrom(#''cscs.dll#'').GetName().Version)
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.7z#'', $#''..\\cs-script.win.v{version}.7z#'', true);
+.\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.zip#'', $#''..\\cs-script.win.v{version}.zip#'', true);
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.linux.7z#'', $#''..\\cs-script.linux.v{version}.7z#'', true);
 .\cscs -help cli:md > ..\CS-Script---Command-Line-Interface.md
 cd ..\..

@@ -29,4 +29,4 @@ stop-server "localhost" "17001" "-stop" # starting from .NET 5 release CodeDom b
 
 Write-Warning "Removing 'css' shim $($env:ChocolateyInstall)\lib\cs-script.core\tools"
 
-Uninstall-BinFile "css1" "$($env:ChocolateyInstall)\lib\cs-script.core\tools\cscs.exe"
+Uninstall-BinFile "css" "$($env:ChocolateyInstall)\lib\cs-script\tools\cscs.exe"

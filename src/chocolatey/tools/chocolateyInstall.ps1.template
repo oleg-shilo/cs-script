@@ -22,7 +22,6 @@ try {
 
         [Byte[]]$Buffer = [Text.Encoding]::ASCII.GetBytes($data)
 
-
         $socketStream.Write($Buffer, 0, $Buffer.Length)
         $socketStream.Flush()
     }
@@ -41,6 +40,9 @@ try {
 
   Install-ChocolateyEnvironmentVariable 'CSSCRIPT_DIR' $installDir User
   Install-ChocolateyEnvironmentVariable 'CSSCRIPT_ROOT' $installDir User
+  
+  # create custom shim: cscs.exe -> css.exe
+  Generate-BinFile "css" "$($env:ChocolateyInstall)\lib\cs-script\tools\cscs.exe"
   
 } catch {
   throw $_.Exception
