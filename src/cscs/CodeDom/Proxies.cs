@@ -69,12 +69,17 @@ namespace CSScripting.CodeDom
 
             if (!File.Exists(proj_template))
             {
+                var defaultProjFileName = build_root.PathJoin($"build{fileType}proj");
+                defaultProjFileName.DeleteIfExists();
+
                 dotnet.Run($"new console -lang {language}", build_root);
                 // Program.cs
                 build_root.PathJoin($"Program{fileType}").DeleteIfExists();
                 build_root.PathJoin("obj").DeleteIfExists(recursive: true);
+
+                if (defaultProjFileName.FileExists())
+                    File.Move(defaultProjFileName, proj_template);
             }
-            // zos; need mechanism for cleaning
 
             if (!File.Exists(proj_template)) // sdk may not be available
             {
