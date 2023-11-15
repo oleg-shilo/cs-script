@@ -15,7 +15,7 @@ set msbuild="C:\Program Files\Microsoft Visual Studio\2022\%vs_edition%\MSBuild\
 %msbuild% ".\CSScriptLib.Doc\CSScriptLib.Doc.shfbproj" -p:Configuration=Release -t:rebuild /p:WarningLevel=0
 
 cd ".\out\Windows"
-.\css -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\..\\CSScriptLib.Doc\\Help\\Documentation.chm#'', $#''..\\CSScriptLib.v{version}.chm#'', true);
+.\cscs -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\..\\CSScriptLib.Doc\\Help\\Documentation.chm#'', $#''..\\CSScriptLib.v{version}.chm#'', true);
 
 cd ..\..\
 
