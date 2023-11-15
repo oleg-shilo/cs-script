@@ -1,9 +1,9 @@
-using CSScripting;
-using CSScripting.CodeDom;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
+using CSScripting;
+using CSScripting.CodeDom;
 
 namespace csscript
 {
@@ -58,13 +58,6 @@ namespace csscript
         /// Initializes a new instance of the <see cref="CompilerException"/> class.
         /// </summary>
         public CompilerException() { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CompilerException"/> class.
-        /// </summary>
-        /// <param name="info">The object that holds the serialized object data.</param>
-        /// <param name="context">The contextual information about the source or destination.</param>
-        public CompilerException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CompilerException"/> class.
