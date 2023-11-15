@@ -81,14 +81,14 @@ namespace CSScripting.CodeDom
                     File.Move(defaultProjFileName, proj_template);
             }
 
-            if (!File.Exists(proj_template)) // sdk may not be available
+            if (!File.Exists(proj_template)) // sdk may not be available so this is the last line of defense
             {
                 File.WriteAllLines(proj_template, new[]
                 {
                     "<Project Sdk=\"Microsoft.NET.Sdk\">",
                     "  <PropertyGroup>",
                     "    <OutputType>Exe</OutputType>",
-                    "    <TargetFramework>net7.0</TargetFramework>",
+                    $"    <TargetFramework>net{Environment.Version.Major}.0</TargetFramework>",
                     "  </PropertyGroup>",
                     "</Project>"
                 });

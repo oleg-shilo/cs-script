@@ -1,23 +1,23 @@
-using CSScripting;
-using CSScripting.CodeDom;
-using CSScriptLib;
-using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.ConstrainedExecution;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using static System.Environment;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.CodeAnalysis;
+using CSScripting;
+using CSScripting.CodeDom;
+using CSScriptLib;
 
 namespace csscript
 {
@@ -1648,7 +1648,8 @@ namespace csscript
         {
             // ********************************************************************************************
             // * Extremely important to keep the project building algorithm in sync with
-            // ProjectBuilder.GenerateProjectFor ********************************************************************************************
+            // * ProjectBuilder.GenerateProjectFor
+            // ********************************************************************************************
 
             // if no request to build executable or dll is made then use exe format as it is the
             // only format that allows top-level statements (classless scripts)

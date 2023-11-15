@@ -1,14 +1,14 @@
-using CSScripting;
-using CSScripting.CodeDom;
-using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using static System.Environment;
+using Microsoft.CodeAnalysis.Scripting;
+using CSScripting;
+using CSScripting.CodeDom;
 
 namespace csscript
 {
@@ -514,8 +514,8 @@ namespace csscript
             // - analyse only directories that are listed in `*.nuget.cache` file (e.g. test\obj\project.nuget.cache)
 
             var result = new List<string>();
-
-            var projectDir = SpecialFolder.LocalApplicationData.GetPath("Temp", "csscript.core", "nuget", Guid.NewGuid().ToString());
+            var projId = Guid.NewGuid().ToString();
+            var projectDir = SpecialFolder.LocalApplicationData.GetPath("Temp", "csscript.core", "nuget", projId);
             Directory.CreateDirectory(projectDir);
 
             var packagsSection = "";
@@ -535,17 +535,24 @@ namespace csscript
 
             try
             {
-                var projectFile = projectDir.PathJoin("nuget.ref.csproj");
+                // var projectFile = projectDir.PathJoin("nuget.ref.csproj");
+                var projectFile = projectDir.PathJoin($"{projId}.csproj");
 
-                File.WriteAllText(projectFile, $@"<Project Sdk=""Microsoft.NET.Sdk"">
-	                                                  <PropertyGroup>
-		                                                  <OutputType>Library</OutputType>
-		                                                  <TargetFramework>net7.0</TargetFramework>
-	                                                  </PropertyGroup>
-	                                                  <ItemGroup>
-                                                          {packagsSection}
-	                                                  </ItemGroup>
-                                                  </Project>");
+                var p1 = new Process();
+                p1.StartInfo.FileName = "dotnet";
+                p1.StartInfo.Arguments = "new classlib";
+                p1.StartInfo.WorkingDirectory = projectDir;
+                p1.StartInfo.RedirectStandardOutput = true;
+                p1.Start();
+                p1.WaitForExit();
+
+                var projContent = File.ReadAllText(projectDir.PathJoin($"{projId}.csproj"))
+                    .Replace("</Project>", $@"<ItemGroup>
+                                                {packagsSection}
+                                              </ItemGroup>
+                                          </Project>");
+
+                File.WriteAllText(projectFile, projContent);
 
                 packages = packages.OrderBy(x => x).ToArray();
 
@@ -572,7 +579,7 @@ namespace csscript
                 var allRefAssemblies = Directory.GetFiles(Path.Combine(projectDir, "publish"), "*.dll")
                                            .Concat(
                                        Directory.GetFiles(Path.Combine(projectDir, "publish"), "*.exe"))
-                                           .Where(x => !x.EndsWith("nuget.ref.dll"))
+                                           .Where(x => !x.EndsWith($"{projId}.dll"))
                                            .OrderBy(x => x);
 
                 bool isSameData(byte[] a, byte[] b)
