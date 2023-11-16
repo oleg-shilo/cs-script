@@ -239,7 +239,8 @@ namespace csscript
             switch1Help[check] = new ArgInfo("-check",
                                              "Checks script for errors without execution.");
             switch1Help[proj] = new ArgInfo("-proj",
-                                            "Shows script 'project info' - script and all its dependencies.");
+                                            "Shows script 'project info' - script and all its dependencies.",
+                                            "An internal-use version of this command '-proj:csproj' can be also useful for troubleshooting.");
             switch1Help[vs_init] =
             switch1Help[vs] = new ArgInfo("-vs <script>|-vs:init [index_of_detected_VS_executable]",
                                           "Generates .NET project file and opens it in Visual Studio.",
