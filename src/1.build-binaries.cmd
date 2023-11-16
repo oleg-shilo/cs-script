@@ -105,6 +105,7 @@ copy "out\static_content\-self\*" "out\Windows\-self\"
 copy "out\static_content\-self\*" "out\Linux\-self\" 
 
 copy "out\static_content\-self\-exe\*" "out\Windows\-self\-exe\" 
+copy "out\static_content\-self\-alias\*" "out\Windows\-self\-alias\" 
 copy "out\static_content\-self\-exe\*" "out\Linux\-self\-exe\" 
 
 copy "out\static_content\-self\-test\*" "out\Windows\-self\-test\" 

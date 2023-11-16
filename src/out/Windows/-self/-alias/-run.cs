@@ -20,7 +20,7 @@ if (Environment.OSVersion.Platform != PlatformID.Win32NT)
     return;
 }
 
-var workingDir = Environment.ExpandEnvironmentVariables(@"%userprofile%\AppData\Local\Microsoft\WinGet\Packages\oleg-shilo.cs-script__DefaultSource");
+var workingDir = Environment.ExpandEnvironmentVariables(Path.GetDirectoryName(engine_asm));
 var alias = "css.exe";
 
 if (File.Exists(Path.Combine(workingDir, alias)))
