@@ -241,7 +241,7 @@ namespace CSScripting.CodeDom
                                                              .ToList();
 
             void setTargetFremeworkWin() => project_element.Element("PropertyGroup")
-                                                           .SetElementValue("TargetFramework", "net7.0-windows");
+                                                           .SetElementValue("TargetFramework", $"net{Environment.Version.Major}.0-windows");
 
             bool refWinForms = ref_assemblies.Any(x => x.EndsWith("System.Windows.Forms") ||
                                                        x.EndsWith("System.Windows.Forms.dll"));

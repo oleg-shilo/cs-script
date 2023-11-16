@@ -1406,7 +1406,7 @@ app.Run();
             if (addOpenApi)
             {
                 cs = cs.Replace("$extracode$", $"{Environment.NewLine}   .WithOpenApi()")
-                       .Replace("$extrapackages$", $"//css_nuget Microsoft.AspNetCore.OpenApi -ver:7.0.0 -rt:net7.0{Environment.NewLine}" +
+                       .Replace("$extrapackages$", $"//css_nuget Microsoft.AspNetCore.OpenApi -ver:{Environment.Version.Major}.0.0 -rt:net{Environment.Version.Major}.0{NewLine}" +
                                                 $"//css_nuget Microsoft.OpenApi{Environment.NewLine}");
             }
             else
