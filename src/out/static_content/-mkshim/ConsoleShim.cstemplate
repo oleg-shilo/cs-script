@@ -15,22 +15,18 @@ static class ConsoleShim
 
     static void Main(string[] args)
     {
-        if (!Path.IsPathRooted(appFile))
-        {
-            string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            appFile = Path.GetFullPath(Path.Combine(directoryName, appFile));
-        }
-
         if (!File.Exists(appFile))
         {
             Console.WriteLine("The mapped executable was not found at " + appFile);
             Environment.Exit(-1);
         }
 
+        //{waitForExit}
+
         try
         {
             Win32.ListenToConsoleExit();
-            Environment.ExitCode = Run(appFile, Extensions.ToCmdArgs(args), Environment.CurrentDirectory, toElevate: false);
+            Environment.ExitCode = Run(appFile, Extensions.ToCmdArgs(args), Environment.CurrentDirectory, toWait, toElevate: false);
         }
         catch (Win32Exception e)
         {
@@ -38,7 +34,7 @@ static class ConsoleShim
             {
                 try
                 {
-                    Environment.ExitCode = Run(appFile, Extensions.ToCmdArgs(args), Environment.CurrentDirectory, toElevate: true);
+                    Environment.ExitCode = Run(appFile, Extensions.ToCmdArgs(args), Environment.CurrentDirectory, toWait, toElevate: true);
                 }
                 catch (Win32Exception e1)
                 {
@@ -51,7 +47,7 @@ static class ConsoleShim
 
     public static Process ChildProcess;
 
-    static int Run(string file, string arguments, string workingDir, bool toElevate)
+    static int Run(string file, string arguments, string workingDir, bool toWait, bool toElevate)
     {
         int result = 0;
 
@@ -66,7 +62,7 @@ static class ConsoleShim
         ChildProcess.StartInfo.CreateNoWindow = false;
         ChildProcess.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
 
-        if (toElevate && Environment.OSVersion.Version.Major >= 6)
+        if (Environment.OSVersion.Version.Major >= 6 && toElevate)
         {
             ChildProcess.StartInfo.UseShellExecute = true;
             ChildProcess.StartInfo.Verb = "runas";
@@ -74,9 +70,12 @@ static class ConsoleShim
         }
 
         ChildProcess.Start();
-        ChildProcess.WaitForExit();
-        result = ChildProcess.ExitCode;
 
+        if(toWait)
+        {
+            ChildProcess.WaitForExit();
+            result = ChildProcess.ExitCode;
+        }
         return result;
     }
 }

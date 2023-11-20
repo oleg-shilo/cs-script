@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 using System.Text;
 using Toolbelt.Drawing;
@@ -39,10 +40,11 @@ static class MkShim
         {
             Directory.CreateDirectory(buildDir);
 
+            var isWinApp = exe.IsWindowExe();
             var icon = exe.ExtractFirstIconToFolder(buildDir);
-            var csFile = exe.GetShimSourceCodeFor(buildDir);
+            var csFile = exe.GetShimSourceCodeFor(buildDir, isWinApp);
 
-            var build = csc.Run($"-out:\"{shim}\" /win32icon:\"{icon}\" \"{csFile}\"");
+            var build = csc.Run($"-out:\"{shim}\" /win32icon:\"{icon}\" /target:{(isWinApp ? "winexe" : "exe")} \"{csFile}\"");
             build.WaitForExit();
 
             if (build.ExitCode == 0)
@@ -63,8 +65,9 @@ static class MkShim
 
     static bool HandleUserInput(string[] args)
     {
-        if (args.Contains("-h") || args.Contains("-?") || args.Contains("-help"))
+        if (args.Contains("-h") || args.Contains("-?") || args.Contains("?") || args.Contains("-help"))
         {
+            Console.WriteLine($@"Generates shim for a given executable file.");
             Console.WriteLine($@"Usage:");
             Console.WriteLine($@"   css -mkshim <shim_name> <mapped_executable>");
             return true;
@@ -72,7 +75,7 @@ static class MkShim
 
         if (!args.Any() || args.Count() < 2)
         {
-            Console.WriteLine($@"Please run 'css -mkshim -?' for help menu.");
+            Console.WriteLine($@"No arguments were specified. Execute 'css -mkshim ?' for usage help.");
             return true;
         }
 
@@ -97,19 +100,29 @@ static class MkShim
         return iconFile;
     }
 
+    static bool IsWindowExe(this string exe)
+    {
+        using var stream = File.Open(exe, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var reader = new PEReader(stream);
+        // isDll = reader.PEHeaders.IsDll;
+        var subsystem = reader?.PEHeaders?.PEHeader != null ? reader.PEHeaders.PEHeader.Subsystem : Subsystem.Unknown;
+        return subsystem == Subsystem.WindowsGui;
+    }
+
     public static string ArgValue(this string[] args, string name)
     {
         return args.FirstOrDefault(x => x.StartsWith($"-{name}:"))?.Split(new[] { ':' }, 2).LastOrDefault();
     }
 
-    static string GetShimSourceCodeFor(this string exe, string outDir)
+    static string GetShimSourceCodeFor(this string exe, string outDir, bool isWinApp)
     {
         var version = exe.GetFileVersion();
         var template = File.ReadAllText(templateFile);
         var csFile = Path.Combine(outDir, Path.GetFileName(exe) + ".cs");
 
         var code = template.Replace("//{version}", $"[assembly: System.Reflection.AssemblyFileVersionAttribute(\"{version}\")]")
-                           .Replace("//{appFile}", $"static string appFile = @\"{exe}\";");
+                           .Replace("//{appFile}", $"static string appFile = @\"{exe}\";")
+                           .Replace("//{waitForExit}", $"var toWait = {(isWinApp ? "false" : "true")};");
 
         File.WriteAllText(csFile, code);
 
