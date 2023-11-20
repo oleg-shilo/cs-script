@@ -1,4 +1,4 @@
-//css_ref D:\dev\mkshim\src\packages\IconExtractor.1.0.1\lib\netstandard2.0\IconExtractor.dll
+//css_ref IconExtractor.dll
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -26,8 +26,8 @@ static class MkShim
         if (HandleUserInput(args))
             return;
 
-        var shim = args[0];
-        var exe = args[1];
+        var shim = Path.GetFullPath(args[0]);
+        var exe = Path.GetFullPath(args[1]);
 
         if (!exe.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
         {
