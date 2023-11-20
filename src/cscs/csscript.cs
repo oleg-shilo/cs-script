@@ -71,6 +71,7 @@ namespace csscript
 
                 var envarName = request == AppArgs.vs ? "CSSCRIPT_VSEXE" : "CSSCRIPT_VSCODEEXE";
                 var vs_exe = Environment.GetEnvironmentVariable(envarName);
+                Environment.SetEnvironmentVariable("EntryScript", options.scriptFileName);
 
                 Process p = null;
                 if (request == AppArgs.vs)
