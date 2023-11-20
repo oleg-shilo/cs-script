@@ -1,0 +1,136 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+
+//{version}
+
+static class ConsoleShim
+{
+    //{appFile}
+
+    static void Main(string[] args)
+    {
+        if (!Path.IsPathRooted(appFile))
+        {
+            string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            appFile = Path.GetFullPath(Path.Combine(directoryName, appFile));
+        }
+
+        if (!File.Exists(appFile))
+        {
+            Console.WriteLine("The mapped executable was not found at " + appFile);
+            Environment.Exit(-1);
+        }
+
+        try
+        {
+            Win32.ListenToConsoleExit();
+            Environment.ExitCode = Run(appFile, Extensions.ToCmdArgs(args), Environment.CurrentDirectory, toElevate: false);
+        }
+        catch (Win32Exception e)
+        {
+            if (e.NativeErrorCode == Win32.ERROR_ELEVATION_REQUIRED)
+            {
+                try
+                {
+                    Environment.ExitCode = Run(appFile, Extensions.ToCmdArgs(args), Environment.CurrentDirectory, toElevate: true);
+                }
+                catch (Win32Exception e1)
+                {
+                    if (e1.NativeErrorCode != Win32.ERROR_CANCELLED)
+                        throw;
+                }
+            }
+        }
+    }
+
+    public static Process ChildProcess;
+
+    static int Run(string file, string arguments, string workingDir, bool toElevate)
+    {
+        int result = 0;
+
+        ChildProcess = new Process();
+        ChildProcess.StartInfo.FileName = file;
+        ChildProcess.StartInfo.Arguments = arguments;
+        ChildProcess.StartInfo.UseShellExecute = false;
+        ChildProcess.StartInfo.WorkingDirectory = workingDir;
+        ChildProcess.StartInfo.RedirectStandardError = false;
+        ChildProcess.StartInfo.RedirectStandardOutput = false;
+        ChildProcess.StartInfo.RedirectStandardInput = false;
+        ChildProcess.StartInfo.CreateNoWindow = false;
+        ChildProcess.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
+
+        if (toElevate && Environment.OSVersion.Version.Major >= 6)
+        {
+            ChildProcess.StartInfo.UseShellExecute = true;
+            ChildProcess.StartInfo.Verb = "runas";
+            ChildProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+        }
+
+        ChildProcess.Start();
+        ChildProcess.WaitForExit();
+        result = ChildProcess.ExitCode;
+
+        return result;
+    }
+}
+
+public static class Extensions
+{
+    public static string ToCmdArgs(IEnumerable<string> args)
+    {
+        return string.Join(" ",
+                           args.Select(x => (x.Contains(" ") || x.Contains("\t")) ? "\""+x+"\"" : x)
+                               .ToArray());
+    }
+}
+
+static class Win32
+{
+    public const int ERROR_ELEVATION_REQUIRED = 740;
+    public const int ERROR_CANCELLED = 1223;
+
+    enum SignalControlType
+    {
+        CTRL_C_EVENT = 0,
+        CTRL_BREAK_EVENT = 1,
+        CTRL_CLOSE_EVENT = 2,
+        CTRL_LOGOFF_EVENT = 5,
+        CTRL_SHUTDOWN_EVENT = 6
+    }
+
+    delegate bool Handler(SignalControlType sig);
+
+    static Handler handler;
+
+    [DllImport("Kernel32")]
+    static extern bool SetConsoleCtrlHandler(Handler handler, bool add);
+
+    public static void ListenToConsoleExit()
+    {
+        handler = ConsoleCtrlHandler; // to ensure it's not collected
+        SetConsoleCtrlHandler(handler, true);
+    }
+
+    static bool ConsoleCtrlHandler(SignalControlType signal)
+    {
+        int exitCode = -1;
+        try
+        {
+            if (ConsoleShim.ChildProcess != null && ConsoleShim.ChildProcess.HasExited == false)
+                ConsoleShim.ChildProcess.Kill();
+
+            if (ConsoleShim.ChildProcess != null && ConsoleShim.ChildProcess.HasExited == true)
+                exitCode = ConsoleShim.ChildProcess.ExitCode;
+        }
+        catch { }
+        Environment.Exit(exitCode);
+        return true;
+    }
+}
