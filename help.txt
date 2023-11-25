@@ -15,8 +15,8 @@ Copyright (C) 2004-2023 Oleg Shilo.
              (e.g. `-help cli:md`)
        <file>    - output file for the help content
     
-    Reversed order of parameters for the command specific help is also acceptable. The all following argument combinations
-    print the same help topic for 'cache' command:
+    Reversed order of parameters for the command specific help is also acceptable. The all following argument
+    combinations print the same help topic for 'cache' command:
     
        -help cache
        -? cache
@@ -25,8 +25,8 @@ Copyright (C) 2004-2023 Oleg Shilo.
 
 -e
     Compiles script into console application executable.
-    Note this switch will force the use of `dotnet` compiler as `csc` is not capable of building executable assemblies. Thus
-    `//css_engine` and `-engine` options will always be ignored.
+    Note this switch will force the use of `dotnet` compiler as `csc` is not capable of building executable
+    assemblies. Thus `//css_engine` and `-engine` options will always be ignored.
 
 -ew
     Compiles script into Windows application executable (applicable only on Windows).
@@ -53,9 +53,10 @@ Copyright (C) 2004-2023 Oleg Shilo.
 
 -vs <script>|-vs:init [index_of_detected_VS_executable]
     Generates .NET project file and opens it in Visual Studio.
-    The path to the Visual Studio executable (devenv.exe) needs to be defined in the environment variable `CSSCRIPT_VSEXE`.
-    You can let CS-Script to detect installed Visual Studio executable and interactively select the detected executable for
-    integrating it with CS-Script by using `-vs:init` option.
+    The path to the Visual Studio executable (devenv.exe) needs to be defined in the environment variable
+    `CSSCRIPT_VSEXE`.
+    You can let CS-Script to detect installed Visual Studio executable and interactively select the detected
+    executable for integrating it with CS-Script by using `-vs:init` option.
     Alternatively, you can even ask to integrate the first detected executable with: 
           cscs -vs:init 0
 
@@ -79,29 +80,32 @@ Copyright (C) 2004-2023 Oleg Shilo.
 -ng|-engine:<csc|dotnet|roslyn>]
     Forces compilation to be done by one of the supported .NET engines.
       
-    `dotnet` - dotnet.exe compiler; this is the most versatile compilation engine though it does have a startup overhead when
-               running the script for the first time. It requires .NET SDK to be installed on the target system.
+    `dotnet` - dotnet.exe compiler; this is the most versatile compilation engine though it does have a startup
+               overhead when running the script for the first time. It requires .NET SDK to be installed on the target
+               system.
       
-    `csc`   - csc.exe compiler; the fastest compiler available. It is not suitable for WPF scripts as csc.exe cannot compile
-              XAML.
+    `csc`   - csc.exe compiler; the fastest compiler available. It is not suitable for WPF scripts as csc.exe cannot
+              compile XAML.
               The compilation is performed in the separate child process build.exe which is somewhat equivalent to
-              VBCSCompiler.exe (build server) from .NET toolset. It requires .NET SDK to be installed on the target system.
-              CS-Script communicates with build.exe build server via socket (default port 17001). You can control port value
-              via the environment variable 'CSS_BUILDSERVER_CSC_PORT'
-              Value `csc-inproc` will suppress spinning off an build server process and .NET csc.exe will be called directly
-              instead. This option convenient when socket communication is undesirable for whatever reason. Though in this
-              case all the performance benefits of `-ng:csc` will be lost and then you are better off using `-ng:dotnet`
-              instead.
+              VBCSCompiler.exe (build server) from .NET toolset. It requires .NET SDK to be installed on the target
+              system.
+              CS-Script communicates with build.exe build server via socket (default port 17001). You can control port
+              value via the environment variable 'CSS_BUILDSERVER_CSC_PORT'
+              Value `csc-inproc` will suppress spinning off an build server process and .NET csc.exe will be called
+              directly instead. This option convenient when socket communication is undesirable for whatever reason.
+              Though in this case all the performance benefits of `-ng:csc` will be lost and then you are better off
+              using `-ng:dotnet` instead.
       
-    `roslyn` - Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation engine. It does
-               not require .NET SDK being installed. Though it does have limitations (see documentation).
-               The compilation is performed in the separate child process cscs (another instance of script engine) which is
-               somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.
-               CS-Script communicates with cscs build server via socket (default port 17002). You can control port value via
-               the environment variable 'CSS_BUILDSERVER_ROSLYN_PORT'
-               Value `roslyn-inproc` will suppress spinning off an external process and Roslyn compiler will be hosted in the
-               original process of script engine instead. This option is convenient when socket communication is undesirable
-               for whatever reason. Though in this case performance will be effected on the first run of the script.
+    `roslyn` - Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation engine. It
+               does not require .NET SDK being installed. Though it does have limitations (see documentation).
+               The compilation is performed in the separate child process cscs (another instance of script engine)
+               which is somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.
+               CS-Script communicates with cscs build server via socket (default port 17002). You can control port
+               value via the environment variable 'CSS_BUILDSERVER_ROSLYN_PORT'
+               Value `roslyn-inproc` will suppress spinning off an external process and Roslyn compiler will be hosted
+               in the original process of script engine instead. This option is convenient when socket communication
+               is undesirable for whatever reason. Though in this case performance will be effected on the first run
+               of the script.
       
     
     (e.g. cscs -engine:dotnet sample.cs
@@ -154,14 +158,14 @@ Copyright (C) 2004-2023 Oleg Shilo.
     cscs -code "SetEnvironmentVariable(`ntp`,`notepad.exe`, EnvironmentVariableTarget.Machine)"
     
      
-    The -code argument must be the last argument in the command. The only argument that is allowed after the `<script code>`
-    is `//x`
+    The -code argument must be the last argument in the command. The only argument that is allowed after the `<script
+    code>` is `//x`
      
     Escaping special characters sometimes can be problematic as many shells have their own techniques (e.g. PowerShell
     collapses two single quote characters) that may conflict with CS-Script escaping approach.This is the reason why
     CS-Script offers multiple escape techniques.
-    It can be beneficial during the troubleshooting to use `-code:show` command that outputs the received CLI arguments and
-    the interpreted C# code without the execution.
+    It can be beneficial during the troubleshooting to use `-code:show` command that outputs the received CLI
+    arguments and the interpreted C# code without the execution.
      
     Since command-line interface does not allow some special characters they need to be escaped.
     
@@ -189,8 +193,8 @@ Copyright (C) 2004-2023 Oleg Shilo.
      -ac:0   - disables auto-class decoration (which might be enabled globally).
      -ac:1   - same as '-ac'
      -ac:2   - same as '-ac:1' and '-ac'
-     -ac:out - prints auto-class decoration for a given script file. The argument must be followed by the path to script
-               file.
+     -ac:out - prints auto-class decoration for a given script file. The argument must be followed by the path to
+               script file.
     
      
     Automatically generates 'static entry point' class if the script doesn't define any.
@@ -212,18 +216,18 @@ Copyright (C) 2004-2023 Oleg Shilo.
         int main()
         int main(string[] args)
      
-    Note, having any active code above entry point is acceptable though it complicates the troubleshooting if such a code
-    contains errors. (see https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class)
+    Note, having any active code above entry point is acceptable though it complicates the troubleshooting if such a
+    code contains errors. (see https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class)
      
-    By default CS-Script decorates the script by adding a class declaration statement to the start of the script routine and
-    a class closing bracket to the end. This may have an unintended effect as any class declared in the script becomes a
-    'nested class'. While it is acceptable for practically all use-cases it may be undesired for just a few scenarios. For
-    example, any class containing method extensions must be a top-level static class, which conflicts with the auto-class
-    decoration algorithm.
+    By default CS-Script decorates the script by adding a class declaration statement to the start of the script
+    routine and a class closing bracket to the end. This may have an unintended effect as any class declared in the
+    script becomes a 'nested class'. While it is acceptable for practically all use-cases it may be undesired for just
+    a few scenarios. For example, any class containing method extensions must be a top-level static class, which
+    conflicts with the auto-class decoration algorithm.
      
     The solution to this problem is to allow some user code to be protected from being included in the decorated code.
-    Users can achieve this by placing '//css_ac_end' statement into the code. Any user code below this statement will be
-    excluded from the decoration and stay unchanged.
+    Users can achieve this by placing '//css_ac_end' statement into the code. Any user code below this statement will
+    be excluded from the decoration and stay unchanged.
 
 ---------
 <switch 2>
@@ -240,9 +244,10 @@ Copyright (C) 2004-2023 Oleg Shilo.
 -dbgprint[:<0:1>]
     Controls whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now)).
     This setting allows controlling dynamic referencing of script engine assembly containing the implementation of
-    Python-like print methods `dbg.print` and derived extension methods object.print() and object.dup(). While `dbg.print` is
-    extremely useful it can and lead to some referencing challenges when the script being executed is referencing assemblies
-    compiled with `dbg.print` already included. The simplest way to solve this problem is to disable the `dbg.cs` inclusion.
+    Python-like print methods `dbg.print` and derived extension methods object.print() and object.dup(). While
+    `dbg.print` is extremely useful it can and lead to some referencing challenges when the script being executed is
+    referencing assemblies compiled with `dbg.print` already included. The simplest way to solve this problem is to
+    disable the `dbg.cs` inclusion.
     
      -dbgprint:1   enable `dbg.cs` inclusion; Same as `-dbgprint`;
      -dbgprint:0   disable `dbg.cs` inclusion;
@@ -262,13 +267,14 @@ Copyright (C) 2004-2023 Oleg Shilo.
 
 -install/-uninstall
     Sets/unsets CSSCRIPT_ROOT environment variable to the location of the script engine being executed.
-    This environment variable is required for integration of CS-Script with Notepad++,Sublime Text and some other editors,
-    which require CS-Script installed on the host OS.
+    This environment variable is required for integration of CS-Script with Notepad++,Sublime Text and some other
+    editors, which require CS-Script installed on the host OS.
     This command is only supported on Windows
 
 -server[:<start|stop|restart|add|remove|ping>]
     Prints the information about build server.
-    Note, the server starts automatically on the script execution that is configured to use the 'csc' or 'roslyn' engine.
+    Note, the server starts automatically on the script execution that is configured to use the 'csc' or 'roslyn'
+    engine.
     Build server is a background process, which implements top loading of C# compiler csc.exe. Somewhat similar to
     VBCSCompiler.exe.
     These options are only relevant if the compiler engine is set to 'csc' (see '-engine' command).
@@ -319,13 +325,13 @@ Copyright (C) 2004-2023 Oleg Shilo.
      -config::<name>                - the same as `-config:get:name`
      -config:set:<name>=<value>     - sets current config value
      -config:set:<name>=add:<value> - updates the current config value content by appending the specified value.
-     -config:set:<name>=del:<value> - updates the current config value content by removing all occurrences of the specified
-                                      value.
+     -config:set:<name>=del:<value> - updates the current config value content by removing all occurrences of the
+                                      specified value.
      -config:<file>                 - uses custom config file
     
      
-    Note: The property name in -config:set and -config:set is case insensitive and can also contain '_' as a token separator
-    that is ignored during property lookup.
+    Note: The property name in -config:set and -config:set is case insensitive and can also contain '_' as a token
+    separator that is ignored during property lookup.
     
     (e.g. cscs -config:none sample.cs
           cscs -config:default > css_VB.xml
@@ -352,10 +358,10 @@ Copyright (C) 2004-2023 Oleg Shilo.
 -precompiler[:<file 1>,<file N>]
     Specifies custom precompiler. This can be either script or assembly file.
     Alias - pc[:<file 1>,<file N>]
-    If no file(s) specified prints the code template for the custom precompiler. The special value 'print' has the same
-    effect (e.g. cscs -pc:print).
-    There is a special reserved word 'nodefault' to be used as a file name. It instructs script engine to prevent loading any
-    built-in precompilers like the one for removing shebang before the execution.
+    If no file(s) specified prints the code template for the custom precompiler. The special value 'print' has the
+    same effect (e.g. cscs -pc:print).
+    There is a special reserved word 'nodefault' to be used as a file name. It instructs script engine to prevent
+    loading any built-in precompilers like the one for removing shebang before the execution.
     (see https://www.cs-script.net/cs-script/help-legacy/precompilers.html)
 
 -pvdr|-provider:<file>
@@ -364,8 +370,8 @@ Copyright (C) 2004-2023 Oleg Shilo.
     If set it forces script engine to use an alternative code compiler.
      
     C#7 support is implemented via Roslyn based provider: '-pvdr:CSSRoslynProvider.dll'.If the switch is not specified
-    CSSRoslynProvider.dll file will be use as a code provider if it is found in the same folder where the script engine is.
-    Automatic CSSRoslynProvider.dll loading can be disabled with a special 'none' argument: -pvdr:none.
+    CSSRoslynProvider.dll file will be use as a code provider if it is found in the same folder where the script
+    engine is. Automatic CSSRoslynProvider.dll loading can be disabled with a special 'none' argument: -pvdr:none.
     (see https://www.cs-script.net/cs-script/help-legacy/help/non_cs_compilers.html)
 
 -nuget[:<package|restore>]
@@ -383,14 +389,14 @@ Copyright (C) 2004-2023 Oleg Shilo.
      -nuget           - prints the list of all root packages in the repository
                         (Not available with new NuGet support)
      -nuget:<package> - downloads and installs the latest version of the package(s). 
-                        Wild cards can be used to update multiple packages. For example '-nuget:ServiceStack*' will update
-                        all already installed ServiceStack packages.
+                        Wild cards can be used to update multiple packages. For example '-nuget:ServiceStack*' will
+                        update all already installed ServiceStack packages.
                         You can also use the index of the package instead of its full name.
                         (Not available with new NuGet support)
     
      
-    Installing packages this way is an alternative to having '//css_nuget -force ...' directive in the script code as it may
-    be more convenient for the user to update packages manually instead of having them updated on every script
+    Installing packages this way is an alternative to having '//css_nuget -force ...' directive in the script code as
+    it may be more convenient for the user to update packages manually instead of having them updated on every script
     execution/recompilation.
     
      -nuget:restore - downloads and installs all packages specified in the script without executing the script. 
@@ -438,8 +444,8 @@ package0[,package1]..[,packageN];
 - //css_prescript file([arg0][,arg1]..[,argN])[ignore];
 - //css_postscript file([arg0][,arg1]..[,argN])[ignore];
 ------------------------------------
-Engine directives can be controlled (enabled/disabled) with compiler conditional symbols and environment variables via the
-inline `#if` syntax:
+Engine directives can be controlled (enabled/disabled) with compiler conditional symbols and environment variables via
+the inline `#if` syntax:
   //css_include #if DEBUG debug_utils.cs
   //css_dir #if (DEBUG) .\bin\Debug
   //css_reference #if PRODUCTION_PC d:\temp\build\certificates.dll
@@ -448,30 +454,31 @@ The script engine also always defines special compiler conditional symbol `CS_SC
   #if CS_SCRIPT
        Console.WriteLine("Running as a script...");
   #endif
-The script engine also defines another conditional symbol `NETCORE` to allow userto distinguish between executions under .NET
-(full) and .NET Core
+The script engine also defines another conditional symbol `NETCORE` to allow userto distinguish between executions
+under .NET (full) and .NET Core
 ------------------------------------
 //css_include <file>;
  
 Alias - //css_inc
 file - name of a script file to be included at compile-time.
  
-This directive is used to import one script into another one. It is a logical equivalent of '#include' in C++. This directive
-is a full but more convenient equivalent of //css_import <file>, preserve_main;
+This directive is used to import one script into another one. It is a logical equivalent of '#include' in C++. This
+directive is a full but more convenient equivalent of //css_import <file>, preserve_main;
  
-If a relative file path is specified with a single-dot prefix it will be automatically converted into the absolute path with
-respect to the location of the script file containing the `//css_include` directive. Otherwise it will be resolved with
-respect to the process current directory.
+If a relative file path is specified with a single-dot prefix it will be automatically converted into the absolute
+path with respect to the location of the script file containing the `//css_include` directive. Otherwise it will be
+resolved with respect to the process current directory.
  
-If for whatever reason it is preferred to always resolve path expression with respect to the parent script location you can
-configure the script engine to do it with the following command:
+If for whatever reason it is preferred to always resolve path expression with respect to the parent script location
+you can configure the script engine to do it with the following command:
  
    cscs -config:set:ResolveRelativeFromParentScriptLocation = true
  
-Note if you use wildcard in the imported script name (e.g. *_build.cs) the directive will only import from the first probing
-directory where the matching file(s) is found. Be careful with the wide wildcard as '*.cs' as they may lead to unpredictable
-behavior. For example they may match everything from the very first probing directory, which is typically a current
-directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.cs', '*Helper.cs', './*.cs')
+Note if you use wildcard in the imported script name (e.g. *_build.cs) the directive will only import from the first
+probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.cs' as they may lead to
+unpredictable behavior. For example they may match everything from the very first probing directory, which is
+typically a current directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.cs',
+'*Helper.cs', './*.cs')
 ------------------------------------
 //css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];
  
@@ -481,23 +488,23 @@ preserve_main`.
 This makes //css_import a more advanced version of //css_include. So you can use it to solve some more unusual runtime
 scenarios. It is recommended that you use //css_include if you can. And //css_import if you have to. The //css_include
 directive is simpler and requires no processing of the file being imported.
-This section only describes behavior specific for //css_import. Thus for the generic behavior of the directive go to the
-//css_include help.
-If $this (or $this.name) is specified as part of <file> it will be replaced at execution time with the main script full name
-(or file name only).
+This section only describes behavior specific for //css_import. Thus for the generic behavior of the directive go to
+the //css_include help.
+If $this (or $this.name) is specified as part of <file> it will be replaced at execution time with the main script
+full name (or file name only).
  
 file            - name of a script file to be imported at compile-time.
 <preserve_main> - do not rename 'static Main'. 
-                  .NET allows only one entry point 'static Main' method per application.Thus it is a problem if the primary
-                  and the imported scripts both contain 'static Main'.To avoid this the script engine searches the imported
-                  script for 'static Main' method and renames it in 'i_Main' and then uses a temporary copy of the processed
-                  imported script during the execution. If you need to use the imported script as is, then you should use
-                  'preserve_main' argument with the '//css_import' directive.
+                  .NET allows only one entry point 'static Main' method per application.Thus it is a problem if the
+                  primary and the imported scripts both contain 'static Main'.To avoid this the script engine searches
+                  the imported script for 'static Main' method and renames it in 'i_Main' and then uses a temporary
+                  copy of the processed imported script during the execution. If you need to use the imported script
+                  as is, then you should use 'preserve_main' argument with the '//css_import' directive.
 oldName         - name of a namespace to be renamed during importing
 newName         - new name of a namespace to be renamed during importing
  
-This directive is used to import one script into another at compile time. Thus code from one script can be exercised in
-another one.the `rename_namespace` clause can appear in the directive multiple times.
+This directive is used to import one script into another at compile time. Thus code from one script can be exercised
+in another one.the `rename_namespace` clause can appear in the directive multiple times.
 ------------------------------------
  
 //css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-rt:<runtime>] [-ng:<nuget arguments>]
@@ -512,17 +519,18 @@ Note: The directive switches need to be in the order as above.
  
 By default the package is not downloaded again if it was already downloaded.
 If no version is specified then the highest downloaded version (if any) will be used.
-Referencing the downloaded packages can only handle simple dependency scenarios when all downloaded assemblies are to be
-referenced.
-You should use '-noref' switch and reference assemblies manually for all other cases. For example multiple assemblies with
-the same file name that target different CLRs (e.g. v3.5 vs v4.0) in the same package.
+Referencing the downloaded packages can only handle simple dependency scenarios when all downloaded assemblies are to
+be referenced.
+You should use '-noref' switch and reference assemblies manually for all other cases. For example multiple assemblies
+with the same file name that target different CLRs (e.g. v3.5 vs v4.0) in the same package.
 Switches:
  -noref         - switch for individual packages if automatic referencing isn't desired.
                   You can use 'css_nuget' environment variable for further referencing package content (e.g. //css_dir
                   %css_nuget%\WixSharp\**)
                   (Not available with new NuGet support)
  -force[:delay] - switch to force individual packages downloading even when they were already downloaded.
-                  You can optionally specify delay for the next forced downloading by number of seconds since last download.
+                  You can optionally specify delay for the next forced downloading by number of seconds since last
+                  download.
                   '-force:3600' will delay it for one hour. This option is useful for preventing frequent download
                   interruptions during active script development.
                   (Not available with new NuGet support)
@@ -555,10 +563,11 @@ This directive is used to reference assemblies required at run time.
 The assembly must be in GAC, the same folder with the script file or in the 'Script Library' folders (see 'CS-Script
 settings').
  
-Note if you use wildcard in the referenced assembly name (e.g. socket.*.dll) the directive will only reference from the first
-probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.dll' as they may lead to
-unpredictable behavior. For example they may match everything from the very first probing directory, which is typically a
-current directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.dll', '*Helper.dll', './*.dll')
+Note if you use wildcard in the referenced assembly name (e.g. socket.*.dll) the directive will only reference from
+the first probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.dll' as they
+may lead to unpredictable behavior. For example they may match everything from the very first probing directory, which
+is typically a current directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.dll',
+'*Helper.dll', './*.dll')
  
 ------------------------------------
 //css_precompiler <file 1>,<file 2>;
@@ -566,9 +575,9 @@ current directory. Using more specific wildcards is arguably more practical (e.g
 Alias - //css_pc
 file - name of the script or assembly file implementing precompiler.
  
-This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time just
-before compiling it. Precompilers are typically used to alter the script coder before the execution. Thus CS-Script uses
-built-in precompiler to decorate classless scripts executed with -autoclass switch.
+This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time
+just before compiling it. Precompilers are typically used to alter the script coder before the execution. Thus
+CS-Script uses built-in precompiler to decorate classless scripts executed with -autoclass switch.
 (see http://www.csscript.net/help/precompilers.html
 ------------------------------------
 //css_searchdir <directory>;
@@ -577,8 +586,8 @@ Alias - //css_dir
 directory - name of the directory to be used for script and assembly probing at run-time.
  
 This directive is used to extend set of search directories (script and assembly probing).
-The directory name can be a wildcard based expression.In such a case all directories matching the pattern will be this case
-all directories will be probed.
+The directory name can be a wildcard based expression.In such a case all directories matching the pattern will be this
+case all directories will be probed.
 The special case when the path ends with '**' is reserved to indicate 'sub directories' case. Examples:
     //css_dir packages\ServiceStack*.1.0.21\lib\net40
     //css_dir packages\**
@@ -588,8 +597,8 @@ The special case when the path ends with '**' is reserved to indicate 'sub direc
 Alias - //css_winapp
 Adds search directories required for running WinForm and WPF scripts.
 Note: you need to use csws.exe engine to run WPF scripts.
-Alternatively you can set environment variable 'CSS_WINAPP' to non empty value and css.exe shim will redirect the execution
-to the csws.exe executable.
+Alternatively you can set environment variable 'CSS_WINAPP' to non empty value and css.exe shim will redirect the
+execution to the csws.exe executable.
 ------------------------------------
 //css_webapp
  
@@ -620,8 +629,9 @@ The acceptable 'instance entry point' signatures are:
     int main(string[] args)
  
 The convention for the classless (auto-class) code structure is as follows:
- - set of 'using' statements - classless 'main'  - user code  - optional //css_ac_end directive - optional user code that is
-not a subject of auto-class decoration(see https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class)
+ - set of 'using' statements - classless 'main'  - user code  - optional //css_ac_end directive - optional user code
+that is not a subject of auto-class decoration(see
+https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class)
  
 A special case of auto-class use case is a free style C# code that has no entry point 'main' at all:
  
@@ -630,17 +640,19 @@ A special case of auto-class use case is a free style C# code that has no entry 
  
     Console.WriteLine(Environment.Version);
  
-Since it's problematic to reliable auto-detect free style auto-classes, they must be defined with the special parameter
-'freestyle' after the '//css_ac' directive
+Since it's problematic to reliable auto-detect free style auto-classes, they must be defined with the special
+parameter 'freestyle' after the '//css_ac' directive
  
-By default CS-Script decorates the script by adding a class declaration statement to the start of the script routine and a
-class closing bracket to the end. This may have an unintended effect as any class declared in the script becomes a 'nested
-class'. While it is acceptable for practically all use-cases it may be undesired for just a few scenarios. For example, any
-class containing method extensions must be a top level static class, what conflicts with the auto-class decoration algorithm.
+By default CS-Script decorates the script by adding a class declaration statement to the start of the script routine
+and a class closing bracket to the end. This may have an unintended effect as any class declared in the script becomes
+a 'nested class'. While it is acceptable for practically all use-cases it may be undesired for just a few scenarios.
+For example, any class containing method extensions must be a top level static class, what conflicts with the
+auto-class decoration algorithm.
  
 An additional '//css_autoclass_end' ('//css_ac_end') directive can be used to solve this problem.
  
-It's nothing else but a marker indicating the end of the code that needs to be decorated as (wrapped into) an auto-class.
+It's nothing else but a marker indicating the end of the code that needs to be decorated as (wrapped into) an
+auto-class.
 This directive allows defining top level static classes in the class-less scripts, which is required for implementing
 extension methods.
  
@@ -667,9 +679,9 @@ extension methods.
 Alias - //css_res
 file     - name of the compiled resource file (.resources) to be used with the script.
            Alternatively it can be the name of the XML resource file (.resx) that will be compiled on-fly.
-out_file - Optional name of the compiled resource file (.resources) to be generated form the .resx input.If not supplied then
-           the compiled file will have the same name as the input file but the file extension '.resx' changed to
-           '.resources'.
+out_file - Optional name of the compiled resource file (.resources) to be generated form the .resx input.If not
+           supplied then the compiled file will have the same name as the input file but the file extension '.resx'
+           changed to '.resources'.
  
 This directive is used to reference resource file for script.
  Example: //css_res Scripting.Form1.resources;
@@ -684,8 +696,8 @@ This directive is used to pass compiler options string directly to the language 
 Note: 
 - the options may not be compatible with the compiling engine of your choice (see //css_engine).Thus `//css_co
 /define:CS_SCRIPT` will work for `csc` engine but will not for `dotnet` since it does not support /define.
-- character `;` in compiler options interferes with `//css_...` directives so try to avoid it. Thus use `-d:DEBUG -d:NET4`
-instead of `-d:DEBUG;NET4`
+- character `;` in compiler options interferes with `//css_...` directives so try to avoid it. Thus use `-d:DEBUG
+-d:NET4` instead of `-d:DEBUG;NET4`
  Example: //css_co /d:TRACE pass /d:TRACE option to C# compiler
           //css_co /platform:x86 to produce Win32 executable
           //css_co -nullable:enable -warnaserror:nullable to enable nullable reference types.
@@ -696,19 +708,20 @@ Alias - //css_ng
  
 This directive is used to select compiler services for building a script into an assembly.
   dotnet - use `dotnet.exe` and on-fly .NET projects.
-           This is a default compiler engine that handles well even complicated heterogeneous multi-file scripts like WPF
-           scripts.
+           This is a default compiler engine that handles well even complicated heterogeneous multi-file scripts like
+           WPF scripts.
   csc    - use `csc.exe`. 
            This compiler shows much better performance. Though it is not suitable for WPF scripts.
-This feature is conceptually similar to the VBCSCompiler.exe build server, which is not available in in .NET5/.NET-Core. Even
-though available on .NET-Fx (Roslyn).
-           Using this option can in order of magnitude improve compilation speed. However it's not suitable for compiling WPF
-           scripts because csc.exe cannot compile XAML.
-           While this feature useful it will be deprecated when .NET5+ starts distributing its own properlyworking build
-           server VBCSCompiler.exe.
+This feature is conceptually similar to the VBCSCompiler.exe build server, which is not available in in
+.NET5/.NET-Core. Even though available on .NET-Fx (Roslyn).
+           Using this option can in order of magnitude improve compilation speed. However it's not suitable for
+           compiling WPF scripts because csc.exe cannot compile XAML.
+           While this feature useful it will be deprecated when .NET5+ starts distributing its own properlyworking
+           build server VBCSCompiler.exe.
   roslyn - use `Microsoft.CodeAnalysis.CSharp.Scripting.dll` (Roslyn). 
-           This compiler shows good performance and does not require .NET SDK. Though it is not suitable for WPF scripts. See
-           [this wiki](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine) for details.
+           This compiler shows good performance and does not require .NET SDK. Though it is not suitable for WPF
+           scripts. See [this wiki](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine) for
+           details.
  
  Example: //css_engine csc
 ------------------------------------
@@ -721,8 +734,8 @@ This directive is used to prevent CS-Script from resolving the referenced namesp
 ------------------------------------
 //css_ac_end
  
-This directive is only applicable for class-less scripts executed with '-autoclass' CLI argument. It's nothing else but a
-marker indicating the end of the code that needs to be decorated as (wrapped into) an auto-class.
+This directive is only applicable for class-less scripts executed with '-autoclass' CLI argument. It's nothing else
+but a marker indicating the end of the code that needs to be decorated as (wrapped into) an auto-class.
 This directive allows achieving top level static classes in the class-less scripts, which is required for implementing
 extension methods.
  
@@ -753,8 +766,8 @@ arg0..N - script string arguments
 ignore  - continue execution of the main script in case of error
  
 These directives are used to execute secondary pre- and post-execution scripts.
-If $this (or $this.name) is specified as arg0..N it will be replaced at execution time with the main script full name (or
-file name only).
+If $this (or $this.name) is specified as arg0..N it will be replaced at execution time with the main script full name
+(or file name only).
 You may find that in many cases precompilers (//css_pc and -pc) are a more powerful and flexible alternative to the
 pre-execution script.
 ------------------------------------
@@ -768,9 +781,9 @@ Note the script engine always sets the following environment variables:
  'EntryScriptAssembly'     - location of the compiled script assembly
  'location:<asm_hash>'    - location of the compiled script assembly.
  
-This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script code. Even
-when the script loaded in-memory (InMemoryAssembly setting) but not from the original file. (e.g. var location =
-Environment.GetEnvironmentVariable("location:" + Assembly.GetExecutingAssembly().GetHashCode()); 
+This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script
+code. Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file. (e.g. var
+location = Environment.GetEnvironmentVariable("location:" + Assembly.GetExecutingAssembly().GetHashCode()); 
  
 Note that by default setting of 'location:<asm_hash>' is disabled. You can enable it by calling 
 'CSScript.EnableScriptLocationReflection = true'.
@@ -781,8 +794,8 @@ The following is the optional set of environment variables that the script engin
       location of the NuGet packages scripts can load/reference
  
  'CSSCRIPT_ROOT'
-      script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is during
-      the CS-Script installation.
+      script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is
+      during the CS-Script installation.
  
  'CSSCRIPT_CONSOLE_ENCODING_OVERWRITE'
       script engine output encoding if the one from the css_confix.xml needs to be overwritten.
@@ -791,14 +804,14 @@ The following is the optional set of environment variables that the script engin
       a system wide include directory for the all frequently used user scripts.
  
  'CSSCRIPT_CSC_CMD_LOG'
-      the location of the log file that will be created during the script execution with the 'csc' compiler engine.the file
-      will contain the command line that is used to start `csc.exe` to compile the script. This behavior is useful for the
-      advanced debugging scenarios. Of the environment variable is not set or the value is not a valid file path then no log
-      file will be created.
+      the location of the log file that will be created during the script execution with the 'csc' compiler engine.the
+      file will contain the command line that is used to start `csc.exe` to compile the script. This behavior is
+      useful for the advanced debugging scenarios. Of the environment variable is not set or the value is not a valid
+      file path then no log file will be created.
 ---------
 During the script execution CS-Script always injects a little object inspector class 'dbg'. This class contains static
-printing methods that mimic Python's 'print()'. It is particularly useful for object inspection in the absence of a proper
-debugger.
+printing methods that mimic Python's 'print()'. It is particularly useful for object inspection in the absence of a
+proper debugger.
  
 Examples:
   dbg.print("Now:", DateTime.Now)        - prints concatenated objects.
@@ -806,8 +819,8 @@ Examples:
   dbg.printf("Now: {0}", DateTime.Now)   - formats and prints object and values of its fields and properties.
 ---------
  
-Any directive has to be written as a single line in order to have no impact on compiling by CLI compliant compiler.It also
-must be placed before any namespace or class declaration.
+Any directive has to be written as a single line in order to have no impact on compiling by CLI compliant compiler.It
+also must be placed before any namespace or class declaration.
  
 ---------
 Example:
