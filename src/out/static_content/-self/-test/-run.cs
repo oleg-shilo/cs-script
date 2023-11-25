@@ -17,7 +17,7 @@ class Script
 {
     static public void Main(string[] args)
     {
-        if (args.Contains("-?") || args.Contains("-help"))
+        if (args.Contains("?") || args.Contains("-?") ||args.Contains("-help"))
         {
             Console.WriteLine("Execute self-testing (unit-tests) of the script engine.");
             return;

@@ -22,7 +22,7 @@ static class Scipt
     {
         string arg(string name) => args.SkipWhile(x => x != name).Skip(1).Take(1).FirstOrDefault();
 
-        if (args.Contains("-?") || args.Contains("-help"))
+        if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
         {
             Console.WriteLine("Start web-based debugger (wdbg) for the specified script.");
             Console.WriteLine("  css -wdbg <script_file> [server args]");

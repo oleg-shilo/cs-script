@@ -10,6 +10,10 @@ using System.Diagnostics;
 
 var engine_asm = GetEntryAssembly().Location;
 
+if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
+    Console.WriteLine("Builds `css.exe` hard-link to the script engine CLI executable.");
+
+
 // to ensure we are not picking cscs.dll
 if (Environment.OSVersion.Platform != PlatformID.Win32NT)
 {

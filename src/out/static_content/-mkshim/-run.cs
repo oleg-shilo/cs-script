@@ -118,21 +118,32 @@ static class MkShim
         return args.FirstOrDefault(x => x.StartsWith($"-{name}:"))?.Split(new[] { ':' }, 2).LastOrDefault();
     }
 
+    static string linkedExeProbingTemplate = @"
+            var localDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            if (localDir.Contains(@""Microsoft\WinGet\Links""))
+            {
+                localDir = Directory.GetDirectories(Path.GetFullPath(Path.Combine(localDir, @""..\Packages"")), ""oleg-shilo.cs-script*"").FirstOrDefault();
+            }
+
+            return Path.Combine(localDir, ""{exe}"");
+";
+
     static string GetShimSourceCodeFor(this string exe, string outDir, bool isWinApp)
     {
         var version = exe.GetFileVersion();
         var template = File.ReadAllText(templateFile);
         var csFile = Path.Combine(outDir, Path.GetFileName(exe) + ".cs");
 
-        var exePath = $"@\"{exe}\"";
+        var exePath = $"@\"return {exe};\"";
 
         if (!Path.IsPathRooted(exe))
         {
-            exePath = $"Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @\"{exe}\")";
+            exePath = linkedExeProbingTemplate.Replace("{exe}", exe);
         }
 
         var code = template.Replace("//{version}", $"[assembly: System.Reflection.AssemblyFileVersionAttribute(\"{version}\")]")
-                           .Replace("//{appFile}", $"static string appFile {{ get {{ return {exePath}; }} }}")
+                           .Replace("//{appFile}", $"static string appFile {{ get {{ {exePath} }} }}")
                            .Replace("//{waitForExit}", $"var toWait = {(isWinApp ? "false" : "true")};");
 
         File.WriteAllText(csFile, code);
