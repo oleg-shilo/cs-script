@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.8.9.0</version>
+        <version>4.8.10.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,10 +25,12 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-# Release v4.8.9.0
-- Updated NuGet support for .NET 8.0 packages
-- Added support for building css alias on Windows (to be used with WinGet distro)
-cscs -self-alias
+# Release v4.8.10.0
+- Added CLI help for `-new:cmd` command.
+- Added CLI listing custom commands for `-cmd`.
+- All dependencies are updated to the latest version 
+- Added `SetEnvironmentVariable("EntryScript",...)` on opening script in VS
+- Updated -mkshim command script to allow relative path
 
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
