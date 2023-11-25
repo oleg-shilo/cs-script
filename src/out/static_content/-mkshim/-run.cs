@@ -27,11 +27,13 @@ static class MkShim
             return;
 
         var shim = Path.GetFullPath(args[0]);
-        var exe = Path.GetFullPath(args[1]);
+        var exe = args[1];
 
         if (!exe.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
         {
-            Console.WriteLine($"You mast specify the executable file to create the shim for.");
+            Console.WriteLine(
+                $"You mast specify the executable file to create the shim for. " +
+                $"You can use either relative or absolute path.");
             return;
         }
 
@@ -70,6 +72,8 @@ static class MkShim
             Console.WriteLine($@"Generates shim for a given executable file.");
             Console.WriteLine($@"Usage:");
             Console.WriteLine($@"   css -mkshim <shim_name> <mapped_executable>");
+            Console.WriteLine();
+            Console.WriteLine($@"You can use either absolute or relative path for <shim_name> and <mapped_executable>");
             return true;
         }
 
@@ -120,8 +124,15 @@ static class MkShim
         var template = File.ReadAllText(templateFile);
         var csFile = Path.Combine(outDir, Path.GetFileName(exe) + ".cs");
 
+        var exePath = $"@\"{exe}\"";
+
+        if (!Path.IsPathRooted(exe))
+        {
+            exePath = $"Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @\"{exe}\")";
+        }
+
         var code = template.Replace("//{version}", $"[assembly: System.Reflection.AssemblyFileVersionAttribute(\"{version}\")]")
-                           .Replace("//{appFile}", $"static string appFile = @\"{exe}\";")
+                           .Replace("//{appFile}", $"static string appFile {{ get {{ return {exePath}; }} }}")
                            .Replace("//{waitForExit}", $"var toWait = {(isWinApp ? "false" : "true")};");
 
         File.WriteAllText(csFile, code);

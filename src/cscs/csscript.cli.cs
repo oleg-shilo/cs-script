@@ -1,12 +1,12 @@
-using CSScripting;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using static System.Environment;
+using CSScripting;
 
 namespace csscript
 {
@@ -139,7 +139,8 @@ namespace csscript
                         if (appType == "cmd" && outFile.GetDirName().IsEmpty())
                         {
                             // the command output file specified by command name only
-                            outFile = Runtime.CustomCommandsDir.PathJoin(outFile);
+                            var cmdDir = Runtime.CustomCommandsDir.PathJoin("-" + outFile).EnsureDir();
+                            outFile = cmdDir.PathJoin("-run.cs");
                         }
 
                         string file;

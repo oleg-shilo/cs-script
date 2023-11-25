@@ -608,7 +608,7 @@ namespace csscript
                                               "Prints documentation for CS-Script specific C# syntax.");
             switch2Help[commands] =
             switch2Help[cmd] = new ArgInfo("-commands|-cmd",
-                                           "Prints list of supported commands (arguments).");
+                                           "Prints list of supported commands (arguments) as well as the custom commands defined by user.");
             miscHelp["file"] = new ArgInfo("file",
                                            "Specifies name of a script file to be run.");
             miscHelp["params"] = new ArgInfo("params",
@@ -1141,11 +1141,7 @@ namespace csscript
                                 if (map.ContainsKey(description))
                                 {
                                     string capturedArg = map[description];
-
-                                    // if (capturedArg.Length > arg.Length)
                                     map[description] = capturedArg + "|" + $"-{arg}";
-                                    // else
-                                    // map[description] = $"-{arg}" + "|" + capturedArg;
                                 }
                                 else
                                     map[description] = $"-{arg}";
@@ -1162,6 +1158,40 @@ namespace csscript
                             arg = string.Format("{0,-" + longestArg + "}", arg);
                             builder.AppendLine($"{arg}   {key}");
                         }
+
+                        ////////////////////////////////////////////
+                        // exploring custom commands
+                        string[] commandDirs = [
+                            Runtime.CustomCommandsDir,
+#if DEBUG
+                            Environment.GetEnvironmentVariable("CSSCRIPT_INSTALLED"),
+#endif
+                            Assembly.GetExecutingAssembly().Location.GetDirName()];
+
+                        var customCommands = commandDirs
+                                                 .SelectMany(dir =>
+                                                 {
+                                                     var commands = Directory.GetFiles(dir, "-run.cs", SearchOption.AllDirectories)
+                                                                             .Select(x => x.Substring(dir.Length)
+                                                                                           .GetDirName()
+                                                                                           .Replace(Path.DirectorySeparatorChar.ToString(), ""));
+                                                     return commands;
+                                                 })
+                                                 .Order();
+
+                        builder.AppendLine();
+                        builder.AppendLine("--------------------------------------------");
+                        builder.AppendLine("Custom commands defined by the user.");
+                        builder.AppendLine("(use `cscs <command> ?` for further details");
+                        builder.AppendLine(" see https://github.com/oleg-shilo/cs-script/wiki/Custom-Commands)");
+                        builder.AppendLine("--------------------------------------------");
+                        builder.AppendLine();
+
+                        foreach (var item in customCommands)
+                        {
+                            builder.AppendLine($"  {item}");
+                        }
+
                         return builder.ToString();
                     }
 
@@ -1321,6 +1351,7 @@ wpf             WPF script application
 wpf-cm          Caliburn.Micro based WPF script application
 toplevel|top    Top-level class script application with no entry point
 toplevel-x      Top-level class script application with no entry point; an advanced CS-Script integration samples.
+cmd             Custom command script. See https://github.com/oleg-shilo/cs-script/wiki/Custom-Commands.
 
 {emptyLine}
 Legacy templates:
@@ -1333,6 +1364,7 @@ Examples:
     cscs -new:console console.cs
     cscs -new:winform myapp.cs
     cscs -new:wpf hello
+    cscs -new:cmd edit
 ```".NormalizeNewLines();
 
         internal static SampleInfo[] BuildSampleCode(string appType, string context)
@@ -1360,7 +1392,8 @@ using static System.Environment;
 
 var help =
 @""CS-Script custom command for...
-  css {context} [args]"";
+  cscs -{context} [args]
+  (e.g. `cscs -{context} script.cs`)"";
 
 if (""?,-?,-help,--help"".Split(',').Contains(args.FirstOrDefault()))
 {{
@@ -1368,7 +1401,7 @@ if (""?,-?,-help,--help"".Split(',').Contains(args.FirstOrDefault()))
     return;
 }}
 
-WriteLine($""Executing {context} for: [{{string.Join(args, "","")}}]"");
+WriteLine($""Executing {context} for: [{{string.Join("","", args)}}]"");
 ";
             return new[] { new SampleInfo(cs.NormalizeNewLines(), ".cs") };
         }

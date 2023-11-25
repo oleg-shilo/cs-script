@@ -30,13 +30,11 @@
 
 #endregion Licence...
 
-using csscript;
-using CSScripting.CodeDom;
-using CSScriptLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using static System.Environment;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -45,7 +43,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using static System.Environment;
+using csscript;
+using CSScripting.CodeDom;
+using CSScriptLib;
 
 namespace CSScripting
 {

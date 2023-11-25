@@ -477,7 +477,7 @@ namespace csscript
 
                     using (new CurrentDirGuard())
                     {
-                        if (options.local)
+                        if (options.local && !options.scriptFileName.IsCustomCommandScript())
                             Environment.CurrentDirectory = Path.GetDirectoryName(Path.GetFullPath(options.scriptFileName));
 
                         dirs.AddPathIfNotThere(Environment.CurrentDirectory, Settings.local_dirs_section);
@@ -772,7 +772,7 @@ namespace csscript
                 {
                     var initInfo = options.initContext as CSharpParser.InitInfo;
 
-                    if (options.local)
+                    if (options.local && !options.scriptFileName.IsCustomCommandScript())
                         Environment.CurrentDirectory = Path.GetDirectoryName(Path.GetFullPath(options.scriptFileName));
 
                     if (options.verbose)

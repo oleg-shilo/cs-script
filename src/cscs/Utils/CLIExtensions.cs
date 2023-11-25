@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using csscript;
+using CSScripting;
 
 /// <summary>
 /// Credit to https://stackoverflow.com/questions/298830/split-string-containing-command-line-parameters-into-string-in-c-sharp/298990#298990
@@ -52,6 +54,8 @@ public static class CLIExtensions
     // public static string[] Split(this string str, string[] separators, int count) =>
     //     str.Split(separators, count, StringSplitOptions.None);
 
+    public static bool IsCustomCommandScript(this string scriptFile) => scriptFile.GetFileName().EndsWith("-run.cs") &&
+                                                                        scriptFile.StartsWith(Runtime.CustomCommandsDir);
 
     public static string NormalizeNewLines(this string str) =>// too simplistic though adequate
         str.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);

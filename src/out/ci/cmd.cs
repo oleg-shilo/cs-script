@@ -1,13 +1,13 @@
-using System.Net;
 using System;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using static System.Environment;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
-using System.Diagnostics;
+using System.Text;
 
 public static class cmd
 {
@@ -248,7 +248,7 @@ public static class cmd
         foreach (string file in Directory.GetFiles(src, mask))
         {
             string destFile = Path.Combine(roolDestDir + Path.GetDirectoryName(file).Substring(roolSrcDir.Length),
-                                            Path.GetFileName(file));
+                                           Path.GetFileName(file));
 
             foreach (string extension in exclude)
             {
@@ -300,10 +300,9 @@ static class vs
                                       .join_by("");
 
         // "1.4.5.0-NET5-RC5" -> "1.4-5"
-        var lnx_version = version.TakeWhile(x => char.IsDigit(x) || x == '.')
-                                 .Where(x => x != '.')
-                                 .ToArray()
-                                 .with(a => $"{a[0]}.{a[1]}-{a[2]}");
+        var lnx_version = new string(version.TakeWhile(x => char.IsDigit(x) || x == '.').ToArray())
+                                  .Split('.')
+                                  .with(a => $"{a[0]}.{a[1]}-{a[2]}");
 
         return (version, lnx_version, changes);
     }
@@ -312,7 +311,7 @@ static class vs
 static class GenericExtensions
 {
     public static string strip_text(this string version)
-       => new string(version.TakeWhile(c => char.IsDigit(c) || c == '.').ToArray());
+        => new string(version.TakeWhile(c => char.IsDigit(c) || c == '.').ToArray());
 
     public static string join_by(this IEnumerable<string> items, string separator)
         => string.Join(separator, items.ToArray());

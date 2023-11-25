@@ -18,6 +18,7 @@ md "out\Linux\lib"
 md "out\Linux\-self"
 md "out\Linux\-self\-exe"
 md "out\Linux\-self\-test"
+md "out\Windows\-mkshim"
 md "out\Windows\-self"
 md "out\Windows\-self\-exe"
 md "out\Windows\-self\-test"
@@ -101,6 +102,8 @@ rd "out\Windows\console" /S /Q
 copy "out\static_content\global-usings.cs" "out\Windows\lib\global-usings.cs" 
 copy "out\static_content\global-usings.cs" "out\Linux\lib\global-usings.cs"
 
+copy "out\static_content\-mkshim\*" "out\Windows\-mkshim\" 
+
 copy "out\static_content\-self\*" "out\Windows\-self\" 
 copy "out\static_content\-self\*" "out\Linux\-self\" 
 
@@ -155,6 +158,10 @@ cd ..\..
 cd out\Windows
 echo cd: %cd%
 ..\ci\7z.exe a -r "..\cs-script.win.7z" "*.*"
+echo ==========================================
+echo .\cscs -l:0 -mkshim css.exe cscs.exe
+.\cscs -l:0 -mkshim css.exe cscs.exe
+echo ==========================================
 ..\ci\7z.exe a -r "..\cs-script.win.zip" "*.*"
 cd ..\..
 
