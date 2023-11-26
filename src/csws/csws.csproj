@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.8.10.0</Version>
+    <Version>4.8.11.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -19,21 +19,19 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.8.10.0</AssemblyVersion>
-    <FileVersion>4.8.10.0</FileVersion>
+    <AssemblyVersion>4.8.11.0</AssemblyVersion>
+    <FileVersion>4.8.11.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- Added CLI help for `-new:cmd` command.
-- Added CLI listing custom commands for `-cmd`.
-- All dependencies are updated to the latest version 
+- Added using build-server on Linux. Now Win and Linux build-drver support is identical.
 
 ### CSScriptLib
 
-- All dependencies are updated to the latest version</PackageReleaseNotes>
+- &lt;no changes&gt;</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
     <PackageIcon>..\logo\css_logo.png</PackageIcon>

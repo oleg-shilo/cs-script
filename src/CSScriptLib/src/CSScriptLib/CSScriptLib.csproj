@@ -14,7 +14,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.8.10.0</Version>
+    <Version>4.8.11.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
@@ -30,16 +30,14 @@
 
 ### CLI
 
-- Added CLI help for `-new:cmd` command.
-- Added CLI listing custom commands for `-cmd`.
-- All dependencies are updated to the latest version 
+- Added using build-server on Linux. Now Win and Linux build-drver support is identical.
 
 ### CSScriptLib
 
-- All dependencies are updated to the latest version</PackageReleaseNotes>
+- &lt;no changes&gt;</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.8.10.0</AssemblyVersion>
-    <FileVersion>4.8.10.0</FileVersion>
+    <AssemblyVersion>4.8.11.0</AssemblyVersion>
+    <FileVersion>4.8.11.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
   </PropertyGroup>

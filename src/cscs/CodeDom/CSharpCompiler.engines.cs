@@ -256,7 +256,9 @@ namespace CSScripting.CodeDom
 
             // running build server on Linux is problematic as if it is started from here it will be
             // killed when the parent process (this) exits
-            bool compile_on_server = Runtime.IsWin && buidOnServer;
+            // bool compile_on_server = Runtime.IsWin && buidOnServer;
+            // But after working on #349 this behaver is no longer observed at least on WSL.
+            bool compile_on_server = buidOnServer;
 
             string cmd = "";
             string std_err = "";
