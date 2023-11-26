@@ -459,12 +459,12 @@ namespace csscript
                                           "or 'roslyn' engine.",
                                           "Build server is a background process, which implements top loading of C# compiler csc.exe. " +
                                           "Somewhat similar to VBCSCompiler.exe.",
-                                          "These options are only relevant if the compiler engine is set to 'csc' (see '-engine' command).",
+                                          "These options are only relevant if the compiler engine is set to 'csc' or `roslyn` (see '-engine' command).",
                                           "Note, the build server is deployed on the first execution of the script with `csc` or `roslyn` engine.",
                                           "Though on Linux it has to be an execution with root privileges. Or you can just run `sudo css -server:add`.",
                                           "```",
                                           " -server:start   - ${<==}deploys and starts build server. Useful if you want to start the server " +
-                                              "on system startup.",
+                                          "on system startup.",
                                           " -server:stop    - ${<==}stops build server",
                                           " -server:restart - ${<==}restarts build server",
                                           " -server:reset   - ${<==}stops, re-deploys and starts build server",

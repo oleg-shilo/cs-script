@@ -151,6 +151,8 @@ namespace CSScripting.CodeDom
 
             BuildResult emitResult = Build(single_source, assembly, all_refs, options.IncludeDebugInformation, inprocess);
 
+            Profiler.EngineContext = "Building with Roslyn engine...";
+
             if (!emitResult.Success)
             {
                 var message = new StringBuilder();
