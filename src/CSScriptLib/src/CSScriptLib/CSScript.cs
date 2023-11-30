@@ -293,7 +293,7 @@ namespace CSScriptLib
         {
             lock (typeof(CSScript))
             {
-                return Path.Combine(GetScriptTempDir(), string.Format("{0}.{1}.tmp", Process.GetCurrentProcess().Id, Guid.NewGuid()));
+                return Path.Combine(GetScriptTempDir(), string.Format("{0}.{1}.tmp.cs", Process.GetCurrentProcess().Id, Guid.NewGuid()));
             }
         }
 
