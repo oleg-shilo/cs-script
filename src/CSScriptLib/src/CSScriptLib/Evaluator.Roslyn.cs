@@ -30,19 +30,6 @@
 
 #endregion License...
 
-using csscript;
-using CSScripting;
-using CSScripting.CodeDom;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Emit;
-
-//using Microsoft.CodeAnalysis;
-//using Microsoft.CodeAnalysis.CSharp.Scripting
-using Microsoft.CodeAnalysis.Scripting;
-using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -54,6 +41,19 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Emit;
+
+//using Microsoft.CodeAnalysis;
+//using Microsoft.CodeAnalysis.CSharp.Scripting
+using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.CodeAnalysis.Text;
+using csscript;
+using CSScripting;
+using CSScripting.CodeDom;
 
 // <summary>
 //<package id="Microsoft.Net.Compilers" version="1.2.0-beta-20151211-01" targetFramework="net45" developmentDependency="true" />
@@ -133,6 +133,17 @@ namespace CSScriptLib
         /// The name of the assembly.
         /// </value>
         public string AssemblyName { set; get; }
+
+        /// <summary>
+        /// Gets or sets the loaded script assembly.
+        /// <para> This member is set to the script assembly loaded in the calling ppDomain.
+        /// It is particularly useful when you need access the script assembly (e.g. to unload it)
+        /// but it is unavailable to the caller because the evaluation expression does not return any result (`void`).</para>
+        /// </summary>
+        /// <value>
+        /// The loaded assembly.
+        /// </value>
+        public Assembly LoadedAssembly { set; get; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to prefer loading compiled script from the
@@ -498,10 +509,10 @@ namespace CSScriptLib
                     // add references from code and host-specified
 
                     compilation = CSharpCompilation.CreateScriptCompilation(
-                                           assemblyName: "Script" + Guid.NewGuid(),
-                                           syntaxTree,
-                                           references,
-                                           returnType: typeof(object));
+                                      assemblyName: "Script" + Guid.NewGuid(),
+                                          syntaxTree,
+                                          references,
+                                          returnType: typeof(object));
 
                     var entryPoint = compilation.GetEntryPoint(CancellationToken.None);
                     info.ScriptEntryPoint = entryPoint.MetadataName;
@@ -691,6 +702,30 @@ namespace CSScriptLib
 
             var info = new CompileInfo { CodeKind = SourceCodeKind.Script };
             var asm = CompileCode(scriptText, info);
+
+            var entryPointType = asm.GetType($".{info.RootClass}", true, false);
+            var entryPointMethod = entryPointType?.GetTypeInfo().GetDeclaredMethod(info.ScriptEntryPoint) ?? throw new InvalidOperationException("Script entry point method could be found.");
+
+            // var allTypes = asm.GetTypes(); // [1] is our method. Will be needed if SourceCodeKind.Script support is extended to "LoadCode" API
+
+            var submissionFactory = (Func<object[], Task<object>>)entryPointMethod.CreateDelegate(typeof(Func<object[], Task<object>>));
+            dynamic instance = submissionFactory.Invoke(new object[] { null, null }).Result;
+
+            return instance;
+        }
+
+        public new T Eval<T>(string scriptText, CompileInfo info)
+        {
+            // triggered by #355: Error in Eval using a referenced assembly with unloading enabled.
+
+            if (this.GetType() != typeof(RoslynEvaluator))
+                throw new Exception("This method is only available for Roslyn evaluator.");
+
+            if (info.CodeKind != SourceCodeKind.Script)
+                throw new Exception($"The parameter `{nameof(info)}.{nameof(info.CodeKind)}` must be set to `{nameof(SourceCodeKind.Script)}`.");
+
+            var asm = CompileCode(scriptText, info);
+            info.LoadedAssembly = asm;
 
             var entryPointType = asm.GetType($".{info.RootClass}", true, false);
             var entryPointMethod = entryPointType?.GetTypeInfo().GetDeclaredMethod(info.ScriptEntryPoint) ?? throw new InvalidOperationException("Script entry point method could be found.");

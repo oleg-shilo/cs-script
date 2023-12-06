@@ -1,14 +1,15 @@
-﻿using CSScripting;
-using CSScriptLib;
-using System;
+﻿using System;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using CSScripting;
+using CSScriptLib;
 
 namespace ConsoleApp1
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -78,6 +79,33 @@ namespace ConsoleApp1
             script.GetType().Assembly.Unload();
         }
 
+        static Assembly printer_asm;
+
+        static void call_UnloadAssemblyWithDependency()
+        {
+            var info = new CompileInfo { RootClass = "Printing", AssemblyFile = "Printer.dll", AssemblyName = "PrintAsm" };
+
+            if (printer_asm == null)
+                printer_asm = CSScript.Evaluator
+                                      .CompileCode(@"using System;
+                                                     public class Printer
+                                                     {
+                                                         public static void Print() =>
+                                                             Console.WriteLine(""Printing..."");
+                                                     }", info);
+
+            var script = CSScript.Evaluator
+                                 .With(eval => eval.IsAssemblyUnloadingEnabled = true)
+                                 .ReferenceAssembly(printer_asm)
+                                 .LoadMethod<ICalc>(@"public int Sum(int a, int b)
+                                                     {
+                                                         Printing.Printer.Print();
+                                                         return a+b;
+                                                     }");
+            script.Sum(1, 2);
+            script.GetType().Assembly.Unload();
+        }
+
         static void call_UnloadAssembly_Failing()
         {
             // using 'dynamic` completely breaks CLR unloading mechanism. Most likely it triggers an
@@ -114,7 +142,10 @@ namespace ConsoleApp1
             for (int i = 0; i < 20; i++)
             {
                 Console.WriteLine("Loaded assemblies count: " + AppDomain.CurrentDomain.GetAssemblies().Count());
+
                 call_UnloadAssembly();
+                //call_UnloadAssemblyWithDependency(); // also works OK; provided just for demo
+
                 // call_UnloadAssembly_Failing();
                 // call_UnloadAssembly_Crashing_CLR();
                 GC.Collect();

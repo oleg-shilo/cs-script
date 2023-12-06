@@ -314,10 +314,10 @@ namespace EvaluatorTests
             var accounting_assm2 = CSScript.Evaluator
                                    .With(e => e.IsCachingEnabled = false)
                                    .CompileCode(@"public class TXBase
-                             {
-                                 public string TranId { get; set; }
-                                 public string HashKey { get; set; }
-                             }", info);
+                                                  {
+                                                      public string TranId { get; set; }
+                                                      public string HashKey { get; set; }
+                                                  }", info);
 
             dynamic script1 = CSScript.Evaluator
                               .ReferenceAssembly(accounting_assm2)
@@ -333,6 +333,34 @@ namespace EvaluatorTests
                             }");
 
             string r = script1.Test().ToString();
+            // Assert.Equal(3, statements.Count());
+        }
+
+        public static string log = "";
+
+        [Fact]
+        public void Issue_354()
+        {
+            var info = new CompileInfo { RootClass = "Printing", AssemblyFile = "Printer.dll" };
+
+            var printer_asm = CSScript.Evaluator
+                                      .ReferenceAssemblyOf(this)
+                                      .CompileCode(@"using System;
+                                                     using System.Diagnostics;
+                                                     public class Printer
+                                                     {
+                                                         public static void Print()
+                                                         {
+                                                             EvaluatorTests.Generic_Roslyn.log = ""test"";
+                                                             Debug.WriteLine(""Printing..."");
+                                                         }
+                                                     }", info);
+
+            dynamic script = CSScript.Evaluator
+                                     .ReferenceAssembly(printer_asm)
+                                     .Eval("Printing.Printer.Print();");
+            // .LoadMethod(@"public void TestPrint() => Printing.Printer.Print();");
+
             // Assert.Equal(3, statements.Count());
         }
 
