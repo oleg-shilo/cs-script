@@ -1745,6 +1745,9 @@ namespace csscript
 
             if (options.runExternal)
             {
+                if (scriptFileName.GetExtension().SameAs(".vb"))
+                    CLIExitRequest.Throw("Executing script as remote process is not supported with VB script.");
+
                 var refAsms = compilerParams.ReferencedAssemblies.ToArray();
                 if (options.enableDbgPrint)
                     refAsms = [Assembly.GetExecutingAssembly().Location, .. refAsms];
