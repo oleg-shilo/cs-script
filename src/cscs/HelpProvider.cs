@@ -230,9 +230,13 @@ namespace csscript
                                           "Run script as an external process. This option is incompatible with VB scripts.",
                                           "This mode allows execution of the scripts that are otherwise incompatible with the runtime " +
                                           "of the script engine (e.g. x86 vs x64, .NETCore vs .NETFramework).",
-                                          "Note, in this mode script compiled with `csc` engine loaded executed with dotnet.exe launcher. And " +
-                                          "the script that are compiled with `dotnet` engine will be executed on their own as they are " +
-                                          "true executables (e.g. script.exe).");
+                                          "Note, this execution mode comes with some limitations (depending on the compilation engine):",
+                                          " - `csc` ",
+                                          "   The compiled script is executed with dotnet.exe launcher (e.g. `dotnet script.dll`).",
+                                          " - `dotnet` ",
+                                          "   The compiled script is executed directly as exe(e.g. `script.exe`).",
+                                          " - `roslyn` ",
+                                          "   This mode is not supported as Roslyn scripts do not support `static main`.");
             switch1Help[ew] = new ArgInfo("-ew",
 
                                           "Executes compiled script cache (e.g. <cache dir>/script.cs.dll) if found.",

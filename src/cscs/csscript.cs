@@ -768,6 +768,10 @@ namespace csscript
         {
             try
             {
+                if (options.runExternal && (options.compilerEngine == Directives.compiler_roslyn || options.compilerEngine == Directives.compiler_roslyn_inproc))
+                    CLIExitRequest.Throw("Executing script as remote process is incompatible with currently configure Roslyn compiling engine." +
+                        " Use either `csc` or `dotnet` engines instead (see `-ng` CLI option documentation).");
+
                 if (options.processFile)
                 {
                     var initInfo = options.initContext as CSharpParser.InitInfo;
@@ -2078,7 +2082,7 @@ namespace csscript
         static public void SetScriptTempDir(string path) => tempDir = path;
 
         internal static string GetRunAsExternalProbingFileName(string scriptFileName)
-          => Path.Combine(CSExecutor.GetCacheDirectory(scriptFileName), scriptFileName.GetFileNameWithoutExtension() + $".runex.cs");
+            => Path.Combine(CSExecutor.GetCacheDirectory(scriptFileName), scriptFileName.GetFileNameWithoutExtension() + $".runex.cs");
 
         /// <summary>
         /// Generates the name of the cache directory for the specified script file.
