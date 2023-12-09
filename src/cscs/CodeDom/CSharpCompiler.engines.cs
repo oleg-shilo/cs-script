@@ -190,6 +190,9 @@ namespace CSScripting.CodeDom
             var refs = new StringBuilder();
             var assembly = build_dir.PathJoin(projectName + ".dll");
 
+            if (CSExecutor.options.runExternal)
+                assembly = options.OutputAssembly;
+
             var result = new CompilerResults();
 
             var needCompileXaml = fileNames.Any(x => x.EndsWith(".xaml", OrdinalIgnoreCase));
@@ -376,7 +379,8 @@ namespace CSScripting.CodeDom
                 else
                 {
                     result.PathToAssembly = options.OutputAssembly;
-                    try { File.Copy(assembly, result.PathToAssembly, true); } catch { }
+                    if (!assembly.SamePathAs(result.PathToAssembly))
+                        try { File.Copy(assembly, result.PathToAssembly, true); } catch { }
                 }
 
                 if (options.BuildExe)
@@ -398,7 +402,8 @@ namespace CSScripting.CodeDom
                 }
                 else
                 {
-                    File.Copy(assembly, result.PathToAssembly, true);
+                    if (!assembly.SamePathAs(result.PathToAssembly))
+                        File.Copy(assembly, result.PathToAssembly, true);
                 }
 
                 if (options.IncludeDebugInformation)
@@ -446,6 +451,27 @@ namespace CSScripting.CodeDom
             }
 
             build_dir.DeleteDir(handleExceptions: true);
+
+            if (CSExecutor.options.runExternal)
+            {
+                var runtime = Environment.Version;
+                var targetFramework = $"net{runtime.Major}.{runtime.Minor}";
+
+                File.WriteAllText(options.OutputAssembly.ChangeExtension(".runtimeconfig.json"),
+                    @"{
+  ""runtimeOptions"": {
+    ""tfm"": """ + targetFramework + @""",
+    ""framework"": {
+      ""name"": ""Microsoft.NETCore.App"",
+      ""version"": """ + runtime + @"""
+    },
+    ""configProperties"": {
+      ""System.Reflection.Metadata.MetadataUpdater.IsSupported"": false,
+      ""System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization"": false
+    }
+  }
+}");
+            }
 
             return result;
         }

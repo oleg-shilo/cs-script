@@ -364,6 +364,28 @@ partial class dbg
             return dbg_file;
         }
 
+        internal static string GetRuntimeProbingInjectionCode(string outputFile, string[] refAssemblies)
+        {
+            // probing is handled by pre-loading the assemblies from the known locations
+
+            File.WriteAllText(outputFile, @"
+                class C
+                {
+                    [System.Runtime.CompilerServices.ModuleInitializer]
+                    internal static void M1()
+                    {");
+
+            foreach (var item in refAssemblies)
+                if (Path.IsPathRooted(item))
+                    File.AppendAllLines(outputFile, ["", $"try {{System.Reflection.Assembly.LoadFrom(@\"{item}\"); }}catch{{}}"]);
+
+            File.AppendAllText(outputFile, @"
+                    }
+                }");
+
+            return outputFile;
+        }
+
         internal static string GetScriptedCodeAttributeInjectionCode(string scriptFileName)
         {
             using SystemWideLock fileLock = new SystemWideLock(scriptFileName, "attr");
@@ -960,6 +982,10 @@ partial class dbg
                             string[] assemblies = argValue.Split(",;".ToCharArray());
                             options.refAssemblies = assemblies;
                         }
+                    }
+                    else if (Args.Same(arg, AppArgs.rx)) // -rx
+                    {
+                        options.runExternal = true;
                     }
                     else if (Args.Same(arg, AppArgs.e, AppArgs.ew)) // -e -ew
                     {

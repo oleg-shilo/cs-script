@@ -1153,6 +1153,7 @@ namespace csscript
                                 else
                                 {
                                     var executor = new AssemblyExecutor(assemblyFileName, "AsmExecution");
+
                                     executor.Execute(scriptArgs);
                                 }
                             }
@@ -1652,10 +1653,7 @@ namespace csscript
             // * ProjectBuilder.GenerateProjectFor
             // ********************************************************************************************
 
-            // if no request to build executable or dll is made then use exe format as it is the
-            // only format that allows top-level statements (classless scripts)
             bool generateExe = options.buildExecutable;
-
             string scriptDir = Path.GetDirectoryName(scriptFileName);
             string assemblyFileName = "";
 
@@ -1738,6 +1736,22 @@ namespace csscript
             string[] additionalDependencies = context.NewDependencies.ToArray();
 
             AddReferencedAssemblies(compilerParams, scriptFileName, parser);
+
+            string runexFile = GetRunAsExternalProbingFileName(scriptFileName);
+
+            if (options.runExternal)
+            {
+                var refAsms = compilerParams.ReferencedAssemblies.ToArray();
+                if (options.enableDbgPrint)
+                    refAsms = [Assembly.GetExecutingAssembly().Location, .. refAsms];
+
+                var injection = CSSUtils.GetRuntimeProbingInjectionCode(runexFile, refAsms);
+                filesToCompile = filesToCompile.Concat([injection]).ToArray();
+            }
+            else
+            {
+                runexFile.DeleteIfExists();
+            }
 
             //add resources referenced from code
 
@@ -2062,6 +2076,9 @@ namespace csscript
         /// </summary>
         /// <param name="path">The path for the temporary directory.</param>
         static public void SetScriptTempDir(string path) => tempDir = path;
+
+        internal static string GetRunAsExternalProbingFileName(string scriptFileName)
+          => Path.Combine(CSExecutor.GetCacheDirectory(scriptFileName), scriptFileName.GetFileNameWithoutExtension() + $".runex.cs");
 
         /// <summary>
         /// Generates the name of the cache directory for the specified script file.

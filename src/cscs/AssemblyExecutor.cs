@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using CSScripting;
 
 namespace csscript
@@ -84,6 +87,49 @@ namespace csscript
 
         public void ExecuteAssembly(string filename, string[] args, SystemWideLock asmLock)
         {
+            var scriptName = filename.GetFileNameWithoutExtension();
+            var runExternalFile = filename.ChangeFileName(scriptName.ChangeExtension(".runex.cs"));
+
+            var runExternal = runExternalFile.FileExists();
+            if (runExternal)
+            {
+                var exe = filename.ChangeExtension(".exe");
+                if (exe.FileExists())
+                    ExecuteAssemblyAsProcess(exe, args, asmLock);
+                else
+                    ExecuteAssemblyAsProcess("dotnet.exe", [filename, .. args], asmLock);
+            }
+            else
+                ExecuteLoadedAssembly(filename, args, asmLock);
+        }
+
+        void ExecuteAssemblyAsProcess(string filename, string[] args, SystemWideLock asmLock)
+        {
+            // We cannot invoke SetScriptReflection because we cannot set certain envars as they would require loading
+            // the assembly what is not possible. Remember, we are here only because we cannot load the assembly.
+            if (Environment.GetEnvironmentVariable("CSScriptRuntime") != null)
+                Environment.SetEnvironmentVariable("EntryScriptAssembly", filename);
+
+            var arguments = string.Join(" ", args.Select((string x) => (x.Contains(" ") || x.Contains("\t")) ? ("\"" + x + "\"") : x).ToArray());
+
+            var childProc = new Process();
+            childProc.StartInfo.FileName = filename;
+            childProc.StartInfo.Arguments = arguments;
+            childProc.StartInfo.UseShellExecute = false;
+            childProc.StartInfo.WorkingDirectory = Environment.CurrentDirectory;
+            childProc.StartInfo.RedirectStandardError = false;
+            childProc.StartInfo.RedirectStandardOutput = false;
+            childProc.StartInfo.RedirectStandardInput = false;
+            childProc.StartInfo.CreateNoWindow = false;
+            childProc.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
+
+            childProc.Start();
+            childProc.WaitForExit();
+            Environment.ExitCode = childProc.ExitCode;
+        }
+
+        void ExecuteLoadedAssembly(string filename, string[] args, SystemWideLock asmLock)
+        {
             AppDomain.CurrentDomain.AssemblyResolve += ResolveEventHandler;
             AppDomain.CurrentDomain.ResourceResolve += ResolveResEventHandler;
 
@@ -112,7 +158,6 @@ namespace csscript
             }
 
             SetScriptReflection(assembly, Path.GetFullPath(filename), true);
-
             InvokeStaticMain(assembly, args);
         }
 

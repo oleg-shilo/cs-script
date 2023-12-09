@@ -65,6 +65,7 @@ namespace csscript
             clone.startDebugger = this.startDebugger;
             clone.local = this.local;
             clone.buildExecutable = this.buildExecutable;
+            clone.runExternal = this.runExternal;
             clone.refAssemblies = new List<string>(this.refAssemblies).ToArray();
             clone.searchDirs = new List<string>(this.searchDirs).ToArray();
             clone.buildWinExecutable = this.buildWinExecutable;
@@ -183,6 +184,7 @@ namespace csscript
         public bool startDebugger = false;
         public bool local = true;
         public bool buildExecutable = false;
+        public bool runExternal = false;
         public string[] refAssemblies = new string[0];
         public string[] searchDirs = new string[0];
         public bool shareHostRefAssemblies = false;

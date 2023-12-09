@@ -342,7 +342,6 @@ namespace EvaluatorTests
         public void Issue_354()
         {
             var info = new CompileInfo { RootClass = "Printing", AssemblyFile = "Printer.dll" };
-
             var printer_asm = CSScript.Evaluator
                                       .ReferenceAssemblyOf(this)
                                       .CompileCode(@"using System;
