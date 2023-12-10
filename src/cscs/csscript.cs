@@ -815,10 +815,12 @@ namespace csscript
                         catch { } //will fail for windows app but pass for console apps
 
                         Console.WriteLine("  CurrentDirectory: " + Environment.CurrentDirectory);
+                        Console.WriteLine("  CurrentProcess: " + Process.GetCurrentProcess().Id);
                         Console.WriteLine("  NuGet manager: " + NuGet.NuGetExeView);
                         Console.WriteLine("  NuGet cache: " + NuGet.NuGetCacheView);
                         Console.WriteLine("  Script cache: " + Runtime.CacheDir);
                         Console.WriteLine("  Executing: " + Path.GetFullPath(options.scriptFileName));
+                        Console.WriteLine("  Hosting: " + (options.runExternal ? "OutOfProcess" : "InProcess"));
                         Console.WriteLine("  Script arguments: ");
                         for (int i = 0; i < scriptArgs.Length; i++)
                             Console.WriteLine("    " + i + " - " + scriptArgs[i]);
