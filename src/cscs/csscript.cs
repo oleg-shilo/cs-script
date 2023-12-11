@@ -1059,8 +1059,6 @@ namespace csscript
                                 TimeSpan initializationTime = Profiler.Stopwatch.Elapsed;
                                 Profiler.Stopwatch.Restart();
 
-                                options.isNetFx = true;
-                                // options.isNetFx = false;
                                 assemblyFileName = Compile(options.scriptFileName);
 
                                 if (Runtime.IsLinux && assemblyFileName.EndsWith(".exe"))
@@ -1342,6 +1340,10 @@ namespace csscript
             if (asmFileName == null || asmFileName == "")
             {
                 asmFileName = CSExecutor.ScriptCacheDir.PathJoin(scripFileName.GetFileName() + ".dll");
+                if (options.isNetFx)
+                {
+                    asmFileName = asmFileName.ChangeExtension(".exe"); // can only run NetFx assemblies as an external process
+                }
             }
 
             if (File.Exists(asmFileName) && File.Exists(scripFileName))
@@ -1806,8 +1808,13 @@ namespace csscript
                 else
                 {
                     string tempFile = GetScriptTempFile();
-                    assemblyFileName = Path.ChangeExtension(tempFile, options.runExternal ? ".exe" : ".dll");
+                    assemblyFileName = Path.ChangeExtension(tempFile, ".dll");
                 }
+
+                if (options.runExternal && options.isNetFx)
+                    assemblyFileName = assemblyFileName.ChangeExtension(".exe");
+
+
             }
 
             string runexFile = GetRunAsExternalProbingFileName(scriptFileName);

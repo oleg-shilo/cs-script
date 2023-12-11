@@ -70,6 +70,7 @@ namespace csscript
         public const string code = "code";
         public const string speed = "speed";
         public const string stop = "stop";
+        public const string netfx = "netfx";
         public const string tc = "tc";
         public const string pvdr = "pvdr";
         public const string nuget = "nuget";

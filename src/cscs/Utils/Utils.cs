@@ -368,9 +368,9 @@ partial class dbg
         {
             var asmList = "";
 
-            foreach (var item in refAssemblies)
+            foreach (var item in refAssemblies.Distinct())
                 if (Path.IsPathRooted(item))
-                    asmList += $" {asmList} @\"{item.GetDirName()}\",";
+                    asmList += $" {asmList} @\"{item}\",";
 
             var code = @"
 using System;
@@ -396,9 +396,13 @@ class HostingRuntime
             var candidates = refAsms.OrderByDescending(x => System.IO.Path.GetFileNameWithoutExtension(x) == asmName).ToArray();
             foreach (var asm in candidates)
             {
-                var preLoadedAsm = System.Reflection.Assembly.ReflectionOnlyLoadFrom(asm);
-                if (preLoadedAsm.GetName().Name.Split(',')[0] == asmName)
-                    return System.Reflection.Assembly.LoadFrom(asm);
+                try
+                {
+                    var preLoadedAsm = System.Reflection.Assembly.ReflectionOnlyLoadFrom(asm);
+                    if (preLoadedAsm.GetName().Name.Split(',')[0] == asmName)
+                        return System.Reflection.Assembly.LoadFrom(asm);
+                }
+                catch{}
             }
 
             return null;
@@ -1103,6 +1107,10 @@ class HostingRuntime
                     else if (Args.Same(arg, AppArgs.rx)) // -rx
                     {
                         options.runExternal = true;
+                    }
+                    else if (Args.Same(arg, AppArgs.netfx)) // -netfx for .NET Framework builds
+                    {
+                        options.isNetFx = true;
                     }
                     else if (Args.Same(arg, AppArgs.e, AppArgs.ew)) // -e -ew
                     {
