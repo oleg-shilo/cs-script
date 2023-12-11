@@ -123,7 +123,7 @@ namespace csscript
                     try
                     {
                         // <pid>.<script_id>.*
-                        var pid = file.GetFileName().Split(".").FirstOrDefault();
+                        var pid = file.GetFileName().Split('.').FirstOrDefault();
 
                         if (pid != null && !activeProcesses.Contains(pid))
                             file.DeleteIfExists();

@@ -1,13 +1,13 @@
-using csscript;
-using CSScripting;
-using CSScriptLib;
 using System;
 using System.Diagnostics;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using csscript;
+using CSScripting;
+using CSScriptLib;
 using Xunit;
-using static System.Environment;
 
 namespace CLI
 {
@@ -25,7 +25,7 @@ namespace CLI
         }
 
         public static void Set(string path)
-           => Environment.CurrentDirectory = root = path.EnsureDir();
+            => Environment.CurrentDirectory = root = path.EnsureDir();
     }
 
     public class cscs_cli : IClassFixture<CliTestFolder>
@@ -251,6 +251,31 @@ global using global::System.Threading.Tasks;");
 
             output = cscs_run($"-check -ng:csc {script_file}");
             Assert.Equal("Compile: OK", output);
+        }
+
+        [Fact]
+        public void compile_netfx_script()
+        {
+            string toCode(string staticMain)
+                => @"
+using System;
+using System.Xml;
+using WixSharp;
+
+public class Script
+{
+    $staticMain$
+    {
+    }
+}
+".Replace("$staticMain$", staticMain);
+
+            var processedCode = CSSUtils.InjectModuleInitializer(toCode(
+                "static public void Main(string[] args)"), "HostingRuntime.Init();");
+
+            Assert.Contains("static void Main(string[] args) { HostingRuntime.Init();  impl_Main(args); }     static public void impl_Main(string[] args)", processedCode);
+
+            return;
         }
 
         [Fact]

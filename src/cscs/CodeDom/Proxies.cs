@@ -329,19 +329,35 @@ namespace CSScripting.CodeDom
             {
                 var includs = new XElement("ItemGroup");
                 project_element.Add(includs);
+
                 fileNames.ForEach(x =>
                 {
                     // <Compile Include="..\..\..\cscs\fileparser.cs" Link="fileparser.cs"/>
 
+                    var sourceFile = x.GetFullPath();
+
                     if (x.EndsWith(".xaml", StringComparison.OrdinalIgnoreCase))
+                    {
                         includs.Add(new XElement("Page",
                                         new XAttribute("Include", x),
-                                        new XAttribute("Link", Path.GetFileName(x)),
+                                        new XAttribute("Link", sourceFile),
                                         new XElement("Generator", "MSBuild:Compile")));
+                    }
                     else
+                    {
+                        if (isNetFx && x == fileNames.First()) // entry script with 'static main'
+                        {
+                            var newCode = CSSUtils.InjectModuleInitializer(File.ReadAllText(sourceFile), "HostingRuntime.Init();");
+
+                            sourceFile = build_dir.PathJoin(x.GetFileNameWithoutExtension() + ".g.cs");
+
+                            File.WriteAllText(sourceFile, newCode);
+                        }
+
                         includs.Add(new XElement("Compile",
-                                        new XAttribute("Include", x),
+                                        new XAttribute("Include", sourceFile),
                                         new XAttribute("Link", Path.GetFileName(x))));
+                    }
                 });
             }
             else

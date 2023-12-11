@@ -415,96 +415,59 @@ class HostingRuntime
             return outputFile;
         }
 
-        internal static string GetRuntimeProbingInjectionCodeold(string outputFile, string[] refAssemblies)
+        internal static string InjectModuleInitializer(string scriptCode, string initCall)
         {
-            // probing is handled by pre-loading the assemblies from the known locations
+            var code = new StringBuilder();
 
-            File.WriteAllText(outputFile, @"
-                class HostingRuntime
+            bool injected = false;
+            foreach (var line in scriptCode.GetLines())
+            {
+                if (!line.StartsWith("//") && !injected)
                 {
-                    #if !NETFRAMEWORK
-                    [System.Runtime.CompilerServices.ModuleInitializer]
-                    #endif
-                    internal static void Init()
-                    {");
+                    // static void Main(string[] args)
+                    // static void Main(string args)
+                    // static void Main()
 
-            foreach (var item in refAssemblies)
-                if (Path.IsPathRooted(item))
-                    File.AppendAllLines(outputFile, ["", $"try {{System.Reflection.Assembly.LoadFrom(@\"{item}\"); }}catch{{}}"]);
-
-            File.AppendAllText(outputFile, @"
-                    }
-                }");
-
-            return outputFile;
-        }
-
-        internal static string GetRuntimeProbingInjectionCode2(string outputFile, string[] refAssemblies)
-        {
-            // probing is handled by pre-loading the assemblies from the known locations
-
-            // AppDomain.CurrentDomain.AssemblyResolve
-
-            string probingdirs = "";
-
-            foreach (var item in refAssemblies)
-                if (Path.IsPathRooted(item))
-                    probingdirs += $" {probingdirs} @\"{item.GetDirName()}\",";
-
-            var code =
-                @"using System;
-                  using System.Reflection;
-                  using System.Linq;
-                  using System.IO;
-
-                class HostingRuntime
-                {
-                    static string[] probingDirs = new string[] { " + probingdirs + @"};
-
-                    static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+                    MatchCollection matches = Regex.Matches(line, @"\s+Main\s*\(", RegexOptions.IgnoreCase);
+                    if (matches.Any())
                     {
-                        var shortName = args.Name.Split(',').First().Trim();
-
-                        foreach (string dir in probingDirs)
+                        bool isStatic = Regex.Matches(line, @"\bstatic").Count != 0;
+                        if (isStatic)
                         {
-                            try
+                            var match = matches.First();
+
+                            // Ignore VB entry point
+                            if (line.TrimStart().StartsWith("Sub Main", StringComparison.OrdinalIgnoreCase))
+                                break;
+
+                            if (match.Value.Contains("Main")) //assembly entry point "static Main"
                             {
-                                string file = Path.Combine(dir, args.Name.Split(',').First().Trim() + "".dll"");
-                                if (File.Exists(file))
-                                    return (System.Reflection.Assembly.LoadFile(file));
+                                var args = new Regex("\\((.*?)\\)").Matches(line).FirstOrDefault()?.Value?.Trim(['(', ')']);
+                                var argName = Regex.Split(args ?? "", @"\s+").LastOrDefault();
 
-                                file = Path.Combine(dir, args.Name.Split(',').First().Trim() + "".exe"");
-                                if (File.Exists(file))
-                                    return (System.Reflection.Assembly.LoadFile(file));
+                                var returnType = Regex.Split(line.Substring(0, match.Index), @"\s+").LastOrDefault();
+
+                                var processedLine = line.Substring(0, match.Index) + " impl_" + line.Substring(match.Index + 1);
+                                processedLine = processedLine.Trim();
+
+                                if (args.HasText())
+                                    processedLine = $" static {returnType} Main({args}) {{ {initCall} {(returnType == "void" ? "" : "return ")} impl_Main({argName}); }} {processedLine}";
+                                else
+                                    processedLine = $" static {returnType} Main() {{ {initCall} impl_Main(); }} {processedLine}";
+
+                                code.AppendLine(processedLine);
+                                injected = true;
                             }
-                            catch { }
                         }
-
-                        try
-                        {
-                            return System.Reflection.Assembly.LoadFrom(shortName); // will try to load by the asm file name without the path
-                        }
-                        catch
-                        {
-                        }
-                        return null;
                     }
-                    #if !NETFRAMEWORK
-                    [System.Runtime.CompilerServices.ModuleInitializer]
-                    #endif
-                    internal static void Init()
-                    {
-                         System.AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-                    }
+                    if (!injected)
+                        code.AppendLine(line);
                 }
-";
-            File.WriteAllText(outputFile, code);
+                else
+                    code.AppendLine(line);
+            }
 
-            // File.AppendAllText(outputFile, @"
-            //         }
-            //     }");
-
-            return outputFile;
+            return code.ToString();
         }
 
         internal static string GetScriptedCodeAttributeInjectionCode(string scriptFileName)
@@ -1818,7 +1781,7 @@ class HostingRuntime
 
         public bool StampFile(string file)
         {
-            //Trace.WriteLine("Writing mete data...");
+            //Trace.WriteLine("Writing meta data...");
             //foreach (MetaDataItem item in items)
             //    Trace.WriteLine(item.file + " : " + item.date);
 
