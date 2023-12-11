@@ -176,7 +176,7 @@ namespace CSScripting.CodeDom
                 return "Error: cannot process compile request on CS-Script build server ";
         }
 
-        internal static string CreateProject(CompilerParameters options, string[] fileNames, string outDir = null)
+        internal static string CreateProject(CompilerParameters options, string[] fileNames, string outDir = null, bool isNetFx = false)
         {
             string projectShortName = fileNames.First().GetFileNameWithoutExtension();
 
@@ -215,8 +215,13 @@ namespace CSScripting.CodeDom
             if (projectName.GetExtension().SameAs(".vbproj"))
                 compileConstantsDelimiter = ",";
 
+            string[] constants = ["TRACE", "NETCORE", "CS_SCRIPT"];
+
+            if (isNetFx)
+                constants = ["NETFRAMEWORK", .. constants];
+
             project_element.Add(new XElement("PropertyGroup",
-                                    new XElement("DefineConstants", new[] { "TRACE", "NETCORE", "CS_SCRIPT" }.JoinBy(compileConstantsDelimiter))));
+                                    new XElement("DefineConstants", constants.JoinBy(compileConstantsDelimiter))));
 
             if (options.AppType.HasText())
                 project_element.Attribute("Sdk").SetValue($"Microsoft.NET.Sdk.{options.AppType}");
@@ -244,14 +249,28 @@ namespace CSScripting.CodeDom
                                                              .Where(not_in_engine_dir)
                                                              .ToList();
 
-            void setTargetFremeworkWin() => project_element.Element("PropertyGroup")
-                                                           .SetElementValue("TargetFramework", $"net{Environment.Version.Major}.0-windows");
+            void setTargetFremeworkWin(string framework) => project_element.Element("PropertyGroup")
+                                                                           .SetElementValue("TargetFramework", framework);
 
             bool refWinForms = ref_assemblies.Any(x => x.EndsWith("System.Windows.Forms") ||
                                                        x.EndsWith("System.Windows.Forms.dll"));
+
+            var framework = $"net{Environment.Version.Major}.0-windows";
+
+            if (isNetFx)
+            {
+                framework = "net472";
+                project_element.Element("PropertyGroup")
+                               .Element("Nullable")
+                               .Remove();
+                project_element.Element("PropertyGroup")
+                               .Element("ImplicitUsings")
+                               .Remove();
+            }
+
             if (refWinForms)
             {
-                setTargetFremeworkWin();
+                setTargetFremeworkWin(framework);
                 project_element.Element("PropertyGroup")
                                .Add(new XElement("UseWindowsForms", "true"));
             }
@@ -260,7 +279,7 @@ namespace CSScripting.CodeDom
                                                                x.EndsWith("PresentationFramework.dll"));
             if (refWpf)
             {
-                setTargetFremeworkWin();
+                setTargetFremeworkWin(framework);
                 Environment.SetEnvironmentVariable("UseWPF", "true");
                 project_element.Element("PropertyGroup")
                                .Add(new XElement("UseWPF", "true"));

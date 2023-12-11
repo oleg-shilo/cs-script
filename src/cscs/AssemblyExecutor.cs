@@ -87,8 +87,14 @@ namespace csscript
 
         public void ExecuteAssembly(string filename, string[] args, SystemWideLock asmLock)
         {
-            var scriptName = filename.GetFileNameWithoutExtension();
-            var runExternalFile = filename.ChangeFileName(scriptName.ChangeExtension(".runex.cs"));
+            // filename possible values
+            // - script.cs.dll    (.NET Core dll)
+            // - script.cs.exe    (.NET Core exe)
+            // - script.dll       (.NET FX dll)
+            // - script.exe       (.NET FX exe)
+
+            // var scriptName = filename.GetFileNameWithoutExtension();
+            var runExternalFile = filename.ChangeExtension(".runex");
 
             var runExternal = runExternalFile.FileExists();
             if (runExternal)

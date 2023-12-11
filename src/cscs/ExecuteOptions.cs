@@ -51,6 +51,7 @@ namespace csscript
             ExecuteOptions clone = new ExecuteOptions();
             clone.processFile = this.processFile;
             clone.scriptFileName = this.scriptFileName;
+            clone.isNetFx = this.isNetFx;
             clone.useCompiled = this.useCompiled;
             clone.suppressTimestampAltering = this.suppressTimestampAltering;
             clone.useSmartCaching = this.useSmartCaching;
@@ -165,6 +166,7 @@ namespace csscript
         public object nonExecuteOpRquest = null;
         public int compilationContext = 0;
         public string scriptFileName = "";
+        public bool isNetFx = false;
         public object initContext = null;
         public string scriptFileNamePrimary = null;
         public bool useCompiled = false;

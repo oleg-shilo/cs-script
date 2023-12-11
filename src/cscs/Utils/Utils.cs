@@ -366,13 +366,62 @@ partial class dbg
 
         internal static string GetRuntimeProbingInjectionCode(string outputFile, string[] refAssemblies)
         {
+            var asmList = "";
+
+            foreach (var item in refAssemblies)
+                if (Path.IsPathRooted(item))
+                    asmList += $" {asmList} @\"{item.GetDirName()}\",";
+
+            var code = @"
+using System;
+using System.IO;
+using System.Linq;
+
+class HostingRuntime
+{
+    #if !NETFRAMEWORK
+    [System.Runtime.CompilerServices.ModuleInitializer]
+    #endif
+    internal static void Init()
+    {
+        string[] refAsms = new[]
+        {
+            $asmlist$
+        };
+
+        AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs ar) =>
+        {
+            var asmName = ar.Name.Split(',')[0];
+
+            var candidates = refAsms.OrderByDescending(x => System.IO.Path.GetFileNameWithoutExtension(x) == asmName).ToArray();
+            foreach (var asm in candidates)
+            {
+                var preLoadedAsm = System.Reflection.Assembly.ReflectionOnlyLoadFrom(asm);
+                if (preLoadedAsm.GetName().Name.Split(',')[0] == asmName)
+                    return System.Reflection.Assembly.LoadFrom(asm);
+            }
+
+            return null;
+        };
+    }
+};".Replace("$asmlist$", asmList);
+
+            File.WriteAllText(outputFile, code);
+
+            return outputFile;
+        }
+
+        internal static string GetRuntimeProbingInjectionCodeold(string outputFile, string[] refAssemblies)
+        {
             // probing is handled by pre-loading the assemblies from the known locations
 
             File.WriteAllText(outputFile, @"
-                class C
+                class HostingRuntime
                 {
+                    #if !NETFRAMEWORK
                     [System.Runtime.CompilerServices.ModuleInitializer]
-                    internal static void M1()
+                    #endif
+                    internal static void Init()
                     {");
 
             foreach (var item in refAssemblies)
@@ -382,6 +431,74 @@ partial class dbg
             File.AppendAllText(outputFile, @"
                     }
                 }");
+
+            return outputFile;
+        }
+
+        internal static string GetRuntimeProbingInjectionCode2(string outputFile, string[] refAssemblies)
+        {
+            // probing is handled by pre-loading the assemblies from the known locations
+
+            // AppDomain.CurrentDomain.AssemblyResolve
+
+            string probingdirs = "";
+
+            foreach (var item in refAssemblies)
+                if (Path.IsPathRooted(item))
+                    probingdirs += $" {probingdirs} @\"{item.GetDirName()}\",";
+
+            var code =
+                @"using System;
+                  using System.Reflection;
+                  using System.Linq;
+                  using System.IO;
+
+                class HostingRuntime
+                {
+                    static string[] probingDirs = new string[] { " + probingdirs + @"};
+
+                    static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+                    {
+                        var shortName = args.Name.Split(',').First().Trim();
+
+                        foreach (string dir in probingDirs)
+                        {
+                            try
+                            {
+                                string file = Path.Combine(dir, args.Name.Split(',').First().Trim() + "".dll"");
+                                if (File.Exists(file))
+                                    return (System.Reflection.Assembly.LoadFile(file));
+
+                                file = Path.Combine(dir, args.Name.Split(',').First().Trim() + "".exe"");
+                                if (File.Exists(file))
+                                    return (System.Reflection.Assembly.LoadFile(file));
+                            }
+                            catch { }
+                        }
+
+                        try
+                        {
+                            return System.Reflection.Assembly.LoadFrom(shortName); // will try to load by the asm file name without the path
+                        }
+                        catch
+                        {
+                        }
+                        return null;
+                    }
+                    #if !NETFRAMEWORK
+                    [System.Runtime.CompilerServices.ModuleInitializer]
+                    #endif
+                    internal static void Init()
+                    {
+                         System.AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+                    }
+                }
+";
+            File.WriteAllText(outputFile, code);
+
+            // File.AppendAllText(outputFile, @"
+            //         }
+            //     }");
 
             return outputFile;
         }

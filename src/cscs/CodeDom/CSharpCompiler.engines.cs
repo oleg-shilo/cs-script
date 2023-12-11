@@ -26,12 +26,19 @@ namespace CSScripting.CodeDom
     {
         CompilerResults CompileAssemblyFromFileBatch_with_Build(CompilerParameters options, string[] fileNames)
         {
-            var projectFile = CreateProject(options, fileNames);
+            var projectFile = CreateProject(
+                options,
+                fileNames,
+                null,
+                ExecuteOptions.options.isNetFx);
 
             var output = "bin";
             var build_dir = projectFile.GetDirName();
 
             var assembly = build_dir.PathJoin(output, projectFile.GetFileNameWithoutExtension() + ".dll");
+
+            if (ExecuteOptions.options.isNetFx)
+                assembly = assembly.ChangeExtension(".exe");
 
             var result = new CompilerResults();
 
@@ -39,7 +46,7 @@ namespace CSScripting.CodeDom
                 Console.WriteLine("WARNING: .NET SDK is not installed. It is required for CS-Script (with `csc` engine) to function properly.");
 
             var config = options.IncludeDebugInformation ? "--configuration Debug" : "--configuration Release";
-            var cmd = $"build {config} -o {output} {options.CompilerOptions.Replace("/target:winexe", "")}"; // dotnet build command gets "console vs win" from the project file, not the CLI param
+            var cmd = $"build {projectFile.GetFileName()} {config} -o {output} {options.CompilerOptions.Replace("/target:winexe", "")}"; // dotnet build command gets "console vs win" from the project file, not the CLI param
 
             Profiler.get("compiler").Start();
             assembly.DeleteIfExists();
@@ -83,33 +90,50 @@ namespace CSScripting.CodeDom
             if (result.NativeCompilerReturnValue == 0 && File.Exists(assembly))
             {
                 result.PathToAssembly = options.OutputAssembly;
-                if (options.GenerateExecutable)
+
+                if (ExecuteOptions.options.isNetFx)
                 {
-                    // strangely enough on some Linux distro (e.g. WSL2) the access denied error is
-                    // raised after the files are successfully copied so ignore
-                    PathExtensions.FileCopy(
-                        assembly.ChangeExtension(".runtimeconfig.json"),
-                        result.PathToAssembly.ChangeExtension(".runtimeconfig.json"),
-                        ignoreErrors: Runtime.IsLinux);
+                    if (ExecuteOptions.options.runExternal)
+                        result.PathToAssembly = result.PathToAssembly.ChangeExtension(".exe");
 
-                    if (Runtime.IsLinux) // on Linux executables are without extension
-                        PathExtensions.FileCopy(
-                            assembly.RemoveAssemblyExtension(),
-                            result.PathToAssembly.RemoveAssemblyExtension(),
-                            ignoreErrors: Runtime.IsLinux);
-                    else
-                        PathExtensions.FileCopy(
-                            assembly.ChangeExtension(".exe"),
-                            result.PathToAssembly.ChangeExtension(".exe"));
-
-                    PathExtensions.FileCopy(
-                        assembly.ChangeExtension(".dll"),
-                        result.PathToAssembly.ChangeExtension(".dll"),
-                        ignoreErrors: Runtime.IsLinux);
+                    if (!assembly.SamePathAs(result.PathToAssembly))
+                        File.Copy(assembly, result.PathToAssembly, true);
                 }
                 else
                 {
-                    File.Copy(assembly, result.PathToAssembly, true);
+                    if (options.GenerateExecutable)
+                    {
+                        // strangely enough on some Linux distro (e.g. WSL2) the access denied error is
+                        // raised after the files are successfully copied so ignore
+                        PathExtensions.FileCopy(
+                            assembly.ChangeExtension(".runtimeconfig.json"),
+                            result.PathToAssembly.ChangeExtension(".runtimeconfig.json"),
+                            ignoreErrors: Runtime.IsLinux);
+
+                        PathExtensions.FileCopy(
+                            assembly.ChangeExtension(".deps.json"),
+                            result.PathToAssembly.ChangeExtension(".deps.json"),
+                            ignoreErrors: Runtime.IsLinux);
+
+                        if (Runtime.IsLinux) // on Linux executables are without extension
+                            PathExtensions.FileCopy(
+                                assembly.RemoveAssemblyExtension(),
+                                result.PathToAssembly.RemoveAssemblyExtension(),
+                                ignoreErrors: Runtime.IsLinux);
+                        else
+                            PathExtensions.FileCopy(
+                                assembly.ChangeExtension(".exe"),
+                                result.PathToAssembly.ChangeExtension(".exe"));
+
+                        PathExtensions.FileCopy(
+                            assembly.ChangeExtension(".dll"),
+                            result.PathToAssembly.ChangeExtension(".dll"),
+                            ignoreErrors: Runtime.IsLinux);
+                    }
+                    else
+                    {
+                        File.Copy(assembly, result.PathToAssembly, true);
+                    }
                 }
 
                 if (options.IncludeDebugInformation)
