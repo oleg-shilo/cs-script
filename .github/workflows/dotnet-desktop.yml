@@ -63,7 +63,9 @@ jobs:
 
     steps:
     - name: Init
-      run: pwd
+      run: |
+        pwd
+        dir
 
     # Install the .NET Core workload
     - name: Install .NET Core
