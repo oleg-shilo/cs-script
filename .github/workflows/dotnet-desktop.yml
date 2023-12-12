@@ -83,6 +83,10 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     # Execute all unit tests in the solution
+    - name: Build the solution
+      run: dotnet build 
+      
+    # Execute all unit tests in the solution
     - name: Execute unit tests
       run: dotnet test D:\a\cs-script\cs-script\src\Tests.CSScriptLib\Tests.CSScriptLib.csproj
       
