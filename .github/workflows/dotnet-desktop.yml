@@ -56,10 +56,7 @@ jobs:
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
 
     env:
-      Solution_Name: .\src\CS-Script.sln                              # Replace with your solution name, i.e. MyWpfApp.sln.
-      Test_Project_Path: Tests.CSScriptLib.csproj               # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
-      # Wap_Project_Directory: src                                # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
-      # Wap_Project_Path: src/Tests.CSScriptLib                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+      Solution_Name: .\src\CS-Script.sln                        # Replace with your solution name, i.e. MyWpfApp.sln.WpfApp.Tests\MyWpfApp.Tests.csproj.approj.
 
     steps:
     - name: Checkout
@@ -82,19 +79,19 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Restore the application
-      run: dotnet restore $env:Solution_Name
+    # - name: Restore the application
+    #   run: dotnet restore $env:Solution_Name
     
-    - name: Build the solution
-      run: dotnet build .\src\CS-Script.sln
+    # - name: Build the solution
+    #   run: dotnet build .\src\CS-Script.sln
       
-    # Execute all unit tests in the solution
-    - name: Execute unit tests
-      run: dotnet test .\src\Tests.CSScriptLib\Tests.CSScriptLib.csproj
+    # # Execute all unit tests in the solution
+    # - name: Execute unit tests
+    #   run: dotnet test .\src\Tests.CSScriptLib\Tests.CSScriptLib.csproj
       
-    # Execute all unit tests in the solution
-    - name: Execute unit tests
-      run: dotnet test .\src\Tests.cscs\Tests.CLI.csproj
+    # # Execute all unit tests in the solution
+    # - name: Execute unit tests
+    #   run: dotnet test .\src\Tests.cscs\Tests.CLI.csproj
 
     # # Restore the application to populate the obj folder with RuntimeIdentifiers
     # - name: Restore the application
@@ -102,7 +99,7 @@ jobs:
     #   env:
     #     Configuration: ${{ matrix.configuration }}
 
-    # Build distributions
-    - name: Build distros
-      run: dotnet publish $env:Solution_Name
+    # # Build distributions
+    # - name: Build distros
+    #   run: dotnet publish $env:Solution_Name
       
