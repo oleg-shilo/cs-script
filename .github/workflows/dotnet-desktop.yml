@@ -56,16 +56,14 @@ jobs:
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
 
     env:
-      Solution_Name: CS-Script.sln                              # Replace with your solution name, i.e. MyWpfApp.sln.
+      Solution_Name: .\src\CS-Script.sln                              # Replace with your solution name, i.e. MyWpfApp.sln.
       Test_Project_Path: Tests.CSScriptLib.csproj               # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
-      Wap_Project_Directory: src                                # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
-      Wap_Project_Path: src/Tests.CSScriptLib                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+      # Wap_Project_Directory: src                                # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
+      # Wap_Project_Path: src/Tests.CSScriptLib                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+    - name: Init
+      run: pwd
 
     # Install the .NET Core workload
     - name: Install .NET Core
@@ -79,7 +77,11 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test
+      run: dotnet test .\src\Tests.CSScriptLib\Tests.CSScriptLib.csproj
+      
+    # Execute all unit tests in the solution
+    - name: Execute unit tests
+      run: dotnet test .\src\Tests.cscs\Tests.CLI.csproj
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
@@ -89,7 +91,7 @@ jobs:
 
     # Build distributions
     - name: Build distros
-      run: dotnet publish
+      run: dotnet publish $env:Solution_Name
       
     # Decode the base 64 encoded pfx and save the Signing_Certificate
     # - name: Decode the pfx
