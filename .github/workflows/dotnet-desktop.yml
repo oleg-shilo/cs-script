@@ -62,10 +62,10 @@ jobs:
       # Wap_Project_Path: src/Tests.CSScriptLib                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
 
     steps:
-    - name: Init
-      run: |
-        pwd
-        dir
+    - name: Init1
+      run: pwd
+    - name: Init2
+      run: dir
 
     # Install the .NET Core workload
     - name: Install .NET Core
