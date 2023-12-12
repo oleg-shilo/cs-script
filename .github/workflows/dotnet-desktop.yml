@@ -65,7 +65,7 @@ jobs:
     - name: Init1
       run: pwd
     - name: Init2
-      run: dir
+      run: ls
 
     # Install the .NET Core workload
     - name: Install .NET Core
@@ -79,7 +79,7 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test .\src\Tests.CSScriptLib\Tests.CSScriptLib.csproj
+      run: dotnet test D:\a\cs-script\cs-script\src\Tests.CSScriptLib\Tests.CSScriptLib.csproj
       
     # Execute all unit tests in the solution
     - name: Execute unit tests
