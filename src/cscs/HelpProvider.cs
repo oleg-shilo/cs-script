@@ -505,6 +505,11 @@ namespace csscript
                                           "```"
                                              );
 
+            switch2Help[netfx] = new ArgInfo("-netfx",
+                                         "Comile and execute the script on the latest .NET Framework compiler (csc.exe) found on the system.",
+                                             "The script will be automatically executed as an external process thus the value of the -rx switch" +
+                                             "will be ignored.");
+
             switch2Help[tc] = new ArgInfo("-tc",
                                           "Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.",
                                               "It's useful when troubleshooting custom compilers (e.g. Roslyn on Linux).");
