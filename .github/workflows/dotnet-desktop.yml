@@ -84,11 +84,11 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Build the solution
-      run: dotnet build 
+      run: dotnet build .\src\CS-Script.sln
       
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test D:\a\cs-script\cs-script\src\Tests.CSScriptLib\Tests.CSScriptLib.csproj
+      run: dotnet test .\src\Tests.CSScriptLib\Tests.CSScriptLib.csproj
       
     # Execute all unit tests in the solution
     - name: Execute unit tests
