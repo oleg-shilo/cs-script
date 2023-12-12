@@ -82,7 +82,9 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
 
-    # Execute all unit tests in the solution
+    - name: Restore the application
+      run:dotnet restore $env:Solution_Name
+    
     - name: Build the solution
       run: dotnet build .\src\CS-Script.sln
       
@@ -94,11 +96,11 @@ jobs:
     - name: Execute unit tests
       run: dotnet test .\src\Tests.cscs\Tests.CLI.csproj
 
-    # Restore the application to populate the obj folder with RuntimeIdentifiers
-    - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
-      env:
-        Configuration: ${{ matrix.configuration }}
+    # # Restore the application to populate the obj folder with RuntimeIdentifiers
+    # - name: Restore the application
+    #   run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+    #   env:
+    #     Configuration: ${{ matrix.configuration }}
 
     # Build distributions
     - name: Build distros
