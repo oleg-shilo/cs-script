@@ -774,7 +774,7 @@ class HostingRuntime
 
                             options.forceOutputAssembly = argValue.Expand().GetFullPath();
                     }
-                    else if (Args.ParseValuedArg(arg, AppArgs.ng, AppArgs.engine, out argValue)) // -ng:<csc:dotnet> -engine:<csc:dotnet>
+                    else if (Args.ParseValuedArg(arg, AppArgs.ng, AppArgs.engine, out argValue)) // -ng:<csc:dotnet:roslyn> -engine:<csc:dotnet:roslyn>
                     {
                         if (argValue.IsEmpty())
                         {
@@ -782,7 +782,7 @@ class HostingRuntime
                             CLIExitRequest.Throw();
                         }
 
-                        options.compilerEngine = argValue;
+                        options.compilerEngine = Directives.ExpandAliases(argValue);
                     }
                     else if (Args.ParseValuedArg(arg, "ev", out argValue)) // -ev:<name>[:[<value>]]
                     {
@@ -1073,7 +1073,11 @@ class HostingRuntime
                     }
                     else if (Args.Same(arg, AppArgs.netfx)) // -netfx for .NET Framework builds
                     {
+                        if (!Runtime.IsWin)
+                            throw new CLIException($"-{AppArgs.netfx} option is only applicable for Windows platform");
+
                         options.isNetFx = true;
+                        options.runExternal = true;
                     }
                     else if (Args.Same(arg, AppArgs.e, AppArgs.ew)) // -e -ew
                     {

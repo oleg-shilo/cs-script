@@ -277,7 +277,10 @@ namespace csscript
                                              " clear - removes all cache items.",
                                              "```");
             switch1Help[co] = new ArgInfo("-co:<options>",
-                                          "Passes compiler options directly to the language compiler.",
+                                          "Passes compiler options directly to the language compiler (e.g. csc.exe or dotnet.exe).",
+                                          "Note, some compiler options may not be compatible if they are passed to the wrong compiler " +
+                                          "executable (see compiler documentation). Though the fundamental switches like `/platform:*` are converted by CS-Script" +
+                                          "int compatible version between csc.exe and dotnet.exe.",
                                               "(e.g.  `-co:/d:TRACE` pass `/d:TRACE` option to C# compiler",
                                               " or    `-co:/platform:x86` to produce Win32 executable)");
             switch1Help[engine] =

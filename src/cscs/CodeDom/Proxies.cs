@@ -176,7 +176,7 @@ namespace CSScripting.CodeDom
                 return "Error: cannot process compile request on CS-Script build server ";
         }
 
-        internal static string CreateProject(CompilerParameters options, string[] fileNames, string outDir = null, bool isNetFx = false)
+        internal static string CreateProject(CompilerParameters options, string[] fileNames, string outDir = null, bool isNetFx = false, string platform = null)
         {
             string projectShortName = fileNames.First().GetFileNameWithoutExtension();
 
@@ -257,6 +257,12 @@ namespace CSScripting.CodeDom
 
             var framework = $"net{Environment.Version.Major}.0-windows";
 
+            if (platform.HasText())
+            {
+                project_element.Element("PropertyGroup")
+                               .Add(new XElement("PlatformTarget", platform));
+            }
+
             if (isNetFx)
             {
                 framework = "net472";
@@ -266,6 +272,8 @@ namespace CSScripting.CodeDom
                 project_element.Element("PropertyGroup")
                                .Element("ImplicitUsings")
                                .Remove();
+
+                setTargetFremeworkWin(framework);
             }
 
             if (refWinForms)

@@ -1,6 +1,3 @@
-using csscript;
-using CSScripting.CodeDom;
-using CSScriptLib;
 using System;
 using System.IO;
 using System.Linq;
@@ -8,6 +5,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
+using csscript;
+using CSScripting.CodeDom;
+using CSScriptLib;
 
 namespace CSScripting
 {
@@ -220,6 +220,36 @@ namespace CSScripting
                     .PathJoin("dotnet", dotnetExeName);
 
                 return File.Exists(file) ? file : dotnetExeName;
+            }
+        }
+
+        /// <summary>
+        /// Gets the path to the csc.exe executable for .NET Framework.
+        /// </summary>
+        /// <value>The csc.exe executable path.</value>
+        static public string csc_FX
+        {
+            get
+            {
+                if (Runtime.IsWin)
+                {
+                    // C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe
+
+                    var file = Directory.GetFiles("%WINDIR%\\Microsoft.NET".Expand(), "csc.exe", SearchOption.AllDirectories)
+                                        .Select(x => new
+                                        {
+                                            Is64 = x.Contains("Framework64"),
+                                            Version = new Version(x.GetDirName().GetFileName().TrimStart('v')),
+                                            Path = x
+                                        })
+                                        .OrderByDescending(x => x.Version).ThenByDescending(x => x.Is64)
+                                        .Select(x => x.Path)
+                                        .FirstOrDefault();
+
+                    if (file?.FileExists() == true)
+                        return file;
+                }
+                return "<can_not_find_csc>";
             }
         }
 

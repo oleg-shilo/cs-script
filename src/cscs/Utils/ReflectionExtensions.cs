@@ -1,5 +1,3 @@
-using CSScriptLib;
-using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using CSScriptLib;
 
 namespace CSScripting
 {
@@ -18,6 +18,8 @@ namespace CSScripting
         public const string compiler_dotnet = "dotnet";
         public const string compiler_roslyn = "roslyn";
         public const string compiler_roslyn_inproc = "roslyn-inproc";
+
+        public static string ExpandAliases(string text) => text == "net" ? compiler_dotnet : text;
     }
 
     /// <summary>

@@ -1813,8 +1813,6 @@ namespace csscript
 
                 if (options.runExternal && options.isNetFx)
                     assemblyFileName = assemblyFileName.ChangeExtension(".exe");
-
-
             }
 
             string runexFile = GetRunAsExternalProbingFileName(scriptFileName);
