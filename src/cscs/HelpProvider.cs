@@ -53,6 +53,7 @@ namespace csscript
         public const string r = "r";
         public const string e = "e";
         public const string ew = "ew";
+        public const string rx = "rx";
         public const string dir = "dir";
         public const string @out = "out";
         public const string ca = "ca";
@@ -225,13 +226,25 @@ namespace csscript
                                          "executable assemblies. Thus `//css_engine` and `-engine` options will always be ignored.");
             switch1Help[ew] = new ArgInfo("-ew",
                                           "Compiles script into Windows application executable (applicable only on Windows).");
-            switch1Help[c] = new ArgInfo("-c[:<0|1>]",
-                                         "Executes compiled script cache (e.g. <cache dir>/script.cs.dll) if found.",
-                                         "This command improves performance by avoiding compiling the script if it was not changed since last execution.",
-                                         "```",
-                                         "   -c:1|-c  - enable caching",
-                                         "   -c:0     - disable caching (which might be enabled globally)",
-                                         "```");
+            switch1Help[rx] = new ArgInfo($"-{rx}",
+                                          "Run script as an external process. This option is incompatible with VB scripts.",
+                                          "This mode allows execution of the scripts that are otherwise incompatible with the runtime " +
+                                          "of the script engine (e.g. x86 vs x64, .NETCore vs .NETFramework).",
+                                          "Note, this execution mode comes with some limitations (depending on the compilation engine):",
+                                          " - `csc` ",
+                                          "   The compiled script is executed with dotnet.exe launcher (e.g. `dotnet script.dll`).",
+                                          " - `dotnet` ",
+                                          "   The compiled script is executed directly as exe(e.g. `script.exe`).",
+                                          " - `roslyn` ",
+                                          "   This mode is not supported as Roslyn scripts do not support `static main`.");
+            switch1Help[ew] = new ArgInfo("-ew",
+
+                                          "Executes compiled script cache (e.g. <cache dir>/script.cs.dll) if found.",
+                                          "This command improves performance by avoiding compiling the script if it was not changed since last execution.",
+                                          "```",
+                                          "   -c:1|-c  - enable caching",
+                                          "   -c:0     - disable caching (which might be enabled globally)",
+                                          "```");
             switch1Help[ca] = new ArgInfo("-ca",
                                           "Compiles script file into cache file (e.g. <cache dir>/script.cs.dll).");
             switch1Help[cd] = new ArgInfo("-cd",

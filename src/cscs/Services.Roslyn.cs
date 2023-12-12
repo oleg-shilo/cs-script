@@ -1,16 +1,16 @@
-﻿using csscript;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Scripting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+using csscript;
 
 namespace CSScripting.CodeDom
 {
@@ -258,7 +258,7 @@ namespace CSScripting.CodeDom
             if (IsDebug)
                 compilation = compilation.WithOptions(compilation.Options
                                          .WithOptimizationLevel(OptimizationLevel.Debug)
-                                         .WithOutputKind(OutputKind.DynamicallyLinkedLibrary));
+                                         .WithOutputKind(OutputKind.DynamicallyLinkedLibrary)); // change this line if you need to build excutable
 
             return build_locally(compilation, assemblyFile, IsDebug, emitOptions);
         }

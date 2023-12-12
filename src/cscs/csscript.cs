@@ -768,6 +768,10 @@ namespace csscript
         {
             try
             {
+                if (options.runExternal && (options.compilerEngine == Directives.compiler_roslyn || options.compilerEngine == Directives.compiler_roslyn_inproc))
+                    CLIExitRequest.Throw("Executing script as remote process is incompatible with currently configure Roslyn compiling engine." +
+                        " Use either `csc` or `dotnet` engines instead (see `-ng` CLI option documentation).");
+
                 if (options.processFile)
                 {
                     var initInfo = options.initContext as CSharpParser.InitInfo;
@@ -811,10 +815,12 @@ namespace csscript
                         catch { } //will fail for windows app but pass for console apps
 
                         Console.WriteLine("  CurrentDirectory: " + Environment.CurrentDirectory);
+                        Console.WriteLine("  CurrentProcess: " + Process.GetCurrentProcess().Id);
                         Console.WriteLine("  NuGet manager: " + NuGet.NuGetExeView);
                         Console.WriteLine("  NuGet cache: " + NuGet.NuGetCacheView);
                         Console.WriteLine("  Script cache: " + Runtime.CacheDir);
                         Console.WriteLine("  Executing: " + Path.GetFullPath(options.scriptFileName));
+                        Console.WriteLine("  Hosting: " + (options.runExternal ? "OutOfProcess" : "InProcess"));
                         Console.WriteLine("  Script arguments: ");
                         for (int i = 0; i < scriptArgs.Length; i++)
                             Console.WriteLine("    " + i + " - " + scriptArgs[i]);
@@ -1153,6 +1159,7 @@ namespace csscript
                                 else
                                 {
                                     var executor = new AssemblyExecutor(assemblyFileName, "AsmExecution");
+
                                     executor.Execute(scriptArgs);
                                 }
                             }
@@ -1652,10 +1659,7 @@ namespace csscript
             // * ProjectBuilder.GenerateProjectFor
             // ********************************************************************************************
 
-            // if no request to build executable or dll is made then use exe format as it is the
-            // only format that allows top-level statements (classless scripts)
             bool generateExe = options.buildExecutable;
-
             string scriptDir = Path.GetDirectoryName(scriptFileName);
             string assemblyFileName = "";
 
@@ -1738,6 +1742,25 @@ namespace csscript
             string[] additionalDependencies = context.NewDependencies.ToArray();
 
             AddReferencedAssemblies(compilerParams, scriptFileName, parser);
+
+            string runexFile = GetRunAsExternalProbingFileName(scriptFileName);
+
+            if (options.runExternal)
+            {
+                if (scriptFileName.GetExtension().SameAs(".vb"))
+                    CLIExitRequest.Throw("Executing script as remote process is not supported with VB script.");
+
+                var refAsms = compilerParams.ReferencedAssemblies.ToArray();
+                if (options.enableDbgPrint)
+                    refAsms = [Assembly.GetExecutingAssembly().Location, .. refAsms];
+
+                var injection = CSSUtils.GetRuntimeProbingInjectionCode(runexFile, refAsms);
+                filesToCompile = filesToCompile.Concat([injection]).ToArray();
+            }
+            else
+            {
+                runexFile.DeleteIfExists();
+            }
 
             //add resources referenced from code
 
@@ -2062,6 +2085,9 @@ namespace csscript
         /// </summary>
         /// <param name="path">The path for the temporary directory.</param>
         static public void SetScriptTempDir(string path) => tempDir = path;
+
+        internal static string GetRunAsExternalProbingFileName(string scriptFileName)
+            => Path.Combine(CSExecutor.GetCacheDirectory(scriptFileName), scriptFileName.GetFileNameWithoutExtension() + $".runex.cs");
 
         /// <summary>
         /// Generates the name of the cache directory for the specified script file.

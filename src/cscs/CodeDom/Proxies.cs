@@ -179,6 +179,10 @@ namespace CSScripting.CodeDom
         internal static string CreateProject(CompilerParameters options, string[] fileNames, string outDir = null)
         {
             string projectShortName = fileNames.First().GetFileNameWithoutExtension();
+
+            if (ExecuteOptions.options.runExternal)
+                projectShortName = options.OutputAssembly.GetFileNameWithoutExtension();
+
             string projectName = projectShortName;
             string fileType = "";
 
