@@ -127,6 +127,9 @@ namespace csscript
 
                         if (pid != null && !activeProcesses.Contains(pid))
                             file.DeleteIfExists();
+
+                        var containerDir = file + ".container";
+                        containerDir.DeleteIfExists();
                     }
                     catch { }
             }

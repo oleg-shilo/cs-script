@@ -228,6 +228,9 @@ global using global::System.Threading.Tasks;");
             if (is_win && !Assembly.GetEntryAssembly().Location.EndsWith("css.dll"))
             {
                 // css may be locked (e.g.it is running this test)
+                output = cscs_run($"{probing_dir} -self");
+                Assert.Equal(cscs_exe, output);
+
                 output = cscs_run($"{probing_dir} -self-exe");
                 Assert.Equal($"Created: {cscs_exe.ChangeFileName("css.exe")}", output);
 
@@ -254,28 +257,84 @@ global using global::System.Threading.Tasks;");
         }
 
         [Fact]
-        public void compile_netfx_script()
+        public void compile_netfx_script_dotnet()
         {
-            string toCode(string staticMain)
-                => @"
-using System;
-using System.Xml;
-using WixSharp;
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_netfx_script_dotnet)}");
+            File.WriteAllText(script_file,
+                @"using System;
+                  class Program
+                  {
+                      static void Main()
+                      {
+                          Console.WriteLine(Environment.Version);
+                      }
+                  }");
 
-public class Script
-{
-    $staticMain$
-    {
-    }
-}
-".Replace("$staticMain$", staticMain);
+            var output = cscs_run($"-ng:dotnet -netfx {script_file}");
+            Assert.Equal("4.0.30319.42000", output);
 
-            var processedCode = CSSUtils.InjectModuleInitializer(toCode(
-                "static public void Main(string[] args)"), "HostingRuntime.Init();");
+            // enable caching
+            output = cscs_run($"-c:1 -ng:dotnet -netfx {script_file}");
+            Assert.Equal("4.0.30319.42000", output);
+        }
 
-            Assert.Contains("static void Main(string[] args) { HostingRuntime.Init();  impl_Main(args); }     static public void impl_Main(string[] args)", processedCode);
+        [Fact]
+        public void compile_netfx_script_csc()
+        {
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_netfx_script_csc)}");
+            File.WriteAllText(script_file,
+                @"using System;
+                  class Program
+                  {
+                      static void Main()
+                      {
+                          Console.WriteLine(Environment.Version);
+                      }
+                  }");
 
-            return;
+            var output = cscs_run($"-ng:csc -netfx {script_file}");
+            Assert.Equal("4.0.30319.42000", output);
+
+            // enable caching
+            output = cscs_run($"-c:1 -ng:csc -netfx {script_file}");
+            Assert.Equal("4.0.30319.42000", output);
+        }
+
+        [Fact]
+        public void compile_x86_script_dotnet()
+        {
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_dotnet)}");
+            File.WriteAllText(script_file,
+                @"using System;
+                  class Program
+                  {
+                      static void Main()
+                      {
+                          Console.WriteLine(Environment.Is64BitProcess.ToString());
+                      }
+                  }");
+
+            var output = cscs_run($"-ng:dotnet -co:/platform:x86 {script_file}");
+            Assert.Equal("False", output);
+        }
+
+        [Fact]
+        public void compile_x86_script_csc()
+        {
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_csc)}");
+            File.WriteAllText(script_file,
+                 @"using System;
+                   class Program
+                   {
+                       static void Main()
+                       {
+                           Console.WriteLine(Environment.Is64BitProcess.ToString());
+                       }
+                   }");
+
+            var output = cscs_run($"-ng:csc -co:/platform:x86 {script_file}");
+
+            Assert.Contains("Executing scripts targeting x86 platform with `csc` compiling engine is not supported", output);
         }
 
         [Fact]

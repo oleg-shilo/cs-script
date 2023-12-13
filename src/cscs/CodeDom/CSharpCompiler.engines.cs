@@ -28,11 +28,7 @@ namespace CSScripting.CodeDom
     {
         CompilerResults CompileAssemblyFromFileBatch_with_Build(CompilerParameters options, string[] fileNames)
         {
-            var platform = options.CompilerOptions
-                .Split(' ')
-                .FirstOrDefault(x => x.StartsWith("/platform:"))
-                ?.Split(':')
-                ?.Last();
+            var platform = options.GetTargetPlatform();
 
             var projectFile = CreateProject(options,
                                             fileNames,
@@ -43,7 +39,7 @@ namespace CSScripting.CodeDom
             var output = "bin";
             var build_dir = projectFile.GetDirName();
 
-            var assembly = build_dir.PathJoin(output, projectFile.GetFileNameWithoutExtension() + ".dll");
+            var assembly = build_dir.PathJoin(output, fileNames.First().GetFileNameWithoutExtension() + ".dll");
 
             if (ExecuteOptions.options.isNetFx)
                 assembly = assembly.ChangeExtension(".exe");
@@ -64,10 +60,10 @@ namespace CSScripting.CodeDom
             Profiler.get("compiler").Start();
             assembly.DeleteIfExists();
             result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir,
-                                                          onOutput: x => result.Output.Add(x),
-                                                          onError: x => Console.Error.WriteLine("error> " + x),
-                                                          timeout: 20000,
-                                                          assembly);
+                                                      onOutput: x => result.Output.Add(x),
+                                                      onError: x => Console.Error.WriteLine("error> " + x),
+                                                      timeout: 20000,
+                                                      assembly);
             Profiler.get("compiler").Stop();
             Thread.Sleep(50);
             if (CSExecutor.options.verbose)
@@ -283,6 +279,13 @@ namespace CSScripting.CodeDom
             }
             else
             {
+                if (options.GetTargetPlatform() == "x86" && Environment.Is64BitProcess)
+                {
+                    throw new CLIException("Executing scripts targeting x86 platform with `csc` compiling engine is not supported due to the " +
+                        "limitations of the MS `csc.exe` compiler. The compiled dos not support generation of the appropriate native application host.\n" +
+                        "You can either change the compilation engine to the dotnet (`-ng:dotnet`) or execute the script under .NET Framework runtime (`-netfx`).");
+                }
+
                 gac_asms = Directory.GetFiles(gac, "System.*.dll").ToList();
                 gac_asms.AddRange(Directory.GetFiles(gac, "netstandard.dll"));
                 // Microsoft.DiaSymReader.Native.amd64.dll is a native dll
@@ -455,7 +458,7 @@ namespace CSScripting.CodeDom
                 {
                     var runtimeconfig = "{'runtimeOptions': {'framework': {'name': 'Microsoft.NETCore.App', 'version': '{version}'}}}"
                             .Replace("'", "\"")
-                                     .Replace("{version}", Environment.Version.ToString());
+                            .Replace("{version}", Environment.Version.ToString());
 
                     File.WriteAllText(result.PathToAssembly.ChangeExtension(".runtimeconfig.json"), runtimeconfig);
                     try

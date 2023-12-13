@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using csscript;
 using CSScripting;
+using CSScripting.CodeDom;
 
 /// <summary>
 /// Credit to https://stackoverflow.com/questions/298830/split-string-containing-command-line-parameters-into-string-in-c-sharp/298990#298990
@@ -66,11 +68,15 @@ public static class CLIExtensions
     public static bool StartsWith(this string text, string pattern, bool ignoreCase) =>
         text.StartsWith(pattern, ignoreCase ? StringComparison.OrdinalIgnoreCase : default(StringComparison));
 
-    // [Obsolete]
-    // public static string[] ArgValues(this string[] arguments, string prefix) =>
-    //     arguments.Where(x => x.StartsWith(prefix + ":"))
-    //              .Select(x => x.Substring(prefix.Length + 1).TrimMatchingQuotes('"'))
-    //              .ToArray();
+    public static string GetTargetPlatform(this CompilerParameters compilerParams)
+    {
+        var platform = compilerParams.CompilerOptions
+            .Split(' ')
+            .FirstOrDefault(x => x.StartsWith("/platform:"))
+            ?.Split(':')
+            ?.Last();
+        return platform;
+    }
 
     public static string ArgValue(this string[] arguments, string prefix) =>
         (arguments.FirstOrDefault(x => x.StartsWith(prefix + ":"))?.Substring(prefix.Length + 1).TrimMatchingQuotes('"'))

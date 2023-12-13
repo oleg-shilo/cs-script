@@ -1785,6 +1785,13 @@ namespace csscript
                 Utils.AddCompilerOptions(compilerParams, "\"/res:" + file + "\""); //e.g. /res:C:\\Scripting.Form1.resources";
             }
 
+            if (!ExecuteOptions.options.runExternal &&
+                Environment.Is64BitProcess &&
+                compilerParams.GetTargetPlatform() == "x86")
+            {
+                ExecuteOptions.options.runExternal = true;
+            }
+
             if (options.forceOutputAssembly != "")
             {
                 assemblyFileName = options.forceOutputAssembly;

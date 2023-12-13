@@ -178,10 +178,15 @@ namespace CSScripting.CodeDom
 
         internal static string CreateProject(CompilerParameters options, string[] fileNames, string outDir = null, bool isNetFx = false, string platform = null)
         {
-            string projectShortName = fileNames.First().GetFileNameWithoutExtension();
+            // if project file starts with the '-' so dotnet interprets it as a command line switch
+            string assemblyName = fileNames.First().GetFileNameWithoutExtension();
+            string projectShortName = assemblyName.TrimStart('-');
 
             if (ExecuteOptions.options.runExternal)
+            {
                 projectShortName = options.OutputAssembly.GetFileNameWithoutExtension();
+                // assemblyName = projectShortName;
+            }
 
             string projectName = projectShortName;
             string fileType = "";
@@ -256,6 +261,9 @@ namespace CSScripting.CodeDom
                                                        x.EndsWith("System.Windows.Forms.dll"));
 
             var framework = $"net{Environment.Version.Major}.0-windows";
+
+            project_element.Element("PropertyGroup")
+                           .Add(new XElement("AssemblyName", assemblyName));
 
             if (platform.HasText())
             {
@@ -462,7 +470,7 @@ EndGlobal"
         public List<string> ReferencedAssemblies { get; } = new List<string>();
         public bool GenerateInMemory { get; set; }
 
-        // controls if the compiled assembly has static mainand supports top level class
+        // controls if the compiled assembly has static main and supports top level class
         public bool GenerateExecutable { get; set; }
 
         // Controls if the actual executable needs to be build
