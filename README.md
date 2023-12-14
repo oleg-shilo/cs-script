@@ -53,7 +53,7 @@ A copy of the help content can be accessed [here](help.txt)
 
 #### _**Howto get CS-Script**_
 
-Note, every [release](https://github.com/oleg-shilo/cs-script/releases) comes with a detailed description of how to deploy/integrate CS-SCript on/with your environment or application. This covers various package distribution solutions
+Note, every [release](https://github.com/oleg-shilo/cs-script/releases) comes with a detailed description of how to deploy/integrate CS-Script on/with your environment or application. This covers various package distribution solutions
 - .NET Tools
 - Chocolatey
 - WinGet
