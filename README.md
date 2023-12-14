@@ -18,15 +18,15 @@ _Note .NET SDK is required to have all features. However the core features can u
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://oleg-shilo.github.io/cs-script/Donation.html)
 
-CS-Script is a CLR based scripting system which uses ECMA-compliant C# as a programming language.
+CS-Script is a CLR-based scripting system that uses ECMA-compliant C# as a programming language.
 
 CS-Script is one of the most mature C# scripting solutions. It became publicly available in 2004, just two years after the first release of .NET. And it was the first comprehensive scripting platform for .NET
 
-CS-Script supports both hosted and standalone (CLI) execution model. This makes it possible to use the script engine as a pure C# alternative for PowerShell. As well as extending .NET applications with C# scripts executed at runtime by the hosted script engine.
+CS-Script supports both hosted and standalone (CLI) execution models. This makes it possible to use the script engine as a pure C# alternative for PowerShell. As well as extending .NET applications with C# scripts executed at runtime by the hosted script engine.
 
 CS-Script allows seamlessly switching underlying compiling technology without affecting the code base. Currently supported compilers are _dotnet.exe_ and _csc.exe_. 
 
-CS-Script also offers comprehensive integration with most common development tools:
+CS-Script also offers comprehensive integration with the most common development tools:
 
 - Visual Studio (built-in feature via `-vs` CLI argument)
 - [VSCode](https://github.com/oleg-shilo/cs-script.vscode)
@@ -51,7 +51,7 @@ css -help
 
 A copy of the help content can be accessed [here](help.txt)
 
-_**Howto get CS-Script**_
+#### _**Howto get CS-Script**_
 
 Note, every [release](https://github.com/oleg-shilo/cs-script/releases) comes with a detailed description of how to deploy/integrate CS-SCript on/with your environment or application. This covers various package distribution solutions
 - .NET Tools
