@@ -42,18 +42,27 @@ Over the long history of CS-Script it has been downloaded through Notepad++ x86 
 <hr/>
 
 _**Documentation disclaimer**_
-Please be aware that currently the online [Documentation Wiki](https://github.com/oleg-shilo/cs-script/wiki) is being reviewed and updated. This is review/rework hs been triggered by the convergence of two CS-Script development and distribution streams for .NET Core and .NET Framework.Meaning that until this review is completed and this disclaimer is removed some of the Wiki content may not be fully accurate.
+Please be aware that the online [Documentation Wiki](https://github.com/oleg-shilo/cs-script/wiki) is intended to provide the most detailed information about the product. It is constantly evolving and sometimes may have be a little out of sync concerning the latest product releases. 
 
-The most accurate and concise documentation is embedded in the engine executable and can be accessed via CLI "help" command:
+Though, the most accurate and concise documentation is embedded in the engine executable and can be accessed via CLI "help" command:
 ```ps
 css -help
 ```
 
 A copy of the help content can be accessed [here](help.txt)
 
+_**Howto get CS-Script**_
+
+Note, every [release](https://github.com/oleg-shilo/cs-script/releases) comes with a detailed description of how to deploy/integrate CS-SCript on/with your environment or application. This covers various package distribution solutions
+- .NET Tools
+- Chocolatey
+- WinGet
+- Debian package 
+- NuGet package
+
 <hr/>
 
-The following section describes a few use cases just to give you the idea about the product:
+The following section describes a few use cases just to give you an idea about the product:
 
 _**CLI: Executing script from shell**_
 
