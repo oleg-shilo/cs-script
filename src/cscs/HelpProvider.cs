@@ -238,8 +238,7 @@ namespace csscript
                                           "   The compiled script is executed directly as exe(e.g. `script.exe`).",
                                           " - `roslyn` ",
                                           "   This mode is not supported as Roslyn scripts do not support `static main`.");
-            switch1Help[ew] = new ArgInfo("-ew",
-
+            switch1Help[ew] = new ArgInfo("-c[:<0|1>]",
                                           "Executes compiled script cache (e.g. <cache dir>/script.cs.dll) if found.",
                                           "This command improves performance by avoiding compiling the script if it was not changed since last execution.",
                                           "```",

@@ -23,6 +23,7 @@ namespace CLI
                      .ForEach(File.Delete);
 
             Environment.CurrentDirectory = root;
+            ".".PathJoin("temp").EnsureDir();
         }
 
         public static void Set(string path)
