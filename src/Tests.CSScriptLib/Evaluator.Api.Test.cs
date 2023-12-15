@@ -227,7 +227,8 @@ namespace EvaluatorTests
                                       {{
                                           public int Sum(int a, int b) => Calc.Sum(a ,b);
                                       }}");
-                Assert.True(false, "Expected compile error was not detected");
+
+                Assert.Fail("Expected compile error was not detected");
             }
             catch (Exception e)
             {
@@ -259,7 +260,7 @@ namespace EvaluatorTests
                                                           }
                                                       }");
                 new_evaluator.LoadFile(primaryScript);
-                Assert.True(false, "Expected compile error was not detected");
+                Assert.Fail("Expected compile error was not detected");
             }
             catch (Exception e)
             {
@@ -289,7 +290,7 @@ namespace EvaluatorTests
                                       {{
                                           public int Sum(int a, int b) => Calc.Sum(a ,b)
                                       }}");
-                Assert.True(false, "Expected compile error was not detected");
+                Assert.Fail("Expected compile error was not detected");
             }
             catch (Exception e)
             {
@@ -308,7 +309,7 @@ namespace EvaluatorTests
                                           public int Sum(int a, int b) => a = b
                                       }}");
 
-                Assert.True(false, "Expected compile error was not detected");
+                Assert.Fail("Expected compile error was not detected");
             }
             catch (Exception e)
             {
@@ -331,7 +332,7 @@ namespace EvaluatorTests
 
                 new_evaluator.LoadFile(script);
 
-                Assert.True(false, "Expected compile error was not detected");
+                Assert.Fail("Expected compile error was not detected");
             }
             catch (Exception e)
             {
@@ -363,7 +364,7 @@ namespace EvaluatorTests
                                                           }
                                                       }");
                 new_evaluator.LoadFile(primaryScript);
-                Assert.True(false, "Expected compile error was not detected");
+                Assert.Fail("Expected compile error was not detected");
             }
             catch (Exception e)
             {
