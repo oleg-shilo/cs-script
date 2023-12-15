@@ -80,13 +80,21 @@ jobs:
       run: dotnet restore $env:Solution_Name
     
     - name: Build the solution
-      run: dotnet build $env:Solution_Name
+      run: 1.build-release.cmd
+      working-directory: ./scr
+
+    - name: Test the solution
+      run: 2.run-tests.cmd
+      working-directory: ./scr
+
+    # - name: Build the solution
+    #   run: dotnet build $env:Solution_Name
       
-    - name: Execute CSScriptLib unit tests
-      run: dotnet test $env:CSScriptLib_Test_Proj_Name
+    # - name: Execute CSScriptLib unit tests
+    #   run: dotnet test $env:CSScriptLib_Test_Proj_Name
       
-    - name: Execute CLI unit tests
-      run: dotnet test $env:CLI_Test_Proj_Name -e CI="true"
+    # - name: Execute CLI unit tests
+    #   run: dotnet test $env:CLI_Test_Proj_Name -e CI="true"
 
     # # Build distributions
     # - name: Build distros

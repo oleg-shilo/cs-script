@@ -1,4 +1,4 @@
-# Release v4.8.11.0
+# Release v4.8.12.0
 
 ---
 
@@ -6,7 +6,9 @@
 
 ### CLI
 
-- Added using build-server on Linux. Now Win and Linux build-drver support is identical.
+- added option to run scripts under .NET Framework (`css -netfx <script>`)
+- added option to run scripts as external process (`css -rx <script>`)
+- extended verbose mode output
 
 ### CSScriptLib
 
