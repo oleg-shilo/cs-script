@@ -274,7 +274,9 @@ global using global::System.Threading.Tasks;");
         public void compile_netfx_script_dotnet()
         {
             if (IsRunningUnderCI)
-                throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+                return;
+            // SkipException just does not work
+            // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
 
             var script_file = ".".PathJoin("temp", $"{nameof(compile_netfx_script_dotnet)}");
             File.WriteAllText(script_file,
@@ -299,7 +301,9 @@ global using global::System.Threading.Tasks;");
         public void compile_netfx_script_csc()
         {
             if (IsRunningUnderCI)
-                throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+                return;
+            // SkipException just does not work
+            // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
 
             var script_file = ".".PathJoin("temp", $"{nameof(compile_netfx_script_csc)}");
             File.WriteAllText(script_file,
@@ -325,7 +329,9 @@ global using global::System.Threading.Tasks;");
         public void compile_x86_script_dotnet()
         {
             if (IsRunningUnderCI)
-                throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+                return;
+            // SkipException just does not work
+            // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
 
             var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_dotnet)}");
             File.WriteAllText(script_file,
@@ -347,7 +353,9 @@ global using global::System.Threading.Tasks;");
         public void compile_x86_script_csc()
         {
             if (IsRunningUnderCI)
-                throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+                return;
+            // SkipException just does not work
+            // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
 
             var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_csc)}");
             File.WriteAllText(script_file,
