@@ -4,11 +4,13 @@ using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Diagnostics.Tracing.Parsers.Clr;
 using csscript;
 using CSScripting;
 using CSScriptLib;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace CLI
 {
@@ -32,7 +34,11 @@ namespace CLI
 
     public class cscs_cli : IClassFixture<CliTestFolder>
     {
-        private readonly ITestOutputHelper output;
+        // the test in VS_xUnit test runner integration works just fine. But assembly loading fails under "dotnet test ..."
+        // so will need to exclude impacted test
+        bool IsRunningUnderCI => ("CI".GetEnvar() != null);
+
+        ITestOutputHelper output;
 
         public cscs_cli(ITestOutputHelper output)
         {
@@ -264,6 +270,9 @@ global using global::System.Threading.Tasks;");
         [Fact]
         public void compile_netfx_script_dotnet()
         {
+            if (IsRunningUnderCI)
+                SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+
             var script_file = ".".PathJoin("temp", $"{nameof(compile_netfx_script_dotnet)}");
             File.WriteAllText(script_file,
                 @"using System;
@@ -286,6 +295,9 @@ global using global::System.Threading.Tasks;");
         [Fact]
         public void compile_netfx_script_csc()
         {
+            if (IsRunningUnderCI)
+                SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+
             var script_file = ".".PathJoin("temp", $"{nameof(compile_netfx_script_csc)}");
             File.WriteAllText(script_file,
                 @"using System;
@@ -306,12 +318,11 @@ global using global::System.Threading.Tasks;");
         }
 
         [Fact]
+        [FactWinOnly]
         public void compile_x86_script_dotnet()
         {
-            // the test in VS_xUnit test runner integration works just fine. But assembly loading fails under "dotnet test ..."
-            // so exclude it
-            if ("CI".GetEnvar() != null)
-                return;
+            if (IsRunningUnderCI)
+                SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
 
             var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_dotnet)}");
             File.WriteAllText(script_file,
@@ -332,6 +343,9 @@ global using global::System.Threading.Tasks;");
         [Fact]
         public void compile_x86_script_csc()
         {
+            if (IsRunningUnderCI)
+                SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+
             var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_csc)}");
             File.WriteAllText(script_file,
                  @"using System;
