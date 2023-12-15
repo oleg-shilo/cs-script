@@ -18,15 +18,15 @@ _Note .NET SDK is required to have all features. However the core features can u
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://oleg-shilo.github.io/cs-script/Donation.html)
 
-CS-Script is a CLR based scripting system which uses ECMA-compliant C# as a programming language.
+CS-Script is a CLR-based scripting system that uses ECMA-compliant C# as a programming language.
 
 CS-Script is one of the most mature C# scripting solutions. It became publicly available in 2004, just two years after the first release of .NET. And it was the first comprehensive scripting platform for .NET
 
-CS-Script supports both hosted and standalone (CLI) execution model. This makes it possible to use the script engine as a pure C# alternative for PowerShell. As well as extending .NET applications with C# scripts executed at runtime by the hosted script engine.
+CS-Script supports both hosted and standalone (CLI) execution models. This makes it possible to use the script engine as a pure C# alternative for PowerShell. As well as extending .NET applications with C# scripts executed at runtime by the hosted script engine.
 
 CS-Script allows seamlessly switching underlying compiling technology without affecting the code base. Currently supported compilers are _dotnet.exe_ and _csc.exe_. 
 
-CS-Script also offers comprehensive integration with most common development tools:
+CS-Script also offers comprehensive integration with the most common development tools:
 
 - Visual Studio (built-in feature via `-vs` CLI argument)
 - [VSCode](https://github.com/oleg-shilo/cs-script.vscode)
@@ -42,18 +42,27 @@ Over the long history of CS-Script it has been downloaded through Notepad++ x86 
 <hr/>
 
 _**Documentation disclaimer**_
-Please be aware that currently the online [Documentation Wiki](https://github.com/oleg-shilo/cs-script/wiki) is being reviewed and updated. This is review/rework hs been triggered by the convergence of two CS-Script development and distribution streams for .NET Core and .NET Framework.Meaning that until this review is completed and this disclaimer is removed some of the Wiki content may not be fully accurate.
+Please be aware that the online [Documentation Wiki](https://github.com/oleg-shilo/cs-script/wiki) is intended to provide the most detailed information about the product. It is constantly evolving and sometimes may have be a little out of sync concerning the latest product releases. 
 
-The most accurate and concise documentation is embedded in the engine executable and can be accessed via CLI "help" command:
+Though, the most accurate and concise documentation is embedded in the engine executable and can be accessed via CLI "help" command:
 ```ps
 css -help
 ```
 
 A copy of the help content can be accessed [here](help.txt)
 
+#### _**Howto get CS-Script**_
+
+Note, every [release](https://github.com/oleg-shilo/cs-script/releases) comes with a detailed description of how to deploy/integrate CS-Script on/with your environment or application. This covers various package distribution solutions
+- .NET Tools
+- Chocolatey
+- WinGet
+- Debian package 
+- NuGet package
+
 <hr/>
 
-The following section describes a few use cases just to give you the idea about the product:
+The following section describes a few use cases just to give you an idea about the product:
 
 _**CLI: Executing script from shell**_
 
