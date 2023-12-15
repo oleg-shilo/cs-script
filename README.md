@@ -13,7 +13,7 @@ _Please note that this repository is hosting the releases of CS-Script (v4.0.0 a
 _Note .NET SDK is required to have all features. However the core features can utilized even with .NET Runtime only. See [details](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine#compiler-technology-comparison)._
 
 ---
-
+[![CI](https://github.com/oleg-shilo/cs-script/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/oleg-shilo/cs-script/actions/workflows/dotnet-desktop.yml)
 [![Build status](https://ci.appveyor.com/api/projects/status/github/oleg-shilo/cs-script?svg=true)](https://ci.appveyor.com/project/oleg-shilo/cs-script) [![Chocolatey Version](http://img.shields.io/chocolatey/v/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![Chocolatey Downloads](http://img.shields.io/chocolatey/dt/cs-script.svg?style=flat-square)](http://chocolatey.org/packages/cs-script) [![NuGet version (CS-Script)](https://img.shields.io/nuget/v/CS-Script.svg?style=flat-square)](https://www.nuget.org/packages/CS-Script/)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://oleg-shilo.github.io/cs-script/Donation.html)
