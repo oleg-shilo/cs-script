@@ -70,6 +70,7 @@ namespace csscript
         public const string code = "code";
         public const string speed = "speed";
         public const string stop = "stop";
+        public const string netfx = "netfx";
         public const string tc = "tc";
         public const string pvdr = "pvdr";
         public const string nuget = "nuget";
@@ -237,8 +238,7 @@ namespace csscript
                                           "   The compiled script is executed directly as exe(e.g. `script.exe`).",
                                           " - `roslyn` ",
                                           "   This mode is not supported as Roslyn scripts do not support `static main`.");
-            switch1Help[ew] = new ArgInfo("-ew",
-
+            switch1Help[ew] = new ArgInfo("-c[:<0|1>]",
                                           "Executes compiled script cache (e.g. <cache dir>/script.cs.dll) if found.",
                                           "This command improves performance by avoiding compiling the script if it was not changed since last execution.",
                                           "```",
@@ -276,7 +276,10 @@ namespace csscript
                                              " clear - removes all cache items.",
                                              "```");
             switch1Help[co] = new ArgInfo("-co:<options>",
-                                          "Passes compiler options directly to the language compiler.",
+                                          "Passes compiler options directly to the language compiler (e.g. csc.exe or dotnet.exe).",
+                                          "Note, some compiler options may not be compatible if they are passed to the wrong compiler " +
+                                          "executable (see compiler documentation). Though the fundamental switches like `/platform:*` are converted by CS-Script" +
+                                          "int compatible version between csc.exe and dotnet.exe.",
                                               "(e.g.  `-co:/d:TRACE` pass `/d:TRACE` option to C# compiler",
                                               " or    `-co:/platform:x86` to produce Win32 executable)");
             switch1Help[engine] =
@@ -500,6 +503,11 @@ namespace csscript
                                           " -kill          - ${<==}a complete equivalent of -servers:stop",
                                           "```"
                                              );
+
+            switch2Help[netfx] = new ArgInfo("-netfx",
+                                         "Comile and execute the script on the latest .NET Framework compiler (csc.exe) found on the system.",
+                                             "The script will be automatically executed as an external process thus the value of the -rx switch" +
+                                             "will be ignored.");
 
             switch2Help[tc] = new ArgInfo("-tc",
                                           "Trace compiler input produced by CS-Script code provider CSSRoslynProvider.dll.",

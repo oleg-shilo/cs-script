@@ -56,18 +56,15 @@ jobs:
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
 
     env:
-      Solution_Name: .\src\CS-Script.sln                        # Replace with your solution name, i.e. MyWpfApp.sln.WpfApp.Tests\MyWpfApp.Tests.csproj.approj.
+      Solution_Name: .\src\CS-Script.sln                        
+      CLI_Test_Proj_Name: .\src\Tests.cscs\Tests.CLI.csproj                        
+      CSScriptLib_Test_Proj_Name: .\src\Tests.CSScriptLib\Tests.CSScriptLib.csproj                       
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
-
-    - name: Init1
-      run: pwd
-    - name: Init2
-      run: ls
 
     # Install the .NET Core workload
     - name: Install .NET Core
@@ -79,25 +76,25 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
 
-    # - name: Restore the application
-    #   run: dotnet restore $env:Solution_Name
+    - name: Restore the application
+      run: dotnet restore $env:Solution_Name
     
-    # - name: Build the solution
-    #   run: dotnet build .\src\CS-Script.sln
-      
-    # # Execute all unit tests in the solution
-    # - name: Execute unit tests
-    #   run: dotnet test .\src\Tests.CSScriptLib\Tests.CSScriptLib.csproj
-      
-    # # Execute all unit tests in the solution
-    # - name: Execute unit tests
-    #   run: dotnet test .\src\Tests.cscs\Tests.CLI.csproj
+    - name: Build the solution
+      run: ./1.build-release.cmd
+      working-directory: src
 
-    # # Restore the application to populate the obj folder with RuntimeIdentifiers
-    # - name: Restore the application
-    #   run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
-    #   env:
-    #     Configuration: ${{ matrix.configuration }}
+    - name: Test the solution
+      run: ./2.run-tests.cmd
+      working-directory: src
+
+    # - name: Build the solution
+    #   run: dotnet build $env:Solution_Name
+      
+    # - name: Execute CSScriptLib unit tests
+    #   run: dotnet test $env:CSScriptLib_Test_Proj_Name
+      
+    # - name: Execute CLI unit tests
+    #   run: dotnet test $env:CLI_Test_Proj_Name -e CI="true"
 
     # # Build distributions
     # - name: Build distros

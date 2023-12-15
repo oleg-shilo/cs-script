@@ -366,24 +366,108 @@ partial class dbg
 
         internal static string GetRuntimeProbingInjectionCode(string outputFile, string[] refAssemblies)
         {
-            // probing is handled by pre-loading the assemblies from the known locations
+            var asmList = "";
 
-            File.WriteAllText(outputFile, @"
-                class C
-                {
-                    [System.Runtime.CompilerServices.ModuleInitializer]
-                    internal static void M1()
-                    {");
-
-            foreach (var item in refAssemblies)
+            foreach (var item in refAssemblies.Distinct())
                 if (Path.IsPathRooted(item))
-                    File.AppendAllLines(outputFile, ["", $"try {{System.Reflection.Assembly.LoadFrom(@\"{item}\"); }}catch{{}}"]);
+                    asmList += $" {asmList} @\"{item}\",";
 
-            File.AppendAllText(outputFile, @"
-                    }
-                }");
+            var code = @"
+using System;
+using System.IO;
+using System.Linq;
+
+class HostingRuntime
+{
+    #if !NETFRAMEWORK
+    [System.Runtime.CompilerServices.ModuleInitializer]
+    #endif
+    internal static void Init()
+    {
+        string[] refAsms = new[]
+        {
+            $asmlist$
+        };
+
+        AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs ar) =>
+        {
+            var asmName = ar.Name.Split(',')[0];
+
+            var candidates = refAsms.OrderByDescending(x => System.IO.Path.GetFileNameWithoutExtension(x) == asmName).ToArray();
+            foreach (var asm in candidates)
+            {
+                try
+                {
+                    var preLoadedAsm = System.Reflection.Assembly.ReflectionOnlyLoadFrom(asm);
+                    if (preLoadedAsm.GetName().Name.Split(',')[0] == asmName)
+                        return System.Reflection.Assembly.LoadFrom(asm);
+                }
+                catch{}
+            }
+
+            return null;
+        };
+    }
+};".Replace("$asmlist$", asmList);
+
+            File.WriteAllText(outputFile, code);
 
             return outputFile;
+        }
+
+        internal static string InjectModuleInitializer(string scriptCode, string initCall)
+        {
+            var code = new StringBuilder();
+
+            bool injected = false;
+            foreach (var line in scriptCode.GetLines())
+            {
+                if (!line.StartsWith("//") && !injected)
+                {
+                    // static void Main(string[] args)
+                    // static void Main(string args)
+                    // static void Main()
+
+                    MatchCollection matches = Regex.Matches(line, @"\s+Main\s*\(", RegexOptions.IgnoreCase);
+                    if (matches.Any())
+                    {
+                        bool isStatic = Regex.Matches(line, @"\bstatic").Count != 0;
+                        if (isStatic)
+                        {
+                            var match = matches.First();
+
+                            // Ignore VB entry point
+                            if (line.TrimStart().StartsWith("Sub Main", StringComparison.OrdinalIgnoreCase))
+                                break;
+
+                            if (match.Value.Contains("Main")) //assembly entry point "static Main"
+                            {
+                                var args = new Regex("\\((.*?)\\)").Matches(line).FirstOrDefault()?.Value?.Trim(['(', ')']);
+                                var argName = Regex.Split(args ?? "", @"\s+").LastOrDefault();
+
+                                var returnType = Regex.Split(line.Substring(0, match.Index), @"\s+").LastOrDefault();
+
+                                var processedLine = line.Substring(0, match.Index) + " impl_" + line.Substring(match.Index + 1);
+                                processedLine = processedLine.Trim();
+
+                                if (args.HasText())
+                                    processedLine = $" static {returnType} Main({args}) {{ {initCall} {(returnType == "void" ? "" : "return ")} impl_Main({argName}); }} {processedLine}";
+                                else
+                                    processedLine = $" static {returnType} Main() {{ {initCall} impl_Main(); }} {processedLine}";
+
+                                code.AppendLine(processedLine);
+                                injected = true;
+                            }
+                        }
+                    }
+                    if (!injected)
+                        code.AppendLine(line);
+                }
+                else
+                    code.AppendLine(line);
+            }
+
+            return code.ToString();
         }
 
         internal static string GetScriptedCodeAttributeInjectionCode(string scriptFileName)
@@ -690,7 +774,7 @@ partial class dbg
 
                             options.forceOutputAssembly = argValue.Expand().GetFullPath();
                     }
-                    else if (Args.ParseValuedArg(arg, AppArgs.ng, AppArgs.engine, out argValue)) // -ng:<csc:dotnet> -engine:<csc:dotnet>
+                    else if (Args.ParseValuedArg(arg, AppArgs.ng, AppArgs.engine, out argValue)) // -ng:<csc:dotnet:roslyn> -engine:<csc:dotnet:roslyn>
                     {
                         if (argValue.IsEmpty())
                         {
@@ -698,7 +782,7 @@ partial class dbg
                             CLIExitRequest.Throw();
                         }
 
-                        options.compilerEngine = argValue;
+                        options.compilerEngine = Directives.ExpandAliases(argValue);
                     }
                     else if (Args.ParseValuedArg(arg, "ev", out argValue)) // -ev:<name>[:[<value>]]
                     {
@@ -985,6 +1069,14 @@ partial class dbg
                     }
                     else if (Args.Same(arg, AppArgs.rx)) // -rx
                     {
+                        options.runExternal = true;
+                    }
+                    else if (Args.Same(arg, AppArgs.netfx)) // -netfx for .NET Framework builds
+                    {
+                        if (!Runtime.IsWin)
+                            throw new CLIException($"-{AppArgs.netfx} option is only applicable for Windows platform");
+
+                        options.isNetFx = true;
                         options.runExternal = true;
                     }
                     else if (Args.Same(arg, AppArgs.e, AppArgs.ew)) // -e -ew
@@ -1693,7 +1785,7 @@ partial class dbg
 
         public bool StampFile(string file)
         {
-            //Trace.WriteLine("Writing mete data...");
+            //Trace.WriteLine("Writing meta data...");
             //foreach (MetaDataItem item in items)
             //    Trace.WriteLine(item.file + " : " + item.date);
 

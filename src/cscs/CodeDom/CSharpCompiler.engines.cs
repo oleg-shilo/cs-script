@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using static System.Environment;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using static System.StringComparison;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
+using Microsoft.CodeAnalysis;
 
 #if class_lib
 using CSScriptLib;
@@ -26,28 +28,42 @@ namespace CSScripting.CodeDom
     {
         CompilerResults CompileAssemblyFromFileBatch_with_Build(CompilerParameters options, string[] fileNames)
         {
-            var projectFile = CreateProject(options, fileNames);
+            var platform = options.GetTargetPlatform();
+
+            var projectFile = CreateProject(options,
+                                            fileNames,
+                                            null,
+                                            ExecuteOptions.options.isNetFx,
+                                            platform);
 
             var output = "bin";
             var build_dir = projectFile.GetDirName();
 
-            var assembly = build_dir.PathJoin(output, projectFile.GetFileNameWithoutExtension() + ".dll");
+            var assembly = build_dir.PathJoin(output, fileNames.First().GetFileNameWithoutExtension() + ".dll");
+
+            if (ExecuteOptions.options.isNetFx)
+                assembly = assembly.ChangeExtension(".exe");
 
             var result = new CompilerResults();
 
             if (!Runtime.IsSdkInstalled())
                 Console.WriteLine("WARNING: .NET SDK is not installed. It is required for CS-Script (with `csc` engine) to function properly.");
 
+            var cliOptions = options.CompilerOptions
+                                    .Replace("/target:winexe", "")
+                                    .Replace("/platform:x86", "")
+                                    .Replace("/platform:x64", "");
+
             var config = options.IncludeDebugInformation ? "--configuration Debug" : "--configuration Release";
-            var cmd = $"build {config} -o {output} {options.CompilerOptions.Replace("/target:winexe", "")}"; // dotnet build command gets "console vs win" from the project file, not the CLI param
+            var cmd = $"build {projectFile.GetFileName()} {config} -o {output} {cliOptions}"; // dotnet build command gets "console vs win" from the project file, not the CLI param
 
             Profiler.get("compiler").Start();
             assembly.DeleteIfExists();
             result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir,
-                                                          onOutput: x => result.Output.Add(x),
-                                                          onError: x => Console.Error.WriteLine("error> " + x),
-                                                          timeout: 20000,
-                                                          assembly);
+                                                      onOutput: x => result.Output.Add(x),
+                                                      onError: x => Console.Error.WriteLine("error> " + x),
+                                                      timeout: 20000,
+                                                      assembly);
             Profiler.get("compiler").Stop();
             Thread.Sleep(50);
             if (CSExecutor.options.verbose)
@@ -83,33 +99,50 @@ namespace CSScripting.CodeDom
             if (result.NativeCompilerReturnValue == 0 && File.Exists(assembly))
             {
                 result.PathToAssembly = options.OutputAssembly;
-                if (options.GenerateExecutable)
+
+                if (ExecuteOptions.options.isNetFx)
                 {
-                    // strangely enough on some Linux distro (e.g. WSL2) the access denied error is
-                    // raised after the files are successfully copied so ignore
-                    PathExtensions.FileCopy(
-                        assembly.ChangeExtension(".runtimeconfig.json"),
-                        result.PathToAssembly.ChangeExtension(".runtimeconfig.json"),
-                        ignoreErrors: Runtime.IsLinux);
+                    if (ExecuteOptions.options.runExternal)
+                        result.PathToAssembly = result.PathToAssembly.ChangeExtension(".exe");
 
-                    if (Runtime.IsLinux) // on Linux executables are without extension
-                        PathExtensions.FileCopy(
-                            assembly.RemoveAssemblyExtension(),
-                            result.PathToAssembly.RemoveAssemblyExtension(),
-                            ignoreErrors: Runtime.IsLinux);
-                    else
-                        PathExtensions.FileCopy(
-                            assembly.ChangeExtension(".exe"),
-                            result.PathToAssembly.ChangeExtension(".exe"));
-
-                    PathExtensions.FileCopy(
-                        assembly.ChangeExtension(".dll"),
-                        result.PathToAssembly.ChangeExtension(".dll"),
-                        ignoreErrors: Runtime.IsLinux);
+                    if (!assembly.SamePathAs(result.PathToAssembly))
+                        File.Copy(assembly, result.PathToAssembly, true);
                 }
                 else
                 {
-                    File.Copy(assembly, result.PathToAssembly, true);
+                    if (options.GenerateExecutable)
+                    {
+                        // strangely enough on some Linux distro (e.g. WSL2) the access denied error is
+                        // raised after the files are successfully copied so ignore
+                        PathExtensions.FileCopy(
+                            assembly.ChangeExtension(".runtimeconfig.json"),
+                            result.PathToAssembly.ChangeExtension(".runtimeconfig.json"),
+                            ignoreErrors: Runtime.IsLinux);
+
+                        PathExtensions.FileCopy(
+                            assembly.ChangeExtension(".deps.json"),
+                            result.PathToAssembly.ChangeExtension(".deps.json"),
+                            ignoreErrors: Runtime.IsLinux);
+
+                        if (Runtime.IsLinux) // on Linux executables are without extension
+                            PathExtensions.FileCopy(
+                                assembly.RemoveAssemblyExtension(),
+                                result.PathToAssembly.RemoveAssemblyExtension(),
+                                ignoreErrors: Runtime.IsLinux);
+                        else
+                            PathExtensions.FileCopy(
+                                assembly.ChangeExtension(".exe"),
+                                result.PathToAssembly.ChangeExtension(".exe"));
+
+                        PathExtensions.FileCopy(
+                            assembly.ChangeExtension(".dll"),
+                            result.PathToAssembly.ChangeExtension(".dll"),
+                            ignoreErrors: Runtime.IsLinux);
+                    }
+                    else
+                    {
+                        File.Copy(assembly, result.PathToAssembly, true);
+                    }
                 }
 
                 if (options.IncludeDebugInformation)
@@ -184,7 +217,7 @@ namespace CSScripting.CodeDom
                                                              .Where(asm => asm.GetDirName() != engine_dir)
                                                              .ToList();
 
-            if (CSExecutor.options.enableDbgPrint)
+            if (CSExecutor.options.enableDbgPrint && !CSExecutor.options.isNetFx)
                 ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
 
             var refs = new StringBuilder();
@@ -237,15 +270,32 @@ namespace CSScripting.CodeDom
 
             common_args.Add("-define:TRACE;NETCORE;CS_SCRIPT");
 
-            var gac_asms = Directory.GetFiles(gac, "System.*.dll").ToList();
-            gac_asms.AddRange(Directory.GetFiles(gac, "netstandard.dll"));
-            // Microsoft.DiaSymReader.Native.amd64.dll is a native dll
-            gac_asms.AddRange(Directory.GetFiles(gac, "Microsoft.*.dll").Where(x => !x.Contains("Native")));
+            var gac_asms = new List<string>();
 
-            if (gac2.HasText())
-                gac_asms.AddRange(Directory.GetFiles(gac2, "Microsoft.*.dll").Where(x => !x.Contains("Native")));
+            if (ExecuteOptions.options.isNetFx)
+            {
+                common_args.Add("-define:NETFRAMEWORK");
+                gac_asms.Add("mscorlib.dll");
+            }
+            else
+            {
+                if (options.GetTargetPlatform() == "x86" && Environment.Is64BitProcess)
+                {
+                    throw new CLIException("Executing scripts targeting x86 platform with `csc` compiling engine is not supported due to the " +
+                        "limitations of the MS `csc.exe` compiler. The compiled dos not support generation of the appropriate native application host.\n" +
+                        "You can either change the compilation engine to the dotnet (`-ng:dotnet`) or execute the script under .NET Framework runtime (`-netfx`).");
+                }
 
-            gac_asms.RemoveAll(x => x.Contains(".Native."));
+                gac_asms = Directory.GetFiles(gac, "System.*.dll").ToList();
+                gac_asms.AddRange(Directory.GetFiles(gac, "netstandard.dll"));
+                // Microsoft.DiaSymReader.Native.amd64.dll is a native dll
+                gac_asms.AddRange(Directory.GetFiles(gac, "Microsoft.*.dll").Where(x => !x.Contains("Native")));
+
+                if (gac2.HasText())
+                    gac_asms.AddRange(Directory.GetFiles(gac2, "Microsoft.*.dll").Where(x => !x.Contains("Native")));
+
+                gac_asms.RemoveAll(x => x.Contains(".Native."));
+            }
 
             // need to remove duplicated assemblies leaving GAC as a preferable reference
             // IE System.Linq.dll exists in GAC and in packages where it can be of a different version so it should not be used.
@@ -268,7 +318,7 @@ namespace CSScripting.CodeDom
 
             Profiler.get("compiler").Start();
             if (compile_on_server)
-                compile_on_server = Globals.BuildServerIsDeployed;
+                compile_on_server = Globals.BuildServerIsDeployed && !ExecuteOptions.options.isNetFx;
 
             var cmpl_cmd = "";
 
@@ -329,12 +379,33 @@ namespace CSScripting.CodeDom
             else
             {
                 Profiler.EngineContext = "Building with raw csc engine...";
-                cmd = $@"""{Globals.GetCompilerFor(sources.FirstOrDefault())}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
-                cmpl_cmd = cmd;
 
-                log_cmd(cmpl_cmd);
+                if (ExecuteOptions.options.isNetFx)
+                {
+                    var entryScript = source_args.First().Trim('"'); // entry script with 'static main'
 
-                result.NativeCompilerReturnValue = Globals.dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+                    var newCode = CSSUtils.InjectModuleInitializer(File.ReadAllText(entryScript), "HostingRuntime.Init();");
+
+                    var newSourceFile = build_dir.PathJoin(entryScript.ChangeExtension(".g.cs"));
+                    File.WriteAllText(newSourceFile, newCode);
+
+                    string[] newSources = [$"\"{newSourceFile}\"", .. source_args.Skip(1)];
+                    cmd = $@"{common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {newSources.JoinBy(" ")}";
+                    cmpl_cmd = cmd;
+
+                    log_cmd($"\"{Globals.csc_FX}\" {cmpl_cmd}");
+
+                    result.NativeCompilerReturnValue = Globals.csc_FX.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+                }
+                else
+                {
+                    cmd = $@"""{Globals.GetCompilerFor(sources.FirstOrDefault())}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                    cmpl_cmd = cmd;
+
+                    log_cmd(cmpl_cmd);
+
+                    result.NativeCompilerReturnValue = Globals.dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+                }
             }
 
             if (std_err.HasText())
@@ -387,7 +458,7 @@ namespace CSScripting.CodeDom
                 {
                     var runtimeconfig = "{'runtimeOptions': {'framework': {'name': 'Microsoft.NETCore.App', 'version': '{version}'}}}"
                             .Replace("'", "\"")
-                                     .Replace("{version}", Environment.Version.ToString());
+                            .Replace("{version}", Environment.Version.ToString());
 
                     File.WriteAllText(result.PathToAssembly.ChangeExtension(".runtimeconfig.json"), runtimeconfig);
                     try

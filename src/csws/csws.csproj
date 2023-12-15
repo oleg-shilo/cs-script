@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.8.11.0</Version>
+    <Version>4.8.12.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -19,15 +19,17 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.8.11.0</AssemblyVersion>
-    <FileVersion>4.8.11.0</FileVersion>
+    <AssemblyVersion>4.8.12.0</AssemblyVersion>
+    <FileVersion>4.8.12.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- Added using build-server on Linux. Now Win and Linux build-drver support is identical.
+- added option to run scripts under .NET Framework (`css -netfx &lt;script&gt;`)
+- added option to run scripts as external process (`css -rx &lt;script&gt;`)
+- extended verbose mode output
 
 ### CSScriptLib
 
@@ -77,6 +79,7 @@
     <Compile Include="..\cscs\Utils\CLIExtensions.cs" Link="Utils\CLIExtensions.cs" />
     <Compile Include="..\cscs\Utils\ConsoleExtensions.cs" Link="Utils\ConsoleExtensions.cs" />
     <Compile Include="..\cscs\Utils\CoreExtensions.cs" Link="Utils\CoreExtensions.cs" />
+    <Compile Include="..\cscs\Utils\CorFlagsReader.cs" Link="CorFlagsReader.cs" />
     <Compile Include="..\cscs\Utils\CurrentDirGuard.cs" Link="Utils\CurrentDirGuard.cs" />
     <Compile Include="..\cscs\Utils\LinqExtensions.cs" Link="Utils\LinqExtensions.cs" />
     <Compile Include="..\cscs\Utils\PathExtensions.cs" Link="Utils\PathExtensions.cs" />

@@ -26,6 +26,7 @@ static class Extensions
         process.Start();
 
         var output = process.StandardOutput.ReadToEnd();
+        output += process.StandardError.ReadToEnd();
         process.WaitForExit();
 
         return output;

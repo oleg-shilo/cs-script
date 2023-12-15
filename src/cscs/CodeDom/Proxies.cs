@@ -176,12 +176,17 @@ namespace CSScripting.CodeDom
                 return "Error: cannot process compile request on CS-Script build server ";
         }
 
-        internal static string CreateProject(CompilerParameters options, string[] fileNames, string outDir = null)
+        internal static string CreateProject(CompilerParameters options, string[] fileNames, string outDir = null, bool isNetFx = false, string platform = null)
         {
-            string projectShortName = fileNames.First().GetFileNameWithoutExtension();
+            // if project file starts with the '-' so dotnet interprets it as a command line switch
+            string assemblyName = fileNames.First().GetFileNameWithoutExtension();
+            string projectShortName = assemblyName.TrimStart('-');
 
             if (ExecuteOptions.options.runExternal)
+            {
                 projectShortName = options.OutputAssembly.GetFileNameWithoutExtension();
+                // assemblyName = projectShortName;
+            }
 
             string projectName = projectShortName;
             string fileType = "";
@@ -215,8 +220,13 @@ namespace CSScripting.CodeDom
             if (projectName.GetExtension().SameAs(".vbproj"))
                 compileConstantsDelimiter = ",";
 
+            string[] constants = ["TRACE", "NETCORE", "CS_SCRIPT"];
+
+            if (isNetFx)
+                constants = ["NETFRAMEWORK", .. constants];
+
             project_element.Add(new XElement("PropertyGroup",
-                                    new XElement("DefineConstants", new[] { "TRACE", "NETCORE", "CS_SCRIPT" }.JoinBy(compileConstantsDelimiter))));
+                                    new XElement("DefineConstants", constants.JoinBy(compileConstantsDelimiter))));
 
             if (options.AppType.HasText())
                 project_element.Attribute("Sdk").SetValue($"Microsoft.NET.Sdk.{options.AppType}");
@@ -244,14 +254,39 @@ namespace CSScripting.CodeDom
                                                              .Where(not_in_engine_dir)
                                                              .ToList();
 
-            void setTargetFremeworkWin() => project_element.Element("PropertyGroup")
-                                                           .SetElementValue("TargetFramework", $"net{Environment.Version.Major}.0-windows");
+            void setTargetFremeworkWin(string framework) => project_element.Element("PropertyGroup")
+                                                                           .SetElementValue("TargetFramework", framework);
 
             bool refWinForms = ref_assemblies.Any(x => x.EndsWith("System.Windows.Forms") ||
                                                        x.EndsWith("System.Windows.Forms.dll"));
+
+            var framework = $"net{Environment.Version.Major}.0-windows";
+
+            project_element.Element("PropertyGroup")
+                           .Add(new XElement("AssemblyName", assemblyName));
+
+            if (platform.HasText())
+            {
+                project_element.Element("PropertyGroup")
+                               .Add(new XElement("PlatformTarget", platform));
+            }
+
+            if (isNetFx)
+            {
+                framework = "net472";
+                project_element.Element("PropertyGroup")
+                               .Element("Nullable")
+                               .Remove();
+                project_element.Element("PropertyGroup")
+                               .Element("ImplicitUsings")
+                               .Remove();
+
+                setTargetFremeworkWin(framework);
+            }
+
             if (refWinForms)
             {
-                setTargetFremeworkWin();
+                setTargetFremeworkWin(framework);
                 project_element.Element("PropertyGroup")
                                .Add(new XElement("UseWindowsForms", "true"));
             }
@@ -260,7 +295,7 @@ namespace CSScripting.CodeDom
                                                                x.EndsWith("PresentationFramework.dll"));
             if (refWpf)
             {
-                setTargetFremeworkWin();
+                setTargetFremeworkWin(framework);
                 Environment.SetEnvironmentVariable("UseWPF", "true");
                 project_element.Element("PropertyGroup")
                                .Add(new XElement("UseWPF", "true"));
@@ -310,19 +345,35 @@ namespace CSScripting.CodeDom
             {
                 var includs = new XElement("ItemGroup");
                 project_element.Add(includs);
+
                 fileNames.ForEach(x =>
                 {
                     // <Compile Include="..\..\..\cscs\fileparser.cs" Link="fileparser.cs"/>
 
+                    var sourceFile = x.GetFullPath();
+
                     if (x.EndsWith(".xaml", StringComparison.OrdinalIgnoreCase))
+                    {
                         includs.Add(new XElement("Page",
                                         new XAttribute("Include", x),
-                                        new XAttribute("Link", Path.GetFileName(x)),
+                                        new XAttribute("Link", sourceFile),
                                         new XElement("Generator", "MSBuild:Compile")));
+                    }
                     else
+                    {
+                        if (isNetFx && x == fileNames.First()) // entry script with 'static main'
+                        {
+                            var newCode = CSSUtils.InjectModuleInitializer(File.ReadAllText(sourceFile), "HostingRuntime.Init();");
+
+                            sourceFile = build_dir.PathJoin(x.GetFileNameWithoutExtension() + ".g.cs");
+
+                            File.WriteAllText(sourceFile, newCode);
+                        }
+
                         includs.Add(new XElement("Compile",
-                                        new XAttribute("Include", x),
+                                        new XAttribute("Include", sourceFile),
                                         new XAttribute("Link", Path.GetFileName(x))));
+                    }
                 });
             }
             else
@@ -419,7 +470,7 @@ EndGlobal"
         public List<string> ReferencedAssemblies { get; } = new List<string>();
         public bool GenerateInMemory { get; set; }
 
-        // controls if the compiled assembly has static mainand supports top level class
+        // controls if the compiled assembly has static main and supports top level class
         public bool GenerateExecutable { get; set; }
 
         // Controls if the actual executable needs to be build

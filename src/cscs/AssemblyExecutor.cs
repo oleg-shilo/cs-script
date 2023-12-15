@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -87,13 +88,43 @@ namespace csscript
 
         public void ExecuteAssembly(string filename, string[] args, SystemWideLock asmLock)
         {
-            var scriptName = filename.GetFileNameWithoutExtension();
-            var runExternalFile = filename.ChangeFileName(scriptName.ChangeExtension(".runex.cs"));
+            // filename possible values
+            // - script.cs.dll    (.NET Core dll)
+            // - script.cs.exe    (.NET Core exe)
+            // - script.dll       (.NET FX dll)
+            // - script.exe       (.NET FX exe)
+
+            var runExternalFile = filename.ChangeExtension(".runex");
 
             var runExternal = runExternalFile.FileExists();
             if (runExternal)
             {
                 var exe = filename.ChangeExtension(".exe");
+                var dll = filename.ChangeExtension(".dll");
+                var runtimeConfig = filename.ChangeExtension(".runtimeconfig.json");
+
+                if (exe.FileExists() && dll.FileExists() && runtimeConfig.FileExists())
+                {
+                    // .NETCore executable (an assembly (dll) and native executable)
+
+                    var originalAssemblyName = ExecuteOptions.options.scriptFileName.GetFileNameWithoutExtension();
+
+                    if (originalAssemblyName != exe.GetFileNameWithoutExtension())
+                    {
+                        // move everything in a new container
+
+                        var containerDir = (exe + ".container");
+                        containerDir.DeleteIfExists();
+                        containerDir.EnsureDir();
+
+                        File.Move(exe, containerDir.PathJoin(originalAssemblyName + ".exe"));
+                        File.Move(dll, containerDir.PathJoin(originalAssemblyName + ".dll"));
+                        File.Move(runtimeConfig, containerDir.PathJoin(originalAssemblyName + ".runtimeconfig.json"));
+
+                        exe = containerDir.PathJoin(originalAssemblyName + ".exe");
+                    }
+                }
+
                 if (exe.FileExists())
                     ExecuteAssemblyAsProcess(exe, args, asmLock);
                 else
@@ -136,29 +167,41 @@ namespace csscript
             asmFile = filename;
             Assembly assembly;
 
-            if (!ExecuteOptions.options.inMemoryAsm)
+            try
             {
-                assembly = Assembly.LoadFile(filename);
-            }
-            else
-            {
-                //Load(byte[]) does not lock the assembly file as LoadFrom(filename) does
-                byte[] data = File.ReadAllBytes(filename);
-                string dbg = Utils.DbgFileOf(filename);
-
-                if (ExecuteOptions.options.DBG && File.Exists(dbg))
+                if (!ExecuteOptions.options.inMemoryAsm)
                 {
-                    byte[] dbgData = File.ReadAllBytes(dbg);
-                    assembly = Assembly.Load(data, dbgData);
+                    assembly = Assembly.LoadFile(filename);
                 }
                 else
-                    assembly = Assembly.Load(data);
+                {
+                    //Load(byte[]) does not lock the assembly file as LoadFrom(filename) does
+                    byte[] data = File.ReadAllBytes(filename);
+                    string dbg = Utils.DbgFileOf(filename);
 
-                asmLock?.Release();
+                    if (ExecuteOptions.options.DBG && File.Exists(dbg))
+                    {
+                        byte[] dbgData = File.ReadAllBytes(dbg);
+                        assembly = Assembly.Load(data, dbgData);
+                    }
+                    else
+                        assembly = Assembly.Load(data);
+
+                    asmLock?.Release();
+                }
+                SetScriptReflection(assembly, Path.GetFullPath(filename), true);
+                InvokeStaticMain(assembly, args);
             }
+            catch (FileLoadException e)
+            {
+                var metadata = CorFlagsReader.ReadAssemblyMetadata(filename);
 
-            SetScriptReflection(assembly, Path.GetFullPath(filename), true);
-            InvokeStaticMain(assembly, args);
+                if (Environment.Is64BitProcess && metadata.ProcessorArchitecture == System.Reflection.ProcessorArchitecture.X86)
+                {
+                    throw new Exception($"Cannot load x86 compiled script assembly ({filename}) into x64 hosting runtime.", e);
+                }
+                throw;
+            }
         }
 
         internal static void SetScriptReflection(Assembly assembly, string location, bool setScriptLocationReflection)

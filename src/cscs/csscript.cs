@@ -1209,6 +1209,12 @@ namespace csscript
                     }
                 }
             }
+
+            // AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs ar) =>
+            // {
+            //     return AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name.Split(',').First() == ar.Name.Split(',').First());
+            //     // return System.Reflection.Assembly.LoadFrom(@"D:\dev\wixsharp-wix3\Source\src\WixSharp.Samples\WixSharp.dll");
+            // };
         }
 
         static bool IsWpfHostingException(Exception e)
@@ -1334,6 +1340,10 @@ namespace csscript
             if (asmFileName == null || asmFileName == "")
             {
                 asmFileName = CSExecutor.ScriptCacheDir.PathJoin(scripFileName.GetFileName() + ".dll");
+                if (options.isNetFx)
+                {
+                    asmFileName = asmFileName.ChangeExtension(".exe"); // can only run NetFx assemblies as an external process
+                }
             }
 
             if (File.Exists(asmFileName) && File.Exists(scripFileName))
@@ -1743,25 +1753,6 @@ namespace csscript
 
             AddReferencedAssemblies(compilerParams, scriptFileName, parser);
 
-            string runexFile = GetRunAsExternalProbingFileName(scriptFileName);
-
-            if (options.runExternal)
-            {
-                if (scriptFileName.GetExtension().SameAs(".vb"))
-                    CLIExitRequest.Throw("Executing script as remote process is not supported with VB script.");
-
-                var refAsms = compilerParams.ReferencedAssemblies.ToArray();
-                if (options.enableDbgPrint)
-                    refAsms = [Assembly.GetExecutingAssembly().Location, .. refAsms];
-
-                var injection = CSSUtils.GetRuntimeProbingInjectionCode(runexFile, refAsms);
-                filesToCompile = filesToCompile.Concat([injection]).ToArray();
-            }
-            else
-            {
-                runexFile.DeleteIfExists();
-            }
-
             //add resources referenced from code
 
             foreach (string item in parser.ReferencedResources)
@@ -1794,6 +1785,13 @@ namespace csscript
                 Utils.AddCompilerOptions(compilerParams, "\"/res:" + file + "\""); //e.g. /res:C:\\Scripting.Form1.resources";
             }
 
+            if (!ExecuteOptions.options.runExternal &&
+                Environment.Is64BitProcess &&
+                compilerParams.GetTargetPlatform() == "x86")
+            {
+                ExecuteOptions.options.runExternal = true;
+            }
+
             if (options.forceOutputAssembly != "")
             {
                 assemblyFileName = options.forceOutputAssembly;
@@ -1819,6 +1817,34 @@ namespace csscript
                     string tempFile = GetScriptTempFile();
                     assemblyFileName = Path.ChangeExtension(tempFile, ".dll");
                 }
+
+                if (options.runExternal && options.isNetFx)
+                    assemblyFileName = assemblyFileName.ChangeExtension(".exe");
+            }
+
+            string runexFile = GetRunAsExternalProbingFileName(scriptFileName);
+            var runexTrigger = assemblyFileName.ChangeExtension(".runex");
+
+            if (options.runExternal)
+            {
+                if (scriptFileName.GetExtension().SameAs(".vb"))
+                    CLIExitRequest.Throw("Executing script as remote process is not supported with VB script.");
+
+                var refAsms = compilerParams.ReferencedAssemblies.ToArray();
+                if (options.enableDbgPrint)
+                    refAsms = [Assembly.GetExecutingAssembly().Location, .. refAsms];
+
+                var injection = CSSUtils.GetRuntimeProbingInjectionCode(runexFile, refAsms);
+                filesToCompile = filesToCompile.Concat([injection]).ToArray();
+
+                // runexFile is the file with the probing code to compile
+                // runexTrigger is the file to indicate that the assembly needs to be executed as external process
+                File.WriteAllText(runexTrigger, "");
+            }
+            else
+            {
+                runexFile.DeleteIfExists();
+                runexTrigger.DeleteIfExists();
             }
 
             if (generateExe && options.buildWinExecutable)
@@ -1875,9 +1901,9 @@ namespace csscript
                 CSSUtils.VerbosePrint("> ----------------", options);
 
                 string originalExtension = Path.GetExtension(compilerParams.OutputAssembly);
-                if (originalExtension != ".dll")
+                if (originalExtension != ".dll" && originalExtension != ".exe")
                 {
-                    //Despite the usage of .dll file name is not required for MS C# compiler we need to do this because
+                    //Despite the usage of .dll file name not being required for MS C# compiler, we need to do this because
                     //some compilers (Mono, VB) accept only dll or exe file extensions.
                     compilerParams.OutputAssembly = Path.ChangeExtension(compilerParams.OutputAssembly, ".dll");
 
@@ -1887,33 +1913,32 @@ namespace csscript
 
                     if (File.Exists(compilerParams.OutputAssembly))
                     {
-                        int attempts = 0;
-                        while (true)
+                        var srcFile = compilerParams.OutputAssembly;
+                        compilerParams.OutputAssembly = compilerParams.OutputAssembly.ChangeExtension(originalExtension);
+
+                        void moveToDestination(string src, string dest)
                         {
-                            //There were reports of MS C# compiler (csc.exe) not releasing OutputAssembly file
-                            //after compilation finished. Thus wait a little...
-                            //BTW. on Mono 1.2.4 it happens all the time
-                            try
+                            if (!src.SamePathAs(dest) && src.FileExists())
                             {
-                                attempts++;
+                                File.Copy(src, dest, true);
 
-                                File.Move(compilerParams.OutputAssembly, Path.ChangeExtension(compilerParams.OutputAssembly, originalExtension));
-
-                                break;
-                            }
-                            catch
-                            {
-                                if (attempts > 2)
+                                //There were reports of MS C# compiler (csc.exe) not releasing OutputAssembly file
+                                //after compilation finished. Thus wait a little...
+                                //BTW. on Mono 1.2.4 it happens all the time
+                                Task.Run(() =>
                                 {
-                                    // yep we can get here as Mono 1.2.4 on Windows never ever
-                                    // releases the assembly
-                                    File.Copy(compilerParams.OutputAssembly, Path.ChangeExtension(compilerParams.OutputAssembly, originalExtension), true);
-                                    break;
-                                }
-                                else
-                                    Thread.Sleep(100);
+                                    for (int i = 0; i < 3; i++)
+                                        try
+                                        {
+                                            src.DeleteIfExists();
+                                            break;
+                                        }
+                                        catch { Thread.Sleep(100); }
+                                });
                             }
                         }
+
+                        moveToDestination(srcFile, compilerParams.OutputAssembly);
                     }
                 }
                 else

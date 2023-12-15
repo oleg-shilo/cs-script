@@ -1,9 +1,9 @@
-using CSScripting;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
+using CSScripting;
 
 #if class_lib
 
@@ -101,6 +101,35 @@ namespace csscript
                                                                     x.FileDelete(rethrow: false);
                                                                 }));
                         }
+                    }
+                    catch { }
+            }
+        }
+
+        /// <summary>
+        /// Cleans the exited scripts.
+        /// </summary>
+        public static void CleanExitedScripts()
+        {
+            var rootDir = Runtime.CacheDir.GetDirName();
+
+            if (Directory.Exists(rootDir))
+            {
+                var activeProcesses = Process.GetProcesses()
+                    // .Where(x => x.Id != Process.GetCurrentProcess().Id) // we exiting so clean the scripts for the current process too
+                    .Select(x => x.Id.ToString());
+
+                foreach (var file in Directory.GetFiles(rootDir))
+                    try
+                    {
+                        // <pid>.<script_id>.*
+                        var pid = file.GetFileName().Split('.').FirstOrDefault();
+
+                        if (pid != null && !activeProcesses.Contains(pid))
+                            file.DeleteIfExists();
+
+                        var containerDir = file + ".container";
+                        containerDir.DeleteIfExists();
                     }
                     catch { }
             }

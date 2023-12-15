@@ -714,7 +714,20 @@ namespace CSScriptLib
             return instance;
         }
 
-        public new T Eval<T>(string scriptText, CompileInfo info)
+        /// <summary>
+        /// Evals the specified script text.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="scriptText">The script text.</param>
+        /// <param name="info">The information.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">
+        /// This method is only available for Roslyn evaluator.
+        /// or
+        /// The parameter `{nameof(info)}.{nameof(info.CodeKind)}` must be set to `{nameof(SourceCodeKind.Script)}`.
+        /// </exception>
+        /// <exception cref="System.InvalidOperationException">Script entry point method could be found.</exception>
+        public T Eval<T>(string scriptText, CompileInfo info)
         {
             // triggered by #355: Error in Eval using a referenced assembly with unloading enabled.
 

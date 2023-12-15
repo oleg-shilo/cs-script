@@ -154,6 +154,7 @@ namespace csscript
                     Runtime.CleanUnusedTmpFiles(Runtime.GetScriptTempDir(), "*????????-????-????-????-????????????.dll", false);
                     Runtime.CleanSnippets();
                     Runtime.CleanAbandonedCache();
+                    Runtime.CleanExitedScripts();
                 }
             }
             catch { }

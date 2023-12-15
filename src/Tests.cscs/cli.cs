@@ -1,13 +1,16 @@
-using csscript;
-using CSScripting;
-using CSScriptLib;
 using System;
 using System.Diagnostics;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Diagnostics.Tracing.Parsers.Clr;
+using csscript;
+using CSScripting;
+using CSScriptLib;
 using Xunit;
-using static System.Environment;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace CLI
 {
@@ -25,13 +28,20 @@ namespace CLI
         }
 
         public static void Set(string path)
-           => Environment.CurrentDirectory = root = path.EnsureDir();
+            => Environment.CurrentDirectory = root = path.EnsureDir();
     }
 
     public class cscs_cli : IClassFixture<CliTestFolder>
     {
-        public cscs_cli()
+        // the test in VS_xUnit test runner integration works just fine. But assembly loading fails under "dotnet test ..."
+        // so will need to exclude impacted test
+        bool IsRunningUnderCI => ("CI".GetEnvar() != null);
+
+        ITestOutputHelper output;
+
+        public cscs_cli(ITestOutputHelper output)
         {
+            this.output = output;
 #if DEBUG
             var config = "Debug";
 #else
@@ -44,6 +54,10 @@ namespace CLI
                 static_content = cmd_dir;
             else
                 static_content = $@"..\..\..\..\..\out\static_content".GetFullPath();
+
+            ".".PathJoin("temp").EnsureDir();
+
+            output.WriteLine($"Running under {(IsRunningUnderCI ? "DOTNET" : "VS")}");
         }
 
         public string cscs_exe;
@@ -228,6 +242,9 @@ global using global::System.Threading.Tasks;");
             if (is_win && !Assembly.GetEntryAssembly().Location.EndsWith("css.dll"))
             {
                 // css may be locked (e.g.it is running this test)
+                output = cscs_run($"{probing_dir} -self");
+                Assert.Equal(cscs_exe, output);
+
                 output = cscs_run($"{probing_dir} -self-exe");
                 Assert.Equal($"Created: {cscs_exe.ChangeFileName("css.exe")}", output);
 
@@ -251,6 +268,109 @@ global using global::System.Threading.Tasks;");
 
             output = cscs_run($"-check -ng:csc {script_file}");
             Assert.Equal("Compile: OK", output);
+        }
+
+        [Fact]
+        public void compile_netfx_script_dotnet()
+        {
+            if (IsRunningUnderCI)
+                return;
+            // SkipException just does not work
+            // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_netfx_script_dotnet)}");
+            File.WriteAllText(script_file,
+                @"using System;
+                  class Program
+                  {
+                      static void Main()
+                      {
+                          Console.WriteLine(Environment.Version);
+                      }
+                  }");
+
+            var output = cscs_run($"-ng:dotnet -netfx {script_file}");
+            Assert.Equal("4.0.30319.42000", output);
+
+            // enable caching
+            output = cscs_run($"-c:1 -ng:dotnet -netfx {script_file}");
+            Assert.Equal("4.0.30319.42000", output);
+        }
+
+        [Fact]
+        public void compile_netfx_script_csc()
+        {
+            if (IsRunningUnderCI)
+                return;
+            // SkipException just does not work
+            // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_netfx_script_csc)}");
+            File.WriteAllText(script_file,
+                @"using System;
+                  class Program
+                  {
+                      static void Main()
+                      {
+                          Console.WriteLine(Environment.Version);
+                      }
+                  }");
+
+            var output = cscs_run($"-ng:csc -netfx {script_file}");
+            Assert.Equal("4.0.30319.42000", output);
+
+            // enable caching
+            output = cscs_run($"-c:1 -ng:csc -netfx {script_file}");
+            Assert.Equal("4.0.30319.42000", output);
+        }
+
+        [Fact]
+        [FactWinOnly]
+        public void compile_x86_script_dotnet()
+        {
+            if (IsRunningUnderCI)
+                return;
+            // SkipException just does not work
+            // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_dotnet)}");
+            File.WriteAllText(script_file,
+                @"using System;
+                  class Program
+                  {
+                      static void Main()
+                      {
+                          Console.WriteLine(Environment.Is64BitProcess.ToString());
+                      }
+                  }");
+
+            var output = cscs_run($"-ng:dotnet -co:/platform:x86 {script_file}");
+            this.output.WriteLine(output);
+            Assert.Equal("False", output);
+        }
+
+        [Fact]
+        public void compile_x86_script_csc()
+        {
+            if (IsRunningUnderCI)
+                return;
+            // SkipException just does not work
+            // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
+
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_csc)}");
+            File.WriteAllText(script_file,
+                 @"using System;
+                   class Program
+                   {
+                       static void Main()
+                       {
+                           Console.WriteLine(Environment.Is64BitProcess.ToString());
+                       }
+                   }");
+
+            var output = cscs_run($"-ng:csc -co:/platform:x86 {script_file}");
+
+            Assert.Contains("Executing scripts targeting x86 platform with `csc` compiling engine is not supported", output);
         }
 
         [Fact]
