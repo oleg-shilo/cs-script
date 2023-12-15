@@ -80,12 +80,12 @@ jobs:
       run: dotnet restore $env:Solution_Name
     
     - name: Build the solution
-      run: 1.build-release.cmd
-      working-directory: ./scr
+      run: ./1.build-release.cmd
+      working-directory: src
 
     - name: Test the solution
-      run: 2.run-tests.cmd
-      working-directory: ./scr
+      run: ./2.run-tests.cmd
+      working-directory: src
 
     # - name: Build the solution
     #   run: dotnet build $env:Solution_Name
