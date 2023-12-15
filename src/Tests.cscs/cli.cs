@@ -25,7 +25,6 @@ namespace CLI
                      .ForEach(File.Delete);
 
             Environment.CurrentDirectory = root;
-            ".".PathJoin("temp").EnsureDir();
         }
 
         public static void Set(string path)
@@ -55,6 +54,10 @@ namespace CLI
                 static_content = cmd_dir;
             else
                 static_content = $@"..\..\..\..\..\out\static_content".GetFullPath();
+
+            ".".PathJoin("temp").EnsureDir();
+
+            output.WriteLine($"Running under {(IsRunningUnderCI ? "DOTNET" : "VS")}");
         }
 
         public string cscs_exe;
