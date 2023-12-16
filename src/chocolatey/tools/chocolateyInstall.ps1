@@ -4,7 +4,7 @@ $url = 'https://github.com/oleg-shilo/cs-script/releases/download/v4.8.12.0/cs-s
 try {
   $installDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 
-  $cheksum = '4A6E56F66207D44A1D4E86976B675ABB758CEAF27764C1E683BFB97B809A7BC3'
+  $checksum = '4A6E56F66207D44A1D4E86976B675ABB758CEAF27764C1E683BFB97B809A7BC3'
   $checksumType = "sha256"
 
   function stop-server

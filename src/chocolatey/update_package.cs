@@ -18,7 +18,7 @@ Console.WriteLine(cheksum);
 
 var code = File.ReadAllText(installScript + ".template")
                .Replace("$url = ???", "$url = '" + url + "'")
-               .Replace("$checksum = ???", "$cheksum = '" + cheksum + "'");
+               .Replace("$checksum = ???", "$checksum = '" + cheksum + "'");
 
 File.WriteAllText(installScript, code);
 Console.WriteLine("--------------");
