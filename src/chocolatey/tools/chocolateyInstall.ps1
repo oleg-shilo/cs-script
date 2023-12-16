@@ -1,10 +1,10 @@
 $packageName = 'cs-script'
-$url = 'https://github.com/oleg-shilo/cs-script/releases/download/v4.8.10.0/cs-script.win.v4.8.10.0.7z'
+$url = 'https://github.com/oleg-shilo/cs-script/releases/download/v4.8.12.0/cs-script.win.v4.8.12.0.7z'
 
 try {
   $installDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 
-  $cheksum = '6DE3752A60764521784589BA039DA727CF3C68A158A1E2E4F5C52B1E8B2DCE79'
+  $cheksum = '4A6E56F66207D44A1D4E86976B675ABB758CEAF27764C1E683BFB97B809A7BC3'
   $checksumType = "sha256"
 
   function stop-server
