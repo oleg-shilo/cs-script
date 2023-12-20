@@ -1,4 +1,4 @@
-# Release v4.8.12.0
+# Release v4.8.13.0
 
 ---
 
@@ -6,10 +6,8 @@
 
 ### CLI
 
-- added option to run scripts under .NET Framework (`css -netfx <script>`)
-- added option to run scripts as external process (`css -rx <script>`)
-- extended verbose mode output
+- <no changes>
 
 ### CSScriptLib
 
-- <no changes>
+- CSScriptLib is signed now

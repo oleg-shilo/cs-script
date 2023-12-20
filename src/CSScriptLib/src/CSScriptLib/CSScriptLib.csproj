@@ -14,7 +14,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.8.12.0</Version>
+    <Version>4.8.13.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
@@ -30,18 +30,18 @@
 
 ### CLI
 
-- added option to run scripts under .NET Framework (`css -netfx &lt;script&gt;`)
-- added option to run scripts as external process (`css -rx &lt;script&gt;`)
-- extended verbose mode output
+- &lt;no changes&gt;
 
 ### CSScriptLib
 
-- &lt;no changes&gt;</PackageReleaseNotes>
+- CSScriptLib is signed now</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.8.12.0</AssemblyVersion>
-    <FileVersion>4.8.12.0</FileVersion>
+    <AssemblyVersion>4.8.13.0</AssemblyVersion>
+    <FileVersion>4.8.13.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />

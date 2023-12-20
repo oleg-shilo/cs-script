@@ -10,6 +10,10 @@
     <AssemblyName>cscs.tests</AssemblyName>
 
     <RootNamespace />
+
+    <SignAssembly>True</SignAssembly>
+
+    <AssemblyOriginatorKeyFile>D:\dev\cs-script\src\CSScriptLib\src\CSScriptLib\sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,9 +31,5 @@
   <ItemGroup>
     <ProjectReference Include="..\CSScriptLib\src\CSScriptLib\CSScriptLib.csproj" />
   </ItemGroup>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="echo --- Copying build server to Tests.CSScriptLib build dir ---&#xD;&#xA;&#xD;&#xA;rem call copy &quot;$(ProjectDir)..\out\bin\build.*&quot; &quot;$(TargetDir)&quot;" />
-  </Target>
 
 </Project>

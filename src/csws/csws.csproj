@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.8.12.0</Version>
+    <Version>4.8.13.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -19,21 +19,19 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.8.12.0</AssemblyVersion>
-    <FileVersion>4.8.12.0</FileVersion>
+    <AssemblyVersion>4.8.13.0</AssemblyVersion>
+    <FileVersion>4.8.13.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- added option to run scripts under .NET Framework (`css -netfx &lt;script&gt;`)
-- added option to run scripts as external process (`css -rx &lt;script&gt;`)
-- extended verbose mode output
+- &lt;no changes&gt;
 
 ### CSScriptLib
 
-- &lt;no changes&gt;</PackageReleaseNotes>
+- CSScriptLib is signed now</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
     <PackageIcon>..\logo\css_logo.png</PackageIcon>
