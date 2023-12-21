@@ -84,7 +84,7 @@ jobs:
       working-directory: src
 
     - name: Test the solution
-      run: ./2.run-tests.cmd
+      run: ./2.run-tests-ci.cmd
       working-directory: src
 
     # - name: Build the solution
