@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.8.12.0.
+C# Script execution engine (.NET Core). Version 4.8.13.0.
 Copyright (C) 2004-2023 Oleg Shilo.
 
 
