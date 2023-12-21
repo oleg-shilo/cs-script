@@ -1,0 +1,3763 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CSScriptLib</name>
+    </assembly>
+    <members>
+        <member name="T:CSScriptLib.CSharpParser">
+            <summary>
+            Very light parser for C# code. The main purpose of it is to be very fast and reliable.
+            It only extracts code information relative to the CS-Script.
+            </summary>
+        </member>
+        <member name="T:CSScriptLib.CSharpParser.CmdScriptInfo">
+            <summary>
+            Class to hold the script information on what pre- or post-execution script needs to be executed.
+            pre- and post-script CS-Script command format:
+            //css_prescript file([arg0][, arg1]..[,arg2])[,ignore];
+            //file - script file (extension is optional)
+            //arg0..N - script string arguments;
+            If $this is specified as arg0..N it will be replaced with the parent script full name at execution time.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.CmdScriptInfo.#ctor(System.String,System.Boolean,System.String)">
+            <summary>
+            Creates an instance of CmdScriptInfo.
+            </summary>
+            <param name="statement">CS-Script pre- or post-script directive</param>
+            <param name="preScript">If set to true the 'statement' is a pre-script otherwise it is a post-script.</param>
+            <param name="parentScript">The file name of the main script.</param>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.CmdScriptInfo.args">
+            <summary>
+            Script file and it's arguments.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.CmdScriptInfo.preScript">
+            <summary>
+            If set to 'true' the CmdScriptInfo describes the pre-script, otherwise it is for the post-script.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.CmdScriptInfo.abortOnError">
+            <summary>
+            If set to 'true' parent script will be aborted on pre/post-script error, otherwise the error will be ignored.
+            </summary>
+        </member>
+        <member name="T:CSScriptLib.CSharpParser.InitInfo">
+            <summary>
+            Class to hold the script initialization information.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.InitInfo.CoInitializeSecurity">
+            <summary>
+            The boolean flag indicating if CoInitializeSecurity (with default parameters) should be called at the start of the script execution.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.InitInfo.RpcImpLevel">
+            <summary>
+            The RpcImpLevel of CoInitializeSecurity arguments
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.InitInfo.EoAuthnCap">
+            <summary>
+            The EoAuthnCap of CoInitializeSecurity arguments
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.InitInfo.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CSScriptLib.CSharpParser.InitInfo"/> class.
+            </summary>
+            <param name="statement">The original argument statement of the <c>//css_init</c> directive.</param>
+        </member>
+        <member name="T:CSScriptLib.CSharpParser.ImportInfo">
+            <summary>
+            Class to hold the script importing information, which actually controls how script is imported.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.ImportInfo.#ctor(System.String,System.String)">
+            <summary>
+            Creates an instance of ImportInfo.
+            </summary>
+            <param name="statement">CS-Script import directive (//css_import...) string.</param>
+            <param name="parentScript">name of the parent (primary) script file.</param>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.ImportInfo.file">
+            <summary>
+            The file to be imported.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.ImportInfo.renaming">
+            <summary>
+            Renaming instructions (old_name vs. new_name)
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.ImportInfo.preserveMain">
+            <summary>
+            If set to 'true' "static...Main" in the imported script is not renamed.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:CSScriptLib.CSharpParser"/> class.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.#ctor(System.String)">
+            <summary>
+            Creates an instance of CSharpParser.
+            </summary>
+            <param name="code">C# code string</param>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.#ctor(System.String,System.Boolean)">
+            <summary>
+            Creates an instance of CSharpParser.
+            </summary>
+            <param name="script">C# script (code or file).</param>
+            <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.#ctor(System.String,System.Boolean,System.String[])">
+            <summary>
+            Creates an instance of CSharpParser.
+            </summary>
+            <param name="script">C# script (code or file).</param>
+            <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
+            <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.#ctor(System.String,System.Boolean,System.String[],System.String[])">
+            <summary>
+            Creates an instance of CSharpParser.
+            </summary>
+            <param name="script">C# script (code or file).</param>
+            <param name="isFile">If set to 'true' the script is a file, otherwise it is a C# code.</param>
+            <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
+            <param name="probingDirs">Search directories for resolving wild card paths in //css_inc and //css_imp</param>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.CustomDirectives">
+            <summary>
+            The result of search for additional C# script directives to search (directive vs. value).
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.SupressCodeAnalysis">
+            <summary>
+            Global flag to forcefuly supress any C# code analysys. This flag efectively disables
+            all CS-Script assembly and script probing and most likely some other functionality.
+            <para>You may ever want to suppress code analysis only for profiling purposes or during performance tuning.</para>
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.Init(System.String,System.String,System.String[],System.String[])">
+            <summary>
+            Parses the C# code.
+            </summary>
+            <param name="code">C# script (code or file).</param>
+            <param name="file">If set to 'true' the script is a file, otherwise it is a C# code.</param>
+            <param name="directivesToSearch">Additional C# script directives to search. The search result is stored in CSharpParser.CustomDirectives.</param>
+            <param name="probingDirs">Search directories for resolving wild card paths in //css_inc and //css_imp</param>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.DoRenaming(System.String[][],System.Boolean)">
+            <summary>
+            Renames namespaces according renaming instructions.
+            </summary>
+            <param name="renamingMap">Renaming instructions (old_name vs. new_name).</param>
+            <param name="preserveMain">/// If set to 'true' "static...Main" in the imported script is not renamed.</param>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.Args">
+            <summary>
+            Embedded script arguments. The both script and engine arguments are allowed except "/noconfig" engine command line switch.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.CompilerOptions">
+            <summary>
+            Embedded compiler options.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.HostOptions">
+            <summary>
+            Embedded compiler options.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.Precompilers">
+            <summary>
+            Precompilers.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.References">
+            <summary>
+            References to the external assemblies and namespaces.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.RefAssemblies">
+            <summary>
+            References to the external assemblies.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.IgnoreNamespaces">
+            <summary>
+            Names of namespaces to be ignored by namespace-to-assembly resolver.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.ExtraSearchDirs">
+            <summary>
+            Additional search directories (for script and assembly probing).
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.ResFiles">
+            <summary>
+            References to the resource files.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.RefNamespaces">
+            <summary>
+            References to the namespaces.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.NuGets">
+            <summary>
+            References to the NuGet packages.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.Imports">
+            <summary>
+            C# scripts to be imported.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.CmdScripts">
+            <summary>
+            Pre- and post-execution scripts.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.Inits">
+            <summary>
+            Script initialization directives.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.Code">
+            <summary>
+            Script C# raw code.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSharpParser.ModifiedCode">
+            <summary>
+            Script C# code after namespace renaming.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.OpenEndDirectiveSyntax">
+            <summary>
+            Enables omitting closing character (";") for CS-Script directives (e.g. "//css_ref System.Xml.dll" instead of "//css_ref System.Xml.dll;").
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.EscapeDirectiveDelimiters(System.String)">
+            <summary>
+            Escapes the CS-Script directive (e.g. //css_*) delimiters.
+            <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+            For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
+            The correct syntax would be as follows '//css_include script((today)).cs;'</para>
+            <remarks>The delimiters characters are ';,(){}'.
+            <para>However you should check <see cref="F:CSScriptLib.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
+            </para>
+            </remarks>
+            </summary>
+            <param name="text">The text to be processed.</param>
+            <returns>The escaped string.</returns>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.UserToInternalEscaping(System.String)">
+             <summary>
+             Replaces the user escaped delimiters with internal escaping.
+             <p> "{char}{char}" -> "\u{((int)c).ToString("x4")}"</p>
+             <p> "((" -> "\u0028"</p>
+            
+             </summary>
+             <param name="text">The text.</param>
+             <returns>The escaped string.</returns>
+        </member>
+        <member name="M:CSScriptLib.CSharpParser.UnescapeDirectiveDelimiters(System.String)">
+            <summary>
+            Unescapes the CS-Script directive (e.g. //css_*) delimiters.
+            <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+            For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
+            The correct syntax would be as follows '//css_include script((today)).cs;'</para>
+            <remarks>The delimiters characters are ';,(){}'.
+            <para>However you should check <see cref="F:CSScriptLib.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
+            </para>
+            </remarks>
+            </summary>
+            <param name="text">The text to be processed.</param>
+            <returns>The unescaped string.</returns>
+        </member>
+        <member name="F:CSScriptLib.CSharpParser.DirectiveDelimiters">
+            <summary>
+            The //css_* directive delimiters.
+            <remarks>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+            For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
+            The correct syntax would be as follows '//css_include script((today)).cs;'
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSExecutor.ScriptCacheDir">
+            <summary>
+             Contains the name of the temporary cache folder in the CSSCRIPT subfolder of Path.GetTempPath(). The cache folder is specific for every script file.
+             </summary>
+        </member>
+        <member name="M:CSScriptLib.CSExecutor.GetCacheDirectory(System.String)">
+            <summary>
+            Generates the name of the cache directory for the specified script file.
+            </summary>
+            <param name="file">Script file name.</param>
+            <returns>Cache directory name.</returns>
+        </member>
+        <member name="T:CSScriptLib.Settings">
+            <summary>
+            Settings is an class that holds CS-Script application settings.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.Settings.Load">
+            <summary>
+            Loads and returns the settings instance.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.Settings.DefaultConfigFile">
+            <summary>
+            Gets the default configuration file path. It is a "css_config.xml" file located in the same directory where the assembly
+            being executed is (e.g. cscs.exe).
+            </summary>
+            <value>
+            The default configuration file location. Returns null if the file is not found.
+            </value>
+        </member>
+        <member name="P:CSScriptLib.Settings.SearchDirs">
+            <summary>
+            List of directories to be used to search (probing) for referenced assemblies and script files.
+            This setting is similar to the system environment variable PATH.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.Settings.DefaultRefAssemblies">
+            <summary>
+            Gets or sets the default reference assemblies.
+            </summary>
+            <value>
+            The default reference assemblies.
+            </value>
+        </member>
+        <member name="M:CSScriptLib.Settings.ClearSearchDirs">
+            <summary>
+            Clears the search directories.
+            </summary>
+            <returns>The Settings instance.</returns>
+        </member>
+        <member name="M:CSScriptLib.Settings.AddSearchDir(System.String)">
+            <summary>
+            Adds the search directories aggregated from the unique locations of all assemblies referenced by the host application.
+            </summary>
+            <param name="dir">The dir.</param>
+            <returns>The Settings instance</returns>
+        </member>
+        <member name="M:CSScriptLib.Settings.AddSearchDirsFromHost">
+            <summary>
+            Adds the search dirs from host application.
+            <para>The dirs are the list of locations the all currently loaded assemblies are loaded from.</para>
+            </summary>
+            <returns>The Settings instance</returns>
+        </member>
+        <member name="T:CSScriptLib.CSScript">
+            <summary>
+            Class which is implements CS-Script class library interface.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CSScript.StartBuildServer">
+            <summary>
+            Starts the build server.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CSScript.StopBuildServer">
+            <summary>
+            Stops the build server.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSScript.EvaluatorConfig">
+            <summary>
+            Gets the CSScript.<see cref="T:CSScriptLib.EvaluatorConfig"/>, which controls the way code evaluation is conducted at runtime.
+            </summary>
+            <value>The evaluator CSScript.<see cref="T:CSScriptLib.EvaluatorConfig"/>.</value>
+        </member>
+        <member name="P:CSScriptLib.CSScript.Evaluator">
+             <summary>
+             Global instance of the generic <see cref="T:CSScriptLib.IEvaluator"/>. This object is to be used for
+             dynamic loading of the  C# code by "compiler as service" based on the
+             <see cref="P:CSScriptLib.CSScript.EvaluatorConfig.Engine"/> value.
+             <para>Generic <see cref="T:CSScriptLib.IEvaluator"/> interface provides a convenient way of accessing
+             compilers without 'committing' to a specific compiler technology (e.g. Mono, Roslyn, CodeDOM). This may be
+             required during troubleshooting or performance tuning.</para>
+             <para>Switching between compilers can be done via global
+             CSScript.<see cref="P:CSScriptLib.CSScript.EvaluatorConfig.Engine"/>.</para>
+             <remarks>
+             By default CSScript.<see cref="P:CSScriptLib.CSScript.Evaluator"/> always returns a new instance of
+             <see cref="T:CSScriptLib.IEvaluator"/>. If this behavior is undesired change the evaluator access
+             policy by setting <see cref="P:CSScriptLib.CSScript.EvaluatorConfig"/>.Access value.
+             </remarks>
+             </summary>
+             <value>The <see cref="T:CSScriptLib.IEvaluator"/> instance.</value>
+             <example>
+            <code>
+             if(testingWithMono)
+                 CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Mono;
+             else
+                 CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn;
+            
+             var sub = CSScript.Evaluator
+                               .LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
+                                           @"int Sub(int a, int b) {
+                                                 return a - b;
+                                             }");
+             </code>
+             </example>
+        </member>
+        <member name="M:CSScriptLib.CSScript.GetScriptTempDir">
+            <summary>
+            Returns the name of the temporary folder in the CSSCRIPT subfolder of Path.GetTempPath().
+            <para>Under certain circumstances it may be desirable to the use the alternative location for the CS-Script temporary files.
+            In such cases use SetScriptTempDir() to set the alternative location.
+            </para>
+            </summary>
+            <returns>Temporary directory name.</returns>
+        </member>
+        <member name="M:CSScriptLib.CSScript.GetScriptTempFile">
+            <summary>
+            Returns the name of the temporary file in the CSSCRIPT subfolder of Path.GetTempPath().
+            </summary>
+            <returns>Temporary file name.</returns>
+        </member>
+        <member name="F:CSScriptLib.CSScript.GlobalSettings">
+            <summary>
+            Settings object containing runtime settings, which controls script compilation/execution.
+            This is Settings class essentially is a deserialized content of the CS-Script configuration file (css_config.xml).
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CSScript.RoslynEvaluator">
+            <summary>
+            Global instance of <see cref="T:CSScriptLib.RoslynEvaluator"/>. This object is to be used for
+            dynamic loading of the  C# code by using Roslyn "compiler as service".
+            <para>If you need to use multiple instances of th evaluator then you will need to call
+            <see cref="T:CSScriptLib.IEvaluator"/>.Clone().
+            </para>
+            </summary>
+            <value> The <see cref="T:CSScriptLib.RoslynEvaluator"/> instance.</value>
+        </member>
+        <member name="P:CSScriptLib.CSScript.CodeDomEvaluator">
+            <summary>
+            Global instance of <see cref="T:CSScriptLib.CodeDomEvaluator"/>. This object is to be used for
+            dynamic loading of the  C# code by using CodeDom "compiler as service".
+            <para>If you need to use multiple instances of th evaluator then you will need to call
+            <see cref="T:CSScriptLib.IEvaluator"/>.Clone().
+            </para>
+            </summary>
+            <value> The <see cref="T:CSScriptLib.CodeDomEvaluator"/> instance.</value>
+        </member>
+        <member name="P:CSScriptLib.CSScript.CacheEnabled">
+            <summary>
+            Controls if ScriptCache should be used when script file loading is requested (CSScript.Load(...)). If set to true and the script file was previously compiled and already loaded
+            the script engine will use that compiled script from the cache instead of compiling it again.
+            Note the script cache is always maintained by the script engine. The CacheEnabled property only indicates if the cached script should be used or not when CSScript.Load(...) method is called.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CSScript.NoteTempFile(System.String)">
+            <summary>
+            Notes the temporary file to be removed on application exit.
+            </summary>
+            <param name="file">The file.</param>
+        </member>
+        <member name="M:CSScriptLib.CSScript.StartPurgingOldTempFiles(System.Boolean)">
+            <summary>
+            Starts the purging old temporary files.
+            </summary>
+            <param name="ignoreCurrentProcessScripts">if set to <c>true</c> [ignore current process scripts].</param>
+        </member>
+        <member name="T:CSScriptLib.CodeDomEvaluator">
+            <summary>
+            Class implementing CodeDom favor of (csc.exe/csc.dll) <see cref="T:CSScriptLib.IEvaluator"/>
+            </summary>
+            <seealso cref="T:CSScriptLib.IEvaluator"/>
+        </member>
+        <member name="F:CSScriptLib.CodeDomEvaluator.CompileOnServer">
+            <summary>
+            The flag indicating if the compilation should happen on the build server or locally.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CodeDomEvaluator.CscTimeout">
+            <summary>
+            Timeout for the C# CLI compiler `csc.exe`.
+            <para>
+            This compiler is a part of .NET SDK and it is the actual
+            tool that compiles C# code into assembly when CodeDomEvaluator is used.
+            This tool under certain circumstances has tendency to hang after even if it successfully
+            finished the compilation. Thus configurable timeout allows user to configure forcible termination
+            of the csc.exe process.
+            </para>
+            <para>
+            The default value is -1 (infinite).</para>
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.CodeDomEvaluator.CompilerLastOutput">
+            <summary>
+            The low level output of the last script compilation. This member is not designed to be a
+            part of script error handling. For this purpose a normal exception based mechanism the
+            is a more appropriate choice.
+            <para>
+            <see cref="F:CSScriptLib.CodeDomEvaluator.CompilerLastOutput"/> on another hand is great for troubleshooting problems
+            associated with the low level completion. IE non script specific failures of csc.exe.
+            </para>
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CodeDomEvaluator.Validate(CSScriptLib.CompileInfo)">
+            <summary>
+            Validates the specified information.
+            </summary>
+            <param name="info">The information.</param>
+            <exception cref="T:Scripting.CSScriptException">
+            CompileInfo.RootClass property should only be used with Roslyn evaluator as " + "it
+            addresses the limitation associated with Roslyn. Specifically wrapping ALL scripts in
+            the illegally " + "named parent class. You are using CodeDomEvaluator so you should not
+            set CompileInfo.RootClass to any custom value
+            </exception>
+        </member>
+        <member name="M:CSScriptLib.CodeDomEvaluator.Compile(System.String,System.String,CSScriptLib.CompileInfo)">
+            <summary>
+            Compiles the specified script text.
+            </summary>
+            <param name="scriptText">The script text.</param>
+            <param name="scriptFile">The script file.</param>
+            <param name="info">The information.</param>
+            <returns>The method result.</returns>
+        </member>
+        <member name="M:CSScriptLib.CodeDomEvaluator.ReferenceAssembly(System.Reflection.Assembly)">
+            <summary>
+            References the given assembly.
+            <para>
+            It is safe to call this method multiple times for the same assembly. If the assembly
+            already referenced it will not be referenced again.
+            </para>
+            </summary>
+            <param name="assembly">The assembly instance.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+            <exception cref="T:System.Exception">
+            Current version of {EngineName} doesn't support referencing assemblies " + "which are
+            not loaded from the file location.
+            </exception>
+        </member>
+        <member name="M:CSScriptLib.CodeDomEvaluator.GetReferencedAssembliesFiles">
+            <summary>
+            Gets the referenced assemblies files.
+            </summary>
+            <returns>The method result.</returns>
+        </member>
+        <member name="M:CSScriptLib.CodeDomEvaluator.GetReferencedAssemblies">
+            <summary>
+            Loads and returns set of referenced assemblies.
+            <para>Notre: the set of assemblies is cleared on Reset.</para>
+            </summary>
+            <returns>The method result.</returns>
+        </member>
+        <member name="T:CSScriptLib.CompileInfo">
+            <summary>
+            The information about the location of the compiler output - assembly and pdb file.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CompileInfo.CompilerOptions">
+            <summary>
+            Gets or sets the compiler options for csc.exe.
+            <para>
+            This property is only applicable for CodeDOM based script execution as Roslyn engine does
+            not accept string options for compilation.
+            </para>
+            </summary>
+            <value>The compiler options.</value>
+        </member>
+        <member name="P:CSScriptLib.CompileInfo.AssemblyFile">
+            <summary>
+            The assembly file path. If not specified it will be composed as "&lt;RootClass&gt;.dll".
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CompileInfo.PdbFile">
+            <summary>
+            The PDB file path.
+            <para>
+            Even if the this value is specified the file will not be generated unless <see
+            cref="P:CSScriptLib.CSScript.EvaluatorConfig"/>.DebugBuild is set to <c>true</c>.
+            </para>
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CompileInfo.RootClass">
+            <summary>
+            Gets or sets the root class name.
+            <para>
+            This setting is required as Roslyn cannot produce compiled scripts with the user script
+            class defined as a top level class. Thus all user defined classes are in fact nested
+            classes with the root class named by Roslyn as "Submission#0". This leads to the
+            complications when user wants to reference script class in another script. Specifically
+            because C# treats "Submission#0" as an illegal class name.
+            </para>
+            <para>
+            C# helps the situation by allowing user specified root name <see
+            cref="P:CSScriptLib.CompileInfo.RootClass"/>, which is by default is "css_root".
+            </para>
+            </summary>
+            <value>The root class name.</value>
+        </member>
+        <member name="P:CSScriptLib.CompileInfo.AssemblyName">
+            <summary>
+            Gets or sets the name of the assembly to be built from the script.
+            </summary>
+            <value>
+            The name of the assembly.
+            </value>
+        </member>
+        <member name="P:CSScriptLib.CompileInfo.LoadedAssembly">
+            <summary>
+            Gets or sets the loaded script assembly.
+            <para> This member is set to the script assembly loaded in the calling ppDomain.
+            It is particularly useful when you need access the script assembly (e.g. to unload it)
+            but it is unavailable to the caller because the evaluation expression does not return any result (`void`).</para>
+            </summary>
+            <value>
+            The loaded assembly.
+            </value>
+        </member>
+        <member name="P:CSScriptLib.CompileInfo.PreferLoadingFromFile">
+            <summary>
+            Gets or sets a value indicating whether to prefer loading compiled script from the
+            assembly file when it is available.
+            </summary>
+            <value><c>true</c> if [prefer loading from file]; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:CSScriptLib.CompileInfo.CodeKind">
+             <summary>
+             Gets or sets the kind of the script code. This property is used to control the way Roslyn engine is compiling the script code.
+             <para>
+             By default it is <see cref="F:Microsoft.CodeAnalysis.SourceCodeKind.Regular"/> used for processing the scripts the same way as .cs/.vb files.
+             While <see cref="F:Microsoft.CodeAnalysis.SourceCodeKind.Script"/> used for processing the scripts as a canonical single file script with the
+             top-level code.
+             </para>
+             <para>
+             The <see cref="F:Microsoft.CodeAnalysis.SourceCodeKind.Script"/> is the code kind that is used by <see cref="M:CSScriptLib.IEvaluator.Eval(System.String)"/> setting which is
+             the only API supported in the .NET applications published as single-file. Though this value can also be used in other Roslyn
+             evaluator scenarios too (e.g. <see cref="M:CSScriptLib.IEvaluator.CompileCode(System.String,CSScriptLib.CompileInfo)"/>).
+             </para>
+            
+             </summary>
+             <value>
+             The kind of the code.
+             </value>
+        </member>
+        <member name="T:CSScriptLib.CompilerException">
+            <summary>
+            The exception that is thrown when a the script compiler error occurs.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.CompilerException.ErrorCount">
+            <summary>
+            Gets or sets the error count associated with the last script compilation.
+            </summary>
+            <value>The error count.</value>
+        </member>
+        <member name="M:CSScriptLib.CompilerException.#ctor">
+            <summary>
+            Initialises a new instance of the <see cref="T:CSScriptLib.CompilerException"/> class.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CompilerException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initialises a new instance of the <see cref="T:CSScriptLib.CompilerException"/> class.
+            </summary>
+            <param name="info">The object that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="M:CSScriptLib.CompilerException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CSScriptLib.CompilerException"/> class.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:CSScriptLib.CompilerException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CSScriptLib.CompilerException"/> class.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="exception">The exception.</param>
+        </member>
+        <member name="M:CSScriptLib.CompilerException.Create(System.Collections.Generic.IEnumerable{CSScripting.CodeDom.CompilerError},System.Boolean,System.Boolean)">
+            <summary>
+            Creates the CompilerException instance from the specified compiler errors.
+            </summary>
+            <param name="Errors">The compiler errors.</param>
+            <param name="hideCompilerWarnings">if set to <c>true</c> hide compiler warnings.</param>
+            <param name="resolveAutogenFilesRefs">
+            if set to <c>true</c> all references to the path of the derived auto-generated files
+            (e.g. errors in the decorated classless scripts) will be replaced with the path of the
+            original files (e.g. classless script itself).
+            </param>
+            <returns>The method result.</returns>
+        </member>
+        <member name="T:CSScriptLib.RoslynEvaluator">
+            <summary>
+            </summary>
+            <seealso cref="T:CSScriptLib.IEvaluator"/>
+        </member>
+        <member name="M:CSScriptLib.RoslynEvaluator.GetReferencedAssemblies">
+            <summary>
+            Loads and returns set of referenced assemblies.
+            <para>Notre: the set of assemblies is cleared on Reset.</para>
+            </summary>
+            <returns>The method result.</returns>
+        </member>
+        <member name="P:CSScriptLib.RoslynEvaluator.CompilerSettings">
+            <summary>
+            Gets or sets the compiler settings.
+            </summary>
+            <value>The compiler settings.</value>
+        </member>
+        <member name="M:CSScriptLib.RoslynEvaluator.LoadCompilers">
+            <summary>
+            Loads the assemblies implementing Roslyn compilers.
+            <para>
+            Roslyn compilers are extremely heavy and loading the compiler assemblies for with the
+            first evaluation call can take a significant time to complete (in some cases up to 4
+            seconds) while the consequent calls are very fast.
+            </para>
+            <para>
+            You may want to call this method to pre-load the compiler assembly your script
+            evaluation performance.
+            </para>
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.RoslynEvaluator.Compile(System.String,System.String,CSScriptLib.CompileInfo)">
+            <summary>
+            Compiles the specified script text.
+            </summary>
+            <param name="scriptText">The script text.</param>
+            <param name="scriptFile">The script file.</param>
+            <param name="info">The information.</param>
+            <returns>The method result.</returns>
+            <exception cref="T:CSScriptLib.CompilerException"></exception>
+        </member>
+        <member name="M:CSScriptLib.RoslynEvaluator.ReferenceAssembly(System.Reflection.Assembly)">
+            <summary>
+            References the given assembly.
+            <para>
+            It is safe to call this method multiple times for the same assembly. If the assembly
+            already referenced it will not be referenced again.
+            </para>
+            </summary>
+            <param name="assembly">The assembly instance.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+            <exception cref="T:System.Exception">
+            Current version of {EngineName} doesn't support referencing assemblies " + "which are
+            not loaded from the file location.
+            </exception>
+        </member>
+        <member name="M:CSScriptLib.RoslynEvaluator.Eval(System.String)">
+             <summary>
+             Evaluates (executes) the specified script text, which is a top-level C# code.
+             <para>It is the most direct equivalent of "eval" available in dynamic languages. This method is only
+             available for Roslyn evaluator.</para>
+             You can evaluate simple expressions:
+             <code>
+             var result = CSScript.Evaluator.Eval("1 + 2");
+             </code>
+             Or it can be a complex script, which defines its own types:
+             <code>
+             var calc = CSScript.Evaluator
+                                .Eval(@"using System;
+                                        public class Script
+                                        {
+                                            public int Sum(int a, int b)
+                                            {
+                                                return a+b;
+                                            }
+                                        }
+            
+                                        return new Script();");
+             int sum = calc.Sum(1, 2);
+             </code>
+             <remarks>
+             Note <see cref="M:CSScriptLib.IEvaluator.Eval(System.String)"/> compiles and executes the script in the current AppDoman.
+             All AppDomain loaded assemblies of the AppDomain being referenced from the script regardless of
+             <see cref="P:CSScriptLib.CSScript.EvaluatorConfig"></see> setting.
+             <para>During the script compilation, this method uses:
+             <para>
+             <c>CompileInfo.CodeKind=Microsoft.CodeAnalysis.SourceCodeKind.Script</c>.
+             </para>
+             This is the only option that supports script execution for applications published with
+             PublishSingleFile option.</para>
+             </remarks>
+             <para>This method is the only option that supports script execution for applications published with
+             PublishSingleFile option.</para>
+             </summary>
+             <param name="scriptText">The script text.</param>
+             <returns>
+             The object returned by the script.
+             </returns>
+             <exception cref="T:System.Exception">This method is only available for Roslyn evaluator.</exception>
+             <exception cref="T:System.InvalidOperationException">Script entry point method could be found.</exception>
+        </member>
+        <member name="M:CSScriptLib.RoslynEvaluator.Eval``1(System.String,CSScriptLib.CompileInfo)">
+            <summary>
+            Evals the specified script text.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="scriptText">The script text.</param>
+            <param name="info">The information.</param>
+            <returns></returns>
+            <exception cref="T:System.Exception">
+            This method is only available for Roslyn evaluator.
+            or
+            The parameter `{nameof(info)}.{nameof(info.CodeKind)}` must be set to `{nameof(SourceCodeKind.Script)}`.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">Script entry point method could be found.</exception>
+        </member>
+        <member name="M:CSScriptLib.RoslynEvaluator.Reset(System.Boolean)">
+            <summary>
+            Resets Evaluator.
+            <para>
+            Resetting means clearing all referenced assemblies, recreating evaluation infrastructure
+            (e.g. compiler setting) and reconnection to or recreation of the underlying compiling services.
+            </para>
+            <para>
+            Optionally the default current AppDomain assemblies can be referenced automatically with
+            <paramref name="referenceDomainAssemblies"/>.
+            </para>
+            </summary>
+            <param name="referenceDomainAssemblies">
+            if set to <c>true</c> the default assemblies of the current AppDomain will be referenced
+            (see <see
+            cref="M:CSScriptLib.EvaluatorBase`1.ReferenceDomainAssemblies(CSScriptLib.DomainAssemblies)"/> method).
+            </param>
+            <returns>The freshly initialized instance of the <see cref="T:CSScriptLib.IEvaluator"/>.</returns>
+        </member>
+        <member name="T:CSScriptLib.EvaluatorBase`1">
+            <summary>
+            A wrapper class that encapsulates the functionality of the Roslyn evaluator ( <see cref="N:Microsoft.CodeAnalysis.CSharp.Scripting"/>).
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.Clone(System.Boolean)">
+            <summary>
+            Clones itself as <see cref="T:CSScriptLib.IEvaluator"/>.
+            <para>
+            This method returns a freshly initialized copy of the <see
+            cref="T:CSScriptLib.IEvaluator"/>. The cloning 'depth' can be controlled by the <paramref name="copyRefAssemblies"/>.
+            </para>
+            <para>
+            This method is a convenient technique when multiple <see cref="T:CSScriptLib.IEvaluator"/>
+            instances are required (e.g. for concurrent script evaluation).
+            </para>
+            </summary>
+            <param name="copyRefAssemblies">
+            if set to <c>true</c> all referenced assemblies from the parent <see
+            cref="T:CSScriptLib.IEvaluator"/> will be referenced in the cloned copy.
+            </param>
+            <returns>The freshly initialized instance of the <see cref="T:CSScriptLib.IEvaluator"/>.</returns>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorBase`1.DebugBuild">
+            <summary>
+            Gets or sets a value indicating whether to compile script with debug symbols.
+            <para>
+            Note, setting <c>DebugBuild</c> will only affect the current instance of Evaluator. If
+            you want to emit debug symbols for all instances of Evaluator then use <see cref="P:CSScriptLib.CSScript.EvaluatorConfig"/>.DebugBuild.
+            </para>
+            </summary>
+            <value><c>true</c> if 'debug build'; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorBase`1.IsDebug">
+            <summary>
+            Gets a value indicating whether this instance is debug.
+            </summary>
+            <value><c>true</c> if this instance is debug; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:CSScriptLib.RoslynEvaluator"/> class.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.CompileCode(System.String)">
+             <summary>
+             Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s).
+             </summary>
+             <example>
+            <code>
+             Assembly asm = CSScript.RoslynEvaluator
+                                    .CompileCode(@"using System;
+                                                   public class Script
+                                                   {
+                                                       public int Sum(int a, int b)
+                                                       {
+                                                           return a+b;
+                                                       }
+                                                   }");
+            
+             dynamic script =  asm.CreateObject("*");
+             var result = script.Sum(7, 3);
+             </code>
+             </example>
+             <param name="scriptText">The C# script text.</param>
+             <returns>The compiled assembly.</returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.CompileCode(System.String,CSScriptLib.CompileInfo)">
+             <summary>
+             Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a
+             single or multiple class definition(s).
+             <para>
+             The method is identical to <see cref="M:CSScriptLib.IEvaluator.CompileCode(System.String,CSScriptLib.CompileInfo)"/>
+             except that it allows specifying the destination assembly file with <see
+             cref="T:CSScriptLib.CompileInfo"/> object.
+             </para>
+             </summary>
+             <example>
+             <code>
+             var info = new CompileInfo
+             {
+                 AssemblyFile = @"E:\temp\asm.dll"
+             };
+            
+             Assembly asm = CSScript.Evaluator
+                                    .Cast&lt;RoslynEvaluator&gt;()
+                                    .CompileCode(@"using System;
+                                                   public class Script
+                                                   {
+                                                       public int Sum(int a, int b)
+                                                       {
+                                                           return a+b;
+                                                       }
+                                                   }",
+                                                  info);
+            
+            dynamic script =  asm.CreateObject("*");
+            var result = script.Sum(7, 3);
+             </code>
+             </example>
+             <param name="scriptText">The C# script text.</param>
+             <param name="info"></param>
+             <returns>The compiled assembly.</returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.Validate(CSScriptLib.CompileInfo)">
+            <summary>
+            Validates the specified information.
+            </summary>
+            <param name="info">The information.</param>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorBase`1.IsAssemblyUnloadingEnabled">
+            <summary>
+            CS-Script assembly unloading functionality is implemented as a combination of loading
+            assembly into <see cref="T:System.Runtime.Loader.AssemblyLoadContext"/> that is marked as "IsCollectible" and
+            the <c>ReflectionExtensions</c>. <see
+            cref="M:CSScripting.AssemblyUnloadingExtensions.Unload(System.Reflection.Assembly)"/> extension method. Unloading is
+            only available on the runtimes that support it. Otherwise <see
+            cref="T:System.Runtime.Loader.AssemblyLoadContext"/> throws an exception on attempt to load the compiled script assembly.
+            <para>
+            <see cref="P:CSScriptLib.EvaluatorBase`1.IsAssemblyUnloadingEnabled"/> is designed to allow enabling/disabling of the
+            assembly unloading should you find that the limitations associated with this .NET Core
+            specific feature are not acceptable. E.g., collectible assemblies cannot be referenced
+            from other scripts or in fact any dynamically loaded assembly for that matter.
+            </para>
+            <para>
+            Due to the limitations (though minor) of the underlying .NET Core feature <see
+            cref="P:CSScriptLib.EvaluatorBase`1.IsAssemblyUnloadingEnabled"/> is set to <c>false</c> by default.
+            </para>
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorBase`1.IsCachingEnabled">
+             <summary>
+             This property controls script caching.
+             <para>Caching mechanism allows avoiding multiple compilation of the scripts that have been already compiled and has not changes
+             since then for the duration of the host process. This feature can dramatically improve the performance in the cases when you are executing
+             the same script again and again. Even though in such cases caching is not the greatest optimization that can be achieved.</para>
+             <para>Note that caching has some limitations. Thus the algorithm for checking if the script is changed since the last execution
+             is limited to verifying the script code (text) only. Thus it needs to be used with caution. </para>
+             <para>Script caching is disabled by default.</para>
+             </summary>
+             <example>The following is an example of caching the compilation.
+            <code>
+             dynamic printerScript = CSScript.Evaluator
+                                             .With(eval => eval.IsCachingEnabled = true)
+                                             .LoadFile(script_file);
+             printerScript.Print();
+             </code>
+             </example>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.GetReferencedAssemblies">
+            <summary>
+            Returns set of referenced assemblies.
+            <para>Notre: the set of assemblies is cleared on Reset.</para>
+            </summary>
+            <returns>The method result.</returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.GetReferencedAssembliesFiles">
+            <summary>
+            Gets the referenced assemblies files.
+            </summary>
+            <returns>The method result.</returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.CompileAssemblyFromFile(System.String,System.String)">
+             <summary>
+             Compiles C# file (script) into assembly file. The C# contains typical C# code containing
+             a single or multiple class definition(s).
+             </summary>
+             <param name="scriptFile">The C# script file.</param>
+             <param name="outputFile">The path to the assembly file to be compiled.</param>
+             <returns>The compiled assembly file path.</returns>
+             <example>
+             <code>
+            string asmFile = CSScript.Evaluator
+                                     .CompileAssemblyFromFile("MyScript.cs", "MyScript.dll");
+             </code>
+             </example>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.CompileAssemblyFromCode(System.String,System.String)">
+             <summary>
+             Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
+             </summary>
+             <example>
+            <code>
+             string asmFile = CSScript.Evaluator
+                                      .CompileAssemblyFromCode(
+                                             @"using System;
+                                               public class Script
+                                               {
+                                                   public int Sum(int a, int b)
+                                                   {
+                                                       return a+b;
+                                                   }
+                                               }",
+                                               "MyScript.dll");
+             </code>
+             </example>
+             <param name="scriptText">The C# script text.</param>
+             <param name="outputFile">The path to the assembly file to be compiled.</param>
+             <returns>The compiled assembly file path.</returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.Check(System.String)">
+             <summary>
+             Compiles the specified script text without loading it into the AppDomain or
+             writing to the file system.
+             </summary>
+             <example>
+            <code>
+             try
+             {
+                 CSScript.Evaluator
+                         .Check(@"using System;
+                                  public class Script
+                                  {
+                                      public int Sum(int a, int b)
+                                      {
+                                          error
+                                          return a+b;
+                                      }
+                                  }");
+             }
+             catch (Exception e)
+             {
+                 Console.WriteLine("Compile error: " + e.Message);
+             }
+             </code>
+             </example>
+             <param name="scriptText">The script text.</param>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.Compile(System.String,System.String,CSScriptLib.CompileInfo)">
+            <summary>
+            Compiles the specified script text.
+            </summary>
+            <param name="scriptText">The script text.</param>
+            <param name="scriptFile">The script file.</param>
+            <param name="info">The information.</param>
+            <returns>The method result.</returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.CompileMethod(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>) and evaluates it.
+             <para>
+             This method is a logical equivalent of <see cref="M:CSScriptLib.IEvaluator.CompileCode(System.String,CSScriptLib.CompileInfo)"/> but is allows you to define
+             your script class by specifying class method instead of whole class declaration.</para>
+             </summary>
+             <example>
+            <code>
+             dynamic script = CSScript.RoslynEvaluator
+                                      .CompileMethod(@"int Sum(int a, int b)
+                                                       {
+                                                           return a+b;
+                                                       }")
+                                      .CreateObject("*");
+            
+             var result = script.Sum(7, 3);
+             </code>
+             </example>
+             <param name="code">The C# code.</param>
+             <returns>The compiled assembly.</returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.CreateDelegate(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+             evaluates it and loads the class to the current AppDomain.
+             <para>
+             Returns non-typed <see cref="T:CSScriptLib.MethodDelegate"/> for class-less style of invoking.
+             </para>
+             </summary>
+             <example>
+             <code>
+            var log = CSScript.Evaluator
+            .CreateDelegate(@"void Log(string message)
+            {
+            Console.WriteLine(message);
+            }");
+            
+            log("Test message");
+             </code>
+             </example>
+             <param name="code">The C# code.</param>
+             <returns>The instance of a non-typed <see cref="T:CSScriptLib.MethodDelegate"/></returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.CreateDelegate``1(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+             evaluates it and loads the class to the current AppDomain.
+             <para>
+             Returns typed <see cref="T:CSScriptLib.MethodDelegate`1"/> for class-less style of invoking.
+             </para>
+             </summary>
+             <typeparam name="T">The delegate return type.</typeparam>
+             <example>
+             <code>
+            var product = CSScript.RoslynEvaluator
+            .CreateDelegate&lt;int&gt;(@"int Product(int a, int b)
+            {
+            return a * b;
+            }");
+            
+            int result = product(3, 2);
+             </code>
+             </example>
+             <param name="code">The C# code.</param>
+             <returns>The instance of a typed <see cref="T:CSScriptLib.MethodDelegate`1"/></returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.GetReferencedAssemblies(System.String,System.String[])">
+            <summary>
+            Analyses the script code and returns set of locations for the assemblies referenced from
+            the code with CS-Script directives (//css_ref).
+            </summary>
+            <param name="code">The script code.</param>
+            <param name="searchDirs">The assembly search/probing directories.</param>
+            <returns>Array of the referenced assemblies</returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.GetReferencedAssembliesFromScript(System.String,System.String[])">
+            <summary>
+            Analyses the script file code and returns set of locations for the assemblies referenced from
+            the code with CS-Script directives (//css_ref).
+            </summary>
+            <param name="scriptFile">The script file.</param>
+            <param name="searchDirs">The assembly search/probing directories.</param>
+            <returns>
+            Array of the referenced assemblies
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.LoadCode(System.String,System.Object[])">
+             <summary>
+             Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
+             </summary>
+             <example>The following is the simple example of the LoadCode usage:
+            <code>
+             dynamic script = CSScript.RoslynEvaluator
+                                      .LoadCode(@"using System;
+                                                  public class Script
+                                                  {
+                                                      public int Sum(int a, int b)
+                                                      {
+                                                          return a+b;
+                                                      }
+                                                  }");
+             int result = script.Sum(1, 2);
+             </code>
+             </example>
+             <param name="scriptText">The C# script text.</param>
+             <param name="args">The non default constructor arguments.</param>
+             <returns>Instance of the class defined in the script.</returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.LoadCode``1(System.String,System.Object[])">
+            <summary>
+            Evaluates and loads C# code to the current AppDomain. Returns instance of the first
+            class defined in the code.
+            </summary>
+            <typeparam name="T">
+            The type of the script class instance should be type casted to.
+            </typeparam>
+            <param name="scriptText">The C# script text.</param>
+            <param name="args">The non default type <c>T</c> constructor arguments.</param>
+            <returns>Aligned to the <c>T</c> interface instance of the class defined in the script.</returns>
+            <example>
+            The following is the simple example of the interface alignment:
+            <code>
+            public interface ICalc
+            {
+                int Sum(int a, int b);
+            }
+            ....
+            ICalc calc = CSScript.Evaluator
+                .LoadCode&lt;ICalc&gt;(@"using System;
+                      public class Script
+                      {
+                          public int Sum(int a, int b)
+                          {
+                              return a+b;
+                          }
+                      }");
+                      int result = calc.Sum(1, 2);
+            </code>
+            </example>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.LoadDelegate``1(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+             evaluates it and loads the class to the current AppDomain.
+             <para>
+             Returns instance of <c>T</c> delegate for the first method in the auto-generated class.
+             </para>
+             </summary>
+             <example>
+             <code>
+            var Product = CSScript.Evaluator
+            .LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
+            @"int Product(int a, int b)
+            {
+            return a * b;
+            }");
+            
+            int result = Product(3, 2);
+             </code>
+             </example>
+             <param name="code">The C# code.</param>
+             <returns>Instance of <c>T</c> delegate.</returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.LoadFile(System.String,System.Object[])">
+            <summary>
+            Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
+            class defined in the script file assembly.
+            <para>
+            Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+            In such cases you may prefer using <see cref="M:CSScriptLib.IEvaluator.CompileCode(System.String,CSScriptLib.CompileInfo)" /> or
+            <see cref="M:CSScriptLib.IEvaluator.CompileAssemblyFromCode(System.String,System.String)" /> instead.
+            </para>
+            </summary>
+            <param name="scriptFile">The C# script file.</param>
+            <param name="args">Optional non-default constructor arguments.</param>
+            <returns>
+            Instance of the class defined in the script file assembly.
+            </returns>
+            <example>The following is the simple example of the interface alignment:
+            <code>
+            dynamic script = CSScript.Evaluator.LoadFile("calc.cs");
+            int result = script.Sum(1, 2);
+            </code></example>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.LoadFile``1(System.String,System.Object[])">
+            <summary>
+            Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
+            class defined in the script file assembly.
+            <para>
+            After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
+            <para><c>Note:</c> the script class does not have to inherit from the <c>T</c> parameter as the proxy type
+            will be generated anyway.</para></para><para>
+            Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+            In such cases you may prefer using <see cref="M:CSScriptLib.IEvaluator.CompileCode(System.String,CSScriptLib.CompileInfo)" /> or
+            <see cref="M:CSScriptLib.IEvaluator.CompileAssemblyFromCode(System.String,System.String)" /> instead.
+            </para>
+            </summary>
+            <typeparam name="T">The type of the interface type the script class instance should be aligned to.</typeparam>
+            <param name="scriptFile">The C# script text.</param>
+            <param name="args">Optional non-default constructor arguments.</param>
+            <returns>
+            Aligned to the <c>T</c> interface instance of the class defined in the script file assembly.
+            </returns>
+            <example>The following is the simple example of the interface alignment:
+            <code>
+             public interface ICalc
+             {
+                int Sum(int a, int b);
+             }
+             ....
+             ICalc calc = CSScript.Evaluator
+                                  .LoadFile&lt;ICalc&gt;("calc.cs");
+             int result = calc.Sum(1, 2);
+            </code></example>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.LoadMethod(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+             evaluates it and loads the class to the current AppDomain.
+             </summary>
+             <example>
+             The following is the simple example of the LoadMethod usage:
+             <code>
+            dynamic script = CSScript.RoslynEvaluator
+            .LoadMethod(@"int Product(int a, int b)
+            {
+            return a * b;
+            }");
+            
+            int result = script.Product(3, 2);
+             </code>
+             </example>
+             <param name="code">The C# script text.</param>
+             <returns>Instance of the first class defined in the script.</returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.LoadMethod``1(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+             evaluates it and loads the class to the current AppDomain.
+             <para>
+             After initializing the class instance it is aligned to the interface specified by the
+             parameter <c>T</c>.
+             </para>
+             </summary>
+             <example>
+             The following is the simple example of the interface alignment:
+             <code>
+            public interface ICalc
+            {
+            int Sum(int a, int b);
+            int Div(int a, int b);
+            }
+            ....
+            ICalc script = CSScript.RoslynEvaluator
+            .LoadMethod&lt;ICalc&gt;(@"public int Sum(int a, int b)
+            {
+            return a + b;
+            }
+            public int Div(int a, int b)
+            {
+            return a/b;
+            }");
+            int result = script.Div(15, 3);
+             </code>
+             </example>
+             <typeparam name="T">
+             The type of the interface type the script class instance should be aligned to.
+             </typeparam>
+             <param name="code">The C# script text.</param>
+             <returns>
+             Aligned to the <c>T</c> interface instance of the auto-generated class defined in the script.
+             </returns>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorBase`1.DisableReferencingFromCode">
+            <summary>
+            Gets or sets the flag indicating if the script code should be analyzed and the
+            assemblies that the script depend on (via '//css_...' and 'using ...' directives) should
+            be referenced.
+            </summary>
+            <value></value>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.ReferenceAssembliesFromCode(System.String,System.String[])">
+            <summary>
+            References the assemblies from the script code.
+            <para>
+            The method analyses and tries to resolve CS-Script directives (e.g. '//css_ref') and
+            'used' namespaces based on the optional search directories.
+            </para>
+            </summary>
+            <param name="code">The script code.</param>
+            <param name="searchDirs">The assembly search/probing directories.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.ReferenceAssembly(System.String)">
+            <summary>
+            References the given assembly by the assembly path.
+            <para>
+            It is safe to call this method multiple times for the same assembly. If the assembly
+            already referenced it will not be referenced again.
+            </para>
+            </summary>
+            <param name="assembly">The path to the assembly file.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorBase`1.EngineName">
+            <summary>
+            Gets the name of the engine (e.g. 'csc' or 'dotnet').
+            </summary>
+            <value>The name of the engine.</value>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.ReferenceAssembly(System.Reflection.Assembly)">
+            <summary>
+            References the given assembly.
+            <para>
+            It is safe to call this method multiple times for the same assembly. If the assembly
+            already referenced it will not be referenced again.
+            </para>
+            </summary>
+            <param name="assembly">The assembly instance.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.ReferenceAssemblyByName(System.String[])">
+            <summary>
+            References the name of the assembly by its partial name.
+            <para>
+            Note that the referenced assembly will be loaded into the host AppDomain in order to
+            resolve assembly partial name.
+            </para>
+            <para>It is an equivalent of <c>Evaluator.ReferenceAssembly(Assembly.Load(assemblyPartialName))</c></para>
+            </summary>
+            <param name="assemblyName">Name of the assembly.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.TryReferenceAssemblyByNamespace(System.String,System.Boolean@)">
+            <summary>
+            References the assembly by the given namespace it implements.
+            </summary>
+            <param name="namespace">The namespace.</param>
+            <param name="resolved">
+            Set to <c>true</c> if the namespace was successfully resolved (found) and the reference
+            was added; otherwise, <c>false</c>.
+            </param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.ReferenceAssemblyByNamespace(System.String)">
+            <summary>
+            References the assembly by the given namespace it implements.
+            <para>
+            Adds assembly reference if the namespace was successfully resolved (found) and,
+            otherwise does nothing
+            </para>
+            </summary>
+            <param name="namespace">The namespace.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="F:CSScriptLib.EvaluatorBase`1.FilterAssemblies">
+            <summary>
+            The filter assemblies
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.SetRefAssemblyFilter(System.Func{System.Collections.Generic.IEnumerable{System.Reflection.Assembly},System.Collections.Generic.IEnumerable{System.Reflection.Assembly}})">
+             <summary>
+             Sets the filter for referenced assemblies. The filter is to be applied just before the
+             assemblies are to be referenced during the script execution.
+             <code>
+            dynamic script = CSScript.Evaluator
+            .SetRefAssemblyFilter(asms =&gt;
+            asms.Where(a =&gt; !a.FullName.StartsWith("Microsoft."))
+            .LoadCode(scriptCode);
+             </code>
+             </summary>
+             <param name="filter">The filter.</param>
+             <returns></returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.ReferenceAssemblyOf(System.Object)">
+            <summary>
+            References the assembly by the object, which belongs to this assembly.
+            <para>
+            It is safe to call this method multiple times for the same assembly. If the assembly
+            already referenced it will not be referenced again.
+            </para>
+            </summary>
+            <param name="obj">The object, which belongs to the assembly to be referenced.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.ReferenceAssemblyOf``1">
+            <summary>
+            References the assembly by the object, which belongs to this assembly.
+            <para>
+            It is safe to call this method multiple times for the same assembly. If the assembly
+            already referenced it will not be referenced again.
+            </para>
+            </summary>
+            <typeparam name="T">The type which is implemented in the assembly to be referenced.</typeparam>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.ReferenceDomainAssemblies(CSScriptLib.DomainAssemblies)">
+            <summary>
+            References the assemblies the are already loaded into the current <c>AppDomain</c>.
+            </summary>
+            <param name="assemblies">The type of assemblies to be referenced.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.Reset(System.Boolean)">
+            <summary>
+            Resets Evaluator.
+            <para>
+            Resetting means clearing all referenced assemblies, recreating evaluation infrastructure
+            (e.g. compiler setting) and reconnection to or recreation of the underlying compiling services.
+            </para>
+            <para>
+            Optionally the default current AppDomain assemblies can be referenced automatically with
+            <paramref name="referenceDomainAssemblies"/>.
+            </para>
+            </summary>
+            <param name="referenceDomainAssemblies">
+            if set to <c>true</c> the default assemblies of the current AppDomain will be referenced
+            (see <see cref="M:CSScriptLib.EvaluatorBase`1.ReferenceDomainAssemblies(CSScriptLib.DomainAssemblies)"/> method).
+            </param>
+            <returns>The freshly initialized instance of the <see cref="T:CSScriptLib.IEvaluator"/>.</returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.CompileAssemblyFromFile(System.String,CSScriptLib.CompileInfo)">
+            <summary>
+            Compiles C# file (script) into assembly file according the compiling context
+            specified in the <see cref="T:CSScriptLib.CompileInfo" /> argument.
+            <para>Note, <see cref="P:CSScriptLib.CompileInfo.PreferLoadingFromFile" /> value will be ignored since the
+            script engine will only build the assembly without loading it.</para>
+            </summary>
+            <param name="scriptFile">The C# script file.</param>
+            <param name="info">The information about compilation context (e.g. location of the compiler output -
+            assembly and pdb file).</param>
+            <returns>
+            The compiled assembly file path.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorBase`1.Eval(System.String)">
+            <summary>
+            Evaluates (executes) the specified script text, which is a top-level C# code.
+            <para>It is the most direct equivalent of "eval" available in dynamic languages. This method is only
+            available for Roslyn evaluator.</para>
+            You can evaluate simple expressions:
+            <code>
+            var result = CSScript.Evaluator.Eval("1 + 2");
+            </code>
+            Or it can be a complex script, which defines its own types:
+            <code>
+            var calc = CSScript.Evaluator
+                               .Eval(@"using System;
+                                       public class Script
+                                       {
+                                           public int Sum(int a, int b)
+                                           {
+                                               return a+b;
+                                           }
+                                       }
+                                       return new Script();");
+            int sum = calc.Sum(1, 2);
+            </code>
+            <remarks>
+            Note <see cref="M:CSScriptLib.IEvaluator.Eval(System.String)"/> compiles and executes the script in the current AppDoman.
+            All AppDomain loaded assemblies of the AppDomain being referenced from the script regardless of
+            <see cref="P:CSScriptLib.CSScript.EvaluatorConfig"></see> setting.
+            <para>During the script compilation, this method uses:
+            <para>
+            <c>CompileInfo.CodeKind=Microsoft.CodeAnalysis.SourceCodeKind.Script</c>.
+            </para>
+            This is the only option that supports script execution for applications published with
+            PublishSingleFile option.</para>
+            </remarks>
+            </summary>
+            <param name="scriptText">The script text.</param>
+            <returns>
+            The object returned by the script.
+            </returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="T:CSScriptLib.MethodDelegate">
+             <summary>
+             Delegate which is used as a return type for AsmHelper.GetMethodInvoker().
+            
+             AsmHelper.GetStaticMethod() and AsmHelper.GetMethod() allow obtaining dynamic method
+             delegate emitted on the base of the MethodInfo (from the compiled script type).
+             </summary>
+             <param name="paramters">Optional method parameters.</param>
+             <returns>Returns MethodInfo return value</returns>
+        </member>
+        <member name="T:CSScriptLib.MethodDelegate`1">
+             <summary>
+             Delegate which is used as a return type for AsmHelper.GetMethodInvoker().
+            
+             AsmHelper.GetStaticMethod() and AsmHelper.GetMethod() allow obtaining dynamic method
+             delegate emitted on the base of the MethodInfo (from the compiled script type).
+             </summary>
+             <typeparam name="T">The delegate return type.</typeparam>
+             <param name="paramters">Optional method parameters.</param>
+             <returns>Returns MethodInfo return value</returns>
+        </member>
+        <member name="T:CSScriptLib.ExpandStatementDelegate">
+            <summary>
+            Delegate implementing cs script statement expansion.
+            </summary>
+            <param name="text">The text to expand.</param>
+            <returns>Returns a string with each statement variable replaced by its value.</returns>
+        </member>
+        <member name="T:CSScriptLib.DomainAssemblies">
+            <summary>
+            Type of the assemblies to be loaded/referenced.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.DomainAssemblies.None">
+            <summary>
+            No assemblies
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.DomainAssemblies.AllStatic">
+            <summary>
+            All static current AppDomain assemblies
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.DomainAssemblies.AllStaticNonGAC">
+            <summary>
+            All static and non-GAC current AppDomain assemblies
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.DomainAssemblies.All">
+            <summary>
+            All current AppDomain assemblies
+            </summary>
+        </member>
+        <member name="T:CSScriptLib.EvaluatorEngine">
+            <summary>
+            Type of the evaluator engine.
+            <para>
+            This enum is used to control type of compiler the generic CSScript. <see
+            cref="P:CSScriptLib.CSScript.Evaluator"/> encapsulates.
+            </para>
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.EvaluatorEngine.Roslyn">
+            <summary>
+            Roslyn compilation services
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.EvaluatorEngine.CodeDom">
+            <summary>
+            CodeDom compilation infrastructure
+            </summary>
+        </member>
+        <member name="T:CSScriptLib.EvaluatorAccess">
+            <summary>
+            Runtime instantiation model for CS-Script evaluators (e.g CSScript. <see cref="P:CSScriptLib.CSScript.Evaluator"/>).
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.EvaluatorAccess.Singleton">
+            <summary>
+            Every time the member variable is accessed the same static object is returned.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.EvaluatorAccess.AlwaysCreate">
+            <summary>
+            Every time the member variable is accessed a new object is created.
+            </summary>
+        </member>
+        <member name="T:CSScriptLib.EvaluatorConfig">
+            <summary>
+            Class that contains configuration options for controlling dynamic code evaluation with
+            CSScript. <see cref="P:CSScriptLib.CSScript.Evaluator"/>.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorConfig.Access">
+            <summary>
+            Gets or sets the default access type for CS-Script evaluators.
+            <para>
+            This property controls the how the generic CS-Script evaluators are instantiated when
+            accessed (e.g. CSScript. <see cref="P:CSScriptLib.CSScript.Evaluator"/> or ).
+            </para>
+            </summary>
+            <value>The access.</value>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorConfig.DebugBuild">
+             <summary>
+             Default value of the <see cref="T:CSScriptLib.IEvaluator"/>. DebugBuild property
+             controlling the generation of the debug symbols.
+             <para>In case of <see cref="T:CSScriptLib.CodeDomEvaluator"/> evaluator setting this property to <c>true</c>
+             will also set conditional compiling symbol `DEBUG`.</para><example>
+             <code>
+            CSScript.EvaluatorConfig.DebugBuild = true;
+            dynamic script = CSScript.Evaluator
+            .LoadMethod(...
+             </code>
+             </example>
+             </summary>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorConfig.CompilerOptions">
+            <summary>
+            Gets or sets the compiler options. Since out of two supported compilers (for hosting scenarios) only CodeDom engine (csc.exe)
+            supports options effectively this property is a user specified string of CLI arguments for `csc.exe`.
+            <para>If you want to specify compiler options per script execution then you can use <see cref="P:CSScriptLib.CompileInfo.CompilerOptions"/>.</para>
+            </summary>
+            <value>
+            The compiler options.
+            </value>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorConfig.PdbFormat">
+            <summary>
+            Gets or sets the PDB format. This property is only used if <see cref="P:CSScriptLib.EvaluatorConfig.DebugBuild"/> is set to <c>true</c>.
+            </summary>
+            <value>
+            The PDB format.
+            </value>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorConfig.RefernceDomainAsemblies">
+            <summary>
+            Flag that controls if the host AppDo,main referenced assemblies are automatically
+            referenced at creation of <see cref="T:CSScriptLib.IEvaluator"/>.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorConfig.ReferenceDomainAssemblies">
+            <summary>
+            Flag that controls if the host AppDomain referenced assemblies are automatically
+            referenced at creation of <see cref="T:CSScriptLib.IEvaluator"/>.
+            <para>Note, the assemblies are getting referenced with an automatic call
+            <see cref="M:CSScriptLib.IEvaluator.ReferenceDomainAssemblies(CSScriptLib.DomainAssemblies)"/> with the default argument.
+            This may not be consistent with your intend. If it is the case then it is recommended that you call
+            <see cref="M:CSScriptLib.IEvaluator.ReferenceDomainAssemblies(CSScriptLib.DomainAssemblies)"/> with the desired argument explicitly.</para>
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorConfig.Engine">
+            <summary>
+            Gets or sets the default evaluator engine type.
+            <para>
+            This property controls the type of compiler the generic CSScript. <see
+            cref="P:CSScriptLib.CSScript.Evaluator"/> encapsulates.
+            </para>
+            </summary>
+            <value>The default evaluator engine.</value>
+        </member>
+        <member name="P:CSScriptLib.EvaluatorConfig.ExpandStatementAlgorithm">
+            <summary>
+            Defines a custom algorithm how to expand script code. The default implementation
+            calls <see cref="M:System.Environment.ExpandEnvironmentVariables(System.String)"/> but a host application
+            might define a more complex algorithm.
+            </summary>
+            <example>
+            <code>
+            </code>
+            </example>
+        </member>
+        <member name="T:CSScriptLib.IEvaluator">
+            <summary>
+            A generic interface of the CS-Script evaluator. It encapsulates the generic functionality of
+            the evaluator regardless of the nature of the underlying compiling services (e.g. Mono,
+            Roslyn, CodeDom).
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.IEvaluator.DebugBuild">
+            <summary>
+            Gets or sets a value indicating whether to compile script with debug symbols.
+            <para>
+            Note, setting <c>DebugBuild</c> will only affect the current instance of Evaluator. If
+            you want to emit debug symbols for all instances of Evaluator then use <see cref="P:CSScriptLib.CSScript.EvaluatorConfig"/>.DebugBuild.
+            </para>
+            </summary>
+            <value><c>true</c> if 'debug build'; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:CSScriptLib.IEvaluator.IsAssemblyUnloadingEnabled">
+            <summary>
+            CS-Script assembly unloading functionality is implemented as a combination of loading
+            assembly into <see cref="T:System.Runtime.Loader.AssemblyLoadContext"/> that is marked as
+            "IsCollectible" and the <c>ReflectionExtensions</c>. <see
+            cref="M:CSScripting.AssemblyUnloadingExtensions.Unload(System.Reflection.Assembly)"/> extension method.
+            Unloading is only available on the runtimes that support it. Otherwise <see
+            cref="T:System.Runtime.Loader.AssemblyLoadContext"/> throws an exception on attempt to
+            load the compiled script assembly.
+            <para>
+            <see cref="P:CSScriptLib.IEvaluator.IsAssemblyUnloadingEnabled"/> is designed to allow enabling/disabling of the
+            assembly unloading should you find that the limitations associated with this .NET Core
+            specific feature are not acceptable. E.g., collectible assemblies cannot be referenced
+            from other scripts or in fact any dynamically loaded assembly for that matter.
+            </para>
+            <para>
+            Note, using 'dynamic` completely breaks CLR unloading mechanism. Most likely it triggers
+            an accidental referencing of the assembly or <see
+            cref="T:System.Runtime.Loader.AssemblyLoadContext"/>. Meaning that if you are planing to
+            use assembly unloading you need to use interface based scripting. See `Test_Unloading`
+            (https://github.com/oleg-shilo/cs-script/blob/master/src/CSScriptLib/src/Client.NET-Core/Program.cs)
+            sample for details.
+            </para>
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.IEvaluator.IsCachingEnabled">
+             <summary>
+             This property controls script caching.
+             <para>Caching mechanism allows avoiding multiple compilation of the scripts that have been already compiled and has not changes
+             since then for the duration of the host process. This feature can dramatically improve the performance in the cases when you are executing
+             the same script again and again. Even though in such cases caching is not the greatest optimization that can be achieved.</para>
+             <para>Note that caching has some limitations. Thus the algorithm for checking if the script is changed since the last execution
+             is limited to verifying the script code (text) only. Thus it needs to be used with caution. </para>
+             <para>Script caching is disabled by default.</para>
+             </summary>
+             <example>The following is an example of caching the compilation.
+            <code>
+             dynamic printerScript = CSScript.Evaluator
+                                             .With(eval => eval.IsCachingEnabled = true)
+                                             .LoadFile(script_file);
+             printerScript.Print();
+             </code>
+             </example>
+        </member>
+        <member name="P:CSScriptLib.IEvaluator.DisableReferencingFromCode">
+            <summary>
+            Gets or sets the flag indicating if the script code should be analyzed and the
+            assemblies that the script depend on (via '//css_...' and 'using ...' directives) should
+            be referenced.
+            </summary>
+            <value></value>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.CompileCode(System.String,CSScriptLib.CompileInfo)">
+             <summary>
+             Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s).
+             </summary>
+             <example>
+            <code>
+             Assembly asm = CSScript.Evaluator
+                                    .CompileCode(@"using System;
+                                                   public class Script
+                                                   {
+                                                       public int Sum(int a, int b)
+                                                       {
+                                                           return a+b;
+                                                       }
+                                                   }");
+            
+             dynamic script =  asm.CreateObject("*");
+             var result = script.Sum(7, 3);
+             </code>
+             </example>
+             <param name="scriptText">The C# script text.</param>
+             <param name="info">The information about compilation context (e.g. location of the compiler output -
+             assembly and pdb file).</param>
+             <returns>The compiled assembly.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.Check(System.String)">
+             <summary>
+             Compiles the specified script text without loading it into the AppDomain or
+             writing to the file system.
+             </summary>
+             <example>
+            <code>
+             try
+             {
+                 CSScript.Evaluator
+                         .Check(@"using System;
+                                  public class Script
+                                  {
+                                      public int Sum(int a, int b)
+                                      {
+                                          error
+                                          return a+b;
+                                      }
+                                  }");
+             }
+             catch (Exception e)
+             {
+                 Console.WriteLine("Compile error: " + e.Message);
+             }
+             </code>
+             </example>
+             <param name="scriptText">The script text.</param>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.CompileAssemblyFromCode(System.String,System.String)">
+             <summary>
+             Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
+             </summary>
+             <example>
+            <code>
+             string asmFile = CSScript.Evaluator
+                                      .CompileAssemblyFromCode(
+                                             @"using System;
+                                               public class Script
+                                               {
+                                                   public int Sum(int a, int b)
+                                                   {
+                                                       return a+b;
+                                                   }
+                                               }",
+                                               "MyScript.dll");
+             </code>
+             </example>
+             <param name="scriptText">The C# script text.</param>
+             <param name="outputFile">The path to the assembly file to be compiled.</param>
+             <returns>The compiled assembly file path.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.CompileAssemblyFromFile(System.String,System.String)">
+             <summary>
+             Compiles C# file (script) into assembly file. The C# contains typical C# code containing a single or multiple class definition(s).
+             </summary>
+             <example>
+            <code>
+             string asmFile = CSScript.Evaluator
+                                      .CompileAssemblyFromFile(
+                                             "MyScript.cs",
+                                             "MyScript.dll");
+             </code>
+             </example>
+             <param name="scriptFile">The C# script file.</param>
+             <param name="outputFile">The path to the assembly file to be compiled.</param>
+             <returns>The compiled assembly file path.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.CompileAssemblyFromFile(System.String,CSScriptLib.CompileInfo)">
+            <summary>
+            Compiles C# file (script) into assembly file according the compiling context
+            specified in the <see cref="T:CSScriptLib.CompileInfo"/> argument.
+            <para>Note, <see cref="P:CSScriptLib.CompileInfo.PreferLoadingFromFile"/> value will be ignored since the
+            script engine will only build the assembly without loading it.</para>
+            </summary>
+            <param name="scriptFile">The C# script file.</param>
+            <param name="info">The information about compilation context (e.g. location of the compiler output -
+            assembly and pdb file).</param>
+            <returns>The compiled assembly file path.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.CompileMethod(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>) and evaluates it.
+             <para>
+             This method is a logical equivalent of <see cref="M:CSScriptLib.IEvaluator.CompileCode(System.String,CSScriptLib.CompileInfo)"/> but is allows you to define
+             your script class by specifying class method instead of whole class declaration.</para>
+             </summary>
+             <example>
+            <code>
+             dynamic script = CSScript.Evaluator
+                                      .CompileMethod(@"int Sum(int a, int b)
+                                                     {
+                                                         return a+b;
+                                                     }")
+                                      .CreateObject("*");
+            
+             var result = script.Sum(7, 3);
+             </code>
+             </example>
+             <param name="code">The C# code.</param>
+             <returns>The compiled assembly.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.SetRefAssemblyFilter(System.Func{System.Collections.Generic.IEnumerable{System.Reflection.Assembly},System.Collections.Generic.IEnumerable{System.Reflection.Assembly}})">
+             <summary>
+             Sets the filter for referenced assemblies. The filter is to be applied just before the
+             assemblies are to be referenced during the script execution.
+             <code>
+            dynamic script = CSScript.Evaluator
+            .SetRefAssemblyFilter(asms =&gt;
+            asms.Where(a =&gt; !a.FullName.StartsWith("Microsoft."))
+            .LoadCode(scriptCode);
+             </code>
+             </summary>
+             <param name="filter">The filter.</param>
+             <returns></returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.CreateDelegate(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+             evaluates it and loads the class to the current AppDomain.
+             <para>
+             Returns non-typed <see cref="T:CSScriptLib.MethodDelegate"/> for class-less style of invoking.
+             </para>
+             </summary>
+             <example>
+             <code>
+            var log = CSScript.Evaluator
+            .CreateDelegate(@"void Log(string message)
+            {
+            Console.WriteLine(message);
+            }");
+            
+            log("Test message");
+             </code>
+             </example>
+             <param name="code">The C# code.</param>
+             <returns>The instance of a 'duck typed' <see cref="T:CSScriptLib.MethodDelegate"/></returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.CreateDelegate``1(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+             evaluates it and loads the class to the current AppDomain.
+             <para>
+             Returns typed <see cref="T:CSScriptLib.MethodDelegate`1"/> for class-less style of invoking.
+             </para>
+             </summary>
+             <typeparam name="T">The delegate return type.</typeparam>
+             <example>
+             <code>
+            var product = CSScript.Evaluator
+            .CreateDelegate&lt;int&gt;(@"int Product(int a, int b)
+            {
+            return a * b;
+            }");
+            
+            int result = product(3, 2);
+             </code>
+             </example>
+             <param name="code">The C# code.</param>
+             <returns>The instance of a typed <see cref="T:CSScriptLib.MethodDelegate`1"/></returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.GetReferencedAssemblies(System.String,System.String[])">
+            <summary>
+            Analyses the script code and returns set of locations for the assemblies referenced from
+            the code with CS-Script directives (//css_ref).
+            </summary>
+            <param name="code">The script code.</param>
+            <param name="searchDirs">The assembly search/probing directories.</param>
+            <returns>Array of the referenced assemblies</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.GetReferencedAssemblies">
+            <summary>
+            Returns set of referenced assemblies.
+            <para>Notre: the set of assemblies is cleared on Reset.</para>
+            </summary>
+            <returns>The method result.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.LoadCode(System.String,System.Object[])">
+             <summary>
+             Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
+             </summary>
+             <example>The following is the simple example of the LoadCode usage:
+            <code>
+             dynamic script = CSScript.Evaluator
+                                      .LoadCode(@"using System;
+                                                  public class Script
+                                                  {
+                                                      public int Sum(int a, int b)
+                                                      {
+                                                          return a+b;
+                                                      }
+                                                  }");
+             int result = script.Sum(1, 2);
+             </code>
+             </example>
+             <param name="scriptText">The C# script text.</param>
+             <param name="args">The non default constructor arguments.</param>
+             <returns>Instance of the class defined in the script.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.LoadCode``1(System.String,System.Object[])">
+             <summary>
+             Evaluates and loads C# code to the current AppDomain. Returns instance of the first class defined in the code.
+             </summary>
+             <example>The following is the simple example of the interface alignment:
+            <code>
+             public interface ICalc
+             {
+                 int Sum(int a, int b);
+             }
+             ....
+             ICalc calc = CSScript.Evaluator
+                                  .LoadCode&lt;ICalc&gt;(@"using System;
+                                                     public class Script
+                                                     {
+                                                         public int Sum(int a, int b)
+                                                         {
+                                                             return a+b;
+                                                         }
+                                                     }");
+             int result = calc.Sum(1, 2);
+             </code>
+             </example>
+             <typeparam name="T">The type of the script class instance should be type casted to.</typeparam>
+             <param name="scriptText">The C# script text.</param>
+             <param name="args">The non default type <c>T</c> constructor arguments.</param>
+             <returns>Type-casted to the <c>T</c> interface instance of the class defined in the script.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.Eval(System.String)">
+             <summary>
+             Evaluates (executes) the specified script text, which is a top-level C# code.
+             <para>It is the most direct equivalent of "eval" available in dynamic languages. This method is only
+             available for Roslyn evaluator.</para>
+             You can evaluate simple expressions:
+             <code>
+             var result = CSScript.Evaluator.Eval("1 + 2");
+             </code>
+             Or it can be a complex script, which defines its own types:
+             <code>
+             var calc = CSScript.Evaluator
+                                .Eval(@"using System;
+                                        public class Script
+                                        {
+                                            public int Sum(int a, int b)
+                                            {
+                                                return a+b;
+                                            }
+                                        }
+            
+                                        return new Script();");
+            
+             int sum = calc.Sum(1, 2);
+             </code>
+             <remarks>
+             Note <see cref="M:CSScriptLib.IEvaluator.Eval(System.String)"/> compiles and executes the script in the current AppDoman.
+             All AppDomain loaded assemblies of the AppDomain being referenced from the script regardless of
+             <see cref="P:CSScriptLib.CSScript.EvaluatorConfig"></see> setting.
+             <para>During the script compilation, this method uses:
+             <para>
+             <c>CompileInfo.CodeKind=Microsoft.CodeAnalysis.SourceCodeKind.Script</c>.
+             </para>
+             This is the only option that supports script execution for applications published with
+             PublishSingleFile option.</para>
+             </remarks>
+             </summary>
+             <param name="scriptText">The script text.</param>
+             <returns>The object returned by the script.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.LoadDelegate``1(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+             evaluates it and loads the class to the current AppDomain.
+             <para>
+             Returns instance of <c>T</c> delegate for the first method in the auto-generated class.
+             </para>
+             </summary>
+             <example>
+             <code>
+            var Product = CSScript.Evaluator
+            .LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
+            @"int Product(int a, int b)
+            {
+            return a * b;
+            }");
+            
+            int result = Product(3, 2);
+             </code>
+             </example>
+             <param name="code">The C# code.</param>
+             <returns>Instance of <c>T</c> delegate.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.LoadFile(System.String,System.Object[])">
+             <summary>
+             Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
+             class defined in the script file assembly.
+             <para>
+             Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+             In such cases you may prefer using <see cref="M:CSScriptLib.IEvaluator.CompileCode(System.String,CSScriptLib.CompileInfo)"/> or
+             <see cref="M:CSScriptLib.IEvaluator.CompileAssemblyFromCode(System.String,System.String)"/> instead.
+             </para>
+             </summary>
+             <example>The following is the simple example of the interface alignment:
+            <code>
+             dynamic script = CSScript.Evaluator
+                                      .LoadFile("calc.cs");
+            
+             int result = script.Sum(1, 2);
+             </code>
+             </example>
+             <param name="scriptFile">The C# script file.</param>
+             <param name="args">Optional non-default constructor arguments.</param>
+             <returns>Instance of the class defined in the script file assembly.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.LoadFile``1(System.String,System.Object[])">
+             <summary>
+             Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
+             class defined in the script file assembly.
+             <para>
+             After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
+             <para><c>Note:</c> the script class does not have to inherit from the <c>T</c> parameter as the proxy type
+             will be generated anyway.</para>
+             </para>
+             <para>
+             Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+             In such cases you may prefer using <see cref="M:CSScriptLib.IEvaluator.CompileCode(System.String,CSScriptLib.CompileInfo)"/> or
+             <see cref="M:CSScriptLib.IEvaluator.CompileAssemblyFromCode(System.String,System.String)"/> instead.
+             </para>
+             </summary>
+             <example>The following is the simple example of the interface alignment:
+            <code>
+             public interface ICalc
+             {
+                 int Sum(int a, int b);
+             }
+             ....
+             ICalc calc = CSScript.Evaluator
+                                  .LoadFile&lt;ICalc&gt;("calc.cs");
+            
+             int result = calc.Sum(1, 2);
+             </code>
+             </example>
+             <typeparam name="T">The type of the interface type the script class instance should be aligned to.</typeparam>
+             <param name="scriptFile">The C# script text.</param>
+             <param name="args">Optional non-default constructor arguments.</param>
+             <returns>Aligned to the <c>T</c> interface instance of the class defined in the script file assembly.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.LoadMethod(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+             evaluates it and loads the class to the current AppDomain.
+             </summary>
+             <example>
+             The following is the simple example of the LoadMethod usage:
+             <code>
+             dynamic script = CSScript.Evaluator
+                                      .LoadMethod(@"int Product(int a, int b)
+                                                    {
+                                                        return a * b;
+                                                    }");
+            
+             int result = script.Product(3, 2);
+             </code>
+             </example>
+             <param name="code">The C# script text.</param>
+             <returns>Instance of the first class defined in the script assembly.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.LoadMethod``1(System.String)">
+             <summary>
+             Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
+             evaluates it and loads the class to the current AppDomain.
+             <para>
+             After initializing the class instance it is aligned to the interface specified by the
+             parameter <c>T</c>.
+             </para>
+             </summary>
+             <example>
+             The following is the simple example of the interface alignment:
+             <code>
+             public interface ICalc
+             {
+                 int Sum(int a, int b);
+                 int Div(int a, int b);
+             }
+            ....
+            ICalc script = CSScript.Evaluator
+                                   .LoadMethod&lt;ICalc&gt;(@"public int Sum(int a, int b)
+                                                        {
+                                                            return a + b;
+                                                        }
+             public int Div(int a, int b)
+             {
+                 return a/b;
+             }");
+            
+             int result = script.Div(15, 3);
+             </code>
+             </example>
+             <typeparam name="T">
+             The type of the interface type the script class instance should be aligned to.
+             </typeparam>
+             <param name="code">The C# script text.</param>
+             <returns>
+             Aligned to the <c>T</c> interface instance of the auto-generated class defined in the script.
+             </returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.ReferenceAssembliesFromCode(System.String,System.String[])">
+            <summary>
+            References the assemblies from the script code.
+            <para>
+            The method analyses and tries to resolve CS-Script directives (e.g. '//css_ref') and
+            'used' namespaces based on the optional search directories.
+            </para>
+            </summary>
+            <param name="code">The script code.</param>
+            <param name="searchDirs">The assembly search/probing directories.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.ReferenceAssembly(System.String)">
+            <summary>
+            References the given assembly by the assembly path.
+            <para>
+            It is safe to call this method multiple times for the same assembly. If the assembly
+            already referenced it will not be referenced again.
+            </para>
+            </summary>
+            <param name="assembly">The path to the assembly file.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.ReferenceAssembly(System.Reflection.Assembly)">
+            <summary>
+            References the given assembly.
+            <para>
+            It is safe to call this method multiple times for the same assembly. If the assembly
+            already referenced it will not be referenced again.
+            </para>
+            </summary>
+            <param name="assembly">The assembly instance.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.ReferenceAssemblyByName(System.String[])">
+            <summary>
+            References the name of the assembly by its partial name.
+            <para>
+            Note that the referenced assembly will be loaded into the host AppDomain in order to
+            resolve assembly partial name.
+            </para>
+            <para>It is an equivalent of <c>Evaluator.ReferenceAssembly(Assembly.LoadWithPartialName(assemblyPartialName))</c></para>
+            </summary>
+            <param name="assemblyPartialName">Partial name of the assembly.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.TryReferenceAssemblyByNamespace(System.String,System.Boolean@)">
+            <summary>
+            References the assembly by the given namespace it implements.
+            </summary>
+            <param name="namespace">The namespace.</param>
+            <param name="resolved">
+            Set to <c>true</c> if the namespace was successfully resolved (found) and the reference
+            was added; otherwise, <c>false</c>.
+            </param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.ReferenceAssemblyByNamespace(System.String)">
+            <summary>
+            References the assembly by the given namespace it implements.
+            <para>
+            Adds assembly reference if the namespace was successfully resolved (found) and,
+            otherwise does nothing
+            </para>
+            </summary>
+            <param name="namespace">The namespace.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.ReferenceAssemblyOf(System.Object)">
+            <summary>
+            References the assembly by the object, which belongs to this assembly.
+            <para>
+            It is safe to call this method multiple times for the same assembly. If the assembly
+            already referenced it will not be referenced again.
+            </para>
+            </summary>
+            <param name="obj">The object, which belongs to the assembly to be referenced.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.ReferenceAssemblyOf``1">
+            <summary>
+            References the assembly by the object, which belongs to this assembly.
+            <para>
+            It is safe to call this method multiple times for the same assembly. If the assembly
+            already referenced it will not be referenced again.
+            </para>
+            </summary>
+            <typeparam name="T">The type which is implemented in the assembly to be referenced.</typeparam>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.ReferenceDomainAssemblies(CSScriptLib.DomainAssemblies)">
+            <summary>
+            References the assemblies the are already loaded into the current <c>AppDomain</c>.
+            </summary>
+            <param name="assemblies">The type of assemblies to be referenced.</param>
+            <returns>
+            The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
+            </returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.Reset(System.Boolean)">
+            <summary>
+            Resets Evaluator.
+            <para>
+            Resetting means clearing all referenced assemblies, recreating evaluation infrastructure
+            (e.g. compiler setting) and reconnection to or recreation of the underlying compiling services.
+            </para>
+            <para>
+            Optionally the default current AppDomain assemblies can be referenced automatically with
+            <paramref name="referenceDomainAssemblies"/>.
+            </para>
+            </summary>
+            <param name="referenceDomainAssemblies">
+            if set to <c>true</c> the default assemblies of the current AppDomain will be referenced
+            (see <see cref="M:CSScriptLib.IEvaluator.ReferenceDomainAssemblies(CSScriptLib.DomainAssemblies)"/> method).
+            </param>
+            <returns>The freshly initialized instance of the <see cref="T:CSScriptLib.IEvaluator"/>.</returns>
+        </member>
+        <member name="M:CSScriptLib.IEvaluator.Clone(System.Boolean)">
+             <summary>
+             Clones the parent <see cref="T:CSScriptLib.IEvaluator"/>.
+             <para>
+             This method returns a freshly initialized copy of the <see cref="T:CSScriptLib.IEvaluator"/>.
+             The cloning 'depth' can be controlled by the <paramref name="copyRefAssemblies"/>.
+             </para>
+             <para>
+             This method is a convenient technique when multiple <see cref="T:CSScriptLib.IEvaluator"/> instances
+             are required (e.g. for concurrent script evaluation).
+             </para>
+             </summary>
+             <param name="copyRefAssemblies">if set to <c>true</c> all referenced assemblies from the parent <see cref="T:CSScriptLib.IEvaluator"/>
+             will be referenced in the cloned copy.</param>
+             <returns>The freshly initialized instance of the <see cref="T:CSScriptLib.IEvaluator"/>.</returns>
+             <example>
+            <code>
+             var eval1 = CSScript.Evaluator.Clone();
+             var eval2 = CSScript.Evaluator.Clone();
+            
+             var sub = eval1.LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
+                                        @"int Sub(int a, int b) {
+                                              return a - b;
+                                          }");
+            
+             var sum = eval2.LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
+                                        @"int Sub(int a, int b) {
+                                              return a + b;
+                                          }");
+            
+             var result = sum(7, sub(4,2));
+             </code>
+             </example>
+        </member>
+        <member name="T:CSScriptLib.EvaluatorExtensions">
+            <summary>
+            Some convenient extension methods for working with <see cref="T:CSScriptLib.IEvaluator"/>.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorExtensions.ExcludeReferencedAssemblies(CSScriptLib.IEvaluator,System.Collections.Generic.IEnumerable{System.Reflection.Assembly})">
+             <summary>
+             Sets referenced assemblies filter for exclusion of some "undesired" assemblies. It is a
+             convenient method for fine controlling referencing assemblies but without specifying the
+             complete predicates with <see
+             cref="M:CSScriptLib.IEvaluator.SetRefAssemblyFilter(System.Func{System.Collections.Generic.IEnumerable{System.Reflection.Assembly},System.Collections.Generic.IEnumerable{System.Reflection.Assembly}})"/>.
+             <code>
+            dynamic script = CSScript.Evaluator
+            .ExcludeReferencedAssemblies(new[]{this.GetType().Assembly})
+            .LoadCode(scriptCode);
+             </code>
+             </summary>
+             <param name="evaluator">The evaluator.</param>
+             <param name="excludedAssemblies">The excluded assemblies.</param>
+             <returns></returns>
+        </member>
+        <member name="M:CSScriptLib.EvaluatorExtensions.ExcludeReferencedAssemblies(CSScriptLib.IEvaluator,System.Reflection.Assembly[])">
+             <summary>
+             Sets referenced assemblies filter for exclusion of some "undesired" assemblies. It is a
+             convenient method for fine controlling referencing assemblies but without specifying the
+             complete predicates with <see
+             cref="M:CSScriptLib.IEvaluator.SetRefAssemblyFilter(System.Func{System.Collections.Generic.IEnumerable{System.Reflection.Assembly},System.Collections.Generic.IEnumerable{System.Reflection.Assembly}})"/>.
+             <code>
+            dynamic script = CSScript.Evaluator
+            .ExcludeReferencedAssemblies(this.GetType().Assembly)
+            .LoadCode(scriptCode);
+             </code>
+             </summary>
+             <param name="evaluator">The evaluator.</param>
+             <param name="excludedAssemblies">The excluded assemblies.</param>
+             <returns></returns>
+        </member>
+        <member name="T:CSScriptLib.CoreExtensions">
+            <summary>
+            CSScriptLib is compiled as nets standard so some .NETCore API is not available.
+            So filling the gaps...
+            </summary>
+            <summary>
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.EscapeDirectiveDelimiters(System.String)">
+            <summary>
+            Escapes the CS-Script directive (e.g. //css_*) delimiters.
+            <para>All //css_* directives should escape any internal CS-Script delimiters by doubling the delimiter character.
+            For example //css_include for 'script(today).cs' should escape brackets as they are the directive delimiters.
+            The correct syntax would be as follows '//css_include script((today)).cs;'</para>
+            <remarks>The delimiters characters are ';,(){}'.
+            <para>However you should check <see cref="F:CSScriptLib.CSharpParser.DirectiveDelimiters"/> for the accurate list of all delimiters.
+            </para>
+            </remarks>
+            </summary>
+            <param name="text">The text to be processed.</param>
+            <returns>The escaped string.</returns>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.SelectFirst(System.Xml.Linq.XContainer,System.String)">
+            <summary>
+            Selects the first element that satisfies the specified path.
+            </summary>
+            <param name="element">The element.</param>
+            <param name="path">The path.</param>
+            <returns>Selected XML element</returns>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.RemovePathDuplicates(System.String[])">
+            <summary>
+            Removes the duplicated file system path items from the collection.The duplicates are
+            identified based on the path being case sensitive depending on the hosting OS file system.
+            </summary>
+            <param name="list">The list.</param>
+            <returns>A list with the unique items</returns>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.IsSharedAssembly(System.String)">
+            <summary>
+            Determines whether [is shared assembly].
+            </summary>
+            <param name="path">The path.</param>
+            <returns><c>true</c> if [is shared assembly] [the specified path]; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.ToBool(System.String)">
+            <summary>
+            Converts to bool.
+            </summary>
+            <param name="text">The text.</param>
+            <returns>Conversion result</returns>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.RemoveAssemblyExtension(System.String)">
+            <summary>
+            Removes the assembly extension.
+            </summary>
+            <param name="asmName">Name of the asm.</param>
+            <returns>Result of the string manipulation</returns>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.SamePathAs(System.String,System.String)">
+            <summary>
+            Compares two path strings. Handles path being case-sensitive based on the OS file system.
+            </summary>
+            <param name="path1">The path1.</param>
+            <param name="path2">The path2.</param>
+            <returns>The result of the test.</returns>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.CaptureExceptionDispatchInfo(System.Exception)">
+            <summary>
+            Captures the exception dispatch information.
+            </summary>
+            <param name="ex">The ex.</param>
+            <returns>Processed exception instanse</returns>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.FileDelete(System.String,System.Boolean)">
+            <summary>
+            Files the delete.
+            </summary>
+            <param name="filePath">The file path.</param>
+            <param name="rethrow">if set to <c>true</c> [rethrow].</param>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.Deconstruct``1(System.Collections.Generic.IList{``0},``0@,System.Collections.Generic.IList{``0}@)">
+            <summary>
+            Converts an array to a tuple.
+            <para>Based on this beautiful solution: https://stackoverflow.com/questions/49190830/is-it-possible-for-string-split-to-return-tuple</para>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="list">The list.</param>
+            <param name="first">The first.</param>
+            <param name="rest"></param>
+        </member>
+        <member name="M:CSScriptLib.CoreExtensions.Deconstruct``1(System.Collections.Generic.IList{``0},``0@,``0@,System.Collections.Generic.IList{``0}@)">
+            <summary>
+            Converts an array to a tuple.
+            <para>Based on this beautiful solution: https://stackoverflow.com/questions/49190830/is-it-possible-for-string-split-to-return-tuple</para>
+            </summary>
+            <param name="list">The list.</param>
+            <param name="first">The first.</param>
+            <param name="second">The second.</param>
+            <param name="rest">The rest.</param>
+        </member>
+        <member name="T:CSScriptLib.ParsingParams">
+            <summary>
+            ParsingParams is a class that holds parsing parameters (parameters that controls how file is
+            to be parsed). At this moment they are namespace renaming rules only.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.ParsingParams.Compare(CSScriptLib.ParsingParams,CSScriptLib.ParsingParams)">
+            <summary>
+            Compare() is to be used to help with implementation of IComparer for sorting operations.
+            </summary>
+        </member>
+        <member name="T:CSScriptLib.ScriptInfo">
+            <summary>
+            Class which is a placeholder for general information of the script file
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.ScriptInfo.#ctor(CSScriptLib.CSharpParser.ImportInfo)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="info">
+            ImportInfo object containing the information how the script file should be parsed.
+            </param>
+        </member>
+        <member name="T:CSScriptLib.FileParser">
+            <summary>
+            Class that implements parsing the single C# script file
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.FileParser.ResolveFile(System.String,System.String[])">
+            <summary>
+            Searches for script file by given script name. Calls ResolveFile(string fileName,
+            string[] extraDirs, bool throwOnError) with throwOnError flag set to true.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.FileParser.ResolveFilesAlgorithm">
+            <summary>
+            The resolve file algorithm,
+            <para>
+            The default algorithm searches for script file by given script name. Search order:
+            1. Current directory
+            2. extraDirs (usually %CSSCRIPT_ROOT%\Lib and ExtraLibDirectory)
+            3. PATH Also fixes file name if user did not provide extension for script file (assuming
+            .cs extension)
+            </para>
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.FileParser.ResolveFile(System.String,System.String[],System.Boolean)">
+            <summary>
+            Searches for script file by given script name. Search order:
+            1. Current directory
+            2. extraDirs (usually %CSSCRIPT_ROOT%\Lib and ExtraLibDirectory)
+            3. PATH Also fixes file name if user did not provide extension for script file (assuming
+            .cs extension)
+            <para>
+            If the default implementation isn't suitable then you can set
+            <c>FileParser.ResolveFilesAlgorithm</c> to the alternative implementation of the probing algorithm.
+            </para>
+            </summary>
+        </member>
+        <member name="T:CSScriptLib.FileParserComparer">
+            <summary>
+            Class that implements parsing the single C# Script file
+            </summary>
+            <summary>
+            Implementation of the IComparer for sorting operations of collections of FileParser instances
+            </summary>
+        </member>
+        <member name="T:CSScriptLib.Project">
+            <summary>
+            Class that holds all information about the execution context (probing directories and
+            dependencies) of a script.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.Project.Script">
+            <summary>
+            Primary script that defines the project.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.Project.Files">
+            <summary>
+            List of all C# sources defined by the project. This includes the primary script itself
+            and all other scripts files the imported/included by the primary script.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.Project.Refs">
+            <summary>
+            List of assemblies the script of the project is referencing.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.Project.SearchDirs">
+            <summary>
+            List of search folders where CS-Script does probing for imported/included scripts and assemblies.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.Project.GenerateProjectFor(System.String)">
+            <summary>
+            Generates the top level view project for a given script.
+            <para>
+            Note this method uses the same algorithm as CS-Script executor but it deliberately
+            doesn't include cached directories and auto-generated files. This method is to be used
+            by IDs and tools.
+            </para>
+            </summary>
+            <param name="script">The script.</param>
+            <returns>The project instance</returns>
+        </member>
+        <member name="M:CSScriptLib.ProjectBuilder.GetCSSConfig">
+            <summary>
+            Gets the CSS configuration. Used by ST3 Syntaxer
+            </summary>
+            <returns>Default config file location</returns>
+        </member>
+        <member name="T:CSScriptLib.ScriptParser">
+            <summary>
+            Class that manages parsing the main and all imported (if any) C# Script files
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.ScriptParser.GetContext">
+            <summary>
+            Gets the script parsing context. This object is effectively a parsing result.
+            </summary>
+            <returns>Parsing result</returns>
+        </member>
+        <member name="M:CSScriptLib.ScriptParser.ProcessImportedScript(System.String)">
+            <summary>
+            Processes the imported script. Processing involves lookup for 'static Main' and renaming
+            it so it does not interfere with the 'static Main' of the primary script. After renaming
+            is done the new content is saved in the CS-Script cache and the new file location is
+            returned. The saved file can be used late as an "included script". This technique can be
+            from 'precompiler' scripts.
+            <para>
+            If the script file does not require renaming (static Main is not present) the method
+            returns the original script file location.
+            </para>
+            </summary>
+            <param name="scriptFile">The script file.</param>
+            <returns>Path to the script file to be compiled and executed</returns>
+        </member>
+        <member name="F:CSScriptLib.ScriptParser.apartmentState">
+            <summary>
+            ApartmentState of a script during the execution (default: ApartmentState.Unknown)
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.FilesToCompile">
+            <summary>
+            Collection of the files to be compiled (including dependent scripts) used for script compilation/execution.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.ImportedFiles">
+            <summary>
+            Collection of the imported files (dependent scripts) that were used for script execution.
+            <para>Note, some of the imported scripts can be temporary files containing scripts processed
+            according the importing specification (e.g. renamed `static Main`, renamed namespaces).</para>
+            <para>Use <see cref="P:CSScriptLib.ScriptParser.ImportedSourceFiles"/> for the names of the original names of the imported scripts</para>
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.ImportedSourceFiles">
+            <summary>
+            Collection of the imported files (dependent scripts).
+            <para>Note, some of the imported scripts can be converted in the temporary files containing scripts processed
+            according the importing specification (e.g. renamed `static Main`, renamed namespaces).</para>
+            <para>Use <see cref="P:CSScriptLib.ScriptParser.ImportedFiles"/> and/or <see cref="P:CSScriptLib.ScriptParser.FilesToCompile"/> for the names of the actual
+            files used on compilation/execution.</para>
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.ReferencedResources">
+            <summary>
+            Collection of resource files referenced from code
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.CompilerOptions">
+            <summary>
+            Collection of compiler options
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.Precompilers">
+            <summary>
+            Precompilers specified in the primary script file.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.ReferencedNamespaces">
+            <summary>
+            Collection of namespaces referenced from code (including those referenced in dependent scripts)
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.IgnoreNamespaces">
+            <summary>
+            Collection of namespaces, which if found in code, should not be resolved into referenced assembly.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.ScriptParser.ResolvePackages(System.Boolean)">
+            <summary>
+            Resolves the NuGet packages into assemblies to be referenced by the script.
+            <para>
+            If the package was never installed/downloaded yet CS-Script runtime will try to download it.
+            </para>
+            <para>
+            CS-Script will also analyze the installed package structure in try to reference
+            compatible assemblies from the package.
+            </para>
+            </summary>
+            <param name="suppressDownloading">
+            if set to <c>true</c> suppresses downloading the NuGet package. Suppressing can be
+            useful for the quick 'referencing' assessment.
+            </param>
+            <returns>Collection of the referenced assembly files.</returns>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.Packages">
+            <summary>
+            Collection of the NuGet packages
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.ReferencedAssemblies">
+            <summary>
+            Collection of referenced assemblies. All assemblies are referenced either from
+            command-line, code or resolved from referenced namespaces.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.ScriptParser.#ctor(System.String)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="fileName">Script file name</param>
+        </member>
+        <member name="M:CSScriptLib.ScriptParser.#ctor(System.String,System.String[])">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="fileName">Script file name</param>
+            <param name="searchDirs">Extra ScriptLibrary directory</param>
+        </member>
+        <member name="M:CSScriptLib.ScriptParser.#ctor(System.String,System.String[],System.Boolean)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="fileName">Script file name</param>
+            <param name="searchDirs">Extra ScriptLibrary directory(s)</param>
+            <param name="throwOnError">
+            flag to indicate if the file parsing/processing error should raise an exception
+            </param>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.ScriptPath">
+            <summary>
+            The path of the parsed script.
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.ScriptParser.IsWebApp">
+            <summary>
+            Gets a value indicating whether the script being parsed is a web application script.
+            </summary>
+            <value><c>true</c> if the script is web application; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="M:CSScriptLib.ScriptParser.Init(System.String,System.String[])">
+            <summary>
+            Initialization of ScriptParser instance
+            </summary>
+            <param name="fileName">Script file name</param>
+            <param name="searchDirs">Extra ScriptLibrary directory(s)</param>
+        </member>
+        <member name="M:CSScriptLib.ScriptParser.SaveImportedScripts">
+            <summary>
+            Saves all imported scripts in the temporary location.
+            </summary>
+            <returns>Collection of the saved imported scripts file names</returns>
+        </member>
+        <member name="M:CSScriptLib.ScriptParser.DeleteImportedFiles">
+            <summary>
+            Deletes imported scripts as a cleanup operation
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParser.SearchDirs">
+            <summary>
+            CS-Script SearchDirectories specified in the parsed script or its dependent scripts.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.ScriptParser.AgregateReferences(System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Aggregates the references from the script and its imported scripts. It is a logical
+            equivalent of CSExecutor.AggregateReferencedAssemblies but optimized for later .NET
+            versions (e.g LINQ) and completely decoupled. Thus it has no dependencies on internal
+            state (e.g. settings, options.shareHostAssemblies).
+            <para>
+            It is the method to call for generating list of ref asms as part of the project info.
+            </para>
+            </summary>
+            <param name="searchDirs">The search dirs.</param>
+            <param name="defaultRefAsms">The default ref asms.</param>
+            <param name="defaultNamespacess">The default namespaces.</param>
+            <returns>List of references</returns>
+        </member>
+        <member name="T:CSScriptLib.ScriptParsingResult">
+            <summary>
+            Information about the script parsing result.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParsingResult.Packages">
+            <summary>
+            The packages referenced from the script with `//css_nuget` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParsingResult.ReferencedResources">
+            <summary>
+            The referenced resources referenced from the script with `//css_res` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParsingResult.ReferencedAssemblies">
+            <summary>
+            The referenced assemblies referenced from the script with `//css_ref` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParsingResult.ReferencedNamespaces">
+            <summary>
+            The namespaces imported with C# `using` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParsingResult.IgnoreNamespaces">
+            <summary>
+            The namespaces that are marked as "to ignore" with `//css_ignore_namespace` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParsingResult.CompilerOptions">
+            <summary>
+            The compiler options specified with `//css_co` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParsingResult.SearchDirs">
+            <summary>
+            The directories specified with `//css_dir` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParsingResult.Precompilers">
+            <summary>
+            The precompilers specified with `//css_pc` directive
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParsingResult.FilesToCompile">
+            <summary>
+            All files that need to be compiled as part of the script execution.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.ScriptParsingResult.Timestamp">
+            <summary>
+            The time of parsing.
+            </summary>
+        </member>
+        <member name="T:CSScriptLib.TempFileCollection">
+            <summary>
+            Collection of temp files to be removed during cleanup
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.TempFileCollection.Items">
+            <summary>
+            Gets or sets the items (file paths) composing the temporary files collections.
+            </summary>
+            <value>The items.</value>
+        </member>
+        <member name="M:CSScriptLib.TempFileCollection.Clear">
+            <summary>
+            Clears the collection.
+            </summary>
+        </member>
+        <member name="T:CSScriptLib.Runtime">
+            <summary>
+            A class that hosts the most common properties of the runtime environment.
+            </summary>
+        </member>
+        <member name="E:CSScriptLib.Runtime.UnhandledException">
+            <summary>
+            Occurs when an exception is not caught.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.Runtime.GetScriptTempDir">
+            <summary>
+            Returns the name of the temporary folder in the CSSCRIPT subfolder of Path.GetTempPath().
+            <para>
+            Under certain circumstances it may be desirable to the use the alternative location for
+            the CS-Script temporary files. In such cases use SetScriptTempDir() to set the
+            alternative location.
+            </para>
+            </summary>
+            <returns>Temporary directory name.</returns>
+        </member>
+        <member name="M:CSScriptLib.Runtime.CleanAbandonedCache">
+            <summary>
+            Cleans the abandoned script execution cache.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.Runtime.CleanExitedScripts">
+            <summary>
+            Cleans the exited scripts.
+            </summary>
+        </member>
+        <member name="F:CSScriptLib.Runtime.CreateUnloadableAssemblyLoadContext">
+            <summary>
+            The delegate for creating unloadable <see cref="T:System.Runtime.Loader.AssemblyLoadContext"/> assembly load
+            context. The delegate is required to be set from the host process at runtime. It is
+            because it is not available at compile time since CSScriptLib assembly is compiled as
+            '.NET Standard 2.0' which does not implement <see cref="T:System.Runtime.Loader.AssemblyLoadContext"/> but its
+            abstract type only.
+            <para>
+            CS-Script uses intensive reflection technique to retrieve the host environment <see
+            cref="T:System.Runtime.Loader.AssemblyLoadContext"/> implementation. So you no not need to set it.
+            </para>
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.Runtime.CleanSnippets">
+            <summary>
+            Cleans the snippets.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.Runtime.CleanUnusedTmpFiles(System.String,System.String,System.Boolean)">
+            <summary>
+            Cleans the unused temporary files.
+            </summary>
+            <param name="dir">The dir.</param>
+            <param name="pattern">The pattern.</param>
+            <param name="verifyPid">if set to <c>true</c> [verify pid].</param>
+        </member>
+        <member name="P:CSScriptLib.Runtime.NuGetCacheView">
+            <summary>
+            Gets the nuget cache path in the form displayable in Console.
+            </summary>
+            <value>The nu get cache view.</value>
+        </member>
+        <member name="P:CSScriptLib.Runtime.IsWin">
+            <summary>
+            Gets a value indicating whether the host OS Windows.
+            </summary>
+            <value><c>true</c> if the host OS is Windows; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:CSScriptLib.Runtime.IsLinux">
+            <summary>
+            Note it is not about OS being exactly Linux but rather about OS having Linux type of
+            file system. For example path being case sensitive
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.Runtime.IsSingleFileApplication">
+            <summary>
+            Gets a value indicating whether this process is an application compiled as a single file (published with PublishSingleFile option).
+            </summary>
+            <value>
+              <c>true</c> if this instance is single file application; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:CSScriptLib.Runtime.IsCore">
+            <summary>
+            Gets a value indicating whether the runtime is core.
+            </summary>
+            <value><c>true</c> if the runtime is core; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:CSScriptLib.Runtime.DesktopAssembliesDir">
+            <summary>
+            Returns path to the `Microsoft.WindowsDesktop.App` shared assemblies of the compatible
+            runtime version.
+            <para>
+            Note, there is no warranty that the dotnet dedktop assemblies belong to the same distro
+            version as dotnet Core:
+            <para>- C:\Program Files\dotnet\shared\Microsoft.NETCore.App\5.0.0-rc.1.20451.14</para>
+            <para>- C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\5.0.0-rc.1.20452.2</para>
+            </para>
+            </summary>
+        </member>
+        <member name="P:CSScriptLib.Runtime.WebAssembliesDir">
+            <summary>
+            Returns path to the `Microsoft.AspNetCore.App` shared assemblies of the compatible
+            runtime version.
+            </summary>
+        </member>
+        <member name="M:CSScriptLib.Runtime.IsSdkInstalled">
+            <summary>
+            Determines whether .NET SDK is installed.
+            </summary>
+            <returns><c>true</c> if [is SDK installed]; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:CSScriptLib.WildCardExtensions.GetMatchingDirs(System.String,System.String)">
+            <summary>
+            Gets the directories specified by either relative or absolute path `rootDir`.
+            `rootDir` can contain wild-cards as per Git 'ignore specification'
+            </summary>
+            <param name="baseDir">The working dir.</param>
+            <param name="rootDir">The root dir path as per Git 'ignore specification'.</param>
+            <returns>The method result.</returns>
+        </member>
+        <member name="T:csscript.ResolveSourceFileAlgorithm">
+            <summary>
+            Delegate implementing source file probing algorithm.
+            </summary>
+            <param name="file">The file.</param>
+            <param name="searchDirs">The extra dirs.</param>
+            <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
+            <returns>Location of the files matching the resolution input. </returns>
+        </member>
+        <member name="T:csscript.ResolveAssemblyHandler">
+            <summary>
+            Delegate implementing assembly file probing algorithm.
+            </summary>
+            <param name="file">The file.</param>
+            <param name="searchDirs">The extra dirs.</param>
+            <returns>Location of the files matching the resolution input.</returns>
+        </member>
+        <member name="T:csscript.AssemblyResolver">
+            <summary>
+            Utility class for assembly probing.
+            </summary>
+        </member>
+        <member name="F:csscript.AssemblyResolver.ignoreFileName">
+            <summary>
+            File to be excluded from assembly search
+            </summary>
+        </member>
+        <member name="M:csscript.AssemblyResolver.IsLegalPathToken(System.String)">
+            <summary>
+            Determines whether the string is a legal path token.
+            </summary>
+            <param name="name">The name.</param>
+            <returns>
+            	<c>true</c> if the string is a legal path token; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:csscript.AssemblyResolver.FindAssembly(System.String,System.String[])">
+            <summary>
+            Resolves namespace/assembly(file) name into array of assembly locations (local and GAC ones).
+            </summary>
+            <param name="name">'namespace'/assembly(file) name</param>
+            <param name="searchDirs">Assembly search directories</param>
+            <para>If the default implementation isn't suitable then you can set <c>CSScript.FindAssemblyAlgorithm</c>
+            to the alternative implementation of the probing algorithm.</para>
+            <returns>collection of assembly file names where namespace is implemented</returns>
+        </member>
+        <member name="M:csscript.AssemblyResolver.FindLocalAssembly(System.String,System.String)">
+            <summary>
+            Resolves namespace into array of local assembly locations.
+            (Currently it returns only one assembly location but in future
+            it can be extended to collect all assemblies with the same namespace)
+            </summary>
+            <param name="name">namespace/assembly name</param>
+            <param name="dir">directory</param>
+            <returns>collection of assembly file names where namespace is implemented</returns>
+        </member>
+        <member name="M:csscript.AssemblyResolver.FindGlobalAssembly(System.String)">
+            <summary>
+            Resolves namespace into array of global assembly (GAC) locations.
+            <para>NOTE: this method does nothing on .NET Core as it offers no GAC discovery mechanism.</para>
+            </summary>
+            <param name="namespaceStr">'namespace' name</param>
+            <returns>collection of assembly file names where namespace is implemented</returns>
+        </member>
+        <member name="T:CSScripting.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:CSScripting.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:CSScripting.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:CSScripting.Resources.build">
+            <summary>
+              Looks up a localized resource of type System.Byte[].
+            </summary>
+        </member>
+        <member name="P:CSScripting.Resources.build_deps">
+            <summary>
+              Looks up a localized resource of type System.Byte[].
+            </summary>
+        </member>
+        <member name="P:CSScripting.Resources.build_runtimeconfig">
+            <summary>
+              Looks up a localized resource of type System.Byte[].
+            </summary>
+        </member>
+        <member name="T:CSScripting.CodeDom.CompilerResults">
+             <summary>
+            
+             </summary>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerResults.TempFiles">
+            <summary>
+            Gets or sets the collection of the temporary files that the runtime will delete on the application exit.
+            </summary>
+            <value>
+            The temporary files.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerResults.ProbingDirs">
+            <summary>
+            Gets or sets the probing directories to be used for assembly probings.
+            </summary>
+            <value>
+            The probing directories.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerResults.CompiledAssembly">
+            <summary>
+            Gets or sets the compiled assembly.
+            </summary>
+            <value>
+            The compiled assembly.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerResults.Errors">
+            <summary>
+            Gets or sets the errors.
+            </summary>
+            <value>
+            The errors.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerResults.Output">
+            <summary>
+            Gets or sets the output.
+            </summary>
+            <value>
+            The output.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerResults.PathToAssembly">
+            <summary>
+            Gets or sets the path to assembly.
+            </summary>
+            <value>
+            The path to assembly.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerResults.NativeCompilerReturnValue">
+            <summary>
+            Gets or sets the native compiler return value, which is a process exit code of the compiler executable (e.g. dotnet.exe).
+            </summary>
+            <value>
+            The native compiler return value.
+            </value>
+        </member>
+        <member name="T:CSScripting.CodeDom.CompilerError">
+             <summary>
+            
+             </summary>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerError.Line">
+            <summary>
+            Gets or sets the line number of the syntax causing the error.
+            </summary>
+            <value>
+            The line.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerError.Column">
+            <summary>
+            Gets or sets the column number of the syntax causing the error.
+            </summary>
+            <value>
+            The column.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerError.ErrorNumber">
+            <summary>
+            Gets or sets the error number.
+            </summary>
+            <value>
+            The error number.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerError.ErrorText">
+            <summary>
+            Gets or sets the error text.
+            </summary>
+            <value>
+            The error text.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerError.IsWarning">
+            <summary>
+            Gets or sets a value indicating whether this instance of the error is a warning.
+            </summary>
+            <value>
+              <c>true</c> if this instance is warning; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:CSScripting.CodeDom.CompilerError.FileName">
+            <summary>
+            Gets or sets the name of the file causing the error.
+            </summary>
+            <value>
+            The name of the file.
+            </value>
+        </member>
+        <member name="M:CSScripting.CodeDom.CompilerError.Parse(System.String)">
+            <summary>
+            Parses the specified compiler output.
+            </summary>
+            <param name="compilerOutput">The compiler output.</param>
+            <returns><c>Error</c> object</returns>
+        </member>
+        <member name="T:CSScripting.LinqExtensions">
+            <summary>
+            Various LINQ extensions
+            </summary>
+        </member>
+        <member name="M:CSScripting.LinqExtensions.None``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
+            <summary>
+            None of the items matches the specified predicate.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="items">The items.</param>
+            <param name="predicate">The predicate.</param>
+            <returns>Result of the test</returns>
+        </member>
+        <member name="M:CSScripting.LinqExtensions.AddItem``1(System.Collections.Generic.IEnumerable{``0},``0)">
+            <summary>
+            Adds a single item to the collection.
+            </summary>
+            <typeparam name="TSource">The type of the source.</typeparam>
+            <param name="items">The items.</param>
+            <param name="item">The item.</param>
+            <returns>The original collection instance.</returns>
+        </member>
+        <member name="M:CSScripting.LinqExtensions.IsEmpty``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Determines whether the collection is empty.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="collection">The collection.</param>
+            <returns>
+              <c>true</c> if the specified collection is empty; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:CSScripting.LinqExtensions.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            A generic LINQ equivalent of C# foreach loop.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="collection">The collection.</param>
+            <param name="action">The action.</param>
+            <returns>The original collection instance</returns>
+        </member>
+        <member name="M:CSScripting.LinqExtensions.ForEachI``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0,System.Int32})">
+            <summary>
+            A generic LINQ equivalent of C# foreach loop with support for the item index.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="collection">The collection.</param>
+            <param name="action">The action.</param>
+            <returns></returns>
+        </member>
+        <member name="M:CSScripting.LinqExtensions.With``1(``0,System.Action{``0})">
+            <summary>
+            Allows updating the object in Fluent expressions.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="object">The object.</param>
+            <param name="action">The action.</param>
+            <returns></returns>
+        </member>
+        <member name="T:CSScripting.PathExtensions">
+            <summary>
+            Various PATH extensions
+            </summary>
+        </member>
+        <member name="M:CSScripting.PathExtensions.FileCopy(System.String,System.String,System.Boolean)">
+            <summary>
+            Copies the file.
+            </summary>
+            <param name="src">The source path to the file.</param>
+            <param name="dest">The destination path to the file.</param>
+            <param name="ignoreErrors">if set to <c>true</c> [ignore errors].</param>
+        </member>
+        <member name="M:CSScripting.PathExtensions.ChangeExtension(System.String,System.String)">
+            <summary>
+            Changes the extension of the file.
+            </summary>
+            <param name="path">The path.</param>
+            <param name="extension">The extension.</param>
+            <returns>A new path</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.GetExtension(System.String)">
+            <summary>
+            Gets the extension.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>File extension</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.GetFileName(System.String)">
+            <summary>
+            Gets the file name part of the full path.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>The method result.</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.DirExists(System.String)">
+            <summary>
+            Checks if the directory exists.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>The result of the test.</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.GetFullPath(System.String)">
+            <summary>
+            Gets the full path.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>The path</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.IsDir(System.String)">
+            <summary>
+            Determines whether the path is directory.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>
+              <c>true</c> if the specified path is dir; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.IsValidPath(System.String)">
+            <summary>
+            Determines whether the specified path string is valid (does not contain invalid characters).
+            </summary>
+            <param name="path">The path.</param>
+            <returns>
+              <c>true</c> if the path is valid; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.PathJoin(System.String,System.Object[])">
+            <summary>
+            A more convenient API version of <see cref="M:System.IO.Path.Combine(System.String[])"/>.
+            </summary>
+            <param name="path">The path.</param>
+            <param name="parts">The parts.</param>
+            <returns>A new path.</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.GetPath(System.Environment.SpecialFolder)">
+            <summary>
+            Gets the special folder path.
+            </summary>
+            <param name="folder">The folder.</param>
+            <returns>A folder path.</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.GetPath(System.Environment.SpecialFolder,System.Object[])">
+            <summary>
+            Gets the special folder path combined with an array of strings into a path.
+            </summary>
+            <param name="folder">The folder.</param>
+            <param name="parts">The parts.</param>
+            <returns></returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.EnsureDir(System.String,System.Boolean)">
+            <summary>
+            Ensures the directory exists.
+            </summary>
+            <param name="path">The path.</param>
+            <param name="rethrow">if set to <c>true</c> [rethrow].</param>
+            <returns>Path of the created/existing directory </returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.EnsureFileDir(System.String,System.Boolean)">
+            <summary>
+            Ensures the parent directory of the file exists.
+            </summary>
+            <param name="file">The file path.</param>
+            <param name="rethrow">if set to <c>true</c> [rethrow].</param>
+            <returns>Path of the file</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.DeleteDir(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Deletes the directory and its all content.
+            </summary>
+            <param name="path">The path.</param>
+            <param name="handleExceptions">if set to <c>true</c> [handle exceptions].</param>
+            <param name="doNotDeletеRoot">if set to <c>true</c> [do not deletе root].</param>
+            <returns>
+            The original directory path
+            </returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.FileExists(System.String)">
+            <summary>
+            Checks if the file exists.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>The result of the test.</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.GetDirName(System.String)">
+            <summary>
+            Gets the directory name from the path.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>The directory path.</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.ChangeFileName(System.String,System.String)">
+            <summary>
+            Changes the name of the file.
+            </summary>
+            <param name="path">The path.</param>
+            <param name="fileName">Name of the file.</param>
+            <returns>A new path.</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.GetFileNameWithoutExtension(System.String)">
+            <summary>
+            Gets the file name without the extension.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>File name</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.PathNormaliseSeparators(System.String)">
+            <summary>
+            Normalizes directory separators in the given path by ensuring the separators are compatible with the target file system.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>A new normalized path.</returns>
+        </member>
+        <member name="M:CSScripting.PathExtensions.PathGetDirs(System.String,System.String)">
+            <summary>
+            Gets the subdirectories of the specified directory path.
+            </summary>
+            <param name="path">The path.</param>
+            <param name="mask">The mask.</param>
+            <returns>A list of the discovered directories.</returns>
+        </member>
+        <member name="T:CSScripting.Globals">
+            <summary>
+            The configuration and methods of the global context.
+            </summary>
+        </member>
+        <member name="M:CSScripting.Globals.RemoveBuildServer">
+            <summary>
+            Removes the build server from the target system.
+            </summary>
+            <returns><c>true</c> if success; otherwise <c>false</c></returns>
+        </member>
+        <member name="M:CSScripting.Globals.DeployBuildServer">
+            <summary>
+            Deploys the build server on the target system.
+            </summary>
+        </member>
+        <member name="M:CSScripting.Globals.Ping">
+            <summary>
+            Pings the running instance of the build server.
+            </summary>
+        </member>
+        <member name="P:CSScripting.Globals.BuildServerIsDeployed">
+            <summary>
+            Gets a value indicating whether build server is deployed.
+            </summary>
+            <value><c>true</c> if build server is deployed; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:CSScripting.Globals.roslyn">
+            <summary>
+            Gets the path to the assembly implementing Roslyn compiler.
+            </summary>
+        </member>
+        <member name="P:CSScripting.Globals.dotnet">
+            <summary>
+            Gets the path to the dotnet executable.
+            </summary>
+            <value>The dotnet executable path.</value>
+        </member>
+        <member name="P:CSScripting.Globals.csc_FX">
+            <summary>
+            Gets the path to the csc.exe executable for .NET Framework.
+            </summary>
+            <value>The csc.exe executable path.</value>
+        </member>
+        <member name="P:CSScripting.Globals.csc">
+            <summary>
+            Gets or sets the path to the C# compiler executable (e.g. csc.exe or csc.dll)
+            </summary>
+            <value>The CSC.</value>
+        </member>
+        <member name="T:CSScripting.AssemblyUnloadingExtensions">
+            <summary>
+            Various Reflection extensions for implementing assembly unloading
+            </summary>
+        </member>
+        <member name="M:CSScripting.AssemblyUnloadingExtensions.Unload(System.Reflection.Assembly)">
+            <summary>
+            Retrieves <see cref="T:System.Runtime.Loader.AssemblyLoadContext"/> associated with the assembly and unloads it.
+            <para>It will throw an exception if the <see cref="T:System.Runtime.Loader.AssemblyLoadContext"/> is not created as
+            unloadable ('IsCollectible').</para>
+            <para>Use <see cref="P:CSScriptLib.IEvaluator.IsAssemblyUnloadingEnabled"/> to control
+            how the assemblies (compiled scripts) are loaded.</para>
+            <para>
+            Note, unloading of assembly is implemented by CLR not CS-Script. This method extension is simply
+            redirecting the call to the .NET <see cref="T:System.Runtime.Loader.AssemblyLoadContext.Unload"/>
+            . Thus it is subject of the
+            underlying limitations. Thus an AssemblyLoadContext can only be unloaded if it is collectible. And
+            Unloading will occur asynchronously.
+            </para>
+            <para>
+            Note, using 'dynamic` completely breaks CLR unloading mechanism. Most likely it triggers
+            an accidental referencing of the assembly or <see
+            cref="T:System.Runtime.Loader.AssemblyLoadContext"/>. Meaning that if you are planing to
+            use assembly unloading you need to use interface based scripting. See `Test_Unloading`
+            (https://github.com/oleg-shilo/cs-script/blob/master/src/CSScriptLib/src/Client.NET-Core/Program.cs)
+            sample for details.
+            </para>
+            </summary>
+            <param name="asm"></param>
+        </member>
+        <member name="T:CSScripting.ReflectionExtensions">
+            <summary>
+            Various Reflection extensions
+            </summary>
+        </member>
+        <member name="M:CSScripting.ReflectionExtensions.Directory(System.Reflection.Assembly)">
+            <summary>
+            Returns directory where the specified assembly file is.
+            </summary>
+            <param name="asm">The asm.</param>
+            <returns>The directory path</returns>
+        </member>
+        <member name="M:CSScripting.ReflectionExtensions.Location(System.Reflection.Assembly)">
+            <summary>
+            Returns location of the specified assembly. Avoids throwing an exception in case
+            of dynamic assembly.
+            </summary>
+            <param name="asm">The asm.</param>
+            <returns>The path to the assembly file</returns>
+        </member>
+        <member name="M:CSScripting.ReflectionExtensions.GetName(System.Type)">
+            <summary>
+            Gets the name of the type.
+            </summary>
+            <param name="type">The type.</param>
+            <returns>Thew name of the type.</returns>
+        </member>
+        <member name="M:CSScripting.ReflectionExtensions.CreateObject(System.Reflection.Assembly,System.String,System.Object[])">
+            <summary>
+            Creates instance of a class from underlying assembly.
+            </summary>
+            <param name="asm">The asm.</param>
+            <param name="typeName">The 'Type' full name of the type to create. (see Assembly.CreateInstance()).
+            You can use wild card meaning the first type found. However only full wild card "*" is supported.</param>
+            <param name="args">The non default constructor arguments.</param>
+            <returns>
+            Instance of the 'Type'. Throws an ApplicationException if the instance cannot be created.
+            </returns>
+        </member>
+        <member name="M:CSScripting.ReflectionExtensions.CreateInstance(System.Reflection.Assembly,System.String,System.Object[])">
+            <summary>
+            Creates instance of a Type from underlying assembly.
+            </summary>
+            <param name="asm">The asm.</param>
+            <param name="typeName">Name of the type to be instantiated. Allows wild card character (e.g. *.MyClass can be used to instantiate MyNamespace.MyClass).</param>
+            <param name="args">The non default constructor arguments.</param>
+            <returns>
+            Created instance of the type.
+            </returns>
+            <exception cref="T:System.Exception">Type " + typeName + " cannot be found.</exception>
+        </member>
+        <member name="M:CSScripting.ReflectionExtensions.IsDynamic(System.Reflection.Assembly)">
+            <summary>
+            Determines whether the assembly is dynamic.
+            </summary>
+            <param name="asm">The asm.</param>
+            <returns>
+              <c>true</c> if the specified asm is dynamic; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:CSScripting.SimpleAsmProbing">
+             <summary>
+             Class for automated assembly probing. It implements extremely simple ('optimistic')
+             probing algorithm. At runtime it attempts to resolve the assemblies via AppDomain.Assembly resolve
+             event by looking up the assembly files in the user defined list of probing directories.
+             The algorithm relies on the simple relationship between assembly name and assembly file name:
+              &lt;assembly file&gt; = &lt;asm name&gt; + ".dll"
+             </summary>
+            <example>The following is an example of automated assembly probing.
+            <code>
+             using (SimpleAsmProbing.For(@"E:\Dev\Libs", @"E:\Dev\Packages"))
+             {
+                 dynamic script = CSScript.Evaluator
+                                          .LoadFile(script_file);
+                 script.Print();
+             }
+             </code>
+             </example>
+             <seealso cref="T:System.IDisposable" />
+        </member>
+        <member name="M:CSScripting.SimpleAsmProbing.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:CSScripting.SimpleAsmProbing.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources.
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="M:CSScripting.SimpleAsmProbing.Finalize">
+            <summary>
+            Finalizes an instance of the <see cref="T:CSScripting.SimpleAsmProbing"/> class.
+            </summary>
+        </member>
+        <member name="M:CSScripting.SimpleAsmProbing.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:CSScripting.SimpleAsmProbing"/> class.
+            </summary>
+        </member>
+        <member name="M:CSScripting.SimpleAsmProbing.For(System.String[])">
+            <summary>
+            Creates and initializes a new instance of the <see cref="T:CSScripting.SimpleAsmProbing"/> class.
+            </summary>
+            <param name="probingDirs">The probing dirs.</param>
+            <returns></returns>
+        </member>
+        <member name="M:CSScripting.SimpleAsmProbing.#ctor(System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:CSScripting.SimpleAsmProbing"/> class.
+            </summary>
+            <param name="probingDirs">The probing dirs.</param>
+        </member>
+        <member name="M:CSScripting.SimpleAsmProbing.Init(System.String[])">
+            <summary>
+            Sets probing dirs and subscribes to the <see cref="E:System.AppDomain.AssemblyResolve"/> event.
+            </summary>
+            <param name="probingDirs">The probing dirs.</param>
+        </member>
+        <member name="M:CSScripting.SimpleAsmProbing.Uninit">
+            <summary>
+            Unsubscribes to the <see cref="E:System.AppDomain.AssemblyResolve"/> event.
+            </summary>
+        </member>
+        <member name="T:CSScripting.StringExtensions">
+            <summary>
+            Various string extensions
+            </summary>
+        </member>
+        <member name="M:CSScripting.StringExtensions.IsEmpty(System.String)">
+            <summary>
+            Determines whether the string is empty (or null).
+            </summary>
+            <param name="text">The text.</param>
+            <returns>
+              <c>true</c> if the specified text is empty; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:CSScripting.StringExtensions.IsNotEmpty(System.String)">
+            <summary>
+            Determines whether the string is not empty (or null).
+            </summary>
+            <param name="text">The text.</param>
+            <returns>
+              <c>true</c> if [is not empty] [the specified text]; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:CSScripting.StringExtensions.HasText(System.String)">
+            <summary>
+            Determines whether this instance has text.
+            </summary>
+            <param name="text">The text.</param>
+            <returns>
+              <c>true</c> if the specified text has text; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:CSScripting.StringExtensions.TrimSingle(System.String,System.Char[])">
+            <summary>
+            Trims a single character form the head and the end of the string.
+            </summary>
+            <param name="text">The text.</param>
+            <param name="trimChars">The trim chars.</param>
+            <returns>The result of trimming.</returns>
+        </member>
+        <member name="M:CSScripting.StringExtensions.GetLines(System.String)">
+            <summary>
+            Gets the lines.
+            </summary>
+            <param name="str">The string.</param>
+            <returns>The method result.</returns>
+        </member>
+        <member name="M:CSScripting.StringExtensions.Contains(System.String,System.String,System.Boolean)">
+            <summary>
+            Determines whether this string contains the substring defined by the pattern.
+            </summary>
+            <param name="text">The text.</param>
+            <param name="pattern">The pattern.</param>
+            <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
+            <returns>
+              <c>true</c> if [contains] [the specified pattern]; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:CSScripting.StringExtensions.SameAs(System.String,System.String,System.Boolean)">
+            <summary>
+            Compares two strings.
+            </summary>
+            <param name="text">The text.</param>
+            <param name="pattern">The pattern.</param>
+            <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
+            <returns>The result of the test.</returns>
+        </member>
+        <member name="M:CSScripting.StringExtensions.IsOneOf(System.String,System.String[])">
+            <summary>
+            Checks if the given string matches any of the provided patterns.
+            </summary>
+            <param name="text">The text.</param>
+            <param name="patterns">The patterns</param>
+            <returns>The method result.</returns>
+        </member>
+        <member name="M:CSScripting.StringExtensions.JoinBy(System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Joins strings the by the specified separator.
+            </summary>
+            <param name="values">The values.</param>
+            <param name="separator">The separator.</param>
+            <returns>The method result.</returns>
+        </member>
+        <member name="M:CSScripting.StringExtensions.GetHashCodeEx(System.String)">
+            <summary>
+            The custom implementation of the <see cref="M:System.String.GetHashCode"/> method.
+            </summary>
+            <param name="text">The text to generate the hash for.s.</param>
+            <returns>The method result.</returns>
+        </member>
+    </members>
+</doc>
