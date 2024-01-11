@@ -8,9 +8,9 @@
 This page is a one-minute-read info about the brightest features of the system. The complete overview can be found on [Wiki](https://github.com/oleg-shilo/cs-script/wiki/CS-Script-Overview)    
 
 ---
-_Please note that this repository is hosting the releases of CS-Script (v4.0.0 and higher). Previous content of this repository and wiki (.NET Framework edition of CS-Script) has been been moved to the new repository: https://github.com/oleg-shilo/cs-script.net-framework_
+_Please note that this repository is hosting the releases of CS-Script (v4.0.0 and higher). The previous content of this repository and wiki (.NET Framework edition of CS-Script) has been moved to the new repository: https://github.com/oleg-shilo/cs-script.net-framework_
 
-_Note .NET SDK is required to have all features. However the core features can utilized even with .NET Runtime only. See [details](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine#compiler-technology-comparison)._
+_Note .NET SDK is required to have all features. However, the core features can utilized even with .NET Runtime only. See [details](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine#compiler-technology-comparison)._
 
 ---
 [![CI](https://github.com/oleg-shilo/cs-script/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/oleg-shilo/cs-script/actions/workflows/dotnet-desktop.yml)
@@ -20,7 +20,7 @@ _Note .NET SDK is required to have all features. However the core features can u
 
 CS-Script is a CLR-based scripting system that uses ECMA-compliant C# as a programming language.
 
-CS-Script is one of the most mature C# scripting solutions. It became publicly available in 2004, just two years after the first release of .NET. And it was the first comprehensive scripting platform for .NET
+CS-Script is one of the most mature C# scripting solutions. It became publicly available in 2004, just two years after the first release of .NET. It was the first comprehensive scripting platform for .NET
 
 CS-Script supports both hosted and standalone (CLI) execution models. This makes it possible to use the script engine as a pure C# alternative for PowerShell. As well as extending .NET applications with C# scripts executed at runtime by the hosted script engine.
 
