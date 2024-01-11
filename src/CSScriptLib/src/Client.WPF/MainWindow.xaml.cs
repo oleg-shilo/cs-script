@@ -1,5 +1,4 @@
-﻿using CSScriptLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using CSScriptLib;
 
 namespace Client.WPF
 {
@@ -38,6 +38,7 @@ namespace Client.WPF
                                                    }");
 
             (int, int) result = script.func();
+            MessageBox.Show("success", "CodeDom");
         }
 
         public void Test_Roslyn()
@@ -49,6 +50,7 @@ namespace Client.WPF
                                                    }");
 
             (int, int) result = script.func();
+            MessageBox.Show("success", "Roslyn");
         }
     }
 }

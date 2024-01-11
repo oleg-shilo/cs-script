@@ -11,6 +11,9 @@ namespace ConsoleApp1
 {
     public class Program
     {
+#pragma warning ("This solution will no longer work on .NET4.8 for the CS-Script versions starting from v4.8.13. The problem is caused by the latest Roslyn stopping supporting `System.Runtime.Loader` on .NET Framework.")
+
+        // this solution only provided for the demo purposes.
         static void Main(string[] args)
         {
             Console.WriteLine("================\n");
