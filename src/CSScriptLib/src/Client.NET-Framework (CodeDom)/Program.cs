@@ -14,23 +14,24 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            NetCompiler.EnableLatestSyntax();
+            // NetCompiler.EnableLatestSyntax();
             CSScript.EvaluatorConfig.DebugBuild = true;
 
             var sw = Stopwatch.StartNew();
 
-            Console.WriteLine($"Hosting runtime: .NET { (Runtime.IsCore ? "Core" : "Framework")}");
+            Console.WriteLine($"Hosting runtime: .NET {(Runtime.IsCore ? "Core" : "Framework")}");
             Console.WriteLine("================\n");
 
             Console.WriteLine("CodeDOM");
             Test_CodeDom();
             Console.WriteLine("  first run: " + sw.ElapsedMilliseconds);
             sw.Restart();
+
             Test_CodeDom();
             Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
             sw.Restart();
-            Test_CodeDom_GAC();
-            Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
+            // Test_CodeDom_GAC();
+            // Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
         }
 
         static void Test_CodeDom()

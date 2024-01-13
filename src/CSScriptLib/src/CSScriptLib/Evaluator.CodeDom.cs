@@ -30,10 +30,6 @@
 
 #endregion License...
 
-using csscript;
-using CSScripting;
-using CSScripting.CodeDom;
-using Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,7 +38,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using csscript;
+using CSScripting;
+using CSScripting.CodeDom;
 using static CSScripting.Globals;
+using Scripting;
 
 namespace CSScriptLib
 {
@@ -121,6 +121,14 @@ namespace CSScriptLib
 
                 var project = Project.GenerateProjectFor(tempScriptFile ?? scriptFile);
                 var refs = project.Refs.Concat(this.GetReferencedAssembliesFiles()).Distinct().ToArray();
+
+#if class_lib
+                if (!Runtime.IsCore)
+                {
+                    refs = refs.Where(x => !x.EndsWith("System.Core.dll")).ToArray();
+                }
+#endif
+
                 var sources = project.Files;
 
                 if (info?.AssemblyFile != null)
