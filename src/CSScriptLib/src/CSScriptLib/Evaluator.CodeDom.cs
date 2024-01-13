@@ -122,12 +122,7 @@ namespace CSScriptLib
                 var project = Project.GenerateProjectFor(tempScriptFile ?? scriptFile);
                 var refs = project.Refs.Concat(this.GetReferencedAssembliesFiles()).Distinct().ToArray();
 
-#if class_lib
-                if (!Runtime.IsCore)
-                {
-                    refs = refs.Where(x => !x.EndsWith("System.Core.dll")).ToArray();
-                }
-#endif
+                refs = FilterAssembliesLocations(refs).ToArray();
 
                 var sources = project.Files;
 

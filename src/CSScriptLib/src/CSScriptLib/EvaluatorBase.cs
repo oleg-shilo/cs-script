@@ -30,13 +30,6 @@
 
 #endregion License...
 
-using csscript;
-using CSScripting;
-using Microsoft.CodeAnalysis;
-
-//using Microsoft.CodeAnalysis;
-//using Microsoft.CodeAnalysis.CSharp.Scripting
-using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,6 +38,13 @@ using System.Numerics;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+
+//using Microsoft.CodeAnalysis;
+//using Microsoft.CodeAnalysis.CSharp.Scripting
+using Microsoft.CodeAnalysis.Scripting;
+using csscript;
+using CSScripting;
 
 namespace CSScriptLib
 {
@@ -932,13 +932,21 @@ namespace CSScriptLib
         protected Func<IEnumerable<Assembly>, IEnumerable<Assembly>> FilterAssemblies = x => x;
 
         /// <summary>
+        /// The filter assemblies by their location
+        /// </summary>
+        protected Func<IEnumerable<string>, IEnumerable<string>> FilterAssembliesLocations = x => x;
+
+        /// <summary>
         /// Sets the filter for referenced assemblies. The filter is to be applied just before the
         /// assemblies are to be referenced during the script execution.
+        /// <para>Note, this filter will be applied only for the referenced assemblies from the Roslyn evaluator.
+        /// For CodeDom evaluator use
+        /// <see cref="CSScriptLib.EvaluatorBase.WithRefAssembliesFilter(Func{IEnumerable{string}, IEnumerable{string}})"/> </para>
         /// <code>
-        ///dynamic script = CSScript.Evaluator
-        ///.SetRefAssemblyFilter(asms =&gt;
-        ///asms.Where(a =&gt; !a.FullName.StartsWith("Microsoft."))
-        ///.LoadCode(scriptCode);
+        /// dynamic script = CSScript.Evaluator
+        ///                          .SetRefAssemblyFilter(asms =&gt;
+        ///                                                asms.Where(a =&gt; !a.FullName.StartsWith("Microsoft."))
+        ///                          .LoadCode(scriptCode);
         /// </code>
         /// </summary>
         /// <param name="filter">The filter.</param>
@@ -946,6 +954,29 @@ namespace CSScriptLib
         public IEvaluator SetRefAssemblyFilter(Func<IEnumerable<Assembly>, IEnumerable<Assembly>> filter)
         {
             FilterAssemblies += filter;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the filter for referenced assemblies. The filter is to be applied just before the
+        /// assemblies are to be referenced during the script execution.
+        /// <para>Note, this filter will be applied only for the referenced assemblies from the Roslyn and CodeDom
+        /// evaluator. This filter is filtering referenced assemblies locations (<see cref="System.String"/>) but not the assemblies
+        /// already loaded in memory (<see cref="System.Reflection.Assembly"/>). Thus it is different to
+        /// <see cref="CSScriptLib.IEvaluator.SetRefAssemblyFilter(Func{IEnumerable{Assembly}, IEnumerable{Assembly}})"/> that can only be used with Roslyn evaluator.</para>
+        /// <para>This filter is a recommended assembly filtering technique as it is more versatile.</para>
+        /// <code>
+        /// dynamic script = CSScript.Evaluator
+        ///                          .WithRefAssembliesFilter(asms =&gt;
+        ///                                                   asms.Where(a =&gt; !a.EndsWith("System.Core.dll"))
+        ///                          .LoadCode(scriptCode);
+        /// </code>
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <returns></returns>
+        public IEvaluator WithRefAssembliesFilter(Func<IEnumerable<string>, IEnumerable<string>> filter)
+        {
+            FilterAssembliesLocations += filter;
             return this;
         }
 

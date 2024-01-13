@@ -755,7 +755,9 @@ namespace CSScriptLib
 
         IEvaluator PrepareRefAssemblies()
         {
-            foreach (var assembly in FilterAssemblies(refAssemblies))
+            var refAsms = FilterAssemblies(refAssemblies);
+
+            foreach (var assembly in refAsms)
             {
                 if (assembly != null)//this check is needed when trying to load partial name assemblies that result in null
                 {
@@ -769,12 +771,20 @@ namespace CSScriptLib
                             CompilerSettings = CompilerSettings.AddReferences(assembly);
                         }
                     }
-                    else if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>().Any(r => r.FilePath.SamePathAs(assembly.Location)))
-                    {    // Future assembly aliases support:
-                        // MetadataReference.CreateFromFile("asm.dll", new
-                        // MetadataReferenceProperties().WithAliases(new[] { "lib_a",
-                        // "external_lib_a" } })
-                        CompilerSettings = CompilerSettings.AddReferences(assembly);
+                    else
+                    {
+                        bool isUserAllowedAssembly = FilterAssembliesLocations(new[] { assembly.Location() }).Any();
+                        if (isUserAllowedAssembly)
+                        {
+                            if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>().Any(r => r.FilePath.SamePathAs(assembly.Location)))
+                            {
+                                // Future assembly aliases support:
+                                // MetadataReference.CreateFromFile("asm.dll", new
+                                // MetadataReferenceProperties().WithAliases(new[] { "lib_a",
+                                // "external_lib_a" } })
+                                CompilerSettings = CompilerSettings.AddReferences(assembly);
+                            }
+                        }
                     }
                 }
             }

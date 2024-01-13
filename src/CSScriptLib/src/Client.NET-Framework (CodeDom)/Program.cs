@@ -14,7 +14,10 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            // NetCompiler.EnableLatestSyntax();
+            // note that csc.exe compiler references some assemblies by default so we need
+            // to use WithRefAssembliesFilter to avoid "referenced assembly duplication" compiler error
+
+            NetCompiler.EnableLatestSyntax();
             CSScript.EvaluatorConfig.DebugBuild = true;
 
             var sw = Stopwatch.StartNew();
@@ -30,13 +33,15 @@ namespace ConsoleApp1
             Test_CodeDom();
             Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
             sw.Restart();
-            // Test_CodeDom_GAC();
-            // Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
+
+            Test_CodeDom_GAC();
+            Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
         }
 
         static void Test_CodeDom()
         {
             dynamic script = CSScript.CodeDomEvaluator
+                                     .WithRefAssembliesFilter(asms => asms.Where(a => !a.EndsWith("System.Core.dll")))
                                      .LoadMethod(@"public object func()
                                                    {
                                                        // return (0,5);   // C# latest syntax
@@ -51,6 +56,8 @@ namespace ConsoleApp1
             // System.Net.Http.dll needs t be referenced from GAC so we need to add its location to the probing dir
 
             dynamic script = CSScript.CodeDomEvaluator
+                                     .WithRefAssembliesFilter(asms => asms.Where(a => !a.EndsWith("System.Core.dll") &&
+                                                                                      !a.EndsWith("System.dll")))
                                      .LoadCode(@"
                                                 //css_dir C:\Windows\Microsoft.NET\assembly\GAC_MSIL\**
                                                 //css_ref System.Net.Http.dll
