@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.8.13.0</Version>
+    <Version>4.8.14.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -19,8 +19,8 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.8.13.0</AssemblyVersion>
-    <FileVersion>4.8.13.0</FileVersion>
+    <AssemblyVersion>4.8.14.0</AssemblyVersion>
+    <FileVersion>4.8.14.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
@@ -31,7 +31,8 @@
 
 ### CSScriptLib
 
-- CSScriptLib is signed now</PackageReleaseNotes>
+- #362: CSScript.Evaluator.LoadCode broken on net48 after cs-script 4.8.3
+- CSScriptLib.dll is signed now.</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
     <PackageIcon>..\logo\css_logo.png</PackageIcon>

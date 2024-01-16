@@ -941,7 +941,7 @@ namespace CSScriptLib
         /// assemblies are to be referenced during the script execution.
         /// <para>Note, this filter will be applied only for the referenced assemblies from the Roslyn evaluator.
         /// For CodeDom evaluator use
-        /// <see cref="CSScriptLib.EvaluatorBase.WithRefAssembliesFilter(Func{IEnumerable{string}, IEnumerable{string}})"/> </para>
+        /// <see cref="WithRefAssembliesFilter(Func{IEnumerable{string}, IEnumerable{string}})"/> </para>
         /// <code>
         /// dynamic script = CSScript.Evaluator
         ///                          .SetRefAssemblyFilter(asms =&gt;

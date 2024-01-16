@@ -1,4 +1,4 @@
-# Release v4.8.13.0
+# Release v4.8.14.0
 
 ---
 
@@ -10,4 +10,6 @@
 
 ### CSScriptLib
 
-- CSScriptLib is signed now
+- #362: CSScript.Evaluator.LoadCode broken on net48 after cs-script 4.8.3
+- CSScriptLib.dll is signed now.
+
