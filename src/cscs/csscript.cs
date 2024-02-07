@@ -1013,9 +1013,12 @@ namespace csscript
 
                         //add searchDirs to PATH to support search path for native dlls
                         //need to do this before compilation or execution
-                        string path = Environment.GetEnvironmentVariable("PATH");
-                        foreach (string s in options.searchDirs.Except(Settings.PseudoDirItems).Distinct())
-                            path += ";" + s;
+                        // string path = Environment.GetEnvironmentVariable("PATH").Split(';');
+
+                        var path = options.searchDirs.Except(Settings.PseudoDirItems)
+                                          .Concat(GetEnvironmentVariable("PATH").Split(';'))
+                                          .Distinct()
+                                          .JoinBy(";");
 
                         Environment.SetEnvironmentVariable("PATH", path);
 
