@@ -127,11 +127,13 @@ If this flag is set the all references in the compile errors text to the path of
 
         /// <summary>
         /// Gets or sets a value indicating whether legacy NuGet support is enabled (default) or disabled.
+        /// See https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support
         /// </summary>
         /// <value>
         ///   <c>true</c> if legacy NuGet support is enabled; otherwise, <c>false</c>.
         /// </value>
         [Description(@"Gets or sets a value indicating whether legacy NuGet support is enabled (default) or disabled.
+See https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support
 
 `true` if legacy NuGet support is enabled; otherwise, `false`.")]
         public bool LegacyNugetSupport { get; set; } = true;

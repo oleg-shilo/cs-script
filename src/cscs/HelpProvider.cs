@@ -982,8 +982,8 @@ namespace csscript
                          "Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file. " +
                          "(e.g. var location = Environment.GetEnvironmentVariable(\"location:\" + Assembly.GetExecutingAssembly().GetHashCode()); ",
                          " ",
-                         "Note that by default setting of 'location:<asm_hash>' is disabled. You can enable it by calling " +
-                         " 'CSScript.EnableScriptLocationReflection = true'.",
+                         "Note that by default setting of 'location:<asm_hash>' is disabled. You can enable it by setting" +
+                         " 'CSS_SCRIPTLOCATIONREFLECTION' environment variable to non empty string.",
                          " ",
                          "The following is the optional set of environment variables that the script engine uses to improve the user experience:",
                          " ",

@@ -29,7 +29,7 @@ namespace csscript
         static NuGetCore nuget = new NuGetCore();
 
         static public string NuGetCacheView => Directory.Exists(NuGetCache) ? NuGetCache : "<not found>";
-        static public string NuGetCache => CSExecutor.options.legacyNugetSupport ? NuGetCore.NuGetCache : NuGetDotnet.NuGetCache;
+        static public string NuGetCache => CSExecutor.options.legacyNugetSupport ? NuGetCore.NuGetCache : NuGetNewAlgorithm.NuGetCache;
 
         static public string NuGetExeView
             => (NuGetCore.NuGetExe.FileExists() || NuGetCore.NuGetExe == "dotnet") ? NuGetCore.NuGetExe : "<not found>";
@@ -51,7 +51,7 @@ namespace csscript
         static public string[] Resolve(string[] packages, bool suppressDownloading, string script)
             => CSExecutor.options.legacyNugetSupport ?
                 NuGetCore.Resolve(packages, suppressDownloading, script) :
-                NuGetDotnet.FindAssembliesOf(packages, suppressDownloading, script);
+                NuGetNewAlgorithm.FindAssembliesOf(packages, suppressDownloading, script);
     }
 
     class NuGetCore
@@ -126,8 +126,12 @@ namespace csscript
             {
                 Task.Run(() =>
                 {
-                    nuget_dir.DeleteDir();
-                    ClearAnabdonedNugetDirs(nuget_dir.GetDirName());
+                    try
+                    {
+                        nuget_dir.DeleteDir();
+                        ClearAnabdonedNugetDirs(nuget_dir.GetDirName());
+                    }
+                    catch { }
                 });
             }
         }
@@ -139,8 +143,12 @@ namespace csscript
             {
                 if (int.TryParse(item.GetFileName(), out int proc_id))
                 {
-                    if (Process.GetProcessById(proc_id) == null)
-                        try { item.DeleteDir(); } catch { }
+                    try
+                    {
+                        if (Process.GetProcessById(proc_id) == null)
+                            item.DeleteDir();
+                    }
+                    catch { }
                 }
             }
         }
@@ -351,7 +359,7 @@ namespace csscript
                            .ToArray();
 
             return packages.FirstOrDefault(x => string.Compare(x.Name, name, StringComparison.OrdinalIgnoreCase) == 0 &&
-                                                               (version.IsEmpty() || version == x.Version));
+                                                               (version.IsEmpty() || version == "*" || version == x.Version));
         }
 
         static public string[] Resolve(string[] packages, bool suppressDownloading, string script)
@@ -456,7 +464,7 @@ namespace csscript
         }
     }
 
-    class NuGetDotnet
+    class NuGetNewAlgorithm
     {
         static string[] GetPackagesFromConfigFileOfScript(string scriptFile)
         {

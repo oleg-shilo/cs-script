@@ -189,7 +189,9 @@ namespace csscript
 
                     asmLock?.Release();
                 }
-                SetScriptReflection(assembly, Path.GetFullPath(filename), true);
+
+
+                SetScriptReflection(assembly, Path.GetFullPath(filename), "CSS_SCRIPTLOCATIONREFLECTION".GetEnvar().HasText());
                 InvokeStaticMain(assembly, args);
             }
             catch (FileLoadException e)
