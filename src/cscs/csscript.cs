@@ -1872,7 +1872,7 @@ namespace csscript
             if (!Directory.Exists(outDir))
                 Directory.CreateDirectory(outDir);
 
-            compilerParams.CompilerOptions.TunnelConditionalSymbolsToEnvironmentVariables();
+            compilerParams.CompilerOptions?.TunnelConditionalSymbolsToEnvironmentVariables();
 
             CompilerResults results;
             if (generateExe)
