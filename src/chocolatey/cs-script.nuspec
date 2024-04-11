@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.8.12.0</version>
+        <version>4.8.15.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,11 +25,9 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-# Release v4.8.12.0
-- added option to run scripts under .NET Framework (`css -netfx &lt;script&gt;`)
-- added option to run scripts as external process (`css -rx &lt;script&gt;`)
-- extended verbose mode output
-
+# Release v4.8.15.0
+- Issue #366: Precompiler functionality broken
+- Issue #364: Too deeply nested script executions lead to not found NuGet packages
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>cs-script C# script dynamic hosting</tags>
