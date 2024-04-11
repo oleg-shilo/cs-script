@@ -9,8 +9,11 @@ using System.Linq;
 using static System.Net.Mime.MediaTypeNames;
 using System.Reflection;
 using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
+using System.Threading;
+using System.Windows;
 using Microsoft.CodeAnalysis.Scripting;
 using CSScripting;
 
@@ -505,7 +508,7 @@ namespace csscript
                                              );
 
             switch2Help[netfx] = new ArgInfo("-netfx",
-                                         "Comile and execute the script on the latest .NET Framework compiler (csc.exe) found on the system.",
+                                         "Compile and execute the script on the latest .NET Framework compiler (csc.exe) found on the system.",
                                              "The script will be automatically executed as an external process thus the value of the -rx switch" +
                                              "will be ignored.");
 
@@ -1883,28 +1886,31 @@ using System.Collections.Generic;
 
 public class Sample_Precompiler //precompiler class name must end with 'Precompiler'
 {
-    // possible signatures bool Compile(dynamic context) bool Compile(csscript.PrecompilationContext context)
+    // Supported signatures are `bool Compile(dynamic context)` and `bool Compile(csscript.PrecompilationContext context)`
+
     public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
     {
-        //The context Hashtable items are:
-        //- out context:
-        //    NewDependencies
-        //    NewSearchDirs
-        //    NewReferences
-        //    NewIncludes
-        //- in context:
-        //    SearchDirs
-        //    ConsoleEncoding
-        //    CompilerOptions
-        //if new assemblies are to be referenced add them (see 'Precompilers' in the documentation)
-        //var newReferences = (List<string>)context[\""NewReferences\""];
-        //newReferences.Add(\""System.Xml.dll\"");
+        // The context items (Hashtable keys) are:
+        // - out context:
+        //     NewDependencies
+        //     NewSearchDirs
+        //     NewReferences
+        //     NewIncludes
+        // - in context:
+        //     SearchDirs
+        //     ConsoleEncoding
+        //     CompilerOptions
 
-        //if scriptCode needs to be altered assign scriptCode the new value and return true. Otherwise return false
+        // if new assemblies are to be referenced add them (see 'Precompilers' in the documentation) as below
+        // var newReferences = (List<string>)context[\""NewReferences\""];
+        // newReferences.Add(\""System.Xml.dll\"");
+
+        // if scriptCode needs to be altered assign scriptCode the new value and return true. Otherwise return false
 
         //scriptCode = \""code after pre-compilation\"";
-        //return true;
+        //return true; // return `true` if the scriptCode was modified. Otherwise return `false`
 
+        Console.WriteLine($""Precompiling {Path.GetFileName(scriptFile)} ..."");
         return false;
     }
 }".NormalizeNewLines();
@@ -1929,22 +1935,24 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
                 builder.AppendLine(AppInfo.appLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script)")
                        .AppendLine()
                        .AppendLine("   CLR:             " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : ""))
-                       .AppendLine("   System:          " + Environment.OSVersion)
-                       .AppendLine("   Architecture:    " + (Environment.Is64BitProcess ? "x64" : "x86"));
+                       .AppendLine("   System:          " + OSVersion)
+                       .AppendLine("   Architecture:    " + (Is64BitProcess ? "x64" : "x86"));
                 if (Runtime.IsWin)
-                    builder.AppendLine("   Install dir:     " + (Environment.GetEnvironmentVariable("CSSCRIPT_INSTALLED") ?? "<not integrated>"));
+                    builder.AppendLine("   Install dir:     " + (GetEnvironmentVariable("CSSCRIPT_INSTALLED") ?? "<not integrated>"));
 
                 var asm_path = Assembly.GetExecutingAssembly().Location;
                 try
                 {
-                    builder.AppendLine("   Script engine:   " + Assembly.GetExecutingAssembly().Location);
+                    // Debug.Assert(false);
+
+                    builder.AppendLine("   Script engine:   " + asm_path);
+                    builder.AppendLine("   Launcher:        " + Process.GetCurrentProcess()?.MainModule.FileName);
                 }
                 catch { }
 
-                // builder.AppendLine("   Config file:     " + (Settings.DefaultConfigFile.FileExists() ? Settings.DefaultConfigFile : "<none>"));
                 var compiler = "<default>";
 
-                if (!string.IsNullOrEmpty(asm_path))
+                if (asm_path.HasText())
                 {
                     var settings = Settings.Load(Settings.DefaultConfigFile, false) ?? new Settings();
 

@@ -49,7 +49,7 @@ namespace CSScripting.CodeDom
             if (!Runtime.IsSdkInstalled())
                 Console.WriteLine("WARNING: .NET SDK is not installed. It is required for CS-Script (with `csc` engine) to function properly.");
 
-            var cliOptions = options.CompilerOptions
+            var cliOptions = options.CompilerOptions?
                                     .Replace("/target:winexe", "")
                                     .Replace("/platform:x86", "")
                                     .Replace("/platform:x64", "");

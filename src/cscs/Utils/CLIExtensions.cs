@@ -70,7 +70,7 @@ public static class CLIExtensions
 
     public static string GetTargetPlatform(this CompilerParameters compilerParams)
     {
-        var platform = compilerParams.CompilerOptions
+        var platform = compilerParams.CompilerOptions?
             .Split(' ')
             .FirstOrDefault(x => x.StartsWith("/platform:"))
             ?.Split(':')
