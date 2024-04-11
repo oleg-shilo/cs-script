@@ -1,4 +1,4 @@
-# Release v4.8.14.0
+# Release v4.8.15.0
 
 ---
 
@@ -6,10 +6,8 @@
 
 ### CLI
 
-- <no changes>
+- Issue #366: Precompiler functionality broken 
 
 ### CSScriptLib
 
-- #362: CSScript.Evaluator.LoadCode broken on net48 after cs-script 4.8.3
-- CSScriptLib.dll is signed now.
-
+- <no changes>

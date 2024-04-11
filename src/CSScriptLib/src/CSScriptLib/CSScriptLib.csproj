@@ -14,7 +14,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.8.14.0</Version>
+    <Version>4.8.15.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
@@ -30,15 +30,14 @@
 
 ### CLI
 
-- &lt;no changes&gt;
+- Issue #366: Precompiler functionality broken 
 
 ### CSScriptLib
 
-- #362: CSScript.Evaluator.LoadCode broken on net48 after cs-script 4.8.3
-- CSScriptLib.dll is signed now.</PackageReleaseNotes>
+- &lt;no changes&gt;</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.8.14.0</AssemblyVersion>
-    <FileVersion>4.8.14.0</FileVersion>
+    <AssemblyVersion>4.8.15.0</AssemblyVersion>
+    <FileVersion>4.8.15.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>

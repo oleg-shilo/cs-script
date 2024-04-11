@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.8.14.1.
+C# Script execution engine (.NET Core). Version 4.8.15.0.
 Copyright (C) 2004-2023 Oleg Shilo.
 
 
@@ -314,7 +314,7 @@ Copyright (C) 2004-2023 Oleg Shilo.
      -kill          - a complete equivalent of -servers:stop
 
 -netfx
-    Comile and execute the script on the latest .NET Framework compiler (csc.exe) found on the system.
+    Compile and execute the script on the latest .NET Framework compiler (csc.exe) found on the system.
     The script will be automatically executed as an external process thus the value of the -rx switchwill be ignored.
 
 -tc
@@ -801,8 +801,8 @@ This variable is particularly useful as it allows finding the compiled assembly 
 code. Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file. (e.g. var
 location = Environment.GetEnvironmentVariable("location:" + Assembly.GetExecutingAssembly().GetHashCode()); 
  
-Note that by default setting of 'location:<asm_hash>' is disabled. You can enable it by calling 
-'CSScript.EnableScriptLocationReflection = true'.
+Note that by default setting of 'location:<asm_hash>' is disabled. You can enable it by setting
+'CSS_SCRIPTLOCATIONREFLECTION' environment variable to non empty string.
  
 The following is the optional set of environment variables that the script engine uses to improve the user experience:
  
