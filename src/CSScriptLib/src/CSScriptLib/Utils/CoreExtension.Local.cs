@@ -40,7 +40,7 @@ namespace CSScriptLib
             return text;
         }
 
-        internal static string GetScriptedCodeAttributeInjectionCode(string scriptFileName)
+        internal static string GetScriptedCodeAttributeInjectionCode(string scriptFileName, string assemblyFileName = null)
         {
             // using SystemWideLock fileLock = new SystemWideLock(scriptFileName, "attr");
 
@@ -51,9 +51,16 @@ namespace CSScriptLib
 
             string code = $"[assembly: System.Reflection.AssemblyDescriptionAttribute(@\"{scriptFileName}\")]";
 
-            if (scriptFileName.GetExtension().SameAs(".vb"))
-                code = $"<Assembly: System.Reflection.AssemblyDescriptionAttribute(\"{scriptFileName.Replace(@"\", @"\\")}\")>";
+            if (assemblyFileName != null)
+                code += $"\n[assembly: System.Reflection.AssemblyConfigurationAttribute(@\"{assemblyFileName}\")]";
 
+
+            if (scriptFileName.GetExtension().SameAs(".vb"))
+            {
+                code = $"<Assembly: System.Reflection.AssemblyDescriptionAttribute(\"{scriptFileName.Replace(@"\", @"\\")}\")>";
+                if (assemblyFileName != null)
+                    code += $"<Assembly: System.Reflection.AssemblyDescriptionAttribute(\"{assemblyFileName.Replace(@"\", @"\\")}\")>";
+            }
             string currentCode = "";
 
             string file = Path.Combine(CSExecutor.GetCacheDirectory(scriptFileName), scriptFileName.GetFileNameWithoutExtension() + $".attr.g{scriptFileName.GetExtension()}");

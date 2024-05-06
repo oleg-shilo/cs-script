@@ -168,12 +168,12 @@ namespace CSScripting
                     string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
                     if (location == null)
                     {
-                        // Note assembly can contain only single AssemblyDescriptionAttribute
+                        // Note assembly can contain only single AssemblyConfigurationAttribute
                         var locationFromDescAttr = asm
-                            .GetCustomAttributes(typeof(AssemblyDescriptionAttribute), true)?
-                            .Cast<AssemblyDescriptionAttribute>()
+                            .GetCustomAttributes(typeof(AssemblyConfigurationAttribute), true)?
+                            .Cast<AssemblyConfigurationAttribute>()
                             .FirstOrDefault()?
-                            .Description;
+                            .Configuration;
                         if (locationFromDescAttr.FileExists())
                             return locationFromDescAttr;
 

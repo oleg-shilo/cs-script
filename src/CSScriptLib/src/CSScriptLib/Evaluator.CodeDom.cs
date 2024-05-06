@@ -126,11 +126,9 @@ namespace CSScriptLib
 
                 var sources = project.Files;
 
-                if (info?.AssemblyFile != null)
-                {
-                    injection_file = CoreExtensions.GetScriptedCodeAttributeInjectionCode(info.AssemblyFile);
-                    sources = sources.Concat(new[] { injection_file }).ToArray();
-                }
+                injection_file = CoreExtensions.GetScriptedCodeAttributeInjectionCode(sources.First(), info?.AssemblyFile);
+
+                sources = sources.Concat(new[] { injection_file }).ToArray();
 
                 int scriptHash = 0;
 
