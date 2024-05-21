@@ -59,7 +59,7 @@ namespace CSScriptLib
             {
                 code = $"<Assembly: System.Reflection.AssemblyDescriptionAttribute(\"{scriptFileName.Replace(@"\", @"\\")}\")>";
                 if (assemblyFileName != null)
-                    code += $"<Assembly: System.Reflection.AssemblyDescriptionAttribute(\"{assemblyFileName.Replace(@"\", @"\\")}\")>";
+                    code += $"<Assembly: System.Reflection.AssemblyConfigurationAttribute(\"{assemblyFileName.Replace(@"\", @"\\")}\")>";
             }
             string currentCode = "";
 
