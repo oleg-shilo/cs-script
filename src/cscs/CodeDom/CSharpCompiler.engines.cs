@@ -55,7 +55,7 @@ namespace CSScripting.CodeDom
                                     .Replace("/platform:x64", "");
 
             var config = options.IncludeDebugInformation ? "--configuration Debug" : "--configuration Release";
-            var cmd = $"build {projectFile.GetFileName()} {config} -o {output} {cliOptions}"; // dotnet build command gets "console vs win" from the project file, not the CLI param
+            var cmd = $"build \"{projectFile.GetFileName()}\" {config} -o {output} {cliOptions}"; // dotnet build command gets "console vs win" from the project file, not the CLI param
 
             Profiler.get("compiler").Start();
             assembly.DeleteIfExists();
