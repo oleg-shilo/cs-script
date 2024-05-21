@@ -29,21 +29,16 @@
 ## Changes
 
 ### CLI
-
-
-* * CSScriptLib:
 - Issue #371: Location of script file Unable to get correct results in hosted script
 - Issue #372: Execution with dotnet engine fails if the script has spaces in the name
 
 
 ### CSScriptLib
-- Issue #371: Location of script file Unable to get correct results in hosted script
-
-- &lt;no changes&gt;</PackageReleaseNotes>
+- Issue #371: Location of script file Unable to get correct results in hosted script</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <AssemblyVersion>4.8.16.0</AssemblyVersion>
     <FileVersion>4.8.16.0</FileVersion>
-    <PackageVersion>4.8.16.0-pre</PackageVersion>
+    <PackageVersion>4.8.16.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>
