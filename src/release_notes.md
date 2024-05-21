@@ -1,13 +1,13 @@
-# Release v4.8.15.0
+# Release v4.8.16.0
 
 ---
 
 ## Changes
 
 ### CLI
+- Issue #371: Location of script file Unable to get correct results in hosted script
+- Issue #372: Execution with dotnet engine fails if the script has spaces in the name
 
-- Issue #366: Precompiler functionality broken 
 
 ### CSScriptLib
-
-- <no changes>
+- Issue #371: Location of script file Unable to get correct results in hosted script
