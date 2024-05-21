@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>cs-script</id>
-        <version>4.8.15.0</version>
+        <version>4.8.16.0</version>
         <title>CS-Script</title>
         <authors>Oleg Shilo</authors>
         <owners>Oleg Shilo</owners>
@@ -25,9 +25,10 @@
 </description>
         <summary>CS-Script</summary>
         <releaseNotes>
-# Release v4.8.15.0
-- Issue #366: Precompiler functionality broken
-- Issue #364: Too deeply nested script executions lead to not found NuGet packages
+# Release v4.8.16.0
+- Issue #371: Location of script file Unable to get correct results in hosted script
+- Issue #372: Execution with dotnet engine fails if the script has spaces in the name
+
         </releaseNotes>
         <copyright>Oleg Shilo</copyright>
         <tags>cs-script C# script dynamic hosting</tags>
