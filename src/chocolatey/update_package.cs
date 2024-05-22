@@ -4,6 +4,7 @@
 using System.IO;
 using System.Net;
 using System;
+using System.Linq;
 
 ServicePointManager.Expect100Continue = true;
 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -14,15 +15,16 @@ var installScript = @"tools\chocolateyInstall.ps1";
 
 var cheksum = calcChecksum(url);
 // var cheksum = "E1809AD6433A91B2FF4803E7F4B15AE0FA88905A28949EAC5590F7D9FD9BE9C3";
-Console.WriteLine(cheksum);
+// Console.WriteLine(cheksum);
 
 var code = File.ReadAllText(installScript + ".template")
                .Replace("$url = ???", "$url = '" + url + "'")
                .Replace("$checksum = ???", "$checksum = '" + cheksum + "'");
 
 File.WriteAllText(installScript, code);
+
 Console.WriteLine("--------------");
-Console.WriteLine(code);
+Console.WriteLine(code.Split('\n').FirstOrDefault(x => x.Trim().StartsWith("$url =")));
 Console.WriteLine("--------------");
 Console.WriteLine();
 Console.WriteLine("Done...");
