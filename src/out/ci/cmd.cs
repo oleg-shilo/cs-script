@@ -199,6 +199,11 @@ public static class cmd
         int exitCode = 0;
         return run(app, args, ref exitCode, echo);
     }
+    static public string run(string app, string args, string workingDir, bool echo = true)
+    {
+        int exitCode = 0;
+        return run(app, args, workingDir, ref exitCode, echo);
+    }
 
     static public string run(string app, string args, ref int exitCode, bool echo = true)
     {
