@@ -4,7 +4,7 @@ Steps
 2. Create a new version branch in the manifests folder: .\manifests\o\oleg-shilo\cs-script\4.x.x.x\
 3. Update individual files in this folder with the new version, the release github url and new SHA-256
 4. Validate manifests: winget validate .\manifests\o\oleg-shilo\cs-script\4.x.x.x 
-5. Install locally: winget install -m .\manifests\o\oleg-shilo\cs-script\4.x.x.x 
+5. Install locally: winget install -m .\manifests\o\oleg-shilo\cs-script\4.x.x.x --ignore-local-archive-malware-scan
 5. Optionally uninstall locally: winget uninstall -m .\manifests\o\oleg-shilo\cs-script\4.x.x.x 
 
 Notes:
