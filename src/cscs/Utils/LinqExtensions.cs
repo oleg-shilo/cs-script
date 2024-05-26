@@ -36,6 +36,12 @@ namespace CSScripting
         public static IEnumerable<TSource> AddItem<TSource>(this IEnumerable<TSource> items, TSource item) =>
             items.Concat(new[] { item });
 
+        public static IEnumerable<TSource> AddItems<TSource>(this IEnumerable<TSource> items, IEnumerable<TSource> newItems) =>
+            items.Concat(newItems);
+
+        public static string[] ConcatIntoArray(this string items, params string[] newItems) =>
+            new[] { items }.Concat(newItems).ToArray();
+
         /// <summary>
         /// Determines whether the collection is empty.
         /// </summary>

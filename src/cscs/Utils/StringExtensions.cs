@@ -19,6 +19,7 @@ namespace CSScripting
         /// </returns>
         public static bool IsEmpty(this string text) => string.IsNullOrEmpty(text);
 
+
         /// <summary>
         /// Determines whether the string is not empty (or null).
         /// </summary>

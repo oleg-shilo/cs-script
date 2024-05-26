@@ -220,10 +220,10 @@ namespace CSScripting.CodeDom
             if (projectName.GetExtension().SameAs(".vbproj"))
                 compileConstantsDelimiter = ",";
 
-            string[] constants = ["TRACE", "NETCORE", "CS_SCRIPT"];
+            var constants = new[] { "TRACE", "NETCORE", "CS_SCRIPT" }.ToList();
 
             if (isNetFx)
-                constants = ["NETFRAMEWORK", .. constants];
+                constants.Add("NETFRAMEWORK");
 
             project_element.Add(new XElement("PropertyGroup",
                                     new XElement("DefineConstants", constants.JoinBy(compileConstantsDelimiter))));

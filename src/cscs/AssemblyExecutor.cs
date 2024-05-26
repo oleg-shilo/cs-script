@@ -126,9 +126,16 @@ namespace csscript
                 }
 
                 if (exe.FileExists())
+                {
                     ExecuteAssemblyAsProcess(exe, args, asmLock);
+                }
                 else
-                    ExecuteAssemblyAsProcess("dotnet.exe", [filename, .. args], asmLock);
+                {
+                    var newArgs = new[] { filename }.ToList();
+                    newArgs.AddRange(args);
+                    ExecuteAssemblyAsProcess("dotnet.exe", newArgs.ToArray(), asmLock);
+                    // ExecuteAssemblyAsProcess("dotnet.exe", [filename, .. args], asmLock); // enable when building for .NET 8.0 and higher
+                }
             }
             else
                 ExecuteLoadedAssembly(filename, args, asmLock);

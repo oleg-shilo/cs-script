@@ -1185,12 +1185,12 @@ namespace csscript
 
                         ////////////////////////////////////////////
                         // exploring custom commands
-                        string[] commandDirs = [
+                        string[] commandDirs = new[]{
                             Runtime.CustomCommandsDir,
 #if DEBUG
                             Environment.GetEnvironmentVariable("CSSCRIPT_INSTALLED"),
 #endif
-                            Assembly.GetExecutingAssembly().Location.GetDirName()];
+                            Assembly.GetExecutingAssembly().Location.GetDirName() };
 
                         var customCommands = commandDirs
                                                  .SelectMany(dir =>

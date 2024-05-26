@@ -1835,10 +1835,10 @@ namespace csscript
 
                 var refAsms = compilerParams.ReferencedAssemblies.ToArray();
                 if (options.enableDbgPrint)
-                    refAsms = [Assembly.GetExecutingAssembly().Location, .. refAsms];
+                    refAsms = Assembly.GetExecutingAssembly().Location.ConcatIntoArray(refAsms);
 
                 var injection = CSSUtils.GetRuntimeProbingInjectionCode(runexFile, refAsms);
-                filesToCompile = filesToCompile.Concat([injection]).ToArray();
+                filesToCompile = filesToCompile.AddItem(injection).ToArray();
 
                 // runexFile is the file with the probing code to compile
                 // runexTrigger is the file to indicate that the assembly needs to be executed as external process

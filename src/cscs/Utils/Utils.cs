@@ -442,7 +442,7 @@ class HostingRuntime
 
                             if (match.Value.Contains("Main")) //assembly entry point "static Main"
                             {
-                                var args = new Regex("\\((.*?)\\)").Matches(line).FirstOrDefault()?.Value?.Trim(['(', ')']);
+                                var args = new Regex("\\((.*?)\\)").Matches(line).FirstOrDefault()?.Value?.Trim(new[] { '(', ')' });
                                 var argName = Regex.Split(args ?? "", @"\s+").LastOrDefault();
 
                                 var returnType = Regex.Split(line.Substring(0, match.Index), @"\s+").LastOrDefault();

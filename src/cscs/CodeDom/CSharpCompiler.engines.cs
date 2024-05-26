@@ -389,7 +389,7 @@ namespace CSScripting.CodeDom
                     var newSourceFile = build_dir.PathJoin(entryScript.ChangeExtension(".g.cs"));
                     File.WriteAllText(newSourceFile, newCode);
 
-                    string[] newSources = [$"\"{newSourceFile}\"", .. source_args.Skip(1)];
+                    string[] newSources = new[] { $"\"{newSourceFile}\"" }.AddItems(source_args.Skip(1)).ToArray();
                     cmd = $@"{common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {newSources.JoinBy(" ")}";
                     cmpl_cmd = cmd;
 

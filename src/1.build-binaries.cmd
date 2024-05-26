@@ -11,6 +11,7 @@ if exist "C:\Program Files\Microsoft Visual Studio\2022\%vs_edition%" (
 
 set PATH=%PATH%;%%\out\ci\
 set target=net8.0
+set target7=net7.0
 md "out\Windows"
 md "out\Windows\lib"
 md "out\Linux\"
@@ -51,20 +52,22 @@ cd ..\cscs
 echo ----------------
 echo Building cscs.dll from %cd%
 echo ----------------
-dotnet publish -c Release -f %target% -o "..\out\Windows\console"
+
+dotnet publish -c Release -f %target7% -o "..\out\Windows\distros\net7" cscs.7.csproj
+dotnet publish -c Release -f %target% -o "..\out\Windows\console" cscs.csproj
 
 echo ----------------
 echo Building cs-script.cli .NET tool from %cd%
 echo ----------------
 del .\nupkg\*.*nupkg 
-dotnet pack
+dotnet pack cscs.csproj
 copy .\nupkg\*  ..\out\
 
 echo ----------------
 echo Building cscs.dll (Linux) from %cd%
 echo ----------------
 
-dotnet publish -c Release -f %target% -r linux-x64 --self-contained false -o "..\out\Linux"
+dotnet publish -c Release -f %target% -r linux-x64 --self-contained false -o "..\out\Linux" cscs.csproj
 
 cd ..\csws
 echo ----------------

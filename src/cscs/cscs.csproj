@@ -50,6 +50,11 @@
     <Exec Command="set css_bin=&quot;$(ProjectDir)..\css\bin\$(ConfigurationName)&quot;&#xD;&#xA;IF exist %25css_bin%25 ( echo . ) ELSE ( md %25css_bin%25)&#xD;&#xA;&#xD;&#xA;pushd .\&#xD;&#xA;cd $(TargetDir)&#xD;&#xA;IF exist deploy.cmd ( deploy.cmd )&#xD;&#xA;popd&#xD;&#xA; &#xD;&#xA;&#xD;&#xA;IF exist &quot;$(TargetDir)cscs.exe&quot; (set exe_file=$(TargetName).exe) ELSE (set exe_file=$(TargetName))&#xD;&#xA;echo &quot;$(TargetDir)%25exe_file%25&quot;&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\$(TargetName).dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)%25exe_file%25&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\%25exe_file%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(ConfigurationName)\cscs.runtimeconfig.json&quot;&#xD;&#xA;" />
   </Target>
   <ItemGroup>
+    <Compile Remove="bin7\**" />
+    <EmbeddedResource Remove="bin7\**" />
+    <None Remove="bin7\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Remove="GACHelper.cs" />
   </ItemGroup>
   <ItemGroup>
