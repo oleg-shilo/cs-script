@@ -36,11 +36,24 @@ namespace CSScripting
         public static IEnumerable<TSource> AddItem<TSource>(this IEnumerable<TSource> items, TSource item) =>
             items.Concat(new[] { item });
 
+        /// <summary>
+        /// Adds the items to the collection.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the source.</typeparam>
+        /// <param name="items">The items.</param>
+        /// <param name="newItems">The new items.</param>
+        /// <returns></returns>
         public static IEnumerable<TSource> AddItems<TSource>(this IEnumerable<TSource> items, IEnumerable<TSource> newItems) =>
             items.Concat(newItems);
 
-        public static string[] ConcatIntoArray(this string items, params string[] newItems) =>
-            new[] { items }.Concat(newItems).ToArray();
+        /// <summary>
+        /// Converts an item into a single item array and concats it with another array.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="newItems"></param>
+        /// <returns></returns>
+        public static string[] ConcatIntoArray(this string item, params string[] newItems) =>
+            new[] { item }.Concat(newItems).ToArray();
 
         /// <summary>
         /// Determines whether the collection is empty.

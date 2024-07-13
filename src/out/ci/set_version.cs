@@ -38,6 +38,7 @@ static class methods
     public static void set_version(this string project, string version, string changes)
     {
         project.set_element("Version", version);
+        project.set_element("PackageVersion", version);
         project.set_element("FileVersion", version.strip_text());
         project.set_element("PackageReleaseNotes", changes);
         project.set_element("AssemblyVersion", version.strip_text());

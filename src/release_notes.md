@@ -1,13 +1,12 @@
-# Release v4.8.16.0
+# Release v4.8.17.0
 
 ---
 
 ## Changes
 
 ### CLI
-- Issue #371: Location of script file Unable to get correct results in hosted script
-- Issue #372: Execution with dotnet engine fails if the script has spaces in the name
+- #378: Bump Request -> Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0
 
 
 ### CSScriptLib
-- Issue #371: Location of script file Unable to get correct results in hosted script
+- #378: Bump Request -> Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0
