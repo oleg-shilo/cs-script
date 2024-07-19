@@ -24,20 +24,22 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
-    <PackageReleaseNotes>---
+    <PackageReleaseNotes>
+      ---
 
-## Changes
+      ## Changes
 
-### CLI
-- #378: Bump Request -&gt; Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0
+      ### CLI
+      - #378: Bump Request -&gt; Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0
 
 
-### CSScriptLib
-- #378: Bump Request -&gt; Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0</PackageReleaseNotes>
+      ### CSScriptLib
+      - #378: Bump Request -&gt; Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0
+    </PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.8.17.0</AssemblyVersion>
-    <FileVersion>4.8.17.0</FileVersion>
-    <PackageVersion>4.8.17.0</PackageVersion>
+    <AssemblyVersion>4.8.17.1</AssemblyVersion>
+    <FileVersion>4.8.17.1</FileVersion>
+    <PackageVersion>4.8.18.0-HotFix</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>
