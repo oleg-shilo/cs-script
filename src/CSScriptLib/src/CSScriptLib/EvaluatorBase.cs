@@ -1058,7 +1058,14 @@ namespace CSScriptLib
             }
             else if (assemblies == DomainAssemblies.AllStaticNonGAC)
             {
+#if net35
                 relevantAssemblies = relevantAssemblies.Where(x => !x.GlobalAssemblyCache && !x.IsDynamic() && x != mscorelib).ToArray();
+#else
+                // .NET Core does not support GlobalAssemblyCache property but allows its execution even though its obsolete.
+                // However on some runtimes GlobalAssemblyCache actually throws.
+                // So it's better to use the same algorithm as for AllStatic as GAC is not supported anyway.
+                relevantAssemblies = relevantAssemblies.Where(x => !x.IsDynamic() && x != mscorelib).ToArray();
+#endif
             }
             else if (assemblies == DomainAssemblies.None)
             {
