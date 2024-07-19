@@ -1,8 +1,8 @@
-using Microsoft.CodeAnalysis.Emit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.CodeAnalysis.Emit;
 
 namespace CSScriptLib
 {
@@ -50,7 +50,10 @@ namespace CSScriptLib
         AllStatic,
 
         /// <summary>
-        /// All static and non-GAC current AppDomain assemblies
+        /// All static and non-GAC current AppDomain assemblies.
+        /// <p>Note, since GAC is only available on .NET Framework platform, on all other
+        /// .NET platforms this value triggers the same behavior as <see cref="DomainAssemblies.AllStatic"/> </p>
+        ///
         /// </summary>
         AllStaticNonGAC,
 
