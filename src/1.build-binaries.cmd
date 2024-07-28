@@ -188,8 +188,11 @@ del out\cs-script.win.7z
 del out\cs-script.linux.7z
 
 echo Updating help.txt
-.\out\Windows\cscs.exe -? > ..\help.txt 
+.\out\Windows\cscs.exe -help > ..\help.txt 
+.\out\Windows\cscs.exe -help cli:md > ..\help-cli.md
+.\out\Windows\cscs.exe -help syntax:md > ..\help-syntax.md
 
-rem echo Published: %cd%
+
+syntax echo Published: %cd%
 rem cd ..\..\.
 :exit 

@@ -292,6 +292,11 @@ namespace CSScripting
                 Console.WriteLine(message);
         }
 
+        internal static string FromMdToTxt(this string message)
+        {
+            return message.Replace("&lt;", "<").Replace("&gt;", ">").Replace("`", "").Replace("&#96;", "`");
+        }
+
         public static string DbgInjectionCode = DbgInjectionCodeInterface;
 
         internal static string DbgInjectionCodeInterface = @"// Auto-generated file
