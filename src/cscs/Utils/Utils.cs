@@ -294,7 +294,15 @@ namespace CSScripting
 
         internal static string FromMdToTxt(this string message)
         {
-            return message.Replace("&lt;", "<").Replace("&gt;", ">").Replace("`", "").Replace("&#96;", "`");
+            return message
+                .Replace("&lt;", "<")
+                .Replace("&gt;", ">")
+                .Replace("**_", "")
+                .Replace("_**", "")
+                .Replace("```C#", "")
+                .Replace("```txt", "")
+                .Replace("`", "")
+                .Replace("&#96;", "`");
         }
 
         public static string DbgInjectionCode = DbgInjectionCodeInterface;

@@ -178,7 +178,10 @@ cd out\Windows
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.7z#'', $#''..\\cs-script.win.v{version}.7z#'', true);
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.zip#'', $#''..\\cs-script.win.v{version}.zip#'', true);
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.linux.7z#'', $#''..\\cs-script.linux.v{version}.7z#'', true);
-.\cscs -help cli:md > ..\CS-Script---Command-Line-Interface.md
+@REM md ..\..\..\cs-script.wiki
+.\cscs -help cli:md > ..\..\..\..\cs-script.wiki\CS-Script---Command-Line-Interface.md
+.\cscs -help syntax:md > ..\..\..\..\cs-script.wiki\Script-Syntax.md
+
 cd ..\..
 
 move "CSScriptLib\src\CSScriptLib\output\*.nupkg" ".\out"
@@ -189,8 +192,6 @@ del out\cs-script.linux.7z
 
 echo Updating help.txt
 .\out\Windows\cscs.exe -help > ..\help.txt 
-.\out\Windows\cscs.exe -help cli:md > ..\help-cli.md
-.\out\Windows\cscs.exe -help syntax:md > ..\help-syntax.md
 
 
 syntax echo Published: %cd%

@@ -100,7 +100,7 @@ namespace csscript
                 return lines
                     .Select(x =>
                     {
-                        if (x.Replace("-", "").TrimEnd() == "")
+                        if (x.Replace(AppArgs.section_sep, "").TrimEnd() == "")
                             return "";
 
                         if (x.StartsWith("`//css_"))
@@ -111,11 +111,13 @@ namespace csscript
                         }
 
                         if (x.Replace("*", "").Trim() == "") // "********************"
-                            return "\r\n---\r\n";
+                            return "";
 
+                        if (x.StartsWith("CS-Script specific syntax"))
+                            return $"# {x}{NewLine}{NewLine}---";
                         return x;
                     })
-                    .JoinBy(NewLine).Replace("&#96;", "`");
+                    .JoinBy(NewLine).Replace("\r\n\r\n\r\n", "\r\n\r\n");
             }
         }
 
@@ -257,7 +259,9 @@ namespace csscript
                                          "Note this switch will force the use of `dotnet` compiler as `csc` is not capable of building " +
                                          "executable assemblies. Thus `//css_engine` and `-engine` options will always be ignored.");
             switch1Help[ew] = new ArgInfo("-ew",
-                                          "Compiles script into Windows application executable (applicable only on Windows).");
+                                          "Compiles script into Windows application executable (applicable only on Windows).",
+                                          "Note this switch will force the use of `dotnet` compiler as `csc` is not capable of building " +
+                                          "executable assemblies. Thus `//css_engine` and `-engine` options will always be ignored.");
             switch1Help[rx] = new ArgInfo($"-{rx}",
                                           "Run script as an external process. This option is incompatible with VB scripts.",
                                           "This mode allows execution of the scripts that are otherwise incompatible with the runtime " +
@@ -269,13 +273,13 @@ namespace csscript
                                           "   The compiled script is executed directly as exe(e.g. `script.exe`).",
                                           " - `roslyn` ",
                                           "   This mode is not supported as Roslyn scripts do not support `static main`.");
-            switch1Help[ew] = new ArgInfo("-c[:<0|1>]",
-                                          "Executes compiled script cache (e.g. <cache dir>/script.cs.dll) if found.",
-                                          "This command improves performance by avoiding compiling the script if it was not changed since last execution.",
-                                          "```",
-                                          "   -c:1|-c  - enable caching",
-                                          "   -c:0     - disable caching (which might be enabled globally)",
-                                          "```");
+            switch1Help[c] = new ArgInfo("-c[:<0|1>]",
+                                         "Executes compiled script cache (e.g. <cache dir>/script.cs.dll) if found.",
+                                         "This command improves performance by avoiding compiling the script if it was not changed since last execution.",
+                                         "```",
+                                         "   -c:1|-c  - enable caching",
+                                         "   -c:0     - disable caching (which might be enabled globally)",
+                                         "```");
             switch1Help[ca] = new ArgInfo("-ca",
                                           "Compiles script file into cache file (e.g. <cache dir>/script.cs.dll).");
             switch1Help[cd] = new ArgInfo("-cd",
@@ -680,21 +684,30 @@ namespace csscript
                          section_sep, //------------------------------------
                          "Engine directives can be controlled (enabled/disabled) with compiler conditional symbols " +
                          "and environment variables via the inline `#if` syntax:",
+                         " ",
+                         "```C#",
                          "  //css_include #if DEBUG debug_utils.cs",
                          "  //css_dir #if (DEBUG) .\\bin\\Debug",
                          "  //css_reference #if PRODUCTION_PC d:\\temp\\build\\certificates.dll",
+                         "```",
                          section_sep, //------------------------------------
                          "The script engine also always defines special compiler conditional symbol `CS_SCRIPT`:",
+                         " ",
+                         "```C#",
                          "  #if CS_SCRIPT",
                          "       Console.WriteLine(\"Running as a script...\");",
                          "  #endif",
+                         "```",
                          "The script engine also defines another conditional symbol `NETCORE` to allow user" +
                          "to distinguish between executions under .NET (full) and .NET Core",
                          section_sep, //------------------------------------
                          "`//css_include <file>;`",
                          " ",
                          alias_prefix + "`//css_inc`",
+                         " ",
                          "`file` - name of a script file to be included at compile-time.",
+                         " ",
+                         "_**This directive is available for both CLI and hosted script execution.**_",
                          " ",
                          "This directive is used to import/include one script into another one. It is a logical equivalent of '#include' in C++.",
                          " ",
@@ -704,10 +717,12 @@ namespace csscript
                          " ",
                          "If for whatever reason it is preferred to always resolve path expression with respect to the parent script location " +
                          "you can configure the script engine to do it with the following command:",
-                         "``` ",
+                         " ",
+                         "```txt",
                          "   cscs -config:set:ResolveRelativeFromParentScriptLocation = true",
                          "``` ",
-                         "Note if you use wildcard in the imported script name (e.g. *_build.cs) the directive will only import from the first " +
+                         " ",
+                         "Note, if you use a wildcard in the imported script name (e.g. /*_build.cs) the directive will only import from the first " +
                          "probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.cs' as they may lead to " +
                          "unpredictable behavior. For example they may match everything from the very first probing directory, which is typically a current " +
                          "directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.cs', '*Helper.cs', './*.cs')",
@@ -715,20 +730,22 @@ namespace csscript
                          "`//css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];`",
                          " ",
                          alias_prefix + "`//css_imp`",
+                         " ",
                          "This is a more specialized version of the default script importing directive //css_include (//css_inc).",
                          "While //css_include simply includes a script file in the execution as is, //css_import analyzes the file being imported " +
                          "and renames namespaces and static Main(...) to avoid naming collisions. Thus you should use it only if you " +
                          "have naming collisions problems.",
-                         " ",
-                         "`file`             - ${<==}name of a script file to be imported at compile-time.",
-                         "`preserve_main`    - ${<==}do not rename 'static Main'. ",
-                         "                     ${<==}.NET allows only one entry point 'static Main' method per application.Thus it is a problem if the primary and " +
+                         "```txt ",
+                         "file             - ${<==}name of a script file to be imported at compile-time.",
+                         "preserve_main    - ${<==}do not rename 'static Main'. ",
+                         "                   ${<==}.NET allows only one entry point 'static Main' method per application.Thus it is a problem if the primary and " +
                          "the imported scripts both contain 'static Main'.To avoid this the script engine searches the imported script for 'static Main' method " +
                          "and renames it in 'i_Main' and then uses a temporary copy of the processed imported script during the execution. If you need to use the " +
                          "imported script as is, then you should use 'preserve_main' argument with the '//css_import' directive.",
-                         "`rename_namespace` - ${<==}rename namespace clause, it can appear in the directive multiple times",
-                         "`oldName`          - ${<==}name of a namespace to be renamed during importing",
-                         "`newName`          - ${<==}new name of a namespace to be renamed during importing",
+                         "rename_namespace - ${<==}rename namespace clause, it can appear in the directive multiple times",
+                         "oldName          - ${<==}name of a namespace to be renamed during importing",
+                         "newName          - ${<==}new name of a namespace to be renamed during importing",
+                         "``` ",
                          section_sep, //------------------------------------
                          " ",
                          "`//css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-rt:<runtime>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];`",
@@ -739,24 +756,27 @@ namespace csscript
                          "      New NuGet support can be enabled by setting `LegacyNugetSupport` option to false with `css -config:set:LegacyNugetSupport=false`)",
                          "      Read more: https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support",
                          " ",
-                         "By default the package is not downloaded again if it was already downloaded.",
+                         "By default, the package is not downloaded again if it was already downloaded.",
                          "If no version is specified then the highest downloaded version (if any) will be used.",
                          "Referencing the downloaded packages can only handle simple dependency scenarios when all downloaded assemblies are to be referenced.",
                          "You should use '-noref' switch and reference assemblies manually for all other cases. For example multiple assemblies with the same file name that " +
                          "target different CLRs (e.g. v3.5 vs v4.0) in the same package.",
                          "Switches:",
-                         " `-noref`         - ${<==}switch for individual packages if automatic referencing isn't desired.",
-                         "                    ${<==}You can use 'css_nuget' environment variable for further referencing package content (e.g. //css_dir %css_nuget%\\WixSharp\\**)",
-                         "                    ${<==}(Not available with new NuGet support)",
-                         " `-force[:delay]` - ${<==}switch to force individual packages downloading even when they were already downloaded.",
-                         "                    ${<==}You can optionally specify delay for the next forced downloading by number of seconds since last download.",
-                         "                    ${<==}'-force:3600' will delay it for one hour. This option is useful for preventing frequent download interruptions during active script development.",
-                         "                    ${<==}(Not available with new NuGet support)",
-                         " `-ver:<version>` - ${<==}switch to download/reference a specific package version.",
-                         " `-rt:<runtime>`  - ${<==}switch to use specific runtime binaries (e.g. '-rt:netstandard1.3').",
-                         "                    ${<==}(Not available with new NuGet support)",
-                         " `-ng:<args>`     - ${<==}switch to pass `nuget.exe`/`dotnet restore` arguments for every individual package.",
-                         "                    ${<==}(`-restore:` as an alias of this switch)",
+                         " ",
+                         "```txt",
+                         " -noref         - ${<==}switch for individual packages if automatic referencing isn't desired.",
+                         "                  ${<==}You can use 'css_nuget' environment variable for further referencing package content (e.g. //css_dir %css_nuget%\\WixSharp\\**)",
+                         "                  ${<==}(Not available with new NuGet support)",
+                         " -force[:delay] - ${<==}switch to force individual packages downloading even when they were already downloaded.",
+                         "                  ${<==}You can optionally specify a delay for the next forced downloading by the number of seconds since last download.",
+                         "                  ${<==}'-force:3600' will delay it for one hour. This option is useful for preventing frequent download interruptions during active script development.",
+                         "                  ${<==}(Not available with new NuGet support)",
+                         " -ver:<version> - ${<==}switch to download/reference a specific package version.",
+                         " -rt:<runtime>  - ${<==}switch to use specific runtime binaries (e.g. '-rt:netstandard1.3').",
+                         "                  ${<==}(Not available with new NuGet support)",
+                         " -ng:<args>     - ${<==}switch to pass `nuget.exe`/`dotnet restore` arguments for every individual package.",
+                         "                  ${<==}(`-restore:` as an alias of this switch)",
+                         "``` ",
                          " ",
                          "Example: //css_nuget cs-script;",
                          "         //css_nuget -restore:\"-v minimal\" -ver:4.1.2 NLog",
@@ -768,17 +788,19 @@ namespace csscript
                          section_sep,
                          "`//css_args arg0[,arg1]..[,argN];`",
                          " ",
-                         "Embedded script arguments. The both script and engine arguments are allowed except \"/noconfig\" engine command switch.",
+                         "Embedded script arguments. Both script and engine arguments are allowed except \"/noconfig\" engine command switch.",
+                         " ",
                          "Example: `//css_args -dbg, -inmem;`",
-                         "This directive will always force script engine to execute the script in debug mode.",
+                         "This directive will always force the script engine to execute the script in debug mode.",
                          "Note: the arguments must be coma separated.",
                          section_sep, //------------------------------------
                          "`//css_reference <file>;`",
                          " ",
                          alias_prefix + "`//css_ref`",
+                         " ",
                          "`file` - name of the assembly file to be loaded at run-time.",
                          "",
-                         "This directive is used to reference assemblies required at run time.",
+                         "_**This directive is used to reference assemblies required at run time.**_",
                          "The assembly must be in GAC, the same folder with the script file or in the 'Script Library' folders (see 'CS-Script settings').",
                          " ",
                          "Note if you use wildcard in the referenced assembly name (e.g. socket.*.dll) the directive will only reference from the first " +
@@ -790,6 +812,7 @@ namespace csscript
                          "`//css_precompiler <file 1>,<file 2>;`",
                          " ",
                          alias_prefix + "`//css_pc`",
+                         " ",
                          "`file` - name of the script or assembly file implementing precompiler.",
                          " ",
                          "This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time just " +
@@ -800,18 +823,22 @@ namespace csscript
                          "`//css_searchdir <directory>;`",
                          " ",
                          alias_prefix + "`//css_dir`",
+                         " ",
                          "directory - name of the directory to be used for script and assembly probing at run-time.",
                          " ",
                          "This directive is used to extend set of search directories (script and assembly probing).",
                          "The directory name can be a wildcard based expression.In such a case all directories matching the pattern will be this " +
                          "case all directories will be probed.",
                          "The special case when the path ends with '**' is reserved to indicate 'sub directories' case. Examples:",
+                         "```C#",
                          "${<=4}//css_dir packages\\ServiceStack*.1.0.21\\lib\\net40",
                          "${<=4}//css_dir packages\\**",
+                         "```",
                          section_sep, //------------------------------------
                          "`//css_winapp`",
                          " ",
                          alias_prefix + "`//css_winapp`",
+                         " ",
                          "Adds search directories required for running WinForm and WPF scripts.",
                          "Note: you need to use csws.exe engine to run WPF scripts.",
                          "Alternatively you can set environment variable 'CSS_WINAPP' to non empty value and css.exe shim will redirect the " +
@@ -820,13 +847,15 @@ namespace csscript
                          "`//css_webapp`",
                          " ",
                          alias_prefix + "`//css_webapp`",
+                         " ",
                          "Indicates that the script app needs to be compiled against Microsoft.AspNetCore.App framework.",
                          "A typical example is a WebAPI script application.",
                          section_sep, //------------------------------------
                          "`//css_autoclass [style]`",
                          " ",
                          alias_prefix + "`//css_ac`",
-                         "OBSOLETE, use top-class native C# 9 feature instead",
+                         " ",
+                         "_**OBSOLETE, use top-class native C# 9 feature instead**_",
                          "Automatically generates 'static entry point' class if the script doesn't define any.",
                          "```C# ",
                          "    //css_ac",
@@ -839,22 +868,22 @@ namespace csscript
                          "``` ",
                          "Using an alternative 'instance entry point' is even more convenient (and reliable).",
                          "The acceptable 'instance entry point' signatures are:",
-                         "``` ",
+                         "```C#",
                          "    void main()",
                          "    void main(string[] args)",
                          "    int main()",
                          "    int main(string[] args)",
                          "``` ",
                          "The convention for the classless (auto-class) code structure is as follows:",
-                         " - set of 'using' statements" +
-                         " - classless 'main' " +
-                         " - user code " +
-                         " - optional //css_ac_end directive" +
-                         " - optional user code that is not a subject of auto-class decoration" +
-                         "(see https://github.com/oleg-shilo/cs-script/wiki/CLI---User-Guide#command-auto-class)",
+                         " - set of 'using' statements",
+                         " - classless 'main' ",
+                         " - user code ",
+                         " - optional //css_ac_end directive",
+                         " - optional user code that is not a subject of auto-class decoration",
+                         "(see https://github.com/oleg-shilo/cs-script/wiki/CLI-Script-Execution#command-auto-class)",
                          " ",
                          "A special case of auto-class use case is a free style C# code that has no entry point 'main' at all:",
-                         "``` ",
+                         "```C# ",
                          "    //css_autoclass freestyle",
                          "    using System;",
                          " ",
@@ -863,11 +892,11 @@ namespace csscript
                          "Since it's problematic to reliable auto-detect free style auto-classes, they must be defined with the " +
                          "special parameter 'freestyle' after the '//css_ac' directive",
                          " ",
-                         "By default CS-Script decorates the script by adding a class declaration statement to the " +
-                         "start of the script routine and a class closing bracket to the end. This may have an unintended " +
+                         "By default, CS-Script decorates the script by adding a class declaration statement to the " +
+                         "start of the script routine and a class-closing bracket to the end. This may have an unintended " +
                          "effect as any class declared in the script becomes a 'nested class'. While it is acceptable " +
                          "for practically all use-cases it may be undesired for just a few scenarios. For example, any " +
-                         "class containing method extensions must be a top level static class, what conflicts with the " +
+                         "class containing method extensions must be a top-level static class, which conflicts with the " +
                          "auto-class decoration algorithm.",
                          " ",
                          "An additional '//css_autoclass_end' ('//css_ac_end') directive can be used to solve this problem.",
@@ -876,7 +905,7 @@ namespace csscript
                          "into) an auto-class.",
                          "This directive allows defining top level static classes in the class-less scripts, which is required for " +
                          "implementing extension methods.",
-                         "``` ",
+                         "```C# ",
                          " //css_ac",
                          " using System;",
                          " ",
@@ -899,8 +928,9 @@ namespace csscript
                          "`//css_resource <file>[, <out_file>];`",
                          " ",
                          alias_prefix + "`//css_res`",
+                         " ",
                          "`file`     - name of the compiled resource file (.resources) to be used with the script.",
-                         "             ${<==}Alternatively it can be the name of the XML resource file (.resx) that will be compiled on-fly.",
+                         "             ${<==}Alternatively, it can be the name of the XML resource file (.resx) that will be compiled on-fly.",
                          "`out_file  - ${<==}Optional name of the compiled resource file (.resources) to be generated form the .resx input." +
                          "If not supplied then the compiled file will have the same name as the input file but the file extension '.resx' " +
                          "changed to '.resources'.",
@@ -910,11 +940,11 @@ namespace csscript
                          "          //css_res Resources1.resx;",
                          "          //css_res Form1.resx, Scripting.Form1.resources;",
                          section_sep, //------------------------------------
-                         "`//css_co <options>`",
+                         "`//css_co <options>;`",
                          " ",
                          "`options` - options string.",
                          " ",
-                         "This directive is used to pass compiler options string directly to the language specific CLR compiling engine.",
+                         "This directive is used to pass compiler options string directly to the language-specific CLR compiling engine.",
                          "Note: ",
                          "- the options may not be compatible with the compiling engine of your choice (see //css_engine)." +
                          "Thus `//css_co /define:CS_SCRIPT` will work for `csc` engine but will not for `dotnet` since it does not support /define.",
@@ -930,29 +960,31 @@ namespace csscript
                          alias_prefix + "`//css_ng`",
                          " ",
                          "This directive is used to select compiler services for building a script into an assembly.",
-                         "  `dotnet` - use `dotnet.exe` and on-fly .NET projects.",
-                         "             ${<==}This is a default compiler engine that handles well even complicated " +
+                         "```txt ",
+                         " dotnet - use `dotnet.exe` and on-fly .NET projects.",
+                         "          ${<==}This is a default compiler engine that handles well even complicated " +
                          "heterogeneous multi-file scripts like WPF scripts.",
-                         "  `csc`    - use `csc.exe`. ",
-                         "             ${<==}This compiler shows much better performance. Though it is not suitable for WPF scripts.",
+                         " csc    - use `csc.exe`. ",
+                         "          ${<==}This compiler shows much better performance. Though it is not suitable for WPF scripts.",
                          "This feature is conceptually similar to the VBCSCompiler.exe build server, which is not available in in .NET5/.NET-Core. " +
                          "Even though available on .NET-Fx (Roslyn).",
-                         "             ${<==}Using this option can in order of magnitude improve compilation speed. However it's not suitable for " +
+                         "          ${<==}Using this option can in order of magnitude improve compilation speed. However it's not suitable for " +
                          "compiling WPF scripts because csc.exe cannot compile XAML.",
-                         "             ${<==}While this feature useful it will be deprecated when .NET5+ starts distributing its own properly" +
+                         "          ${<==}While this feature is useful it will be deprecated when .NET5+ starts distributing its own properly " +
                          "working build server VBCSCompiler.exe.",
-                         "  `roslyn` - use `Microsoft.CodeAnalysis.CSharp.Scripting.dll` (Roslyn). ",
-                         "             ${<==}This compiler shows good performance and does not require .NET SDK. Though it is not suitable for WPF scripts. " +
+                         "roslyn - use `Microsoft.CodeAnalysis.CSharp.Scripting.dll` (Roslyn). ",
+                         "         ${<==}This compiler shows good performance and does not require .NET SDK. Though, it is not suitable for WPF scripts. " +
                          "See [this wiki](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine) for details.",
-                         " ",
+                         "``` ",
                          " Example: //css_engine csc" + NewLine,
                          section_sep, //------------------------------------
                          "`//css_ignore_namespace <namespace>;`",
                          " ",
                          alias_prefix + "`//css_ignore_ns`",
+                         " ",
                          "namespace - name of the namespace. Use '*' to completely disable namespace resolution",
                          " ",
-                         "This directive is used to prevent CS-Script from resolving the referenced namespace into assembly.",
+                         "This directive is used to prevent CS-Script from resolving the referenced namespace into the assembly.",
 
                          section_sep, //------------------------------------
                          "`//css_ac_end`",
@@ -960,10 +992,10 @@ namespace csscript
                          "This directive is only applicable for class-less scripts executed with '-autoclass' CLI argument. " +
                          "It's nothing else but a marker indicating the end of the code that needs to be decorated as (wrapped " +
                          "into) an auto-class.",
-                         "This directive allows achieving top level static classes in the class-less scripts, which is required for " +
+                         "This directive allows achieving top-level static classes in the class-less scripts, which is required for " +
                          "implementing extension methods.",
-                         "``` ",
-                         " //css_args -acutoclass",
+                         "```C# ",
+                         " //css_args -autoclass",
                          " using System;",
                          " ",
                          " void main()",
@@ -981,42 +1013,51 @@ namespace csscript
                          "     }",
                          " }",
                          "``` ",
-
                          section_sep, //------------------------------------
                          "`//css_prescript file([arg0][,arg1]..[,argN])[ignore];`",
-                         "`//css_postscript file([arg0][,arg1]..[,argN])[ignore];`",
                          " ",
-                         "`Aliases` - //css_pre and //css_post",
+                         alias_prefix + "`//css_pre`",
+                         " ",
                          "`file`    - script file (extension is optional)",
                          "`arg0..N` - script string arguments",
                          "`ignore`  - ${<==}continue execution of the main script in case of error",
                          " ",
-                         "These directives are used to execute secondary pre- and post-execution scripts.",
+                         "These directives are used to execute secondary pre-execution scripts.",
                          "If $this (or $this.name) is specified as arg0..N it will be replaced at execution time with the main script full name (or file name only).",
                          "You may find that in many cases precompilers (//css_pc and -pc) are a more powerful and flexible alternative to the pre-execution script.",
+                         section_sep, //------------------------------------
+                         "`//css_postscript file([arg0][,arg1]..[,argN])[ignore];`",
+                         alias_prefix + "`//css_post`",
+                         " ",
+                         "`file`    - script file (extension is optional)",
+                         "`arg0..N` - script string arguments",
+                         "`ignore`  - ${<==}continue execution of the main script in case of error",
+                         " ",
+                         "These directives are used to execute secondary post-execution scripts.",
+                         "If $this (or $this.name) is specified as arg0..N it will be replaced at execution time with the main script full name (or file name only).",
                          section_sep, //------------------------------------
                          "{$css_host}",
                          " ",
                          "Note the script engine always sets the following environment variables:",
-                         " 'pid'                     - ${<==}host processId (e.g. Environment.GetEnvironmentVariable(\"pid\")",
-                         " 'CSScriptRuntime'         - ${<==}script engine version",
-                         " 'CSScriptRuntimeLocation' - ${<==}script engine location",
-                         " 'cscs_exe_dir'            - ${<==}script engine directory",
-                         " 'EntryScript'             - ${<==}location of the entry script",
-                         " 'EntryScriptAssembly'     - ${<==}location of the compiled script assembly",
-                         " 'location:<asm_hash>'    - ${<==}location of the compiled script assembly.",
+                         " `pid`                     - ${<==}host processId (e.g. Environment.GetEnvironmentVariable(\"pid\")",
+                         " `CSScriptRuntime`         - ${<==}script engine version",
+                         " `CSScriptRuntimeLocation` - ${<==}script engine location",
+                         " `cscs_exe_dir`            - ${<==}script engine directory",
+                         " `EntryScript`             - ${<==}location of the entry script",
+                         " `EntryScriptAssembly`     - ${<==}location of the compiled script assembly",
+                         " `location:<asm_hash>`     - ${<==}location of the compiled script assembly.",
                          " ",
                          "This variable is particularly useful as it allows finding the compiled assembly file from the inside of the script code. " +
                          "Even when the script loaded in-memory (InMemoryAssembly setting) but not from the original file. " +
                          "(e.g. var location = Environment.GetEnvironmentVariable(\"location:\" + Assembly.GetExecutingAssembly().GetHashCode()); ",
                          " ",
-                         "Note that by default setting of 'location:<asm_hash>' is disabled. You can enable it by setting" +
+                         "Note that the default setting of 'location:<asm_hash>' is disabled. You can enable it by setting" +
                          " 'CSS_SCRIPTLOCATIONREFLECTION' environment variable to non empty string.",
                          " ",
                          "The following is the optional set of environment variables that the script engine uses to improve the user experience:",
                          " ",
                          " 'CSS_NUGET' ",
-                         "${<=6}location of the NuGet packages scripts can load/reference",
+                         "${<=6}location of the NuGet packages, which scripts can load/reference",
                          " ",
                          " 'CSSCRIPT_ROOT'",
                          "${<=6}script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is during the CS-Script installation.",
@@ -1025,7 +1066,7 @@ namespace csscript
                          "${<=6}script engine output encoding if the one from the css_confix.xml needs to be overwritten.",
                          " ",
                          " 'CSSCRIPT_INC'",
-                         "${<=6}a system wide include directory for the all frequently used user scripts.",
+                         "${<=6}a system-wide include directory for the all frequently used user scripts.",
                          "$(csscript_roslyn)",
                          " ",
                          " 'CSSCRIPT_CSC_CMD_LOG'",
@@ -1034,7 +1075,7 @@ namespace csscript
                          "the advanced debugging scenarios. Of the environment variable is not set or the value is not a valid file path " +
                          "then no log file will be created.",
                          "$(csscript_roslyn)",
-
+                         " ",
                          "---------",
                          "During the script execution CS-Script always injects a little object inspector class 'dbg'. " +
                          "This class contains static printing methods that mimic Python's 'print()'. It is particularly useful for object inspection in the absence of a proper debugger.",
@@ -1043,14 +1084,14 @@ namespace csscript
                          "  dbg.print(\"Now:\", DateTime.Now)        - ${<==}prints concatenated objects.",
                          "  dbg.print(DateTime.Now)                - ${<==}prints object and values of its properties.",
                          "  dbg.printf(\"Now: {0}\", DateTime.Now)   - ${<==}formats and prints object and values of its fields and properties.",
-                         "---------",
                          " ",
+                         "---------",
                          "Any directive has to be written as a single line in order to have no impact on compiling by CLI compliant compiler." +
                          "It also must be placed before any namespace or class declaration.",
                          " ",
                          "---------",
                          "Example:",
-                         "``` ",
+                         "```C# ",
                          " //css_include web_api_host.cs;",
                          " //css_reference media_server.dll;",
                          " //css_nuget Newtonsoft.Json;",
@@ -1070,7 +1111,7 @@ namespace csscript
                          " }",
                          "``` ",
                          "Or shorter form:",
-                         "``` ",
+                         "```C# ",
                          " //css_args -ac",
                          " //css_inc web_api_host.cs",
                          " //css_ref media_server.dll",
@@ -1085,10 +1126,11 @@ namespace csscript
                          "     WebApi.SimpleHost(args)",
                          "           .StartAsConosle(\"http://localhost:8080\");",
                          " }",
-                         " ",
+                         "``` ",
+                         "",
                          "---------",
                          " Project Website: https://github.com/oleg-shilo/cs-script",
-                         "``` ");
+                         "");
 
             if (Runtime.IsWin)
                 syntaxHelp = syntaxHelp.Replace("{$css_host}", "")
@@ -1149,7 +1191,7 @@ namespace csscript
                         if (context.Any())
                         {
                             var directive = context.First().ToString();
-                            var alias = AppArgs.alias_prefix + directive;
+                            var alias = AppArgs.alias_prefix + "`" + directive.TrimStart('`');
 
                             var lines = AppArgs.SyntaxHelp.GetLines();
 
@@ -1162,7 +1204,7 @@ namespace csscript
                                                 .Reverse()
                                                 .Concat(bottom_lines.TakeWhile(x => x != AppArgs.section_sep))
                                                 .JoinBy(NewLine);
-                            return help;
+                            return help.FromMdToTxt();
                         }
                         return AppArgs.SyntaxHelp;
                     }
