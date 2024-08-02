@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Microsoft.CodeAnalysis;
 using CSScripting;
 using CSScriptLib;
-using Microsoft.CodeAnalysis;
 
 // publishing as a single-file with and without runtime dependency
 // dotnet publish --configuration Release --output .\publish --self-contained false
@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis;
 // evaluation of a simple expression
 var div = CSScript.Evaluator.Eval("6/3");
 
-Console.WriteLine(div);
+Console.WriteLine("CSScript.Evaluator.Eval|expression: " + div);
 
 // ---------------------------
 // evaluation of a complex script
@@ -27,12 +27,12 @@ var calc = CSScript.Evaluator
                            return new Script();");
 
 int sum = calc.Sum(1, 2);
-Console.WriteLine(sum);
+Console.WriteLine("CSScript.Evaluator.Eval|class: " + sum);
 
 // ---------------------------
 // compilation of a regular C# code
 var asm = CSScript.Evaluator
-                  .CompileCode(@"using System;
+                   .CompileCode(@"using System;
                                  public class Script
                                  {
                                      public int Div(int a, int b)
@@ -43,4 +43,4 @@ var asm = CSScript.Evaluator
 
 dynamic script = asm.CreateObject("*.Script");
 
-Console.WriteLine(script.Div(16, 2));
+Console.WriteLine("CSScript.Evaluator.CompileCode|class: " + script.Div(16, 2));

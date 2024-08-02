@@ -722,7 +722,7 @@ namespace csscript
                          "   cscs -config:set:ResolveRelativeFromParentScriptLocation = true",
                          "``` ",
                          " ",
-                         "Note, if you use a wildcard in the imported script name (e.g. /*_build.cs) the directive will only import from the first " +
+                         "Note, if you use a wildcard in the imported script name (e.g. ./*_build.cs) the directive will only import from the first " +
                          "probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.cs' as they may lead to " +
                          "unpredictable behavior. For example they may match everything from the very first probing directory, which is typically a current " +
                          "directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.cs', '*Helper.cs', './*.cs')",
@@ -731,10 +731,11 @@ namespace csscript
                          " ",
                          alias_prefix + "`//css_imp`",
                          " ",
-                         "This is a more specialized version of the default script importing directive //css_include (//css_inc).",
+                         "This is a more specialized version of the default script importing directive //css_include (//css_inc) " +
+                         "with some extra renaming functionality.",
                          "While //css_include simply includes a script file in the execution as is, //css_import analyzes the file being imported " +
                          "and renames namespaces and static Main(...) to avoid naming collisions. Thus you should use it only if you " +
-                         "have naming collisions problems.",
+                         "have naming collision problems.",
                          "```txt ",
                          "file             - ${<==}name of a script file to be imported at compile-time.",
                          "preserve_main    - ${<==}do not rename 'static Main'. ",
@@ -1035,7 +1036,8 @@ namespace csscript
                          " ",
                          "These directives are used to execute secondary post-execution scripts.",
                          "If $this (or $this.name) is specified as arg0..N it will be replaced at execution time with the main script full name (or file name only).",
-                         section_sep, //------------------------------------
+                         " ",
+                         section_sep + "-", // important to add extra `-` so the separator is preasent  in CLI and MD
                          "{$css_host}",
                          " ",
                          "Note the script engine always sets the following environment variables:",

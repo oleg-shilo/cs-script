@@ -188,7 +188,8 @@ namespace CSScriptLib
 
                 var sources = new List<string>(fileNames); // sources may need to hold more than fileNames
 
-                var ref_assemblies = ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
+                var ref_assemblies = ReferencedAssemblies.Where(x => x.HasText())
+                                                         .Where(x => !x.IsSharedAssembly())
                                                          .Where(Path.IsPathRooted)
                                                          .ToList();
 
