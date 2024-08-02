@@ -3,6 +3,8 @@
 3. Run `2.run-tests.cmd`
 4. Run `3.build-documentations.cmd`
 5. Run `3.build-linux-distro.cmd`
+6. Run `4.build-choco.cmd`
+6. Run `4.build-winget.cmd`
 
 Publish GitHub release
 Publish NuGet release
