@@ -22,6 +22,7 @@ var calc = CSScript.Evaluator
                            {
                                public int Sum(int a, int b)
                                {
+                                   Console.WriteLine(Settings.Value);
                                    return a+b;
                                }
                            }
@@ -45,3 +46,8 @@ var asm = CSScript.Evaluator
 dynamic script = asm.CreateObject("*.Script");
 
 Console.WriteLine("CSScript.Evaluator.CompileCode|class: " + script.Div(16, 2));
+
+public class Settings
+{
+    public static string Value = "Host App value...";
+}
