@@ -33,6 +33,7 @@ Console.WriteLine("CSScript.Evaluator.Eval|class: " + sum);
 
 // ---------------------------
 // compilation of a regular C# code
+// Note, in the self-contained build only SourceCodeKind.Script is supported
 var asm = CSScript.Evaluator
                    .CompileCode(@"using System;
                                  public class Script
