@@ -16,6 +16,7 @@ Console.WriteLine("CSScript.Evaluator.Eval|expression: " + div);
 
 // ---------------------------
 // evaluation of a complex script
+// Can access the host application types.
 var calc = CSScript.Evaluator
                    .Eval(@"using System;
                            public class Script
@@ -42,11 +43,17 @@ var asm = CSScript.Evaluator
                                      {
                                          return a/b;
                                      }
+                                     public void Foo(dynamic obj)
+                                     {
+                                         int result = obj.Sum(2,5);
+                                     }
                                  }", new CompileInfo { CodeKind = SourceCodeKind.Script });
 
 dynamic script = asm.CreateObject("*.Script");
-
 Console.WriteLine("CSScript.Evaluator.CompileCode|class: " + script.Div(16, 2));
+
+// Note, accessing types defined in another script is impossible. But accessing another script runtime object is OK.
+script.Foo(calc);
 
 public class Settings
 {
