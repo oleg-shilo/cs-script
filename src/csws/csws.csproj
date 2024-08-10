@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.8.17.0</Version>
+    <Version>4.8.18.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -19,18 +19,20 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.8.17.0</AssemblyVersion>
-    <FileVersion>4.8.17.0</FileVersion>
+    <AssemblyVersion>4.8.18.0</AssemblyVersion>
+    <FileVersion>4.8.18.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 - #378: Bump Request -&gt; Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0
+- Added custom command `-set-rt-self` for setting the cs-script engine target runtime to the currently active .NET configuration.
 
 
 ### CSScriptLib
-- #378: Bump Request -&gt; Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0</PackageReleaseNotes>
+- #378: Bump Request -&gt; Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0
+- #379: cs-script does not support MAUI Android</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
     <PackageIcon>..\logo\css_logo.png</PackageIcon>
