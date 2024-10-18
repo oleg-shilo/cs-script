@@ -135,7 +135,7 @@ static class MkShim
         var template = File.ReadAllText(templateFile);
         var csFile = Path.Combine(outDir, Path.GetFileName(exe) + ".cs");
 
-        var exePath = $"@\"return {exe};\"";
+        var exePath = $"return @\"{exe}\";";
 
         if (!Path.IsPathRooted(exe))
         {
@@ -179,5 +179,5 @@ static class MkShim
         => FileVersionInfo.GetVersionInfo(file).FileVersion;
 
     static string csc
-    => @"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe";
+        => @"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe";
 }

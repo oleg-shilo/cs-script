@@ -22,6 +22,7 @@ md "out\Linux\-self\-test"
 md "out\Windows\-mkshim"
 md "out\Windows\-self"
 md "out\Windows\-self\-exe"
+md "out\Windows\-self\-alias"
 md "out\Windows\-self\-test"
 md "out\Windows\-wdbg"
 md "out\Windows\-wdbg\dbg-server"
@@ -88,7 +89,7 @@ pushd .\
 cd .\out\static_content\-wdbg\dbg-server
 echo ----------------
 echo Building WDBG from %cd%
-dotnet publish -o .\output
+dotnet publish -o .\output server.csproj
 popd
 
 
@@ -162,8 +163,8 @@ cd out\Windows
 echo cd: %cd%
 ..\ci\7z.exe a -r "..\cs-script.win.7z" "*.*"
 echo ==========================================
-echo .\cscs -l:0 -mkshim css.exe cscs.exe
-.\cscs -l:0 -mkshim css.exe cscs.exe
+echo .\cscs -l:0 -c:0 -ng:csc -mkshim css.exe cscs.exe
+.\cscs -l:0 -c:0 -ng:csc -mkshim css.exe cscs.exe
 echo ==========================================
 ..\ci\7z.exe a -r "..\cs-script.win.zip" "*.*"
 cd ..\..
@@ -194,6 +195,6 @@ echo Updating help.txt
 .\out\Windows\cscs.exe -help > ..\help.txt 
 
 
-syntax echo Published: %cd%
+echo Published: %cd%
 rem cd ..\..\.
 :exit 
