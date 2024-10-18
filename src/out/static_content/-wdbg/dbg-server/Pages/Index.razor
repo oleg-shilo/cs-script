@@ -323,6 +323,7 @@
         if (!string.IsNullOrEmpty(scriptFile))
         {
             OnLoad();
+#pragma warning disable CS4014
             OnPrepare();
         }
     }
@@ -466,6 +467,7 @@
         try
         {
             File.WriteAllTextAsync(scriptFile, this.scriptCode);
+#pragma warning disable CS4014
             OnPrepare();
         }
         catch (Exception e)

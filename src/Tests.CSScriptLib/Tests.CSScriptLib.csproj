@@ -13,7 +13,7 @@
 
     <SignAssembly>True</SignAssembly>
 
-    <AssemblyOriginatorKeyFile>D:\dev\cs-script\src\CSScriptLib\src\CSScriptLib\sgKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

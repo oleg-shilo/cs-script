@@ -65,7 +65,7 @@ namespace CSScripting.CodeDom
             (string projectName, string language) = fileType.MapValue((".cs", to => ("build.csproj", "C#")),
                                                                       (".vb", to => ("build.vbproj", "VB")));
 
-            var proj_template = build_root.PathJoin($"build.{Environment.Version}.{fileType}proj");
+            var proj_template = build_root.PathJoin($"build.{Environment.Version}{fileType}proj");
 
             if (!File.Exists(proj_template))
             {
