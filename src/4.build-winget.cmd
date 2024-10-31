@@ -4,7 +4,7 @@ echo off
 cd .\..\..\winget-pkgs
 
 
-Sync the https://github.com/oleg-shilo/winget-pkgs fork with the MS upstream repo...
+echo Sync the https://github.com/oleg-shilo/winget-pkgs fork with the MS upstream repo...
 
 pause
 
