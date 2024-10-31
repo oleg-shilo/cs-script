@@ -1,14 +1,14 @@
-using CSScripting;
-using CSScriptLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using static System.Environment;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using static System.Environment;
+using CSScripting;
+using CSScriptLib;
 
 namespace csscript
 {
@@ -1048,7 +1048,7 @@ namespace csscript
                     // need to ensure that double "\n\n" is not treated as escaped delimiter. The
                     // same comes to '\r' and '\t'.
 
-                    if (lastDelimiter == c && !char.IsWhiteSpace(lastDelimiter)) //delimiter was escaped
+                    if (lastDelimiter == c && !lastDelimiter.IsWhiteSpace()) //delimiter was escaped
                         lastDelimiter = char.MinValue;
                     else
                         return i - 1;
@@ -1099,10 +1099,10 @@ namespace csscript
             if (Code.Length < startPos + length) //the rest of the text is too short
                 return false;
 
-            if (startPos != 0 && !(char.IsWhiteSpace(Code[startPos - 1]) || IsOneOf(Code[startPos - 1], codeDelimiters))) //position is not at the start of the token
+            if (startPos != 0 && !(Code[startPos - 1].IsWhiteSpace() || IsOneOf(Code[startPos - 1], codeDelimiters))) //position is not at the start of the token
                 return false;
 
-            if (Code.Length > startPos + length && !(char.IsWhiteSpace(Code[startPos + length]) || IsOneOf(Code[startPos + length], codeDelimiters))) //position is not at the end of the token
+            if (Code.Length > startPos + length && !(Code[startPos + length].IsWhiteSpace() || IsOneOf(Code[startPos + length], codeDelimiters))) //position is not at the end of the token
                 return false;
 
             return true;
@@ -1113,10 +1113,10 @@ namespace csscript
             if (Code.Length < startPos + length) //the rest of the text is too short
                 return false;
 
-            if (startPos != 0 && !char.IsWhiteSpace(Code[startPos - 1])) //position is not at the start of the token
+            if (startPos != 0 && !Code[startPos - 1].IsWhiteSpace()) //position is not at the start of the token
                 return false;
 
-            if (Code.Length > startPos + length && !char.IsWhiteSpace(Code[startPos + length])) //position is not at the end of the token
+            if (Code.Length > startPos + length && !Code[startPos + length].IsWhiteSpace()) //position is not at the end of the token
                 return false;
 
             int endPos = startPos + length;
