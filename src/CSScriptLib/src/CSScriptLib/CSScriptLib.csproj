@@ -14,7 +14,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.8.18.0</Version>
+    <Version>4.8.19.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
@@ -29,17 +29,16 @@
 ## Changes
 
 ### CLI
-- #378: Bump Request -&gt; Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0
-- Added custom command `-set-rt-self` for setting the cs-script engine target runtime to the currently active .NET configuration.
+- #389: BOM seems to confuse CS-Script
+- Added missing signing certificate file `Tests.CSScriptLib/sgKey.snk`
 
 
 ### CSScriptLib
-- #378: Bump Request -&gt; Microsoft.CodeAnalysis.CSharp.Scripting 4.10.0
-- #379: cs-script does not support MAUI Android</PackageReleaseNotes>
+- #389: BOM seems to confuse CS-Script</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.8.18.0</AssemblyVersion>
-    <FileVersion>4.8.18.0</FileVersion>
-    <PackageVersion>4.8.18.0-HotFix</PackageVersion>
+    <AssemblyVersion>4.8.19.0</AssemblyVersion>
+    <FileVersion>4.8.19.0</FileVersion>
+    <PackageVersion>4.8.19.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>
