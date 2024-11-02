@@ -19,7 +19,7 @@ Console.WriteLine($"Environment Version: {Environment.Version}");
 Console.WriteLine("Generating the configuration file...");
 
 var dir = Path.Combine(Path.GetTempPath(), "css-set-rt").createOrClear();
-var output = "dotnet".run("new winforms", dir);
+var output = "dotnet".run("new console", dir);
 output = "dotnet".run("build", dir);
 
 var configSrc = Directory.GetFiles(dir, "*.runtimeconfig.json", SearchOption.AllDirectories).FirstOrDefault();

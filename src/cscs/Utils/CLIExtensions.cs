@@ -101,7 +101,7 @@ public static class CLIExtensions
 
                                      isEscaping = false;
 
-                                     return !inQuotes && Char.IsWhiteSpace(c)/*c == ' '*/;
+                                     return !inQuotes && c.IsWhiteSpace()/*c == ' '*/;
                                  })
                           .Select(arg => arg.Trim().TrimMatchingQuotes('\"').Replace("\\\"", "\""))
                           .Where(arg => !string.IsNullOrEmpty(arg))

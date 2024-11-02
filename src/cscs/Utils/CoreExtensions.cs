@@ -368,6 +368,11 @@ namespace csscript
             return "\\u" + ((int)c).ToString("x4");
         }
 
+        internal static bool IsWhiteSpace(this char c)
+        {
+            return char.IsWhiteSpace(c) || c == '\uFEFF';
+        }
+
 #if class_lib
 
         internal static ExpandStatementDelegate ExpandAlgorithm { get; set; }

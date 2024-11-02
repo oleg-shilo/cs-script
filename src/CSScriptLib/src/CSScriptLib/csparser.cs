@@ -1048,10 +1048,10 @@ namespace CSScriptLib
             if (code.Length < startPos + length) //the rest of the text is too short
                 return false;
 
-            if (startPos != 0 && !(char.IsWhiteSpace(code[startPos - 1]) || IsOneOf(code[startPos - 1], codeDelimiters))) //position is not at the start of the token
+            if (startPos != 0 && !(code[startPos - 1].IsWhiteSpace() || IsOneOf(code[startPos - 1], codeDelimiters))) //position is not at the start of the token
                 return false;
 
-            if (code.Length > startPos + length && !(char.IsWhiteSpace(code[startPos + length]) || IsOneOf(code[startPos + length], codeDelimiters))) //position is not at the end of the token
+            if (code.Length > startPos + length && !(code[startPos + length].IsWhiteSpace() || IsOneOf(code[startPos + length], codeDelimiters))) //position is not at the end of the token
                 return false;
 
             return true;
@@ -1062,11 +1062,10 @@ namespace CSScriptLib
             if (code.Length < startPos + length) //the rest of the text is too short
                 return false;
 
-            if (startPos != 0 && !char.IsWhiteSpace(code[startPos - 1])) //position is not at the start of the token
+            if (startPos != 0 && !code[startPos - 1].IsWhiteSpace()) //position is not at the start of the token
                 return false;
 
-            //if (code.Length > startPos + length && !(char.IsWhiteSpace(code[startPos + length]) || IsDelimiter(code[startPos + length], DirectiveDelimiters))) //position is not at the end of the token
-            if (code.Length > startPos + length && !char.IsWhiteSpace(code[startPos + length])) //position is not at the end of the token
+            if (code.Length > startPos + length && !code[startPos + length].IsWhiteSpace()) //position is not at the end of the token
                 return false;
 
             int endPos = startPos + length;
