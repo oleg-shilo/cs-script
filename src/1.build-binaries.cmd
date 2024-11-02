@@ -16,6 +16,7 @@ md "out\Windows"
 md "out\Windows\lib"
 md "out\Linux\"
 md "out\Linux\lib"
+md "out\Linux\-web"
 md "out\Linux\-self"
 md "out\Linux\-self\-exe"
 md "out\Linux\-self\-test"
@@ -107,6 +108,9 @@ copy "out\static_content\global-usings.cs" "out\Windows\lib\global-usings.cs"
 copy "out\static_content\global-usings.cs" "out\Linux\lib\global-usings.cs"
 
 copy "out\static_content\-mkshim\*" "out\Windows\-mkshim\" 
+
+copy "out\static_content\-self\*" "out\Windows\-web\" 
+copy "out\static_content\-self\*" "out\Linux\-web\" 
 
 copy "out\static_content\-self\*" "out\Windows\-self\" 
 copy "out\static_content\-self\*" "out\Linux\-self\" 
