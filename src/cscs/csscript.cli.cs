@@ -157,7 +157,7 @@ namespace csscript
 
                         file = file.GetFullPath().EnsureFileDir();
 
-                        print?.Invoke($"Created: {outFile}");
+                        print?.Invoke($"Created: {Path.GetRelativePath(Environment.CurrentDirectory, file)}");
                         File.WriteAllText(file, sample.Code);
                     }
                     else
@@ -255,19 +255,27 @@ namespace csscript
 
         void EnableWpf(string arg, string configFile, bool primaryConfig)
         {
-            const string console_type = "\"name\": \"Microsoft.NETCore.App\"";
-            const string win_type = "\"name\": \"Microsoft.WindowsDesktop.App\"";
+            if (configFile.FileExists())
+            {
+                const string console_type = "\"name\": \"Microsoft.NETCore.App\"";
+                const string win_type = "\"name\": \"Microsoft.WindowsDesktop.App\"";
 
-            var content = File.ReadAllText(configFile);
+                var content = File.ReadAllText(configFile);
 
-            if (arg == "enable" || arg == "1")
-                content = content.Replace(console_type, win_type);
-            else if (arg == "disable" || arg == "0")
-                content = content.Replace(win_type, console_type);
+                if (arg == "enable" || arg == "1")
+                    content = content.Replace(console_type, win_type);
+                else if (arg == "disable" || arg == "0")
+                    content = content.Replace(win_type, console_type);
 
-            File.WriteAllText(configFile, content);
-            if (primaryConfig)
-                CSExecutor.print($"WPF support is {(content.Contains(win_type) ? "enabled" : "disabled")}");
+                File.WriteAllText(configFile, content);
+                if (primaryConfig)
+                    CSExecutor.print($"WPF support is {(content.Contains(win_type) ? "enabled" : "disabled")}");
+            }
+            else
+            {
+                if (primaryConfig)
+                    CSExecutor.print($"WPF support is not available as the runtime configuration file is missing: {configFile}");
+            }
         }
     }
 }

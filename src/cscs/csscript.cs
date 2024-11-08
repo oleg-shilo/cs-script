@@ -1202,10 +1202,11 @@ namespace csscript
                         else
                             message = ex.Message; //Mono friendly
 
-                        if (Runtime.IsWin && IsWpfHostingException(ex) && Assembly.GetExecutingAssembly().GetName().Name == "cscs") // console app)
+                        if (Runtime.IsWin && IsWpfHostingException(ex) && Assembly.GetExecutingAssembly().GetName().Name == "cscs") // console app
                         {
                             message += $"{NewLine}{NewLine}NOTE: If you are trying to use WPF ensure you have enabled WPF support " +
-                                       $"with `{Environment.GetEnvironmentVariable("ENTRY_ASM")} -wpf:enable`";
+                                       $"with `{Environment.GetEnvironmentVariable("ENTRY_ASM")} -wpf:enable` and use windows application " +
+                                       $"version of CS-Script engine: csws.exe (e.g. 'csws wpf_script.cs')";
                         }
 
                         printError(message);
