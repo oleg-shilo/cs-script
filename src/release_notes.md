@@ -1,16 +1,15 @@
-# Release v4.8.19.0
+# Release v4.8.20.0
 
 ---
 
 ## Changes
 
 ### CLI
-- #389: BOM seems to confuse CS-Script
-- Added missing signing certificate file `Tests.CSScriptLib/sgKey.snk`
-
+- improved WPF CLI support
+- improved -web command CLI dev experience
 
 ### CSScriptLib
-- #389: BOM seems to confuse CS-Script
+- no changes
 
 
 

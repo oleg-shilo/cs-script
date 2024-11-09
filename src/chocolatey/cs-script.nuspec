@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.8.19.1</version>
+    <version>4.8.20.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -29,12 +29,11 @@
 ## Changes
 
 ### CLI
-- #389: BOM seems to confuse CS-Script
-- Added missing signing certificate file `Tests.CSScriptLib/sgKey.snk`
-
+- improved WPF CLI support
+- improved -web command CLI dev experience
 
 ### CSScriptLib
-- #389: BOM seems to confuse CS-Script</releaseNotes>
+- no changes</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>

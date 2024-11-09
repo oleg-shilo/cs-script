@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.8.19.0</Version>
+    <Version>4.8.20.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
@@ -17,19 +17,18 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.8.19.0</AssemblyVersion>
-    <FileVersion>4.8.19.0</FileVersion>
+    <AssemblyVersion>4.8.20.0</AssemblyVersion>
+    <FileVersion>4.8.20.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
-- #389: BOM seems to confuse CS-Script
-- Added missing signing certificate file `Tests.CSScriptLib/sgKey.snk`
-
+- improved WPF CLI support
+- improved -web command CLI dev experience
 
 ### CSScriptLib
-- #389: BOM seems to confuse CS-Script</PackageReleaseNotes>
+- no changes</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>

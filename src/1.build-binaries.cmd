@@ -1,4 +1,4 @@
-echo off
+rem echo off
 
 set vs_edition=Community
 
@@ -14,23 +14,25 @@ set target=net8.0
 set target7=net7.0
 md "out\Linux\"
 md "out\Linux\lib"
-md "out\Linux\-web"
-md "out\Linux\-set"
-md "out\Linux\-set\-rt"
-md "out\Linux\-self"
-md "out\Linux\-self\-exe"
-md "out\Linux\-self\-test"
+rem md "out\Linux\-web"
+rem md "out\Linux\-set"
+rem md "out\Linux\-set\-rt"
+rem md "out\Linux\-web"
+rem md "out\Linux\-self"
+rem md "out\Linux\-self\-exe"
+rem md "out\Linux\-self\-test"
 md "out\Windows"
 md "out\Windows\lib"
-md "out\Windows\-mkshim"
-md "out\Windows\-set\-rt"
-md "out\Windows\-self"
-md "out\Windows\-self"
-md "out\Windows\-self\-exe"
-md "out\Windows\-self\-alias"
-md "out\Windows\-self\-test"
-md "out\Windows\-wdbg"
-md "out\Windows\-wdbg\dbg-server"
+rem md "out\Windows\-mkshim"
+rem md "out\Windows\-web"
+rem md "out\Windows\-set"
+rem md "out\Windows\-set\-rt"
+rem md "out\Windows\-self"
+rem md "out\Windows\-self\-exe"
+rem md "out\Windows\-self\-alias"
+rem md "out\Windows\-self\-test"
+rem md "out\Windows\-wdbg"
+rem md "out\Windows\-wdbg\dbg-server"
 
 rem in case some content is already there
 del /S /Q "out\Linux\"
@@ -42,6 +44,7 @@ del "CSScriptLib\src\CSScriptLib\output\*.snupkg"
 del "out\cs-script.win.7z"
 del "out\cs-script.linux.7z"
 
+rem goto:agregate
 echo =====================
 echo Building (cd: %cd%)
 echo ---------------------
@@ -97,7 +100,7 @@ echo Building WDBG from %cd%
 dotnet publish -o .\output server.csproj
 popd
 
-
+:agregate
 echo =====================
 echo Aggregating (cd: %cd%)
 echo ---------------------
@@ -108,34 +111,32 @@ del "out\Windows\*.pdb"
 rd "out\Windows\win" /S /Q
 rd "out\Windows\console" /S /Q
 
+rem .\static_content contains Linux and Win specific files
 copy "out\static_content\global-usings.cs" "out\Windows\lib\global-usings.cs" 
 copy "out\static_content\global-usings.cs" "out\Linux\lib\global-usings.cs"
 
-copy "out\static_content\-mkshim\*" "out\Windows\-mkshim\" 
+xcopy /s /q /y "out\static_content\-mkshim\*" "out\Windows\-mkshim\" 
 
-copy "out\static_content\-set\*" "out\Windows\-web\" 
-copy "out\static_content\-set\*" "out\Linux\-web\" 
+xcopy /s /q /y "out\static_content\-web\*" "out\Windows\-web\" 
+xcopy /s /q /y "out\static_content\-web\*" "out\Linux\-web\" 
 
-copy "out\static_content\-set\*" "out\Windows\-set\" 
-copy "out\static_content\-set\*" "out\Linux\-set\" 
+xcopy /s /q /y "out\static_content\-set\*" "out\Windows\-set\" 
+xcopy /s /q /y "out\static_content\-set\*" "out\Linux\-set\" 
+xcopy /s /q /y "out\static_content\-set\*" "out\Windows\-set\-rt" 
+xcopy /s /q /y "out\static_content\-set\*" "out\Linux\-set\-rt"
 
-copy "out\static_content\-set\*" "out\Windows\-set\-rt" 
-copy "out\static_content\-set\*" "out\Linux\-set\-rt"
+xcopy /s /q /y "out\static_content\-self\*" "out\Windows\-self\" 
+xcopy /s /q /y "out\static_content\-self\*" "out\Linux\-self\" 
+xcopy /s /q /y "out\static_content\-self\-exe\*" "out\Windows\-self\-exe\" 
+xcopy /s /q /y "out\static_content\-self\-alias\*" "out\Windows\-self\-alias\" 
+xcopy /s /q /y "out\static_content\-self\-exe\*" "out\Linux\-self\-exe\" 
+xcopy /s /q /y "out\static_content\-self\-test\*" "out\Windows\-self\-test\" 
+xcopy /s /q /y "out\static_content\-self\-test\*" "out\Linux\-self\-test\" 
 
-copy "out\static_content\-self\*" "out\Windows\-self\" 
-copy "out\static_content\-self\*" "out\Linux\-self\" 
+xcopy /s /q /y "out\static_content\-wdbg\*" "out\Windows\-wdbg\" 
+xcopy /s /q /y "out\static_content\-wdbg\*" "out\Linux\-wdbg\" 
 
-copy "out\static_content\-self\-exe\*" "out\Windows\-self\-exe\" 
-copy "out\static_content\-self\-alias\*" "out\Windows\-self\-alias\" 
-copy "out\static_content\-self\-exe\*" "out\Linux\-self\-exe\" 
-
-copy "out\static_content\-self\-test\*" "out\Windows\-self\-test\" 
-copy "out\static_content\-self\-test\*" "out\Linux\-self\-test\" 
-
-xcopy /s /q "out\static_content\-wdbg\*" "out\Windows\-wdbg\" 
-xcopy /s /q "out\static_content\-wdbg\*" "out\Linux\-wdbg\" 
-
-
+rem goto:exit
 echo =====================
 echo Clearing possible WDBG test/dev files
 echo (it's normal if files are not found)
@@ -151,10 +152,10 @@ copy "Tests.cscs\cli.cs" "out\Linux\-self\-test\cli.cs"
 copy "Tests.cscs\cli.cs" "out\Windows\-self\-test\cli.cs" 
 
 copy "out\static_content\readme.md" "out\Linux\readme.md" 
+copy "out\static_content\install.sh" "out\Linux\install.sh" 
 
 cd out\Windows
 
-rem .\cscs.exe -self-exe-build 
 
 echo =====================
 echo Aggregating packages (cd: %cd%)
@@ -175,12 +176,15 @@ cd ..\..
 
 cd out\Windows
 echo cd: %cd%
-..\ci\7z.exe a -r "..\cs-script.win.7z" "*.*"
+..\ci\7z.exe a -r ".\distros\cs-script.net7.7z" ".\distros\net7\*.*"
+rd /s /q ".\distros\net7"
+
 echo ==========================================
 echo .\cscs -l:0 -c:0 -ng:csc -mkshim css.exe cscs.exe
 .\cscs -l:0 -c:0 -ng:csc -mkshim css.exe cscs.exe
 echo ==========================================
 ..\ci\7z.exe a -r "..\cs-script.win.zip" "*.*"
+..\ci\7z.exe a -r "..\cs-script.win.7z" "*.*"
 cd ..\..
 
 echo =====================
