@@ -1,4 +1,4 @@
-rem echo off
+echo off
 
 set vs_edition=Community
 
@@ -10,29 +10,12 @@ if exist "C:\Program Files\Microsoft Visual Studio\2022\%vs_edition%" (
 )
 
 set PATH=%PATH%;%%\out\ci\
-set target=net8.0
-set target7=net7.0
+set target=net9.0
+set target_prev=net8.0
 md "out\Linux\"
 md "out\Linux\lib"
-rem md "out\Linux\-web"
-rem md "out\Linux\-set"
-rem md "out\Linux\-set\-rt"
-rem md "out\Linux\-web"
-rem md "out\Linux\-self"
-rem md "out\Linux\-self\-exe"
-rem md "out\Linux\-self\-test"
 md "out\Windows"
 md "out\Windows\lib"
-rem md "out\Windows\-mkshim"
-rem md "out\Windows\-web"
-rem md "out\Windows\-set"
-rem md "out\Windows\-set\-rt"
-rem md "out\Windows\-self"
-rem md "out\Windows\-self\-exe"
-rem md "out\Windows\-self\-alias"
-rem md "out\Windows\-self\-test"
-rem md "out\Windows\-wdbg"
-rem md "out\Windows\-wdbg\dbg-server"
 
 rem in case some content is already there
 del /S /Q "out\Linux\"
@@ -45,6 +28,7 @@ del "out\cs-script.win.7z"
 del "out\cs-script.linux.7z"
 
 rem goto:agregate
+
 echo =====================
 echo Building (cd: %cd%)
 echo ---------------------
@@ -62,8 +46,11 @@ echo ----------------
 echo Building cscs.dll from %cd%
 echo ----------------
 
-dotnet publish -c Release -f %target7% -o "..\out\Windows\distros\net7" cscs.7.csproj
+dotnet publish -c Release -f %target_prev% -o "..\out\Windows\distros\net8" cscs.8.csproj
+rd /s /q .\obj
 dotnet publish -c Release -f %target% -o "..\out\Windows\console" cscs.csproj
+
+rem goto:exit
 
 echo ----------------
 echo Building cs-script.cli .NET tool from %cd%
@@ -122,16 +109,9 @@ xcopy /s /q /y "out\static_content\-web\*" "out\Linux\-web\"
 
 xcopy /s /q /y "out\static_content\-set\*" "out\Windows\-set\" 
 xcopy /s /q /y "out\static_content\-set\*" "out\Linux\-set\" 
-xcopy /s /q /y "out\static_content\-set\*" "out\Windows\-set\-rt" 
-xcopy /s /q /y "out\static_content\-set\*" "out\Linux\-set\-rt"
 
 xcopy /s /q /y "out\static_content\-self\*" "out\Windows\-self\" 
 xcopy /s /q /y "out\static_content\-self\*" "out\Linux\-self\" 
-xcopy /s /q /y "out\static_content\-self\-exe\*" "out\Windows\-self\-exe\" 
-xcopy /s /q /y "out\static_content\-self\-alias\*" "out\Windows\-self\-alias\" 
-xcopy /s /q /y "out\static_content\-self\-exe\*" "out\Linux\-self\-exe\" 
-xcopy /s /q /y "out\static_content\-self\-test\*" "out\Windows\-self\-test\" 
-xcopy /s /q /y "out\static_content\-self\-test\*" "out\Linux\-self\-test\" 
 
 xcopy /s /q /y "out\static_content\-wdbg\*" "out\Windows\-wdbg\" 
 xcopy /s /q /y "out\static_content\-wdbg\*" "out\Linux\-wdbg\" 
@@ -176,8 +156,8 @@ cd ..\..
 
 cd out\Windows
 echo cd: %cd%
-..\ci\7z.exe a -r ".\distros\cs-script.net7.7z" ".\distros\net7\*.*"
-rd /s /q ".\distros\net7"
+..\ci\7z.exe a -r ".\distros\cs-script.net8.7z" ".\distros\net8\*.*"
+rd /s /q ".\distros\net8"
 
 echo ==========================================
 echo .\cscs -l:0 -c:0 -ng:csc -mkshim css.exe cscs.exe

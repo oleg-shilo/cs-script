@@ -2,13 +2,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net9.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <AssemblyName>csws</AssemblyName>
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.8.20.0</Version>
+    <Version>4.8.21.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -19,18 +19,17 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.8.20.0</AssemblyVersion>
-    <FileVersion>4.8.20.0</FileVersion>
+    <AssemblyVersion>4.8.21.0</AssemblyVersion>
+    <FileVersion>4.8.21.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
-- improved WPF CLI support
-- improved -web command CLI dev experience
+- Rebuild for .NET 9.0
 
 ### CSScriptLib
-- no changes</PackageReleaseNotes>
+- Rebuild for .NET 9.0</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
     <PackageIcon>..\logo\css_logo.png</PackageIcon>
@@ -100,7 +99,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.11.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

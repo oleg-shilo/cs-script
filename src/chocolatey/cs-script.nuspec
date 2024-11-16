@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.8.20.0</version>
+    <version>4.8.21.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -29,11 +29,10 @@
 ## Changes
 
 ### CLI
-- improved WPF CLI support
-- improved -web command CLI dev experience
+- Rebuild for .NET 9.0
 
 ### CSScriptLib
-- no changes</releaseNotes>
+- Rebuild for .NET 9.0</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>

@@ -14,7 +14,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.8.20.0</Version>
+    <Version>4.8.21.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
@@ -29,15 +29,14 @@
 ## Changes
 
 ### CLI
-- improved WPF CLI support
-- improved -web command CLI dev experience
+- Rebuild for .NET 9.0
 
 ### CSScriptLib
-- no changes</PackageReleaseNotes>
+- Rebuild for .NET 9.0</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.8.20.0</AssemblyVersion>
-    <FileVersion>4.8.20.0</FileVersion>
-    <PackageVersion>4.8.20.0</PackageVersion>
+    <AssemblyVersion>4.8.21.0</AssemblyVersion>
+    <FileVersion>4.8.21.0</FileVersion>
+    <PackageVersion>4.8.21.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>
@@ -89,8 +88,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.11.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.11.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.2" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\logo\css_logo.png">
