@@ -98,6 +98,11 @@ namespace CSScripting
                 "dotnet".RunAsync($"\"{Globals.build_server}\" -stop");
         }
 
+        static internal void StartRoslynBuildServer()
+        {
+            "dotnet".RunAsync($"\"{typeof(Globals).Assembly.Location}\" -server_r:start_inproc");
+        }
+
         static internal string build_server
         {
             get

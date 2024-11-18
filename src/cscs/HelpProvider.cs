@@ -1259,9 +1259,11 @@ namespace csscript
 #if DEBUG
                             Environment.GetEnvironmentVariable("CSSCRIPT_INSTALLED"),
 #endif
-                            Assembly.GetExecutingAssembly().Location.GetDirName() };
+                            Assembly.GetExecutingAssembly().Location.GetDirName()
+                        };
 
                         var customCommands = commandDirs
+                                                 .Where(dir => dir.DirExists())
                                                  .SelectMany(dir =>
                                                  {
                                                      var commands = Directory.GetFiles(dir, "-run.cs", SearchOption.AllDirectories)

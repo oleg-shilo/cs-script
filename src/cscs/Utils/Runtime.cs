@@ -248,7 +248,6 @@ namespace csscript
         static internal string CustomCommandsDir
             => "CSSCRIPT_COMMANDS".GetEnvar() ??
                 Environment.SpecialFolder.CommonApplicationData.GetPath()
-
                                          .PathJoin("cs-script", "commands")
                                          .EnsureDir(false);
 

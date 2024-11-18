@@ -46,7 +46,7 @@ echo ----------------
 echo Building cscs.dll from %cd%
 echo ----------------
 
-dotnet publish -c Release -f %target_prev% -o "..\out\Windows\distros\net8" cscs.8.csproj
+dotnet publish -c Release -f %target_prev% -o "..\out\win.net8" cscs.8.csproj
 rd /s /q .\obj
 dotnet publish -c Release -f %target% -o "..\out\Windows\console" cscs.csproj
 
@@ -154,15 +154,19 @@ echo cd: %cd%
 ..\ci\7z.exe a -r "..\cs-script.linux.7z" "*.*"
 cd ..\..
 
+cd out\win.net8
+echo cd: %cd%
+..\ci\7z.exe a -r "..\cs-script.win.net8.7z" "*.*"
+cd ..\..
+
 cd out\Windows
 echo cd: %cd%
-..\ci\7z.exe a -r ".\distros\cs-script.net8.7z" ".\distros\net8\*.*"
-rd /s /q ".\distros\net8"
 
 echo ==========================================
 echo .\cscs -l:0 -c:0 -ng:csc -mkshim css.exe cscs.exe
 .\cscs -l:0 -c:0 -ng:csc -mkshim css.exe cscs.exe
 echo ==========================================
+
 ..\ci\7z.exe a -r "..\cs-script.win.zip" "*.*"
 ..\ci\7z.exe a -r "..\cs-script.win.7z" "*.*"
 cd ..\..
@@ -175,6 +179,7 @@ cd out\Windows
 .\cscs -c:0 ..\..\CSScriptLib\src\CSScriptLib\output\aggregate.cs
 .\cscs -engine:dotnet -code Console.WriteLine(Assembly.LoadFrom(#''cscs.dll#'').GetName().Version)
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.7z#'', $#''..\\cs-script.win.v{version}.7z#'', true);
+.\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.net8.7z#'', $#''..\\cs-script.win.net8.v{version}.7z#'', true);
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.win.zip#'', $#''..\\cs-script.win.v{version}.zip#'', true);
 .\cscs -engine:dotnet -code var version = Assembly.LoadFrom(#''cscs.dll#'').GetName().Version.ToString();#nFile.Copy(#''..\\cs-script.linux.7z#'', $#''..\\cs-script.linux.v{version}.7z#'', true);
 @REM md ..\..\..\cs-script.wiki
@@ -187,6 +192,7 @@ move "CSScriptLib\src\CSScriptLib\output\*.nupkg" ".\out"
 move "CSScriptLib\src\CSScriptLib\output\*.snupkg" ".\out"
 
 del out\cs-script.win.7z
+del out\cs-script.win.net8.7z
 del out\cs-script.linux.7z
 
 echo Updating help.txt

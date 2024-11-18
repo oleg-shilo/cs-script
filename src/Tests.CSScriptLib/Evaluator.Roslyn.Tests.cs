@@ -26,7 +26,7 @@ namespace EvaluatorTests
     [Collection("Sequential")]
     public class Generic_Roslyn
     {
-        [Fact(Skip = "xUnit runtime is incompatible. But test is valid")]
+        [Fact(Skip = "xUnit runtime is incompatible. But the test is valid")]
         public void call_UnloadAssembly()
         {
             // There is something strange happening under xUnit runtime. This very test runs fine
@@ -49,7 +49,7 @@ namespace EvaluatorTests
             }
         }
 
-        [Fact(Skip = "xUnit runtime is incompatible. But test is valid")]
+        [Fact(Skip = "xUnit runtime is incompatible. But the test is valid")]
         public void call_SuccessfulUnloadAssembly()
         {
             ICalc script = CSScript.RoslynEvaluator
