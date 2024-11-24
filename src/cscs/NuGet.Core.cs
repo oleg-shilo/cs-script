@@ -382,7 +382,7 @@ namespace csscript
                                                       }));
 
             bool promptPrinted = false;
-            foreach (string item in packages.Concat(allPackages))
+            foreach (string item in allPackages)
             {
                 // //css_nuget -noref -ng:"-IncludePrerelease version 1.0beta" cs-script
                 // //css_nuget -noref -ver:"4.1.0-alpha1" -ng:"-Pre" NLog
