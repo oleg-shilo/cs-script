@@ -154,7 +154,8 @@ namespace CSScriptLib
         {
             var items = new ConfigItems();
 
-            Func<string, string[]> splitPathItems = text => text.Split(';', ',')
+            // note: string.Split(params string[] args) will fail in some cases (e.g. hosted by syntaxer .NET8 vs .NET9) so using the old way
+            Func<string, string[]> splitPathItems = text => text.Split(";,".ToCharArray())
                                                                 .Where(x => !string.IsNullOrEmpty(x))
                                                                 .Select(x => Environment.ExpandEnvironmentVariables(x.Trim()))
                                                                 .ToArray();
@@ -173,10 +174,11 @@ namespace CSScriptLib
                 items.dirs.AddRange(CSScript.GlobalSettings.SearchDirs);
 #endif
 
-                //if (configFile != null && File.Exists(configFile))
                 if (Assembly.GetExecutingAssembly().Location().HasText())
                     items.dirs.Add(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location()), "lib"));
-                else if (Environment.GetEnvironmentVariable("CSS_ENTRY_ASM") != null)
+
+                // `Assembly.GetExecutingAssembly().Location` may not be resolved properly so adding the entry assembly location as well
+                if (Environment.GetEnvironmentVariable("CSS_ENTRY_ASM") != null)
                     items.dirs.Add(Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("CSS_ENTRY_ASM")), "lib"));
 
                 items.asms.AddRange(splitPathItems(settings.DefaultRefAssemblies));

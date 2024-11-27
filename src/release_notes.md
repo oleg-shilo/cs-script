@@ -1,14 +1,11 @@
-# Release v4.8.21.0
+# Release v4.8.22.0
 
 ---
 
 ## Changes
 
 ### CLI
-- Rebuild for .NET 9.0
-- Secondary "start build server" commands are made asynchronous to match the primary `css -server:start` behaver. The impacted commands are:
-  - `css -servers:start`
-  - `css -server_r:start`
+- Minor update in the script project info generation to allow better integration with IDEs
 
 ### CSScriptLib
-- Rebuild for .NET 9.0
+- no changes
