@@ -157,7 +157,7 @@ namespace csscript
             }
             else if (request == AppArgs.proj || request == AppArgs.proj_dbg || request == AppArgs.proj_csproj)
             {
-                var project = Project.GenerateProjectFor(options.scriptFileName);
+                var project = Project.GenerateProjectInCliOutput(options.scriptFileName);
 
                 if (request == AppArgs.proj_csproj)
                 {
@@ -170,6 +170,12 @@ namespace csscript
                 }
                 else
                 {
+                    foreach (string file in project.SearchDirs)
+                        print("searchDir:" + file);
+
+                    foreach (string item in project.Packages)
+                        print("nuget: " + item);
+
                     foreach (string file in project.Files)
                         print("file:" + file);
 
@@ -178,9 +184,6 @@ namespace csscript
 
                     foreach (string file in project.Refs)
                         print("ref:" + file);
-
-                    foreach (string file in project.SearchDirs)
-                        print("searchDir:" + file);
                 }
             }
         }
@@ -594,11 +597,14 @@ namespace csscript
                                             var impParser = new CSharpParser(file, true, null, options.searchDirs);
                                             Environment.CurrentDirectory = Path.GetDirectoryName(file);
 
-                                            string[] packageAsms = NuGet.Resolve(impParser.NuGets, true, file);
-                                            foreach (string asmName in packageAsms)
+                                            if (impParser.NuGets.Any())
                                             {
-                                                var packageDir = Path.GetDirectoryName(asmName);
-                                                newSearchDirs.AddIfNotThere(packageDir);
+                                                string[] packageAsms = NuGet.Resolve(impParser.NuGets, true, file);
+                                                foreach (string asmName in packageAsms)
+                                                {
+                                                    var packageDir = Path.GetDirectoryName(asmName);
+                                                    newSearchDirs.AddIfNotThere(packageDir);
+                                                }
                                             }
 
                                             foreach (string dir in impParser.ExtraSearchDirs)

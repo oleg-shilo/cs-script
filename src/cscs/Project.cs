@@ -1,10 +1,10 @@
-using CSScripting;
-using CSScriptLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using CSScripting;
+using CSScriptLib;
 
 #if !class_lib
 
@@ -32,6 +32,11 @@ namespace CSScriptLib
         public string[] Files;
 
         /// <summary>
+        /// List of NuGet packages the script is referencing. Both directly and via child scripts.
+        /// </summary>
+        public string[] Packages;
+
+        /// <summary>
         /// List of assemblies the script of the project is referencing.
         /// </summary>
         public string[] Refs;
@@ -46,7 +51,7 @@ namespace CSScriptLib
         /// <para>
         /// Note this method uses the same algorithm as CS-Script executor but it deliberately
         /// doesn't include cached directories and auto-generated files. This method is to be used
-        /// by IDs and tools.
+        /// by IDEs and tools.
         /// </para>
         /// </summary>
         /// <param name="script">The script.</param>
@@ -54,6 +59,11 @@ namespace CSScriptLib
         static public Project GenerateProjectFor(string script)
         {
             return ProjectBuilder.GenerateProjectFor(script);
+        }
+
+        static internal Project GenerateProjectInCliOutput(string script)
+        {
+            return ProjectBuilder.GenerateProjectFor(script, false);
         }
     }
 
@@ -71,7 +81,7 @@ namespace CSScriptLib
         static public string DefaultRefAsms;
         static public string DefaultNamespaces;
 
-        static public Project GenerateProjectFor(string script)
+        static public Project GenerateProjectFor(string script, bool printSearchDirs = true)
         {
             // ********************************************************************************************
             // * Extremely important to keep the project building algorithm in sync with CSExecutor.Compile
@@ -90,9 +100,12 @@ namespace CSScriptLib
 
 #if !class_lib
 
-            foreach (var item in defaultSearchDirs)
+            if (printSearchDirs)
             {
-                Console.WriteLine("searchdir: " + item);
+                foreach (var item in defaultSearchDirs)
+                {
+                    Console.WriteLine("searchdir: " + item);
+                }
             }
 #endif
 
@@ -128,6 +141,8 @@ namespace CSScriptLib
             //}
 
             project.Files = sources.Distinct().Select<string, string>(PathExtensions.PathNormaliseSeparators).ToArray();
+
+            project.Packages = parser.Packages.ToArray();
 
             project.Refs = parser.AgregateReferences(probingDirs, defaultRefAsms, defaultNamespaces)
                                  .Select(PathExtensions.PathNormaliseSeparators)
