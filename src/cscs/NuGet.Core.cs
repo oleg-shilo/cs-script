@@ -566,7 +566,7 @@ namespace csscript
 
                 var sw = Stopwatch.StartNew();
                 Console.WriteLine("Restoring packages...");
-                // Console.WriteLine(packages.JoinBy(NewLine));
+                Console.WriteLine("   " + packages.JoinBy(NewLine + "   "));
 
                 var p = new Process();
                 p.StartInfo.FileName = "dotnet";

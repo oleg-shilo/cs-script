@@ -19,6 +19,9 @@ namespace cscs
         [STAThread]
         static int Main(string[] args)
         {
+#if DEBUG
+            // Environment.SetEnvironmentVariable("CSS_RESTORE_NUGET_PACKAGES", "true");
+#endif
             try
             {
                 try { SetEnvironmentVariable("Console.WindowWidth", Console.WindowWidth.ToString()); } catch { }
