@@ -94,6 +94,13 @@ namespace CLI
             Assert.Contains("Compiler engine: csc", output);
         }
 
+        [Fact(Skip = "just a testbed")]
+        public void should_discover_nuget_package_native_dlls()
+        {
+            var dir = @"C:\Users\%user%\AppData\Local\Temp\csscript.core\nuget\16b5531e-8d0d-43fc-aaed-af5eac79ca04\publish".Expand();
+            var result = csscript.NuGetNewAlgorithm.GetPackageNativeDllsFolders(dir);
+        }
+
         [Fact]
         public void switch_engine_from_code_with_full_directive()
         {

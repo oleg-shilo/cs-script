@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using CSScripting;
 
@@ -224,6 +225,46 @@ namespace csscript
         /// </summary>
         /// <value><c>true</c> if the host OS is Windows; otherwise, <c>false</c>.</value>
         public static bool IsWin => !IsLinux;
+
+        static string rid;
+
+#if !class_lib
+
+        public static string RID
+        {
+            get
+            {
+                if (rid.HasText())
+                    return rid;
+
+                // Determine OS Platform
+                string os;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    os = "win";
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    os = "linux";
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    os = "osx";
+                else
+                    os = "unknown";
+
+                // Determine Architecture
+                string architecture = RuntimeInformation.OSArchitecture switch
+                {
+                    Architecture.X86 => "x86",
+                    Architecture.X64 => "x64",
+                    Architecture.Arm => "arm",
+                    Architecture.Arm64 => "arm64",
+                    _ => "unknown"
+                };
+
+                // Compose RID
+                rid = $"{os}-{architecture}";
+                return rid;
+            }
+        }
+
+#endif
 
         /// <summary>
         /// Note it is not about OS being exactly Linux but rather about OS having Linux type of

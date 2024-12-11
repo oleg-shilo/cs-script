@@ -1670,8 +1670,15 @@ class HostingRuntime
     /// data attached. </summary>
     internal class MetaDataItems
     {
+        public static string AsDirPath(string path) => "dir:" + path;
+
         public class MetaDataItem
         {
+            public static bool IsDirPath(string path) => path.StartsWith("dir:");
+
+            public bool IsDir => IsDirPath(file);
+            public string Path => IsDir ? file.Substring("dir:".Length) : file;
+
             public MetaDataItem(string file, DateTime date, bool assembly)
             {
                 this.file = file;
@@ -1698,7 +1705,8 @@ class HostingRuntime
 
                 string dependencyFile = "";
 
-                foreach (MetaDataItem item in depInfo.items)
+                // check only files that are not dirs to be added to PATH envar are current
+                foreach (MetaDataItem item in depInfo.items.Where(x => !x.IsDir))
                 {
                     if (item.assembly && Path.IsPathRooted(item.file)) //is absolute path
                     {
@@ -1713,6 +1721,13 @@ class HostingRuntime
                         return true;
                     }
                 }
+
+                depInfo.items
+                    .Where(x => x.IsDir)
+                    .Select(x => x.file.Substring("dir:".Length))
+                    .ToArray()
+                    .AddToSystemPath();
+
                 return false;
             }
             else
@@ -1785,8 +1800,11 @@ class HostingRuntime
             }
             else
             {
-                foreach (string file in files)
-                    AddItem(file, File.GetLastWriteTimeUtc(file), false);
+                foreach (string item in files)
+                    if (MetaDataItem.IsDirPath(item))
+                        AddItem(item, DateTime.UtcNow, false);
+                    else
+                        AddItem(item, File.GetLastWriteTimeUtc(item), false);
             }
             return newProbingDirs.ToArray();
         }

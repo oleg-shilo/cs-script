@@ -132,11 +132,11 @@ If this flag is set the all references in the compile errors text to the path of
         /// <value>
         ///   <c>true</c> if legacy NuGet support is enabled; otherwise, <c>false</c>.
         /// </value>
-        [Description(@"Gets or sets a value indicating whether legacy NuGet support is enabled (default) or disabled.
+        [Description(@"Gets or sets a value indicating whether legacy NuGet support is enabled or disabled (default).
 See https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support
 
 `true` if legacy NuGet support is enabled; otherwise, `false`.")]
-        public bool LegacyNugetSupport { get; set; } = true;
+        public bool LegacyNugetSupport { get; set; } = false;
 
         /// <summary>
         /// Enables omitting closing character (";") for CS-Script directives (e.g. "//css_ref System.Xml.dll" instead of "//css_ref System.Xml.dll;").

@@ -465,6 +465,11 @@ namespace csscript
                 return null;
         }
 
+        internal static string GetFullPath(string path)
+        {
+            return Path.GetFullPath(path);
+        }
+
         /// <summary>
         /// Global flag to forcefully suppress any C# code analyses. This flag effectively disables
         /// all CS-Script assembly and script probing and most likely some other functionality.
@@ -602,21 +607,17 @@ namespace csscript
 
             // analyze resource references this directive is special as it may contain two paths
             // //css_res Resources1.resx;", //css_res Form1.resx, Scripting.Form1.resources;"
-            foreach (string statement in GetRawStatements("//css_resource", endCodePos))
+            foreach (string statement in GetRawStatements("//css_resource", endCodePos).Concat(
+                                         GetRawStatements("//css_res", endCodePos)))
+            {
                 resFiles.Add(statement.NormaliseAsDirectiveOf(file, multiPathDelimiter: ','));
-            foreach (string statement in GetRawStatements("//css_res", endCodePos))
-                resFiles.Add(statement.NormaliseAsDirectiveOf(file, multiPathDelimiter: ','));
+            }
 
             //analyse extra search (probing) dirs
-            foreach (string statement in GetRawStatements("//css_searchdir", endCodePos))
+            foreach (string statement in GetRawStatements("//css_searchdir", endCodePos).Concat(
+                                         GetRawStatements("//css_dir", endCodePos)))
             {
-                var pattern = Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim();
-                searchDirs.AddRange(workingDir.GetMatchingDirs(pattern));
-            }
-            foreach (string statement in GetRawStatements("//css_dir", endCodePos))
-            {
-                var pattern = Environment.ExpandEnvironmentVariables(UnescapeDirectiveDelimiters(statement)).Trim();
-                searchDirs.AddRange(workingDir.GetMatchingDirs(pattern));
+                searchDirs.AddRange(workingDir.GetMatchingDirs(UnescapeDirectiveDelimiters(statement).Expand().Trim()));
             }
 
             if (HasRawStatement("//css_winapp", endCodePos))

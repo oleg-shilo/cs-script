@@ -11,6 +11,7 @@ using System.Reflection.Emit;
 using System.Runtime.ConstrainedExecution;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -533,8 +534,6 @@ namespace csscript
                     //  do quick parsing for pre/post scripts, ThreadingModel and embedded script arguments
 
                     var scriptToExecute = options.scriptFileName;
-                    // if (args[firstScriptArg] != scriptToExecute)
-                    //     scriptToExecute = args[firstScriptArg];
 
                     CSharpParser parser = new CSharpParser(options.scriptFileName, true, new[] { compilerDirective, compilerDirective2 }, options.searchDirs);
 
@@ -562,7 +561,7 @@ namespace csscript
                         {
                             Environment.CurrentDirectory = Path.GetDirectoryName(Path.GetFullPath(options.scriptFileName));
 
-                            var code_probing_dirs = parser.ExtraSearchDirs.Select<string, string>(Path.GetFullPath);
+                            var code_probing_dirs = parser.ExtraSearchDirs.Select(CSharpParser.GetFullPath);
 
                             foreach (string dir in code_probing_dirs)
                                 newSearchDirs.AddPathIfNotThere(dir, Settings.code_dirs_section.Expand());
@@ -1017,16 +1016,11 @@ namespace csscript
                             //will need to wait until we finish.
                         }
 
-                        //add searchDirs to PATH to support search path for native dlls
-                        //need to do this before compilation or execution
-                        // string path = Environment.GetEnvironmentVariable("PATH").Split(';');
+                        // add searchDirs to PATH to support search path for native dlls
+                        // need to do this before compilation or execution
 
-                        var path = options.searchDirs.Except(Settings.PseudoDirItems)
-                                          .Concat(GetEnvironmentVariable("PATH").Split(';'))
-                                          .Distinct()
-                                          .JoinBy(";");
-
-                        Environment.SetEnvironmentVariable("PATH", path);
+                        options.searchDirs.Except(Settings.PseudoDirItems).ToArray()
+                                          .AddToSystemPath();
 
                         // --- COMPILE ---
                         if (options.buildExecutable || !options.useCompiled || (options.useCompiled && assemblyFileName == null) || options.forceCompile)
@@ -1157,6 +1151,9 @@ namespace csscript
                                         Debugger.Break();
                                     }
                                 }
+
+                                options.searchDirs.AddToSystemPath();
+                                // Process.GetCurrentProcess().RetreiveProcessPathExtraDirs().AddToSystemPath();
 
                                 if (options.useCompiled)
                                 {
@@ -2066,7 +2063,8 @@ namespace csscript
                             options.AddSearchDir(dir, Settings.code_dirs_section);
 
                         //save new probing dirs found by compilation (e.g. nuget)
-                        string[] extraProbingDirs = depInfo.AddItems(results.ProbingDirs.Select(x => "package_dir:" + x).ToArray(), true, searchDirs);
+                        depInfo.AddItems(results.ProbingDirs.Select(x => "package_dir:" + x).ToArray(), true, searchDirs);
+                        depInfo.AddItems(searchDirs.Except(Settings.PseudoDirItems).Select(MetaDataItems.AsDirPath).ToArray(), false, null);
 
                         depInfo.StampFile(assemblyFileName);
                     }

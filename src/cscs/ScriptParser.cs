@@ -1,9 +1,9 @@
-using csscript;
-using CSScripting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using csscript;
+using CSScripting;
 
 namespace CSScriptLib
 {
@@ -126,6 +126,7 @@ namespace CSScriptLib
         public string[] ResolvePackages(bool suppressDownloading = false)
         {
 #if !class_lib
+
             return NuGet.Resolve(Packages, suppressDownloading, this.ScriptPath);
 #else
             return new string[0];
@@ -297,10 +298,12 @@ namespace CSScriptLib
 
                         List<string> dirs = new List<string>(this.SearchDirs);
                         foreach (string dir in importedFile.ExtraSearchDirs)
+                        {
                             if (Path.IsPathRooted(dir))
                                 dirs.Add(Path.GetFullPath(dir));
                             else
                                 dirs.Add(Path.Combine(Path.GetDirectoryName(importedFile.fileName), dir));
+                        }
 
                         this.SearchDirs = dirs.ToArray();
                     }

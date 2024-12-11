@@ -391,6 +391,31 @@ namespace csscript
 
 #endif
 
+        internal static void NotePathExtraDirs(this Process p, IEnumerable<string> dirs)
+        {
+            Environment.SetEnvironmentVariable("CSSCRIPT_PROCESS_PATH_EXTRA_" + p.Id, dirs.JoinBy(";"));
+        }
+
+        internal static string[] RetreiveProcessPathExtraDirs(this Process p)
+        {
+            var dirs = Environment.GetEnvironmentVariable("CSSCRIPT_PROCESS_PATH_EXTRA_" + p.Id);
+            return dirs?.Split(';') ?? new string[0];
+        }
+
+        internal static void AddToSystemPath(this string[] dirs)
+        {
+            if (dirs.Any())
+            {
+                var newPathDirs = dirs
+                    .Where(x => x.HasText())
+                    .Select(x => x);
+
+                var currentPath = Environment.GetEnvironmentVariable("PATH").Split(';').Where(x => x.HasText());
+
+                Environment.SetEnvironmentVariable("PATH", currentPath.Concat(newPathDirs).Distinct().JoinBy(";"));
+            }
+        }
+
         internal static string NormaliseAsDirectiveOf(this string statement, string parentScript, char multiPathDelimiter)
         {
             var pathItems = statement.Split(multiPathDelimiter);
