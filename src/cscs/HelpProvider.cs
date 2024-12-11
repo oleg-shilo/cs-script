@@ -1197,9 +1197,10 @@ namespace csscript
 
                             var lines = AppArgs.SyntaxHelp.GetLines();
 
-                            var top_lines = lines.TakeWhile(x => !x.StartsWith(directive) && !x.StartsWith(alias));
+                            var top_lines = lines.TakeWhile(x => !x.TrimStart('`').StartsWith(directive) && !x.StartsWith(alias)).ToArray();
                             var bottom_lines = lines.Skip(top_lines.Count())
-                                                    .TakeWhile(x => x != AppArgs.section_sep);
+                                                    .TakeWhile(x => x != AppArgs.section_sep)
+                                                    .ToArray();
 
                             var help = top_lines.Reverse()
                                                 .TakeWhile(x => x != AppArgs.section_sep)

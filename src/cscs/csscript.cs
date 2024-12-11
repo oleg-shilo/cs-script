@@ -561,7 +561,7 @@ namespace csscript
                         {
                             Environment.CurrentDirectory = Path.GetDirectoryName(Path.GetFullPath(options.scriptFileName));
 
-                            var code_probing_dirs = parser.ExtraSearchDirs.Select(CSharpParser.GetFullPath);
+                            var code_probing_dirs = parser.ExtraSearchDirs.Select(x => x.GetFullPath());
 
                             foreach (string dir in code_probing_dirs)
                                 newSearchDirs.AddPathIfNotThere(dir, Settings.code_dirs_section.Expand());

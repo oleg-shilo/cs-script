@@ -465,11 +465,6 @@ namespace csscript
                 return null;
         }
 
-        internal static string GetFullPath(string path)
-        {
-            return Path.GetFullPath(path);
-        }
-
         /// <summary>
         /// Global flag to forcefully suppress any C# code analyses. This flag effectively disables
         /// all CS-Script assembly and script probing and most likely some other functionality.
