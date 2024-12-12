@@ -515,10 +515,13 @@ namespace csscript
                     foreach (string dir in pathFolders)
                         CSExecutor.options.AddSearchDir(dir.Trim(), Settings.code_dirs_section);
 
-                    return lines
+                    var refs = lines
                         .Where(x => x.StartsWith("//css_ref "))
                         .Select(x => x.Replace("//css_ref ", ""))
                         .ToArray();
+
+                    if (refs.All(File.Exists))
+                        return refs;
                 }
             }
 
