@@ -447,7 +447,7 @@ namespace csscript
                 if (value.Equals(pattern))
                     return result(null);
 
-            return default(T2);
+            return default;
         }
 
         /// <summary>

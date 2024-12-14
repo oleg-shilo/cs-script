@@ -1,8 +1,8 @@
 {
-  "profiles": {
-    "csws": {
-      "commandName": "Project",
-      "commandLineArgs": "--version ver.log"
+    "profiles": {
+        "csws": {
+            "commandName": "Project",
+            "commandLineArgs": "-ls kill"
+        }
     }
-  }
 }

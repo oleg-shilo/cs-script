@@ -839,9 +839,8 @@ namespace CSScriptLib
 
             var dirs = globalProbingDirs.ToArray();
 
-            string asmFile = AssemblyResolver.FindAssembly(assembly, dirs).FirstOrDefault();
-            if (asmFile == null)
-                throw new Exception("Cannot find referenced assembly '" + assembly + "'");
+            string asmFile = AssemblyResolver.FindAssembly(assembly, dirs).FirstOrDefault()
+                ?? throw new Exception("Cannot find referenced assembly '" + assembly + "'");
 
             ReferenceAssembly(Assembly.LoadFile(asmFile));
             return this;
