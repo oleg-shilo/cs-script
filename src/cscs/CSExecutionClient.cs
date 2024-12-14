@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using static System.Environment;
 using System.IO;
@@ -6,6 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using CSScripting;
 
 [assembly: InternalsVisibleTo("cscs.tests")]
@@ -155,6 +158,7 @@ namespace csscript
                     Runtime.CleanSnippets();
                     Runtime.CleanAbandonedCache();
                     Runtime.CleanExitedScripts();
+                    Runtime.ClearScriptProcessLog();
                 }
             }
             catch { }
@@ -200,6 +204,8 @@ namespace csscript
             }
 
             Utils.ProcessNewEncoding = ProcessNewEncoding;
+
+            Task.Run(Runtime.LogScriptProcess);
 
             ProcessNewEncoding(null);
 

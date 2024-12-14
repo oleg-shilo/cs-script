@@ -31,6 +31,8 @@ namespace csscript
         public const string question2 = "-?";
         public const string wpf = "wpf";
         public const string cmd = "cmd";
+        public const string ls = "ls";
+        public const string list = "list";
         public const string syntax = "syntax";
         public const string server = "server";
         public const string install = "install";
@@ -666,6 +668,11 @@ namespace csscript
             switch2Help[commands] =
             switch2Help[cmd] = new ArgInfo("-commands|-cmd",
                                            "Prints list of supported commands (arguments) as well as the custom commands defined by user.");
+            switch2Help[ls] =
+            switch2Help[list] = new ArgInfo("-list|-ls",
+                                            "Prints list of all currently running scripts. The current process is marked in the list with the '*' prefix in the process id (PID).",
+                                            "If script execution tracking is undesirable you can disable it by setting " +
+                                           $"{Runtime.DisableCSScriptProcessTrackingEnvar} environment variable to a non empty value.");
             miscHelp["file"] = new ArgInfo("file",
                                            "Specifies name of a script file to be run.");
             miscHelp["params"] = new ArgInfo("params",
@@ -1227,6 +1234,23 @@ namespace csscript
                             return help.FromMdToTxt();
                         }
                         return AppArgs.SyntaxHelp;
+                    }
+                case AppArgs.ls:
+                case AppArgs.list:
+                    {
+                        var currentProcId = Process.GetCurrentProcess().Id;
+                        var i = 0;
+
+                        var builder = new StringBuilder();
+                        builder.AppendLine($"#  : PID       : Arguments");
+                        builder.AppendLine($"--------------------------");
+                        foreach ((int pid, string args) in Runtime.GetScriptProcessLog().OrderByDescending(x => x.pid == currentProcId))
+                        {
+                            var current = pid == currentProcId ? "*" : " ";
+                            builder.AppendLine($"{current}{++i:D2}: {pid:D10}: {args}");
+                        }
+
+                        return builder.ToString();
                     }
                 case AppArgs.cmd:
                 case AppArgs.commands:

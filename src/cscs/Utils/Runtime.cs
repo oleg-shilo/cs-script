@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
+using System.Threading;
 using CSScripting;
 
 #if class_lib
@@ -106,6 +108,176 @@ namespace csscript
                     catch { }
             }
         }
+
+#if !class_lib
+
+        internal static (int pid, string args)[] GetScriptProcessLog()
+        {
+            (int pid, string args)[] result = null;
+
+            var filePath = Environment.SpecialFolder.LocalApplicationData.GetPath().PathJoin("cs-script", "p-list");
+
+            if (DisableCSScriptProcessTrackingEnvar.GetEnvar().IsNotEmpty())
+            {
+                filePath.DeleteIfExists();
+                result = [(0, "<script tracking is disabled>")];
+            }
+            else
+            {
+                string mutexName = "Global\\CSScriptProcessListMutex"; // Global name for cross-process synchronization
+
+                List<string> lines = null;
+                using (var mutex = new Mutex(false, mutexName))
+                {
+                    try
+                    {
+                        mutex.WaitOne();
+
+                        try
+                        {
+                            if (filePath.FileExists())
+                                lines = File.ReadAllLines(filePath).ToList();
+                        }
+                        catch { }
+                    }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                }
+
+                if (lines == null)
+                    result = [(0, "<script tracking information is not available>")];
+                else
+                    result = lines.Select(x =>
+                                          {
+                                              var parts = x.Split(':', 2);
+                                              try
+                                              {
+                                                  if (int.TryParse(parts.First(), out int pid))
+                                                      return (pid, parts.Last()?.Trim());
+                                              }
+                                              catch
+                                              {
+                                              }
+                                              return (0, "<invalid script tracking information>");
+                                          })
+                                   .Where(x =>
+                                            {
+                                                try
+                                                {
+                                                    return Process.GetProcessById(x.Item1) != null;
+                                                }
+                                                catch { return false; }
+                                            })
+                                   .ToArray();
+            }
+
+            return result;
+        }
+
+        internal static void ClearScriptProcessLog()
+        {
+            var filePath = Environment.SpecialFolder.LocalApplicationData.GetPath().PathJoin("cs-script", "p-list");
+
+            if (DisableCSScriptProcessTrackingEnvar.GetEnvar().IsNotEmpty())
+            {
+                filePath.DeleteIfExists();
+            }
+            else
+            {
+                string mutexName = "Global\\CSScriptProcessListMutex"; // Global name for cross-process synchronization
+
+                using (var mutex = new Mutex(false, mutexName))
+                {
+                    try
+                    {
+                        mutex.WaitOne();
+
+                        List<string> lines = null;
+
+                        try
+                        {
+                            if (filePath.FileExists())
+                                lines = File.ReadAllLines(filePath)
+                                            .Where(x =>
+                                            {
+                                                try
+                                                {
+                                                    return Process.GetProcessById(int.Parse(x.Split(':', 2)[0])) != null;
+                                                }
+                                                catch { return false; }
+                                            })
+                                            .ToList();
+                        }
+                        catch { }
+
+                        if (lines != null) ;
+                        File.WriteAllLines(filePath, lines.ToArray());
+                    }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                }
+            }
+        }
+
+        internal static string DisableCSScriptProcessTrackingEnvar = "DisableCSScriptProcessTracking";
+
+        internal static void LogScriptProcess()
+        {
+            var filePath = Environment.SpecialFolder.LocalApplicationData.GetPath().PathJoin("cs-script", "p-list");
+
+            if (DisableCSScriptProcessTrackingEnvar.GetEnvar().IsNotEmpty())
+            {
+                filePath.DeleteIfExists();
+            }
+            else
+            {
+                string mutexName = "Global\\CSScriptProcessListMutex"; // Global name for cross-process synchronization
+
+                using (var mutex = new Mutex(false, mutexName))
+                {
+                    try
+                    {
+                        mutex.WaitOne();
+                        filePath.EnsureFileDir();
+                        var currentScript = $"{Process.GetCurrentProcess().Id}: {Environment.CommandLine}";
+
+                        List<string> lines = null;
+
+                        try
+                        {
+                            if (filePath.FileExists())
+                                lines = File.ReadAllLines(filePath)
+                                            .Where(x =>
+                                            {
+                                                try
+                                                {
+                                                    return Process.GetProcessById(int.Parse(x.Split(':', 2)[0])) != null;
+                                                }
+                                                catch { return false; }
+                                            })
+                                            .ToList();
+                        }
+                        catch { }
+
+                        lines = lines ?? new List<string>();
+
+                        lines.Add(currentScript);
+
+                        File.WriteAllLines(filePath, lines.ToArray());
+                    }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                }
+            }
+        }
+
+#endif
 
         /// <summary>
         /// Cleans the exited scripts.
