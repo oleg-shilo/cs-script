@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.8.22.0</version>
+    <version>4.8.23.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -29,7 +29,15 @@
 ## Changes
 
 ### CLI
-- Minor update in the script project info generation to allow better integration with IDEs
+- #396 Some NuGet packages are not recognized and not referenced
+- #397: How to succeed in using NuGet packages with native binaries (like e.g. SkiaSharp)
+- Added new command `-list` for printing all currently running scripts.
+- Added support for nuget package native assets
+- LegacyNugetSupport by defauls made false
+- script compilation cache now stores probing dirs to allow recreation of PATH environemnt variable during the cached execution (e.g. to cover nuget native assets)
+- Added support for `-self-install` command to set global `CSSCRIPT_ROOT` envar.
+- Updated `//css_nuget` syntax CLI documentation
+
 
 ### CSScriptLib
 - no changes</releaseNotes>
