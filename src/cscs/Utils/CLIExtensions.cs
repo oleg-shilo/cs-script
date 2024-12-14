@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using csscript;
@@ -45,7 +46,7 @@ public static class CLIExtensions
             }
         }
 
-        yield return str.Substring(nextPiece);
+        yield return str[nextPiece..];
     }
 
     // [Obsolete]

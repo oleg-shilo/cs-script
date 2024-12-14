@@ -31,6 +31,8 @@ namespace csscript
 
         void EnableWpf(string arg);
 
+        void InteractiveCommand(string cmdType, params object[] context);
+
         void ShowHelp(string helpType, params object[] context);
 
         void DoCacheOperations(string command);

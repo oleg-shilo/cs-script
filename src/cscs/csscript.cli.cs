@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using static System.Environment;
 using System.IO;
 using System.Linq;
@@ -244,7 +245,52 @@ namespace csscript
         /// </summary>
         public void ShowHelp(string helpType, params object[] context)
         {
-            print?.Invoke(HelpProvider.ShowHelp(helpType, context.Where(x => x != null).ToArray()));
+            var help = HelpProvider.ShowHelp(helpType, context.Where(x => x != null).ToArray());
+            print?.Invoke(help);
+        }
+
+        /// <summary>
+        /// Prints CS-Script specific C# syntax help info.
+        /// </summary>
+        public void InteractiveCommand(string cmdType, params object[] context)
+        {
+            switch (cmdType)
+            {
+                case AppArgs.ls:
+                case AppArgs.list:
+                    {
+                        if (!Runtime.IsConsole)
+                        {
+                            print?.Invoke($"Command '{cmdType}' is only available in the console mode.");
+                        }
+                        else
+                        {
+                            var result = Runtime.GetScriptProcessLog();
+
+                            Console.WriteLine(result.view);
+                            if (context.Contains("kill") || context.Contains("-kill") || context.Contains("k"))
+                            {
+                                Console.WriteLine("Enter index of the script you want to terminate or 'X' to exit: ");
+                                var userInput = Console.ReadLine().ToLower();
+                                if (userInput != "x")
+                                {
+                                    var pid = result.scripts.FirstOrDefault(x => x.index == userInput).pid;
+                                    if (pid != 0)
+                                        try
+                                        {
+                                            Process.GetProcessById(pid).Kill();
+                                        }
+                                        catch { }
+                                    else
+                                        Console.WriteLine("Invalid user input.");
+                                }
+                            }
+                        }
+                        break;
+                    }
+                default:
+                    break;
+            }
         }
 
         public void EnableWpf(string arg)

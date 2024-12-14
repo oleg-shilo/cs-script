@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
+using System.Text;
 using System.Threading;
 using CSScripting;
 
@@ -111,7 +112,27 @@ namespace csscript
 
 #if !class_lib
 
-        internal static (int pid, string args)[] GetScriptProcessLog()
+        internal static ((string index, int pid)[] scripts, string view) GetScriptProcessLog()
+        {
+            var result = new List<(string index, int pid)>();
+
+            var currentProcId = Process.GetCurrentProcess().Id;
+            var i = 0;
+
+            var builder = new StringBuilder();
+            builder.AppendLine($"#   | PID        | Arguments");
+            builder.AppendLine($"----------------------------");
+            foreach ((int pid, string args) in Runtime.GetScriptProcesses().OrderByDescending(x => x.pid == currentProcId))
+            {
+                var current = pid == currentProcId ? "*" : " ";
+                builder.AppendLine($"{current}{++i:D2} | {pid:D10} | {args}");
+                result.Add((i.ToString(), pid));
+            }
+
+            return (result.ToArray(), builder.ToString());
+        }
+
+        static (int pid, string args)[] GetScriptProcesses()
         {
             (int pid, string args)[] result = null;
 
@@ -305,6 +326,22 @@ namespace csscript
                         containerDir.DeleteIfExists();
                     }
                     catch { }
+            }
+        }
+
+        internal static bool IsConsole
+        {
+            get
+            {
+                try
+                {
+                    var test = Console.WindowWidth.ToString();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 

@@ -609,12 +609,12 @@ namespace csscript
             switch2Help[r] = new ArgInfo("-r:<assembly 1>,<assembly N>",
                                          "Uses explicitly referenced assembly.", "It is required only for " +
                                              "rare cases when namespace cannot be resolved into assembly.",
-                                                 "(e.g. `" + AppInfo.appName + " /r:myLib.dll myScript.cs`).");
+                                          "(e.g. `" + AppInfo.appName + " /r:myLib.dll myScript.cs`).");
 
             switch2Help[dir] = new ArgInfo("-dir:<directory 1>,<directory N>",
                                            "Adds path(s) to the assembly probing directory list.",
                                                "You can use the reserved word 'show' as a directory name to print the configured probing directories.",
-                                                   "(e.g. `" + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs; " + AppInfo.appName + " -dir:show`).");
+                                           "(e.g. `" + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs; " + AppInfo.appName + " -dir:show`).");
             switch2Help[pc] =
             switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
                                                    "Specifies custom precompiler. This can be either script or assembly file.",
@@ -643,25 +643,25 @@ namespace csscript
                                              "      Read more: https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support",
                                              " ",
                                              "Imports new or updates existing NuGet package.",
-                                                 "This command allows light management of the NuGet packages in the CS-Script local package repository (%PROGRAMDATA%\\CS-Script\\nuget).",
-                                                     "The tasks are limited to installing, updating and listing the local packages.",
-                                                     " ",
-                                                     "```",
-                                                     " -nuget           - ${<==}prints the list of all root packages in the repository",
-                                                     "                    ${<==}(Not available with new NuGet support)",
-                                                     " -nuget:<package> - ${<==}downloads and installs the latest version of the package(s). ",
-                                                     "                    ${<==}Wild cards can be used to update multiple packages. For example '-nuget:ServiceStack*' will update all " +
-                                                     "already installed ServiceStack packages.",
-                                                     "                    ${<==}You can also use the index of the package instead of its full name.",
-                                                     "                    ${<==}(Not available with new NuGet support)",
-                                                     "```",
-                                                     " ",
-                                                     "Installing packages this way is an alternative to having '//css_nuget -force ...' directive in the script code as it may be " +
-                                                     "more convenient for the user to update packages manually instead of having them updated on every script execution/recompilation.",
-                                                     "```",
-                                                     " -nuget:restore - ${<==}downloads and installs all packages specified in the script without executing the script. " +
-                                                     "```",
-                                                     "Available only with new NuGet support."
+                                             "This command allows light management of the NuGet packages in the CS-Script local package repository (%PROGRAMDATA%\\CS-Script\\nuget).",
+                                             "The tasks are limited to installing, updating and listing the local packages.",
+                                             " ",
+                                             "```",
+                                             " -nuget           - ${<==}prints the list of all root packages in the repository",
+                                             "                    ${<==}(Not available with new NuGet support)",
+                                             " -nuget:<package> - ${<==}downloads and installs the latest version of the package(s). ",
+                                             "                    ${<==}Wild cards can be used to update multiple packages. For example '-nuget:ServiceStack*' will update all " +
+                                             "already installed ServiceStack packages.",
+                                             "                    ${<==}You can also use the index of the package instead of its full name.",
+                                             "                    ${<==}(Not available with new NuGet support)",
+                                             "```",
+                                             " ",
+                                             "Installing packages this way is an alternative to having '//css_nuget -force ...' directive in the script code as it may be " +
+                                             "more convenient for the user to update packages manually instead of having them updated on every script execution/recompilation.",
+                                             "```",
+                                             " -nuget:restore - ${<==}downloads and installs all packages specified in the script without executing the script. " +
+                                             "```",
+                                             "Available only with new NuGet support."
                                             );
             switch2Help[syntax] = new ArgInfo("-syntax",
                                               "Prints documentation for CS-Script specific C# syntax.");
@@ -669,10 +669,11 @@ namespace csscript
             switch2Help[cmd] = new ArgInfo("-commands|-cmd",
                                            "Prints list of supported commands (arguments) as well as the custom commands defined by user.");
             switch2Help[ls] =
-            switch2Help[list] = new ArgInfo("-list|-ls",
+            switch2Help[list] = new ArgInfo("-list|-ls [kill|k]",
                                             "Prints list of all currently running scripts. The current process is marked in the list with the '*' prefix in the process id (PID).",
                                             "If script execution tracking is undesirable you can disable it by setting " +
-                                           $"{Runtime.DisableCSScriptProcessTrackingEnvar} environment variable to a non empty value.");
+                                           $"{Runtime.DisableCSScriptProcessTrackingEnvar} environment variable to a non empty value.",
+                                            " kill|k   - ${<==}Allow user to terminate any running script.");
             miscHelp["file"] = new ArgInfo("file",
                                            "Specifies name of a script file to be run.");
             miscHelp["params"] = new ArgInfo("params",
@@ -1234,23 +1235,6 @@ namespace csscript
                             return help.FromMdToTxt();
                         }
                         return AppArgs.SyntaxHelp;
-                    }
-                case AppArgs.ls:
-                case AppArgs.list:
-                    {
-                        var currentProcId = Process.GetCurrentProcess().Id;
-                        var i = 0;
-
-                        var builder = new StringBuilder();
-                        builder.AppendLine($"#  : PID       : Arguments");
-                        builder.AppendLine($"--------------------------");
-                        foreach ((int pid, string args) in Runtime.GetScriptProcessLog().OrderByDescending(x => x.pid == currentProcId))
-                        {
-                            var current = pid == currentProcId ? "*" : " ";
-                            builder.AppendLine($"{current}{++i:D2}: {pid:D10}: {args}");
-                        }
-
-                        return builder.ToString();
                     }
                 case AppArgs.cmd:
                 case AppArgs.commands:
