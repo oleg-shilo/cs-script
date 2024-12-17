@@ -605,18 +605,25 @@ namespace csscript
                 packagsSection += $"<PackageReference Include=\"{package}\" Version=\"{packageVersion}\"/> {NewLine}";
             }
 
+            restoreArgs += $" --packages \"{NuGetCache}\"";
+
+            void dotnet_run(string args)
+            {
+                var p = new Process();
+                p.StartInfo.FileName = "dotnet";
+                p.StartInfo.Arguments = args;
+                p.StartInfo.WorkingDirectory = projectDir;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.Start();
+                p.WaitForExit();
+            }
+
             try
             {
                 // var projectFile = projectDir.PathJoin("nuget.ref.csproj");
                 var projectFile = projectDir.PathJoin($"{projId}.csproj");
 
-                var p1 = new Process();
-                p1.StartInfo.FileName = "dotnet";
-                p1.StartInfo.Arguments = "new classlib";
-                p1.StartInfo.WorkingDirectory = projectDir;
-                p1.StartInfo.RedirectStandardOutput = true;
-                p1.Start();
-                p1.WaitForExit();
+                dotnet_run("new classlib");
 
                 var projContent = File.ReadAllText(projectDir.PathJoin($"{projId}.csproj"))
                     .Replace("</Project>", $@"<ItemGroup>
@@ -631,17 +638,6 @@ namespace csscript
                 var sw = Stopwatch.StartNew();
                 Console.WriteLine("Restoring packages...");
                 Console.WriteLine("   " + packages.JoinBy(NewLine + "   "));
-
-                void dotnet_run(string args)
-                {
-                    var p = new Process();
-                    p.StartInfo.FileName = "dotnet";
-                    p.StartInfo.Arguments = args;
-                    p.StartInfo.WorkingDirectory = projectDir;
-                    p.StartInfo.RedirectStandardOutput = true;
-                    p.Start();
-                    p.WaitForExit();
-                }
 
                 dotnet_run("restore " + restoreArgs.Trim());
                 dotnet_run("publish --no-restore -o ./publish");
