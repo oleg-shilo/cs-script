@@ -21,6 +21,7 @@ namespace cscs
         {
 #if DEBUG
             // Environment.SetEnvironmentVariable("CSS_RESTORE_NUGET_PACKAGES", "true");
+            // Environment.SetEnvironmentVariable("CSSCRIPT_NUGET_PACKAGES", @"D:\temp\nuget");
 #endif
             try
             {

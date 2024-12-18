@@ -498,7 +498,7 @@ namespace csscript
 
             var packagesId = $"// packages: {allPackages.OrderBy(x => x).JoinBy(", ")}";
 
-            var assembliesList = CSExecutor.GetCacheDirectory(script).PathJoin(script + ".nuget.cs");
+            var assembliesList = CSExecutor.GetCacheDirectory(script).PathJoin(script.GetFileName() + ".nuget.cs");
 
             string[] assemblies;
             if (!forceRestore && File.Exists(assembliesList))

@@ -609,7 +609,7 @@ namespace csscript
             switch2Help[r] = new ArgInfo("-r:<assembly 1>,<assembly N>",
                                          "Uses explicitly referenced assembly.", "It is required only for " +
                                              "rare cases when namespace cannot be resolved into assembly.",
-                                          "(e.g. `" + AppInfo.appName + " /r:myLib.dll myScript.cs`).");
+                                         "(e.g. `" + AppInfo.appName + " /r:myLib.dll myScript.cs`).");
 
             switch2Help[dir] = new ArgInfo("-dir:<directory 1>,<directory N>",
                                            "Adds path(s) to the assembly probing directory list.",
@@ -637,7 +637,7 @@ namespace csscript
                                                     "loading can be disabled with a special 'none' argument: -pvdr:none.",
                                                     $"(see {help_url}/help/non_cs_compilers.html)");
             switch2Help[nuget] = new ArgInfo("-nuget[:<package|restore>]",
-                                             "Note: A new NuGet support available from version 4.7.0 has obsolete some of the options of this command that are only available in with " +
+                                             "Note: A new NuGet support available from version 4.7.0 has obsoleted some of the options of this command that are only available in with " +
                                              "the legacy NuGet support algorithm",
                                              "      Legacy NuGet support can be enabled by setting `LegacyNugetSupport` option to false with `css -config:set:LegacyNugetSupport=true`)",
                                              "      Read more: https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support",
@@ -660,6 +660,7 @@ namespace csscript
                                              "more convenient for the user to update packages manually instead of having them updated on every script execution/recompilation.",
                                              "```",
                                              " -nuget:restore - ${<==}downloads and installs all packages specified in the script without executing the script. " +
+                                             "Effectively it is a equivalent of -check but with he forced nuget packages restore operation." +
                                              "```",
                                              "Available only with new NuGet support."
                                             );

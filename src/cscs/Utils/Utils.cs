@@ -1058,6 +1058,7 @@ class HostingRuntime
                             options.forceCompile = true;
                             options.suppressExecution = true;
                             options.syntaxCheck = true;
+                            options.compileDLL = true;
                         }
                         else
                         {
