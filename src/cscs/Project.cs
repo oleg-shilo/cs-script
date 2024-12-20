@@ -88,8 +88,10 @@ namespace CSScriptLib
             // ********************************************************************************************
             var project = new Project { Script = script };
 
-            var searchDirs = new List<string>();
-            searchDirs.Add(Path.GetDirectoryName(script));
+            var searchDirs = new List<string>
+            {
+                Path.GetDirectoryName(script)
+            };
 
             var globalConfig = GetGlobalConfigItems();
             var defaultSearchDirs = globalConfig.dirs;
@@ -170,10 +172,10 @@ namespace CSScriptLib
             var items = new ConfigItems();
 
             // note: string.Split(params string[] args) will fail in some cases (e.g. hosted by syntaxer .NET8 vs .NET9) so using the old way
-            Func<string, string[]> splitPathItems = text => text.Split(";,".ToCharArray())
-                                                                .Where(x => !string.IsNullOrEmpty(x))
-                                                                .Select(x => Environment.ExpandEnvironmentVariables(x.Trim()))
-                                                                .ToArray();
+            string[] splitPathItems(string text) => text.Split(";,".ToCharArray())
+                                                        .Where(x => !string.IsNullOrEmpty(x))
+                                                        .Select(x => Environment.ExpandEnvironmentVariables(x.Trim()))
+                                                        .ToArray();
             try
             {
                 items.dirs.AddRange(splitPathItems(DefaultSearchDirs ?? ""));

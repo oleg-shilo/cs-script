@@ -102,7 +102,7 @@ namespace csscript
                 }
                 catch (CLIException e)
                 {
-                    if (!(e is CLIExitRequest))
+                    if (e is not CLIExitRequest)
                     {
                         Console.WriteLine(e.Message);
                         Environment.ExitCode = e.ExitCode;
@@ -129,14 +129,14 @@ namespace csscript
     /// </summary>
     class AppInfo
     {
-        public static string appName = Environment.GetEnvironmentVariable("ENTRY_ASM") ?? Assembly.GetExecutingAssembly().GetName().Name;
-        public static bool appConsole = true;
+        public static string AppName = Environment.GetEnvironmentVariable("ENTRY_ASM") ?? Assembly.GetExecutingAssembly().GetName().Name;
+        public static bool AppConsole = true;
 
-        public static string appLogo =>
+        public static string AppLogo =>
             $"C# Script execution engine (.NET Core). Version {Assembly.GetExecutingAssembly().GetName().Version}.{NewLine}" +
             "Copyright (C) 2004-2023 Oleg Shilo." + NewLine;
 
-        public static string appLogoShort =>
+        public static string AppLogoShort =>
             $"C# Script execution engine (.NET Core). Version{Assembly.GetExecutingAssembly().GetName().Version}.{NewLine}";
     }
 
@@ -174,8 +174,7 @@ namespace csscript
 
                 Utils.IsDefaultConsoleEncoding = false;
 
-                if (originalEncoding == null)
-                    originalEncoding = oldEncoding;
+                originalEncoding ??= oldEncoding;
             }
             catch { }
         }

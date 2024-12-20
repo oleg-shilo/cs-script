@@ -126,4 +126,16 @@
   <PropertyGroup>
     <RollForward>LatestMajor</RollForward>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
+    <NoWarn>CA1701;CA1702;CA1860</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-windows|AnyCPU'">
+    <NoWarn>CA1701;CA1702;CA1860</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
+    <NoWarn>CA1701;CA1702;CA1860</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-windows|AnyCPU'">
+    <NoWarn>CA1701;CA1702;CA1860</NoWarn>
+  </PropertyGroup>
 </Project>

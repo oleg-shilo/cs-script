@@ -1,10 +1,10 @@
-﻿using csscript;
-using CSScripting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using csscript;
+using CSScripting;
 
 namespace CSScriptLib
 {
@@ -262,11 +262,11 @@ namespace CSScriptLib
 
         internal static string[] ResolveFilesDefault(string file, string[] extraDirs, bool throwOnError)
         {
-            string[] retval = _ResolveFiles(file, extraDirs, "");
+            string[] retval = FindFiles(file, extraDirs, "");
             if (retval.Length == 0)
-                retval = _ResolveFiles(file, extraDirs, ".cs");
+                retval = FindFiles(file, extraDirs, ".cs");
             if (retval.Length == 0)
-                retval = _ResolveFiles(file, extraDirs, ".csl"); //script link file
+                retval = FindFiles(file, extraDirs, ".csl"); //script link file
             if (retval.Length == 0)
             {
                 // a complex command folder. IE:
@@ -282,11 +282,11 @@ namespace CSScriptLib
                 if (file.GetFileName().StartsWith("-"))
                 {
                     var filePath = "-" + file.TrimStart('-').Replace("-", $"{Path.DirectorySeparatorChar}-");
-                    retval = _ResolveFiles(filePath, extraDirs, "");
+                    retval = FindFiles(filePath, extraDirs, "");
                     if (retval.IsEmpty())
-                        retval = _ResolveFiles(filePath, extraDirs, ".cs");
+                        retval = FindFiles(filePath, extraDirs, ".cs");
                     if (retval.IsEmpty())
-                        retval = _ResolveFiles(filePath.PathJoin("-run.cs"), extraDirs, "");
+                        retval = FindFiles(filePath.PathJoin("-run.cs"), extraDirs, "");
                 }
             }
 
@@ -366,7 +366,7 @@ namespace CSScriptLib
             return new string[0];
         }
 
-        static string[] _ResolveFiles(string file, string[] extraDirs, string extension)
+        static string[] FindFiles(string file, string[] extraDirs, string extension)
         {
             if (Path.IsPathRooted(file))
                 return new[] { file };
@@ -424,7 +424,7 @@ namespace CSScriptLib
 #if class_lib
             return string.Format(headerTemplate, "CS-Script", path, fileName, DateTime.Now);
 #else
-            return string.Format(headerTemplate, csscript.AppInfo.appLogoShort, path, fileName, DateTime.Now);
+            return string.Format(headerTemplate, csscript.AppInfo.AppLogoShort, path, fileName, DateTime.Now);
 #endif
         }
 

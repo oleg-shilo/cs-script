@@ -48,7 +48,7 @@ namespace CSScripting.CodeDom
 
         public CompilerResults CompileAssemblyFromFile(CompilerParameters options, string fileName)
         {
-            return CompileAssemblyFromFileBatch(options, new[] { fileName });
+            return CompileAssemblyFromFileBatch(options, [fileName]);
         }
 
         public CompilerResults CompileAssemblyFromSourceBatch(CompilerParameters options, string[] sources)
@@ -83,15 +83,15 @@ namespace CSScripting.CodeDom
 
             if (!File.Exists(proj_template)) // sdk may not be available so this is the last line of defense
             {
-                File.WriteAllLines(proj_template, new[]
-                {
+                File.WriteAllLines(proj_template,
+                [
                     "<Project Sdk=\"Microsoft.NET.Sdk\">",
                     "  <PropertyGroup>",
                     "    <OutputType>Exe</OutputType>",
                     $"    <TargetFramework>net{Environment.Version.Major}.0</TargetFramework>",
                     "  </PropertyGroup>",
                     "</Project>"
-                });
+                ]);
             }
 
             return proj_template;
@@ -121,26 +121,15 @@ namespace CSScripting.CodeDom
                     engine = compiler_roslyn;
                 }
 
-                switch (engine)
+                return engine switch
                 {
-                    case Directives.compiler_dotnet:
-                        return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
-
-                    case Directives.compiler_csc_inproc:
-                        return CompileAssemblyFromFileBatch_with_Csc(options, fileNames, false);
-
-                    case Directives.compiler_csc:
-                        return CompileAssemblyFromFileBatch_with_Csc(options, fileNames, true);
-
-                    case Directives.compiler_roslyn:
-                        return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, false);
-
-                    case Directives.compiler_roslyn_inproc:
-                        return RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, true);
-
-                    default:
-                        return CompileAssemblyFromFileBatch_with_Build(options, fileNames);
-                }
+                    Directives.compiler_dotnet => CompileAssemblyFromFileBatch_with_Build(options, fileNames),
+                    Directives.compiler_csc_inproc => CompileAssemblyFromFileBatch_with_Csc(options, fileNames, false),
+                    Directives.compiler_csc => CompileAssemblyFromFileBatch_with_Csc(options, fileNames, true),
+                    Directives.compiler_roslyn => RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, false),
+                    Directives.compiler_roslyn_inproc => RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, true),
+                    _ => CompileAssemblyFromFileBatch_with_Build(options, fileNames),
+                };
             }
         }
 
@@ -426,7 +415,7 @@ EndGlobal"
 
         public CompilerResults CompileAssemblyFromSource(CompilerParameters options, string source)
         {
-            return CompileAssemblyFromFileBatch(options, new[] { source });
+            return CompileAssemblyFromFileBatch(options, [source]);
         }
     }
 
@@ -457,8 +446,8 @@ EndGlobal"
     public class CompilerParameters
     {
         public string AppType { get; set; }
-        public List<string> LinkedResources { get; } = new List<string>();
-        public List<string> EmbeddedResources { get; } = new List<string>();
+        public List<string> LinkedResources { get; } = [];
+        public List<string> EmbeddedResources { get; } = [];
         public string Win32Resource { get; set; }
         public string CompilerOptions { get; set; }
         public int WarningLevel { get; set; }
@@ -467,7 +456,7 @@ EndGlobal"
         public string OutputAssembly { get; set; }
         public IntPtr UserToken { get; set; }
         public string MainClass { get; set; }
-        public List<string> ReferencedAssemblies { get; } = new List<string>();
+        public List<string> ReferencedAssemblies { get; } = [];
         public bool GenerateInMemory { get; set; }
 
         // controls if the compiled assembly has static main and supports top level class

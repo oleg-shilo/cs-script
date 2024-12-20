@@ -43,10 +43,10 @@ namespace csscript
                 int lBracket = statement.IndexOf("(");
                 if (lBracket != -1)
                 {
-                    List<string> argList = new List<string>();
+                    var argList = new List<string>();
 
                     argList.Add(CSSUtils.Args.DefaultPrefix + "nl");
-                    argList.Add(statement.Substring(0, lBracket).Trim());
+                    argList.Add(statement[..lBracket].Trim());
 
                     rBracket = statement.LastIndexOf(")");
                     if (rBracket == -1)
@@ -60,18 +60,18 @@ namespace csscript
                             argList.Add(clearArg.StartsWith("$this") ? (clearArg == "$this.name" ? Path.GetFileNameWithoutExtension(parentScript) : parentScript) : clearArg);
                     }
 
-                    args = argList.ToArray();
+                    args = [.. argList];
 
-                    if (statement.Substring(rBracket + 1).Trim().Replace(",", "") == "ignore")
+                    if (statement[(rBracket + 1)..].Trim().Replace(",", "") == "ignore")
                         abortOnError = false;
                 }
                 else
                 {
-                    int pos = statement.LastIndexOfAny(new char[] { ' ', '\t', ';' });
+                    int pos = statement.LastIndexOfAny([' ', '\t', ';']);
                     if (pos != -1)
-                        args = new string[] { CSSUtils.Args.DefaultPrefix + "nl", statement.Substring(0, pos) };
+                        args = [CSSUtils.Args.DefaultPrefix + "nl", statement.Substring(0, pos)];
                     else
-                        args = new string[] { CSSUtils.Args.DefaultPrefix + "nl", statement };
+                        args = [CSSUtils.Args.DefaultPrefix + "nl", statement];
                 }
             }
 
@@ -113,8 +113,8 @@ namespace csscript
             /// </summary>
             public int EoAuthnCap = 0x40; //EoAuthnCap.DynamicCloaking
 
-            static char[] tokenDelimiters = new char[] { '(', ')' };
-            static char[] argDelimiters = new char[] { ',' };
+            static char[] tokenDelimiters = ['(', ')'];
+            static char[] argDelimiters = [','];
 
             /// <summary>
             /// Initializes a new instance of the <see cref="InitInfo"/> class.
@@ -151,8 +151,8 @@ namespace csscript
                         else
                         {
                             error = args.Length != 2
-                                    || (!TryParseInt(args[0], out RpcImpLevel))
-                                    || (!TryParseInt(args[1], out EoAuthnCap));
+                                    || (!InitInfo.TryParseInt(args[0], out RpcImpLevel))
+                                    || (!InitInfo.TryParseInt(args[1], out EoAuthnCap));
                         }
                     }
                 }
@@ -161,11 +161,11 @@ namespace csscript
                     throw new ApplicationException("Cannot parse //css_init directive. '" + statement + "' is in unexpected format.");
             }
 
-            bool TryParseInt(string text, out int value)
+            static bool TryParseInt(string text, out int value)
             {
                 text = text.TrimStart();
                 if (text.StartsWith("0x", StringComparison.Ordinal))
-                    return int.TryParse(text.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out value);
+                    return int.TryParse(text[2..], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out value);
                 else
                     return int.TryParse(text, out value);
             }
@@ -224,7 +224,7 @@ namespace csscript
 
                         string filePattern = parts[0];
 
-                        List<ImportInfo> result = new List<ImportInfo>();
+                        var result = new List<ImportInfo>();
 
                         // To ensure that parent script dir is on top. Required because
                         // FileParser.ResolveFiles stops searching when it finds.
@@ -247,7 +247,7 @@ namespace csscript
                         if (statement.Length > 1 && (statement[0] == '.' && statement[1] != '.')) //just a single-dot start dir
                             statement = parentScript.GetDirName().PathJoin(statement).GetFullPath();
 
-                        return new[] { new ImportInfo(statement, parentScript, context) };
+                        return [new ImportInfo(statement, parentScript, context)];
                     }
                 }
                 catch (InvalidDirectiveException e)
@@ -318,7 +318,7 @@ namespace csscript
                         throw new InvalidDirectiveException("Cannot parse \"" + context ?? "//css_import" + "...\"");
                 }
                 if (renameingMap.Count == 0)
-                    this.renaming = new string[0][];
+                    this.renaming = [];
                 else
                     this.renaming = renameingMap.ToArray();
             }
@@ -349,8 +349,8 @@ namespace csscript
             public bool preserveMain = false;
         }
 
-        List<int[]> stringRegions = new List<int[]>();
-        List<int[]> commentRegions = new List<int[]>();
+        List<int[]> stringRegions = new();
+        List<int[]> commentRegions = new();
 
         internal static bool NeedInitEnvironment = true;
 
@@ -776,7 +776,7 @@ namespace csscript
                 sb.Append(Code.Substring(prevEnd, info.stratPos - prevEnd));
                 sb.Append(info.newValue);
                 if (i == renamingPositions.Count - 1) // the last renaming
-                    sb.Append(Code.Substring(info.endPos, Code.Length - info.endPos));
+                    sb.Append(Code.Substring(info.endPos));
             }
             this.ModifiedCode = sb.ToString();
         }
@@ -1349,7 +1349,7 @@ namespace csscript
 
             if (lastEndPos != 0 && searchOffset < Code.Length)
             {
-                string codeFragment = text.Substring(searchOffset, text.Length - searchOffset);
+                string codeFragment = text.Substring(searchOffset);
                 sb.Append(codeFragment);
             }
             return sb.ToString();

@@ -183,15 +183,15 @@ namespace csscript
                                               }
                                               return (0, "<invalid script tracking information>");
                                           })
-                                   .Where(x =>
-                                            {
-                                                try
-                                                {
-                                                    return Process.GetProcessById(x.Item1) != null;
-                                                }
-                                                catch { return false; }
-                                            })
-                                   .ToArray();
+                                  .Where(x =>
+                                         {
+                                             try
+                                             {
+                                                 return Process.GetProcessById(x.Item1) != null;
+                                             }
+                                             catch { return false; }
+                                         })
+                                  .ToArray();
             }
 
             return result;
@@ -233,8 +233,8 @@ namespace csscript
                         }
                         catch { }
 
-                        if (lines != null) ;
-                        File.WriteAllLines(filePath, lines.ToArray());
+                        if (lines != null)
+                            File.WriteAllLines(filePath, lines.ToArray());
                     }
                     finally
                     {
@@ -406,9 +406,7 @@ namespace csscript
                         {
                             string pidValue = name.Substring(0, pos);
 
-                            int pid = 0;
-
-                            if (int.TryParse(pidValue, out pid))
+                            if (int.TryParse(pidValue, out int pid))
                             {
                                 //Didn't use GetProcessById as it throws if pid is not running
                                 if (Process.GetProcesses().Any(p => p.Id == pid))
@@ -435,9 +433,8 @@ namespace csscript
         /// <value><c>true</c> if the host OS is Windows; otherwise, <c>false</c>.</value>
         public static bool IsWin => !IsLinux;
 
-        static string rid;
-
 #if !class_lib
+        static string rid;
 
         public static string RID
         {
