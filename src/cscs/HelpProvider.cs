@@ -125,9 +125,9 @@ namespace csscript
 
         internal static string syntaxHelp = "";
 
-        static public Dictionary<string, ArgInfo> switch1Help = new Dictionary<string, ArgInfo>();
-        static public Dictionary<string, ArgInfo> switch2Help = new Dictionary<string, ArgInfo>();
-        static public Dictionary<string, ArgInfo> miscHelp = new Dictionary<string, ArgInfo>();
+        static public Dictionary<string, ArgInfo> switch1Help = [];
+        static public Dictionary<string, ArgInfo> switch2Help = [];
+        static public Dictionary<string, ArgInfo> miscHelp = [];
 
         static public bool IsHelpRequest(this string arg)
             => arg.IsOneOf(AppArgs.help, AppArgs.question, AppArgs.help2, AppArgs.help3, AppArgs.question2);
@@ -137,7 +137,7 @@ namespace csscript
             var rawArg = arg;
             var normalizedArg = arg;
 
-            if (arg.StartsWith("-"))
+            if (arg.StartsWith('-'))
                 normalizedArg = arg.Substring(1);
 
             return AppArgs.switch1Help.ContainsKey(rawArg) ||
@@ -1204,7 +1204,7 @@ namespace csscript
                         ExecuteOptions options = (ExecuteOptions)context[0];
                         Settings settings = CSExecutor.LoadSettings(options);
 
-                        StringBuilder builder = new StringBuilder();
+                        var builder = new StringBuilder();
                         builder.AppendLine(CurrentDirectory);
 
                         foreach (string dir in Environment.ExpandEnvironmentVariables(settings.SearchDirs).Split(",;".ToCharArray()))
@@ -1240,7 +1240,7 @@ namespace csscript
                 case AppArgs.cmd:
                 case AppArgs.commands:
                     {
-                        Dictionary<string, string> map = new Dictionary<string, string>();
+                        var map = new Dictionary<string, string>();
                         int longestArg = 0;
 
                         foreach (FieldInfo info in typeof(AppArgs).GetFields())
@@ -1269,7 +1269,7 @@ namespace csscript
                             }
                         }
 
-                        StringBuilder builder = new StringBuilder();
+                        var builder = new StringBuilder();
 
                         foreach (string key in map.Keys)
                         {
@@ -1280,14 +1280,14 @@ namespace csscript
 
                         ////////////////////////////////////////////
                         // exploring custom commands
-                        string[] commandDirs = new[]
-                        {
+                        string[] commandDirs =
+                        [
                             Runtime.CustomCommandsDir,
 #if DEBUG
                             Environment.GetEnvironmentVariable("CSSCRIPT_INSTALLED"),
 #endif
                             Assembly.GetExecutingAssembly().Location.GetDirName()
-                        };
+                        ];
 
                         var customCommands = commandDirs
                                                  .Where(dir => dir.DirExists())
@@ -1508,7 +1508,7 @@ Examples:
 
         internal static SampleInfo[] BuildSampleCode(string appType, string context)
         {
-            appType = appType ?? "";
+            appType ??= "";
 
             if (sampleBuilders.ContainsKey(appType))
                 return sampleBuilders[appType](context);
@@ -1542,7 +1542,7 @@ if (""?,-?,-help,--help"".Split(',').Contains(args.FirstOrDefault()))
 
 WriteLine($""Executing {context} for: [{{string.Join("","", args)}}]"");
 ";
-            return new[] { new SampleInfo(cs.NormalizeNewLines(), ".cs") };
+            return [new SampleInfo(cs.NormalizeNewLines(), ".cs")];
         }
 
         static SampleInfo[] CSharp_webipi_Sample(string context, bool addOpenApi)
@@ -1609,7 +1609,7 @@ app.MapGet(""/test"",
            (HttpRequest request) => new { Name = ""Test Response"", Time = Environment.TickCount });
 app.Run();
 ";
-            return new[] { new SampleInfo(cs.NormalizeNewLines(), ".cs") };
+            return [new SampleInfo(cs.NormalizeNewLines(), ".cs")];
         }
 
         static SampleInfo[] CSharp_winforms_Sample(string context)
@@ -1706,11 +1706,11 @@ class Program
                 .AppendLine("}")
                 .ToString();
 
-            return new[]
-            {
+            return
+            [
                 new SampleInfo (cs,".cs"),
                 new SampleInfo (xaml, ".xaml")
-            };
+            ];
         }
 
         static SampleInfo[] CSharp_wpf_Sample(string context)
@@ -1752,16 +1752,16 @@ class Program
                 .AppendLine("}")
                 .ToString();
 
-            return new[]
-            {
+            return
+            [
                 new SampleInfo (cs,".cs"),
                 new SampleInfo (xaml, ".xaml")
-            };
+            ];
         }
 
         static SampleInfo[] CSharp_freestyle_Sample(string context)
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             if (!Runtime.IsWin)
             {
@@ -1776,7 +1776,7 @@ class Program
                 .AppendLine("Directory.GetFiles(@\".\\\").print();")
                 .AppendLine("");
 
-            return new[] { new SampleInfo(builder.ToString(), ".cs") };
+            return [new SampleInfo(builder.ToString(), ".cs")];
         }
 
         static SampleInfo[] CSharp_toplevel_Sample(string context)
@@ -1804,7 +1804,7 @@ class Program
 
             builder.AppendLine("");
 
-            return new[] { new SampleInfo(builder.ToString(), ".cs") };
+            return [new SampleInfo(builder.ToString(), ".cs")];
         }
 
         static SampleInfo[] CSharp_toplevel_extended_Sample(string context)
@@ -1867,7 +1867,7 @@ class Program
               .AppendLine("    print(info);")
               .AppendLine("}");
 
-            return new[] { new SampleInfo(cs.ToString(), ".cs") };
+            return [new SampleInfo(cs.ToString(), ".cs")];
         }
 
         static bool isGlobalUsingAvailabe => Globals.LibDir.PathJoin("global-usings.cs").FileExists();
@@ -1910,7 +1910,7 @@ class Program
                 .AppendLine("                 .Take(5));")
                 .AppendLine("\"------------------------------------\".print();")
                 .AppendLine();
-            return new[] { new SampleInfo(builder.ToString(), ".cs") };
+            return [new SampleInfo(builder.ToString(), ".cs")];
         }
 
         static SampleInfo[] CSharp_console_Sample(string context)
@@ -1952,7 +1952,7 @@ class Program
                 .AppendLine("                            .Take(5));")
                 .AppendLine("    }")
                 .AppendLine("}");
-            return new[] { new SampleInfo(builder.ToString(), ".cs") };
+            return [new SampleInfo(builder.ToString(), ".cs")];
         }
 
         static SampleInfo[] DefaultSample(string context) => CSharp10_Sample(context);
@@ -1970,7 +1970,8 @@ Module Module1
     End Sub
 End Module";
 
-            return new[] { new SampleInfo(code.NormalizeNewLines(), ".vb") };
+            SampleInfo[] sampleInfos = [new SampleInfo(code.NormalizeNewLines(), ".vb")];
+            return sampleInfos;
         }
 
         static SampleInfo[] DefaultVbDesktopSample(string context)
@@ -1989,7 +1990,7 @@ Module Module1
         Console.WriteLine(""Hello World! (VB)"")
     End Sub
 End Module";
-            return new[] { new SampleInfo(code.NormalizeNewLines(), ".vb") };
+            return [new SampleInfo(code.NormalizeNewLines(), ".vb")];
         }
 
         public static string BuildPrecompilerSampleCode()
@@ -2037,7 +2038,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
 
         public static string BuildVersionInfo(string arg)
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             string dotNetVer = null;
 

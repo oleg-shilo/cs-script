@@ -108,16 +108,16 @@
         <PackageReadmeFile>package_readme.md</PackageReadmeFile>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
-      <NoWarn>1701;1702;1860</NoWarn>
+      <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0|AnyCPU'">
-      <NoWarn>1701;1702;1860</NoWarn>
+      <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
-      <NoWarn>1701;1702;1860</NoWarn>
+      <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0|AnyCPU'">
-      <NoWarn>1701;1702;1860</NoWarn>
+      <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <Content Include="..\out\static_content\-mkshim\**\*" Link="ToolPackage/-mkshim" Pack="true" PackagePath="tools/net9.0/any/-mkshim" />

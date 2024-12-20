@@ -350,7 +350,7 @@ partial class dbg
 
             string dbg_injection_version = DbgInjectionCode.GetHashCode().ToString();
 
-            using SystemWideLock fileLock = new SystemWideLock("CS-Script.dbg.injection", dbg_injection_version);
+            using var fileLock = new SystemWideLock("CS-Script.dbg.injection", dbg_injection_version);
 
             //Infinite timeout is not good choice here as it may block forever but continuing while the file is still locked will
             //throw a nice informative exception.
@@ -705,8 +705,6 @@ class HostingRuntime
 
             public static bool ParseValuedArg(string arg, string pattern, string pattern2, out string value)
             {
-                value = null;
-
                 if (ParseValuedArg(arg, pattern, out value))
                     return true;
 
@@ -1155,18 +1153,22 @@ class HostingRuntime
 
         internal static PrecompilationContext Precompile(string scriptFile, string[] filesToCompile, ExecuteOptions options)
         {
-            var context = new PrecompilationContext();
-            context.SearchDirs = options.searchDirs;
+            var context = new PrecompilationContext
+            {
+                SearchDirs = options.searchDirs
+            };
 
-            Hashtable contextData = new();
-            contextData["NewDependencies"] = context.NewDependencies;
-            contextData["NewSearchDirs"] = context.NewSearchDirs;
-            contextData["NewReferences"] = context.NewReferences;
-            contextData["NewIncludes"] = context.NewIncludes;
-            contextData["NewCompilerOptions"] = "";
-            contextData["SearchDirs"] = context.SearchDirs;
-            contextData["ConsoleEncoding"] = options.consoleEncoding;
-            contextData["CompilerOptions"] = options.compilerOptions;
+            Hashtable contextData = new()
+            {
+                ["NewDependencies"] = context.NewDependencies,
+                ["NewSearchDirs"] = context.NewSearchDirs,
+                ["NewReferences"] = context.NewReferences,
+                ["NewIncludes"] = context.NewIncludes,
+                ["NewCompilerOptions"] = "",
+                ["SearchDirs"] = context.SearchDirs,
+                ["ConsoleEncoding"] = options.consoleEncoding,
+                ["CompilerOptions"] = options.compilerOptions
+            };
 
             Dictionary<string, List<object>> precompilers = CSSUtils.LoadPrecompilers(options);
 
@@ -1274,7 +1276,7 @@ class HostingRuntime
 
         internal static Dictionary<string, List<object>> LoadPrecompilers(ExecuteOptions options)
         {
-            Dictionary<string, List<object>> retval = new();
+            Dictionary<string, List<object>> retval = [];
 
             if (!options.preCompilers.StartsWith(noDefaultPrecompilerSwitch)) //no defaults
                 retval.Add(Assembly.GetExecutingAssembly().Location, [new DefaultPrecompiler()]);
@@ -1420,14 +1422,14 @@ class HostingRuntime
             {
                 if (file != "")
                 {
-                    sb.Append(FindImlementationFile(file, options.searchDirs));
-                    sb.Append(",");
+                    sb.Append(FindImlementationFile(file, options.searchDirs))
+                      .Append(',');
                 }
             }
 
-            sb.Append(",");
-            sb.Append(options.compilerOptions); // parser.CompilerOptions can be ignored as if they are changed the whole script timestamp is also changed
-            sb.Append(string.Join("|", options.searchDirs)); // "Incorrect work of cache #86"
+            sb.Append(',')
+              .Append(options.compilerOptions) // parser.CompilerOptions can be ignored as if they are changed the whole script timestamp is also changed
+              .Append(string.Join("|", options.searchDirs)); // "Incorrect work of cache #86"
 
             return sb.ToString().GetHashCodeEx();
         }
@@ -1449,7 +1451,7 @@ class HostingRuntime
                 var asmExtension = ".dll";
                 string precompilerAsm = Path.Combine(CSExecutor.GetCacheDirectory(sourceFile), Path.GetFileName(sourceFile) + asmExtension);
 
-                using Mutex fileLock = new Mutex(false, "CSSPrecompiling." + precompilerAsm.GetHashCodeEx()); //have to use hash code as path delimiters are illegal in the mutex name
+                using var fileLock = new Mutex(false, "CSSPrecompiling." + precompilerAsm.GetHashCodeEx()); //have to use hash code as path delimiters are illegal in the mutex name
 
                 //let other thread/process (if any) to finish loading/compiling the same file; 3 seconds should be enough
                 //if not we will just fail to compile as precompilerAsm will still be locked.
@@ -1474,7 +1476,7 @@ class HostingRuntime
                 compilerParams.GenerateInMemory = false;
                 compilerParams.OutputAssembly = precompilerAsm;
 
-                List<string> refAssemblies = new List<string>();
+                List<string> refAssemblies = [];
 
                 //add local and global assemblies (if found) that have the same assembly name as a namespace
                 foreach (string nmSpace in parser.ReferencedNamespaces)
@@ -1485,7 +1487,7 @@ class HostingRuntime
 
                 //add assemblies referenced from code
                 foreach (string asmName in parser.ReferencedAssemblies)
-                    if (asmName.StartsWith("\"") && asmName.EndsWith("\"")) //absolute path
+                    if (asmName.StartsWith('"') && asmName.EndsWith('"')) //absolute path
                     {
                         //not-searchable assemblies
                         string asm = asmName.Replace("\"", "");
@@ -1923,12 +1925,12 @@ class HostingRuntime
 
             foreach (MetaDataItem fileInfo in items)
             {
-                bs.Append(fileInfo.file);
-                bs.Append(';');
-                bs.Append(fileInfo.date.ToFileTimeUtc().ToString());
-                bs.Append(';');
-                bs.Append(fileInfo.assembly ? 'Y' : 'N');
-                bs.Append('|');
+                bs.Append(fileInfo.file)
+                  .Append(';')
+                  .Append(fileInfo.date.ToFileTimeUtc())
+                  .Append(';')
+                  .Append(fileInfo.assembly ? 'Y' : 'N')
+                  .Append('|');
             }
             return bs.ToString();
         }

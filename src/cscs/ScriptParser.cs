@@ -299,7 +299,7 @@ namespace CSScriptLib
                         foreach (string file in importedFile.IgnoreNamespaces)
                             PushIgnoreNamespace(file);
 
-                        List<string> dirs = new List<string>(this.SearchDirs);
+                        var dirs = new List<string>(this.SearchDirs);
                         foreach (string dir in importedFile.ExtraSearchDirs)
                         {
                             if (Path.IsPathRooted(dir))
@@ -434,7 +434,7 @@ namespace CSScriptLib
             }
         }
 
-        void AddIfNotThere(List<string> list, string item)
+        static void AddIfNotThere(List<string> list, string item)
         {
             if (list.BinarySearch(item, new StringComparer()) < 0)
                 list.Add(item);

@@ -234,7 +234,7 @@ namespace csscript
                         catch { }
 
                         if (lines != null)
-                            File.WriteAllLines(filePath, lines.ToArray());
+                            File.WriteAllLines(filePath, lines);
                     }
                     finally
                     {
@@ -284,7 +284,7 @@ namespace csscript
                         }
                         catch { }
 
-                        lines = lines ?? new List<string>();
+                        lines ??= [];
 
                         lines.Add(currentScript);
 

@@ -27,7 +27,7 @@ namespace csscript
     // REST API (e.g. https://api-v2v3search-0.nuget.org/query?q=cs-script&prerelease=false)
     class NuGet
     {
-        static NuGetCore nuget = new();
+        // static NuGetCore nuget = new();
 
         static public string NuGetCacheView => Directory.Exists(NuGetCache) ? NuGetCache : "<not found>";
         static public string NuGetCache => CSExecutor.options.legacyNugetSupport ? NuGetCore.NuGetCache : NuGetNewAlgorithm.NuGetCache;
@@ -84,7 +84,7 @@ namespace csscript
                 // Regex is too much at this stage string pattern =
                 // CSSUtils.ConvertSimpleExpToRegExp(); Regex wildcard = new Regex(pattern, RegexOptions.IgnoreCase);
 
-                if (packageNameMask.EndsWith("*"))
+                if (packageNameMask.EndsWith('*'))
                     packages = ListPackages().Where(x => x.StartsWith(packageNameMask.Substring(0, packageNameMask.Length - 1))).ToArray();
                 else
                     packages = [packageNameMask];
@@ -390,7 +390,7 @@ namespace csscript
 
                 string[] packageArgs = item.SplitCommandLine();
 
-                string package = packageArgs.FirstOrDefault(x => !x.StartsWith("-"));
+                string package = packageArgs.FirstOrDefault(x => !x.StartsWith('-'));
 
                 bool suppressReferencing = packageArgs.Contains("-noref");
                 string nugetArgs = packageArgs.ArgValue("-ng");

@@ -209,7 +209,7 @@ namespace CSScripting.CodeDom
             if (projectName.GetExtension().SameAs(".vbproj"))
                 compileConstantsDelimiter = ",";
 
-            var constants = new[] { "TRACE", "NETCORE", "CS_SCRIPT" }.ToList();
+            List<string> constants = ["TRACE", "NETCORE", "CS_SCRIPT"];
 
             if (isNetFx)
                 constants.Add("NETFRAMEWORK");
