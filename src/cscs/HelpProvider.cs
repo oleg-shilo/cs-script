@@ -636,33 +636,33 @@ namespace csscript
                                                     "if it is found in the same folder where the script engine is. Automatic CSSRoslynProvider.dll " +
                                                     "loading can be disabled with a special 'none' argument: -pvdr:none.",
                                                     $"(see {help_url}/help/non_cs_compilers.html)");
-            switch2Help[nuget] = new ArgInfo("-nuget[:<package|restore>]",
-                                             "Note: A new NuGet support available from version 4.7.0 has obsoleted some of the options of this command that are only available in with " +
-                                             "the legacy NuGet support algorithm",
-                                             "      Legacy NuGet support can be enabled by setting `LegacyNugetSupport` option to false with `css -config:set:LegacyNugetSupport=true`)",
-                                             "      Read more: https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support",
+            switch2Help[nuget] = new ArgInfo("-nuget[:restore]",
+                                             "Installs new or updates existing NuGet packages. It is a very close equivalent of `dotnet restore` command",
+                                             "```",
+                                             " -nuget         - ${<==}prints the list of all root packages in the repository",
+                                             " -nuget:restore - ${<==}Downloads and installs all packages specified in the script without executing the script. " +
+                                             "Effectively it is an equivalent of -check but with the forced nuget packages restore operation.",
+                                             "                  ${<==}Using this option is an alternative to having '//css_nuget -force ...' directive in the script code as it may be " +
+                                             "a more convenient way of updating packages manually instead of having them updated on every script execution/recompilation.",
+                                             "```",
+                                             "---------------------------------------------",
+                                             "Note: A the current NuGet support model is available since v4.7.0. The old options of this `-nuget` command that " +
+                                             "are only available with the legacy NuGet support algorithm. This mode can be enabled by setting `LegacyNugetSupport` option to false: " +
+                                             "`css -config:set:LegacyNugetSupport=true`. Read more: https://github.com/oleg-shilo/cs-script/wiki/NuGet-Support",
                                              " ",
-                                             "Imports new or updates existing NuGet package.",
-                                             "This command allows light management of the NuGet packages in the CS-Script local package repository (%PROGRAMDATA%\\CS-Script\\nuget).",
-                                             "The tasks are limited to installing, updating and listing the local packages.",
+                                             "Legacy CLI:",
                                              " ",
+                                             "-nuget[:<package|restore>]",
+                                             "This command allows a lightweight management of the NuGet packages. The functionality is limited to installing, restoring and updating the packages.",
                                              "```",
                                              " -nuget           - ${<==}prints the list of all root packages in the repository",
-                                             "                    ${<==}(Not available with new NuGet support)",
                                              " -nuget:<package> - ${<==}downloads and installs the latest version of the package(s). ",
                                              "                    ${<==}Wild cards can be used to update multiple packages. For example '-nuget:ServiceStack*' will update all " +
                                              "already installed ServiceStack packages.",
                                              "                    ${<==}You can also use the index of the package instead of its full name.",
                                              "                    ${<==}(Not available with new NuGet support)",
-                                             "```",
-                                             " ",
-                                             "Installing packages this way is an alternative to having '//css_nuget -force ...' directive in the script code as it may be " +
-                                             "more convenient for the user to update packages manually instead of having them updated on every script execution/recompilation.",
-                                             "```",
-                                             " -nuget:restore - ${<==}downloads and installs all packages specified in the script without executing the script. " +
-                                             "Effectively it is a equivalent of -check but with he forced nuget packages restore operation." +
-                                             "```",
-                                             "Available only with new NuGet support."
+                                             " -nuget:restore   - ${<==}Downloads and installs all packages specified in the script without executing the script.",
+                                             "```"
                                             );
             switch2Help[syntax] = new ArgInfo("-syntax",
                                               "Prints documentation for CS-Script specific C# syntax.");
