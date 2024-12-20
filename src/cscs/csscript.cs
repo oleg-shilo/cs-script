@@ -393,7 +393,7 @@ namespace csscript
                 {
                     // Here we need to separate application arguments from script ones. Script
                     // engine arguments are always followed by script arguments [appArgs][scriptFile][scriptArgs][//x]
-                    List<string> appArgs = new List<string>();
+                    List<string> appArgs = [];
 
                     // load settings from file and then process user cli args as some settings
                     // values may need to be replaced upon user request. So 1 - load settings 2 -
@@ -465,7 +465,7 @@ namespace csscript
                     //	settings.SearchDirs
                     //  CacheDir
 
-                    List<string> dirs = new List<string>();
+                    List<string> dirs = [];
 
                     if (!Settings.ProbingLegacyOrder)
                     {
@@ -535,7 +535,7 @@ namespace csscript
 
                     var scriptToExecute = options.scriptFileName;
 
-                    CSharpParser parser = new CSharpParser(options.scriptFileName, true, new[] { compilerDirective, compilerDirective2 }, options.searchDirs);
+                    CSharpParser parser = new(options.scriptFileName, true, [compilerDirective, compilerDirective2], options.searchDirs);
 
                     // it is either '' or 'freestyle', but not 'null' if '//css_ac' was specified
                     if (parser.AutoClassMode != null)
@@ -589,7 +589,7 @@ namespace csscript
                             {
                                 string[] files = FileParser.ResolveFiles(info.file, options.searchDirs);
                                 foreach (string file in files)
-                                    if (file.IndexOf(".g.cs") == -1) //non auto-generated file
+                                    if (file.Contains(".g.cs")) //non auto-generated file
                                     {
                                         using (new CurrentDirGuard())
                                         {

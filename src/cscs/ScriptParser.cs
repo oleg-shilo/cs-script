@@ -231,8 +231,11 @@ namespace CSScriptLib
             foreach (string opt in mainFile.CompilerOptions)
                 PushCompilerOptions(opt);
 
-            var dirs = new List<string>();
-            dirs.Add(Path.GetDirectoryName(mainFile.fileName));//note: mainFile.fileName is warrantied to be a full name but fileName is not
+            var dirs = new List<string>
+            {
+                Path.GetDirectoryName(mainFile.fileName)//note: mainFile.fileName is warrantied to be a full name but fileName is not
+            };
+
             if (searchDirs != null)
                 dirs.AddRange(searchDirs);
 

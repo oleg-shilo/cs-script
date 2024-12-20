@@ -26,7 +26,7 @@ namespace CSScripting.CodeDom
 {
     public partial class CSharpCompiler
     {
-        CompilerResults CompileAssemblyFromFileBatch_with_Build(CompilerParameters options, string[] fileNames)
+        static CompilerResults CompileAssemblyFromFileBatch_with_Build(CompilerParameters options, string[] fileNames)
         {
             var platform = options.GetTargetPlatform();
 
@@ -254,10 +254,12 @@ namespace CSScripting.CodeDom
 
             var refs_args = new List<string>();
             var source_args = new List<string>();
-            var common_args = new List<string>();
+            var common_args = new List<string>
+            {
+                "/utf8output",
+                "/nostdlib+"
+            };
 
-            common_args.Add("/utf8output");
-            common_args.Add("/nostdlib+");
             if (options.GenerateExecutable)
                 common_args.Add("/t:exe");
             else

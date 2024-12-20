@@ -299,7 +299,7 @@ namespace csscript
                                               "You can let CS-Script to detect installed Visual Studio executable and interactively select " +
                                               "the detected executable for integrating it with CS-Script by using `-vs:init` option.",
                                               "Alternatively, you can even ask to integrate the first detected executable with: ",
-                                              "      " + AppInfo.appName + " -vs:init 0");
+                                              "      " + AppInfo.AppName + " -vs:init 0");
             switch1Help[vscode] = new ArgInfo("-vscode",
                                           "Generates .NET project file and opens it in Visual Studio Code.",
                                               "The path to the Visual Studio Code executable (code.exe) needs to be defined in the " +
@@ -341,9 +341,9 @@ namespace csscript
                                           "  ",
                                           "`roslyn` - ${<==}Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation " +
                                           "engine. It does not require .NET SDK being installed. Though it does have limitations (see documentation).",
-                                          "           ${<==}The compilation is performed in the separate child process " + AppInfo.appName + " (another " +
+                                          "           ${<==}The compilation is performed in the separate child process " + AppInfo.AppName + " (another " +
                                           "instance of script engine) which is somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.",
-                                          "           ${<==}CS-Script communicates with " + AppInfo.appName + " build server via socket (default port 17002). " +
+                                          "           ${<==}CS-Script communicates with " + AppInfo.AppName + " build server via socket (default port 17002). " +
                                           "You can control port value " +
                                           "via the environment variable 'CSS_BUILDSERVER_ROSLYN_PORT'",
                                           "           ${<==}Value `roslyn-inproc` will suppress spinning off an external process and Roslyn compiler will be " +
@@ -351,15 +351,15 @@ namespace csscript
                                           "undesirable for whatever reason. Though in this case performance will be effected on the first run of the script.",
                                           "  ",
                                           "```",
-                                          "(e.g. " + AppInfo.appName + " -engine:dotnet sample.cs",
-                                          "      " + AppInfo.appName + " -ng:csc sample.cs)",
-                                          "      " + AppInfo.appName + " -ng:roslyn-inproc sample.cs)",
-                                          "      " + AppInfo.appName + " -ng:roslyn sample.cs)",
+                                          "(e.g. " + AppInfo.AppName + " -engine:dotnet sample.cs",
+                                          "      " + AppInfo.AppName + " -ng:csc sample.cs)",
+                                          "      " + AppInfo.AppName + " -ng:roslyn-inproc sample.cs)",
+                                          "      " + AppInfo.AppName + " -ng:roslyn sample.cs)",
                                           "```");
             switch1Help[sample] =
             switch1Help[s] = new ArgInfo("-s|-sample[:<C# version>]",
                                          " -s:7    - prints C# 7+ sample. Otherwise, it prints the default canonical 'Hello World' sample.",
-                                         "(e.g. " + AppInfo.appName + " -s:7 > sample.cs).");
+                                         "(e.g. " + AppInfo.AppName + " -s:7 > sample.cs).");
 
             switch1Help[@new] = new ArgInfo("-new[:<type>] [<script name>]",
                                             "Creates a new script.",
@@ -370,10 +370,10 @@ namespace csscript
                                                 "Sample:",
                                                     " ",
                                                     "```",
-                                                    AppInfo.appName + " -code \"Console.WriteLine(Environment.UserDomainName);#n" +
+                                                    AppInfo.AppName + " -code \"Console.WriteLine(Environment.UserDomainName);#n" +
                                                     "Console.WriteLine(#''%USERNAME%#'');\"",
-                                                    AppInfo.appName + " -code \"using System.Linq;#nSystem.Diagnostics.Process.GetProcessesByName(''notepad'').ToList().ForEach(x => x.Kill());\"",
-                                                    AppInfo.appName + " -code \"SetEnvironmentVariable(`ntp`,`notepad.exe`, EnvironmentVariableTarget.Machine)\"",
+                                                    AppInfo.AppName + " -code \"using System.Linq;#nSystem.Diagnostics.Process.GetProcessesByName(''notepad'').ToList().ForEach(x => x.Kill());\"",
+                                                    AppInfo.AppName + " -code \"SetEnvironmentVariable(`ntp`,`notepad.exe`, EnvironmentVariableTarget.Machine)\"",
                                                     "```",
                                                     " ",
                                                     "The -code argument must be the last argument in the command. The only argument that is allowed " +
@@ -580,23 +580,23 @@ namespace csscript
                                                   "Note: The property name in -config:set and -config:set is case insensitive and can also contain '_' " +
                                                   "as a token separator that is ignored during property lookup.",
                                                   "```",
-                                                  "(e.g. " + AppInfo.appName + " -config:none sample.cs",
-                                                  "${<=6}" + AppInfo.appName + " -config:default > css_VB.xml",
+                                                  "(e.g. " + AppInfo.AppName + " -config:none sample.cs",
+                                                  "${<=6}" + AppInfo.AppName + " -config:default > css_VB.xml",
 
                                                   // "${<=6}" + AppInfo.appName + " -config:set:" +
                                                   // inmem + "=true", // may need to resurrect if
                                                   // users do miss it :)
 
-                                                  "${<=6}" + AppInfo.appName + " -config:set:DefaultCompilerEngine=dotnet",
-                                                  "${<=6}" + AppInfo.appName + " -config:set:DefaultArguments=add:-ac",
-                                                  "${<=6}" + AppInfo.appName + " -config:set:default_arguments=del:-ac",
-                                                  "${<=6}" + AppInfo.appName + " -config:c:\\cs-script\\css_VB.xml sample.vb)",
+                                                  "${<=6}" + AppInfo.AppName + " -config:set:DefaultCompilerEngine=dotnet",
+                                                  "${<=6}" + AppInfo.AppName + " -config:set:DefaultArguments=add:-ac",
+                                                  "${<=6}" + AppInfo.AppName + " -config:set:default_arguments=del:-ac",
+                                                  "${<=6}" + AppInfo.AppName + " -config:c:\\cs-script\\css_VB.xml sample.vb)",
                                                   "```");
 
             switch2Help[@out] = new ArgInfo("-out[:<file>]",
                                             "Forces the script to be compiled into a specific location.",
                                                 "Used only for very fine hosting tuning.",
-                                                    "(e.g. " + AppInfo.appName + " -out:%temp%\\%pid%\\sample.dll sample.cs");
+                                                    "(e.g. " + AppInfo.AppName + " -out:%temp%\\%pid%\\sample.dll sample.cs");
             // .NET core does not support custom app.config switch2Help[sconfig] = new
             // ArgInfo("-sconfig[:<file>|none]", "Uses custom config file as a .NET app.config.",
             // "This option might be useful for running scripts, which usually cannot be executed
@@ -609,18 +609,18 @@ namespace csscript
             switch2Help[r] = new ArgInfo("-r:<assembly 1>,<assembly N>",
                                          "Uses explicitly referenced assembly.", "It is required only for " +
                                              "rare cases when namespace cannot be resolved into assembly.",
-                                         "(e.g. `" + AppInfo.appName + " /r:myLib.dll myScript.cs`).");
+                                         "(e.g. `" + AppInfo.AppName + " /r:myLib.dll myScript.cs`).");
 
             switch2Help[dir] = new ArgInfo("-dir:<directory 1>,<directory N>",
                                            "Adds path(s) to the assembly probing directory list.",
                                                "You can use the reserved word 'show' as a directory name to print the configured probing directories.",
-                                           "(e.g. `" + AppInfo.appName + " -dir:C:\\MyLibraries myScript.cs; " + AppInfo.appName + " -dir:show`).");
+                                           "(e.g. `" + AppInfo.AppName + " -dir:C:\\MyLibraries myScript.cs; " + AppInfo.AppName + " -dir:show`).");
             switch2Help[pc] =
             switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
                                                    "Specifies custom precompiler. This can be either script or assembly file.",
                                                    alias_prefix + "pc[:<file 1>,<file N>]",
                                                    "If no file(s) specified prints the code template for the custom precompiler. The special value 'print' has " +
-                                                   "the same effect (e.g. " + AppInfo.appName + " -pc:print).",
+                                                   "the same effect (e.g. " + AppInfo.AppName + " -pc:print).",
                                                    "There is a special reserved word '" + CSSUtils.noDefaultPrecompilerSwitch + "' to be used as a file name. " +
                                                    "It instructs script engine to prevent loading any built-in precompilers " +
                                                    "like the one for removing shebang before the execution.",
@@ -1336,7 +1336,7 @@ namespace csscript
             if (arg != null && !scope.IsOneOf("cli", "syntax", "-out"))
             {
                 return AppArgs.LookupSwitchHelp(arg) ??
-                       "Invalid 'cmd' argument. Use '" + AppInfo.appName + " -cmd' for the list of valid commands." + Environment.NewLine + AppArgs.switch1Help[AppArgs.help].GetFullDoc();
+                       "Invalid 'cmd' argument. Use '" + AppInfo.AppName + " -cmd' for the list of valid commands." + Environment.NewLine + AppArgs.switch1Help[AppArgs.help].GetFullDoc();
             }
 
             var builder = new StringBuilder();
@@ -1352,7 +1352,7 @@ namespace csscript
 
                     "## CLI Commands" + NewLine;
 
-                var usage = "Usage: " + AppInfo.appName + " <switch 1> <switch 2> <file> [params] [//x]";
+                var usage = "Usage: " + AppInfo.AppName + " <switch 1> <switch 2> <file> [params] [//x]";
 
                 void printTopLevelParams()
                 {
@@ -1385,7 +1385,7 @@ namespace csscript
                 else
                 {
                     builder
-                        .AppendLine(AppInfo.appLogo)
+                        .AppendLine(AppInfo.AppLogo)
                         .AppendLine(usage)
                         .AppendLine();
                     printTopLevelParams();
@@ -1588,7 +1588,7 @@ app.Run();
                        .Replace("$extrapackages$", "");
             }
 
-            return new[] { new SampleInfo(cs.NormalizeNewLines(), ".cs") };
+            return [new SampleInfo(cs.NormalizeNewLines(), ".cs")];
         }
 
         static SampleInfo[] CSharp_webipi_min(string context)
@@ -1627,7 +1627,7 @@ class Program
         Application.Run(new Form());
     }
 }";
-            return new[] { new SampleInfo(cs.NormalizeNewLines(), ".cs") };
+            return [new SampleInfo(cs.NormalizeNewLines(), ".cs")];
         }
 
         static SampleInfo[] CSharp_wpf_ss_Sample(string context)
@@ -1840,7 +1840,7 @@ class Program
 
             builder.AppendLine("");
 
-            return new[] { new SampleInfo(builder.ToString(), ".cs") };
+            return [new SampleInfo(builder.ToString(), ".cs")];
         }
 
         static SampleInfo[] CSharp_auto_Sample(string context)
@@ -2047,7 +2047,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
             }
             else
             {
-                builder.AppendLine(AppInfo.appLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script)")
+                builder.AppendLine(AppInfo.AppLogo.TrimEnd() + " www.csscript.net (github.com/oleg-shilo/cs-script)")
                        .AppendLine()
                        .AppendLine("   CLR:             " + Environment.Version + (dotNetVer != null ? " (.NET Framework v" + dotNetVer + ")" : ""))
                        .AppendLine("   System:          " + OSVersion)

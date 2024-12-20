@@ -27,7 +27,7 @@ namespace csscript
     // REST API (e.g. https://api-v2v3search-0.nuget.org/query?q=cs-script&prerelease=false)
     class NuGet
     {
-        static NuGetCore nuget = new NuGetCore();
+        static NuGetCore nuget = new();
 
         static public string NuGetCacheView => Directory.Exists(NuGetCache) ? NuGetCache : "<not found>";
         static public string NuGetCache => CSExecutor.options.legacyNugetSupport ? NuGetCore.NuGetCache : NuGetNewAlgorithm.NuGetCache;
@@ -75,7 +75,7 @@ namespace csscript
             {
                 var all_packages = ListPackages();
                 if (0 < index && index <= all_packages.Count())
-                    packages = new string[] { all_packages[index - 1] };
+                    packages = [all_packages[index - 1]];
                 else
                     Console.WriteLine("There is no package with the specified index");
             }
@@ -87,7 +87,7 @@ namespace csscript
                 if (packageNameMask.EndsWith("*"))
                     packages = ListPackages().Where(x => x.StartsWith(packageNameMask.Substring(0, packageNameMask.Length - 1))).ToArray();
                 else
-                    packages = new[] { packageNameMask };
+                    packages = [packageNameMask];
             }
 
             // C:\Users\user\AppData\Local\Temp\csscript.core\.nuget\333
@@ -180,7 +180,7 @@ namespace csscript
 
                     dependencyPackages = GetCompatibleTargetFramework(frameworkGroups, item)
                                              ?.FindDescendants("dependency")
-                                             ?? new XElement[0];
+                                             ?? [];
                 }
                 else
                     dependencyPackages = dependenciesSection.FindDescendants("dependency");
@@ -310,7 +310,7 @@ namespace csscript
                                 .Where(x => Utils.IsRuntimeCompatibleAsm(x))
                                 .ToArray();
             else
-                return new string[0];
+                return [];
         }
 
         static public string[] ListPackages()
@@ -482,13 +482,13 @@ namespace csscript
                                                     package += $" -ver:\"{n.Attribute("version").Value}\"";
                                                 return package;
                                             }));
-            return packages.ToArray();
+            return [.. packages];
         }
 
         public static string[] FindAssembliesOf(string[] packages, bool suppressDownloading, string script)
         {
             if (packages.IsEmpty())
-                return new string[0];
+                return [];
 
             var allPackages = packages.Concat(GetPackagesFromConfigFileOfScript(script));
 
@@ -595,7 +595,7 @@ namespace csscript
             foreach (var item in packages)
             {
                 string[] packageArgs = item.SplitCommandLine();
-                string package = packageArgs.FirstOrDefault(x => !x.StartsWith("-"));
+                string package = packageArgs.FirstOrDefault(x => !x.StartsWith('-'));
 
                 restoreArgs += packageArgs.ArgValue("-ng") + " "; // temp, until `-ng` is dropped
                 restoreArgs += packageArgs.ArgValue("-restore") + " ";
