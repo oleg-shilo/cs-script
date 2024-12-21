@@ -1,3 +1,3 @@
 cd /home/user/lnx-build
-sudo chmod 775 cs-script_4.8-23/DEBIAN/p*
-dpkg-deb --build cs-script_4.8-23
+sudo chmod 775 cs-script_4.8-24/DEBIAN/p*
+dpkg-deb --build cs-script_4.8-24
