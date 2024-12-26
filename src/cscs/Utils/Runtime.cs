@@ -124,8 +124,7 @@ namespace csscript
             builder.AppendLine($"----------------------------");
             foreach ((int pid, string args) in Runtime.GetScriptProcesses().OrderByDescending(x => x.pid == currentProcId))
             {
-                var current = pid == currentProcId ? "*" : " ";
-                builder.AppendLine($"{current}{++i:D2} | {pid:D10} | {args}");
+                builder.AppendLine($"{++i:D2} | {pid:D10} | {args}");
                 result.Add((i.ToString(), pid));
             }
 

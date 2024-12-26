@@ -179,7 +179,7 @@ namespace csscript
             catch { }
         }
 
-        public static void OnStart()
+        public static void OnStart(params string[] args)
         {
             //work around of nasty Win7x64 problem.
             //http://superuser.com/questions/527728/cannot-resolve-windir-cannot-modify-path-or-path-being-reset-on-boot
@@ -204,7 +204,8 @@ namespace csscript
 
             Utils.ProcessNewEncoding = ProcessNewEncoding;
 
-            Task.Run(Runtime.LogScriptProcess);
+            if (args.Any(a => CSSUtils.Args.Same(a, AppArgs.ls, AppArgs.list)))
+                Task.Run(Runtime.LogScriptProcess);
 
             ProcessNewEncoding(null);
 

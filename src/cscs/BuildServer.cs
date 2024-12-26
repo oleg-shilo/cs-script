@@ -92,7 +92,7 @@ namespace CSScripting.CodeDom
                     {
                         exitCode = 1;
                         return "Build server output is in unexpected format. The compiler exit code is not available.\n" +
-                               "Try to restart the build server with 'css -server:stop' followed by 'css -server:start'.";
+                            "Try to restart the build server with 'css -server:stop' followed by 'css -server:start'.";
                     }
 
                     exitCode = int.Parse(responseItems[0]);
@@ -270,21 +270,6 @@ namespace CSScripting.CodeDom
             if (File.Exists(pidFile))
                 File.Delete(pidFile);
         }
-
-        // public static void KillAllInstances()
-        // {
-        //     if (Directory.Exists(build_server_active_instances))
-        //         foreach (string activeServer in Directory.GetFiles(build_server_active_instances, "*.pid"))
-        //         {
-        //             var proc = GetProcess(int.Parse(Path.GetFileNameWithoutExtension(activeServer)));
-        //             try
-        //             {
-        //                 proc?.Kill();
-        //                 File.Delete(activeServer);
-        //             }
-        //             catch { }
-        //         }
-        // }
 
         public static void ListenToRequests(int? port)
         {

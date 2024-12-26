@@ -315,12 +315,12 @@ namespace csscript
             switch1Help[co] = new ArgInfo("-co:<options>",
                                           "Passes compiler options directly to the language compiler (e.g. csc.exe or dotnet.exe).",
                                           "Note, some compiler options may not be compatible if they are passed to the wrong compiler " +
-                                          "executable (see compiler documentation). Though the fundamental switches like `/platform:*` are converted by CS-Script" +
-                                          "int compatible version between csc.exe and dotnet.exe.",
+                                          "executable (see compiler documentation). Though the fundamental switches like `/platform:*` are converted by CS-Script " +
+                                          "into compatible version between csc.exe and dotnet.exe.",
                                               "(e.g.  `-co:/d:TRACE` pass `/d:TRACE` option to C# compiler",
                                               " or    `-co:/platform:x86` to produce Win32 executable)");
             switch1Help[engine] =
-            switch1Help[ng] = new ArgInfo("-ng|-engine:<csc|dotnet|roslyn>]",
+            switch1Help[ng] = new ArgInfo("-ng|-engine:<csc|dotnet|roslyn>",
                                           "Forces compilation to be done by one of the supported .NET engines.",
                                           "  ",
                                           "`dotnet` - ${<==}dotnet.exe compiler; this is the most versatile compilation engine though " +
@@ -352,8 +352,8 @@ namespace csscript
                                           "  ",
                                           "```",
                                           "(e.g. " + AppInfo.AppName + " -engine:dotnet sample.cs",
-                                          "      " + AppInfo.AppName + " -ng:csc sample.cs)",
-                                          "      " + AppInfo.AppName + " -ng:roslyn-inproc sample.cs)",
+                                          "      " + AppInfo.AppName + " -ng:csc sample.cs",
+                                          "      " + AppInfo.AppName + " -ng:roslyn-inproc sample.cs",
                                           "      " + AppInfo.AppName + " -ng:roslyn sample.cs)",
                                           "```");
             switch1Help[sample] =
@@ -394,9 +394,9 @@ namespace csscript
                                                     "#r        ->    <\\r>",
                                                     "#''       ->    \"   ",
                                                     "''        ->    \"   ",
-                                                    "#``       ->    \"   ",
-                                                    "`n        ->    <\\n>",
-                                                    "`r        ->    <\\r>",
+                                                    "#``         ->    \"   ",
+                                                    "`n         ->    <\\n>",
+                                                    "`r         ->    <\\r>",
                                                     "``        ->    \"   ",
                                                     "```"
                                            );
@@ -425,7 +425,7 @@ namespace csscript
                                                      " ",
                                                      "    void Main()",
                                                      "    {",
-                                                     "        Console.WriteLine(\"Hello World!\";",
+                                                     "        Console.WriteLine(\"Hello World!\");",
                                                      "    }",
                                                      " ",
                                                      "```",
@@ -670,11 +670,14 @@ namespace csscript
             switch2Help[cmd] = new ArgInfo("-commands|-cmd",
                                            "Prints list of supported commands (arguments) as well as the custom commands defined by user.");
             switch2Help[ls] =
-            switch2Help[list] = new ArgInfo("-list|-ls [kill|k]",
-                                            "Prints list of all currently running scripts. The current process is marked in the list with the '*' prefix in the process id (PID).",
+            switch2Help[list] = new ArgInfo("-list|-ls [<kill|k> | <kill-all|ka>",
+                                            "Prints list of all currently running scripts.",
                                             "If script execution tracking is undesirable you can disable it by setting " +
                                            $"{Runtime.DisableCSScriptProcessTrackingEnvar} environment variable to a non empty value.",
-                                            " kill|k   - ${<==}Allow user to terminate any running script.");
+                                            " kill|k      - ${<==}Allow user to select and user to select and terminate any running script.",
+                                            " *           - ${<==}Terminate all running scripts when 'kill' option is used.",
+                                            "               ${<==}(e.g. " + AppInfo.AppName + " -list kill * ).");
+
             miscHelp["file"] = new ArgInfo("file",
                                            "Specifies name of a script file to be run.");
             miscHelp["params"] = new ArgInfo("params",

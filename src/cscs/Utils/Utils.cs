@@ -1118,7 +1118,7 @@ class HostingRuntime
                     }
                     else if (Args.Same(arg, AppArgs.ls, AppArgs.list)) // -ls -list
                     {
-                        executor.InteractiveCommand(AppArgs.list, nextArg);
+                        executor.InteractiveCommand(AppArgs.list, nextArg, secondNextArg);
                         CLIExitRequest.Throw();
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.s, AppArgs.sample, out argValue)) // -s:<C# version>

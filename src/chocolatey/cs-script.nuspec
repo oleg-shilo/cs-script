@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.8.24.0</version>
+    <version>4.8.25.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -30,11 +30,8 @@
 
 ### CLI
 
-- #400: Timeout in CI/CD script
-- Assorted nuget support improvements triggered by #400
-	- removed doc zip files to not to upset WinDefender
-	- removed unnecessary nuget restore step for adding package dll's location to the search dir. It was adding no value since search dirs play no role in nuget related scenarios.
-- Now nuget restore and asembly lookup are both respecting `CSSCRIPT_NUGET_PACKAGES` nvar. Previously only lookup did. Triggered by  #400.
+- Improved  `-list` CLI switch
+  Added kill all option `css -list kill all`
 
 ### CSScriptLib
 - no changes</releaseNotes>

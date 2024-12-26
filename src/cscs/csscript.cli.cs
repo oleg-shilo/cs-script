@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using CSScripting;
+using static CSScripting.CSSUtils;
 
 namespace csscript
 {
@@ -252,7 +253,9 @@ namespace csscript
         /// <summary>
         /// Prints CS-Script specific C# syntax help info.
         /// </summary>
-        public void InteractiveCommand(string cmdType, params object[] context)
+        public void InteractiveCommand(string cmdType, params object[] context) => Command(cmdType, context);
+
+        public static void Command(string cmdType, params object[] context)
         {
             switch (cmdType)
             {
@@ -267,23 +270,44 @@ namespace csscript
                         {
                             var result = Runtime.GetScriptProcessLog();
 
-                            Console.WriteLine(result.view);
-                            if (context.Contains("kill") || context.Contains("-kill") || context.Contains("k"))
+                            if (result.scripts.IsEmpty())
                             {
-                                Console.WriteLine("Enter index of the script you want to terminate or 'X' to exit: ");
-                                var userInput = Console.ReadLine().ToLower();
-                                if (userInput != "x")
+                                Console.WriteLine("No running scripts found.");
+                            }
+                            else
+                            {
+                                if (context.Contains("kill") || context.Contains("-kill") || context.Contains("k"))
                                 {
-                                    var pid = result.scripts.FirstOrDefault(x => x.index == userInput).pid;
-                                    if (pid != 0)
-                                        try
-                                        {
-                                            Process.GetProcessById(pid).Kill();
-                                        }
-                                        catch { }
+                                    if (context.Contains("*"))
+                                    {
+                                        foreach (var pid in result.scripts.Select(x => x.pid).Where(x => x != 0))
+                                            try { Process.GetProcessById(pid).Kill(); }
+                                            catch { }
+                                    }
                                     else
-                                        Console.WriteLine("Invalid user input.");
+                                    {
+                                        if (result.scripts.Any())
+                                        {
+                                            Console.WriteLine(result.view);
+                                            Console.WriteLine("Enter index of the script process you want to terminate or '*' to terminate them all:");
+                                            var userInput = Console.ReadLine().ToLower();
+                                            if (userInput != "x")
+                                            {
+                                                var pid = result.scripts.FirstOrDefault(x => x.index == userInput).pid;
+                                                if (pid != 0)
+                                                    try
+                                                    {
+                                                        Process.GetProcessById(pid).Kill();
+                                                    }
+                                                    catch { }
+                                                else
+                                                    Console.WriteLine("Invalid user input.");
+                                            }
+                                        }
+                                    }
                                 }
+                                else
+                                    Console.WriteLine(result.view);
                             }
                         }
                         break;

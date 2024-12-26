@@ -75,7 +75,7 @@ cd ..\CSScriptLib\src\CSScriptLib
 echo ----------------
 echo Building CSScriptLib.dll from %cd%
 echo ----------------
-dotnet build -c Release
+dotnet build -c Release CSScriptLib.csproj
 
 cd ..\..\..
 

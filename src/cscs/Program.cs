@@ -51,7 +51,7 @@ namespace cscs
                     else if (serverCommand == "-server:remove") Globals.RemoveBuildServer();
                     else if (serverCommand == "-servers:start") { Globals.StartRoslynBuildServer(); Globals.StartBuildServer(); }
                     else if (serverCommand == "-servers:stop") { CSScripting.Roslyn.BuildServer.Stop(); Globals.StopBuildServer(); }
-                    else if (serverCommand == "-kill") { CSScripting.Roslyn.BuildServer.Stop(); Globals.StopBuildServer(); }
+                    else if (serverCommand == "-kill") { CSScripting.Roslyn.BuildServer.Stop(); Globals.StopBuildServer(); CSExecutor.Command("list", "kill", "*"); }
                     else if (serverCommand == "-server_r:start") Globals.StartRoslynBuildServer();
                     else if (serverCommand == "-server_r:stop") CSScripting.Roslyn.BuildServer.Stop();
                     else if (serverCommand == "-server_r:start_inproc") CSScripting.Roslyn.BuildServer.Start(); // this command is invisible for users and only used to allow async start of teh server
