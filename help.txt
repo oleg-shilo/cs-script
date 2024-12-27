@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.8.24.0.
+C# Script execution engine (.NET Core). Version 4.8.25.0.
 Copyright (C) 2004-2023 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -94,12 +94,12 @@ params	Specifies optional parameters for a script file to be run.
 -co:<options>
     Passes compiler options directly to the language compiler (e.g. csc.exe or dotnet.exe).
     Note, some compiler options may not be compatible if they are passed to the wrong compiler executable (see
-    compiler documentation). Though the fundamental switches like /platform:* are converted by CS-Scriptint
+    compiler documentation). Though the fundamental switches like /platform:* are converted by CS-Script into
     compatible version between csc.exe and dotnet.exe.
     (e.g.  -co:/d:TRACE pass /d:TRACE option to C# compiler
      or    -co:/platform:x86 to produce Win32 executable)
 
--ng|-engine:<csc|dotnet|roslyn>]
+-ng|-engine:<csc|dotnet|roslyn>
     Forces compilation to be done by one of the supported .NET engines.
       
     dotnet - dotnet.exe compiler; this is the most versatile compilation engine though it does have a startup
@@ -131,8 +131,8 @@ params	Specifies optional parameters for a script file to be run.
       
     
     (e.g. cscs -engine:dotnet sample.cs
-          cscs -ng:csc sample.cs)
-          cscs -ng:roslyn-inproc sample.cs)
+          cscs -ng:csc sample.cs
+          cscs -ng:roslyn-inproc sample.cs
           cscs -ng:roslyn sample.cs)
 
 -s|-sample[:<C# version>]
@@ -197,9 +197,9 @@ params	Specifies optional parameters for a script file to be run.
     #r        ->    <\r>
     #''       ->    "   
     ''        ->    "   
-    #       ->    "   
-    n        ->    <\n>
-    r        ->    <\r>
+    #         ->    "   
+    n         ->    <\n>
+    r         ->    <\r>
             ->    "
 
 -wait[:prompt]
@@ -226,7 +226,7 @@ params	Specifies optional parameters for a script file to be run.
      
         void Main()
         {
-            Console.WriteLine("Hello World!";
+            Console.WriteLine("Hello World!");
         }
      
     
@@ -436,11 +436,13 @@ params	Specifies optional parameters for a script file to be run.
 -commands|-cmd
     Prints list of supported commands (arguments) as well as the custom commands defined by user.
 
--list|-ls [kill|k]
-    Prints list of all currently running scripts. The current process is marked in the list with the '*' prefix in the process id (PID).
+-list|-ls [<kill|k> | <kill-all|ka>
+    Prints list of all currently running scripts.
     If script execution tracking is undesirable you can disable it by setting DisableCSScriptProcessTracking
     environment variable to a non empty value.
-     kill|k   - Allow user to terminate any running script.
+     kill|k      - Allow user to select and user to select and terminate any running script.
+     *           - Terminate all running scripts when 'kill' option is used.
+                   (e.g. cscs -list kill * ).
 
 ---------
 
