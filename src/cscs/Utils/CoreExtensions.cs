@@ -496,4 +496,27 @@ namespace csscript
         /// </summary>
         public void Clear() => Items.ForEach(File.Delete);
     }
+
+    static class TempTilesManagement
+    {
+        public static bool IsParentProcessRunning(this string tempFile)
+        {
+            string name = Path.GetFileName(tempFile);
+
+            int pos = name.IndexOf('.');
+
+            if (pos > 0)
+            {
+                string pidValue = name.Substring(0, pos);
+
+                if (int.TryParse(pidValue, out int pid))
+                {
+                    //Didn't use GetProcessById as it throws if pid is not running
+                    if (Process.GetProcesses().Any(p => p.Id == pid))
+                        return true; //still running
+                }
+            }
+            return false;
+        }
+    }
 }

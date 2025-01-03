@@ -393,30 +393,14 @@ namespace csscript
 
             foreach (string file in oldTempFiles)
             {
-                try
+                if (verifyPid)
                 {
-                    if (verifyPid)
-                    {
-                        string name = Path.GetFileName(file);
-
-                        int pos = name.IndexOf('.');
-
-                        if (pos > 0)
-                        {
-                            string pidValue = name.Substring(0, pos);
-
-                            if (int.TryParse(pidValue, out int pid))
-                            {
-                                //Didn't use GetProcessById as it throws if pid is not running
-                                if (Process.GetProcesses().Any(p => p.Id == pid))
-                                    continue; //still running
-                            }
-                        }
-                    }
-
-                    file.FileDelete(false);
+                    if (!file.IsParentProcessRunning())
+                        file.FileDelete(false);
                 }
-                catch { }
+                else
+                    file.FileDelete(false);
+
             }
         }
 

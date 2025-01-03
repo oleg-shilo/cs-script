@@ -397,7 +397,7 @@ namespace CSScriptLib
                 purging = true;
                 Task.Run(() =>
                     {
-                        Runtime.CleanUnusedTmpFiles(CSScript.GetScriptTempDir(), "*????????-????-????-????-????????????.???", ignoreCurrentProcessScripts);
+                        Runtime.CleanUnusedTmpFiles(CSScript.GetScriptTempDir(), "*????????-????-????-????-????????????.???*", ignoreCurrentProcessScripts);
                         // don't do cscs related cleaning, save time.
                         // Runtime.CleanSnippets();
                         // Runtime.CleanAbandonedCache();
@@ -416,7 +416,8 @@ namespace CSScriptLib
             if (tempFiles != null)
                 foreach (string file in tempFiles)
                 {
-                    file.FileDelete(rethrow: false);
+                    if (!file.IsParentProcessRunning())
+                        file.FileDelete(rethrow: false);
                 }
         }
 
