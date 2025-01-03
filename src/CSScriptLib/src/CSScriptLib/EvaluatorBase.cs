@@ -37,6 +37,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 
@@ -506,7 +507,11 @@ namespace CSScriptLib
             }
             finally
             {
-                File.Delete(tempScriptFile);
+                Task.Run(() =>
+                {
+                    Thread.Sleep(50); // AV likes locking the files while scanning them, so let's wait a little
+                    tempScriptFile.FileDelete(rethrow: false);
+                });
             }
         }
 
