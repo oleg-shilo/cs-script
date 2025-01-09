@@ -13,13 +13,13 @@ var url = "https://github.com/oleg-shilo/cs-script/releases/download/v4.8.23.0/c
 
 var installScript = @"tools\chocolateyInstall.ps1";
 
-var cheksum = calcChecksum(url);
-// var cheksum = "E1809AD6433A91B2FF4803E7F4B15AE0FA88905A28949EAC5590F7D9FD9BE9C3";
-// Console.WriteLine(cheksum);
+var checksum = calcChecksum(url);
+// var checksum = "E1809AD6433A91B2FF4803E7F4B15AE0FA88905A28949EAC5590F7D9FD9BE9C3";
+// Console.WriteLine(checksum);
 
 var code = File.ReadAllText(installScript + ".template")
                .Replace("$url = ???", "$url = '" + url + "'")
-               .Replace("$checksum = ???", "$checksum = '" + cheksum + "'");
+               .Replace("$checksum = ???", "$checksum = '" + checksum + "'");
 
 File.WriteAllText(installScript, code);
 
@@ -35,6 +35,6 @@ string calcChecksum(string url)
     cmd.download(url, file, (step, total) => Console.Write("\r{0}%\r", (int)(step * 100.0 / total)));
     Console.WriteLine();
 
-    var cheksum = cmd.run(@"C:\ProgramData\chocolatey\tools\checksum.exe", "-t sha256 -f \"" + file + "\"", echo: false).Trim();
-    return cheksum;
+    var checksum = cmd.run(@"C:\ProgramData\chocolatey\tools\checksum.exe", "-t sha256 -f \"" + file + "\"", echo: false).Trim();
+    return checksum;
 }
