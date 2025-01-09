@@ -704,8 +704,9 @@ namespace csscript
             }
             finally
             {
-                try { Directory.Delete(projectDir, true); }
-                catch { }
+                if (GetEnvironmentVariable("CSS_RESTORE_DONOT_CLEAN") == null)
+                    try { Directory.Delete(projectDir, true); }
+                    catch { }
             }
 
             return (result.ToArray(), nativeAssetsDirs);
