@@ -607,7 +607,7 @@ namespace csscript
 
             restoreArgs += $" --packages \"{NuGetCache}\"";
 
-            void dotnet_run(string args)
+            (int exitCode, string output) dotnet_run(string args)
             {
                 var p = new Process();
                 p.StartInfo.FileName = "dotnet";
@@ -616,6 +616,7 @@ namespace csscript
                 p.StartInfo.RedirectStandardOutput = true;
                 p.Start();
                 p.WaitForExit();
+                return (p.ExitCode, p.StandardOutput.ReadToEnd());
             }
 
             try
@@ -639,9 +640,19 @@ namespace csscript
                 Console.WriteLine("Restoring packages...");
                 Console.WriteLine("   " + packages.JoinBy(NewLine + "   "));
 
-                dotnet_run("restore " + restoreArgs.Trim());
-                dotnet_run("publish --no-restore -o ./publish");
+                var restore = dotnet_run("restore " + restoreArgs.Trim());
+                if (restore.exitCode != 0)
+                {
+                    Console.WriteLine(restore.output);
+                    throw new ApplicationException($"Package restoring failed.");
+                }
 
+                var publish = dotnet_run("publish --no-restore -o ./publish");
+                if (publish.exitCode != 0)
+                {
+                    Console.WriteLine(publish.output);
+                    throw new ApplicationException($"Package restoring failed.");
+                }
                 var allRefAssemblies = Directory.GetFiles(Path.Combine(projectDir, "publish"), "*.dll")
                                            .Concat(
                                        Directory.GetFiles(Path.Combine(projectDir, "publish"), "*.exe"))
@@ -693,8 +704,9 @@ namespace csscript
             }
             finally
             {
-                try { Directory.Delete(projectDir, true); }
-                catch { }
+                if (GetEnvironmentVariable("CSS_RESTORE_DONOT_CLEAN") == null)
+                    try { Directory.Delete(projectDir, true); }
+                    catch { }
             }
 
             return (result.ToArray(), nativeAssetsDirs);
