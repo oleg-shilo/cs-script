@@ -5,6 +5,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Reflection;
+using System.Xml.Linq;
 using CSScripting;
 using CSScriptLib;
 
@@ -13,6 +15,19 @@ namespace ConsoleApp1
     class Program
     {
         static void Main(string[] args)
+        {
+            // This solution only provided for the demo purposes.
+            // note that CSScriptLib is compiled against the latest `Microsoft.CodeAnalysis.dll`. However .NET Framework does not
+            // support this version of `Microsoft.CodeAnalysis.dll` so the project packages are referencing older version of Microsoft.CodeAnalysis.dll
+            // but we need to use `SimpleAsmProbing` to load the compatible version of `Microsoft.CodeAnalysis.dll` at runtime.
+
+            using (SimpleAsmProbing.For(Assembly.GetExecutingAssembly().Location.GetDirName()))
+            {
+                main(args);
+            }
+        }
+
+        static void main(string[] args)
         {
             // note that csc.exe compiler references some assemblies by default so we need
             // to use WithRefAssembliesFilter to avoid "referenced assembly duplication" compiler error
@@ -37,6 +52,13 @@ namespace ConsoleApp1
             Test_CodeDom_GAC();
             Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
         }
+
+        // private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        // {
+        //     var ttt = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == args.Name);
+
+        //     throw new NotImplementedException();
+        // }
 
         static void Test_CodeDom()
         {

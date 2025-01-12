@@ -356,6 +356,39 @@ namespace CSScriptLib
             CSharpScript.EvaluateAsync("1 + 2"); //this will loaded all required assemblies
         }
 
+        // NOTE: it's important to keep ToMetadataOnCore and ToMetadataOnFramework in separate methods to prevent
+        // JIT from loading the code that is not compatible with the host app CLR version
+        static AssemblyMetadata ToMetadata(Assembly asm) => Runtime.IsCore ? ToMetadataOnCore(asm) : ToMetadataOnFramework(asm);
+
+        static AssemblyMetadata ToMetadataOnCore(Assembly asm)
+        {
+            // this way of loading metadata is faster than the one based on reading the assembly file
+            // but TryGetRawMetadata is not available on .NET Framework
+            unsafe
+            {
+                if (asm.TryGetRawMetadata(out var blob, out var length))
+                    return AssemblyMetadata.Create(ModuleMetadata.CreateFromMetadata((IntPtr)blob, length));
+                return null;
+            }
+        }
+
+        static AssemblyMetadata ToMetadataOnFramework(Assembly asm)
+        {
+            // this way of loading metadata is slower than the one based on TryGetRawMetadata
+            // but TryGetRawMetadata is not available on .NET Framework
+
+            var asmPath = asm.Location();
+            if (asmPath.HasText())
+                try
+                {
+                    byte[] assemblyBytes = File.ReadAllBytes(asmPath);
+                    var moduleMetadata = ModuleMetadata.CreateFromImage(assemblyBytes);
+                    var assemblyMetadata = AssemblyMetadata.Create(moduleMetadata);
+                }
+                catch { }
+            return null;
+        }
+
         /// <summary>
         /// Compiles the specified script text.
         /// </summary>
@@ -497,13 +530,12 @@ namespace CSScriptLib
 
                     var refs = AppDomain.CurrentDomain.GetAssemblies(); // from appdomain
                     var explicitRefs = this.refAssemblies.Except(refs); // from code
+
                     foreach (var asm in refs.Concat(explicitRefs))
                     {
-                        unsafe
-                        {
-                            if (asm.TryGetRawMetadata(out var blob, out var length))
-                                references.Add(AssemblyMetadata.Create(ModuleMetadata.CreateFromMetadata((IntPtr)blob, length)).GetReference());
-                        }
+                        var metadata = ToMetadata(asm);
+                        if (metadata != null)
+                            references.Add(metadata.GetReference());
                     }
 
                     // add references from code and host-specified

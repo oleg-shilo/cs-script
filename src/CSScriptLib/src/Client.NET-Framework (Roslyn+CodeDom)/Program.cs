@@ -11,9 +11,19 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-#pragma warning ("This solution will no longer work on .NET4.8 for the CS-Script versions starting from v4.8.13. The problem is caused by the latest Roslyn stopping supporting `System.Runtime.Loader` on .NET Framework.")
-            // this solution only provided for the demo purposes.
+            // This solution only provided for the demo purposes.
+            // note that CSScriptLib is compiled against the latest `Microsoft.CodeAnalysis.dll`. However .NET Framework does not
+            // support this version of `Microsoft.CodeAnalysis.dll` so the project packages are referencing older version of Microsoft.CodeAnalysis.dll
+            // but we need to use `SimpleAsmProbing` to load the compatible version of `Microsoft.CodeAnalysis.dll` at runtime.
 
+            using (SimpleAsmProbing.For(Assembly.GetExecutingAssembly().Location.GetDirName()))
+            {
+                main(args);
+            }
+        }
+
+        static void main(string[] args)
+        {
             Test_Roslyn();
 
             NetCompiler.EnableLatestSyntax();
