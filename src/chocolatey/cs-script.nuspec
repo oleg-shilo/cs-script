@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.8.26.0</version>
+    <version>4.8.27.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -30,13 +30,11 @@
 
 ### CLI
 
-- #403: Error during restoring packages, only happens on some machines
-- added setting the `csws.exe` shim on Windows when executing command `css -self-install`
-- Improved temp file management. Triggered by #401
+- no changes
 
 ### CSScriptLib
 
-- Improved temp file management. Triggered by #401</releaseNotes>
+- restored ability to host on .NET Framework</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>

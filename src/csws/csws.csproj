@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.8.26.0</Version>
+    <Version>4.8.27.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -19,21 +19,19 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.8.26.0</AssemblyVersion>
-    <FileVersion>4.8.26.0</FileVersion>
+    <AssemblyVersion>4.8.27.0</AssemblyVersion>
+    <FileVersion>4.8.27.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- #403: Error during restoring packages, only happens on some machines
-- added setting the `csws.exe` shim on Windows when executing command `css -self-install`
-- Improved temp file management. Triggered by #401
+- no changes
 
 ### CSScriptLib
 
-- Improved temp file management. Triggered by #401</PackageReleaseNotes>
+- restored ability to host on .NET Framework</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
     <PackageIcon>..\logo\css_logo.png</PackageIcon>

@@ -1,4 +1,4 @@
-# Release v4.8.26.0
+# Release v4.8.27.0
 
 ---
 
@@ -6,11 +6,8 @@
 
 ### CLI
 
-- #403: Error during restoring packages, only happens on some machines
-- added setting the `csws.exe` shim on Windows when executing command `css -self-install`
-- Improved temp file management. Triggered by #401
+- no changes
 
 ### CSScriptLib
 
-- Improved temp file management. Triggered by #401
-
+- restored ability to host on .NET Framework
