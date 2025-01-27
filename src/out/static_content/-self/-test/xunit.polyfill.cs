@@ -1,10 +1,34 @@
 using System;
-using static System.Environment;
-using System.Linq;
-using System.Diagnostics;
 using System.Collections.Generic;
-using static dbg; // to use 'print' instead of 'dbg.print'
+using System.Diagnostics;
+using static System.Environment;
 using System.IO;
+using System.Linq;
+using static dbg; // to use 'print' instead of 'dbg.print'
+
+static class Extensions
+{
+    internal static string Expand(this string text) => Environment.ExpandEnvironmentVariables(text);
+
+    public static string GetEnvar(this string name) => Environment.GetEnvironmentVariable(name);
+}
+
+namespace Xunit.Abstractions
+{
+    public interface ITestOutputHelper
+    {
+        void WriteLine(string message);
+
+        void WriteLine(string format, params object[] args);
+    }
+
+    public class ConsoleTestOutputHelper : ITestOutputHelper
+    {
+        public void WriteLine(string message) => Console.WriteLine(message);
+
+        public void WriteLine(string format, params object[] args) => Console.WriteLine(format, args);
+    }
+}
 
 namespace Xunit
 {
@@ -20,6 +44,7 @@ namespace Xunit
 
     class FactAttribute : Attribute
     {
+        public string Skip { get; set; }
     }
 
     class FactWinOnlyAttribute : Attribute

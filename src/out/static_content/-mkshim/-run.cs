@@ -38,6 +38,7 @@ static class MkShim
         }
 
         var buildDir = Path.Combine(Path.GetTempPath(), $"mkshim-{Guid.NewGuid()}");
+
         try
         {
             Directory.CreateDirectory(buildDir);
@@ -67,8 +68,14 @@ static class MkShim
 
     static bool HandleUserInput(string[] args)
     {
+        string GetVersion()
+            => Path.GetFileNameWithoutExtension(
+               Directory.GetFiles(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "*.version")
+                        .FirstOrDefault() ?? "0.0.0.version");
+
         if (args.Contains("-h") || args.Contains("-?") || args.Contains("?") || args.Contains("-help"))
         {
+            Console.WriteLine($@"v{GetVersion()} ({Environment.GetEnvironmentVariable("EntryScript")})");
             Console.WriteLine($@"Generates shim for a given executable file.");
             Console.WriteLine($@"Usage:");
             Console.WriteLine($@"   css -mkshim <shim_name> <mapped_executable>");
@@ -98,6 +105,7 @@ static class MkShim
     static string ExtractFirstIconToFolder(this string binFilePath, string outDir)
     {
         string iconFile = Path.Combine(outDir, Path.GetFileNameWithoutExtension(binFilePath) + ".ico");
+
         using (var s = File.Create(iconFile))
             IconExtractor.Extract1stIconTo(binFilePath, s);
 
@@ -167,6 +175,7 @@ static class MkShim
         p.Start();
 
         string line;
+
         while (null != (line = p.StandardOutput.ReadLine()))
         {
             if (line.Trim() != "" && !line.Trim().StartsWith("This compiler is provided as part of the Microsoft (R) .NET Framework,"))

@@ -3,29 +3,36 @@
 //css_inc xunit.polyfill.cs
 //css_ref cscs.dll
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using static System.Environment;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
-using static dbg; // to use 'print' instead of 'dbg.print'
+using System.Threading.Tasks;
 using CLI;
 using CSScripting;
+using static dbg; // to use 'print' instead of 'dbg.print'
 using Xunit;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 class Script
 {
     static public void Main(string[] args)
     {
-        if (args.Contains("?") || args.Contains("-?") ||args.Contains("-help"))
+        if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
         {
+            string version = Path.GetFileNameWithoutExtension(
+                       Directory.GetFiles(Path.GetDirectoryName(GetEnvironmentVariable("EntryScript")), "*.version")
+                                .FirstOrDefault() ?? "0.0.0.0.version");
+
+            Console.WriteLine($@"v{version} ({GetEnvironmentVariable("EntryScript")})");
             Console.WriteLine("Execute self-testing (unit-tests) of the script engine.");
             return;
         }
 
         Environment.SetEnvironmentVariable("css_test_asm", Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", "..", @"cscs.dll")));
 
-        var test_class = new cscs_cli();
+        var test_class = new cscs_cli(new ConsoleTestOutputHelper());
 
         CliTestFolder.Set(Path.Combine(Path.GetDirectoryName(Path.GetTempFileName()), "cs-script.test"));
 
@@ -39,7 +46,7 @@ class Script
 
                 var attrs = m.GetCustomAttributes(false);
 
-                bool isTest = attrs.OfType<FactAttribute>().Any();
+                bool isTest = attrs.OfType<FactAttribute>().Any(x => x.Skip == null);
                 bool isWinOnlyTest = attrs.OfType<FactWinOnlyAttribute>().Any();
 
                 return isTest && (isWinHost || !isWinOnlyTest);

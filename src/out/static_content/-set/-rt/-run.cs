@@ -6,8 +6,13 @@ using System.Text.Json.Nodes;
 
 var arg1 = args.FirstOrDefault();
 
-if (arg1 == null || arg1 == "/?" || arg1 == "-?" || arg1 == "-help")
+if (arg1 == null || arg1 == "?" || arg1 == "/?" || arg1 == "-?" || arg1 == "-help")
 {
+    string version = Path.GetFileNameWithoutExtension(
+                         Directory.GetFiles(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "*.version")
+                                  .FirstOrDefault() ?? "0.0.0.0.version");
+
+    Console.WriteLine($@"v{version} ({Environment.GetEnvironmentVariable("EntryScript")})");
     Console.WriteLine($"Sets the specified assembly(s) target runtime to the currently active .NET configuration.");
     Console.WriteLine($"    css -set-rt [-help] <assembly_1 [assembly_N]> ");
     return;

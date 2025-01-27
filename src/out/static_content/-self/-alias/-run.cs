@@ -11,8 +11,14 @@ using System.Diagnostics;
 var engine_asm = GetEntryAssembly().Location;
 
 if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
-    Console.WriteLine("Builds `css.exe` hard-link to the script engine CLI executable.");
+{
+    string version = Path.GetFileNameWithoutExtension(
+                         Directory.GetFiles(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "*.version")
+                                  .FirstOrDefault() ?? "0.0.0.0.version");
 
+    Console.WriteLine($@"v{version} ({Environment.GetEnvironmentVariable("EntryScript")})");
+    Console.WriteLine("Builds `css.exe` hard-link to the script engine CLI executable.");
+}
 
 // to ensure we are not picking cscs.dll
 if (Environment.OSVersion.Platform != PlatformID.Win32NT)

@@ -73,6 +73,8 @@ namespace csscript
                 var envarName = request == AppArgs.vs ? "CSSCRIPT_VSEXE" : "CSSCRIPT_VSCODEEXE";
                 var vs_exe = Environment.GetEnvironmentVariable(envarName);
                 Environment.SetEnvironmentVariable("EntryScript", options.scriptFileName);
+                if (options.scriptFileName.GetFileName() == "-run.cs")
+                    Environment.SetEnvironmentVariable("CommandScriptVersion", options.scriptFileName.GetCommandScriptVersion());
 
                 Process p = null;
                 if (request == AppArgs.vs)
@@ -510,7 +512,11 @@ namespace csscript
                         options.scriptFileNamePrimary = options.scriptFileName;
 
                     if (Environment.GetEnvironmentVariable("EntryScript") == null)
+                    {
                         Environment.SetEnvironmentVariable("EntryScript", Path.GetFullPath(options.scriptFileNamePrimary));
+                        if (options.scriptFileNamePrimary.GetFileName() == "-run.cs")
+                            Environment.SetEnvironmentVariable("CommandScriptVersion", options.scriptFileName.GetCommandScriptVersion());
+                    }
 
                     if (CSExecutor.ScriptCacheDir == "")
                         CSExecutor.SetScriptCacheDir(options.scriptFileName);

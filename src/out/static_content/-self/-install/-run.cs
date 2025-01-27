@@ -10,9 +10,17 @@ using System.IO;
 using System.Diagnostics;
 
 if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
+{
+    string version = Path.GetFileNameWithoutExtension(
+                         Directory.GetFiles(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "*.version")
+                                  .FirstOrDefault() ?? "0.0.0.0.version");
+
+    Console.WriteLine($@"v{version} ({Environment.GetEnvironmentVariable("EntryScript")})");
     Console.WriteLine(
         "Integrates CS-Script with the environment by setting the `CSSCRIPT_ROOT` " +
         "environment variable for the script engine CLI executable  parent folder.");
+    return;
+}
 
 var engine_asm_folder = Path.GetDirectoryName(GetEntryAssembly().Location);
 

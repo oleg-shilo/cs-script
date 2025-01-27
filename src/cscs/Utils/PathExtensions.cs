@@ -12,6 +12,28 @@ namespace CSScripting
     public static class PathExtensions
     {
         /// <summary>
+        /// Gets the command script version. The version `0.0.0.0` is returned if the version file (e.g. `1.0.0.0.version`) is not found in
+        /// the script parent folder.
+        /// </summary>
+        /// <param name="scriptFile">The script file.</param>
+        /// <returns></returns>
+        public static string GetCommandScriptVersion(this string scriptFile)
+        {
+            try
+            {
+                if (scriptFile.HasText() && File.Exists(scriptFile))
+                {
+                    string version = Path.GetFileNameWithoutExtension(
+                               Directory.GetFiles(Path.GetDirectoryName(scriptFile), "*.version")
+                                        .FirstOrDefault() ?? "0.0.0.version");
+                    return version;
+                }
+            }
+            catch { }
+            return "0.0.0.0";
+        }
+
+        /// <summary>
         /// Copies the file.
         /// </summary>
         /// <param name="src">The source path to the file.</param>

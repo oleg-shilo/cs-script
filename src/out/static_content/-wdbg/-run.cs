@@ -17,13 +17,17 @@ using System.Threading.Tasks;
 
 static class Scipt
 {
-
     static void Main(string[] args)
     {
         string arg(string name) => args.SkipWhile(x => x != name).Skip(1).Take(1).FirstOrDefault();
+        string GetVersion()
+            => Path.GetFileNameWithoutExtension(
+               Directory.GetFiles(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "*.version")
+                        .FirstOrDefault() ?? "0.0.0.0.version");
 
         if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
         {
+            Console.WriteLine($@"v{GetVersion()} ({Environment.GetEnvironmentVariable("EntryScript")})");
             Console.WriteLine("Start web-based debugger (wdbg) for the specified script.");
             Console.WriteLine("  css -wdbg <script_file> [server args]");
             Console.WriteLine();
@@ -34,8 +38,8 @@ static class Scipt
 
         string urls = arg("--urls") ?? Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL") ?? "https://localhost:5001";
 
-
         string script = args.FirstOrDefault()?.GetFullPath();           // first arg is the script to debug
+
         if (!File.Exists(script))
         {
             if (File.Exists(script + ".cs"))
@@ -49,13 +53,14 @@ static class Scipt
         var runAsAssembly = true; // 'dotnet run'
         var serverDir = Path.Combine(wdbgDir, "dbg-server", "output");
 
-        bool forceProjectRun = false; 
+        bool forceProjectRun = false;
+
         if (!Directory.Exists(serverDir) || forceProjectRun)
         {
             runAsAssembly = false; // 'dotnet <assembly>'
             serverDir = Path.Combine(wdbgDir, "dbg-server").GetFullPath();
         }
-        Console.WriteLine("serverDir: "+serverDir);
+        Console.WriteLine("serverDir: " + serverDir);
 
         var serverArgs = "\"" + args.Skip(1).JoinBy("\" \"") + "\"";    // the rest of the args are to be interpreted by the server
         var serverAsm = Path.Combine(serverDir, "server.dll");
@@ -63,21 +68,24 @@ static class Scipt
 
         // start wdbg server
         Process proc;
+
         if (runAsAssembly)
             proc = "dotnet".Start($"\"{serverAsm}\" -script \"{script}\" --urls \"{urls}\" -pre \"{preprocessor}\" {serverArgs}", serverDir);
         else
             proc = "dotnet".Start($"run -script \"{script}\" --urls \"{urls}\" -pre \"{preprocessor}\" {serverArgs}", serverDir);
-        
+
         // start browser with wdbg url
         if (!args.Contains("-suppress-browser"))
         {
             Console.WriteLine($"---");
+
             var url = urls.Split(';').FirstOrDefault();
             Console.WriteLine($"Trying to start the browser at {url}...");
-            try{
+            try
+            {
                 url.Start(UseShellExecute: true);
             }
-            catch{}
+            catch { }
             Console.WriteLine($"---");
         }
 

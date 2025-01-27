@@ -14,6 +14,7 @@ using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Xml.Linq;
 using Microsoft.CodeAnalysis.Scripting;
 using CSScripting;
 
@@ -668,14 +669,15 @@ namespace csscript
             switch2Help[syntax] = new ArgInfo("-syntax",
                                               "Prints documentation for CS-Script specific C# syntax.");
             switch2Help[commands] =
-            switch2Help[cmd] = new ArgInfo("-commands|-cmd",
-                                           "Prints list of supported commands (arguments) as well as the custom commands defined by user.");
+            switch2Help[cmd] = new ArgInfo("-commands|-cmd[:x]",
+                                           "Prints list of supported commands (arguments) as well as the custom commands defined by user.",
+                                           "-cmd:x - ${<==}Prints detailed information of the custom commands defined by user.");
             switch2Help[ls] =
             switch2Help[list] = new ArgInfo("-list|-ls [<kill|k> | <kill-all|ka>",
                                             "Prints list of all currently running scripts.",
                                             "If script execution tracking is undesirable you can disable it by setting " +
                                            $"{Runtime.DisableCSScriptProcessTrackingEnvar} environment variable to a non empty value.",
-                                            " kill|k      - ${<==}Allow user to select and user to select and terminate any running script.",
+                                            " kill|k      - ${<==}Allow user to select and terminate any running script.",
                                             " *           - ${<==}Terminate all running scripts when 'kill' option is used.",
                                             "               ${<==}(e.g. " + AppInfo.AppName + " -list kill * ).");
 
@@ -1244,53 +1246,55 @@ namespace csscript
                 case AppArgs.cmd:
                 case AppArgs.commands:
                     {
-                        var map = new Dictionary<string, string>();
-                        int longestArg = 0;
-
-                        foreach (FieldInfo info in typeof(AppArgs).GetFields())
-                        {
-                            if (info.IsPublic && info.IsLiteral && info.IsStatic && info.FieldType == typeof(string))
-                            {
-                                string arg = (string)info.GetValue(null);
-                                string description = "";
-
-                                if (AppArgs.switch1Help.ContainsKey(arg))
-                                    description = AppArgs.switch1Help[arg].Description;
-                                else if (AppArgs.switch2Help.ContainsKey(arg))
-                                    description = AppArgs.switch2Help[arg].Description;
-                                else
-                                    continue;
-
-                                if (map.ContainsKey(description))
-                                {
-                                    string capturedArg = map[description];
-                                    map[description] = capturedArg + "|" + $"-{arg}";
-                                }
-                                else
-                                    map[description] = $"-{arg}";
-
-                                longestArg = Math.Max(map[description].Length, longestArg);
-                            }
-                        }
-
                         var builder = new StringBuilder();
-
-                        foreach (string key in map.Keys)
+                        if (context.Length == 0)
                         {
-                            string arg = map[key].Trim();
-                            arg = string.Format("{0,-" + longestArg + "}", arg);
-                            builder.AppendLine($"{arg}   {key}");
+                            var map = new Dictionary<string, string>();
+                            int longestArg = 0;
+
+                            foreach (FieldInfo info in typeof(AppArgs).GetFields())
+                            {
+                                if (info.IsPublic && info.IsLiteral && info.IsStatic && info.FieldType == typeof(string))
+                                {
+                                    string arg = (string)info.GetValue(null);
+                                    string description = "";
+
+                                    if (AppArgs.switch1Help.ContainsKey(arg))
+                                        description = AppArgs.switch1Help[arg].Description;
+                                    else if (AppArgs.switch2Help.ContainsKey(arg))
+                                        description = AppArgs.switch2Help[arg].Description;
+                                    else
+                                        continue;
+
+                                    if (map.ContainsKey(description))
+                                    {
+                                        string capturedArg = map[description];
+                                        map[description] = capturedArg + "|" + $"-{arg}";
+                                    }
+                                    else
+                                        map[description] = $"-{arg}";
+
+                                    longestArg = Math.Max(map[description].Length, longestArg);
+                                }
+                            }
+
+                            foreach (string key in map.Keys)
+                            {
+                                string arg = map[key].Trim();
+                                arg = string.Format("{0,-" + longestArg + "}", arg);
+                                builder.AppendLine($"{arg}   {key}");
+                            }
                         }
 
                         ////////////////////////////////////////////
                         // exploring custom commands
                         string[] commandDirs =
                         [
-                            Runtime.CustomCommandsDir,
+                            Assembly.GetExecutingAssembly().Location.GetDirName(),
 #if DEBUG
                             Environment.GetEnvironmentVariable("CSSCRIPT_INSTALLED"),
 #endif
-                            Assembly.GetExecutingAssembly().Location.GetDirName()
+                            Runtime.CustomCommandsDir,
                         ];
 
                         var customCommands = commandDirs
@@ -1298,24 +1302,45 @@ namespace csscript
                                                  .SelectMany(dir =>
                                                  {
                                                      var commands = Directory.GetFiles(dir, "-run.cs", SearchOption.AllDirectories)
-                                                                             .Select(x => x.Substring(dir.Length)
-                                                                                           .GetDirName()
-                                                                                           .Replace(Path.DirectorySeparatorChar.ToString(), ""));
+                                                                             .Select(x =>
+                                                                             {
+                                                                                 var name = x.Substring(dir.Length)
+                                                                                     .GetDirName()
+                                                                                     .Replace(Path.DirectorySeparatorChar.ToString(), "");
+
+                                                                                 // return $"{name} (v{x.GetCommandScriptVersion()})";
+                                                                                 return new
+                                                                                 {
+                                                                                     Name = name,
+                                                                                     Version = new Version(x.GetCommandScriptVersion()),
+                                                                                     Path = x
+                                                                                 };
+                                                                             });
                                                      return commands;
                                                  })
-                                                 .Order();
+                                                 .OrderBy(x => x.Name)
+                                                 .ThenByDescending(x => x.Version);
 
                         builder.AppendLine();
                         builder.AppendLine("--------------------------------------------");
                         builder.AppendLine("Custom commands defined by the user.");
-                        builder.AppendLine("(use `cscs <command> ?` for further details");
-                        builder.AppendLine(" see https://github.com/oleg-shilo/cs-script/wiki/Custom-Commands)");
+                        builder.AppendLine("(Usage: `cscs <command> ?`. For further details see");
+                        builder.AppendLine(" https://github.com/oleg-shilo/cs-script/wiki/Custom-Commands)");
                         builder.AppendLine("--------------------------------------------");
                         builder.AppendLine();
 
-                        foreach (var item in customCommands)
+                        foreach (var item in customCommands.GroupBy(x => x.Name))
                         {
-                            builder.AppendLine($"  {item}");
+                            if (context.Contains("x"))
+                            {
+                                builder.AppendLine($"{item.Key}");
+                                foreach (var command in item)
+                                    builder.AppendLine($"  v{command.Version}: {command.Path}");
+                            }
+                            else
+                            {
+                                builder.AppendLine($"  {item.Key}");
+                            }
                         }
 
                         return builder.ToString();

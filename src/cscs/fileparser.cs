@@ -283,10 +283,23 @@ namespace CSScriptLib
                 {
                     var filePath = "-" + file.TrimStart('-').Replace("-", $"{Path.DirectorySeparatorChar}-");
                     retval = FindFiles(filePath, extraDirs, "");
+
                     if (retval.IsEmpty())
+                    {
                         retval = FindFiles(filePath, extraDirs, ".cs");
+                    }
+
                     if (retval.IsEmpty())
-                        retval = FindFiles(filePath.PathJoin("-run.cs"), extraDirs, "");
+                    {
+                        retval = FindFiles(filePath.PathJoin("-run.cs"), extraDirs, "", returnAllFoundFiles: true);
+                        if (retval.Count() > 1)
+                        {
+                            retval = retval
+                                .OrderByDescending(x => new Version(x.GetCommandScriptVersion()))
+                                .Take(1)
+                                .ToArray();
+                        }
+                    }
                 }
             }
 
@@ -349,7 +362,7 @@ namespace CSScriptLib
 
                             List<string> result = new List<string>();
 
-                            if (Directory.Exists(dir))
+                            if (Directory.Exists(searchDir))
                                 foreach (string item in Directory.GetFiles(searchDir, name))
                                     result.Add(Path.GetFullPath(item));
 
@@ -366,10 +379,15 @@ namespace CSScriptLib
             return new string[0];
         }
 
-        static string[] FindFiles(string file, string[] extraDirs, string extension)
+        static string[] FindFiles(string file, string[] extraDirs, string extension, bool returnAllFoundFiles = true)
         {
+            var result = new List<string[]>();
+            var probingDirs = new List<string>(extraDirs);
+            if (!probingDirs.Contains(Environment.CurrentDirectory))
+                probingDirs.Insert(0, Environment.CurrentDirectory);
+
             if (Path.IsPathRooted(file))
-                return new[] { file };
+                result.Add(new[] { file });
 
             string fileName = file;
 
@@ -378,37 +396,37 @@ namespace CSScriptLib
                 fileName += extension;
 
             if (Path.IsPathRooted(fileName) && File.Exists(fileName))
-                return new[] { fileName };
+                result.Add(new[] { fileName });
 
             string[] files;
-            if (!extraDirs.Contains(Environment.CurrentDirectory))
-            {
-                files = LocateFiles(Environment.CurrentDirectory, fileName);
-                if (files.Length > 0)
-                    return files;
-            }
 
-            //arbitrary directories
-            if (extraDirs != null)
+            //current dir + arbitrary directories
+            if (!result.Any() || returnAllFoundFiles)
             {
                 foreach (string dir in extraDirs)
                 {
                     files = LocateFiles(dir, fileName);
                     if (files.Any())
-                        return files;
+                        result.Add(files);
                 }
             }
 
             //PATH
-            string[] pathDirs = Environment.GetEnvironmentVariable("PATH").Replace("\"", "").Split(';');
-            foreach (string dir in pathDirs)
+            if (!result.Any() || returnAllFoundFiles)
             {
-                files = LocateFiles(dir, fileName);
-                if (files.Any())
-                    return files;
+                string[] pathDirs = Environment.GetEnvironmentVariable("PATH").Replace("\"", "").Split(';');
+                foreach (string dir in pathDirs)
+                {
+                    files = LocateFiles(dir, fileName);
+                    if (files.Any())
+                        result.Add(files);
+                }
             }
 
-            return new string[0];
+            if (returnAllFoundFiles)
+                return result.SelectMany(x => x).ToArray();
+            else
+                return result.FirstOrDefault();
         }
 
         static public string headerTemplate =

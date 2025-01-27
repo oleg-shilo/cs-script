@@ -400,7 +400,6 @@ namespace csscript
                 }
                 else
                     file.FileDelete(false);
-
             }
         }
 

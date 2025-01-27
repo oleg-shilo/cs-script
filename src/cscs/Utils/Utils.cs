@@ -1111,9 +1111,9 @@ class HostingRuntime
                         executor.ShowHelp(AppArgs.syntax, nextArg);
                         CLIExitRequest.Throw();
                     }
-                    else if (Args.Same(arg, AppArgs.cmd, AppArgs.commands)) // -cmd -commands
+                    else if (Args.ParseValuedArg(arg, AppArgs.cmd, AppArgs.commands, out argValue)) // -cmd:x -commands:x
                     {
-                        executor.ShowHelp(AppArgs.commands);
+                        executor.ShowHelp(AppArgs.commands, argValue);
                         CLIExitRequest.Throw();
                     }
                     else if (Args.Same(arg, AppArgs.ls, AppArgs.list)) // -ls -list
