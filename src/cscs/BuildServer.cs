@@ -107,7 +107,7 @@ namespace CSScripting.CodeDom
             var response = get_response();
 
             var retry = 0;
-            while (response.Contains("SocketException") && retry < 5)
+            while (response.Contains("SocketException") && retry++ < 5)
             {
                 Thread.Sleep(30);
                 response = get_response();
