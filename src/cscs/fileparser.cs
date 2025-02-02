@@ -403,7 +403,7 @@ namespace CSScriptLib
             //current dir + arbitrary directories
             if (!result.Any() || returnAllFoundFiles)
             {
-                foreach (string dir in extraDirs)
+                foreach (string dir in probingDirs)
                 {
                     files = LocateFiles(dir, fileName);
                     if (files.Any())
