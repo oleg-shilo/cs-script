@@ -30,7 +30,7 @@
 
 ### CLI
 
-- Added support fro versioning of custom commands
+- Added support for versioning of custom commands
 - Fixed potential infinite loop on SocketError in the build server
 
 ### CSScriptLib
