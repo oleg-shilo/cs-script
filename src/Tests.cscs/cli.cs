@@ -387,6 +387,7 @@ global using global::System.Threading.Tasks;");
             var output = cscs_run($"-new {script_file}");
 
             output = cscs_run($"-check -ng:csc {script_file}");
+            // throw new Exception($"{output}\n{script_file}\n{Environment.CurrentDirectory}");
             Assert.Equal("Compile: OK", output);
         }
 

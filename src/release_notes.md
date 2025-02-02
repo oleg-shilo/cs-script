@@ -1,4 +1,4 @@
-# Release v4.8.27.0
+# Release v4.9.0.0
 
 ---
 
@@ -6,8 +6,9 @@
 
 ### CLI
 
-- no changes
+- Added support fro versioning of custom commands
+- Fixed potential infinite loop on SocketError in the build server
 
 ### CSScriptLib
 
-- restored ability to host on .NET Framework
+- no changes

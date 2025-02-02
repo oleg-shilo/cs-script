@@ -469,6 +469,8 @@ namespace csscript
 
                     List<string> dirs = [];
 
+                    dirs.Add(Environment.CurrentDirectory);
+
                     if (!Settings.ProbingLegacyOrder)
                     {
                         dirs.Add(Settings.local_dirs_section);

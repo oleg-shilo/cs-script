@@ -14,7 +14,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.8.27.0</Version>
+    <Version>4.9.0.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
@@ -30,15 +30,16 @@
 
 ### CLI
 
-- no changes
+- Added support fro versioning of custom commands
+- Fixed potential infinite loop on SocketError in the build server
 
 ### CSScriptLib
 
-- restored ability to host on .NET Framework</PackageReleaseNotes>
+- no changes</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.8.27.0</AssemblyVersion>
-    <FileVersion>4.8.27.0</FileVersion>
-    <PackageVersion>4.8.27.0</PackageVersion>
+    <AssemblyVersion>4.9.0.0</AssemblyVersion>
+    <FileVersion>4.9.0.0</FileVersion>
+    <PackageVersion>4.9.0.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>

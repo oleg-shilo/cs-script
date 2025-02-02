@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.8.27.0</version>
+    <version>4.9.0.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -30,11 +30,12 @@
 
 ### CLI
 
-- no changes
+- Added support fro versioning of custom commands
+- Fixed potential infinite loop on SocketError in the build server
 
 ### CSScriptLib
 
-- restored ability to host on .NET Framework</releaseNotes>
+- no changes</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>
