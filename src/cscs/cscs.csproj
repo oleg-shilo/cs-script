@@ -116,11 +116,13 @@
     <Content Include="..\out\static_content\-self\**\*" Link="ToolPackage/-self" Pack="true" PackagePath="tools/net9.0/any/-self" />
     <Content Include="..\out\static_content\-set\**\*" Link="ToolPackage/-set" Pack="true" PackagePath="tools/net9.0/any/-set" />
     <Content Include="..\out\static_content\-web\**\*" Link="ToolPackage/-web" Pack="true" PackagePath="tools/net9.0/any/-web" />
+    <Content Include="..\out\static_content\-unlock\**\*" Link="ToolPackage/-unlock" Pack="true" PackagePath="tools/net9.0/any/-unlock" />
     <Content Include="..\out\static_content\-wdbg\**\*" Link="ToolPackage/-wdbg" Pack="true" PackagePath="tools/net9.0/any/-wdbg" />
     <Content Include="..\out\static_content\-mkshim\**\*" Link="ToolPackage/-mkshim" Pack="true" PackagePath="tools/net8.0/any/-mkshim" />
     <Content Include="..\out\static_content\-self\**\*" Link="ToolPackage/-self" Pack="true" PackagePath="tools/net8.0/any/-self" />
     <Content Include="..\out\static_content\-set\**\*" Link="ToolPackage/-set" Pack="true" PackagePath="tools/net8.0/any/-set" />
     <Content Include="..\out\static_content\-web\**\*" Link="ToolPackage/-web" Pack="true" PackagePath="tools/net8.0/any/-web" />
+    <Content Include="..\out\static_content\-unlock\**\*" Link="ToolPackage/-unlock" Pack="true" PackagePath="tools/net8.0/any/-unlock" />
     <!--<Content Include="..\out\static_content\-wdbg\**\*" Link="ToolPackage/-wdbg" Pack="true" PackagePath="tools/net8.0/any/-wdbg" />-->
     <Content Include="..\css\bin\net9.0-windows\csws.runtimeconfig.json" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.runtimeconfig.json" />
     <Content Include="..\css\bin\net9.0-windows\csws.dll" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.dll" />
