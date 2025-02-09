@@ -18,6 +18,16 @@ namespace CSScripting
         }
 
         /// <summary>
+        /// Determines whether the specified contains any items from another collection.
+        /// </summary>
+        /// <param name="items1">The items1.</param>
+        /// <param name="items2">The items2.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified items2 contains any; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool ContainsAny(this string[] items1, params string[] items2) => items1.Intersect(items2).Any();
+
+        /// <summary>
         /// None of the items matches the specified predicate.
         /// </summary>
         /// <typeparam name="T"></typeparam>

@@ -1,4 +1,4 @@
-# Release v4.9.0.0
+# Release v4.9.1
 
 ---
 
@@ -6,8 +6,8 @@
 
 ### CLI
 
-- Added support fro versioning of custom commands
-- Fixed potential infinite loop on SocketError in the build server
+- Added support for versioning of custom commands during `css -new:cmd ...`
+- Added custom command `-unlock`
 
 ### CSScriptLib
 

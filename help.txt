@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.9.0.0.
+C# Script execution engine (.NET Core). Version 4.9.1.0.
 Copyright (C) 2004-2023 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -457,7 +457,7 @@ CS-Script specific syntax
 Engine directives:
 - //css_include <file>;
 - //css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];
-- //css_nuget [-force] package0[,package1]..[,packageN];
+- //css_nuget [-force] [-ver:<version>] package0[,package1]..[,packageN];
 - //css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-rt:<runtime>] [-ng:<nuget arguments>]
 package0[,package1]..[,packageN];
 - //css_args arg0[,arg1]..[,argN];
@@ -545,7 +545,7 @@ newName          - new name of a namespace to be renamed during importing
  
 ------------------------------------
  
-//css_nuget [-force] package0[,package1]..[,packageN];
+//css_nuget [-force] [-ver:<version>] package0[,package1]..[,packageN];
  
 Downloads/Installs the NuGet package. It also automatically references the downloaded package assemblies.
 By default, the package is not downloaded again if it was already downloaded.
@@ -553,6 +553,7 @@ CS-Script uses dotnet.exe to manage NuGet packages. This makes the developer exp
 traditional SW development of compiled .NET applications.
 
  -force - switch to force individual packages downloading even when they were already downloaded.
+ -ver:<version> - switch to download/reference a specific package version.
  
  Examples: //css_nuget cs-script;
            //css_nuget -force NLog

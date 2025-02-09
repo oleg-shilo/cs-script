@@ -765,7 +765,7 @@ namespace csscript
                          "``` ",
                          section_sep, //------------------------------------
                          " ",
-                         "`//css_nuget [-force] package0[,package1]..[,packageN];`",
+                         "`//css_nuget [-force] [-ver:<version>] package0[,package1]..[,packageN];`",
                          " ",
                          "Downloads/Installs the NuGet package. It also automatically references the downloaded package assemblies.",
                          "By default, the package is not downloaded again if it was already downloaded.",
@@ -773,6 +773,7 @@ namespace csscript
                          "traditional SW development of compiled .NET applications.",
                          "```txt",
                          " -force - ${<==}switch to force individual packages downloading even when they were already downloaded.",
+                         " -ver:<version> - ${<==}switch to download/reference a specific package version.",
                          "``` ",
                          " Examples: //css_nuget cs-script;",
                          "           //css_nuget -force NLog",
@@ -1548,29 +1549,35 @@ Examples:
         static SampleInfo[] CSharp_command_Sample(string context)
         {
             var cs =
-@$"using System;
-using System.IO;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+@$"
+//css_include global-usings
+using System;
 using System.Diagnostics;
+using CSScripting;
 using static dbg;
 using static System.Console;
 using static System.Environment;
 
-var help =
-@""CS-Script custom command for...
-  cscs -{context} [args]
-  (e.g. `cscs -{context} script.cs`)"";
+var thisScript = GetEnvironmentVariable(""EntryScript"");
 
-if (""?,-?,-help,--help"".Split(',').Contains(args.FirstOrDefault()))
+var help =
+@$""CS-Script custom command for...
+v{{thisScript.GetCommandScriptVersion()}} ({{thisScript}})
+  css -{context} [args]
+  (e.g. `css -{context} test.txt`)"";
+
+if (args.IsEmpty() || ""?,-?,-help,--help"".Split(',').Contains(args.FirstOrDefault()))
 {{
     WriteLine(help);
     return;
 }}
 
-WriteLine($""Executing {context} for: [{{string.Join("","", args)}}]"");
-";
+// -----------------------------------------------
+// Command implementation
+// -----------------------------------------------
+
+WriteLine($""Executing {context} for: [{{string.Join("","", args)}}]"");";
+
             return [new SampleInfo(cs.NormalizeNewLines(), ".cs")];
         }
 

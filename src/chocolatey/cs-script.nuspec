@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.9.0.0</version>
+    <version>4.9.1</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -30,8 +30,8 @@
 
 ### CLI
 
-- Added support for versioning of custom commands
-- Fixed potential infinite loop on SocketError in the build server
+- Added support for versioning of custom commands during `css -new:cmd ...`
+- Added custom command `-unlock`
 
 ### CSScriptLib
 
