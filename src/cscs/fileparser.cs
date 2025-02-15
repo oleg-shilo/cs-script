@@ -281,7 +281,7 @@ namespace CSScriptLib
                 // possible CLI command: css -self-test css -self-test-run css -self-test-log
                 if (file.GetFileName().StartsWith("-"))
                 {
-                    // ensure we handle the case when the file name is a command that starts with two dashes (e.g. -ver vs --version)
+                    // ensure we
                     var prefix = new string(file.TakeWhile(x => x == '-').ToArray());
 
                     var filePath = prefix + file.TrimStart('-').Replace("-", $"{Path.DirectorySeparatorChar}-");

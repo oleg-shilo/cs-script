@@ -143,9 +143,11 @@ namespace csscript
 
                         if (appType == "cmd" && outFile.GetDirName().IsEmpty())
                         {
-                            // the command output file specified by command name only
-                            var cmdDir = Runtime.CustomCommandsDir.PathJoin(outFile).EnsureDir();
-                            outFile = cmdDir.PathJoin("-run.cs");
+                            var prefix = new string(outFile.TakeWhile(x => x == '-').ToArray());
+                            var subDirs = prefix + outFile.TrimStart('-').Split('-').JoinBy(Path.DirectorySeparatorChar + "-");// Select(x => "-" + x).ToArray();
+
+                            outFile = Runtime.CustomCommandsDir.PathJoin(subDirs).PathJoin("-run.cs");
+                            outFile.EnsureFileDir();
                         }
 
                         string file;
