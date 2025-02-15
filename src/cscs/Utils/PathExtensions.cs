@@ -12,6 +12,15 @@ namespace CSScripting
     public static class PathExtensions
     {
         /// <summary>
+        /// Locates the file in the specified probing dirs.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <param name="probingDirs">The probing dirs.</param>
+        /// <returns></returns>
+        public static string LocateIn(this string fileName, params string[] probingDirs)
+            => CSScriptLib.FileParser.ResolveFile(fileName, probingDirs, false);
+
+        /// <summary>
         /// Gets the command script version. The version `0.0.0.0` is returned if the version file (e.g. `1.0.0.0.version`) is not found in
         /// the script parent folder.
         /// </summary>

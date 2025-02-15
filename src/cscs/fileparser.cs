@@ -271,9 +271,9 @@ namespace CSScriptLib
             {
                 // a complex command folder. IE:
                 // ├── -self
-                // │ └── -test
+                // │ ├── -test
                 // │ ├── -run.cs
-                // │ ├── utils.cs
+                // │ └── utils.cs
                 // │
                 // ├── log.cs │
                 // └── test_definitions.cs.
@@ -281,7 +281,10 @@ namespace CSScriptLib
                 // possible CLI command: css -self-test css -self-test-run css -self-test-log
                 if (file.GetFileName().StartsWith("-"))
                 {
-                    var filePath = "-" + file.TrimStart('-').Replace("-", $"{Path.DirectorySeparatorChar}-");
+                    // ensure we handle the case when the file name is a command that starts with two dashes (e.g. -ver vs --version)
+                    var prefix = new string(file.TakeWhile(x => x == '-').ToArray());
+
+                    var filePath = prefix + file.TrimStart('-').Replace("-", $"{Path.DirectorySeparatorChar}-");
                     retval = FindFiles(filePath, extraDirs, "");
 
                     if (retval.IsEmpty())

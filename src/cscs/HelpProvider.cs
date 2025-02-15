@@ -1533,7 +1533,7 @@ Examples:
     cscs -new:console console.cs
     cscs -new:winform myapp.cs
     cscs -new:wpf hello
-    cscs -new:cmd edit
+    cscs -new:cmd -edit
 ```".NormalizeNewLines();
 
         internal static SampleInfo[] BuildSampleCode(string appType, string context)
