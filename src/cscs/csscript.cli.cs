@@ -138,10 +138,13 @@ namespace csscript
                 {
                     if (outFile.IsNotEmpty())
                     {
+                        if (!outFile.StartsWith("-"))
+                            outFile = "-" + outFile;
+
                         if (appType == "cmd" && outFile.GetDirName().IsEmpty())
                         {
                             // the command output file specified by command name only
-                            var cmdDir = Runtime.CustomCommandsDir.PathJoin("-" + outFile).EnsureDir();
+                            var cmdDir = Runtime.CustomCommandsDir.PathJoin(outFile).EnsureDir();
                             outFile = cmdDir.PathJoin("-run.cs");
                         }
 

@@ -1548,6 +1548,8 @@ Examples:
 
         static SampleInfo[] CSharp_command_Sample(string context)
         {
+            if (!context.StartsWith("-"))
+                context = "-" + context;
             var cs =
 @$"
 //css_include global-usings
@@ -1563,8 +1565,8 @@ var thisScript = GetEnvironmentVariable(""EntryScript"");
 var help =
 @$""CS-Script custom command for...
 v{{thisScript.GetCommandScriptVersion()}} ({{thisScript}})
-  css -{context} [args]
-  (e.g. `css -{context} test.txt`)"";
+  css {context} [args]
+  (e.g. `css {context} test.txt`)"";
 
 if (args.IsEmpty() || ""?,-?,-help,--help"".Split(',').Contains(args.FirstOrDefault()))
 {{
