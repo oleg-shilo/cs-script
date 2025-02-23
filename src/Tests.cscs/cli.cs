@@ -204,6 +204,23 @@ namespace CLI
         }
 
         [Fact]
+        public void new_cmd()
+        {
+            var output = cscs_run($"-new:cmd ttt");
+            var script_file = output.Replace("Created:", "").Trim();
+
+            try
+            {
+                Assert.Equal("-run.cs", script_file.GetFileName());
+                Assert.Equal("-ttt", script_file.GetDirName().GetFileName());
+            }
+            finally
+            {
+                script_file.GetDirName().DeleteDir(true);
+            }
+        }
+
+        [Fact]
         public void syntax_version_10()
         {
             var script = (nameof(syntax_version_10) + ".cs").GetFullPath();
@@ -383,6 +400,7 @@ global using global::System.Threading.Tasks;");
         [Fact]
         public void compiler_output()
         {
+            // Debugger.Break();
             var script_file = nameof(compiler_output);
             var output = cscs_run($"-new {script_file}");
 

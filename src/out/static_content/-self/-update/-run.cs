@@ -10,7 +10,7 @@ using static System.Environment;
 var thisScript = GetEnvironmentVariable("EntryScript");
 
 var help =
-@$"CS-Script custom command for updating the installed CS-Script.
+@$"Custom command for updating the installed CS-Script.
 v{thisScript.GetCommandScriptVersion()} ({thisScript})
   css -self-update [args]
   (e.g. `css -self-update test.txt`)";

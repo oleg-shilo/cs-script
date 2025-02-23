@@ -9,7 +9,7 @@ using LockCheck;
 
 var thisScript = GetEnvironmentVariable("EntryScript");
 
-var help = $@"CS-Script custom command for checking and unlocking a locked file or a directory.
+var help = $@"Custom command for checking and unlocking a locked file or a directory.
 v{thisScript.GetCommandScriptVersion()} ({thisScript})
 
   css -unlock <path>";

@@ -103,7 +103,8 @@ namespace csscript
                         }
                         catch
                         {
-                            print($"Error: you need to set environment variable '{envarName}' to the valid path to the Visual Studio executable devenv.exe.");
+                            print($"Error: you need to set environment variable '{envarName}' to the valid path to the Visual Studio executable devenv.exe.\n" +
+                                $"You can do ite either manually or by executing `css -vs:init`");
                         }
                     }
                     else

@@ -11,7 +11,7 @@ using System.IO;
 
 var derfaultUrl = $"http://localhost:{ThisOrNextAvailable(5050)}";
 
-var help = $@"CS-Script custom command for starting a Web server for servicing static files.
+var help = $@"Custom command for starting a Web server for servicing static files.
 v{GetVersion()} ({Environment.GetEnvironmentVariable("EntryScript")})
 
   css -web [web content folder] [-url:<url>] 

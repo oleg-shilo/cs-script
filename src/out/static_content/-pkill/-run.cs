@@ -52,7 +52,7 @@ WriteLine("");
 WriteLine("Enter: ");
 WriteLine("  - the index of the process to terminate");
 WriteLine("  - 'A' to terminate all");
-WriteLine("  - 'N' to exit");
+WriteLine("  - 'X' to exit");
 
 var input = ReadLine();
 if (int.TryParse(input, out int index))
@@ -62,7 +62,7 @@ if (int.TryParse(input, out int index))
         try { matches[index].Kill(); }
         catch { }
 }
-else if (input.ToLower() == "n")
+else if (input.ToLower() == "x")
 {
     // do nothing
 }

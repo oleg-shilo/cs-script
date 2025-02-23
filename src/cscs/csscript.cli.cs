@@ -138,7 +138,7 @@ namespace csscript
                 {
                     if (outFile.IsNotEmpty())
                     {
-                        if (!outFile.StartsWith("-"))
+                        if (appType == "cmd" && !outFile.StartsWith("-"))
                             outFile = "-" + outFile;
 
                         if (appType == "cmd" && outFile.GetDirName().IsEmpty())

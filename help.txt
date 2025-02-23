@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.9.1.0.
+C# Script execution engine (.NET Core). Version 4.9.2.0.
 Copyright (C) 2004-2023 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -167,7 +167,7 @@ params	Specifies optional parameters for a script file to be run.
         cscs -new:console console.cs
         cscs -new:winform myapp.cs
         cscs -new:wpf hello
-        cscs -new:cmd edit
+        cscs -new:cmd -edit
 
 -code[:show] <script code>
     Executes script code directly without using a script file.

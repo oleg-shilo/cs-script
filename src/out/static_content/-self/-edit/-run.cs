@@ -9,7 +9,7 @@ using static dbg;
 var thisScript = GetEnvironmentVariable("EntryScript");
 
 var help =
-@$"CS-Script custom command for editing scripts.
+@$"Custom command for editing scripts.
 v{thisScript.GetCommandScriptVersion()} ({thisScript})
   cscs -edit [args]
   (e.g. `cscs -edit script.cs`)";
