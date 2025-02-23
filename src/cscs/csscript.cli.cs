@@ -255,7 +255,7 @@ namespace csscript
         /// </summary>
         public void ShowHelp(string helpType, params object[] context)
         {
-            var help = HelpProvider.ShowHelp(helpType, context.Where(x => x != null).ToArray());
+            var help = HelpProvider.ShowHelp(helpType, context.Concat([print]).Where(x => x != null).ToArray());
             print?.Invoke(help);
         }
 

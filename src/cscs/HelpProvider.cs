@@ -1203,7 +1203,10 @@ namespace csscript
     {
         public static string ShowHelp(string helpType, params object[] context)
         {
-            context = context.Where(x => x != null).ToArray();
+            PrintDelegate print = context.OfType<PrintDelegate>().LastOrDefault();
+
+            context = context.Where(x => x != null && x is not PrintDelegate).ToArray();
+
             switch (helpType)
             {
                 case AppArgs.dir:
@@ -1247,8 +1250,20 @@ namespace csscript
                 case AppArgs.cmd:
                 case AppArgs.commands:
                     {
+                        // Printing command info can be time consuming as it involves executing extended commands scripts.
+                        // So it makes sense to start printing as soon as we get some data
+
                         var builder = new StringBuilder();
-                        if (context.Length == 0)
+
+                        Action<string> AppendLine = x =>
+                        {
+                            if (print == null)
+                                builder.AppendLine(x);
+                            else
+                                print(x);
+                        };
+
+                        if (context.Count() == 0)
                         {
                             var map = new Dictionary<string, string>();
                             int longestArg = 0;
@@ -1283,7 +1298,7 @@ namespace csscript
                             {
                                 string arg = map[key].Trim();
                                 arg = string.Format("{0,-" + longestArg + "}", arg);
-                                builder.AppendLine($"{arg}   {key}");
+                                AppendLine($"{arg}   {key}");
                             }
                         }
 
@@ -1322,28 +1337,47 @@ namespace csscript
                                                  .OrderBy(x => x.Name)
                                                  .ThenByDescending(x => x.Version);
 
-                        builder.AppendLine();
-                        builder.AppendLine("--------------------------------------------");
-                        builder.AppendLine("Custom commands defined by the user.");
-                        builder.AppendLine("(Usage: `cscs <command> ?`. For further details see");
-                        builder.AppendLine(" https://github.com/oleg-shilo/cs-script/wiki/Custom-Commands)");
-                        builder.AppendLine("--------------------------------------------");
-                        builder.AppendLine();
+                        AppendLine("");
+                        AppendLine("--------------------------------------------");
+                        AppendLine("Custom commands defined by the user.");
+                        AppendLine("(Usage: `css <command> ?`. For further details see");
+                        AppendLine(" https://github.com/oleg-shilo/cs-script/wiki/Custom-Commands)");
+                        AppendLine("--------------------------------------------");
+                        AppendLine("");
 
                         foreach (var item in customCommands.GroupBy(x => x.Name))
                         {
                             if (context.Contains("x"))
                             {
-                                builder.AppendLine($"{item.Key}");
+                                AppendLine($"{item.Key}");
                                 foreach (var command in item)
-                                    builder.AppendLine($"  v{command.Version}: {command.Path}");
+                                    AppendLine($"  v{command.Version}: {command.Path}");
                             }
                             else
                             {
-                                builder.AppendLine($"  {item.Key}");
+                                var commandFile = item.OrderByDescending(x => x.Version).First().Path;
+                                var commandDir = commandFile.GetDirName();
+                                var versionFile = Directory.GetFiles(commandDir, "*.version").FirstOrDefault() ?? commandDir.PathJoin("1.0.0.version");
+                                var cachedDescription = versionFile.FileExists() ? File.ReadAllText(versionFile) : null;
+
+                                var description = cachedDescription;
+
+                                if (!description.HasText() || File.GetLastWriteTimeUtc(versionFile) != File.GetLastWriteTimeUtc(commandFile))
+                                {
+                                    var result = "css".Run(item.Key + " ?", onOutput: x => description = x.GetLines().FirstOrDefault(), timeout: 10000);
+
+                                    if (result == 0 && description.HasText())
+                                    {
+                                        File.WriteAllText(versionFile, description);
+                                        File.SetLastWriteTimeUtc(versionFile, File.GetLastWriteTimeUtc(commandFile));
+                                    }
+                                    else
+                                        description = "No description available";
+                                }
+
+                                AppendLine($"  {item.Key,-20} {description}");
                             }
                         }
-
                         return builder.ToString();
                     }
 
@@ -1563,7 +1597,7 @@ using static System.Environment;
 var thisScript = GetEnvironmentVariable(""EntryScript"");
 
 var help =
-@$""CS-Script custom command for...
+@$""Custom command for...
 v{{thisScript.GetCommandScriptVersion()}} ({{thisScript}})
   css {context} [args]
   (e.g. `css {context} test.txt`)"";

@@ -1,0 +1,81 @@
+//-css_args test
+//css_ng csc
+//css_include global-usings
+using System;
+using System.Diagnostics;
+using CSScripting;
+using static dbg;
+using static System.Console;
+using static System.Environment;
+
+var thisScript = GetEnvironmentVariable("EntryScript");
+
+var help =
+@$"Custom command for terminating the process based on name.
+v{thisScript.GetCommandScriptVersion()} ({thisScript})
+  css -pkill <process name pattern>
+  (e.g. `css -pkill sublime`)";
+
+if (args.IsEmpty() || "?,-?,-help,--help".Split(',').Contains(args.FirstOrDefault()))
+{
+    WriteLine(help);
+    return;
+}
+
+// -----------------------------------------------
+// Command implementation
+// -----------------------------------------------
+
+string pattern = args.FirstOrDefault();
+
+var matches = Process.GetProcesses()
+  .Where(x => x.ProcessName.Contains(pattern))
+  .ToArray();
+
+if (!matches.Any())
+{
+    WriteLine("Cannot find any process matching the specified name pattern");
+    return;
+}
+
+var maxNameLength = matches.Max(x => x.ProcessName.Length);
+var i = 1;
+
+WriteLine("");
+WriteLine($"   # | {"Name".PadRight(maxNameLength)} | PID");
+WriteLine($"-----|-{"".PadRight(maxNameLength, '-')}-|-------");
+
+foreach (var p in matches)
+    WriteLine($" {i++,3} | {p.ProcessName.PadRight(maxNameLength)} | {p.Id}");
+
+WriteLine("");
+WriteLine("Enter: ");
+WriteLine("  - the index of the process to terminate");
+WriteLine("  - 'A' to terminate all");
+WriteLine("  - 'N' to exit");
+
+var input = ReadLine();
+if (int.TryParse(input, out int index))
+{
+    index--;
+    if (matches.Length > index)
+        try { matches[index].Kill(); }
+        catch { }
+}
+else if (input.ToLower() == "n")
+{
+    // do nothing
+}
+else if (input.ToLower() == "a")
+{
+    matches.ToList().ForEach(p =>
+    {
+        try { p.Kill(); }
+        catch { }
+    });
+}
+else
+{
+    WriteLine();
+    WriteLine("Invalid input.");
+}

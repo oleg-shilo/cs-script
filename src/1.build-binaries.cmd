@@ -122,6 +122,9 @@ xcopy /s /q /y "out\static_content\-unlock\*" "out\Linux\-unlock\"
 xcopy /s /q /y "out\static_content\-edit\*" "out\Windows\-edit\" 
 xcopy /s /q /y "out\static_content\-edit\*" "out\Linux\-edit\" 
 
+xcopy /s /q /y "out\static_content\-pkill\*" "out\Windows\-pkill\" 
+xcopy /s /q /y "out\static_content\-pkill\*" "out\Linux\-pkill\" 
+
 rem goto:exit
 echo =====================
 echo Clearing possible WDBG test/dev files
