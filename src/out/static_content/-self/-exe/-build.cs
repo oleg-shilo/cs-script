@@ -17,7 +17,7 @@ if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
                                   .FirstOrDefault() ?? "0.0.0.0.version");
 
     Console.WriteLine($@"v{version} ({Environment.GetEnvironmentVariable("EntryScript")})");
-    Console.WriteLine("Builds `css.exe` that executes the script engine CLI executable. It is an alternative to the symbolic links or true shims.");
+    Console.WriteLine("Builds `css.exe` that executes the script engine CLI executable (an alternative to the symbolic links or shims.");
     return;
 }
 

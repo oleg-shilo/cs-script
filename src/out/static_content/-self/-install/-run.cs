@@ -18,7 +18,7 @@ if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
     Console.WriteLine($@"v{version} ({Environment.GetEnvironmentVariable("EntryScript")})");
     Console.WriteLine(
         "Integrates CS-Script with the environment by setting the `CSSCRIPT_ROOT` " +
-        "environment variable for the script engine CLI executable  parent folder.");
+        "environment variable.");
     return;
 }
 

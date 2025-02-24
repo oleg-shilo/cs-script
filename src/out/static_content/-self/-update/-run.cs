@@ -1,9 +1,11 @@
 //css_include global-usings
+using System.Runtime.InteropServices;
 using System.Text;
 using System;
 using System.Diagnostics;
 using CSScripting;
 using static dbg;
+using static System.IO.Path;
 using static System.Console;
 using static System.Environment;
 
@@ -25,29 +27,80 @@ if ("?,-?,-help,--help".Split(',').Contains(args.FirstOrDefault()))
 // Command implementation
 // -----------------------------------------------
 
+var currentProcessAssembly = Assembly.GetEntryAssembly().Location;
+var cscs = Run("css", "-self");
+
+if (string.Compare(currentProcessAssembly, cscs, true) == 0)
+{
+    // cannot update itself as the process locks the assembly
+    // so start another process
+
+    WriteLine($"Launching the update routine...");
+    var dir = Combine(GetTempPath(), "cs-script.update");
+    var newCscs = Combine(dir, GetFileName(cscs));
+    var newScript = Combine(dir, GetFileName(thisScript));
+
+    Directory.CreateDirectory(dir);
+
+    File.Copy(thisScript, newScript, true);
+    File.Copy(cscs, newCscs, true);
+    File.Copy(ChangeExtension(cscs, ".runtimeconfig.json"), ChangeExtension(newCscs, ".runtimeconfig.json"), true);
+    File.Copy(ChangeExtension(cscs, ".deps.json"), ChangeExtension(newCscs, ".deps.json"), true);
+
+    var command = $"dotnet {newCscs} {newScript}";
+
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = "cmd.exe",
+            Arguments = $"/k {command}",
+            UseShellExecute = true,
+            WorkingDirectory = dir,
+            WindowStyle = ProcessWindowStyle.Normal
+        });
+    }
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+    {
+        // Linux: Try gnome-terminal, x-terminal-emulator, or konsole
+        StartLinuxTerminal(command);
+    }
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+    {
+        // macOS: Use Terminal.app
+        Process.Start("open", $"-a Terminal \"bash -c '{command}; exec bash'\"");
+    }
+    else
+    {
+        Console.WriteLine("Update is not supported on your OS.");
+        Console.WriteLine("Update manually by executing 'dotnet tool update --global cs-script.cli'.");
+    }
+
+    return;
+}
+
 WriteLine($"Checking the current installation...");
 WriteLine();
 
-var css = Run("css", "-self");
-if (css.Contains(Path.Combine(".dotnet", "tools")))
+if (cscs.Contains(Path.Combine(".dotnet", "tools")))
 {
-    update(css,
+    update(cscs,
            pm: ".NET Tool",
            cmdExe: "dotnet",
            cmdArgs: "tool update --global cs-script.cli",
            noUpdateLogPattern: "is already installed");
 }
-else if (css.Contains(Path.Combine("ProgramData", "chocolatey")))
+else if (cscs.Contains(Path.Combine("ProgramData", "chocolatey")))
 {
-    update(css,
+    update(cscs,
            pm: "Chocolatey",
            cmdExe: "choco",
            cmdArgs: "upgrade cs-script -y",
            noUpdateLogPattern: "is the latest version available");
 }
-else if (css.Contains(Path.Combine("WinGet", "Links")))
+else if (cscs.Contains(Path.Combine("WinGet", "Links")))
 {
-    update(css,
+    update(cscs,
        pm: "WinGet",
        cmdExe: "winget",
        cmdArgs: "update cs-script",
@@ -67,6 +120,8 @@ void update(string css, string pm, string cmdExe, string cmdArgs, string noUpdat
 
     var output = Run(cmdExe, cmdArgs);
 
+    WriteLine(output);
+
     if (output.Contains(noUpdateLogPattern))
     {
         WriteLine("No available update found.");
@@ -78,7 +133,7 @@ void update(string css, string pm, string cmdExe, string cmdArgs, string noUpdat
     }
 }
 
-string Run(string app, string arguments)
+string Run(string app, string arguments, bool inExternalConsole = false)
 {
     StringBuilder sb = new();
 
@@ -91,11 +146,14 @@ string Run(string app, string arguments)
 
         // Console.WriteLine(">>>: " + arguments);
 
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardError = true;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.RedirectStandardInput = true;
-        process.StartInfo.CreateNoWindow = true;
+        if (!inExternalConsole)
+        {
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardInput = true;
+            process.StartInfo.CreateNoWindow = true;
+        }
         process.Start();
 
         Thread outputThread = new Thread(() => HandleOutput(process, sb));
@@ -114,16 +172,6 @@ string Run(string app, string arguments)
         Environment.ExitCode = process.ExitCode;
 
         outputThread.Join(1000);
-
-        if (inputThread.IsAlive)
-        {
-            inputThread.IsBackground = true;
-            try { inputThread.Abort(); } catch { }
-        }
-
-        // background threads anyway
-        try { errorThread.Abort(); } catch { }
-        try { outputThread.Abort(); } catch { }
     }
     catch (Exception e)
     {
@@ -203,4 +251,29 @@ void HandleInput(Process process)
     catch
     {
     }
+}
+
+void StartLinuxTerminal(string command)
+{
+    string[] terminals = { "gnome-terminal", "konsole", "x-terminal-emulator", "xfce4-terminal", "lxterminal" };
+
+    foreach (var terminal in terminals)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = terminal,
+                Arguments = $"-e bash -c \"{command}; exec bash\"",
+                UseShellExecute = true
+            });
+            return; // Stop after the first successful attempt
+        }
+        catch (Exception)
+        {
+            // Ignore and try the next terminal
+        }
+    }
+
+    Console.WriteLine("No supported terminal found.");
 }

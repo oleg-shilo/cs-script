@@ -12,6 +12,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Xml.Linq;
@@ -1345,6 +1346,9 @@ namespace csscript
                         AppendLine("--------------------------------------------");
                         AppendLine("");
 
+                        // to filter out `v1.0.0 (C:\Users\user\.dotnet\tools\.store\cs-script.cli\4.9.2\cs-script.cli...`
+                        Regex version = "v*.*.* (*".WildCardToRegExp();
+
                         foreach (var item in customCommands.GroupBy(x => x.Name))
                         {
                             if (context.Contains("x"))
@@ -1362,20 +1366,29 @@ namespace csscript
 
                                 var description = cachedDescription;
 
-                                if (!description.HasText() || File.GetLastWriteTimeUtc(versionFile) != File.GetLastWriteTimeUtc(commandFile))
+                                if (!description.HasText() || version.IsMatch(description) || File.GetLastWriteTimeUtc(versionFile) != File.GetLastWriteTimeUtc(commandFile))
                                 {
-                                    var result = "css".Run(item.Key + " ?", onOutput: x => description = x.GetLines().FirstOrDefault(), timeout: 10000);
+                                    var result = "css".Run(item.Key + " ?", onOutput: x => description = x.GetLines().FirstOrDefault(x => !version.IsMatch(x)), timeout: 10000);
 
-                                    if (result == 0 && description.HasText())
+                                    if (description.Trim() != NuGet.RestoreMarker)
                                     {
-                                        File.WriteAllText(versionFile, description);
-                                        File.SetLastWriteTimeUtc(versionFile, File.GetLastWriteTimeUtc(commandFile));
+                                        if (result == 0 && description.HasText())
+                                        {
+                                            File.WriteAllText(versionFile, description);
+                                            File.SetLastWriteTimeUtc(versionFile, File.GetLastWriteTimeUtc(commandFile));
+                                        }
+                                        else
+                                            description = "No description available";
                                     }
-                                    else
-                                        description = "No description available";
                                 }
 
-                                AppendLine($"  {item.Key,-20} {description}");
+                                if (description.Trim() == NuGet.RestoreMarker)
+                                {
+                                    description = "< the description will be available on the next run >";
+                                    File.WriteAllText(versionFile, "");
+                                }
+
+                                AppendLine($"  {item.Key,-15} {description}");
                             }
                         }
                         return builder.ToString();

@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.9.2</Version>
+    <Version>4.9.3.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -19,22 +19,15 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.9.2</AssemblyVersion>
-    <FileVersion>4.9.2</FileVersion>
+    <AssemblyVersion>4.9.3.0</AssemblyVersion>
+    <FileVersion>4.9.3.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
 
-- Added new custom commands:
-	- `css -pkill &lt;process name pattern&gt;`: terminates the process based on name.
-	- `css -update`: updates already installed CS-Script (if detected)
-	- `css -edit &lt;script|custom command&gt;`: opens the script in the default editor
-
-* Improved dev experience for `css -new:cmd &lt;name&gt;`:
-  - Now name can include dash as a prefix.
-  - Handle the case when during command creation with `-new:cmd` the file name is a command that starts with two dashes (e.g. -ver vs --version)handle
+- Fixed `css -update` problem when trying to update itself locked by the current process
 
 ### CSScriptLib
 

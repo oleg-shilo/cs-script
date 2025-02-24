@@ -29,6 +29,8 @@ namespace csscript
     {
         // static NuGetCore nuget = new();
 
+        internal static string RestoreMarker = "Restoring packages...";
+
         static public string NuGetCacheView => Directory.Exists(NuGetCache) ? NuGetCache : "<not found>";
         static public string NuGetCache => CSExecutor.options.legacyNugetSupport ? NuGetCore.NuGetCache : NuGetNewAlgorithm.NuGetCache;
 
@@ -637,7 +639,7 @@ namespace csscript
                 packages = packages.OrderBy(x => x).ToArray();
 
                 var sw = Stopwatch.StartNew();
-                Console.WriteLine("Restoring packages...");
+                Console.WriteLine(NuGet.RestoreMarker);
                 Console.WriteLine("   " + packages.JoinBy(NewLine + "   "));
 
                 var restore = dotnet_run("restore " + restoreArgs.Trim());
