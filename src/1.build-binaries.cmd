@@ -27,6 +27,11 @@ del "CSScriptLib\src\CSScriptLib\output\*.snupkg"
 del "out\cs-script.win.7z"
 del "out\cs-script.linux.7z"
 
+if defined CSSCRIPT_ROOT (
+    echo Updating NuGet Tool package spec...
+    css .\out\ci\update_static_content.cs
+) 
+
 rem goto:agregate
 
 echo =====================
@@ -101,29 +106,6 @@ rd "out\Windows\console" /S /Q
 rem .\static_content contains Linux and Win specific files
 copy "out\static_content\global-usings.cs" "out\Windows\lib\global-usings.cs" 
 copy "out\static_content\global-usings.cs" "out\Linux\lib\global-usings.cs"
-
-xcopy /s /q /y "out\static_content\-mkshim\*" "out\Windows\-mkshim\" 
-
-xcopy /s /q /y "out\static_content\-web\*" "out\Windows\-web\" 
-xcopy /s /q /y "out\static_content\-web\*" "out\Linux\-web\" 
-
-xcopy /s /q /y "out\static_content\-set\*" "out\Windows\-set\" 
-xcopy /s /q /y "out\static_content\-set\*" "out\Linux\-set\" 
-
-xcopy /s /q /y "out\static_content\-self\*" "out\Windows\-self\" 
-xcopy /s /q /y "out\static_content\-self\*" "out\Linux\-self\" 
-
-xcopy /s /q /y "out\static_content\-wdbg\*" "out\Windows\-wdbg\" 
-xcopy /s /q /y "out\static_content\-wdbg\*" "out\Linux\-wdbg\" 
-
-xcopy /s /q /y "out\static_content\-unlock\*" "out\Windows\-unlock\" 
-xcopy /s /q /y "out\static_content\-unlock\*" "out\Linux\-unlock\" 
-
-xcopy /s /q /y "out\static_content\-edit\*" "out\Windows\-edit\" 
-xcopy /s /q /y "out\static_content\-edit\*" "out\Linux\-edit\" 
-
-xcopy /s /q /y "out\static_content\-pkill\*" "out\Windows\-pkill\" 
-xcopy /s /q /y "out\static_content\-pkill\*" "out\Linux\-pkill\" 
 
 rem goto:exit
 echo =====================
