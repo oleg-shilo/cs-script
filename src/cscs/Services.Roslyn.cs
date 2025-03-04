@@ -125,10 +125,14 @@ namespace CSScripting.CodeDom
 
             File.WriteAllLines(single_source, combinedScript.ToArray());
 
+            // See CSharpCompiler.CreateProject for facade asm exclusion reasoning
+            bool not_facade_asm_in_engine_dir(string asm)
+                => !(asm.GetDirName() == engine_dir && asm.IsPossibleFacadeAssembly());
+
             // prepare for compiling
             var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
                                                              .Where(Path.IsPathRooted)
-                                                             .Where(asm => asm.GetDirName() != engine_dir)
+                                                             .Where(not_facade_asm_in_engine_dir)
                                                              .ToList();
 
             if (CSExecutor.options.enableDbgPrint)

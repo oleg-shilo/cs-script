@@ -51,7 +51,8 @@ namespace csscript
             return process;
         }
 
-        internal static int Run(this string exe, string args, string dir = null, Action<string> onOutput = null, Action<string> onError = null, int timeout = -1, string buildArtifact = null)
+        internal static int Run(this string exe, string args, string dir = null, Action<string> onOutput = null,
+            Action<string> onError = null, int timeout = -1, bool terminateOnTimeout = true, string buildArtifact = null)
         {
             var process = InitProc(exe, args, dir);
 
@@ -103,10 +104,14 @@ namespace csscript
             {
                 if (timeout != -1) // of course it is not -1 if we are here :)
                     onOutput?.Invoke($"Process '{exe}' is taking too long to finish. Terminating it forcefully.");
-                try { process.Kill(); } catch { }
+
+                if (terminateOnTimeout)
+                    try { process.Kill(); } catch { }
+
+                // return typical timeout code for CLI apps
+                return -1;
             }
 
-            // try { error.Abort(); } catch { } try { output.Abort(); } catch { }
             return process.ExitCode;
         }
 
@@ -213,6 +218,10 @@ namespace csscript
         /// <param name="path">The path.</param>
         /// <returns><c>true</c> if [is shared assembly] [the specified path]; otherwise, <c>false</c>.</returns>
         internal static bool IsSharedAssembly(this string path) => path.StartsWith(sdk_root, StringComparison.OrdinalIgnoreCase);
+
+        internal static bool IsPossibleFacadeAssembly(this string path) => SharedAssembliesNames.Contains(path.GetFileName());
+
+        internal static string[] SharedAssembliesNames => Directory.GetFiles(sdk_root, "*.dll").Select(Path.GetFileName).ToArray();
 
         /// <summary>
         /// Converts to bool.

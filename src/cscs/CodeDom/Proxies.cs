@@ -230,17 +230,19 @@ namespace CSScripting.CodeDom
             // In .NET all references including GAC assemblies must be passed to the compiler. In
             // .NET Core this creates a problem as the compiler does not expect any default (shared)
             // assemblies to be passed. So we do need to exclude them.
-            // Note: .NET project that uses 'standard' assemblies brings facade/full .NET Core
+            // Note: .NET project that uses 'netstandard' assemblies brings facade/full .NET Core
             // assemblies in the working folder (engine dir)
             //
             // Though we still need to keep shared assembly resolving in the host as the future
-            // compiler require ALL ref assemblies to be pushed to the compiler.
+            // compiler may require ALL ref assemblies to be pushed to the compiler.
 
-            bool not_in_engine_dir(string asm) => (asm.GetDirName() != Assembly.GetExecutingAssembly().Location.GetDirName());
+            bool not_facade_asm_in_engine_dir(string asm)
+                => !(asm.GetDirName() == Assembly.GetExecutingAssembly().Location.GetDirName() &&
+                     asm.IsPossibleFacadeAssembly());
 
             var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
                                                              .Where(Path.IsPathRooted)
-                                                             .Where(not_in_engine_dir)
+                                                             .Where(not_facade_asm_in_engine_dir)
                                                              .ToList();
 
             void setTargetFremeworkWin(string framework) => project_element.Element("PropertyGroup")
