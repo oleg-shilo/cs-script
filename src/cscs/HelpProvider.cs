@@ -14,10 +14,12 @@ using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis.Scripting;
 using CSScripting;
+using static CSScripting.CSSUtils;
 
 namespace csscript
 {
@@ -1347,7 +1349,6 @@ namespace csscript
                         AppendLine("");
 
                         // to filter out `v1.0.0 (C:\Users\user\.dotnet\tools\.store\cs-script.cli\4.9.2\cs-script.cli...`
-                        Regex version = "v*.*.* (*".WildCardToRegExp();
 
                         foreach (var item in customCommands.GroupBy(x => x.Name))
                         {
@@ -1366,13 +1367,19 @@ namespace csscript
 
                                 var description = cachedDescription;
 
+                                var delayedDescription = true;
+
                                 if (!description.HasText() || version.IsMatch(description) || File.GetLastWriteTimeUtc(versionFile) != File.GetLastWriteTimeUtc(commandFile))
                                 {
-                                    var result = "css".Run(item.Key + " ?", onOutput: x => description = x.GetLines().FirstOrDefault(x => !version.IsMatch(x)), timeout: 10000);
+                                    (var result, description) = GenerateCommadDescription(item.Key);
 
                                     if (description.Trim() != NuGet.RestoreMarker)
                                     {
-                                        if (result == 0 && description.HasText())
+                                        if (result == -1) //timeout
+                                        {
+                                            description = "< generating the command description has been triggered; it will be available on the next run >";
+                                        }
+                                        else if (result == 0 && description.HasText())
                                         {
                                             File.WriteAllText(versionFile, description);
                                             File.SetLastWriteTimeUtc(versionFile, File.GetLastWriteTimeUtc(commandFile));
@@ -1397,6 +1404,43 @@ namespace csscript
                 default:
                     return "<unknown command>";
             }
+        }
+
+        static Regex version = "v*.*.* (*".WildCardToRegExp();
+
+        static (int, string) GenerateCommadDescription(string command)
+        {
+            var output = "";
+            var result = -1;
+
+            bool sucecs = Task.Run(() =>
+            {
+                var process = new Process();
+                try
+                {
+                    process.StartInfo.FileName = "dotnet";
+                    process.StartInfo.Arguments = $"\"{Assembly.GetExecutingAssembly().Location}\" {command} ?";
+                    process.StartInfo.WorkingDirectory = SpecialFolder.UserProfile.GetPath();
+
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.ErrorDialog = false;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.Start();
+
+                    output = process.StandardOutput.ReadToEnd();
+                    output = output?.GetLines().FirstOrDefault(x => !version.IsMatch(x));
+
+                    result = process.ExitCode;
+                }
+                finally
+                {
+                    process.Kill();
+                }
+            }).Wait(5000);
+
+            return (result, output);
         }
 
         public static string BuildCommandInterfaceHelp(string arg)

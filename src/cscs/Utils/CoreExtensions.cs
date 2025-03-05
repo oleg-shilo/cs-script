@@ -69,7 +69,8 @@ namespace csscript
             var output = process.StandardOutput.ReadToEnd();
             onOutput?.Invoke(output);
 
-            process.Start(); // important to call even if it is already started, otherwise WLS2 fails to catch the output
+            // disabling it as it actually starts another instance of the process. It was a clumsy work around at a stage
+            // process.Start(); // important to call even if it is already started, otherwise WLS2 fails to catch the output
 
             if (buildArtifact.HasText())
             {

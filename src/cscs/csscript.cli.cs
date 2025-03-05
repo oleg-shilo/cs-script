@@ -167,9 +167,12 @@ namespace csscript
                         print?.Invoke($"Created: {Path.GetRelativePath(Environment.CurrentDirectory, file)}");
                         File.WriteAllText(file, sample.Code);
 
-                        var fileDir = file.GetDirName();
-                        if (Directory.GetFiles(fileDir, "*.version").IsEmpty())
-                            File.WriteAllText(Path.Combine(fileDir, "1.0.0.version"), "");
+                        if (appType == "cmd")
+                        {
+                            var fileDir = file.GetDirName();
+                            if (Directory.GetFiles(fileDir, "*.version").IsEmpty())
+                                File.WriteAllText(Path.Combine(fileDir, "1.0.0.version"), "");
+                        }
                     }
                     else
                     {
