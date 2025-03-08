@@ -1,3 +1,5 @@
 cd {$local_root}
 sudo chmod 775 cs-script_{$version}/DEBIAN/p*
 dpkg-deb --build cs-script_{$version}
+
+sudo dotnet ./cs-script_{$version}/usr/local/bin/cs-script/cscs.dll -self-test

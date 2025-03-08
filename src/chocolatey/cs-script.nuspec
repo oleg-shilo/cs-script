@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.9.3.1</version>
+    <version>4.9.4.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -30,7 +30,8 @@
 
 ### CLI
 
-- Fixed `css -update` problem when trying to update itself locked by the current process
+- #406: Custom DLL (CommandGathering.dll) Fails Compile-Time Namespace Resolution with //css_ref
+- Improved `css -cmd` UX when generating custom commands descriptions.
 
 ### CSScriptLib
 

@@ -4,13 +4,11 @@ using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Diagnostics.Tracing.Parsers.Clr;
 using csscript;
 using CSScripting;
 using CSScriptLib;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace CLI
 {
@@ -97,8 +95,6 @@ namespace CLI
         [Fact(Skip = "just a testbed")]
         public void should_discover_nuget_package_native_dlls()
         {
-            var dir = @"C:\Users\%user%\AppData\Local\Temp\csscript.core\nuget\16b5531e-8d0d-43fc-aaed-af5eac79ca04\publish".Expand();
-            var result = csscript.NuGetNewAlgorithm.GetPackageNativeDllsFolders(dir);
         }
 
         [Fact]
@@ -295,6 +291,7 @@ global using global::System.Threading.Tasks;");
         }
 
         [Fact]
+        [FactWinOnly]
         public void compile_netfx_script_dotnet()
         {
             if (IsRunningUnderCI)
@@ -322,6 +319,7 @@ global using global::System.Threading.Tasks;");
         }
 
         [Fact]
+        [FactWinOnly]
         public void compile_netfx_script_csc()
         {
             if (IsRunningUnderCI)
@@ -374,6 +372,7 @@ global using global::System.Threading.Tasks;");
         }
 
         [Fact]
+        [FactWinOnly]
         public void compile_x86_script_csc()
         {
             if (IsRunningUnderCI)

@@ -14,8 +14,8 @@ var thisScript = GetEnvironmentVariable("EntryScript");
 var help =
 @$"Custom command for updating the installed CS-Script.
 v{thisScript.GetCommandScriptVersion()} ({thisScript})
-  css -self-update [args]
-  (e.g. `css -self-update test.txt`)";
+  css -self-update
+  (e.g. `css -self-update`)";
 
 if ("?,-?,-help,--help".Split(',').Contains(args.FirstOrDefault()))
 {

@@ -1350,54 +1350,62 @@ namespace csscript
 
                         // to filter out `v1.0.0 (C:\Users\user\.dotnet\tools\.store\cs-script.cli\4.9.2\cs-script.cli...`
 
-                        foreach (var item in customCommands.GroupBy(x => x.Name))
+                        try
                         {
-                            if (context.Contains("x"))
+                            foreach (var item in customCommands.GroupBy(x => x.Name))
                             {
-                                AppendLine($"{item.Key}");
-                                foreach (var command in item)
-                                    AppendLine($"  v{command.Version}: {command.Path}");
-                            }
-                            else
-                            {
-                                var commandFile = item.OrderByDescending(x => x.Version).First().Path;
-                                var commandDir = commandFile.GetDirName();
-                                var versionFile = Directory.GetFiles(commandDir, "*.version").FirstOrDefault() ?? commandDir.PathJoin("1.0.0.version");
-                                var cachedDescription = versionFile.FileExists() ? File.ReadAllText(versionFile) : null;
-
-                                var description = cachedDescription;
-
-                                var delayedDescription = true;
-
-                                if (!description.HasText() || version.IsMatch(description) || File.GetLastWriteTimeUtc(versionFile) != File.GetLastWriteTimeUtc(commandFile))
+                                if (context.Contains("x"))
                                 {
-                                    (var result, description) = GenerateCommadDescription(item.Key);
+                                    AppendLine($"{item.Key}");
+                                    foreach (var command in item)
+                                        AppendLine($"  v{command.Version}: {command.Path}");
+                                }
+                                else
+                                {
+                                    var commandFile = item.OrderByDescending(x => x.Version).First().Path;
+                                    var commandDir = commandFile.GetDirName();
+                                    var versionFile = Directory.GetFiles(commandDir, "*.version").FirstOrDefault() ?? commandDir.PathJoin("1.0.0.version");
+                                    var cachedDescription = versionFile.FileExists() ? File.ReadAllText(versionFile) : null;
 
-                                    if (description.Trim() != NuGet.RestoreMarker)
+                                    var description = cachedDescription;
+
+                                    var delayedDescription = true;
+
+                                    if (!description.HasText() || version.IsMatch(description) || File.GetLastWriteTimeUtc(versionFile) != File.GetLastWriteTimeUtc(commandFile))
                                     {
-                                        if (result == -1) //timeout
+                                        (var result, description) = GenerateCommadDescription(item.Key);
+
+                                        if (description.Trim() != NuGet.RestoreMarker)
                                         {
-                                            description = "< generating the command description has been triggered; it will be available on the next run >";
+                                            if (result == -1) //timeout
+                                            {
+                                                description = "< generating the command description has been triggered; it will be available on the next run >";
+                                            }
+                                            else if (result == 0 && description.HasText())
+                                            {
+                                                File.WriteAllText(versionFile, description);
+                                                File.SetLastWriteTimeUtc(versionFile, File.GetLastWriteTimeUtc(commandFile));
+                                            }
+                                            else
+                                                description = "No description available";
                                         }
-                                        else if (result == 0 && description.HasText())
-                                        {
-                                            File.WriteAllText(versionFile, description);
-                                            File.SetLastWriteTimeUtc(versionFile, File.GetLastWriteTimeUtc(commandFile));
-                                        }
-                                        else
-                                            description = "No description available";
                                     }
-                                }
 
-                                if (description.Trim() == NuGet.RestoreMarker)
-                                {
-                                    description = "< the description will be available on the next run >";
-                                    File.WriteAllText(versionFile, "");
-                                }
+                                    if (description.Trim() == NuGet.RestoreMarker)
+                                    {
+                                        description = "< the description will be available on the next run >";
+                                        File.WriteAllText(versionFile, "");
+                                    }
 
-                                AppendLine($"  {item.Key,-15} {description}");
+                                    AppendLine($"  {item.Key,-15} {description}");
+                                }
                             }
                         }
+                        catch (Exception e)
+                        {
+                            AppendLine($"Error: {e.Message}");
+                        }
+
                         return builder.ToString();
                     }
 
@@ -1432,7 +1440,12 @@ namespace csscript
                     output = process.StandardOutput.ReadToEnd();
                     output = output?.GetLines().FirstOrDefault(x => !version.IsMatch(x));
 
+                    process.WaitForExit();
                     result = process.ExitCode;
+                }
+                catch (Exception e)
+                {
+                    output = e.Message;
                 }
                 finally
                 {
