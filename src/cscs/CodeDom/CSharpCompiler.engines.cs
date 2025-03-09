@@ -223,7 +223,6 @@ namespace CSScripting.CodeDom
                                                              .ToList();
 
             if (CSExecutor.options.enableDbgPrint && !CSExecutor.options.isNetFx)
-
                 ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
 
             var refs = new StringBuilder();
@@ -261,10 +260,10 @@ namespace CSScripting.CodeDom
             var refs_args = new List<string>();
             var source_args = new List<string>();
             var common_args = new List<string>
-    {
-        "/utf8output",
-        "/nostdlib+"
-    };
+            {
+                "/utf8output",
+                "/nostdlib+"
+            };
 
             if (options.GenerateExecutable)
                 common_args.Add("/t:exe");
