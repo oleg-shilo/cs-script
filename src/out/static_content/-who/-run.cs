@@ -1,13 +1,17 @@
 ﻿//css_args /nl
+//css_ng csc
+//css_include global-usings
 using System;
 using System.Runtime.InteropServices;
 using System.Security;
+using CSScripting;
+using static System.Environment;
 
 var thisScript = GetEnvironmentVariable("EntryScript");
 
 var help =
 @$"Custom command for printing information about current login session.
-Can be used even from services.
+Can be used either form the user session applications or from services.
 v{thisScript.GetCommandScriptVersion()} ({thisScript})
 Usage:
   css -who";

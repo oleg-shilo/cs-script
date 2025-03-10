@@ -1,4 +1,3 @@
-//-css_args test
 //css_ng csc
 //css_include global-usings
 using System;
@@ -27,10 +26,17 @@ if (args.IsEmpty() || "?,-?,-help,--help".Split(',').Contains(args.FirstOrDefaul
 // -----------------------------------------------
 
 string pattern = args.FirstOrDefault();
+Process[] matches;
+int pId = 0;
 
-var matches = Process.GetProcesses()
-  .Where(x => x.ProcessName.Contains(pattern))
-  .ToArray();
+if (int.TryParse(pattern, out pId))
+    matches = Process.GetProcesses()
+        .Where(x => x.Id == pId)
+        .ToArray();
+else
+    matches = Process.GetProcesses()
+       .Where(x => x.ProcessName.Contains(pattern))
+       .ToArray();
 
 if (!matches.Any())
 {

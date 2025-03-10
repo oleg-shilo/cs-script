@@ -11,7 +11,7 @@ class FactWinOnlyAttribute : Attribute
 
 static class Extensions
 {
-    public static string Run(this string exe, string args = null, string dir = null)
+    public static (string output, int exitCode) Run(this string exe, string args = null, string dir = null)
     {
         var process = new Process();
 
@@ -29,6 +29,6 @@ static class Extensions
         output += process.StandardError.ReadToEnd();
         process.WaitForExit();
 
-        return output;
+        return (output, process.ExitCode);
     }
 }

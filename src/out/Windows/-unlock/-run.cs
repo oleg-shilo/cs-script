@@ -14,13 +14,13 @@ v{thisScript.GetCommandScriptVersion()} ({thisScript})
 
   css -unlock <path>";
 
-if (args.ContainsAny("-?", "?", "-help", "--help"))
+if (!args.Any() || args.ContainsAny("-?", "?", "-help", "--help"))
 {
     print(help);
     return;
 }
 
-string path = args.FirstOrDefault() ?? CurrentDirectory;
+string path = args.FirstOrDefault().Locate();
 
 if (Directory.Exists(path))
 {
@@ -77,4 +77,20 @@ else
 static class Extensions
 {
     public static bool ContainsAny(this string[] items1, params string[] items2) => items1.Intersect(items2).Any();
+
+    public static string Locate(this string path)
+    {
+        string fullPath;
+        var dirs = Environment.GetEnvironmentVariable("Path").Split(';').ToList();
+        dirs.Insert(0, Environment.CurrentDirectory);
+
+        foreach (string dir in dirs)
+        {
+            if (File.Exists(fullPath = Path.Combine(dir, path)))
+                return fullPath;
+            if (Directory.Exists(fullPath = Path.Combine(dir, path)))
+                return fullPath;
+        }
+        return null;
+    }
 }

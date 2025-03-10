@@ -4,6 +4,10 @@ using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using csscript;
 using CSScripting;
 using CSScriptLib;
@@ -49,7 +53,7 @@ namespace CLI
             var cmd_dir = cscs_exe.ChangeFileName("-self");
 
             if (cmd_dir.DirExists())
-                static_content = cmd_dir;
+                static_content = cmd_dir.GetFileName();
             else
                 static_content = $@"..\..\..\..\..\out\static_content".GetFullPath();
 
@@ -61,7 +65,15 @@ namespace CLI
         public string cscs_exe;
         public string static_content;
 
-        string cscs_run(string args, string dir = null) => "dotnet".Run($"\"{cscs_exe}\" {args}", dir).Trim();
+        string cscs_run(string args, string dir = null)
+        {
+            var output = "dotnet".Run($"\"{cscs_exe}\" {args}", dir).output.Trim();
+            if (args.TrimStart().StartsWith("-new"))
+                Task.Delay(700).Wait(); // give it a chance to complete and get accessible (e.g. AV release the lock)
+            return output;
+        }
+
+        (string, int) cscs_runx(string args, string dir = null) => "dotnet".Run($"\"{cscs_exe}\" {args}", dir);
 
         [Fact]
         public void create_and_execute_default_script()
@@ -69,6 +81,7 @@ namespace CLI
             var script_file = nameof(create_and_execute_default_script) + ".cs";
 
             var output = cscs_run($"-new {script_file}");
+
             Assert.True(File.Exists(script_file));
 
             Assert.True(File.Exists(script_file));
@@ -103,6 +116,7 @@ namespace CLI
             var script_file = nameof(switch_engine_from_code_with_full_directive) + ".cs";
 
             var output = cscs_run($"-new {script_file}");
+
             var script_code = File.ReadAllText(script_file);
 
             // full directive //css_engine
@@ -243,6 +257,28 @@ global using global::System.Threading.Tasks;");
 
             output = cscs_run($"-ng:roslyn \"{script}\"");
             Assert.Equal("Hello, World!", output);
+        }
+
+        [Fact]
+        public void distro_commands()
+        {
+            var is_win = (Environment.OSVersion.Platform == PlatformID.Win32NT);
+
+            var commands = Directory.GetFiles(static_content, "-run.cs", SearchOption.AllDirectories);
+            foreach (var file in commands)
+            {
+                var cmd = file.GetDirName().GetFileName();
+
+                var probing_dir = $"-dir:{static_content}";
+                var extra_arg = cmd.IsOneOf("-web", "-update") ? "-?" : "";
+
+                (var output, var exitCode) = cscs_runx($"{file} {extra_arg}");
+
+                var context = $"{file}\n{output.TakeMax(100)}";
+
+                Assert.True(0 == exitCode, $"Failed to build/execute: \n{context}");
+                Assert.False(output.Contains("Index was"), $"Failed to start: \n{context}");
+            }
         }
 
         [Fact]
@@ -399,13 +435,13 @@ global using global::System.Threading.Tasks;");
         [Fact]
         public void compiler_output()
         {
-            // Debugger.Break();
+            // Debugger.Launch();
             var script_file = nameof(compiler_output);
             var output = cscs_run($"-new {script_file}");
 
-            output = cscs_run($"-check -ng:csc {script_file}");
-            // throw new Exception($"{output}\n{script_file}\n{Environment.CurrentDirectory}");
-            Assert.Equal("Compile: OK", output);
+            var output1 = cscs_run($"-check -ng:csc {script_file}");
+
+            Assert.Equal("Compile: OK", output1);
         }
 
         [Fact]
@@ -443,6 +479,7 @@ global using global::System.Threading.Tasks;");
                 var script_file = nameof(new_wpf_with_cscs) + ".cs";
 
                 var output = cscs_run($"-new:wpf {script_file}");
+                Task.Delay(500).Wait();
 
                 // --------------
 

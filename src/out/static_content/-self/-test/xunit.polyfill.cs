@@ -60,16 +60,16 @@ namespace Xunit
 
     class Assert
     {
-        static public void False(bool actualValue)
+        static public void False(bool actualValue, string context = null)
         {
             if (actualValue != false)
-                throw new TestFailureException($"Failed: the actual value is 'false'{NewLine}");
+                throw new TestFailureException($"Failed: the actual value is 'false'{NewLine}\n{context}".TrimEnd());
         }
 
-        static public void True(bool actualValue)
+        static public void True(bool actualValue, string context = null)
         {
             if (actualValue != true)
-                throw new TestFailureException($"Failed: the actual value is 'true'{NewLine}");
+                throw new TestFailureException($"Failed: the actual value is 'true'{NewLine}\n{context}".TrimEnd());
         }
 
         static public void Contains<T>(IEnumerable<T> collection, T item)
@@ -103,13 +103,13 @@ namespace Xunit
                                                $"\t'{actual}'");
         }
 
-        static public void Equal(string expected, string actual)
+        static public void Equal(string expected, string actual, string context = null)
         {
             if (actual != expected)
                 throw new TestFailureException($"Failed: the expected value {NewLine}" +
                                                $"\t'{expected}'{NewLine}" +
                                                $"is different to actual value{NewLine}" +
-                                               $"\t'{actual}'");
+                                               $"\t'{actual}'\n{context}".TrimEnd());
         }
     }
 
@@ -140,7 +140,7 @@ namespace Xunit
         public static bool IsWin(this OperatingSystem sys)
             => !(Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX);
 
-        public static string Run(this string exe, string args = null, string dir = null)
+        public static (string output, int exitCode) Run(this string exe, string args = null, string dir = null)
         {
             var process = new Process();
 
@@ -161,7 +161,7 @@ namespace Xunit
             var output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
 
-            return output;
+            return (output, process.ExitCode);
         }
     }
 }

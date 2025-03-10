@@ -1369,8 +1369,6 @@ namespace csscript
 
                                     var description = cachedDescription;
 
-                                    var delayedDescription = true;
-
                                     if (!description.HasText() || version.IsMatch(description) || File.GetLastWriteTimeUtc(versionFile) != File.GetLastWriteTimeUtc(commandFile))
                                     {
                                         (var result, description) = GenerateCommadDescription(item.Key);

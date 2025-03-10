@@ -14,7 +14,7 @@ v{thisScript.GetCommandScriptVersion()} ({thisScript})
   cscs -edit [args]
   (e.g. `cscs -edit script.cs`)";
 
-if ("?,-?,-help,--help".Split(',').Contains(args.FirstOrDefault()))
+if (!args.Any() || "?,-?,-help,--help".Split(',').Contains(args.FirstOrDefault()))
 {
     WriteLine(help);
     return;

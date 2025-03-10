@@ -1,9 +1,15 @@
-﻿//css_ng csc
+﻿//css_args -nl
+//css_ng csc
 //css_include global-usings
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Security;
+using System;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 using CSScripting;
+using static dbg;
+using static System.Console;
+using static System.Environment;
 
 var thisScript = GetEnvironmentVariable("EntryScript");
 
@@ -16,15 +22,9 @@ Usage:
   css -runas -user:<user> [-pwd:<password>] [-netonly] <command>
 
   user     - Should be in form USER@DOMAIN or DOMAIN\USER
-  pwd      - Password for the user. If this argument is omitted the password will be requested interactively.
+  pwd      - Password for the user. If this argument is omitted (recommended) the will be prompted for the password.
   netonly  - Use if the credentials specified are for remote access only.
   command  - Command to be executed";
-
-if (OperatingSystem.IsWindows())
-{
-    Console.WriteLine("The command is designed for Windows only.");
-    return;
-}
 
 if (args.ContainsAny("-?", "?", "-help", "--help") || args.Length < 2)
 {
@@ -39,7 +39,7 @@ string command = null;
 
 foreach (var arg in args)
 {
-    if (arg.StartsWith("-user:", true)) username = Environment.ExpandEnvironmentVariables(arg.Substring(6);
+    if (arg.StartsWith("-user:", true)) username = Environment.ExpandEnvironmentVariables(arg.Substring(6));
     else if (arg.StartsWith("-pwd:", true)) pwd = Environment.ExpandEnvironmentVariables(arg.Substring(5));
     else if (arg.SameAs("-netonly", true)) netOnly = true;
     else command = arg;

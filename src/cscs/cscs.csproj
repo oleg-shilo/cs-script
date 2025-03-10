@@ -26,6 +26,11 @@
 
 - #406: Custom DLL (CommandGathering.dll) Fails Compile-Time Namespace Resolution with //css_ref
 - Improved `css -cmd` UX when generating custom commands descriptions.
+- Updated custom commands `-pkill` to allow killing the process by PID.
+- Added custom commands:
+  - `-runas`
+  - `-which`
+  - `-who`
 
 ### CSScriptLib
 
@@ -130,6 +135,10 @@
     <Content Include="..\out\static_content\$-wdbg\**\*" Link="ToolPackage/-wdbg" Pack="true" PackagePath="tools/net9.0/any/-wdbg" />
     <Content Include="..\out\static_content\$-web\**\*" Link="ToolPackage/-web" Pack="true" PackagePath="tools/net9.0/any/-web" />
     <Content Include="..\out\static_content\$-web\**\*" Link="ToolPackage/-web" Pack="true" PackagePath="tools/net8.0/any/-web" />
+    <Content Include="..\out\static_content\$-which\**\*" Link="ToolPackage/-which" Pack="true" PackagePath="tools/net9.0/any/-which" />
+    <Content Include="..\out\static_content\$-which\**\*" Link="ToolPackage/-which" Pack="true" PackagePath="tools/net8.0/any/-which" />
+    <Content Include="..\out\static_content\$-who\**\*" Link="ToolPackage/-who" Pack="true" PackagePath="tools/net9.0/any/-who" />
+    <Content Include="..\out\static_content\$-who\**\*" Link="ToolPackage/-who" Pack="true" PackagePath="tools/net8.0/any/-who" />
     <!-- end: nuget tool package custom commands (keep this line here, it is a marker for automation)  -->
     <Content Include="..\css\bin\net9.0-windows\csws.runtimeconfig.json" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.runtimeconfig.json" />
     <Content Include="..\css\bin\net9.0-windows\csws.dll" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.dll" />

@@ -69,6 +69,9 @@ public static class CLIExtensions
     public static bool StartsWith(this string text, string pattern, bool ignoreCase) =>
         text.StartsWith(pattern, ignoreCase ? StringComparison.OrdinalIgnoreCase : default(StringComparison));
 
+    public static string TakeMax(this string text, int maxCharacters) =>
+        text.Substring(0, Math.Min(100, text.Length));
+
     public static string GetTargetPlatform(this CompilerParameters compilerParams)
     {
         var platform = compilerParams.CompilerOptions?

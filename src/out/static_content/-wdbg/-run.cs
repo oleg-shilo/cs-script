@@ -25,7 +25,7 @@ static class Scipt
                Directory.GetFiles(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "*.version")
                         .FirstOrDefault() ?? "0.0.0.0.version");
 
-        if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
+        if (!args.Any() || args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
         {
             Console.WriteLine($@"v{GetVersion()} ({Environment.GetEnvironmentVariable("EntryScript")})");
             Console.WriteLine("Start web-based debugger (wdbg) for the specified script.");
