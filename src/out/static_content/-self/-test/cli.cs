@@ -66,7 +66,7 @@ namespace CLI
         public string cscs_exe;
         public string static_content;
 
-        string cscs_run(string args, string dir = null) => "dotnet".Run($"\"{cscs_exe}\" {args}", dir).Trim();
+        string cscs_run(string args, string dir = null) => "dotnet".Run($"\"{cscs_exe}\" {args}", dir).output.Trim();
 
         [Fact]
         public void create_and_execute_default_script()

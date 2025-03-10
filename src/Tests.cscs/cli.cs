@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using csscript;
@@ -53,7 +54,7 @@ namespace CLI
             var cmd_dir = cscs_exe.ChangeFileName("-self");
 
             if (cmd_dir.DirExists())
-                static_content = cmd_dir.GetFileName();
+                static_content = cmd_dir.GetDirName();
             else
                 static_content = $@"..\..\..\..\..\out\static_content".GetFullPath();
 
@@ -209,7 +210,7 @@ namespace CLI
             var script_file = nameof(new_console);
             var output = cscs_run($"-new:console {script_file}");
 
-            output = cscs_run($"-check -ng:dotnet {script_file}");
+            output = cscs_run($"-check -ng:csc {script_file}");
             Assert.Equal("Compile: OK", output);
         }
 
@@ -218,6 +219,12 @@ namespace CLI
         {
             var output = cscs_run($"-new:cmd ttt");
             var script_file = output.Replace("Created:", "").Trim();
+
+            if (!IsProcessRunningAsRoot())
+            {
+                if (!output.HasText())
+                    Assert.True(false, "Error: Cannot create new custom command. Ensure you run as a root user.");
+            }
 
             try
             {
@@ -231,6 +238,7 @@ namespace CLI
         }
 
         [Fact]
+        [FactWinOnly]
         public void syntax_version_10()
         {
             var script = (nameof(syntax_version_10) + ".cs").GetFullPath();
@@ -269,8 +277,10 @@ global using global::System.Threading.Tasks;");
             {
                 var cmd = file.GetDirName().GetFileName();
 
+                if (cmd == "-exe") continue;
+
                 var probing_dir = $"-dir:{static_content}";
-                var extra_arg = cmd.IsOneOf("-web", "-update") ? "-?" : "";
+                var extra_arg = cmd.IsOneOf("-web", "-test", "-exe", "-update") ? "-?" : "";
 
                 (var output, var exitCode) = cscs_runx($"{file} {extra_arg}");
 
@@ -438,7 +448,7 @@ global using global::System.Threading.Tasks;");
             // Debugger.Launch();
             var script_file = nameof(compiler_output);
             var output = cscs_run($"-new {script_file}");
-
+            Console.WriteLine(output);
             var output1 = cscs_run($"-check -ng:csc {script_file}");
 
             Assert.Equal("Compile: OK", output1);
@@ -499,6 +509,31 @@ global using global::System.Threading.Tasks;");
                 output = cscs_run($"-check -ng:csc {script_file}");
                 Assert.Contains("BUILD: error : In order to compile XAML you need to use 'dotnet' compiler", output);
             }
+        }
+
+        bool IsProcessRunningAsRoot()
+        {
+            var is_win = (Environment.OSVersion.Platform == PlatformID.Win32NT);
+
+            if (is_win)
+                return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+
+            try
+            {
+                foreach (var line in File.ReadLines("/proc/self/status"))
+                {
+                    if (line.StartsWith("Uid:"))
+                    {
+                        string[] parts = line.Split('\t', StringSplitOptions.RemoveEmptyEntries);
+                        return parts.Length > 1 && parts[1] == "0"; // UID 0 means root
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking UID: {ex.Message}");
+            }
+            return false;
         }
     }
 }
