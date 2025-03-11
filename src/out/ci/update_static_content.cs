@@ -39,7 +39,7 @@ foreach (var dir in comamnds)
 
     // -------------------
 
-    var nuspecTemplate = $"    <Content Include=\"..\\out\\static_content\\${name}\\**\\*\" Link=\"ToolPackage/{name}\" Pack=\"true\" PackagePath=\"tools/$[runtime]/any/{name}\" />";
+    var nuspecTemplate = $"    <Content Include=\"..\\out\\static_content\\{name}\\**\\*\" Link=\"ToolPackage/{name}\" Pack=\"true\" PackagePath=\"tools/$[runtime]/any/{name}\" />";
 
     nuspecInjection.Add(nuspecTemplate.Replace("$[runtime]", "net9.0"));
 

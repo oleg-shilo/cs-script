@@ -12,6 +12,7 @@ using CSScriptLib;
 using Xunit;
 
 using Xunit.Abstractions;
+using System.Runtime.InteropServices;
 
 // using Xunit.Sdk;
 
@@ -387,6 +388,8 @@ global using global::System.Threading.Tasks;");
         [Fact]
         public void compiler_output()
         {
+            // Debugger.Launch();
+
             var script_file = nameof(compiler_output);
             var output = cscs_run($"-new {script_file}");
 

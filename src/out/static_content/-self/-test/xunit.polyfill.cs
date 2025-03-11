@@ -60,6 +60,11 @@ namespace Xunit
 
     class Assert
     {
+        static public void Fail(string context = null)
+        {
+            throw new TestFailureException($"Failed: ... {NewLine}\n{context}".TrimEnd());
+        }
+
         static public void False(bool actualValue, string context = null)
         {
             if (actualValue != false)

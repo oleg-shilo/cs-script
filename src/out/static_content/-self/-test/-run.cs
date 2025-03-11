@@ -17,7 +17,7 @@ using Xunit.Abstractions;
 
 class Script
 {
-    static public void Main(string[] args)
+    static public int Main(string[] args)
     {
         if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
         {
@@ -27,7 +27,7 @@ class Script
 
             Console.WriteLine($@"v{version} ({GetEnvironmentVariable("EntryScript")})");
             Console.WriteLine("Execute self-testing (unit-tests) of the script engine.");
-            return;
+            return 0;
         }
 
         Environment.SetEnvironmentVariable("css_test_asm", Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", "..", @"cscs.dll")));
@@ -101,6 +101,8 @@ class Script
         print("--------------------------------");
         print($"Passed tests: {passed}");
         print($"Failed tests: {failed}");
+
+        return failed;
     }
 
     static object[] no_args = new object[0];

@@ -19,6 +19,7 @@ if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
 
     Console.WriteLine($@"v{version} ({Environment.GetEnvironmentVariable("EntryScript")})");
     Console.WriteLine("Builds `css.exe` hard-link to the script engine CLI executable.");
+    return;
 }
 
 // to ensure we are not picking cscs.dll

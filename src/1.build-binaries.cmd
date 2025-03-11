@@ -32,6 +32,7 @@ if defined CSSCRIPT_ROOT (
     css .\out\ci\update_static_content.cs
 ) 
 
+rem goto:exit
 rem goto:agregate
 
 echo =====================
