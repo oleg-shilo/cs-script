@@ -72,6 +72,14 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
+    - name: Locate `sn.exe`
+      run: |
+          where sn.exe
+          sn -?
+
+    - name: Add `sn.exe` to PATH
+      run: echo "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools" >> $env:GITHUB_PATH
+
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
