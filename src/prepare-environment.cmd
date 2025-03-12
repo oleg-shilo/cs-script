@@ -34,6 +34,7 @@ if "%is_new_snk%"=="yes" (
     echo deleting temporary snk file...
     del %snk-folder%%snk_name%
 )
+
 endlocal
 
 
