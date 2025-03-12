@@ -79,6 +79,10 @@ jobs:
     - name: Restore the application
       run: dotnet restore $env:Solution_Name
     
+    - name: Prepare signing keys
+      run: ./prepare-environment.cmd
+      working-directory: src
+
     - name: Build the solution
       run: ./1.build-release.cmd
       working-directory: src
