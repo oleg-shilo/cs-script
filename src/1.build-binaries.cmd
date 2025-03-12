@@ -61,7 +61,7 @@ rem goto:exit
 echo ----------------
 echo Building cs-script.cli .NET tool from %cd%
 echo ----------------
-del .\nupkg\*.*nupkg 
+if exist .\nupkg (del .\nupkg\*.*nupkg)
 dotnet pack cscs.csproj
 copy .\nupkg\*  ..\out\
 
