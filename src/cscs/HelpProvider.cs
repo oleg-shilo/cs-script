@@ -1375,9 +1375,10 @@ namespace csscript
 
                                         if (description.Trim() != NuGet.RestoreMarker)
                                         {
+                                            var defaultDescription = $"< run `css {item.Key} ?` to generate the description >";
                                             if (result == -1) //timeout
                                             {
-                                                description = "< generating the command description has been triggered; it will be available on the next run >";
+                                                description = defaultDescription;
                                             }
                                             else if (result == 0 && description.HasText())
                                             {
@@ -1385,7 +1386,9 @@ namespace csscript
                                                 File.SetLastWriteTimeUtc(versionFile, File.GetLastWriteTimeUtc(commandFile));
                                             }
                                             else
-                                                description = "No description available";
+                                            {
+                                                description = defaultDescription;
+                                            }
                                         }
                                     }
 

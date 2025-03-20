@@ -26,6 +26,11 @@ namespace CSScripting.CodeDom
 
             get
             {
+                if (!string.IsNullOrEmpty(csc_asm_file) && !File.Exists(csc_asm_file))
+                {
+                    csc_asm_file = null;
+                }
+
                 if (csc_asm_file == null)
                 {
                     // linux ~dotnet/.../3.0.100-preview5-011568/Roslyn/... (cannot find in preview)
