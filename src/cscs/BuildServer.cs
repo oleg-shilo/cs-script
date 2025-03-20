@@ -17,6 +17,8 @@ namespace CSScripting.CodeDom
     {
         static string csc_asm_file;
 
+        static public bool IsCscDetected => csc_asm_file != null;
+
         static public string csc
         {
             set
@@ -376,7 +378,13 @@ namespace CSScripting.CodeDom
                 }
                 catch (Exception e)
                 {
-                    return $"1|Build server error: {e}";
+                    var errorMessage = $"1|Build server error: {e}";
+                    if (e is FileNotFoundException notFoundException && notFoundException.FileName?.EndsWith("csc.dll") == true
+                        && BuildServer.IsCscDetected)
+                    {
+                        errorMessage += Environment.NewLine + "If you updated .NET SDK you may need to restart the build server with `css -serever:restart`";
+                    }
+                    return errorMessage;
                 }
                 finally
                 {
