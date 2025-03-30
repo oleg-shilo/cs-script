@@ -204,7 +204,7 @@ namespace csscript
 
             Utils.ProcessNewEncoding = ProcessNewEncoding;
 
-            if (args.Any(a => CSSUtils.Args.Same(a, AppArgs.ls, AppArgs.list)))
+            if (!args.Any(a => CSSUtils.Args.Same(a, AppArgs.ls, AppArgs.list)))
                 Task.Run(Runtime.LogScriptProcess);
 
             ProcessNewEncoding(null);
