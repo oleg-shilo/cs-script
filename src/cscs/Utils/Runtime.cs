@@ -418,6 +418,8 @@ namespace csscript
 #if !class_lib
         static string rid;
 
+        public static string TFM => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.Replace(" ", "").ToLower().Substring(1).Split('.').Take(2).JoinBy(".");
+
         public static string RID
         {
             get
@@ -448,6 +450,30 @@ namespace csscript
 
                 // Compose RID
                 rid = $"{os}-{architecture}";
+                return rid;
+            }
+        }
+
+        public static string RID_cpu_nutral
+        {
+            get
+            {
+                if (rid.HasText())
+                    return rid;
+
+                // Determine OS Platform
+                string os;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    os = "win";
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    os = "linux";
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    os = "osx";
+                else
+                    os = "unknown";
+
+                // Compose RID
+                rid = $"{os}";
                 return rid;
             }
         }

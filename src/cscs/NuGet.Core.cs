@@ -655,11 +655,31 @@ namespace csscript
                     Console.WriteLine(publish.output);
                     throw new ApplicationException($"Package restoring failed.");
                 }
-                var allRefAssemblies = Directory.GetFiles(Path.Combine(projectDir, "publish"), "*.dll")
-                                           .Concat(
-                                       Directory.GetFiles(Path.Combine(projectDir, "publish"), "*.exe"))
-                                           .Where(x => !x.EndsWith($"{projId}.dll"))
-                                           .OrderBy(x => x);
+
+                string[] locateAssemblies(string dir)
+                {
+                    if (Directory.Exists(dir))
+                        return Directory.GetFiles(dir, "*.dll")
+                                        .Concat(Directory.GetFiles(dir, "*.exe"))
+                                        .Where(x => !x.EndsWith($"{projId}.dll"))
+                                        .OrderBy(x => x)
+                                        .ToArray();
+                    else
+                        return [];
+                }
+
+                var allRefAssemblies = new List<string>();
+
+                allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID_cpu_nutral, "lib", "any")));
+                allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID_cpu_nutral, "lib", Runtime.TFM)));
+                allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID, "lib", "any")));
+                allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID, "lib", Runtime.TFM)));
+                allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish")));
+
+                // filter out the same dlls found in lower compatibility folders or duplicates
+                allRefAssemblies = allRefAssemblies.GroupBy(x => x.GetFileName(), StringComparer.OrdinalIgnoreCase)
+                    .Select(x => x.First())
+                    .ToList();
 
                 bool isSameData(byte[] a, byte[] b)
                 {
@@ -701,6 +721,7 @@ namespace csscript
                     var assembly = matchingAssemblies.FirstOrDefault() ?? $"{packageName} - not found";
                     result.Add(assembly);
                 }
+
                 // Console.WriteLine("    " + sw.Elapsed.ToString());
                 nativeAssetsDirs = GetPackageNativeDllsFolders(Path.Combine(projectDir, "publish"));
             }
