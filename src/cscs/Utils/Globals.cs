@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using csscript;
 using CSScripting.CodeDom;
@@ -140,6 +141,40 @@ namespace CSScripting
             return !File.Exists(build_server);
         }
 
+        static bool IsLegacyRuntime
+        {
+            get
+            {
+                var matchRuntime = true;
+
+                if (matchRuntime)
+                {
+                    return Environment.Version.Major < 9;
+                }
+                else // match assembly target framework
+                {
+                    var frameworkMajorVersion = Assembly
+                            .GetEntryAssembly()?
+                            .GetCustomAttributes(typeof(TargetFrameworkAttribute), false)
+                            .OfType<TargetFrameworkAttribute>()
+                            .FirstOrDefault()?
+                            .FrameworkDisplayName?
+                            .Replace(".NET ", "")
+                            .Split('.')
+                            .FirstOrDefault();
+
+                    if (frameworkMajorVersion != null)
+                    {
+                        return int.TryParse(frameworkMajorVersion, out var majorVersion) && majorVersion < 9;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Deploys the build server on the target system.
         /// </summary>
@@ -148,10 +183,18 @@ namespace CSScripting
             try
             {
                 Directory.CreateDirectory(build_server.GetDirName());
-
-                File.WriteAllBytes(build_server, Resources.build);
-                File.WriteAllBytes(build_server.ChangeExtension(".deps.json"), Resources.build_deps);
-                File.WriteAllBytes(build_server.ChangeExtension(".runtimeconfig.json"), Resources.build_runtimeconfig);
+                if (IsLegacyRuntime)
+                {
+                    File.WriteAllBytes(build_server, Resources.build_legacy);
+                    File.WriteAllBytes(build_server.ChangeExtension(".deps.json"), Resources.build_deps_legacy);
+                    File.WriteAllBytes(build_server.ChangeExtension(".runtimeconfig.json"), Resources.build_runtimeconfig_legacy);
+                }
+                else
+                {
+                    File.WriteAllBytes(build_server, Resources.build);
+                    File.WriteAllBytes(build_server.ChangeExtension(".deps.json"), Resources.build_deps);
+                    File.WriteAllBytes(build_server.ChangeExtension(".runtimeconfig.json"), Resources.build_runtimeconfig);
+                }
 
                 Console.WriteLine($"Build server has been deployed to '{build_server.GetDirName()}'");
             }
@@ -188,10 +231,18 @@ namespace CSScripting
                 try
                 {
                     Directory.CreateDirectory(build_server.GetDirName());
-
-                    File.WriteAllBytes(build_server, Resources.build);
-                    File.WriteAllBytes(build_server.ChangeExtension(".deps.json"), Resources.build_deps);
-                    File.WriteAllBytes(build_server.ChangeExtension(".runtimeconfig.json"), Resources.build_runtimeconfig);
+                    if (IsLegacyRuntime)
+                    {
+                        File.WriteAllBytes(build_server, Resources.build_legacy);
+                        File.WriteAllBytes(build_server.ChangeExtension(".deps.json"), Resources.build_deps_legacy);
+                        File.WriteAllBytes(build_server.ChangeExtension(".runtimeconfig.json"), Resources.build_runtimeconfig_legacy);
+                    }
+                    else
+                    {
+                        File.WriteAllBytes(build_server, Resources.build);
+                        File.WriteAllBytes(build_server.ChangeExtension(".deps.json"), Resources.build_deps);
+                        File.WriteAllBytes(build_server.ChangeExtension(".runtimeconfig.json"), Resources.build_runtimeconfig);
+                    }
                 }
                 catch { }
 

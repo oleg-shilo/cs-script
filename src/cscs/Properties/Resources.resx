@@ -119,12 +119,26 @@
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="build" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\BuildServer\out\build.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>..\..\BuildServer\out\net9.0\build.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="build_deps" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\BuildServer\out\build.deps.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>..\..\BuildServer\out\net9.0\build.deps.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="build_runtimeconfig" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\BuildServer\out\build.runtimeconfig.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>..\..\BuildServer\out\net9.0\build.runtimeconfig.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+
+  <data name="build_legacy" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\BuildServer\out\net8.0\build.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="build_deps_legacy" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\BuildServer\out\net8.0\build.deps.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="build_runtimeconfig_legacy" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\BuildServer\out\net8.0\build.runtimeconfig.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+
+
+
+
 </root>

@@ -1,4 +1,4 @@
-# Release v4.9.4.1
+# Release v4.9.5.0
 
 ---
 
@@ -6,15 +6,10 @@
 
 ### CLI
 
-v4.9.4.0 functionality
+- Added support for resolving nuget assemblies to the RID (runtime) specific assemblies
+- Added advising user to restart build server if previously detected csc.dll cannot be found.
+- Fixed problem with running scripts not registering themselves in `%userprofile%\AppData\Local\cs-script\p-list`
 
-- #406: Custom DLL (CommandGathering.dll) Fails Compile-Time Namespace Resolution with //css_ref
-- Improved `css -cmd` UX when generating custom commands descriptions.
-- Updated custom commands `-pkill` to allow killing the process by PID.
-- Added custom commands:
-  - `-runas`
-  - `-which`
-  - `-who`
 
 ### CSScriptLib
 

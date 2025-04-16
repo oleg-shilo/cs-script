@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
 using CSScripting;
@@ -419,6 +421,7 @@ namespace csscript
         static string rid;
 
         public static string TFM => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.Replace(" ", "").ToLower().Substring(1).Split('.').Take(2).JoinBy(".");
+        public static string TFM_Any => "any";
 
         public static string RID
         {
