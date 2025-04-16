@@ -45,7 +45,8 @@ cd BuildServer
 echo ----------------
 echo Building build.dll from %cd%
 echo ----------------
-dotnet publish -c Release 
+dotnet publish -c Release -f %target_prev% BuildServer.csproj 
+dotnet publish -c Release -f %target% BuildServer.csproj 
 
 cd ..\cscs
 echo ----------------

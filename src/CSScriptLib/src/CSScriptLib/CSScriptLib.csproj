@@ -14,7 +14,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.9.4.1</Version>
+    <Version>4.9.5.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
@@ -30,23 +30,18 @@
 
 ### CLI
 
-v4.9.4.0 functionality
+- Added support for resolving nuget assemblies to the RID (runtime) specific assemblies
+- Added advising user to restart build server if previously detected csc.dll cannot be found.
+- Fixed problem with running scripts not registering themselves in `%userprofile%\AppData\Local\cs-script\p-list`
+- #409 CS-Script 4.8.21 requires .NET 9 runtime
 
-- #406: Custom DLL (CommandGathering.dll) Fails Compile-Time Namespace Resolution with //css_ref
-- Improved `css -cmd` UX when generating custom commands descriptions.
-- Updated custom commands `-pkill` to allow killing the process by PID.
-- Added custom commands:
-  - `-runas`
-  - `-which`
-  - `-who`
 
 ### CSScriptLib
-
-- no changes</PackageReleaseNotes>
+- #409 CS-Script 4.8.21 requires .NET 9 runtime</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.9.4.1</AssemblyVersion>
-    <FileVersion>4.9.4.1</FileVersion>
-    <PackageVersion>4.9.4.1</PackageVersion>
+    <AssemblyVersion>4.9.5.0</AssemblyVersion>
+    <FileVersion>4.9.5.0</FileVersion>
+    <PackageVersion>4.9.5.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>
