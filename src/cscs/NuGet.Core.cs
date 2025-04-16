@@ -670,10 +670,14 @@ namespace csscript
 
                 var allRefAssemblies = new List<string>();
 
-                allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID_cpu_nutral, "lib", "any")));
-                allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID_cpu_nutral, "lib", Runtime.TFM)));
-                allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID, "lib", "any")));
-                allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID, "lib", Runtime.TFM)));
+                if ("CSS_FEATURE_DISABLE_NUGET_RUNTIMES_SUPPORT".GetEnvar() == null)
+                {
+                    allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID_cpu_nutral, "lib", Runtime.TFM_Any)));
+                    allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID_cpu_nutral, "lib", Runtime.TFM)));
+                    allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID, "lib", Runtime.TFM_Any)));
+                    allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID, "lib", Runtime.TFM)));
+                }
+
                 allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish")));
 
                 // filter out the same dlls found in lower compatibility folders or duplicates
