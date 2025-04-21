@@ -16,7 +16,6 @@ git push origin master --force
 rem git checkout master
 rem git pull
 
-
 cd ..\cs-script\src
 .\out\Windows\cscs.exe -c:0 -ng:csc .\out\ci\update_winget_scripts
 

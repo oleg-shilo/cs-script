@@ -19,7 +19,7 @@ var releaseDir = Path.Combine(winget_repo, $@"manifests\o\oleg-shilo\cs-script\{
 Console.WriteLine($"Creating new winget manifest files ...");
 
 cmd.xcopy(
-    Path.Combine(winget_repo, @"manifests\o\oleg-shilo\cs-script\4.8.23.0\*"),
+    Path.Combine(winget_repo, @"manifests\o\oleg-shilo\cs-script\4.9.4.0\*"),
     releaseDir);
 
 Console.WriteLine();
