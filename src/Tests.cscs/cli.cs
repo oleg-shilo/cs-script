@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using csscript;
 using CSScripting;
 using CSScriptLib;
@@ -471,6 +472,27 @@ global using global::System.Threading.Tasks;");
                            Console.WriteLine(Environment.Is64BitProcess.ToString());
                        }
                    }");
+
+            // When dotnet.exe generates exe for x86 it will produce
+            // app.exe                 - assembly host file (native x86 PE)
+            // app.dll                 - assembly file (.NET assembly x86)
+            // app.runtimeconfig.json  - assembly config
+
+            // When csc.exe generates exe for x86 it will produce
+            // app.exe - assembly file (.NET assembly x86) taht is also a self executable host (similar to .NET Framework compilation)
+            //
+            // IE
+            //  set REF="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\9.0.0\ref\net9.0"
+            //  dotnet exec "C:\Program Files\dotnet\sdk\9.0.203\Roslyn\bincore\csc.dll" / platform:x86 / t:exe /out:test.exe test.cs ^
+            //     /reference:% REF %\System.Runtime.dll ^
+            //     /reference:% REF %\System.Console.dll
+            //
+            // Though when the exe is executed it produces:
+            // System.IO.FileNotFoundException: Could not load file or assembly 'System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+            // or one of its dependencies. The system cannot find the file specified.
+            // This is because it cannot produce the exe that can discover sys assemblies (like dotnet.exe compiled exe does) but requires all these assemblies to be
+            // present in the local dir.
+            // That's why dotnet engine is a preferred compiler for x86
 
             // Debugger.Launch();
             var output = cscs_runx($"-ng:csc -co:/platform:x86 {script_file.GetFullPath()}");

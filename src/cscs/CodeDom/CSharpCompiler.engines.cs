@@ -290,8 +290,9 @@ namespace CSScripting.CodeDom
                 if (options.GetTargetPlatform() == "x86" && Environment.Is64BitProcess)
                 {
                     throw new CLIException("Executing scripts targeting x86 platform with `csc` compiling engine is not supported due to the " +
-                        "limitations of the MS `csc.exe` compiler. The compiled dos not support generation of the appropriate native application host.\n" +
-                        "You can either change the compilation engine to the dotnet (`-ng:dotnet`) or execute the script under .NET Framework runtime (`-netfx`).");
+                        "limitations of the MS `csc.exe` compiler. The compiler does not support generation of the appropriate native application host (.exe).\n" +
+                        "You can either change the compilation engine to the dotnet (`-ng:dotnet`) or execute the script under .NET Framework runtime (`-netfx`). " +
+                        "Find more details in `compile_x86_script_csc` unit test.");
                 }
 
                 gac_asms = Directory.GetFiles(gac, "System.*.dll").ToList();

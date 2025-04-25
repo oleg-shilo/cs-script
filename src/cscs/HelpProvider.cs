@@ -1003,6 +1003,7 @@ namespace csscript
                          "heterogeneous multi-file scripts like WPF scripts.",
                          " csc    - use `csc.exe`. ",
                          "          ${<==}This compiler shows much better performance. Though it is not suitable for WPF scripts.",
+                         "          ${<==}For `csc-inproc` version of this parameter see `css -ng ?` help documentation.",
                          "This feature is conceptually similar to the VBCSCompiler.exe build server, which is not available in in .NET5/.NET-Core. " +
                          "Even though available on .NET-Fx (Roslyn).",
                          "          ${<==}Using this option can in order of magnitude improve compilation speed. However it's not suitable for " +
@@ -1011,6 +1012,7 @@ namespace csscript
                          "working build server VBCSCompiler.exe.",
                          "roslyn - use `Microsoft.CodeAnalysis.CSharp.Scripting.dll` (Roslyn). ",
                          "         ${<==}This compiler shows good performance and does not require .NET SDK. Though, it is not suitable for WPF scripts. " +
+                         "          ${<==}For `roslyn-inproc` version of this parameter see `css -ng ?` help documentation.",
                          "See [this wiki](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine) for details.",
                          "``` ",
                          " Example: //css_engine csc" + NewLine,
