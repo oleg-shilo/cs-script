@@ -169,9 +169,15 @@ namespace CSScripting
         internal static string DeleteIfExists(this string path, bool recursive = false)
         {
             if (Directory.Exists(path))
+            {
+                Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+                         .ForEach(File.Delete);
                 Directory.Delete(path, recursive);
+            }
             else if (File.Exists(path))
+            {
                 File.Delete(path);
+            }
             return path;
         }
 

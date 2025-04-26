@@ -552,6 +552,9 @@ namespace csscript
                         options.autoClass = true;
                     }
 
+                    if (parser.CompilerOptions.Contains("/platform:x86")) // #413; it has to be executed as an external script
+                        options.runExternal = true;
+
                     var compilerDirectives = parser.GetDirective(compilerDirective).Concat(parser.GetDirective(compilerDirective2));
                     if (compilerDirectives.Any())
                     {
@@ -1346,9 +1349,18 @@ namespace csscript
             if (asmFileName == null || asmFileName == "")
             {
                 asmFileName = CSExecutor.ScriptCacheDir.PathJoin(scripFileName.GetFileName() + ".dll");
+
                 if (options.isNetFx)
                 {
                     asmFileName = asmFileName.ChangeExtension(".exe"); // can only run NetFx assemblies as an external process
+                }
+
+                bool lastRunWasExternal = CSExecutor.ScriptCacheDir.PathJoin(scripFileName.GetFileName() + ".runex").FileExists();
+                if (options.runExternal || lastRunWasExternal)
+                {
+                    // the content of the container folder is a canonical dll + exe + runtimeconfig.json
+                    var containerDir = asmFileName.ChangeExtension(".exe.container");
+                    asmFileName = containerDir.PathJoin(scripFileName.GetFileNameWithoutExtension() + ".dll");
                 }
             }
 

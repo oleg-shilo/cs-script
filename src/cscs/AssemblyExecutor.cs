@@ -96,7 +96,14 @@ namespace csscript
 
             var runExternalFile = filename.ChangeExtension(".runex");
 
-            var runExternal = runExternalFile.FileExists();
+            bool runExternal = runExternalFile.FileExists();
+
+            // on the first compilation of the externally executed script we move all files of a complete .NETCore app executable
+            // in the `*.container` folder. So if we are executing the cache we need to check if the files are already there.
+
+            if (!runExternal)
+                runExternal = filename.GetDirName().EndsWith(".container"); // the assembly file can be in a container dir where a complete .NETCore app is stored
+
             if (runExternal)
             {
                 var exe = filename.ChangeExtension(".exe");
@@ -196,7 +203,6 @@ namespace csscript
 
                     asmLock?.Release();
                 }
-
 
                 SetScriptReflection(assembly, Path.GetFullPath(filename), "CSS_SCRIPTLOCATIONREFLECTION".GetEnvar().HasText());
                 InvokeStaticMain(assembly, args);
