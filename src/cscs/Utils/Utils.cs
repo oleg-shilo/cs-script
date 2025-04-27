@@ -383,15 +383,20 @@ partial class dbg
 
             foreach (var item in refAssemblies.Distinct())
                 if (Path.IsPathRooted(item))
-                    asmList += $" {asmList} @\"{item}\",";
+                    asmList = $" {asmList} @\"{item}\",";
 
             var code = @"
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 class HostingRuntime
 {
+    // native interop message box
+    [DllImport(""user32.dll"", CharSet = CharSet.Auto)]
+    public static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
+
     #if !NETFRAMEWORK
     [System.Runtime.CompilerServices.ModuleInitializer]
     #endif
@@ -404,6 +409,7 @@ class HostingRuntime
 
         AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs ar) =>
         {
+            // MessageBox(IntPtr.Zero, ""Debug-Assert"", ""ScriptHost"", 0);
             var asmName = ar.Name.Split(',')[0];
 
             var candidates = refAsms.OrderByDescending(x => System.IO.Path.GetFileNameWithoutExtension(x) == asmName).ToArray();
@@ -415,7 +421,16 @@ class HostingRuntime
                     if (preLoadedAsm.GetName().Name.Split(',')[0] == asmName)
                         return System.Reflection.Assembly.LoadFrom(asm);
                 }
-                catch{}
+                catch (System.PlatformNotSupportedException)
+                {
+                    try
+                    {
+                        if (string.Compare(Path.GetFileNameWithoutExtension(asm), asmName, true) == 0)
+                            return System.Reflection.Assembly.LoadFrom(asm);
+                    }
+                    catch { }
+                }
+                catch { }
             }
 
             return null;
