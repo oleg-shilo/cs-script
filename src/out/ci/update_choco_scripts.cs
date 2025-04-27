@@ -11,7 +11,6 @@ using System;
 
 var shortVersion = version.Substring(0, version.LastIndexOf('.'));
 
-
 PatchFile(
     @".\..\..\chocolatey\update_package.cs",
     x => x.Trim().StartsWith("var url ="),
@@ -21,7 +20,6 @@ PatchFile(
     @".\..\..\chocolatey\publish.cmd",
     x => x.Trim().StartsWith("choco push "),
     $"choco push cs-script.{shortVersion}.nupkg --source https://push.chocolatey.org/");
-
 
 Console.WriteLine("'update_package.cs' script is set to target release: v" + version);
 
@@ -34,7 +32,3 @@ void PatchFile(string file, Predicate<string> filter, string replacement)
 
     File.WriteAllLines(file, lines);
 }
-
-
-
-

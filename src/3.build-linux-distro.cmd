@@ -7,4 +7,6 @@ cd out\ci
 
 .\out\Windows\cscs.exe -server:stop
 
+css -server:stop
+
 explorer ..\
