@@ -479,7 +479,7 @@ global using global::System.Threading.Tasks;");
             // app.runtimeconfig.json  - assembly config
 
             // When csc.exe generates exe for x86 it will produce
-            // app.exe - assembly file (.NET assembly x86) taht is also a self executable host (similar to .NET Framework compilation)
+            // app.exe - assembly file (.NET assembly x86) that is also a self executable host (similar to .NET Framework compilation)
             //
             // IE
             //  set REF="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\9.0.0\ref\net9.0"
@@ -492,7 +492,9 @@ global using global::System.Threading.Tasks;");
             // or one of its dependencies. The system cannot find the file specified.
             // This is because it cannot produce the exe that can discover sys assemblies (like dotnet.exe compiled exe does) but requires all these assemblies to be
             // present in the local dir.
-            // That's why dotnet engine is a preferred compiler for x86
+            // Using donet.exe launched for running app.dll compiled as x86 and /target:winexe) produces the invalid formal exception. This is because dotnet.exe starts .64 process and
+            // the script assembly is x86. Unfortunately SDK does not have dotnet.exe 32 bit version.
+            // That's why dotnet engine is a preferred compiler for x86 scripts
 
             // Debugger.Launch();
             var output = cscs_runx($"-ng:csc -co:/platform:x86 {script_file.GetFullPath()}");
