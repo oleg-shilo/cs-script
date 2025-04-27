@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.9.5.0</version>
+    <version>4.9.6.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -24,13 +24,16 @@
 
 </description>
     <summary>CS-Script</summary>
-    <releaseNotes>
+    <releaseNotes>---
+
 ## Changes
 
-- Added support for resolving nuget assemblies to the RID (runtime) specific assemblies
-- Added advising user to restart build server if previously detected csc.dll cannot be found.
-- Fixed problem with running scripts not registering themselves in `%userprofile%\AppData\Local\cs-script\p-list`
-- #409 CS-Script 4.8.21 requires .NET 9 runtime</releaseNotes>
+### CLI
+
+#414: Implement assembly probing for external script execution (e.g. x86)
+
+### CSScriptLib
+&lt;no changes&gt;</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>
