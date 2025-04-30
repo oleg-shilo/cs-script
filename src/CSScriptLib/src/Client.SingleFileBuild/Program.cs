@@ -7,6 +7,12 @@ using CSScriptLib;
 // (project file contains PublishSingleFile=true)
 // dotnet publish --configuration Release --output .\publish --self-contained false
 // dotnet publish --configuration Release --output .\publish --self-contained true
+//
+// You may need to experiment with the publish options to get the desired result.
+// The code below will inly work for `--self-contained false`
+// But if you want to use `--self-contained true` you may need to isolate this code into a library
+// and reference it from your entry assembly.
+// See this discussion: https://github.com/oleg-shilo/cs-script/issues/343#issuecomment-2841878623.
 
 // ---------------------------
 // evaluation of a simple expression

@@ -202,7 +202,10 @@ namespace CSScripting
                       || ex.StackTrace.Contains("at System.Reflection.RuntimeAssembly.get_CodeBase()"))
                     return null;
 #endif
-                throw;
+                if (ex is System.NotSupportedException) // less precise analysis
+                    return null;
+                else
+                    throw;
 #pragma warning restore CS0168
             }
         }
