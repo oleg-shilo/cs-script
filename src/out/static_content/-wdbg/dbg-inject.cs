@@ -1,3 +1,4 @@
+//css_ng csc
 //css_ref Microsoft.CodeAnalysis.CSharp.dll
 //css_ref Microsoft.CodeAnalysis.dll
 using CSScripting;

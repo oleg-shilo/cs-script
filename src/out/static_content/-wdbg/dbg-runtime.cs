@@ -29,38 +29,15 @@ public static class DBG
     public static string StopOnNextInspectionPointInMethod;
     static string debuggerUrl => Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL");
 
-    public static string PostObjectInfo(string name, object data)
-    {
-        try { return UploadString($"{debuggerUrl}/dbg/object", $"{name}:{data}"); }
-        catch { return ""; }
-    }
+    public static string ScriptPath => Environment.GetEnvironmentVariable("EntryScript");
 
-    public static string PostBreakInfo(string data)
-    {
-        try { return UploadString($"{debuggerUrl}/dbg/break", data); }
-        catch { return ""; }
-    }
-
-    public static string PostExpressionInfo(string data)
-    {
-        try { return UploadString($"{debuggerUrl}/dbg/expressions", data); }
-        catch { return ""; }
-    }
-
-    public static string UserRequest
-    {
-        get
-        {
-            try { return DownloadString($"{debuggerUrl}/dbg/userrequest"); }
-            catch { return ""; }
-        }
-    }
+    public static string SessionId => Environment.GetEnvironmentVariable("CSS_DBG_SESSION");
 
     public static string[] Breakpoints
     {
         get
         {
-            var url = $"{debuggerUrl}/dbg/breakpoints";
+            var url = ToUri("/dbg/breakpoints");
             try
             {
                 return DownloadString(url)
@@ -94,6 +71,54 @@ public static class DBG
         }
     }
 
+    public static string UserRequest
+    {
+        get
+        {
+            try { return DownloadString(ToUri("/dbg/userrequest")); }
+            catch { return ""; }
+        }
+    }
+
+    public static string UserUpdate
+    {
+        get
+        {
+            try { return DownloadString(ToUri("/dbg/userinterrupt")); }
+            catch { return ""; }
+        }
+    }
+
+    public static string PostBreakInfo(string data)
+    {
+        try { return UploadString(ToUri("/dbg/break"), data); }
+        catch { return ""; }
+    }
+
+    public static string PostObjectInfo(string name, object data)
+    {
+        try { return UploadString(ToUri("/dbg/object"), $"{name}:{data}"); }
+        catch { return ""; }
+    }
+
+    public static string PostExpressionInfo(string data)
+    {
+        try { return UploadString(ToUri("/dbg/expressions"), data); }
+        catch { return ""; }
+    }
+
+    public static void DebugOutputLine(string message)
+    {
+        try
+        {
+            var uri = ToUri("/dbg/output");
+            UploadString(uri, message);
+        }
+        catch { }
+    }
+
+    static string ToUri(string endPoint) => $"{debuggerUrl}{endPoint}?script={ScriptPath}&session={SessionId}";
+
     static string DownloadString(string url) => GetAsync(url).Result;
 
     static async Task<String> GetAsync(string url)
@@ -104,14 +129,14 @@ public static class DBG
         return result;
     }
 
-    static string UploadString(string url, string data) => PostAsync(url, data).Result;
+    static string UploadString(string uri, string data) => PostAsync(uri, data).Result;
 
-    static async Task<String> PostAsync(string url, string data)
+    static async Task<String> PostAsync(string uri, string data)
     {
         // var json = Newtonsoft.Json.JsonConvert.SerializeObject(person);
 
         using var client = new HttpClient();
-        var response = await client.PostAsync(url, new StringContent(data, Encoding.UTF8, "application/text"));
+        var response = await client.PostAsync(uri, new StringContent(data, Encoding.UTF8, "application/text"));
 
         string result = await response.Content.ReadAsStringAsync();
 
@@ -134,6 +159,7 @@ public class BreakPoint
     public string methodName = "";
     public string sourceFilePath = "";
     public int sourceLineNumber = 0;
+    static bool monitorStarted = false;
 
     string id => $"{sourceFilePath.Replace(".dbg.cs", ".cs")}:{sourceLineNumber}";
 
@@ -158,13 +184,22 @@ public class BreakPoint
             // which can be either next line in the same method or in the called (child) method
             if (IsStepInRequested(request))
             {
-                DBG.StopOnNextInspectionPointInMethod = "*";
+                DBG.DebugOutputLine($"Step-In/Pause requested in {methodName} at {sourceFilePath}:{sourceLineNumber}");
+                DBG.StopOnNextInspectionPointInMethod = "*"; // very next breakpoint available in the script (even inside of the other method)
+                break;
+            }
+
+            if (PauseRequested(request))
+            {
+                DBG.DebugOutputLine($"Pause requested...");
+                DBG.StopOnNextInspectionPointInMethod = "*"; // very next breakpoint available in the script
                 break;
             }
 
             // continue to the next point of inspection but only in the same method
             if (IsStepOverRequested(request))
             {
+                DBG.DebugOutputLine($"Step-Over requested in {methodName} at {sourceFilePath}:{sourceLineNumber}");
                 DBG.StopOnNextInspectionPointInMethod = methodName;
                 break;
             }
@@ -369,16 +404,49 @@ public class BreakPoint
 
     bool IsStepInRequested(string request) => request == "step_in";
 
+    bool PauseRequested(string request) => request == "pause";
+
     bool IsResumeRequested(string request) => request == "resume";
 
     public void Inspect(params (string name, object value)[] variables)
     {
+        MonitorUserUpdates();
+
         if (!ShouldStop())
             return;
 
         DBG.PostBreakInfo($"{sourceFilePath}|{sourceLineNumber - 1}|{variables.ToJson()}"); // let debugger to show BP as the start of the next line
 
         WaitTillResumed(variables);
+    }
+
+    // monitor user input and update the debugger state.
+    static public void MonitorUserUpdates()
+    {
+        lock (typeof(BreakPoint))
+        {
+            if (monitorStarted)
+                return;
+            monitorStarted = true;
+        }
+
+        Task.Run(() =>
+        {
+            while (true)
+            {
+                var userUpdate = DBG.UserUpdate;
+                if (!string.IsNullOrEmpty(userUpdate))
+                {
+                    // Debug.WriteLine("User update: " + userUpdate);
+                    if (userUpdate == "pause")
+                    {
+                        DBG.DebugOutputLine($"Pause requested...");
+                        DBG.StopOnNextInspectionPointInMethod = "*";
+                    }
+                }
+                Thread.Sleep(1000);
+            }
+        });
     }
 }
 
@@ -474,6 +542,7 @@ namespace wdbg
         string indent = "  ";
 
         Action<string> WriteLine = Console.Out.WriteLine;
+
         Action<string> Write = Console.Out.Write;
 
         void write(object @object = null)
