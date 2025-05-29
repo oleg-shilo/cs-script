@@ -77,6 +77,9 @@
                 <MudItem xs="1">
                     <MudButton Variant="Variant.Outlined" Disabled="@(IsRunning || Busy)" @onclick="OnSave" StartIcon="@Icons.Material.Filled.Save">Save</MudButton>
                 </MudItem>
+                <MudItem xs="1">
+                    <MudButton Variant="Variant.Outlined" @onclick="OnTest" StartIcon="@Icons.Material.Filled.Terminal">Test</MudButton>
+                </MudItem>
             </MudGrid>
 
             <textarea class="lined" id="sourceCode" rows="50" cols="151"
@@ -460,6 +463,11 @@
         {
             this.output = e.ToString();
         }
+    }
+
+    void OnTest()
+    {
+        module?.InvokeAsync<string>("initTextarea");
     }
 
     void OnSave()

@@ -36,7 +36,7 @@ static class Scipt
             return;
         }
 
-        string urls = arg("--urls") ?? Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL") ?? "https://localhost:5001";
+        string urls = arg("--urls") ?? Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL") ?? "http://localhost:5100";
 
         string script = args.FirstOrDefault()?.GetFullPath();           // first arg is the script to debug
 

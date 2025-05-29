@@ -80,7 +80,7 @@ public static class DBG
         }
     }
 
-    public static string UserUpdate
+    public static string UserInterrupt
     {
         get
         {
@@ -410,7 +410,7 @@ public class BreakPoint
 
     public void Inspect(params (string name, object value)[] variables)
     {
-        MonitorUserUpdates();
+        MonitorUserInterrupts();
 
         if (!ShouldStop())
             return;
@@ -420,8 +420,8 @@ public class BreakPoint
         WaitTillResumed(variables);
     }
 
-    // monitor user input and update the debugger state.
-    static public void MonitorUserUpdates()
+    // monitor user input and pause when pause request is received.
+    static public void MonitorUserInterrupts()
     {
         lock (typeof(BreakPoint))
         {
@@ -434,10 +434,9 @@ public class BreakPoint
         {
             while (true)
             {
-                var userUpdate = DBG.UserUpdate;
+                var userUpdate = DBG.UserInterrupt;
                 if (!string.IsNullOrEmpty(userUpdate))
                 {
-                    // Debug.WriteLine("User update: " + userUpdate);
                     if (userUpdate == "pause")
                     {
                         DBG.DebugOutputLine($"Pause requested...");

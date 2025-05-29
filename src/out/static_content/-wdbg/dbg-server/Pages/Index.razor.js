@@ -19,6 +19,10 @@ window.JsFunctions = {
         window.document.addEventListener('keydown', function (e) {
             DotNet.invokeMethodAsync('server', 'JsKeyDown', serializeEvent(e))
         });
+
+        window.addEventListener('resize', () => {
+            // initTextarea();
+        });
     }
 };
 
@@ -238,7 +242,6 @@ export function getLineNumber() {
     // console.log("Current line is: " + window.currentLine);
     return window.currentLine;
 }
-
 
 export function clearInputField(id) {
     $("#" + id).val("");

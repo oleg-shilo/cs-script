@@ -117,10 +117,6 @@ namespace CSScripting.CodeDom
                         result.Line = int.Parse(location_items[0]);                             // 11
                         result.Column = int.Parse(location_items[1]);                           // 8
 
-                        int desc_end = result.ErrorText.LastIndexOf("[");
-                        if (desc_end != -1)
-                            result.ErrorText = result.ErrorText.Substring(0, desc_end);
-
                         return result;
                     }
                     catch (Exception e)
