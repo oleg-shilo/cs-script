@@ -290,9 +290,13 @@ namespace csscript
                             {
                                 if (context.Contains("kill") || context.Contains("-kill") || context.Contains("k"))
                                 {
+                                    // not sure ignoring any script process is a good idea but it is better than killing the current process
+                                    var thisProcess = -1;
+                                    // var thisProcess = Process.GetCurrentProcess().Id;
+
                                     if (context.Contains("*"))
                                     {
-                                        foreach (var pid in result.scripts.Select(x => x.pid).Where(x => x != 0))
+                                        foreach (var pid in result.scripts.Select(x => x.pid).Where(x => x != 0 && x != thisProcess))
                                             try { Process.GetProcessById(pid).Kill(); }
                                             catch { }
                                     }
@@ -305,15 +309,24 @@ namespace csscript
                                             var userInput = Console.ReadLine().ToLower();
                                             if (userInput != "x")
                                             {
-                                                var pid = result.scripts.FirstOrDefault(x => x.index == userInput).pid;
-                                                if (pid != 0)
-                                                    try
-                                                    {
-                                                        Process.GetProcessById(pid).Kill();
-                                                    }
-                                                    catch { }
+                                                if (userInput == "*")
+                                                {
+                                                    foreach (var pid in result.scripts.Select(x => x.pid).Where(x => x != 0 && x != thisProcess))
+                                                        try { Process.GetProcessById(pid).Kill(); }
+                                                        catch { }
+                                                }
                                                 else
-                                                    Console.WriteLine("Invalid user input.");
+                                                {
+                                                    var pid = result.scripts.FirstOrDefault(x => x.index == userInput).pid;
+                                                    if (pid != 0)
+                                                        try
+                                                        {
+                                                            Process.GetProcessById(pid).Kill();
+                                                        }
+                                                        catch { }
+                                                    else
+                                                        Console.WriteLine("Invalid user input.");
+                                                }
                                             }
                                         }
                                     }
