@@ -397,22 +397,26 @@ namespace CSScriptLib
         /// </summary>
         /// <example>
         ///<code>
+        /// var info = new CompileInfo { AssemblyFile = "Printer.dll", AssemblyName = "PrintAsm" };
         /// dynamic script = CSScript.RoslynEvaluator
         ///                          .CompileMethod(@"int Sum(int a, int b)
         ///                                           {
         ///                                               return a+b;
-        ///                                           }")
+        ///                                           }"
+        ///                                           , info)
         ///                          .CreateObject("*");
         ///
         /// var result = script.Sum(7, 3);
         /// </code>
         /// </example>
         /// <param name="code">The C# code.</param>
+        /// <param name="info">The information about compilation context (e.g. location of the compiler output -
+        /// assembly and pdb file).</param>
         /// <returns>The compiled assembly.</returns>
-        public Assembly CompileMethod(string code)
+        public Assembly CompileMethod(string code, CompileInfo info)
         {
-            string scriptText = CSScript.WrapMethodToAutoClass(code, false, false);
-            return CompileCode(scriptText);
+            string scriptText = CSScript.WrapMethodToAutoClass(code, false, false, null, className: info.RootClass);
+            return CompileCode(scriptText, info);
         }
 
         /// <summary>

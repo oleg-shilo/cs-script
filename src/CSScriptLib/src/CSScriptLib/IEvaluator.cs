@@ -407,8 +407,10 @@ namespace CSScriptLib
         /// </code>
         /// </example>
         /// <param name="code">The C# code.</param>
+        /// <param name="info">The information about compilation context (e.g. location of the compiler output -
+        /// assembly and pdb file).</param>
         /// <returns>The compiled assembly.</returns>
-        Assembly CompileMethod(string code);
+        Assembly CompileMethod(string code, CompileInfo info = null);
 
         /// <summary>
         /// Sets the filter for referenced assemblies. The filter is to be applied just before the

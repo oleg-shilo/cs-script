@@ -423,13 +423,15 @@ namespace CSScriptLib
 
         static Lazy<RoslynEvaluator> roslynEvaluator = new Lazy<RoslynEvaluator>();
 
-        static internal string WrapMethodToAutoClass(string methodCode, bool injectStatic, bool injectNamespace, string inheritFrom = null)
+        static internal string WrapMethodToAutoClass(string methodCode, bool injectStatic, bool injectNamespace, string inheritFrom = null, string className = null)
         {
             var code = new StringBuilder(4096);
             code.AppendLine("//Auto-generated file")
                 .AppendLine("using System;");
 
             bool headerProcessed = false;
+
+            string classNameToUse = className.IsNotEmpty() ? className : Globals.DynamicWrapperClassName;
 
             string line;
 
@@ -450,9 +452,9 @@ namespace CSScriptLib
                             }
 
                             if (inheritFrom != null)
-                                code.AppendLine($"   public class {Globals.DynamicWrapperClassName} : " + inheritFrom);
+                                code.AppendLine($"   public class {classNameToUse} : " + inheritFrom);
                             else
-                                code.AppendLine($"   public class {Globals.DynamicWrapperClassName}");
+                                code.AppendLine($"   public class {classNameToUse}");
 
                             code.AppendLine("   {");
                             string[] tokens = line.Split("\t ".ToCharArray(), 3, StringSplitOptions.RemoveEmptyEntries);
