@@ -42,22 +42,22 @@
                     <span hidden="@IsRunning">
                         <MudIconButton title="Start (F5)"
                                        Disabled="@(IsRunning || Busy)"
-                                       @onclick="_=>OnStart()"
+                                       @onclick="_ => OnStart()"
                                        Icon="@Icons.Material.Filled.PlayArrow" Color="Color.Success" />
                     </span>
                     <span hidden="@IsIdle">
                         <MudIconButton title="Resume (F5)"
                                        Disabled=@(IsIdle || Busy)
-                                       @onclick="_=>OnStart()"
+                                       @onclick="_ => OnStart()"
                                        Icon="@Icons.Material.Outlined.PlayArrow" Color="Color.Warning" />
                     </span>
                     <MudIconButton title="Step Over (F10)"
                                    Disabled="@Busy"
-                                   @onclick="_=>OnStep(false)"
+                                   @onclick="_ => OnStep(false)"
                                    Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Success" />
                     <MudIconButton title="Step Into (F11)"
                                    Disabled=@(IsIdle || Busy)
-                                   @onclick="_=>OnStep(true)"
+                                   @onclick="_ => OnStep(true)"
                                    Icon="@Icons.Filled.ArrowDownward" Color="Color.Success" />
                     <MudIconButton title="Stop (Shift+F5)"
                                    Disabled=@(IsIdle || Busy)
@@ -149,7 +149,7 @@
                                 @*<MudIconButton title="Refresh" Icon="@Icons.Material.Filled.Autorenew" Color="Color.Default" />*@
                                 <MudGrid>
                                     <MudItem xs=1>
-                                        <MudIcon title="Delete" Size="Size.Small" Icon="@Icons.Material.Filled.DeleteForever" @onclick="()=>DeleteWatchItem(context)" Color="Color.Default" />
+                                        <MudIcon title="Delete" Size="Size.Small" Icon="@Icons.Material.Filled.DeleteForever" @onclick="() => DeleteWatchItem(context)" Color="Color.Default" />
                                     </MudItem>
                                     <MudItem xs=1>
                                         @if (context.Updating)
@@ -158,13 +158,13 @@
                                         }
                                         else
                                         {
-                                            <MudIcon title="Refresh" Size="Size.Small" Icon="@Icons.Material.Filled.Autorenew" @onclick="()=>ReevaluateExpression(context)" Color="Color.Default" />
+                                            <MudIcon title="Refresh" Size="Size.Small" Icon="@Icons.Material.Filled.Autorenew" @onclick="() => ReevaluateExpression(context)" Color="Color.Default" />
                                         }
                                     </MudItem>
                                 </MudGrid>
                             </MudTd>
-                            <MudTd DataLabel="Name" @onclick="()=>DbgService.SerializeObject(context.Name)">@context.Name</MudTd>
-                            <MudTd DataLabel="Value" @onclick="()=>DbgService.SerializeObject(context.Name)">@context.Value</MudTd>
+                            <MudTd DataLabel="Name" @onclick="() => DbgService.SerializeObject(context.Name)">@context.Name</MudTd>
+                            <MudTd DataLabel="Value" @onclick="() => DbgService.SerializeObject(context.Name)">@context.Value</MudTd>
                             <MudTd DataLabel="Type">@context.Type</MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -189,7 +189,7 @@
         </thead>
         <tbody>
             <tr>
-                <td><MudLink OnClick="()=>OnStart()">Start/Resume</MudLink>  </td>
+                <td><MudLink OnClick="() => OnStart()">Start/Resume</MudLink>  </td>
                 <td>F5</td>
             </tr>
             <tr>
@@ -197,11 +197,11 @@
                 <td>Shift+F5</td>
             </tr>
             <tr>
-                <td><MudLink OnClick="()=>OnStep(false)">Step Over</MudLink></td>
+                <td><MudLink OnClick="() => OnStep(false)">Step Over</MudLink></td>
                 <td>F10</td>
             </tr>
             <tr>
-                <td><MudLink OnClick="()=>OnStep(true)" Disabled=@(IsIdle || Busy)>Step Into</MudLink></td>
+                <td><MudLink OnClick="() => OnStep(true)" Disabled=@(IsIdle || Busy)>Step Into</MudLink></td>
                 <td>F11</td>
             </tr>
             <tr>
@@ -217,7 +217,7 @@
                 <td>Ctrl+S</td>
             </tr>
             <tr>
-                <td><MudLink OnClick="()=> output = null ">Clear Output</MudLink></td>
+                <td><MudLink OnClick="() => output = null">Clear Output</MudLink></td>
                 <td></td>
             </tr>
 
@@ -534,6 +534,7 @@
                 try
                 {
 
+                    var ttt = File.Exists(scriptFile);
                     if (isDirty())
                         File.WriteAllTextAsync(scriptFile, this.scriptCode);
 

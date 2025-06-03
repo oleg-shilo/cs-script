@@ -1,29 +1,29 @@
 {
-  "profiles": {
-    "blazor_min": {
-      "commandName": "Project",
-      "commandLineArgs": "--urls \"https://localhost:5003\" -script D:\\dev\\Galos\\cs-script\\src\\out\\static_content\\-wdbg\\test\\script.cs -pre D:\\dev\\Galos\\cs-script\\src\\out\\static_content\\-wdbg\\dbg-inject.cs",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:5003;http://localhost:5000"
+    "profiles": {
+        "blazor_min": {
+            "commandName": "Project",
+            "commandLineArgs": "--urls \"https://localhost:5003\" -script D:\\dev\\spikes\\WebCodeEditor\\CodeMiro\\test.cs -pre D:\\dev\\cs-script\\src\\out\\static_content\\-wdbg\\dbg-inject.cs",
+            "launchBrowser": true,
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "dotnetRunMessages": true,
+            "applicationUrl": "https://localhost:5003;http://localhost:5000"
+        },
+        "IIS Express": {
+            "commandName": "IISExpress",
+            "launchBrowser": true,
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        }
     },
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+    "iisSettings": {
+        "windowsAuthentication": false,
+        "anonymousAuthentication": true,
+        "iisExpress": {
+            "applicationUrl": "http://localhost:43062",
+            "sslPort": 44300
+        }
     }
-  },
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:43062",
-      "sslPort": 44300
-    }
-  }
 }
