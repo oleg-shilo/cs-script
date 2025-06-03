@@ -183,19 +183,22 @@ public class Decorator
 
                                 if (scope.File == script && lines.Count() >= scope.StartLine)
                                 {
-                                    var indent = new string(' ', line.Length - trimmedLine.Length);
+                                    if (!lines[lineIndex].Contains("DBG.Line().Inspect")) // not processed yet
+                                    {
+                                        var indent = new string(' ', line.Length - trimmedLine.Length);
 
-                                    if (trimmedLine.TrimStart().StartsWith("{"))
-                                    {
-                                        lines[lineIndex] = $"{indent}{{ DBG.Line().Inspect({inspectionObjects});" + trimmedLine.Substring(1);
-                                    }
-                                    else
-                                    {
-                                        // hand the bracketless scope statements like `if(true)\nInspect(...);foo();
-                                        if (IsInsideBracketlessScope(code, lineIndex))
-                                            lines[lineIndex] = $"{{ {indent}DBG.Line().Inspect({inspectionObjects});" + trimmedLine + "}"; // create a scope with the bracktes so the inspection code can be injected
+                                        if (trimmedLine.TrimStart().StartsWith("{"))
+                                        {
+                                            lines[lineIndex] = $"{indent}{{ DBG.Line().Inspect({inspectionObjects});" + trimmedLine.Substring(1);
+                                        }
                                         else
-                                            lines[lineIndex] = $"{indent}DBG.Line().Inspect({inspectionObjects});" + trimmedLine;
+                                        {
+                                            // hand the bracketless scope statements like `if(true)\nInspect(...);foo();
+                                            if (IsInsideBracketlessScope(code, lineIndex))
+                                                lines[lineIndex] = $"{{ {indent}DBG.Line().Inspect({inspectionObjects});" + trimmedLine + "}"; // create a scope with the bracktes so the inspection code can be injected
+                                            else
+                                                lines[lineIndex] = $"{indent}DBG.Line().Inspect({inspectionObjects});" + trimmedLine;
+                                        }
                                     }
                                 }
                             }
