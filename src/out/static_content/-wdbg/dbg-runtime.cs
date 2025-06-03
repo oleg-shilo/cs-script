@@ -184,14 +184,14 @@ public class BreakPoint
             // which can be either next line in the same method or in the called (child) method
             if (IsStepInRequested(request))
             {
-                DBG.DebugOutputLine($"Step-In/Pause requested in {methodName} at {sourceFilePath}:{sourceLineNumber}");
+                // DBG.DebugOutputLine($"Step-In/Pause requested in {methodName} at {sourceFilePath}:{sourceLineNumber}");
                 DBG.StopOnNextInspectionPointInMethod = "*"; // very next breakpoint available in the script (even inside of the other method)
                 break;
             }
 
             if (PauseRequested(request))
             {
-                DBG.DebugOutputLine($"Pause requested...");
+                // DBG.DebugOutputLine($"Pause requested...");
                 DBG.StopOnNextInspectionPointInMethod = "*"; // very next breakpoint available in the script
                 break;
             }
@@ -199,7 +199,7 @@ public class BreakPoint
             // continue to the next point of inspection but only in the same method
             if (IsStepOverRequested(request))
             {
-                DBG.DebugOutputLine($"Step-Over requested in {methodName} at {sourceFilePath}:{sourceLineNumber}");
+                // DBG.DebugOutputLine($"Step-Over requested in {methodName} at {sourceFilePath}:{sourceLineNumber}");
                 DBG.StopOnNextInspectionPointInMethod = methodName;
                 break;
             }
