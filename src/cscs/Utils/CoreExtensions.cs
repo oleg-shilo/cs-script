@@ -82,7 +82,7 @@ namespace csscript
                 while (count > 0)
                     try
                     {
-                        if (buildArtifact.FileExists() || !process.HasExited)
+                        if (buildArtifact.FileExists() || process.HasExited)
                             break;
 
                         var interval = 100;
@@ -93,7 +93,8 @@ namespace csscript
 
                 if (!buildArtifact.FileExists())
                 {
-                    onOutput?.Invoke($"Process '{exe}' is taking too long to finish. Terminating it forcefully.");
+                    if (!process.HasExited)
+                        onOutput?.Invoke($"Process '{exe}' is taking too long to finish. Terminating it forcefully.");
                     exitCode = -1;
                 }
 
