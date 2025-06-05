@@ -124,7 +124,8 @@ namespace csscript
             var builder = new StringBuilder();
             builder.AppendLine($"#  | PID        | Arguments");
             builder.AppendLine($"----------------------------");
-            foreach ((int pid, string args) in Runtime.GetScriptProcesses().OrderByDescending(x => x.pid == currentProcId))
+            // foreach ((int pid, string args) in Runtime.GetScriptProcesses().OrderByDescending(x => x.pid == currentProcId))
+            foreach ((int pid, string args) in Runtime.GetScriptProcesses().Where(x=> x.pid != currentProcId).OrderDescending())
             {
                 builder.AppendLine($"{++i:D2} | {pid:D10} | {args}");
                 result.Add((i.ToString(), pid));

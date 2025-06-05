@@ -78,7 +78,10 @@ namespace csscript
                 // implementation args = args.SplitMergedArgs();
             }
 
-            return args;
+            if (args.Length == 1 && args[0] == "?")
+                return ["-?"]; // users often skip `-` if the type fast but passing `?` as a file name creates very long lookup process in the Directory.GetFiles(dir, "?")
+            else
+                return args;
         }
 
         static void main(string[] args)

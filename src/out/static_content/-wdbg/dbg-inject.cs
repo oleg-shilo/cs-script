@@ -34,11 +34,10 @@ public class Decorator
 
     static bool IsInsideBracketlessScope(string code, int line)
     {
-        var tree = CSharpSyntaxTree.ParseText(code);
-        var root = tree.GetRoot();
+        codeTree = codeTree ?? CSharpSyntaxTree.ParseText(code).GetRoot();
 
         // Find the statement at the given line
-        var statement = root.DescendantNodes()
+        var statement = codeTree.DescendantNodes()
             .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.StatementSyntax>()
             .FirstOrDefault(s =>
             {
@@ -74,11 +73,12 @@ public class Decorator
         return false;
     }
 
+    static SyntaxNode codeTree;
+
     static MethodSyntaxInfo[] GetMethodSignatures(string code)
     {
-        var nodes = CSharpSyntaxTree.ParseText(code)
-                                    .GetRoot()
-                                    .DescendantNodes();
+        codeTree = codeTree ?? CSharpSyntaxTree.ParseText(code).GetRoot();
+        var nodes = codeTree.DescendantNodes();
 
         return nodes.OfType<MethodDeclarationSyntax>()
                     .Select(x => new MethodSyntaxInfo
@@ -129,6 +129,7 @@ public class Decorator
                     var lines = File.ReadAllLines(script).ToList();
 
                     foreach (var method in map)
+                    {
                         foreach (var scope in method.Scopes)
                         {
                             // if (scope.BelongsToFile(script) && scope != method.Scopes.Last())
@@ -195,14 +196,21 @@ public class Decorator
                                         {
                                             // hand the bracketless scope statements like `if(true)\nInspect(...);foo();
                                             if (IsInsideBracketlessScope(code, lineIndex))
-                                                lines[lineIndex] = $"{{ {indent}DBG.Line().Inspect({inspectionObjects});" + trimmedLine + "}"; // create a scope with the bracktes so the inspection code can be injected
+                                            {
+                                                // create a scope with the bracktes so the inspection code can be injected
+                                                lines[lineIndex] = $"{{ {indent}DBG.Line().Inspect({inspectionObjects});" + trimmedLine + "}";
+                                            }
                                             else
+                                            {
                                                 lines[lineIndex] = $"{indent}DBG.Line().Inspect({inspectionObjects});" + trimmedLine;
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                    }
+
                     lines.Insert(0, "//css_inc " + dbgAgentScript);
 
                     File.WriteAllLines(decoratedScript, lines);
@@ -324,6 +332,7 @@ public class Decorator
         }
     }
 
+    // static string css => @"D:\dev\cs-script\src\cscs\bin\Debug\net9.0\cscs.dll";
     static string css => Path.Combine(Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_ROOT%"), "cscs.dll");
 }
 

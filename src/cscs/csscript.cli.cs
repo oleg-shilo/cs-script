@@ -291,8 +291,8 @@ namespace csscript
                                 if (context.Contains("kill") || context.Contains("-kill") || context.Contains("k"))
                                 {
                                     // not sure ignoring any script process is a good idea but it is better than killing the current process
-                                    var thisProcess = -1;
-                                    // var thisProcess = Process.GetCurrentProcess().Id;
+                                    // var thisProcess = -1;
+                                    var thisProcess = Process.GetCurrentProcess().Id;
 
                                     if (context.Contains("*"))
                                     {

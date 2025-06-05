@@ -1,5 +1,4 @@
 //css_args -l:0
-using CSScripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +13,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using CSScripting;
 
 static class Scipt
 {
@@ -25,27 +25,30 @@ static class Scipt
                Directory.GetFiles(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "*.version")
                         .FirstOrDefault() ?? "0.0.0.0.version");
 
-        if (!args.Any() || args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
+        if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
         {
             Console.WriteLine($@"v{GetVersion()} ({Environment.GetEnvironmentVariable("EntryScript")})");
-            Console.WriteLine("Start web-based debugger (wdbg) for the specified script.");
-            Console.WriteLine("  css -wdbg <script_file> [server args]");
+            Console.WriteLine("Start web-based debugger (wdbg).");
+            Console.WriteLine("  css -wdbg [script_file] [-suppress-browser] [server args]");
             Console.WriteLine();
             Console.WriteLine("You can use CLI arguments to be tunneled to the debugger WebAPI server as in `dotnet run <arguments>`.");
             Console.WriteLine("  Example: `css -wdbg script.cs --urls \"http://localhost:5100;https://localhost:5101\"`");
             return;
         }
 
-        string urls = arg("--urls") ?? Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL") ?? "http://localhost:5100";
+        string urls = arg("--urls") ?? Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL") ?? "https://localhost:5101";
 
-        string script = args.FirstOrDefault()?.GetFullPath();           // first arg is the script to debug
+        string script = args.TakeWhile(x => !x.StartsWith("-")).FirstOrDefault()?.GetFullPath();           // first arg is the script to debug
 
-        if (!File.Exists(script))
+        if (script != null)
         {
-            if (File.Exists(script + ".cs"))
-                script += ".cs";
-            else
-                throw new Exception($"Cannot find script `{args.FirstOrDefault()}`. Try to use full path.");
+            if (!File.Exists(script))
+            {
+                if (File.Exists(script + ".cs"))
+                    script += ".cs";
+                else
+                    throw new Exception($"Cannot find script `{args.FirstOrDefault()}`. Try to use full path.");
+            }
         }
 
         var wdbgDir = Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")); // EntryScript is set by parent script engine process
@@ -62,7 +65,9 @@ static class Scipt
         }
         Console.WriteLine("serverDir: " + serverDir);
 
-        var serverArgs = "\"" + args.Skip(1).JoinBy("\" \"") + "\"";    // the rest of the args are to be interpreted by the server
+        var serverArgs = (args.Length > 1) ?
+                          "\"" + args.Skip(1).JoinBy("\" \"") + "\"" : // the rest of the args are to be interpreted by the server
+                          "";
         var serverAsm = Path.Combine(serverDir, "server.dll");
         var preprocessor = Path.Combine(wdbgDir, "dbg-inject.cs");
 
@@ -70,9 +75,9 @@ static class Scipt
         Process proc;
 
         if (runAsAssembly)
-            proc = "dotnet".Start($"\"{serverAsm}\" -script \"{script}\" --urls \"{urls}\" -pre \"{preprocessor}\" {serverArgs}", serverDir);
+            proc = "dotnet".Start($"\"{serverAsm}\" --urls \"{urls}\" -pre \"{preprocessor}\" {serverArgs}", serverDir);
         else
-            proc = "dotnet".Start($"run -script \"{script}\" --urls \"{urls}\" -pre \"{preprocessor}\" {serverArgs}", serverDir);
+            proc = "dotnet".Start($"run --urls \"{urls}\" -pre \"{preprocessor}\" {serverArgs}", serverDir);
 
         // start browser with wdbg url
         if (!args.Contains("-suppress-browser"))
@@ -80,12 +85,16 @@ static class Scipt
             Console.WriteLine($"---");
 
             var url = urls.Split(';').FirstOrDefault();
+            if (script != null)
+                url += $"?script={script}"; // pass script to the server
+
             Console.WriteLine($"Trying to start the browser at {url}...");
             try
             {
                 url.Start(UseShellExecute: true);
             }
             catch { }
+
             Console.WriteLine($"---");
         }
 
@@ -101,6 +110,14 @@ static class Scipt
         proc.StartInfo.Arguments = args;
         proc.StartInfo.UseShellExecute = UseShellExecute;
         proc.StartInfo.WorkingDirectory = dir;
+
+        if (!UseShellExecute) // .EnvironmentVariables is only available when UseShellExecute is false
+        {
+            if (!proc.StartInfo.EnvironmentVariables.ContainsKey("CSSCRIPT_ROOT"))
+            {
+                proc.StartInfo.EnvironmentVariables["CSSCRIPT_ROOT"] = Environment.GetEnvironmentVariable("CSScriptRuntimeLocation");
+            }
+        }
         proc.Start();
         return proc;
     }
