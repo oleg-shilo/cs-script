@@ -1,9 +1,69 @@
-﻿@inherits LayoutComponentBase
+﻿@using wdbg.Pages
+@inherits LayoutComponentBase
+@inject IJSRuntime JS
 
-<PageTitle>blazor_min</PageTitle>
+<PageTitle>CS-Script - WebDebugger</PageTitle>
 
-<main>
-	<article>
-		@Body
-	</article>
-</main>
+<div class="page">
+    <div class="sidebar panel-theme-light" id="sidebar-panel">
+        <NavMenu />
+    </div>
+
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div class="statusbar-panel d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center">
+        @if (Editor == null || string.IsNullOrEmpty(Editor.DebugGenerationError))
+        {
+            <div title="Ready" style="display:inline-block;">
+                <span class="oi oi-circle-check status-icon" style="color:#28a745;"></span>
+            </div>
+        }
+        else
+        {
+            <div title="@Editor.DebugGenerationError" style="display:inline-block;">
+                <span class="oi oi-circle-x status-icon" style="color:#dc3545;"></span>
+            </div>
+        }
+        <span>@runStatus</span>
+    </div>
+    <div class="d-flex align-items-center">
+        <span style="min-width:50px" class="me-2">Ln: @caretLine</span>
+        <span style="min-width:50px" class="me-2">Ch: @caretCh</span>
+        <button class="toast-history-btn" title="Show last message (click to view again)" @onclick="ShowLastToast">
+            <span class="oi oi-comment-square statusbar-message-icon" aria-label="Show last message"></span>
+        </button>
+    </div>
+</div>
+
+@code {
+    public UINotificationService UIEvents;
+    public Ide Editor;
+    public Document Document;
+
+    public void Dispose() => UIEvents.OnChange -= StateHasChangedSafe;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            (var userSession, bool created) = await JS.FindOrCreateUserSessionFor(mainPage: null);
+            this.Document = userSession.Document;
+            this.Editor = userSession.Editor;
+            this.UIEvents = userSession.UIEvents;
+            UIEvents.OnChange += StateHasChangedSafe;
+        }
+    }
+
+    void StateHasChangedSafe() => InvokeAsync(StateHasChanged); // Ensure StateHasChanged is called on the UI thread
+
+    void ShowLastToast() => Editor?.ShowLastToast();
+    string runStatus => Editor?.RunStatus;
+    int? caretCh => Document?.CaretCh;
+    int? caretLine => Document?.CaretLine;
+}

@@ -1,0 +1,258 @@
+﻿@using System.Diagnostics
+@using System.Reflection
+@using wdbg.Pages
+@inject IJSRuntime JS
+
+<div class="editor-title">
+    <img class="logo-bg" src="logo.png" alt="Logo" />
+
+<a class="editor-title-link"
+   href="https://github.com/oleg-shilo/cs-script/wiki/WDBG"
+   target="_blank"
+   rel="noopener noreferrer"
+  >
+    <span>
+        CS-Script <br> v@(AssemblyVersion)
+    </span>
+</a>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column" style="margin-top: 20px">
+        <div hidden class="nav-item px-3">
+            <NavLink class="nav-link" style="background-color: gray" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="locals-watch-tabs">
+            <div class="tab-header">
+                <button class="tab-btn @(selectedTab == 0 ? "active" : "")" @onclick="() => SelectTab(0)">Home</button>
+                <button class="tab-btn @(selectedTab == 1 ? "active" : "")" @onclick="() => SelectTab(1)">Misc</button>
+            </div>
+            <div>
+                @if (selectedTab == 0)
+                {
+                    <table class="commands-table">
+                        <thead>
+                            <tr class="commands-table-header">
+                                <th>Command</th>
+                                <th>HotKey</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr> <td>Check Syntax</td> <td>F7</td> </tr>
+                            <tr> <td>Start/Resume</td> <td>F5</td> </tr>
+                            <tr> <td>Stop</td> <td>Shift+F5</td> </tr>
+                            <tr> <td>Step Over</td> <td>F10</td> </tr>
+                            <tr> <td>Step Into</td> <td>F11</td> </tr>
+                            <tr> <td>Toggle Breakpoint</td> <td>F9</td> </tr>
+                            <tr> <td>Clear Breakpoints</td> <td>Shift+F9</td> </tr>
+                            <tr> <td>Save</td> <td>Ctrl+S</td> </tr>
+                        </tbody>
+                    </table>
+
+                    <br>
+                    <table class="commands-table">
+                        <thead>
+                            <tr class="commands-table-header">
+                                <th>Recent scripts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    @foreach (var file in Editor?.RecentFiles??[])
+                                    {
+                                        <li>
+                                             <button type="button"
+                                                    title="@file"
+                                                    @onclick="async () => await Editor?.LoadRecentFile(file)"
+                                                    style="background:none;border:none;padding:0;margin:0;color:#0d6efd;text-decoration:underline;cursor:pointer;font:inherit;">
+                                                @(Path.GetFileName(file))
+                                            </button>
+                                        </li>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <br>
+                    <table hidden class="commands-table">
+                        <thead>
+                            <tr class="commands-table-header">
+                                <th>Favorites</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    &lt; empty &gt;
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+                else if (selectedTab == 1)
+                {
+                    <div title="Intercept the script output character by character. Otherwise intercept output lines." class="form-check mt-3" style="margin-left:20px">
+                        <input class="form-check-input" id="outputCharModeCheck" @bind="OutputCharMode" type="checkbox" />
+                        <label class="form-check-label" for="outputCharModeCheck">
+                            Output Char Mode
+                        </label>
+                    </div>
+                    <div class="nav-item px-3" hidden>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="ScrollCurrentLineToView">
+                            Current Line to View
+                        </button> 
+                    </div> 
+                    <div class="nav-item px-3 mt-3">
+                        <label style="font-weight:bold;">Running Scripts</label>
+                        <button class="btn btn-outline-secondary btn-sm tools-btn" @onclick="RefreshRunningScripts">
+                            <span class="oi oi-reload" ></span>
+                        </button> 
+                        <ul class="running-scripts-list" style="list-style:none; padding-left:0; margin-bottom:0;">
+                            @if (runningScripts.Count == 0)
+                            {
+                                <li style="color:#888;">No running scripts</li>
+                            }
+                            else
+                            {
+                                @foreach (var (script, pid) in runningScripts)
+                                {
+                                    <li style="display:flex;align-items:center;gap:8px;">
+                                        <button class="btn btn-sm tools-btn" title="Stop script" @onclick="() => StopScript(pid)">
+                                            <span class="oi oi-circle-x stop-script-icon" style="color:#dc3545;"></span>
+                                        </button>
+                                        <span title="@($"{pid}: {script}")"  class="active-script-name" style="font-family:monospace;">@Path.GetFileName(script)</span>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+
+                    <div class="nav-item px-3">
+                        <br />
+                    <h4>Limitations</h4>
+                    <span>
+
+                        This version does not support yet: 
+                        <ul>
+                            <li>Multi-file scripts</li>
+                            <li>Intellisense</li>
+                        </ul>
+                    </span>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </nav>
+</div>
+
+@code {
+    public UINotificationService UIEvents;
+    public Ide Editor;
+    public Document Document;
+
+    int selectedTab = 0;
+    void SelectTab(int tab)
+    {
+        selectedTab = tab;
+        StateHasChanged();
+    }
+
+    void StateHasChangedSafe() => InvokeAsync(StateHasChanged); // Ensure StateHasChanged is called on the UI thread
+
+    bool collapseNavMenu = true;
+
+    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    string AssemblyVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString()+"-pre";
+
+    void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            (var userSession, bool created) = await JS.FindOrCreateUserSessionFor(mainPage: null);
+
+            this.Document = userSession.Document;
+            this.Editor = userSession.Editor;
+            this.UIEvents = userSession.UIEvents;
+            UIEvents.OnChange += StateHasChangedSafe;
+        }
+    }
+
+    bool OutputCharMode
+    {
+        get => Editor?.OutputCharMode == true;
+        set => Editor.OutputCharMode = value;
+    }
+
+    async void ScrollCurrentLineToView(MouseEventArgs args)
+    {
+
+        await JS.InvokeVoidAsync("codemirrorInterop.scrollToAndHighlightLine", 1, 2);
+    }
+
+    List<(string script, int pid)> runningScripts = new();
+    System.Timers.Timer runningScriptsTimer;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        StartRunningScriptsTimer();
+    }
+
+    void StartRunningScriptsTimer()
+    {
+        return; // disable for now. The UX is not good enough yet.
+        runningScriptsTimer?.Dispose();
+        runningScriptsTimer = new (10000); // 10 seconds
+        runningScriptsTimer.Elapsed += async (s, e) =>
+        {
+            await InvokeAsync(RefreshRunningScripts);
+        };
+        runningScriptsTimer.AutoReset = true;
+        runningScriptsTimer.Start();
+        _ = RefreshRunningScripts();
+    }
+
+    async Task RefreshRunningScripts()
+    {
+        if (Editor == null)
+            return;
+        // If GetRunningScripts returns a single tuple, wrap in a list for display
+        var result = (await Editor?.GetRunningScripts())??[];
+        runningScripts = new();
+        runningScripts.AddRange(result);
+
+        StateHasChanged();
+    }
+
+    void StopScript(int pid)
+    {
+        try
+        {
+            if (pid != 0)
+            {
+                var proc = Process.GetProcessById(pid);
+                proc?.Kill();
+                proc?.Dispose();
+            } 
+        }
+        catch { }
+        _ = RefreshRunningScripts();
+    }
+
+    public void Dispose()
+    {
+        UIEvents.OnChange -= StateHasChangedSafe;
+        runningScriptsTimer?.Dispose();
+    }
+}

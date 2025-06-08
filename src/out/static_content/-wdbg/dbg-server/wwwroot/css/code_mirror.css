@@ -1,0 +1,64 @@
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+
+.CodeMirror-gutters {
+    /* Optionally, increase the overall gutter area */
+    min-width: 48px !important; /* Adjust as needed */
+}
+
+/* Shift only the code text (not line numbers or gutters) right by 5px */
+.CodeMirror pre {
+    padding-left: 10px !important;
+}
+
+.CodeMirror {
+    height: 100% !important;
+}
+
+
+
+.CodeMirror-linenumber {
+    padding-left: 10px !important;
+}
+
+/* Subtle highlight for the current debug step line, works on dark and light themes */
+.cm-current-step-line {
+    background-color: rgba(255, 215, 0, 0.18) !important; /* Gold/yellow, low opacity */
+    /* Optionally, add a border for extra clarity: */
+    border: 1px solid #FFD700;
+    border-left: 1px;
+    border-right: 1px;
+}
+
+.CodeMirror-foldgutter {
+    width: 10px;
+}
+
+.CodeMirror-scroll {
+    overflow-y: scroll !important; /* Always show vertical scrollbar */
+}
+
+/* Indent guides for CodeMirror */
+.CodeMirror .cm-indent-guide {
+    position: absolute;
+    border-left: 1px dotted #444;
+    pointer-events: none;
+    height: 100%;
+    z-index: 2;
+}
+
+.cm-s-darkone .cm-indent-guide {
+    border-left: 1px dotted #444;
+}
+
+/* Indent guide overlay style */
+.CodeMirror .cm-indent-guide-overlay {
+    border-left: 1px dotted #444;
+    margin-left: -1px;
+    pointer-events: none;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.cm-s-darkone .cm-indent-guide-overlay {
+    border-left: 1px dotted #555;
+}

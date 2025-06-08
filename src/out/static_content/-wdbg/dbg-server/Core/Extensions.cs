@@ -1,0 +1,190 @@
+using System;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using Microsoft.JSInterop;
+
+static class WebDbgExtensions
+{
+    public static string GetScriptPath(this HttpRequest request)
+        => request.Query["script"].FirstOrDefault()?.Replace(".dbg.cs", ".cs");
+
+    public static (DbgSession session, ObjectResult error) FindServerSession(this HttpRequest request)
+    {
+        var sessionId = request.Query["session"].FirstOrDefault() ?? "<unknown>";
+
+        // if (!Server.Sessions.ContainsKey(sessionId))
+        if (!Server.UserSessions.ContainsKey(sessionId))
+            return (null, new ObjectResult($"No active user/tab session found for the specified script ('{request.GetScriptPath()}').") { StatusCode = 500 });
+
+        var session = Server.UserSessions[sessionId].DebugSession;
+        return (session, null);
+    }
+}
+
+static class Extensions
+{
+    public static Dictionary<string, StringValues> ParseQuery(this string queryString)
+        => Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(queryString.TrimStart('?'));
+
+    public static Dictionary<string, StringValues> ParseUriQuery(this string uri)
+        => new Uri(uri).Query.ParseQuery();
+
+    public static bool HasText(this string text) => !string.IsNullOrEmpty(text);
+
+    public static string qt(this string path) => $"\"{path}\"";
+
+    public static string GetDirName(this string path) => Path.GetDirectoryName(path);
+
+    public static ValueTask<string>? ClearField(this IJSObjectReference module, string id)
+        => module?.InvokeAsync<string>("clearInputField", id);
+
+    public static string JoinBy(this IEnumerable<string> request, string separator)
+        => string.Join(separator, request);
+
+    public static string BodyAsString(this HttpRequest request)
+    {
+        using (var reader = new StreamReader(request.Body))
+            return reader.ReadToEndAsync().Result;
+    }
+
+    public static int? Parse(this ref int? intObject, string value)
+    {
+        if (!string.IsNullOrEmpty(value) && int.TryParse(value, out var result))
+            intObject = result;
+        return intObject;
+    }
+}
+
+static class Shell
+{
+    public static string cscs => Path.Combine(Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_ROOT%"), "cscs.dll");
+    public static string dbg_inject => Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_PREROCESSOR") ?? "<unknown path to dbg-inject.cs>";
+
+    static public Process StartScript(this string script, string args, Action<string> onOutputData)
+    {
+        return Shell.StartProcess("dotnet",
+                                  $"{cscs.qt()} -dbg {script.qt()} {args}",
+                                  script.GetDirName(),
+                                  onOutputData,
+                                  onOutputData);
+    }
+
+    static public string RunScript(this string script, string args, Action<Process> onStart)
+    {
+        var output = "";
+
+        // Console.WriteLine($"{cscs.qt()} {script.qt()} {args}");
+
+        var inject = Shell.StartProcess(
+                           "dotnet",
+                           $"{cscs.qt()} {script.qt()} {args}",
+                            script.GetDirName(),
+                            x => output += x + Environment.NewLine,
+                            x => output += x + Environment.NewLine);
+        try
+        {
+            onStart(inject);
+            inject.WaitForExit();
+            if (inject.ExitCode == 0)
+                return output;
+        }
+        catch
+        {
+        }
+
+        throw new ApplicationException(output);
+    }
+
+    public static Process StartAssembly(this string assembly, string args, Action<string> onStdOut = null, Action<string> onErrOut = null)
+        => StartProcess("dotnet", $"\"{assembly}\" +{args}", Path.GetDirectoryName(assembly), onStdOut, onErrOut);
+
+    public static string StartProcessInTerminal(this string exe, string exeArgs, string workingDir)
+    {
+        var result = "";
+        if (OperatingSystem.IsWindows())
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/k \"{exe} {exeArgs}\"",
+                WorkingDirectory = workingDir,
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+            result = $"Started in external terminal.";
+        }
+        else if (OperatingSystem.IsLinux())
+        {
+            // Try gnome-terminal, konsole, xterm in order
+            string[] terminals = { "gnome-terminal", "konsole", "xterm" };
+            bool started = false;
+
+            foreach (var terminal in terminals)
+            {
+                string args = terminal switch
+                {
+                    "gnome-terminal" => $"-- bash -c '{exe} {exeArgs}; exec bash'",
+                    "konsole" => $"-e bash -c '{exe} {exeArgs}; exec bash'",
+                    "xterm" => $"-e '{exe} {exeArgs}; bash'",
+                    _ => ""
+                };
+
+                var psi = new ProcessStartInfo
+                {
+                    FileName = terminal,
+                    Arguments = args,
+                    WorkingDirectory = workingDir,
+                    UseShellExecute = true
+                };
+
+                try
+                {
+                    Process.Start(psi);
+                    result = $"Started in {terminal}.";
+                    started = true;
+                    break;
+                }
+                catch
+                {
+                    // Try next terminal
+                }
+            }
+
+            if (!started)
+                result = "No supported terminal emulator found (tried gnome-terminal, konsole, xterm).";
+        }
+        else
+        {
+            result = "External terminal launch is only supported on Windows and Linux.";
+        }
+
+        return result;
+    }
+
+    public static Process StartProcess(this string exe, string args, string dir, Action<string> onStdOut = null, Action<string> onErrOut = null)
+    {
+        Process proc = new();
+        proc.StartInfo.FileName = exe;
+        proc.StartInfo.Arguments = args;
+        proc.StartInfo.WorkingDirectory = dir;
+        proc.StartInfo.UseShellExecute = false;
+        proc.StartInfo.RedirectStandardOutput = true;
+        proc.StartInfo.RedirectStandardError = true;
+        proc.StartInfo.RedirectStandardInput = true;
+        proc.StartInfo.EnvironmentVariables["CSS_WEB_DEBUGGING_URL"] = Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL");
+        proc.EnableRaisingEvents = true;
+        proc.ErrorDataReceived += (_, e) => onErrOut?.Invoke(e.Data);
+        proc.OutputDataReceived += (_, e) => onStdOut?.Invoke(e.Data);
+        proc.Start();
+
+        proc.BeginErrorReadLine();
+        proc.BeginOutputReadLine();
+
+        // var output = proc.StandardOutput.ReadToEnd();
+
+        return proc;
+    }
+}

@@ -1,0 +1,517 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using System.Diagnostics
+@using wdbg.cs_script
+@using System.Text.Json
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+@* https://skmedix.github.io/ikonli-java-8/cheat-sheet-openiconic.html *@
+
+<PageTitle>CodeMirror Editor</PageTitle>
+
+<div class="@($"theme-{Editor.SelectedTheme}")">
+    <div class="top-row px-4 d-flex justify-content-between align-items-center" id="top-row-panel">
+        <div class="d-flex align-items-center gap-2">
+            <input type="text"
+                   @bind="Editor.LoadedScript"
+                   @ref="fileNameInputRef"
+                   @oninput="AutoSizeFileNameInput"
+                   placeholder="Server file path..."
+                   class="theme-input @($"theme-input-{Editor.SelectedTheme}")"
+                   style="min-width: 320px; max-width: 100%; display: inline-block;" />
+            <span style="width:5px;margin-left:-18px;margin-top:-5px;">
+                @if (Document?.IsModified == true)
+                {
+                    <span style="color: #dc3545; font-weight: bold;">*</span>
+                }
+            </span>
+            <button class="btn btn-outline-secondary btn-sm" @onclick="LoadFileFromServer">Open</button>
+            <button class="btn btn-outline-secondary btn-sm" @onclick="() => SaveToFileOnServer(false)">Save</button>
+        </div>
+        <div class="d-flex align-items-center ">
+            <div class="d-flex align-items-center ms-3 debug-commands" style="gap: 0.5rem;">
+                <button class="btn btn-run btn-sm btn-run-check " title="Go to next file Location from the output panel" @onclick="() => GoToNextCompileError()">
+                    <span class="oi oi-fullscreen-exit rotate45"></span>
+                </button>
+                <button class="btn btn-run btn-sm btn-run-check " title="Check Script Syntax" @onclick="() => OnSyntaxCheckClicked()" disabled="@(!syntaxCheckAvailable)">
+                    <span class="oi oi-check"></span>
+                </button>
+                @if (UserSession?.IsLocalClient == true)
+                {
+                    <button class="btn btn-run btn-run-detached btn-sm" title="Start in the Terminal" @onclick="() => OnStartExternalClicked()" disabled="@(!startDetachedlAvailable)">
+                        <span class="oi oi-terminal"></span>
+                    </button>
+                }
+                <button class="btn btn-run btn-run-detached btn-sm" title="Start Without Debugging" @onclick="() => Start(breakAtStart: false, detached: true)" disabled="@(!startDetachedlAvailable)">
+                    <span class="oi oi-chevron-right"></span>
+                </button>
+                <button class="btn btn-run btn-sm" title="Start/Resume" @onclick="OnStartClicked" disabled="@(!startAvailable)">
+                    <span class="oi oi-caret-right"></span>
+                </button>
+                <button class="btn btn-run btn-sm" title="Step Over" @onclick="OnStepOverClicked" disabled="@(!stepCommandsAvailable)">
+                    <span class="oi oi-data-transfer-download rotate-90" title="Step Over"></span>
+                </button>
+                <button class="btn btn-run btn-sm" title="StepInto" @onclick="OnStepIntoClicked" disabled="@(!stepCommandsAvailable)">
+                    <span class="oi oi-data-transfer-download" title="Step Into"></span>
+                </button>
+                <button class="btn btn-pause btn-sm" title="Pause" @onclick="OnPauseClicked" disabled="@(!pauseAvailable)">
+                    <span class="oi oi-media-pause"></span>
+                </button>
+                <button class="btn btn-stop btn-sm" title="Stop" @onclick="OnStopClicked" disabled="@(!stopAvailable)">
+                    <span class="oi oi-media-stop"></span>
+                </button>
+                <span hidden class="oi oi-caret-bottom" style="vertical-align: middle; font-size: 0.7em;"></span>
+            </div>
+            <div class="d-flex align-items-center ms-3 " style="gap: 0.5rem;">
+                <label>Theme: </label>
+                <select @onchange="OnThemeChanged" value="@Editor.SelectedTheme">
+                    @foreach (var theme in Editor.Themes)
+                    {
+                        <option value="@theme">@theme</option>
+                    }
+                </select>
+                @*  <a href="https://github.com/oleg-shilo/cs-script/wiki/WDBG" class="mb-2 ms-3" style="margin-left:20px" target="_blank">About</a> *@
+                @if ((UserSession?.IsLocalClient == true))
+                {
+                    <span title="This browser is running on&#10;the same machine as the server." class="badge bg-success">Local Client</span>
+                }
+                else
+                {
+                    <span title="This browser is connected to&#10;the debugger server remotely." class="badge bg-secondary">Remote Client</span>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="split-container">
+        <div class="split-panel left-panel">
+            <div class="left-vertical-container">
+                <div class="left-top-panel">
+                    <div id="editor"></div>
+                </div>
+                <div class="left-horizontal-resizer" @onmousedown="StartLeftHorizontalResize"></div>
+                <div class="left-bottom-panel">
+                    @if (DebugSession?.IsScriptExecutionInProgress == true)
+                    {
+                        <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                            <input type="text"
+                                   class="cli-input @($"theme-input-{Editor.SelectedTheme}")"
+                                   placeholder="Terminal input goes here..."
+                                   @bind="userCliInput"
+                                   @bind:event="oninput"
+                                   @onkeydown="OnCliInputKeyDown" />
+                            <button class="clear-bottom-panel-btn" @onclick="ClearOutput" title="Clear panel" style="flex: none;">
+                                <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M10 12.6l.7.7 1.6-1.6 1.6 1.6.8-.7L13 11l1.7-1.6-.8-.8-1.6 1.7-1.6-1.7-.7.8 1.6 1.6-1.6 1.6zM1 4h14V3H1v1zm0 3h14V6H1v1zm8 2.5V9H1v1h8v-.5zM9 13v-1H1v1h8z" /></svg>
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                            <button class="clear-bottom-panel-btn" @onclick="ClearOutput" title="Clear panel" style="flex: none;">
+                                <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M10 12.6l.7.7 1.6-1.6 1.6 1.6.8-.7L13 11l1.7-1.6-.8-.8-1.6 1.7-1.6-1.7-.7.8 1.6 1.6-1.6 1.6zM1 4h14V3H1v1zm0 3h14V6H1v1zm8 2.5V9H1v1h8v-.5zM9 13v-1H1v1h8z" /></svg>
+                            </button>
+                        </div>
+                    }
+                    <div class="bottom-panel-output">
+
+                        <ul>
+                            @for (int i = 0; i < Editor.Output.Count; i++)
+                            {
+                                var selected = i == currentOutputIndex;
+                                var selectedIndex = i;
+
+                                <li class="output-line @(selected ? "output-line-highlight" : null)"
+                                    @onclick="() => OnOutputLineClick(selectedIndex)">
+                                    @Editor.Output[i]
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="split-resizer" @onmousedown="StartResize"></div>
+        <div class="split-panel right-panel">
+            @* <div style="font-family:monospace;white-space:pre-wrap;background:#f5f5f5;padding:4px 8px;border-radius:4px;"> *@
+
+            <div class="locals-watch-tabs">
+                <div class="tab-header">
+                    <button class="tab-btn @(selectedTab == 0 ? "active" : "")" @onclick="() => SelectTab(0)">Locals</button>
+                    <button class="tab-btn @(selectedTab == 1 ? "active" : "")" @onclick="() => SelectTab(1)">Watch</button>
+                </div>
+                <div class="tab-content">
+                    @if (selectedTab == 0)
+                    {
+                        <div class="locals-table-container">
+                            <table class="table table-sm table-bordered locals-table watch-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Value</th>
+                                        <th>Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Variables.Count; i++)
+                                    {
+                                        var variable = Variables[i];
+                                        var index = i;
+                                        <tr class="@(selectedLocalIndex == index ? "selected-row" : null)"
+                                            @onclick="(() => OnLocalsItemSelected(index))">
+                                            <td title="@(variable.Name)">@(string.IsNullOrEmpty(variable.Name) ? "\u00A0" : variable.Name)</td>
+                                            <td>@(string.IsNullOrEmpty(variable.Value) ? "\u00A0" : variable.DisplayValue)</td>
+                                            <td title="@(variable.Type)">@(string.IsNullOrEmpty(variable.Type) ? "\u00A0" : variable.Type)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <div class="locals-value-label" style="margin-top:12px; margin-bottom:4px;">
+                                Selected Value:
+                                <span style="font-weight:normal; color:#888; margin-left:8px;">
+                                    @selectedLocalName
+                                </span>
+                            </div>
+
+                            <textarea class="locals-value-textarea" readonly
+                                      value="@selectedLocalValue"
+                                      @oncontextmenu="ShowLocalsContextMenu"
+                                      @oncontextmenu:preventDefault> </textarea>
+                        </div>
+                    }
+                    else if (selectedTab == 1)
+                    {
+                        <div class="locals-table-container">
+                            <div class="watch-add-bar" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                                <input class="watch-input-textarea"
+                                       style="flex:1; min-width:0;"
+                                       placeholder="Enter watch expression..."
+                                       @bind="newWatchExpression"
+                                       @bind:event="oninput"
+                                       @onkeydown="OnWatchInputKeyDown" />
+                                <button class="btn btn-sm btn-primary" @onclick="AddWatchVariable">Add</button>
+                            </div>
+                            <table class="table table-sm table-bordered locals-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Value</th>
+                                        <th>Type</th>
+                                        <th style="width:32px"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < WatchVariables.Count; i++)
+                                    {
+                                        var variable = WatchVariables[i];
+                                        var index = i;
+                                        <tr class="@(selectedWatchIndex == index ? "selected-row" : null)"
+                                            @onclick="(() => OnWatchItemSelected(index))">
+                                            <td title="@(variable.Name)">@(string.IsNullOrEmpty(variable.Name) ? "\u00A0" : variable.Name)</td>
+                                            <td>@(string.IsNullOrEmpty(variable.Value) ? "\u00A0" : variable.DisplayValue)</td>
+                                            <td title="@(variable.Type)">@(string.IsNullOrEmpty(variable.Type) ? "\u00A0" : variable.Type)</td>
+
+                                            <td style="width:32px">
+                                                <button class="watch-remove-btn"
+                                                        title="Remove"
+                                                        @onclick:stopPropagation="true"
+                                                        @onclick="(() => RemoveWatchVariable(index))">
+                                                    &times;
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <div class="locals-value-label" style="margin-top:12px; margin-bottom:4px;">
+                                Selected Value:
+                                <span style="font-weight:normal; color:#888; margin-left:8px;">
+                                    @selectedWatchName
+                                </span>
+                            </div>
+
+                            <textarea class="locals-value-textarea" readonly
+                                      value="@selectedWatchValue"
+                                      @oncontextmenu="ShowWatchContextMenu"
+                                      @oncontextmenu:preventDefault> </textarea>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="toast-container-bottomright">
+    @if (!string.IsNullOrEmpty(Editor?.ToastMessage))
+    {
+        <div class="toast-message @Editor.ToastType"
+             @onclick="Editor.HideToast"
+             @onmouseover="Editor.PauseToastTimer"
+             @onmouseout="Editor.ResumeToastTimer">
+            @Editor.ToastMessage
+        </div>
+    }
+</div>
+
+
+<ContextMenu Show="showContextMenu"
+             X="contextMenuX"
+             Y="contextMenuY"
+             ValueToCopy="@contextMenuValueToCopy"
+             OnClose="HideContextMenu" />
+
+@code {
+    string userCliInput = "";
+
+    void OnCliInputKeyDown(KeyboardEventArgs e)
+    {
+        // Only process input if a script is running and StandardInput is available
+        if (DebugSession?.RunningScript?.StandardInput == null)
+            return;
+
+        // Ignore non-character keys except Enter and Backspace
+        if (e.Key.Length == 1)
+        {
+            try
+            {
+                DebugSession.RunningScript.StandardInput.Write(e.Key);
+            }
+            catch { /* Ignore errors from closed process */ }
+        }
+        else if (e.Key == "Enter")
+        {
+
+            try
+            {
+                DebugSession.RunningScript.StandardInput.Write("\n");
+            }
+            catch { }
+            finally
+            {
+                userCliInput = "";
+                StateHasChanged();
+            }
+        }
+        else if (e.Key == "Backspace")
+        {
+            // Optionally, send backspace to the process if needed
+            // DebugSession.RunningScript.StandardInput.Write("\b");
+            // For most CLI, backspace is handled by the terminal, not the process
+        }
+    }
+
+    ElementReference fileNameInputRef;
+    int outputPosition = 0;
+    List<VariableInfo> Variables = new();
+
+    int selectedTab = 0; // 0 = Locals, 1 = Watch
+
+    List<VariableInfo> WatchVariables = new();
+
+    int selectedLocalIndex = -1;
+    int selectedWatchIndex = -1;
+
+    string selectedWatchName => selectedWatchIndex != -1 && WatchVariables.Count > selectedWatchIndex ? WatchVariables[selectedWatchIndex].Name : null;
+    string selectedLocalName => selectedLocalIndex != -1 && Variables.Count > selectedLocalIndex ? Variables[selectedLocalIndex].Name : null;
+
+    string selectedWatchValue = "";
+    string selectedLocalValue = "";
+
+    bool showContextMenu = false;
+    double contextMenuX, contextMenuY;
+    string contextMenuValueToCopy = "";
+
+    ValueTask<TValue> js<TValue>(string identifier, params object?[]? args) => JS.InvokeAsync<TValue>(identifier, args);
+    ValueTask js(string identifier, params object?[]? args) => JS.InvokeVoidAsync(identifier, args);
+
+    void StateHasChangedSafe() => InvokeAsync(StateHasChanged); // Ensure StateHasChanged is called on the UI thread
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) await InitPage(); }
+
+    public async Task InitPage()
+    {
+        ClearLocals();
+
+        (this.UserSession, bool created) = await JS.FindOrCreateUserSessionFor(this);
+        this.Document = this.UserSession.Document;
+        this.Editor = this.UserSession.Editor;
+        this.UIEvents = this.UserSession.UIEvents;
+        this.DebugSession = this.UserSession.DebugSession;
+        this.Editor.Storage = new Ide.localStorage(JS); // important to pass a freshly initialized copy of JS
+
+        UIEvents.OnChange += StateHasChangedSafe;
+        UIEvents.OnDbgChange += DebugStateHasChanged;
+        UIEvents.OnObjectValue += DebugObjectStateChanged;
+
+        await Editor.ReadPersistedConfig();
+        await js("codemirrorInterop.init", Editor.SelectedCmTheme, DotNetObjectReference.Create(this));
+        await js("restoreSplitPositions");
+        await js("registerWindowKeyHandlers", DotNetObjectReference.Create(this));
+
+        Navigation.Uri.ParseUriQuery().TryGetValue("script", out var requestedScriptParams);
+
+        // Restore file name and content if available
+        var fileToLoad = requestedScriptParams.FirstOrDefault() ?? Editor.LastSessionFileName;
+        if (fileToLoad != null)
+        {
+            Editor.LoadedScript = fileToLoad;
+
+            await LoadFileFromServer();
+            Editor.LastSessionFileName = fileToLoad;
+        }
+
+        // This JS checks if the browser is running on localhost or 127.0.0.1
+        var hostname = await JS.InvokeAsync<string>("eval", "window.location.hostname");
+        UserSession.IsLocalClient = (hostname == "localhost" || hostname == "127.0.0.1");
+
+        UIEvents.NotifyStateChanged();
+
+        // need to call it after the HTML element received the new value triggered by StateHasChanged
+        await AutoSizeFileNameInput(null);
+    }
+
+    async Task AutoSizeFileNameInput(ChangeEventArgs e) => await js("autoSizeInput", fileNameInputRef);
+    async Task StartLeftHorizontalResize(MouseEventArgs e) => await js("startLeftHorizontalResize");
+    async Task<string> GetDocumentContent() => await js<string>("codemirrorInterop.getValue");
+    async Task SetDocumentContent(string content) => await js("codemirrorInterop.setValue", content);
+    async Task RenderBreakpoints() => await js("codemirrorInterop.setBreakpoints", Document.Breakpoints.ToArray());
+    async Task<int[]> GetBreakpoints() => await js<int[]>("codemirrorInterop.getBreakpoints");
+    async Task ScrollCurrentLineToView() => await js("codemirrorInterop.scrollCurrentLineToView");
+    async Task ScrollLineToView(int line) => await js("codemirrorInterop.scrollLineToView", line);
+    async Task setCurrentStepLine(int line) => await js("codemirrorInterop.setCurrentStepLine", line);
+    async Task ScrollToAndHighlightLine(int line, int ch) => await js("codemirrorInterop.scrollToAndHighlightLine", line, ch);
+
+    async Task OnThemeChanged(ChangeEventArgs e)
+    {
+        Editor.SelectedTheme = e.Value?.ToString() ?? "light";
+        Document.LastSavedContent = Document.EditorContent; // Track loaded content
+        await js("codemirrorInterop.setTheme", Editor.SelectedCmTheme);
+    }
+
+    public void OutputScrollToEnd() =>
+        _ = js("setTimeout", $"document.querySelector('.bottom-panel-output')?.scrollTo(0, 1e6)", 50);
+
+    [JSInvokable]
+    public async Task OnEditorChanged()
+    {
+        await CheckIfModified();
+
+    }
+
+    [JSInvokable]
+    public Task UpdateCaretInfo(string lineText, int line, int ch)
+    {
+        Document.CurrentLineText = lineText.Trim();
+        if (Document.CurrentLineText.Length > 25)
+            Document.CurrentLineText = Document.CurrentLineText.Substring(0, 25) + "...";
+
+        Document.CaretLine = line + 1; // 1-based for display
+        Document.CaretCh = ch + 1;     // 1-based for display
+        UIEvents.NotifyStateChanged();
+        return Task.CompletedTask;
+    }
+
+    public bool OnOutputLineClick(int lineIndex)
+    {
+        string line = Editor.Output[lineIndex];
+        currentOutputIndex = lineIndex;
+
+        // Example: D:\dev\spikes\WebCodeEditor\CodeMiro\test.cs(11,5): error CS1001:  Identifier expected
+        var match = System.Text.RegularExpressions.Regex.Match(
+            line,
+            @"^(?<file>.+)\((?<line>\d+),(?<col>\d+)\):\s*error.*$"
+        );
+        if (match.Success)
+        {
+            var file = match.Groups["file"].Value;
+            var lineNum = int.Parse(match.Groups["line"].Value);
+            var colNum = int.Parse(match.Groups["col"].Value);
+
+            // Only navigate if the file matches the currently loaded script
+            if (file.Equals(Editor.LoadedScript, StringComparison.OrdinalIgnoreCase))
+            {
+                // CodeMirror is 0-based, so subtract 1
+                ScrollToAndHighlightLine(lineNum - 1, colNum - 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public async Task OnLocalsItemSelected(int index)
+    {
+        selectedLocalIndex = index;
+        selectedLocalValue = null;
+        UIEvents.NotifyStateChanged();
+        RequestSelectedVariablesInfo(locals: true, watch: false);
+    }
+
+    async Task StartResize(MouseEventArgs e) => await js("startSplitResize");
+
+    public void OnWatchItemSelected(int index)
+    {
+        selectedWatchIndex = index;
+        selectedWatchValue = null;
+        UIEvents.NotifyStateChanged();
+        RequestSelectedVariablesInfo(locals: false, watch: true);
+    }
+
+    [JSInvokable] public async Task OnCtrlS() => await SaveToFileOnServer(false);
+    [JSInvokable] public async Task OnCtrlE() => await OpenScriptFolder();
+    [JSInvokable] public async Task OnF4() => GoToNextCompileError();
+    [JSInvokable] public async Task OnF5() => OnStartClicked();
+    [JSInvokable] public async Task OnShiftF5() => this.OnStopClicked();
+    [JSInvokable] public async Task OnF7() => OnSyntaxCheckClicked();
+    [JSInvokable] public async Task OnF10() => OnStepOverClicked(null);
+    [JSInvokable] public async Task OnF11() => OnStepIntoClicked(null);
+    [JSInvokable] public async Task OnF12() { }
+
+    void SelectTab(int tab)
+    {
+        selectedTab = tab;
+        StateHasChanged();
+    }
+
+    void OnWatchInputKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            AddWatchVariable();
+        }
+    }
+
+    void ShowLocalsContextMenu(MouseEventArgs e)
+    {
+        contextMenuX = e.ClientX;
+        contextMenuY = e.ClientY;
+        contextMenuValueToCopy = selectedLocalValue;
+        showContextMenu = true;
+        StateHasChanged();
+    }
+
+    void ShowWatchContextMenu(MouseEventArgs e)
+    {
+        contextMenuX = e.ClientX;
+        contextMenuY = e.ClientY;
+        contextMenuValueToCopy = selectedWatchValue;
+        showContextMenu = true;
+        StateHasChanged();
+    }
+
+    void HideContextMenu()
+    {
+        showContextMenu = false;
+        StateHasChanged();
+    }
+}

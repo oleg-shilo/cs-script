@@ -1,0 +1,114 @@
+/* CodeMirror "darkone" theme */
+.cm-s-darkone.CodeMirror {
+    background: #181c20;
+    color: #e0e0e0;
+}
+
+.cm-s-darkone .CodeMirror-gutters {
+    background: #181c20;
+    color: #555;
+    border-right: 1px solid #222;
+}
+
+.cm-s-darkone .CodeMirror-cursor {
+    border-left: 1px solid #e0e0e0;
+}
+
+.cm-s-darkone .CodeMirror-linenumber {
+    color: #444;
+}
+
+.cm-s-darkone .CodeMirror-selected {
+    background: #23272b;
+}
+
+.cm-s-darkone .CodeMirror-line::selection, .cm-s-darkone .CodeMirror-line > span::selection, .cm-s-darkone .CodeMirror-line > span > span::selection {
+    background: #2a2e32;
+}
+
+.cm-s-darkone .cm-keyword {
+    color: #ffb86c;
+}
+
+.cm-s-darkone .cm-atom {
+    color: #bd93f9;
+}
+
+.cm-s-darkone .cm-number {
+    color: #bd93f9;
+}
+
+.cm-s-darkone .cm-def {
+    color: #8be9fd;
+}
+
+.cm-s-darkone .cm-variable {
+    color: #e0e0e0;
+}
+
+.cm-s-darkone .cm-variable-2 {
+    color: #f1fa8c;
+}
+
+.cm-s-darkone .cm-variable-3, .cm-s-darkone .cm-type {
+    color: #50fa7b;
+}
+
+.cm-s-darkone .cm-property {
+    color: #66d9ef;
+}
+
+.cm-s-darkone .cm-operator {
+    color: #ff79c6;
+}
+
+.cm-s-darkone .cm-comment {
+    color: #6272a4;
+    font-style: italic;
+}
+
+.cm-s-darkone .cm-string {
+    color: #f1fa8c;
+}
+
+.cm-s-darkone .cm-string-2 {
+    color: #f1fa8c;
+}
+
+.cm-s-darkone .cm-meta {
+    color: #f8f8f2;
+}
+
+.cm-s-darkone .cm-tag {
+    color: #ff79c6;
+}
+
+.cm-s-darkone .cm-attribute {
+    color: #50fa7b;
+}
+
+.cm-s-darkone .cm-qualifier {
+    color: #8be9fd;
+}
+
+.cm-s-darkone .cm-builtin {
+    color: #8be9fd;
+}
+
+.cm-s-darkone .cm-error {
+    color: #ff5555;
+}
+
+/* Lighter text selection for CodeMirror darkone theme */
+.cm-s-darkone .CodeMirror-selected,
+.cm-s-darkone .CodeMirror-line::selection,
+.cm-s-darkone .CodeMirror-line > span::selection,
+.cm-s-darkone .CodeMirror-line > span > span::selection {
+    background: #3a4a62 !important; /* Light blue, adjust as needed */
+}
+
+.cm-s-darkone .CodeMirror-line::-moz-selection,
+.cm-s-darkone .CodeMirror-line > span::-moz-selection,
+.cm-s-darkone .CodeMirror-line > span > span::-moz-selection {
+    background: #3a4a62 !important;
+}

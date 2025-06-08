@@ -1,0 +1,434 @@
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+
+/*https://codemirror.net/5/demo/theme.htm*/
+
+/* Default (light) */
+.panel-theme-light {
+    background: #f8f9fa !important;
+    color: #222 !important;
+}
+
+/* Dracula theme */
+.panel-theme-dracula {
+    background: #282a36 !important;
+    color: #f8f8f2 !important;
+}
+
+/* Material-darker theme */
+.panel-theme-material-darker {
+    background: #212121 !important;
+    color: #eee !important;
+}
+
+/* Monokai theme */
+.panel-theme-monokai {
+    background: #272822 !important;
+    color: #f8f8f2 !important;
+}
+
+/* 3024-night theme */
+.panel-theme-3024-night {
+    background: #090300 !important;
+    color: #a5a2a2 !important;
+}
+
+/* abcdef theme */
+.panel-theme-abcdef {
+    background: #0F0F0F !important;
+    color: #f8f8f2 !important;
+}
+
+/* Darkone theme */
+.panel-theme-darkone {
+    background: #181c20 !important;
+    color: #e0e0e0 !important;
+}
+
+.theme-input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 1rem;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+    outline: none;
+}
+
+/* Default (light) */
+.theme-input-default {
+    background: #fff;
+    color: #222;
+    border-color: #ccc;
+}
+
+/* Dracula theme */
+.theme-input-dracula {
+    background: #282a36;
+    color: #f8f8f2;
+    border-color: #44475a;
+}
+
+/* Material-darker theme */
+.theme-input-material-darker {
+    background: #212121;
+    color: #eee;
+    border-color: #444;
+}
+
+/* Monokai theme */
+.theme-input-monokai {
+    background: #272822;
+    color: #f8f8f2;
+    border-color: #75715e;
+}
+
+/* 3024-night theme */
+.theme-input-3024-night {
+    background: #090300;
+    color: #a5a2a2;
+    border-color: #5c5855;
+}
+
+/* abcdef theme */
+.theme-input-abcdef {
+    background: #0F0F0F;
+    color: #f8f8f2;
+    border-color: #444;
+}
+
+/* 3024-day theme */
+.theme-input-3024-day {
+    background: #f7f7f7;
+    color: #090300;
+    border-color: #a5a2a2;
+}
+
+/* Darkone theme */
+.theme-input-darkone {
+    background: #181c20;
+    color: #e0e0e0;
+    border-color: #333;
+}
+/* ------------------*/
+
+
+/* CodeMirror blackboard theme */
+.cm-s-blackboard.CodeMirror {
+    background: #0C1021;
+    color: #F8F8F8;
+}
+
+.cm-s-blackboard .CodeMirror-gutters {
+    background: #0C1021;
+    border-right: 0px;
+}
+
+.cm-s-blackboard .CodeMirror-linenumber {
+    color: #888;
+}
+
+.cm-s-blackboard .CodeMirror-cursor {
+    border-left: 1px solid #A7A7A7;
+}
+
+.cm-s-blackboard span.cm-comment {
+    color: #AEAEAE;
+}
+
+.cm-s-blackboard span.cm-string {
+    color: #61CE3C;
+}
+
+.cm-s-blackboard span.cm-number {
+    color: #FF73FD;
+}
+
+.cm-s-blackboard span.cm-variable {
+    color: #F8F8F8;
+}
+
+.cm-s-blackboard span.cm-variable-2 {
+    color: #FFFFB6;
+}
+
+.cm-s-blackboard span.cm-def {
+    color: #8DA6CE;
+}
+
+.cm-s-blackboard span.cm-keyword {
+    color: #FBDE2D;
+}
+
+.cm-s-blackboard span.cm-operator {
+    color: #FBDE2D;
+}
+
+.cm-s-blackboard span.cm-atom {
+    color: #D8FA3C;
+}
+
+.cm-s-blackboard span.cm-meta {
+    color: #D8FA3C;
+}
+
+.cm-s-blackboard span.cm-tag {
+    color: #8DA6CE;
+}
+
+.cm-s-blackboard span.cm-attribute {
+    color: #8DA6CE;
+}
+
+.cm-s-blackboard span.cm-qualifier {
+    color: #8DA6CE;
+}
+
+.cm-s-blackboard span.cm-property {
+    color: #8DA6CE;
+}
+
+.cm-s-blackboard span.cm-builtin {
+    color: #8DA6CE;
+}
+
+.cm-s-blackboard span.cm-variable-3, .cm-s-blackboard span.cm-type {
+    color: #FFB774;
+}
+
+.cm-s-blackboard .CodeMirror-activeline-background {
+    background: #353A4A;
+}
+
+.cm-s-blackboard .CodeMirror-matchingbracket {
+    outline: 1px solid grey;
+    color: white !important;
+    background-color: #555;
+}
+
+.panel-theme-blackboard .CodeMirror-selected,
+.panel-theme-blackboard .CodeMirror ::selection,
+.panel-theme-blackboard .CodeMirror ::-moz-selection {
+    background: #444 !important;
+}
+
+
+
+/* Light panel theme */
+.panel-theme-light .table {
+    background-color: #fff;
+    color: #222;
+    border-color: #dee2e6;
+}
+
+    .panel-theme-light .table th,
+    .panel-theme-light .table td {
+        border-color: #dee2e6;
+    }
+
+    .panel-theme-light .table thead {
+        background-color: #f8f9fa;
+        color: #222;
+    }
+
+/* DarkOne panel theme */
+.panel-theme-3024-night .table,
+.panel-theme-monokai .table,
+.panel-theme-material-darker .table {
+    color: #f8f8f2;
+}
+
+.panel-theme-dracula .table,
+.panel-theme-abcdef .table,
+.panel-theme-darkone .table {
+    background-color: #23272b;
+    color: #f8f8f2;
+    border-color: #444;
+}
+
+    .panel-theme-darkone .table th,
+    .panel-theme-darkone .table td {
+        border-color: #444;
+    }
+
+    .panel-theme-darkone .table thead {
+        background-color: #2a2e33;
+        color: #f8f8f2;
+    }
+
+/* Blackboard panel theme */
+.panel-theme-blackboard .table {
+    background-color: #181c25;
+    color: #f8f8f8;
+    border-color: #333;
+}
+
+    .panel-theme-blackboard .table th,
+    .panel-theme-blackboard .table td {
+        border-color: #333;
+    }
+
+    .panel-theme-blackboard .table thead {
+        background-color: #23272b;
+        color: #ffe066;
+    }
+
+
+.theme-darkone .locals-value-textarea,
+.panel-theme-darkone .locals-value-textarea {
+    background: #23272b;
+    color: #f8f8f2;
+    border: 1px solid #444;
+}
+
+.panel-theme-blackboard .locals-value-textarea {
+    background: #23272b;
+    color: #f8f8f2;
+    border: 1px solid #444;
+}
+
+.panel-theme-material-darker .locals-value-textarea {
+    background: #23272b;
+    color: #f8f8f2;
+    border: 1px solid #444;
+}
+
+.panel-theme-dracula .locals-value-textarea {
+    background: #23272b;
+    color: #f8f8f2;
+    border: 1px solid #444;
+}
+
+.panel-theme-abcdef .locals-value-textarea {
+    background: #23272b;
+    color: #f8f8f2;
+    border: 1px solid #444;
+}
+
+.panel-theme-3024-night .locals-value-textarea {
+    background: #23272b;
+    color: #f8f8f2;
+    border: 1px solid #444;
+}
+
+.panel-theme-monokai .locals-value-textarea {
+    background: #23272b;
+    color: #f8f8f2;
+    border: 1px solid #444;
+}
+
+.panel-theme-darkone .tab-header {
+    background: #23272b;
+    border-bottom: 1px solid #444;
+}
+
+.theme-darkone .tab-btn,
+.panel-theme-darkone .tab-btn {
+    color: #f8f8f2;
+}
+
+    .theme-darkone .tab-btn.active,
+    .panel-theme-darkone .tab-btn.active {
+        color: #ffe066;
+        border-bottom: 2px solid #ffe066;
+    }
+
+.panel-theme-blackboard .tab-header {
+    background: #23272b;
+    border-bottom: 1px solid #444;
+}
+
+
+.panel-theme-blackboard .tab-btn {
+    color: #f8f8f2;
+}
+
+    .panel-theme-blackboard .tab-btn.active {
+        color: #ffe066;
+        border-bottom: 2px solid #ffe066;
+    }
+
+
+.panel-theme-dracula .tab-header {
+    background: #23272b;
+    border-bottom: 1px solid #444;
+}
+
+.panel-theme-dracula .tab-btn {
+    color: #f8f8f2;
+}
+
+    .panel-theme-dracula .tab-btn.active {
+        color: #ffe066;
+        border-bottom: 2px solid #ffe066;
+    }
+
+
+.panel-theme-monokai .tab-header {
+    background: #23272b;
+    border-bottom: 1px solid #444;
+}
+
+.panel-theme-monokai .tab-btn {
+    color: #f8f8f2;
+}
+
+    .panel-theme-monokai .tab-btn.active {
+        color: #ffe066;
+        border-bottom: 2px solid #ffe066;
+    }
+
+
+.panel-theme-material-darker .tab-header,
+.panel-theme-abcdef .tab-header,
+.panel-theme-3024-night .tab-header {
+    background: #23272b;
+    border-bottom: 1px solid #444;
+}
+
+.panel-theme-material-darker .tab-btn,
+.panel-theme-abcdef .tab-btn,
+.panel-theme-3024-night .tab-btn {
+    color: #f8f8f2;
+}
+
+    .panel-theme-material-darker .tab-btn.active,
+    .panel-theme-abcdef .tab-btn.active,
+    .panel-theme-3024-night .tab-btn.active {
+        color: #ffe066;
+        border-bottom: 2px solid #ffe066;
+    }
+
+
+.panel-theme-blackboard .commands-table thead tr,
+.panel-theme-dracula .commands-table thead tr,
+.panel-theme-darkone .commands-table thead tr,
+.panel-theme-material-darker .commands-table thead tr,
+.panel-theme-3024-night .commands-table thead tr,
+.panel-theme-monokai .commands-table thead tr,
+.panel-theme-abcdef .commands-table thead tr {
+    background: #23272b;
+}
+
+.panel-theme-light .commands-table thead tr,
+.panel-theme-3024-day .commands-table thead tr {
+    background: #e2e2e2;
+}
+
+.editor-title,
+.theme-light .editor-title,
+.panel-theme-light .editor-title,
+.theme-dracula .editor-title,
+.panel-theme-dracula .editor-title,
+.theme-material-darker .editor-title,
+.panel-theme-material-darker .editor-title,
+.theme-monokai .editor-title,
+.panel-theme-monokai .editor-title,
+.theme-3024-night .editor-title,
+.panel-theme-3024-night .editor-title,
+.theme-abcdef .editor-title,
+.panel-theme-abcdef .editor-title,
+.theme-darkone .editor-title,
+.panel-theme-darkone .editor-title,
+.theme-blackboard .editor-title,
+.panel-theme-blackboard .editor-title {
+    color: #fffbe7 !important;
+}
