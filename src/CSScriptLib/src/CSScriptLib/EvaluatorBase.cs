@@ -413,9 +413,9 @@ namespace CSScriptLib
         /// <param name="info">The information about compilation context (e.g. location of the compiler output -
         /// assembly and pdb file).</param>
         /// <returns>The compiled assembly.</returns>
-        public Assembly CompileMethod(string code, CompileInfo info)
+        public Assembly CompileMethod(string code, CompileInfo info = null)
         {
-            string scriptText = CSScript.WrapMethodToAutoClass(code, false, false, null, className: info.RootClass);
+            string scriptText = CSScript.WrapMethodToAutoClass(code, false, false, null, className: info?.RootClass);
             return CompileCode(scriptText, info);
         }
 

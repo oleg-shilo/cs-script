@@ -1,13 +1,16 @@
-# Release v4.9.6.0
+# Release v4.9.7.0
 
 ---
 
 ## Changes
 
 ### CLI
-
-#414: Implement assembly probing for external script execution (e.g. x86)
+- Stop killing its own process on `css -lists kill *`
+- Bumped version: Microsoft.CodeAnalysis.CSharp.Scripting v4.14.0
+- New WDBG environment
+- WDBG - Addressed multiple parsing problems when preparing teh script for execution
 
 ### CSScriptLib
-<no changes>
+ - #416: CompileInfo parameter for CompileMethod()
+
 

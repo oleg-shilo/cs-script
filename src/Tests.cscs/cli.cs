@@ -311,7 +311,7 @@ global using global::System.Threading.Tasks;");
                 if (cmd == "-exe") continue;
 
                 var probing_dir = $"-dir:{static_content}";
-                var extra_arg = cmd.IsOneOf("-web", "-test", "-exe", "-update", "-alias") ? "-?" : "";
+                var extra_arg = cmd.IsOneOf("-wdbg", "-web", "-test", "-exe", "-update", "-alias") ? "-?" : "";
 
                 (var output, var exitCode) = cscs_runx($"{file} {extra_arg}");
 

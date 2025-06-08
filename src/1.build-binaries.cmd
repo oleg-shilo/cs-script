@@ -91,7 +91,7 @@ pushd .\
 cd .\out\static_content\-wdbg\dbg-server
 echo ----------------
 echo Building WDBG from %cd%
-dotnet publish -o .\output server.csproj
+dotnet publish -o .\output wdbg.csproj
 popd
 
 :agregate
