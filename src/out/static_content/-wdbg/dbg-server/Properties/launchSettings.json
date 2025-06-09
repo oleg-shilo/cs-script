@@ -11,8 +11,8 @@
         },
         "https": {
             "commandName": "Project",
-            "commandLineArgs": "\"D:\\dev\\cs-script\\src\\out\\static_content\\-wdbg\\dbg-server\\output\\server.dll\" --urls \"https://localhost:5101\" -pre \"D:\\dev\\cs-script\\src\\out\\static_content\\-wdbg\\dbg-inject.cs\" ",
-            //"commandLineArgs": "-pre D:\\dev\\cs-script\\src\\out\\static_content\\-wdbg\\dbg-inject.cs --urls https://localhost:7030",
+            "commandLineArgs": "--urls \"https://localhost:5101\" -pre \"C:\\Users\\oleg\\.dotnet\\tools\\.store\\cs-script.cli\\4.9.8\\cs-script.cli\\4.9.8\\tools\\net9.0\\any\\-wdbg\\dbg-inject.cs\"",
+            "commandLineArgs1": "\"D:\\dev\\cs-script\\src\\out\\static_content\\-wdbg\\dbg-server\\output\\server.dll\" --urls \"https://localhost:5101\" -pre \"D:\\dev\\cs-script\\src\\out\\static_content\\-wdbg\\dbg-inject.cs\" ",
             "launchBrowser": true,
             "launchUrl": "https://localhost:5101/?script=D:\\dev\\spikes\\WebCodeEditor\\CodeMiro\\test.cs",
             "environmentVariables": {

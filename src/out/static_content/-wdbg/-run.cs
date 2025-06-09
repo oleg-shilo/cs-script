@@ -68,7 +68,7 @@ static class Scipt
         var serverArgs = (args.Length > 1) ?
                           "\"" + args.Skip(1).JoinBy("\" \"") + "\"" : // the rest of the args are to be interpreted by the server
                           "";
-        var serverAsm = Path.Combine(serverDir, "server.dll");
+        var serverAsm = Path.Combine(serverDir, "wdbg.dll");
         var preprocessor = Path.Combine(wdbgDir, "dbg-inject.cs");
 
         // start wdbg server
@@ -85,6 +85,7 @@ static class Scipt
             Console.WriteLine($"---");
 
             var url = urls.Split(';').FirstOrDefault();
+
             if (script != null)
                 url += $"?script={script}"; // pass script to the server
 

@@ -14,7 +14,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.9.7.0</Version>
+    <Version>4.9.8.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
@@ -32,14 +32,14 @@
 - Stop killing its own process on `css -lists kill *`
 - Bumped version: Microsoft.CodeAnalysis.CSharp.Scripting v4.14.0
 - New WDBG environment
-- WDBG - Addressed multiple parsing problems when preparing teh script for execution
+- WDBG - Addressed multiple parsing problems when preparing the script for execution
 
 ### CSScriptLib
  - #416: CompileInfo parameter for CompileMethod()</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.9.7.0</AssemblyVersion>
-    <FileVersion>4.9.7.0</FileVersion>
-    <PackageVersion>4.9.7.0</PackageVersion>
+    <AssemblyVersion>4.9.8.0</AssemblyVersion>
+    <FileVersion>4.9.8.0</FileVersion>
+    <PackageVersion>4.9.8.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>

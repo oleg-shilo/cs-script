@@ -7,6 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="output\**" />
+      <Content Remove="output\**" />
+      <EmbeddedResource Remove="output\**" />
+      <None Remove="output\**" />
+    </ItemGroup>
+
+    <ItemGroup>
       <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
     </ItemGroup>
 

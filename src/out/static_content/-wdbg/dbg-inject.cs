@@ -332,8 +332,70 @@ public class Decorator
         }
     }
 
-    // static string css => @"D:\dev\cs-script\src\cscs\bin\Debug\net9.0\cscs.dll";
-    static string css => Path.Combine(Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_ROOT%"), "cscs.dll");
+    static string css
+    {
+        get
+        {
+            // Engine file probing priorities:
+            // 1. check if we are hosted by the script engine
+            // 2. check if some f the parent folders contains the script engine assembly
+            // 3. check if css shim is present on OS
+            // 4. check the install directory (%CSSCRIPT_ROOT%) in case css is fully installed
+            // ======================================
+
+            // 1
+            var found =
+                Environment.GetEnvironmentVariable("CSScriptRuntimeLocation") ??
+                (Assembly.GetExecutingAssembly().GetName().Name == "cscs" ?
+                    Assembly.GetExecutingAssembly().Location :
+                    Assembly.GetEntryAssembly().GetName().Name == "cscs" ?
+                        Assembly.GetEntryAssembly().Location :
+                        null);
+
+            if (found.HasText() && File.Exists(found))
+                return found;
+            else
+                found = null;
+
+            // 2
+            var dir = Environment.CurrentDirectory;
+
+            while (dir != null)
+            {
+                var candidate = Path.Combine(dir, "cscs.dll");
+                if (File.Exists(candidate))
+                {
+                    found = candidate;
+                    break;
+                }
+                dir = Path.GetDirectoryName(dir);
+            }
+
+            if (found.HasText() && File.Exists(found))
+                return found;
+            else
+                found = null;
+
+            // 3
+            try
+            {
+                StringBuilder output = new();
+                Shell.StartProcess("css", "-self", onStdOut: line => output.AppendLine(line?.Trim())).WaitForExit();
+                found = output.ToString().Trim();
+
+                if (File.Exists(found)) // may throw
+                    return found;
+            }
+            catch { }
+
+            // 4. Fallback to environment variable if not found
+            found = Path.Combine(Environment.ExpandEnvironmentVariables(@"%CSSCRIPT_ROOT%"), "cscs.dll");
+
+            if (!found.HasText() || !File.Exists(found))
+                throw new Exception($"Cannot find cscs.dll. Please ensure it is available in the current directory or set the CSSCRIPT_ROOT environment variable.");
+            return found;
+        }
+    }
 }
 
 public class MethodDbgInfo

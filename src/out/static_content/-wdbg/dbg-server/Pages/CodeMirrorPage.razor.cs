@@ -73,6 +73,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                     ScrollLineToView(DebugSession.CurrentStepLineNumber);
 
                 var prevSelectefLocalName = selectedLocalName; // save it before Variables are updated
+
                 if (variables.HasText())
                     Variables = JsonSerializer.Deserialize<List<VariableInfo>>(variables);
 
@@ -228,6 +229,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         {
             // Remove the first \n for processing
             data = data.Substring(1);
+
             var lines = data.Split('\n');
             // Replace the last line with the first new line
             Editor.Output[Editor.Output.Count - 1] = lines[0];
@@ -291,6 +293,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         try
         {
             var bpList = await Editor.Storage.Read<string>("breakpoints");
+
             if (bpList.HasText())
             {
                 var lines = bpList.Split(',').Select(int.Parse).ToArray();
@@ -377,6 +380,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         try
         {
             var scriptPath = Editor.LoadedScript;
+
             if (!scriptPath.HasText() || !File.Exists(scriptPath))
             {
                 Editor.ShowToastError("Script file not found.");
@@ -457,6 +461,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             try
             {
                 var scriptToExecute = detached ? Editor.LoadedScript : Editor.LoadedScriptDbg;
+
                 if (!scriptToExecute.HasText() || !File.Exists(scriptToExecute))
                 {
                     Editor.ShowToastError("File not found.");
@@ -485,7 +490,9 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                     onError: error => Editor.ShowToastError(error),
                     DebugSession.Id,
                     Editor.OutputCharMode,
-                    envars: breakAtStart ? [("pauseOnStart", "true")] : []);
+                    envars: breakAtStart ?
+                                [("EntryScript", Editor.LoadedScript), ("pauseOnStart", "true")] :
+                                [("EntryScript", Editor.LoadedScript)]);
             }
             catch (Exception ex)
             {
@@ -550,6 +557,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
     void AddWatchVariable()
     {
         var expression = newWatchExpression?.Trim();
+
         if (!expression.HasText())
             return;
 

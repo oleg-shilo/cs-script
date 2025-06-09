@@ -144,6 +144,11 @@ public class Ide
 
     public void ShowToastError(string message, int durationMs = 3000) => ShowToast(message, "toast-error", durationMs);
 
+    public void ConsoleLog(string message)
+    {
+        Storage._js.InvokeVoidAsync("console.log", message);
+    }
+
     void ShowToast(string message, string type, int durationMs)
     {
         ToastMessage = message;
@@ -151,6 +156,7 @@ public class Ide
         LastToastMessage = message;
         LastToastType = type;
         UINotification.NotifyStateChanged();
+        ConsoleLog(message);
 
         toastTimer?.Dispose();
         toastTimer = new System.Timers.Timer(durationMs);
@@ -268,9 +274,9 @@ public class Ide
 
     public List<string> Output = new();
 
-    public class localStorage
+    public class localStorage // needs to be lowercase to allow consistency with JS naming conventions
     {
-        IJSRuntime _js;
+        public IJSRuntime _js;
 
         public localStorage(IJSRuntime js) => _js = js;
 
