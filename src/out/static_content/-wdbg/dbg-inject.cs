@@ -32,77 +32,6 @@ public class Decorator
         return 0;
     }
 
-    static bool IsInsideBracketlessScope(string code, int line)
-    {
-        codeTree = codeTree ?? CSharpSyntaxTree.ParseText(code).GetRoot();
-
-        // Find the statement at the given line
-        var statement = codeTree.DescendantNodes()
-            .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.StatementSyntax>()
-            .FirstOrDefault(s =>
-            {
-                var span = s.GetLocation().GetLineSpan();
-                // Lines are 0-based in Roslyn, but 0-based in most editors
-                return span.StartLinePosition.Line == line;
-            });
-
-        if (statement == null)
-            return false;
-
-        var parent = statement.Parent;
-
-        // Check if parent is a flow control statement and not a block
-        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.IfStatementSyntax ifStmt)
-            return ifStmt.Statement == statement && !(ifStmt.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
-
-        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.ElseClauseSyntax elseClause)
-            return elseClause.Statement == statement && !(elseClause.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
-
-        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.ForEachStatementSyntax forEachStmt)
-            return forEachStmt.Statement == statement && !(forEachStmt.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
-
-        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.ForStatementSyntax forStmt)
-            return forStmt.Statement == statement && !(forStmt.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
-
-        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.WhileStatementSyntax whileStmt)
-            return whileStmt.Statement == statement && !(whileStmt.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
-
-        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.DoStatementSyntax doStmt)
-            return doStmt.Statement == statement && !(doStmt.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
-
-        return false;
-    }
-
-    static SyntaxNode codeTree;
-
-    static MethodSyntaxInfo[] GetMethodSignatures(string code)
-    {
-        codeTree = codeTree ?? CSharpSyntaxTree.ParseText(code).GetRoot();
-        var nodes = codeTree.DescendantNodes();
-
-        return nodes.OfType<MethodDeclarationSyntax>()
-                    .Select(x => new MethodSyntaxInfo
-                    {
-                        Method = x.Identifier.Text,
-                        Params = x.ParameterList.Parameters.Select(y => y.ToString().Split(' ', '\t').Last()).ToArray(),
-                        StartLine = x.GetLocation().GetLineSpan().StartLinePosition.Line,
-                        EndLine = x.GetLocation().GetLineSpan().EndLinePosition.Line,
-                        IsStatic = x.Modifiers.Any(x => x.Text == "static")
-                    }).Concat(
-               nodes.OfType<LocalFunctionStatementSyntax>()
-                    .OrderBy(x => x.FullSpan.End)
-                    .Select(x => new MethodSyntaxInfo
-                    {
-                        Method = x.Identifier.Text,
-                        Params = x.ParameterList.Parameters.Select(y => y.ToString().Split(' ', '\t').Last()).ToArray(),
-                        StartLine = x.GetLocation().GetLineSpan().StartLinePosition.Line,
-                        EndLine = x.GetLocation().GetLineSpan().EndLinePosition.Line,
-                        IsStatic = true // while it is not static, local functions cannot difference "this" so deal with it as with static method
-                    }))
-               .OrderBy(x => x.StartLine)
-               .ToArray();
-    }
-
     public static (string decoratedScript, int[] breakpoints) InjectDbgInfo(string script)
     {
         string error;
@@ -254,6 +183,77 @@ public class Decorator
             return (decoratedScript, breakpoints);
     }
 
+    static bool IsInsideBracketlessScope(string code, int line)
+    {
+        codeTree = codeTree ?? CSharpSyntaxTree.ParseText(code).GetRoot();
+
+        // Find the statement at the given line
+        var statement = codeTree.DescendantNodes()
+            .OfType<Microsoft.CodeAnalysis.CSharp.Syntax.StatementSyntax>()
+            .FirstOrDefault(s =>
+            {
+                var span = s.GetLocation().GetLineSpan();
+                // Lines are 0-based in Roslyn, but 0-based in most editors
+                return span.StartLinePosition.Line == line;
+            });
+
+        if (statement == null)
+            return false;
+
+        var parent = statement.Parent;
+
+        // Check if parent is a flow control statement and not a block
+        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.IfStatementSyntax ifStmt)
+            return ifStmt.Statement == statement && !(ifStmt.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
+
+        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.ElseClauseSyntax elseClause)
+            return elseClause.Statement == statement && !(elseClause.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
+
+        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.ForEachStatementSyntax forEachStmt)
+            return forEachStmt.Statement == statement && !(forEachStmt.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
+
+        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.ForStatementSyntax forStmt)
+            return forStmt.Statement == statement && !(forStmt.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
+
+        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.WhileStatementSyntax whileStmt)
+            return whileStmt.Statement == statement && !(whileStmt.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
+
+        if (parent is Microsoft.CodeAnalysis.CSharp.Syntax.DoStatementSyntax doStmt)
+            return doStmt.Statement == statement && !(doStmt.Statement is Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax);
+
+        return false;
+    }
+
+    static SyntaxNode codeTree;
+
+    static MethodSyntaxInfo[] GetMethodSignatures(string code)
+    {
+        codeTree = codeTree ?? CSharpSyntaxTree.ParseText(code).GetRoot();
+        var nodes = codeTree.DescendantNodes();
+
+        return nodes.OfType<MethodDeclarationSyntax>()
+                    .Select(x => new MethodSyntaxInfo
+                    {
+                        Method = x.Identifier.Text,
+                        Params = x.ParameterList.Parameters.Select(y => y.ToString().Split(' ', '\t').Last()).ToArray(),
+                        StartLine = x.GetLocation().GetLineSpan().StartLinePosition.Line,
+                        EndLine = x.GetLocation().GetLineSpan().EndLinePosition.Line,
+                        IsStatic = x.Modifiers.Any(x => x.Text == "static")
+                    }).Concat(
+               nodes.OfType<LocalFunctionStatementSyntax>()
+                    .OrderBy(x => x.FullSpan.End)
+                    .Select(x => new MethodSyntaxInfo
+                    {
+                        Method = x.Identifier.Text,
+                        Params = x.ParameterList.Parameters.Select(y => y.ToString().Split(' ', '\t').Last()).ToArray(),
+                        StartLine = x.GetLocation().GetLineSpan().StartLinePosition.Line,
+                        EndLine = x.GetLocation().GetLineSpan().EndLinePosition.Line,
+                        IsStatic = true // while it is not static, local functions cannot difference "this" so deal with it as with static method
+                    }))
+               .OrderBy(x => x.StartLine)
+               .ToArray();
+    }
+
     static Dictionary<int, string[]> ExtractInvalidVariableDeclarations(string error)
     {
         // D:\test.cs(24,94): error CS0841:  Cannot use local variable 'testVar3' before it is declared...
@@ -380,7 +380,7 @@ public class Decorator
             try
             {
                 StringBuilder output = new();
-                Shell.StartProcess("css", "-self", onStdOut: line => output.AppendLine(line?.Trim())).WaitForExit();
+                Shell.StartProcess("css", "-self", null, onStdOut: line => output.AppendLine(line?.Trim())).WaitForExit();
                 found = output.ToString().Trim();
 
                 if (File.Exists(found)) // may throw
@@ -566,7 +566,7 @@ static class Shell
         Process proc = new();
         proc.StartInfo.FileName = exe;
         proc.StartInfo.Arguments = args;
-        proc.StartInfo.WorkingDirectory = dir;
+        proc.StartInfo.WorkingDirectory = dir ?? "";
         proc.StartInfo.UseShellExecute = false;
         proc.StartInfo.RedirectStandardOutput = true;
         proc.StartInfo.RedirectStandardError = true;

@@ -476,6 +476,13 @@
     [JSInvokable] public async Task OnF10() => OnStepOverClicked(null);
     [JSInvokable] public async Task OnF11() => OnStepIntoClicked(null);
     [JSInvokable] public async Task OnF12() { }
+    [JSInvokable]
+    public async Task<string> GetTooltipFor(string text, int line, int charPos)
+    {
+        return $"Tooltip: [{text}] (Line: {line}, Char: {charPos})";
+    }
+
+
 
     void SelectTab(int tab)
     {

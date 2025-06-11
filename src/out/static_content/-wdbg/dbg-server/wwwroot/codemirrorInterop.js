@@ -119,6 +119,9 @@
 
         // Initial render
         window.codemirrorInterop.renderIndentGuides();
+
+        // Enable token tooltips
+        window.codemirrorInterop.enableTokenTooltips();
     },
 
     showCustomCompletion: function (cm) {
@@ -425,6 +428,87 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    },
+
+    enableTokenTooltips: function () {
+        const cm = window.codemirrorInterop.editor;
+        if (!cm) return;
+
+        // Remove any previous handlers to avoid duplicates
+        if (cm._tokenTooltipHandler) {
+            cm.getWrapperElement().removeEventListener('mousemove', cm._tokenTooltipHandler);
+            cm.getWrapperElement().removeEventListener('mouseleave', cm._tokenTooltipLeaveHandler);
+        }
+
+        let tooltipDiv = null;
+        let lastToken = null;
+
+        function showTooltip(text, x, y) {
+            hideTooltip();
+
+            tooltipDiv = document.createElement('div');
+            tooltipDiv.className = 'cm-tooltip-content';
+            tooltipDiv.textContent = text;
+            tooltipDiv.style.position = 'fixed';
+            tooltipDiv.style.left = (x + 10) + 'px';
+            tooltipDiv.style.top = (y + 10) + 'px';
+            tooltipDiv.style.zIndex = 10000;
+            document.body.appendChild(tooltipDiv);
+        }
+
+        function hideTooltip() {
+            if (tooltipDiv) {
+                document.body.removeChild(tooltipDiv);
+                tooltipDiv = null;
+            }
+        }
+
+        cm._tokenTooltipHandler = async function (e) {
+            const { left, top } = cm.getWrapperElement().getBoundingClientRect();
+            const x = e.clientX - left, y = e.clientY - top;
+            const pos = cm.coordsChar({ left: e.clientX, top: e.clientY });
+            const token = cm.getTokenAt(pos);
+
+            // Only show tooltip if mouse is directly over the token
+            if (
+                !token ||
+                !token.string.trim() ||
+                pos.ch < token.start ||
+                pos.ch >= token.end
+            ) {
+                hideTooltip();
+                lastToken = null;
+                return;
+            }
+
+            // Only show if hovering a new token
+            if (
+                lastToken &&
+                lastToken.start === token.start &&
+                lastToken.end === token.end &&
+                lastToken.line === pos.line
+            ) {
+                return;
+            }
+            lastToken = { start: token.start, end: token.end, line: pos.line };
+
+            var tooltipText = await window.codemirrorInterop.dotnetRef.invokeMethodAsync(
+                "GetTooltipFor",
+                token.string,
+                pos.line,
+                pos.ch
+            );
+
+            showTooltip(tooltipText, e.clientX, e.clientY);
+        };
+
+        cm._tokenTooltipLeaveHandler = function () {
+            hideTooltip();
+            lastToken = null;
+        };
+
+        cm.getWrapperElement().addEventListener('mousemove', cm._tokenTooltipHandler);
+        cm.getWrapperElement().addEventListener('mouseleave', cm._tokenTooltipLeaveHandler);
     }
 };
 
