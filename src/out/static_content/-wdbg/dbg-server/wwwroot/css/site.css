@@ -919,8 +919,6 @@ button:focus, button:focus-visible, button:active:focus {
 }
 
 .cm-tooltip-content {
-    background: #222;
-    color: #fff;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.95em;
@@ -928,4 +926,91 @@ button:focus, button:focus-visible, button:active:focus {
     pointer-events: none;
     max-width: 400px;
     white-space: pre;
+    /* Default styling (light theme) */
+    background: #f8f9fa;
+    color: #212529;
+    border: 1px solid #dee2e6;
 }
+
+/* Light theme specific styling */
+.panel-theme-light .cm-tooltip-content {
+    background: #f8f9fa;
+    color: #212529;
+    border: 1px solid #dee2e6;
+}
+
+/* Dark theme variations */
+.panel-theme-dracula .cm-tooltip-content,
+.panel-theme-material-darker .cm-tooltip-content,
+.panel-theme-monokai .cm-tooltip-content,
+.panel-theme-3024-night .cm-tooltip-content,
+.panel-theme-abcdef .cm-tooltip-content,
+.panel-theme-blackboard .cm-tooltip-content,
+.panel-theme-darkone .cm-tooltip-content {
+    background: #282a36;
+    color: #f8f8f2;
+    border: 1px solid #44475a;
+}
+
+/* Theme-specific customizations for better contrast */
+.panel-theme-blackboard .cm-tooltip-content {
+    background: #0C1021;
+}
+
+.panel-theme-monokai .cm-tooltip-content {
+    background: #272822;
+}
+
+.panel-theme-material-darker .cm-tooltip-content {
+    background: #212121;
+}
+
+/* Light theme (default) */
+.hint-theme-light {
+    background-color: #f8f9fa;
+    color: #212529;
+    border: 1px solid #dee2e6;
+}
+
+    .hint-theme-light .CodeMirror-hint {
+        color: #212529;
+    }
+
+    .hint-theme-light .CodeMirror-hint-active {
+        background-color: #007bff;
+        color: white;
+    }
+
+/* Dark themes */
+.hint-theme-dracula,
+.hint-theme-material-darker,
+.hint-theme-monokai,
+.hint-theme-3024-night,
+.hint-theme-abcdef,
+.hint-theme-blackboard,
+.hint-theme-darkone {
+    background-color: #282a36;
+    color: #f8f8f2;
+    border: 1px solid #44475a;
+}
+
+    .hint-theme-dracula .CodeMirror-hint,
+    .hint-theme-material-darker .CodeMirror-hint,
+    .hint-theme-monokai .CodeMirror-hint,
+    .hint-theme-3024-night .CodeMirror-hint,
+    .hint-theme-abcdef .CodeMirror-hint,
+    .hint-theme-blackboard .CodeMirror-hint,
+    .hint-theme-darkone .CodeMirror-hint {
+        color: #f8f8f2;
+    }
+
+    .hint-theme-dracula .CodeMirror-hint-active,
+    .hint-theme-material-darker .CodeMirror-hint-active,
+    .hint-theme-monokai .CodeMirror-hint-active,
+    .hint-theme-3024-night .CodeMirror-hint-active,
+    .hint-theme-abcdef .CodeMirror-hint-active,
+    .hint-theme-blackboard .CodeMirror-hint-active,
+    .hint-theme-darkone .CodeMirror-hint-active {
+        background-color: #7746bd;
+        color: #f8f8f2;
+    }

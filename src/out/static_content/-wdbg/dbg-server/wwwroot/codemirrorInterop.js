@@ -157,6 +157,9 @@
 
                 const from = { line: cursor.line, ch: fromCh };
 
+                // Apply theme to hint container after it's created
+                setTimeout(() => window.codemirrorInterop.applyThemeToHint(), 0);
+
                 return {
                     from: from,
                     to: cursor,
@@ -173,6 +176,30 @@
             },
             completeSingle: true
         });
+    },
+
+    applyThemeToHint: function () {
+        const theme = this.editor ? this.editor.getOption("theme") : "default";
+        const hintContainer = document.querySelector('.CodeMirror-hints');
+        if (!hintContainer) return;
+
+        // Remove any existing theme classes
+        hintContainer.className = hintContainer.className
+            .replace(/hint-theme-\S+/g, '')
+            .trim();
+
+        // Add appropriate theme class
+        let hintThemeClass = 'hint-theme-light';
+
+        if (theme === "dracula") hintThemeClass = 'hint-theme-dracula';
+        else if (theme === "material-darker") hintThemeClass = 'hint-theme-material-darker';
+        else if (theme === "monokai") hintThemeClass = 'hint-theme-monokai';
+        else if (theme === "3024-night") hintThemeClass = 'hint-theme-3024-night';
+        else if (theme === "abcdef") hintThemeClass = 'hint-theme-abcdef';
+        else if (theme === "blackboard") hintThemeClass = 'hint-theme-blackboard';
+        else if (theme === "darkone") hintThemeClass = 'hint-theme-darkone';
+
+        hintContainer.classList.add(hintThemeClass);
     },
 
     setTheme: function (theme) {
@@ -207,6 +234,9 @@
         if (sidebarPanel) sidebarPanel.classList.add(panelClass);
         if (toprowPanel) toprowPanel.classList.add(panelClass);
         if (editorElement) editorElement.classList.add(panelClass);
+
+        // Also apply theme to any active hint container
+        this.applyThemeToHint();
     },
 
     toggleBreakpointAtCursor: function () {
@@ -510,6 +540,20 @@
             tooltipDiv.style.left = (x + 10) + 'px';
             tooltipDiv.style.top = (y + 10) + 'px';
             tooltipDiv.style.zIndex = 10000;
+            
+            // Apply the current theme to the tooltip
+            const theme = window.codemirrorInterop.editor ? 
+                window.codemirrorInterop.editor.getOption("theme") : "default";
+            
+            if (theme === "dracula") tooltipDiv.classList.add('panel-theme-dracula');
+            else if (theme === "material-darker") tooltipDiv.classList.add('panel-theme-material-darker');
+            else if (theme === "monokai") tooltipDiv.classList.add('panel-theme-monokai');
+            else if (theme === "3024-night") tooltipDiv.classList.add('panel-theme-3024-night');
+            else if (theme === "abcdef") tooltipDiv.classList.add('panel-theme-abcdef');
+            else if (theme === "blackboard") tooltipDiv.classList.add('panel-theme-blackboard');
+            else if (theme === "darkone") tooltipDiv.classList.add('panel-theme-darkone');
+            else tooltipDiv.classList.add('panel-theme-light');
+            
             document.body.appendChild(tooltipDiv);
         }
 

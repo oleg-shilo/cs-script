@@ -419,7 +419,7 @@
             var suggestionItems = items
                 .Select(x => (object)new
                 {
-                    displayText = $"{x[0].EnsureLength(maxTextLength)}  {x[1]}",
+                    displayText = $"{x[0].EnsureLength(maxTextLength)}  {x[1].Trim()}",
                     text = x[2].Trim()
                 })
                 .ToArray();
