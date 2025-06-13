@@ -130,20 +130,28 @@
             hint: async function () {
                 var caret = window.codemirrorInterop.getCaretAbsolutePosition();
                 const fullText = cm.getValue();
-
-                var suggestions = await window.codemirrorInterop.dotnetRef
-                    .invokeMethodAsync("OnCompletionRequest", fullText, caret)
-
-                // Find any partial match at the current cursor position
                 const cursor = cm.getCursor();
-                const token = cm.getTokenAt(cursor);
                 const lineText = cm.getLine(cursor.line);
 
-                // Calculate the from position based on any existing partial token
+                // Determine if there's a dot before the cursor that we need to preserve
+                const isDotCompletion = cursor.ch > 0 && lineText.charAt(cursor.ch - 1) === '.';
+
+                var suggestions = await window.codemirrorInterop.dotnetRef
+                    .invokeMethodAsync("OnCompletionRequest", fullText, caret);
+
+                // Find any partial match at the current cursor position
+                const token = cm.getTokenAt(cursor);
+
+                // Calculate the correct start position for replacement
                 let fromCh = cursor.ch;
-                if (token && token.string && token.string.trim() &&
+
+                // If this is a dot completion, preserve the dot by starting after it
+                if (isDotCompletion) {
+                    fromCh = cursor.ch; // Start replacing after the dot
+                }
+                // Otherwise look for a token to replace
+                else if (token && token.string && token.string.trim() &&
                     cursor.ch > token.start && token.type !== "comment") {
-                    // If cursor is positioned within a token, start from token beginning
                     fromCh = token.start;
                 }
 
