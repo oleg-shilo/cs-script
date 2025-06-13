@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Components.Forms;
@@ -57,6 +58,55 @@ static class Extensions
         if (!string.IsNullOrEmpty(value) && int.TryParse(value, out var result))
             intObject = result;
         return intObject;
+    }
+
+    public static string PathJoin(this string path, params string[] items)
+    {
+        return System.IO.Path.Combine(new[] { path }.Concat(items).ToArray());
+    }
+
+    public static string EnsureDir(this string dir)
+    {
+        if (!Directory.Exists(dir))
+            Directory.CreateDirectory(dir);
+        return dir;
+    }
+
+    public static byte[] GetBytes(this string data)
+    {
+        return Encoding.UTF8.GetBytes(data);
+    }
+
+    public static string GetString(this byte[] data)
+    {
+        return Encoding.UTF8.GetString(data);
+    }
+
+    public static byte[] ReadAllBytes(this TcpClient client)
+    {
+        var bytes = new byte[client.ReceiveBufferSize];
+        var len = client.GetStream()
+                      .Read(bytes, 0, bytes.Length);
+        var result = new byte[len];
+        Array.Copy(bytes, result, len);
+        return result;
+    }
+
+    public static string ReadAllText(this TcpClient client)
+    {
+        return client.ReadAllBytes().GetString();
+    }
+
+    public static void WriteAllBytes(this TcpClient client, byte[] data)
+    {
+        var stream = client.GetStream();
+        stream.Write(data, 0, data.Length);
+        stream.Flush();
+    }
+
+    public static void WriteAllText(this TcpClient client, string data)
+    {
+        client.WriteAllBytes(data.GetBytes());
     }
 }
 

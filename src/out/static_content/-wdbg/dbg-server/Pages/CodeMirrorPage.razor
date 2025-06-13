@@ -273,43 +273,6 @@
 @code {
     string userCliInput = "";
 
-    void OnCliInputKeyDown(KeyboardEventArgs e)
-    {
-        // Only process input if a script is running and StandardInput is available
-        if (DebugSession?.RunningScript?.StandardInput == null)
-            return;
-
-        // Ignore non-character keys except Enter and Backspace
-        if (e.Key.Length == 1)
-        {
-            try
-            {
-                DebugSession.RunningScript.StandardInput.Write(e.Key);
-            }
-            catch { /* Ignore errors from closed process */ }
-        }
-        else if (e.Key == "Enter")
-        {
-
-            try
-            {
-                DebugSession.RunningScript.StandardInput.Write("\n");
-            }
-            catch { }
-            finally
-            {
-                userCliInput = "";
-                StateHasChanged();
-            }
-        }
-        else if (e.Key == "Backspace")
-        {
-            // Optionally, send backspace to the process if needed
-            // DebugSession.RunningScript.StandardInput.Write("\b");
-            // For most CLI, backspace is handled by the terminal, not the process
-        }
-    }
-
     ElementReference fileNameInputRef;
     int outputPosition = 0;
     List<VariableInfo> Variables = new();
@@ -380,6 +343,43 @@
         await AutoSizeFileNameInput(null);
     }
 
+    void OnCliInputKeyDown(KeyboardEventArgs e)
+    {
+        // Only process input if a script is running and StandardInput is available
+        if (DebugSession?.RunningScript?.StandardInput == null)
+            return;
+
+        // Ignore non-character keys except Enter and Backspace
+        if (e.Key.Length == 1)
+        {
+            try
+            {
+                DebugSession.RunningScript.StandardInput.Write(e.Key);
+            }
+            catch { /* Ignore errors from closed process */ }
+        }
+        else if (e.Key == "Enter")
+        {
+
+            try
+            {
+                DebugSession.RunningScript.StandardInput.Write("\n");
+            }
+            catch { }
+            finally
+            {
+                userCliInput = "";
+                StateHasChanged();
+            }
+        }
+        else if (e.Key == "Backspace")
+        {
+            // Optionally, send backspace to the process if needed
+            // DebugSession.RunningScript.StandardInput.Write("\b");
+            // For most CLI, backspace is handled by the terminal, not the process
+        }
+    }
+
     async Task AutoSizeFileNameInput(ChangeEventArgs e) => await js("autoSizeInput", fileNameInputRef);
     async Task StartLeftHorizontalResize(MouseEventArgs e) => await js("startLeftHorizontalResize");
     async Task<string> GetDocumentContent() => await js<string>("codemirrorInterop.getValue");
@@ -402,10 +402,24 @@
         _ = js("setTimeout", $"document.querySelector('.bottom-panel-output')?.scrollTo(0, 1e6)", 50);
 
     [JSInvokable]
+    public async Task<object[]> OnCompletionRequest(string editorText, int caret)
+    {
+        var suggestions = Syntaxer.GetCompletions(editorText, Editor.LoadedScript, caret);
+        if (!suggestions.HasText())
+            return [];
+
+        // Aggregate(...)  method | Aggregate
+        var lines = suggestions.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        return lines
+            .Select(x => x.Split('|'))
+            .Select(x => (object)new { text = x[1], displayText = x[0] })
+            .ToArray();
+    }
+
+    [JSInvokable]
     public async Task OnEditorChanged()
     {
         await CheckIfModified();
-
     }
 
     [JSInvokable]

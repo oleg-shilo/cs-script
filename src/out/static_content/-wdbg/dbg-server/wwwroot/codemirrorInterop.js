@@ -127,15 +127,22 @@
     showCustomCompletion: function (cm) {
         if (!cm) return;
         cm.showHint({
-            hint: function () {
+            hint: async function () {
+                var caret = window.codemirrorInterop.getCaretAbsolutePosition();
+                const fullText = cm.getValue();
+
+                var suggestions = await window.codemirrorInterop.dotnetRef
+                    .invokeMethodAsync("OnCompletionRequest", fullText, caret)
+
                 return {
                     from: cm.getCursor(),
                     to: cm.getCursor(),
-                    list: [
-                        { text: "ToString", displayText: "ToString()      method" },
-                        { text: "GetHashCode", displayText: "GetHashCode()   method" },
-                        { text: "Equals", displayText: "Equals()        method" }
-                    ]
+                    list: suggestions || []
+                    // list: [
+                    //     { text: "ToString", displayText: "ToString()      method" },
+                    //     { text: "GetHashCode", displayText: "GetHashCode()   method" },
+                    //     { text: "Equals", displayText: "Equals()        method" }
+                    // ]
                 };
             }
         });
@@ -267,6 +274,28 @@
         const lineCount = window.editor.lineCount();
         if (typeof line !== "number" || line < 0 || line >= lineCount) return;
         window.editor.scrollIntoView({ line: line, ch: 0 }, 100);
+    },
+
+    getCaretAbsolutePosition: function () {
+        const cm = window.codemirrorInterop.editor;
+        if (!cm) return { left: 0, top: 0, bottom: 0, characterOffset: 0 };
+
+        const pos = cm.getCursor();
+        const fullText = cm.getValue();
+
+        // Detect line ending style (looking for first occurrence)
+        const lineEndingStyle = /\r\n/.test(fullText) ? '\r\n' : '\n';
+        const lineEndingLength = lineEndingStyle.length; // 2 for \r\n, 1 for \n
+
+        let characterOffset = 0;
+
+        for (let i = 0; i < pos.line; i++) {
+            characterOffset += cm.getLine(i).length + lineEndingLength;
+        }
+
+        // Add characters in current line up to caret position
+        characterOffset += pos.ch;
+        return characterOffset;
     },
 
     // Set the current debug step line (0-based)
@@ -420,6 +449,7 @@
         }
         return "";
     },
+
     saveTextAsFile: function (text, filename) {
         const blob = new Blob([text], { type: "text/plain" });
         const link = document.createElement("a");

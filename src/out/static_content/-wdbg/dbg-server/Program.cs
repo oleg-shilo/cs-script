@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using wdbg.cs_script;
 
 // starting VS solution is more convenient from console:
 // 1. set CSSCRIPT_ROOT=D:\dev\Galos\cs-script\src\out\Windows
@@ -76,5 +77,7 @@ void print(string message)
 print("Pre-processor: " + preprocessor);
 app.Urls.ToList().ForEach(x => print($"Now listening on: {x}")); // otherwise enable in appsettings.json
 print("Debugger started. Press Ctrl+C to shut down.");
+
+Syntaxer.StartServer(true); // start the syntax server to provide syntax highlighting and code completion in the browser
 
 process.Wait();

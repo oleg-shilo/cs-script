@@ -103,7 +103,7 @@
                             Output Char Mode
                         </label>
                     </div>
-                    <div class="nav-item px-3" hidden>
+                    <div class="nav-item px-3" >
                         <button class="btn btn-outline-secondary btn-sm" @onclick="ScrollCurrentLineToView">
                             Current Line to View
                         </button> 
@@ -197,8 +197,8 @@
 
     async void ScrollCurrentLineToView(MouseEventArgs args)
     {
-
-        await JS.InvokeVoidAsync("codemirrorInterop.scrollToAndHighlightLine", 1, 2);
+        // await JS.InvokeVoidAsync("codemirrorInterop.scrollToAndHighlightLine", 1, 2);
+        var los = await JS.InvokeAsync<int>("codemirrorInterop.getCaretAbsolutePosition");
     }
 
     List<(string script, int pid)> runningScripts = new();
