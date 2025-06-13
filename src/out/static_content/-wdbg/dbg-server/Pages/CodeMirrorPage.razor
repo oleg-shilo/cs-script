@@ -409,7 +409,8 @@
             return [];
 
         // Aggregate(...)  method | Aggregate
-        var lines = suggestions.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        var lines = suggestions.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
         return lines
             .Select(x => x.Split('|'))
             .Select(x => (object)new { text = x[1], displayText = x[0] })

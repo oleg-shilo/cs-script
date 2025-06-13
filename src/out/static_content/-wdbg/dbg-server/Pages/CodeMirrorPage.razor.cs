@@ -191,7 +191,6 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
         {
             File.WriteAllTextAsync(Editor.LoadedScript, content);
-            // await File.WriteAllTextAsync(Editor.LoadedScript, content);
 
             var currentBreakpoints = await GetBreakpoints();
             await UpdateBreakpoints(currentBreakpoints);

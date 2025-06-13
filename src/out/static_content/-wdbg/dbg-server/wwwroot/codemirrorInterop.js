@@ -134,17 +134,36 @@
                 var suggestions = await window.codemirrorInterop.dotnetRef
                     .invokeMethodAsync("OnCompletionRequest", fullText, caret)
 
+                // Find any partial match at the current cursor position
+                const cursor = cm.getCursor();
+                const token = cm.getTokenAt(cursor);
+                const lineText = cm.getLine(cursor.line);
+
+                // Calculate the from position based on any existing partial token
+                let fromCh = cursor.ch;
+                if (token && token.string && token.string.trim() &&
+                    cursor.ch > token.start && token.type !== "comment") {
+                    // If cursor is positioned within a token, start from token beginning
+                    fromCh = token.start;
+                }
+
+                const from = { line: cursor.line, ch: fromCh };
+
                 return {
-                    from: cm.getCursor(),
-                    to: cm.getCursor(),
-                    list: suggestions || []
-                    // list: [
-                    //     { text: "ToString", displayText: "ToString()      method" },
-                    //     { text: "GetHashCode", displayText: "GetHashCode()   method" },
-                    //     { text: "Equals", displayText: "Equals()        method" }
-                    // ]
+                    from: from,
+                    to: cursor,
+                    list: suggestions ? suggestions.map(item => {
+                        return {
+                            ...item,
+                            hint: function (cm, data, completion) {
+                                cm.replaceRange(completion.text, data.from, data.to);
+                                return true; // Tell CodeMirror we handled the completion
+                            }
+                        };
+                    }) : []
                 };
-            }
+            },
+            completeSingle: true
         });
     },
 
