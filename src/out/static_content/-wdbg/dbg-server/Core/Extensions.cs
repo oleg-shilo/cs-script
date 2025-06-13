@@ -35,6 +35,11 @@ static class Extensions
     public static Dictionary<string, StringValues> ParseUriQuery(this string uri)
         => new Uri(uri).Query.ParseQuery();
 
+    public static string EnsureLength(this string text, int desiredLength) =>
+        desiredLength > text.Length ?
+            text + new string(' ', desiredLength - text.Length) :
+            text;
+
     public static bool HasText(this string text) => !string.IsNullOrEmpty(text);
 
     public static string qt(this string path) => $"\"{path}\"";

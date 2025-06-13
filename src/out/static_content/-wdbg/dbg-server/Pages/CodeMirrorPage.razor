@@ -404,17 +404,33 @@
     [JSInvokable]
     public async Task<object[]> OnCompletionRequest(string editorText, int caret)
     {
-        var suggestions = Syntaxer.GetCompletions(editorText, Editor.LoadedScript, caret);
-        if (!suggestions.HasText())
+        try
+        {
+            var suggestions = Syntaxer.GetCompletions(editorText, Editor.LoadedScript, caret);
+            if (!suggestions.HasText())
+                return [];
+
+            // <member>\t<member type>|<replacement text>
+            // Aggregate(...)\tmethod | Aggregate
+            var lines = suggestions.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            var items = lines.Select(x => x.Split(['|', '\t']));
+            var maxTextLength = items.Max(x => x[0].Length);
+
+            var suggestionItems = items
+                .Select(x => (object)new
+                {
+                    displayText = $"{x[0].EnsureLength(maxTextLength)}  {x[1]}",
+                    text = x[2].Trim()
+                })
+                .ToArray();
+
+            return suggestionItems;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in OnCompletionRequest: {ex.Message}");
             return [];
-
-        // Aggregate(...)  method | Aggregate
-        var lines = suggestions.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-
-        return lines
-            .Select(x => x.Split('|'))
-            .Select(x => (object)new { text = x[1], displayText = x[0] })
-            .ToArray();
+        }
     }
 
     [JSInvokable]
