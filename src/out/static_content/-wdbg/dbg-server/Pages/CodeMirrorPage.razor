@@ -32,7 +32,7 @@
         </div>
         <div class="d-flex align-items-center ">
             <div class="d-flex align-items-center ms-3 debug-commands" style="gap: 0.5rem;">
-                <button class="btn btn-run btn-sm btn-run-check " title="Go to next file Location from the output panel" @onclick="() => GoToNextCompileError()">
+                <button class="btn btn-run btn-sm btn-run-check " title="Go to next error (file location) from the output panel" @onclick="() => GoToNextCompileError()">
                     <span class="oi oi-fullscreen-exit rotate45"></span>
                 </button>
                 <button class="btn btn-run btn-sm btn-run-check " title="Check Script Syntax" @onclick="() => OnSyntaxCheckClicked()" disabled="@(!syntaxCheckAvailable)">
@@ -396,7 +396,6 @@
     async Task OnThemeChanged(ChangeEventArgs e)
     {
         Editor.SelectedTheme = e.Value?.ToString() ?? "light";
-        Document.LastSavedContent = Document.EditorContent; // Track loaded content
         await js("codemirrorInterop.setTheme", Editor.SelectedCmTheme);
     }
 
@@ -458,7 +457,8 @@
     [JSInvokable]
     public async Task OnEditorChanged()
     {
-        await CheckIfModified();
+        Document.IsModified = true;
+        UIEvents.NotifyStateChanged();
     }
 
     [JSInvokable]

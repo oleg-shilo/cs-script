@@ -12,13 +12,11 @@ public class Document
 {
     public HashSet<int> Breakpoints = new();
 
-    // public int CurrentStepLine = 1;
     public string CurrentLineText = "";
 
     public int CaretLine = 0;
     public int CaretCh = 0;
     public string EditorContent;
-    public string LastSavedContent;
     public bool IsModified = false;
 }
 

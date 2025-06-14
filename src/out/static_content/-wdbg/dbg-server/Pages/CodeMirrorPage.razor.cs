@@ -54,14 +54,6 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
     }
 
-    async Task CheckIfModified()
-    {
-        var content = await GetDocumentContent(); // very current content
-        (content, _) = content.NormalizeLineBreaks();
-        Document.IsModified = content != Document.LastSavedContent;
-        UIEvents.NotifyStateChanged();
-    }
-
     public void DebugStateHasChanged(string variables) // received on breakpoint hit
     {
         InvokeAsync(() =>
@@ -140,7 +132,6 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
             await SetDocumentContent(Document.EditorContent);
 
-            Document.LastSavedContent = Document.EditorContent;
             Document.IsModified = false;
 
             Editor.LastSessionFileName = Editor.LoadedScript;
@@ -157,7 +148,10 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         }
         else
         {
-            // Optionally show an error message
+            if (!File.Exists(Editor.LoadedScript))
+            {
+                Editor.ShowToastError($"File '{Editor.LoadedScript}' cannot be found.");
+            }
         }
     }
 
@@ -200,9 +194,9 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             var currentBreakpoints = await GetBreakpoints();
             await UpdateBreakpoints(currentBreakpoints);
 
-            Document.LastSavedContent = content; // Track saved content
+            Document.IsModified = false;
+
             UIEvents.NotifyStateChanged();
-            await CheckIfModified();
 
             if (!Editor.IsScriptReadyForDebugging)
                 StartGeneratingDebugMetadata(showError);
