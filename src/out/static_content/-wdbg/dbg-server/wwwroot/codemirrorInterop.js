@@ -340,9 +340,9 @@
         const pos = cm.getCursor();
         const fullText = cm.getValue();
 
-        // Detect line ending style (looking for first occurrence)
+        // Use the original line ending style
         const lineEndingStyle = /\r\n/.test(fullText) ? '\r\n' : '\n';
-        const lineEndingLength = lineEndingStyle.length; // 2 for \r\n, 1 for \n
+        const lineEndingLength = lineEndingStyle.length;
 
         let characterOffset = 0;
 
@@ -353,6 +353,44 @@
         // Add characters in current line up to caret position
         characterOffset += pos.ch;
         return characterOffset;
+    },
+
+    setCaretAbsolutePosition: function (newOffset) {
+        const cm = window.codemirrorInterop.editor;
+        if (!cm) return;
+
+        const fullText = cm.getValue();
+        if (newOffset < 0 || newOffset > fullText.length) return;
+
+        // Use the original line ending style
+        const lineEndingStyle = /\r\n/.test(fullText) ? '\r\n' : '\n';
+        const lineEndingLength = lineEndingStyle.length;
+
+        let charCount = 0;
+        let lineNum = 0;
+
+        // Find the line where our offset exists
+        while (lineNum < cm.lineCount()) {
+            const lineText = cm.getLine(lineNum);
+            const lineLength = lineText.length + lineEndingLength;
+
+            if (charCount + lineLength > newOffset) {
+                // We found the line - calculate the character position within this line
+                const ch = newOffset - charCount;
+                cm.setCursor({ line: lineNum, ch: ch });
+                cm.scrollIntoView({ line: lineNum, ch: ch }, 100);
+                return;
+            }
+
+            charCount += lineLength;
+            lineNum++;
+        }
+
+        // If we get here, the offset is at the very end of the document
+        const lastLine = cm.lineCount() - 1;
+        const lastLineLength = cm.getLine(lastLine).length;
+        cm.setCursor({ line: lastLine, ch: lastLineLength });
+        cm.scrollIntoView(null, 100);
     },
 
     // Set the current debug step line (0-based)
@@ -540,11 +578,11 @@
             tooltipDiv.style.left = (x + 10) + 'px';
             tooltipDiv.style.top = (y + 10) + 'px';
             tooltipDiv.style.zIndex = 10000;
-            
+
             // Apply the current theme to the tooltip
-            const theme = window.codemirrorInterop.editor ? 
+            const theme = window.codemirrorInterop.editor ?
                 window.codemirrorInterop.editor.getOption("theme") : "default";
-            
+
             if (theme === "dracula") tooltipDiv.classList.add('panel-theme-dracula');
             else if (theme === "material-darker") tooltipDiv.classList.add('panel-theme-material-darker');
             else if (theme === "monokai") tooltipDiv.classList.add('panel-theme-monokai');
@@ -553,7 +591,7 @@
             else if (theme === "blackboard") tooltipDiv.classList.add('panel-theme-blackboard');
             else if (theme === "darkone") tooltipDiv.classList.add('panel-theme-darkone');
             else tooltipDiv.classList.add('panel-theme-light');
-            
+
             document.body.appendChild(tooltipDiv);
         }
 
@@ -617,6 +655,11 @@
 
 window.codemirrorInterop.setValue = function (content) {
     if (window.editor && typeof window.editor.setValue === "function") {
+        // Store the original line ending style for later use
+        window.codemirrorInterop.originalLineEnding = /\r\n/.test(content) ? '\r\n' : '\n';
+        window.codemirrorInterop.lineEndingLength = window.codemirrorInterop.originalLineEnding.length;
+
+        // CodeMirror will normalize to \n internally, but we now have the original style saved
         window.editor.setValue(content);
     } else {
         console.warn("window.editor is", window.editor);
@@ -829,6 +872,10 @@ window.registerWindowKeyHandlers = function (dotNetRef) {
         else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnCtrlE');
+        }
+        else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+            e.preventDefault();
+            dotNetRef.invokeMethodAsync('OnCtrlF');
         }
         else if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (e.key === "F4" || e.keyCode === 115)) {
             e.preventDefault();

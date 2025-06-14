@@ -57,6 +57,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
     async Task CheckIfModified()
     {
         var content = await GetDocumentContent(); // very current content
+        (content, _) = content.NormalizeLineBreaks();
         Document.IsModified = content != Document.LastSavedContent;
         UIEvents.NotifyStateChanged();
     }
@@ -134,6 +135,9 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
         {
             Document.EditorContent = await File.ReadAllTextAsync(Editor.LoadedScript);
+
+            (Document.EditorContent, _) = Document.EditorContent.NormalizeLineBreaks();
+
             await SetDocumentContent(Document.EditorContent);
 
             Document.LastSavedContent = Document.EditorContent;
@@ -187,6 +191,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
     public async Task SaveToFileOnServer(bool showError)
     {
         var content = await GetDocumentContent();
+        (content, _) = content.NormalizeLineBreaks();
 
         if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
         {

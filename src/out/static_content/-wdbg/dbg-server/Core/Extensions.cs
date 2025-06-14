@@ -40,6 +40,31 @@ static class Extensions
             text + new string(' ', desiredLength - text.Length) :
             text;
 
+    public static (string newText, int newOffset) NormalizeLineBreaks(this string text, int offset = 0, string desiredLineBreak = null)
+    {
+        if (offset == 0)
+        {
+            var newText = text.Replace("\r\n", "\n");
+            var lb = desiredLineBreak ?? Environment.NewLine;
+            newText = newText.Replace("\n", lb); //convert to OS specific breaks
+            return (newText, 0);
+        }
+        else
+        {
+            var newText = text.Substring(0, offset) + "{!!!caret-pos!!!}" + text.Substring(offset);
+
+            // ensure the mixed line breaks are all converted to \n
+            newText = newText.Replace("\r\n", "\n");
+
+            var lb = desiredLineBreak ?? Environment.NewLine;
+            newText = newText.Replace("\n", lb); //convert to OS specific breaks
+            var newOfset = newText.IndexOf("{!!!caret-pos!!!}");
+            newText = newText.Replace("{!!!caret-pos!!!}", "");
+
+            return (newText, newOfset);
+        }
+    }
+
     public static bool HasText(this string text) => !string.IsNullOrEmpty(text);
 
     public static string qt(this string path) => $"\"{path}\"";

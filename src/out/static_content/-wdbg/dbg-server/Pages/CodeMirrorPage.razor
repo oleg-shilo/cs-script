@@ -386,6 +386,8 @@
     async Task SetDocumentContent(string content) => await js("codemirrorInterop.setValue", content);
     async Task RenderBreakpoints() => await js("codemirrorInterop.setBreakpoints", Document.Breakpoints.ToArray());
     async Task<int[]> GetBreakpoints() => await js<int[]>("codemirrorInterop.getBreakpoints");
+    async Task<int> GetCaretPosition() => await js<int>("codemirrorInterop.getCaretAbsolutePosition");
+    async Task SetCaretPosition(int position) => await js("codemirrorInterop.setCaretAbsolutePosition", position);
     async Task ScrollCurrentLineToView() => await js("codemirrorInterop.scrollCurrentLineToView");
     async Task ScrollLineToView(int line) => await js("codemirrorInterop.scrollLineToView", line);
     async Task setCurrentStepLine(int line) => await js("codemirrorInterop.setCurrentStepLine", line);
@@ -400,6 +402,26 @@
 
     public void OutputScrollToEnd() =>
         _ = js("setTimeout", $"document.querySelector('.bottom-panel-output')?.scrollTo(0, 1e6)", 50);
+
+    [JSInvokable]
+    public async Task OnFormatRequest()
+    {
+        var editorText = await GetDocumentContent();
+        int caretPosition = await GetCaretPosition();
+
+        var roslynCompatible = editorText.NormalizeLineBreaks(caretPosition);
+
+        // Syntaxer.Format uses Roslyn and it always replaces line breaks with the ones specific for the OS
+        // so prepare the text with consistent line breaks.
+
+        var formattedCode = Syntaxer.Format(roslynCompatible.newText, Editor.LoadedScript, ref roslynCompatible.newOffset);
+
+        // CodeMirror always work with \n line breaks
+        var cmSpecific = formattedCode.NormalizeLineBreaks(roslynCompatible.newOffset, "\n");
+
+        await SetDocumentContent(cmSpecific.newText);
+        await SetCaretPosition(cmSpecific.newOffset);
+    }
 
     [JSInvokable]
     public async Task<object[]> OnCompletionRequest(string editorText, int caret)
@@ -500,6 +522,7 @@
 
     [JSInvokable] public async Task OnCtrlS() => await SaveToFileOnServer(false);
     [JSInvokable] public async Task OnCtrlE() => await OpenScriptFolder();
+    [JSInvokable] public async Task OnCtrlF() => await OnFormatRequest();
     [JSInvokable] public async Task OnF4() => GoToNextCompileError();
     [JSInvokable] public async Task OnF5() => OnStartClicked();
     [JSInvokable] public async Task OnShiftF5() => this.OnStopClicked();
