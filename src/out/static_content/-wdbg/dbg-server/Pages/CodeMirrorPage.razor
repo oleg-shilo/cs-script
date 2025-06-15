@@ -309,13 +309,6 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) await InitPage(); }
 
-    [JSInvokable]
-    public void OnTokenClick(int position)
-    {
-        // Store the current position and invoke GoToDefinition
-        _ = SetCaretPosition(position).ContinueWith(_ => GoToDefinition());
-    }
-
     public async Task InitPage()
     {
         ClearLocals();
@@ -335,9 +328,6 @@
         await js("codemirrorInterop.init", Editor.SelectedCmTheme, DotNetObjectReference.Create(this));
         await js("restoreSplitPositions");
         await js("registerWindowKeyHandlers", DotNetObjectReference.Create(this));
-
-
-        // await js("codemirrorInterop.setupTokenNavigation", DotNetObjectReference.Create(this)); // Add token hover and click functionality
 
         Navigation.Uri.ParseUriQuery().TryGetValue("script", out var requestedScriptParams);
 

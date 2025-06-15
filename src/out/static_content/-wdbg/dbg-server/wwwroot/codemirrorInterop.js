@@ -709,49 +709,6 @@
         cm.getWrapperElement().addEventListener('mouseleave', cm._tokenTooltipLeaveHandler);
     },
 
-    setupTokenNavigation: function (dotNetHelper) {
-        if (!window.editor) return;
-
-        // Get the editor DOM element
-        const editorElement = document.getElementById('editor');
-
-        // Add mousemove listener to detect token hover
-        editorElement.addEventListener('mousemove', function (e) {
-            const cm = window.editor;
-            const pos = cm.coordsChar({ left: e.clientX, top: e.clientY });
-            const token = cm.getTokenAt(pos);
-
-            if (token && token.type &&
-                (token.type.includes('variable') ||
-                    token.type.includes('property') ||
-                    token.type.includes('def') ||
-                    token.type.includes('type'))) {
-                // Add styling to hovered token
-                const tokenElement = document.querySelector('.cm-' + token.type.replace(/ /g, '.'));
-                if (tokenElement) {
-                    tokenElement.style.textDecoration = 'underline';
-                    tokenElement.style.cursor = 'pointer';
-                }
-            }
-        });
-
-        // Add click listener for token navigation
-        editorElement.addEventListener('click', function (e) {
-            const cm = window.editor;
-            const pos = cm.coordsChar({ left: e.clientX, top: e.clientY });
-            const token = cm.getTokenAt(pos);
-
-            if (token && token.type &&
-                (token.type.includes('variable') ||
-                    token.type.includes('property') ||
-                    token.type.includes('def') ||
-                    token.type.includes('type'))) {
-                // Call the .NET method with the token position
-                const absolutePosition = cm.indexFromPos(pos);
-                dotNetHelper.invokeMethodAsync('OnTokenClick', absolutePosition);
-            }
-        });
-    }
 };
 
 // =============================
