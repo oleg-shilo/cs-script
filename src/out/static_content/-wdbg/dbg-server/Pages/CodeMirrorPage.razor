@@ -35,6 +35,7 @@
                 <button class="btn btn-run btn-sm btn-run-check " title="Go to next error (file location) from the output panel" @onclick="() => GoToNextCompileError()">
                     <span class="oi oi-fullscreen-exit rotate45"></span>
                 </button>
+                <span class="group-separator" />
                 <button class="btn btn-run btn-sm btn-run-check " title="Check Script Syntax" @onclick="() => OnSyntaxCheckClicked()" disabled="@(!syntaxCheckAvailable)">
                     <span class="oi oi-check"></span>
                 </button>
@@ -47,6 +48,7 @@
                 <button class="btn btn-run btn-run-detached btn-sm" title="Start Without Debugging" @onclick="() => Start(breakAtStart: false, detached: true)" disabled="@(!startDetachedlAvailable)">
                     <span class="oi oi-chevron-right"></span>
                 </button>
+                <span class="group-separator" />
                 <button class="btn btn-run btn-sm" title="Start/Resume" @onclick="OnStartClicked" disabled="@(!startAvailable)">
                     <span class="oi oi-caret-right"></span>
                 </button>

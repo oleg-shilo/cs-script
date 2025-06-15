@@ -1014,3 +1014,10 @@ button:focus, button:focus-visible, button:active:focus {
         background-color: #7746bd;
         color: #f8f8f2;
     }
+
+.group-separator {
+    display: inline-block;
+    width: 0.15em;
+    height: 2em;
+    background-color: #444;
+}
