@@ -32,13 +32,13 @@
         </div>
         <div class="d-flex align-items-center ">
             <div class="d-flex align-items-center ms-3 debug-commands" style="gap: 0.5rem;">
-                <button class="btn btn-run btn-sm btn-run-check " title="Find All References" @onclick="() => ShowReferences()">
+                <button class="btn btn-run btn-sm btn-nav" title="Find All References" @onclick="() => ShowReferences()">
                     <span class="oi oi-layers"></span>
                 </button>
-                <button class="btn btn-run btn-sm btn-run-check " title="Go To Definition" @onclick="() => GoToDefinition()">
+                <button class="btn btn-run btn-sm btn-nav" title="Go To Definition" @onclick="() => GoToDefinition()">
                     <span class="oi oi-account-login"></span>
                 </button>
-                <button class="btn btn-run btn-sm btn-run-check " title="Go to next error (file location) from the output panel" @onclick="() => GoToNextCompileError()">
+                <button class="btn btn-run btn-sm btn-nav" title="Go to next error (file location) from the output panel" @onclick="() => GoToNextCompileError()">
                     <span class="oi oi-fullscreen-exit rotate45"></span>
                 </button>
                 <span class="group-separator" />
@@ -309,6 +309,13 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) await InitPage(); }
 
+    [JSInvokable]
+    public void OnTokenClick(int position)
+    {
+        // Store the current position and invoke GoToDefinition
+        _ = SetCaretPosition(position).ContinueWith(_ => GoToDefinition());
+    }
+
     public async Task InitPage()
     {
         ClearLocals();
@@ -328,6 +335,9 @@
         await js("codemirrorInterop.init", Editor.SelectedCmTheme, DotNetObjectReference.Create(this));
         await js("restoreSplitPositions");
         await js("registerWindowKeyHandlers", DotNetObjectReference.Create(this));
+
+
+        // await js("codemirrorInterop.setupTokenNavigation", DotNetObjectReference.Create(this)); // Add token hover and click functionality
 
         Navigation.Uri.ParseUriQuery().TryGetValue("script", out var requestedScriptParams);
 
@@ -399,6 +409,7 @@
     async Task ScrollCurrentLineToView() => await js("codemirrorInterop.scrollCurrentLineToView");
     async Task ScrollLineToView(int line) => await js("codemirrorInterop.scrollLineToView", line);
     async Task setCurrentStepLine(int line) => await js("codemirrorInterop.setCurrentStepLine", line);
+    async Task SetCaretPosition(int line, int lineCh) => await js("codemirrorInterop.setCaretPosition", line, lineCh);
     async Task ScrollToAndHighlightLine(int line, int ch) => await js("codemirrorInterop.scrollToAndHighlightLine", line, ch);
 
     async Task OnThemeChanged(ChangeEventArgs e)
@@ -485,8 +496,26 @@
     [JSInvokable] public async Task OnF7() => OnSyntaxCheckClicked();
     [JSInvokable] public async Task OnF10() => OnStepOverClicked(null);
     [JSInvokable] public async Task OnF11() => OnStepIntoClicked(null);
-    [JSInvokable] public async Task OnF12() { }
+    [JSInvokable] public async Task OnCtrlF12() => GoToDefinition();
 
+    [JSInvokable]
+    public async Task<string> GetTooltipFor(string text, int line, int charPos)
+    {
+        // Return HTML content with a clickable "Go To Definition" link
+        return
+        $@"Tooltip: [{text}] (Line: {line}, Char: {charPos})<br/>" +
+        $@"<a href='#' onclick='window.goToDefinitionFromTooltip({line}, {charPos}); return false;'
+                        style = 'color: #007bff; text-decoration: underline; cursor: pointer '>" +
+        "Go To Definition</a>";
+    }
+
+    [JSInvokable]
+    public async Task GoToDefinitionFromTooltip(int line, int charPos)
+    {
+        // This method will be called from  when the link is clicked
+        await SetCaretPosition(line, charPos);
+        GoToDefinition();
+    }
     public async void GoToDefinition()
     {
         var editorText = await GetDocumentContent();
@@ -589,14 +618,6 @@
             return [];
         }
     }
-
-    [JSInvokable]
-    public async Task<string> GetTooltipFor(string text, int line, int charPos)
-    {
-        return $"Tooltip: [{text}] (Line: {line}, Char: {charPos})";
-    }
-
-
 
     void SelectTab(int tab)
     {

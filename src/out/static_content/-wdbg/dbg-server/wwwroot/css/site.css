@@ -494,6 +494,10 @@ a, .btn-link {
         color: deepskyblue !important;
     }
 
+    .debug-commands .btn-nav {
+        color: darkcyan !important;
+    }
+
 .theme-default .debug-commands .btn-run-check {
     color: blue !important;
 }
@@ -521,6 +525,7 @@ a, .btn-link {
         background: #444 !important; /* light gray */
         outline: 2px solid #6c757d;
     }
+
 
 .debug-commands .btn-pause:hover {
     color: #fff !important;
@@ -919,13 +924,13 @@ button:focus, button:focus-visible, button:active:focus {
 }
 
 .cm-tooltip-content {
-    padding: 4px 8px;
+    padding: 0px 0px;
     border-radius: 4px;
     font-size: 0.95em;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    pointer-events: none;
     max-width: 400px;
     white-space: pre;
+    margin: 0px 0px 0px 0px;
     /* Default styling (light theme) */
     background: #f8f9fa;
     color: #212529;
@@ -938,6 +943,7 @@ button:focus, button:focus-visible, button:active:focus {
     color: #212529;
     border: 1px solid #dee2e6;
 }
+
 
 /* Dark theme variations */
 .panel-theme-dracula .cm-tooltip-content,
@@ -1021,6 +1027,11 @@ button:focus, button:focus-visible, button:active:focus {
     height: 2em;
     background-color: #444;
 }
+
+.theme-light .group-separator {
+    background-color: lightgray;
+}
+
 
 .fullscreen-editor-container {
     position: fixed;

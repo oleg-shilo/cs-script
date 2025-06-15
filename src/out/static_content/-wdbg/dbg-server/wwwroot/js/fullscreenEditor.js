@@ -53,3 +53,5 @@ export function scrollToLine(line) {
 
     editor.scrollIntoView({ line: line, ch: 0 }, 100);
 }
+
+window.focus();

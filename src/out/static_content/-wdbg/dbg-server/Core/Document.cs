@@ -115,9 +115,17 @@ public class Ide
 
     public async Task LoadRecentFile(string file) => await MainPage?.LoadRecentFile(file);
 
-    public void ShowExternalFile(string path, int navigateToline = -1)
+    public async void ShowExternalFile(string path, int navigateToline = -1)
     {
-        Interop.InvokeVoidAsync("open", $"/fullscreen-editor?file={Uri.EscapeDataString(path)}&line={navigateToline}", "_blank");
+        try
+        {
+            Interop.InvokeVoidAsync("open", $"/fullscreen-editor?file={Uri.EscapeDataString(path)}&line={navigateToline}", "_blank");
+        }
+        catch (Exception ex)
+        {
+            ConsoleLog($"Error opening external file: {ex.Message}");
+            ShowToastError($"Error opening file: {ex.Message}");
+        }
     }
 
     public void ResetDbgGenerator()

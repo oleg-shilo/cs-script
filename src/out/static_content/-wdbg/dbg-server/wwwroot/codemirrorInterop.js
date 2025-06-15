@@ -567,17 +567,30 @@
 
         let tooltipDiv = null;
         let lastToken = null;
+        let mouseOverTooltip = false;
+        let tooltipTimeout = null;
+        let tooltipShowDelay = null; // Delay timer for showing tooltip
+        let currentToken = null; // Track the current token for better hover detection
 
         function showTooltip(text, x, y) {
             hideTooltip();
 
             tooltipDiv = document.createElement('div');
             tooltipDiv.className = 'cm-tooltip-content';
-            tooltipDiv.textContent = text;
+            tooltipDiv.innerHTML = text;
             tooltipDiv.style.position = 'fixed';
             tooltipDiv.style.left = (x + 10) + 'px';
             tooltipDiv.style.top = (y + 10) + 'px';
             tooltipDiv.style.zIndex = 10000;
+            tooltipDiv.style.padding = '8px';
+            tooltipDiv.style.boxSizing = 'border-box';
+            tooltipDiv.style.width = 'auto';
+            tooltipDiv.style.height = 'auto';
+            tooltipDiv.style.overflow = 'auto';
+            tooltipDiv.style.maxHeight = '200px';
+            tooltipDiv.style.border = '1px solid rgba(0,0,0,0.2)';
+            tooltipDiv.style.borderRadius = '4px';
+            tooltipDiv.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
 
             // Apply the current theme to the tooltip
             const theme = window.codemirrorInterop.editor ?
@@ -592,13 +605,29 @@
             else if (theme === "darkone") tooltipDiv.classList.add('panel-theme-darkone');
             else tooltipDiv.classList.add('panel-theme-light');
 
+            // Add event listeners for tooltip hover
+            tooltipDiv.addEventListener('mouseenter', function () {
+                mouseOverTooltip = true;
+                clearTimeout(tooltipTimeout);
+            });
+
+            tooltipDiv.addEventListener('mouseleave', function () {
+                mouseOverTooltip = false;
+                // Start a timer to hide the tooltip when mouse leaves
+                tooltipTimeout = setTimeout(hideTooltip, 1000);
+            });
+
             document.body.appendChild(tooltipDiv);
+            window.lastTooltip = tooltipDiv; // Store reference to close it later
+            window.lastToken = lastToken; // Store the token information globally
         }
 
         function hideTooltip() {
             if (tooltipDiv) {
-                document.body.removeChild(tooltipDiv);
-                tooltipDiv = null;
+                if (!mouseOverTooltip) {
+                    document.body.removeChild(tooltipDiv);
+                    tooltipDiv = null;
+                }
             }
         }
 
@@ -608,46 +637,120 @@
             const pos = cm.coordsChar({ left: e.clientX, top: e.clientY });
             const token = cm.getTokenAt(pos);
 
-            // Only show tooltip if mouse is directly over the token
-            if (
-                !token ||
-                !token.string.trim() ||
-                pos.ch < token.start ||
-                pos.ch >= token.end
-            ) {
-                hideTooltip();
-                lastToken = null;
+            // Only proceed if mouse is over a valid token
+            if (!token || !token.string.trim() || pos.ch < token.start || pos.ch >= token.end) {
+                // Clear delay timer when mouse leaves token
+                clearTimeout(tooltipShowDelay);
+                currentToken = null;
+
+                // Don't hide immediately if mouse is over tooltip
+                if (!mouseOverTooltip) {
+                    tooltipTimeout = setTimeout(function () {
+                        if (!mouseOverTooltip) {
+                            hideTooltip();
+                            lastToken = null;
+                        }
+                    }, 300);
+                }
                 return;
             }
 
-            // Only show if hovering a new token
-            if (
-                lastToken &&
-                lastToken.start === token.start &&
-                lastToken.end === token.end &&
-                lastToken.line === pos.line
-            ) {
-                return;
+            // Convert token to a comparable string for tracking
+            const tokenKey = `${pos.line}:${token.start}:${token.end}:${token.string}`;
+
+            // If this is a new token, start the delay timer
+            if (currentToken !== tokenKey) {
+                // Clear any existing delay timer
+                clearTimeout(tooltipShowDelay);
+
+                // Set current token
+                currentToken = tokenKey;
+
+                // Start new delay timer
+                tooltipShowDelay = setTimeout(async function () {
+                    // If mouse is still over the same token after delay
+                    if (currentToken === tokenKey) {
+                        lastToken = {
+                            start: token.start,
+                            end: token.end,
+                            line: pos.line,
+                            ch: pos.ch,
+                            string: token.string
+                        };
+
+                        var tooltipText = await window.codemirrorInterop.dotnetRef.invokeMethodAsync(
+                            "GetTooltipFor",
+                            token.string,
+                            pos.line,
+                            pos.ch
+                        );
+
+                        showTooltip(tooltipText, e.clientX, e.clientY);
+                    }
+                }, 1000); // 1 second delay
             }
-            lastToken = { start: token.start, end: token.end, line: pos.line };
-
-            var tooltipText = await window.codemirrorInterop.dotnetRef.invokeMethodAsync(
-                "GetTooltipFor",
-                token.string,
-                pos.line,
-                pos.ch
-            );
-
-            showTooltip(tooltipText, e.clientX, e.clientY);
         };
 
         cm._tokenTooltipLeaveHandler = function () {
-            hideTooltip();
-            lastToken = null;
+            // Clear the delay timer when leaving the editor
+            clearTimeout(tooltipShowDelay);
+            currentToken = null;
+
+            // Use timeout to allow moving to tooltip
+            tooltipTimeout = setTimeout(function () {
+                if (!mouseOverTooltip) {
+                    hideTooltip();
+                    lastToken = null;
+                }
+            }, 300);
         };
 
         cm.getWrapperElement().addEventListener('mousemove', cm._tokenTooltipHandler);
         cm.getWrapperElement().addEventListener('mouseleave', cm._tokenTooltipLeaveHandler);
+    },
+
+    setupTokenNavigation: function (dotNetHelper) {
+        if (!window.editor) return;
+
+        // Get the editor DOM element
+        const editorElement = document.getElementById('editor');
+
+        // Add mousemove listener to detect token hover
+        editorElement.addEventListener('mousemove', function (e) {
+            const cm = window.editor;
+            const pos = cm.coordsChar({ left: e.clientX, top: e.clientY });
+            const token = cm.getTokenAt(pos);
+
+            if (token && token.type &&
+                (token.type.includes('variable') ||
+                    token.type.includes('property') ||
+                    token.type.includes('def') ||
+                    token.type.includes('type'))) {
+                // Add styling to hovered token
+                const tokenElement = document.querySelector('.cm-' + token.type.replace(/ /g, '.'));
+                if (tokenElement) {
+                    tokenElement.style.textDecoration = 'underline';
+                    tokenElement.style.cursor = 'pointer';
+                }
+            }
+        });
+
+        // Add click listener for token navigation
+        editorElement.addEventListener('click', function (e) {
+            const cm = window.editor;
+            const pos = cm.coordsChar({ left: e.clientX, top: e.clientY });
+            const token = cm.getTokenAt(pos);
+
+            if (token && token.type &&
+                (token.type.includes('variable') ||
+                    token.type.includes('property') ||
+                    token.type.includes('def') ||
+                    token.type.includes('type'))) {
+                // Call the .NET method with the token position
+                const absolutePosition = cm.indexFromPos(pos);
+                dotNetHelper.invokeMethodAsync('OnTokenClick', absolutePosition);
+            }
+        });
     }
 };
 
@@ -910,10 +1013,10 @@ window.registerWindowKeyHandlers = function (dotNetRef) {
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnF11');
         }
-        // else if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (e.key === "F12" || e.keyCode === 123)) {
-        //     e.preventDefault();
-        //     dotNetRef.invokeMethodAsync('OnF12');
-        // }
+        else if (e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (e.key === "F12" || e.keyCode === 123)) {
+            e.preventDefault();
+            dotNetRef.invokeMethodAsync('OnCtrlF12');
+        }
     });
 }
 
@@ -1005,4 +1108,40 @@ window.getOrCreateTabId = function () {
         sessionStorage.setItem('tabId', tabId);
     }
     return tabId;
+};
+
+window.goToDefinitionFromTooltip = function (line, charPos) {
+    // Close the tooltip
+    if (window.lastTooltip) {
+        window.lastTooltip.remove();
+        window.lastTooltip = null;
+    }
+
+    // Call the C# method to go to definition
+    if (window.codemirrorInterop && window.codemirrorInterop.dotnetRef) {
+        window.codemirrorInterop.dotnetRef.invokeMethodAsync('GoToDefinitionFromTooltip', line, charPos);
+    }
+};
+
+window.codemirrorInterop.setCaretPosition = function (line, ch, scroll) {
+    const cm = window.codemirrorInterop.editor;
+    if (!cm) return;
+
+    // Ensure line is within bounds
+    const lineCount = cm.lineCount();
+    if (line < 0) line = 0;
+    if (line >= lineCount) line = lineCount - 1;
+
+    // Ensure character position is within bounds
+    const lineText = cm.getLine(line);
+    if (ch < 0) ch = 0;
+    if (ch > lineText.length) ch = lineText.length;
+
+    // Set cursor position
+    cm.setCursor({ line: line, ch: ch });
+
+    if (scroll) {
+        // Scroll to make the cursor visible
+        cm.scrollIntoView({ line: line, ch: ch }, 100);
+    }
 };
