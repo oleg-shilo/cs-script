@@ -74,6 +74,15 @@ static class Extensions
     public static ValueTask<string>? ClearField(this IJSObjectReference module, string id)
         => module?.InvokeAsync<string>("clearInputField", id);
 
+    public static int ToInt(this string text)
+    {
+        int.TryParse(text, out var result);
+        return result;
+    }
+
+    public static string[] GetLines(this string text)
+        => text?.Replace("\r\n", "\n").Split('\n') ?? [];
+
     public static string JoinBy(this IEnumerable<string> request, string separator)
         => string.Join(separator, request);
 

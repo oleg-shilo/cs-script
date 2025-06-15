@@ -32,6 +32,12 @@
         </div>
         <div class="d-flex align-items-center ">
             <div class="d-flex align-items-center ms-3 debug-commands" style="gap: 0.5rem;">
+                <button class="btn btn-run btn-sm btn-run-check " title="Find All References" @onclick="() => ShowReferences()">
+                    <span class="oi oi-layers"></span>
+                </button>
+                <button class="btn btn-run btn-sm btn-run-check " title="Go To Definition" @onclick="() => GoToDefinition()">
+                    <span class="oi oi-account-login"></span>
+                </button>
                 <button class="btn btn-run btn-sm btn-run-check " title="Go to next error (file location) from the output panel" @onclick="() => GoToNextCompileError()">
                     <span class="oi oi-fullscreen-exit rotate45"></span>
                 </button>
@@ -405,6 +411,134 @@
         _ = js("setTimeout", $"document.querySelector('.bottom-panel-output')?.scrollTo(0, 1e6)", 50);
 
     [JSInvokable]
+    public async Task OnEditorChanged()
+    {
+        Document.IsModified = true;
+        UIEvents.NotifyStateChanged();
+    }
+
+    [JSInvokable]
+    public Task UpdateCaretInfo(string lineText, int line, int ch)
+    {
+        Document.CurrentLineText = lineText.Trim();
+        if (Document.CurrentLineText.Length > 25)
+            Document.CurrentLineText = Document.CurrentLineText.Substring(0, 25) + "...";
+
+        Document.CaretLine = line + 1; // 1-based for display
+        Document.CaretCh = ch + 1;     // 1-based for display
+        UIEvents.NotifyStateChanged();
+        return Task.CompletedTask;
+    }
+
+    public bool OnOutputLineClick(int lineIndex)
+    {
+        string line = Editor.Output[lineIndex];
+        currentOutputIndex = lineIndex;
+
+        // Example: D:\dev\spikes\WebCodeEditor\CodeMiro\test.cs(11,5): error CS1001:  Identifier expected
+        var match = System.Text.RegularExpressions.Regex.Match(
+            line,
+            @"^(?<file>.+)\((?<line>\d+),(?<col>\d+)\):.*$"
+        );
+        if (match.Success)
+        {
+            var file = match.Groups["file"].Value;
+            var lineNum = int.Parse(match.Groups["line"].Value);
+            var colNum = int.Parse(match.Groups["col"].Value);
+
+            // Only navigate if the file matches the currently loaded script
+            if (file.Equals(Editor.LoadedScript, StringComparison.OrdinalIgnoreCase))
+            {
+                // CodeMirror is 0-based, so subtract 1
+                ScrollToAndHighlightLine(lineNum - 1, colNum - 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public async Task OnLocalsItemSelected(int index)
+    {
+        selectedLocalIndex = index;
+        selectedLocalValue = null;
+        UIEvents.NotifyStateChanged();
+        RequestSelectedVariablesInfo(locals: true, watch: false);
+    }
+
+    async Task StartResize(MouseEventArgs e) => await js("startSplitResize");
+
+    public void OnWatchItemSelected(int index)
+    {
+        selectedWatchIndex = index;
+        selectedWatchValue = null;
+        UIEvents.NotifyStateChanged();
+        RequestSelectedVariablesInfo(locals: false, watch: true);
+    }
+
+    [JSInvokable] public async Task OnCtrlS() => await SaveToFileOnServer(false);
+    [JSInvokable] public async Task OnCtrlE() => await OpenScriptFolder();
+    [JSInvokable] public async Task OnCtrlF() => await OnFormatRequest();
+    [JSInvokable] public async Task OnF4() => GoToNextCompileError();
+    [JSInvokable] public async Task OnF5() => OnStartClicked();
+    [JSInvokable] public async Task OnShiftF5() => this.OnStopClicked();
+    [JSInvokable] public async Task OnF7() => OnSyntaxCheckClicked();
+    [JSInvokable] public async Task OnF10() => OnStepOverClicked(null);
+    [JSInvokable] public async Task OnF11() => OnStepIntoClicked(null);
+    [JSInvokable] public async Task OnF12() { }
+
+    public async void GoToDefinition()
+    {
+        var editorText = await GetDocumentContent();
+        int caretPosition = await GetCaretPosition();
+
+        var roslynCompatible = editorText.NormalizeLineBreaks(caretPosition);
+
+        var result = Syntaxer.Resolve(roslynCompatible.newText, Editor.LoadedScript, roslynCompatible.newOffset)?.GetLines() ?? [];
+        if (result.Any())
+        {
+            // file:C:\Users\user\AppData\Local\Temp\Roslyn.Intellisense\ReflctedTypes\System.Int32.609508192.r.cs
+            // line: 24
+            try
+            {
+                var file = result.FirstOrDefault(x => x.StartsWith("file:"))?.Replace("file:", "");
+                var line = result.FirstOrDefault(x => x.StartsWith("line:"))?.Replace("line:", "").Trim();
+                if (file.HasText() && File.Exists(file))
+                {
+                    if (file != Editor.LoadedScript)
+                    {
+                        Editor.ShowExternalFile(file, line.ToInt());
+                    }
+                    else
+                    {
+                        var lineNumber = int.Parse(line);
+                        ScrollToAndHighlightLine(lineNumber - 1, 0);
+                    }
+                }
+            }
+            catch
+            {
+                Editor.ShowToastError("Failed to navigate to definition. Please check the output for details.");
+            }
+            ///////////////////////////
+        }
+    }
+
+    public async void ShowReferences()
+    {
+        var editorText = await GetDocumentContent();
+        int caretPosition = await GetCaretPosition();
+
+        var roslynCompatible = editorText.NormalizeLineBreaks(caretPosition);
+
+        var result = Syntaxer.FindReferences(roslynCompatible.newText, Editor.LoadedScript, roslynCompatible.newOffset);
+
+        Editor.Output.Clear();
+        Editor.Output.AddRange(result.GetLines());
+        StateHasChangedSafe();
+    }
+
+    [JSInvokable]
     public async Task OnFormatRequest()
     {
         var editorText = await GetDocumentContent();
@@ -456,82 +590,6 @@
         }
     }
 
-    [JSInvokable]
-    public async Task OnEditorChanged()
-    {
-        Document.IsModified = true;
-        UIEvents.NotifyStateChanged();
-    }
-
-    [JSInvokable]
-    public Task UpdateCaretInfo(string lineText, int line, int ch)
-    {
-        Document.CurrentLineText = lineText.Trim();
-        if (Document.CurrentLineText.Length > 25)
-            Document.CurrentLineText = Document.CurrentLineText.Substring(0, 25) + "...";
-
-        Document.CaretLine = line + 1; // 1-based for display
-        Document.CaretCh = ch + 1;     // 1-based for display
-        UIEvents.NotifyStateChanged();
-        return Task.CompletedTask;
-    }
-
-    public bool OnOutputLineClick(int lineIndex)
-    {
-        string line = Editor.Output[lineIndex];
-        currentOutputIndex = lineIndex;
-
-        // Example: D:\dev\spikes\WebCodeEditor\CodeMiro\test.cs(11,5): error CS1001:  Identifier expected
-        var match = System.Text.RegularExpressions.Regex.Match(
-            line,
-            @"^(?<file>.+)\((?<line>\d+),(?<col>\d+)\):\s*error.*$"
-        );
-        if (match.Success)
-        {
-            var file = match.Groups["file"].Value;
-            var lineNum = int.Parse(match.Groups["line"].Value);
-            var colNum = int.Parse(match.Groups["col"].Value);
-
-            // Only navigate if the file matches the currently loaded script
-            if (file.Equals(Editor.LoadedScript, StringComparison.OrdinalIgnoreCase))
-            {
-                // CodeMirror is 0-based, so subtract 1
-                ScrollToAndHighlightLine(lineNum - 1, colNum - 1);
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    public async Task OnLocalsItemSelected(int index)
-    {
-        selectedLocalIndex = index;
-        selectedLocalValue = null;
-        UIEvents.NotifyStateChanged();
-        RequestSelectedVariablesInfo(locals: true, watch: false);
-    }
-
-    async Task StartResize(MouseEventArgs e) => await js("startSplitResize");
-
-    public void OnWatchItemSelected(int index)
-    {
-        selectedWatchIndex = index;
-        selectedWatchValue = null;
-        UIEvents.NotifyStateChanged();
-        RequestSelectedVariablesInfo(locals: false, watch: true);
-    }
-
-    [JSInvokable] public async Task OnCtrlS() => await SaveToFileOnServer(false);
-    [JSInvokable] public async Task OnCtrlE() => await OpenScriptFolder();
-    [JSInvokable] public async Task OnCtrlF() => await OnFormatRequest();
-    [JSInvokable] public async Task OnF4() => GoToNextCompileError();
-    [JSInvokable] public async Task OnF5() => OnStartClicked();
-    [JSInvokable] public async Task OnShiftF5() => this.OnStopClicked();
-    [JSInvokable] public async Task OnF7() => OnSyntaxCheckClicked();
-    [JSInvokable] public async Task OnF10() => OnStepOverClicked(null);
-    [JSInvokable] public async Task OnF11() => OnStepIntoClicked(null);
-    [JSInvokable] public async Task OnF12() { }
     [JSInvokable]
     public async Task<string> GetTooltipFor(string text, int line, int charPos)
     {

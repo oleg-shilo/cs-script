@@ -586,6 +586,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         }
     }
 
+
+
     public void GoToNextCompileError()
     {
         if (Editor.Output.Count == 0)

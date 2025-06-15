@@ -117,7 +117,7 @@ public class Ide
 
     public void ShowExternalFile(string path, int navigateToline = -1)
     {
-        Interop.InvokeVoidAsync("open", $"/fullscreen-editor?file={Uri.EscapeDataString(path)}", "_blank");
+        Interop.InvokeVoidAsync("open", $"/fullscreen-editor?file={Uri.EscapeDataString(path)}&line={navigateToline}", "_blank");
     }
 
     public void ResetDbgGenerator()

@@ -178,7 +178,7 @@ namespace wdbg.cs_script
 
         static string SendSyntaxCommand(string file, int location, string operation)
         {
-            return SendCommand($"-client:{procId}\n-op:{operation}\n-script:{file}\n-pos:{location}\n-rich");
+            return SendCommand($"-client:{procId}\n-op:{operation}\n-script:{file}\n-pos:{location}");
         }
 
         static string SendCommand(string command)

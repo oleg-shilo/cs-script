@@ -13,6 +13,11 @@
     [SupplyParameterFromQuery]
     public string File { get; set; } = "";
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Line { get; set; } = "";
+    int line => Line.ToInt();
+
     private IJSObjectReference? _module;
     private string _fileContent = "";
     private const string _theme = "darkone"; // Set your preferred theme
@@ -39,6 +44,13 @@
         {
             _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/fullscreenEditor.js");
             await _module.InvokeVoidAsync("initFullscreenEditor", "fullscreen-editor", _fileContent, _theme);
+
+            if (line > 0)
+            {
+                // Add a small delay to ensure editor is fully initialized
+                await Task.Delay(100);
+                await _module.InvokeVoidAsync("scrollToLine", line);
+            }
         }
     }
 
