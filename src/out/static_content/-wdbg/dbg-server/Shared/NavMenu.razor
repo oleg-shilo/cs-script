@@ -107,7 +107,7 @@
                     </div>
                     <div class="nav-item px-3" >
                         <button class="btn btn-outline-secondary btn-sm" @onclick="ScrollCurrentLineToView">
-                            Current Line to View
+                            Test
                         </button> 
                     </div> 
                     <div class="nav-item px-3 mt-3">
@@ -200,7 +200,8 @@
     async void ScrollCurrentLineToView(MouseEventArgs args)
     {
         // await JS.InvokeVoidAsync("codemirrorInterop.scrollToAndHighlightLine", 1, 2);
-        var los = await JS.InvokeAsync<int>("codemirrorInterop.getCaretAbsolutePosition");
+        // var los = await JS.InvokeAsync<int>("codemirrorInterop.getCaretAbsolutePosition");
+        Editor.ShowExternalFile(Editor.LoadedScript);
     }
 
     List<(string script, int pid)> runningScripts = new();

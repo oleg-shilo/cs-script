@@ -42,6 +42,7 @@ public class Ide
     public localStorage Storage;
     public UINotificationService UINotification;
     public CodeMirrorPage MainPage;
+    IJSRuntime Interop;
 
     public Ide()
     {
@@ -52,6 +53,7 @@ public class Ide
         MainPage = page;
         UINotification = uiEvents;
         Storage = new localStorage(interop);
+        Interop = interop;
     }
 
     public string LoadedScript = "Untitled";
@@ -112,6 +114,11 @@ public class Ide
     }
 
     public async Task LoadRecentFile(string file) => await MainPage?.LoadRecentFile(file);
+
+    public void ShowExternalFile(string path, int navigateToline = -1)
+    {
+        Interop.InvokeVoidAsync("open", $"/fullscreen-editor?file={Uri.EscapeDataString(path)}", "_blank");
+    }
 
     public void ResetDbgGenerator()
     {
