@@ -27,22 +27,22 @@
                     <span style="color: #dc3545; font-weight: bold;">*</span>
                 }
             </span>
-            <button class="btn btn-outline-secondary btn-sm" @onclick="LoadFileFromServer">Open</button>
-            <button class="btn btn-outline-secondary btn-sm" @onclick="() => SaveToFileOnServer(false)">Save</button>
+            <button title="Load the specified script to the editor/debugger" class="btn btn-outline-secondary btn-sm" @onclick="LoadFileFromServer">Load</button>
+            <button title="Save the loaded document at the specified script path" class="btn btn-outline-secondary btn-sm" @onclick="() => SaveToFileOnServer(false)">Save</button>
         </div>
         <div class="d-flex align-items-center ">
             <div class="d-flex align-items-center ms-3 debug-commands" style="gap: 0.5rem;">
-                <button class="btn btn-run btn-sm btn-nav" title="Find All References" @onclick="() => ShowReferences()">
+                <button class="btn btn-run btn-sm btn-nav" title="Find All References (Shift+F12)" @onclick="() => ShowReferences()">
                     <span class="oi oi-layers"></span>
                 </button>
-                <button class="btn btn-run btn-sm btn-nav" title="Go To Definition" @onclick="() => GoToDefinition()">
+                <button class="btn btn-run btn-sm btn-nav" title="Go To Definition (Ctrl+F12)" @onclick="() => GoToDefinition()">
                     <span class="oi oi-account-login"></span>
                 </button>
-                <button class="btn btn-run btn-sm btn-nav" title="Go to next error (file location) from the output panel" @onclick="() => GoToNextCompileError()">
+                <button class="btn btn-run btn-sm btn-nav" title="Go to next error (file location) from the output panel (F4)" @onclick="() => GoToNextCompileError()">
                     <span class="oi oi-fullscreen-exit rotate45"></span>
                 </button>
                 <span class="group-separator" />
-                <button class="btn btn-run btn-sm btn-run-check " title="Check Script Syntax" @onclick="() => OnSyntaxCheckClicked()" disabled="@(!syntaxCheckAvailable)">
+                <button class="btn btn-run btn-sm btn-run-check " title="Check Script Syntax (F4)" @onclick="() => OnSyntaxCheckClicked()" disabled="@(!syntaxCheckAvailable)">
                     <span class="oi oi-check"></span>
                 </button>
                 @if (UserSession?.IsLocalClient == true)
@@ -55,19 +55,19 @@
                     <span class="oi oi-chevron-right"></span>
                 </button>
                 <span class="group-separator" />
-                <button class="btn btn-run btn-sm" title="Start/Resume" @onclick="OnStartClicked" disabled="@(!startAvailable)">
+                <button class="btn btn-run btn-sm" title="Start/Resume (F5)" @onclick="OnStartClicked" disabled="@(!startAvailable)">
                     <span class="oi oi-caret-right"></span>
                 </button>
-                <button class="btn btn-run btn-sm" title="Step Over" @onclick="OnStepOverClicked" disabled="@(!stepCommandsAvailable)">
+                <button class="btn btn-run btn-sm" title="Step Over (F10)" @onclick="OnStepOverClicked" disabled="@(!stepCommandsAvailable)">
                     <span class="oi oi-data-transfer-download rotate-90" title="Step Over"></span>
                 </button>
-                <button class="btn btn-run btn-sm" title="StepInto" @onclick="OnStepIntoClicked" disabled="@(!stepCommandsAvailable)">
+                <button class="btn btn-run btn-sm" title="StepInto (F11)" @onclick="OnStepIntoClicked" disabled="@(!stepCommandsAvailable)">
                     <span class="oi oi-data-transfer-download" title="Step Into"></span>
                 </button>
                 <button class="btn btn-pause btn-sm" title="Pause" @onclick="OnPauseClicked" disabled="@(!pauseAvailable)">
                     <span class="oi oi-media-pause"></span>
                 </button>
-                <button class="btn btn-stop btn-sm" title="Stop" @onclick="OnStopClicked" disabled="@(!stopAvailable)">
+                <button class="btn btn-stop btn-sm" title="Stop (Shift+F5)" @onclick="OnStopClicked" disabled="@(!stopAvailable)">
                     <span class="oi oi-media-stop"></span>
                 </button>
                 <span hidden class="oi oi-caret-bottom" style="vertical-align: middle; font-size: 0.7em;"></span>
@@ -503,7 +503,7 @@
         var result = Syntaxer.GetTooltip(roslynCompatible.newText, Editor.LoadedScript, roslynCompatible.newOffset);
 
         if (result == null)
-            return "";
+            return null;
 
         // Example result:
         // 103

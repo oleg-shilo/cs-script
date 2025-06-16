@@ -184,6 +184,9 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public async Task SaveToFileOnServer(bool showError)
     {
+        if (Editor.AutoFormatOnSave)
+            await OnFormatRequest();
+
         var content = await GetDocumentContent();
         (content, _) = content.NormalizeLineBreaks();
 

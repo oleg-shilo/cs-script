@@ -695,7 +695,8 @@
                             pos.ch
                         );
 
-                        showTooltip(tooltipText, e.clientX, e.clientY);
+                        if (tooltipText)
+                            showTooltip(tooltipText, e.clientX, e.clientY);
                     }
                 }, 1000); // 1 second delay
             }
@@ -718,7 +719,6 @@
         cm.getWrapperElement().addEventListener('mousemove', cm._tokenTooltipHandler);
         cm.getWrapperElement().addEventListener('mouseleave', cm._tokenTooltipLeaveHandler);
     },
-
 };
 
 // =============================

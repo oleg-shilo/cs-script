@@ -178,8 +178,14 @@
                             Output Char Mode
                         </label>
                     </div>
+                    <div title="Auto format document on saving." class="form-check mt-3" style="margin-left:20px">
+                        <input class="form-check-input" id="formatOnSave" @bind="AutoFormatOnSave" type="checkbox" />
+                        <label class="form-check-label" for="formatOnSave">
+                            Format On Save
+                        </label>
+                    </div>
                     <div class="nav-item px-3" hidden >
-                        <button class="btn btn-outline-secondary btn-sm" @onclick="ScrollCurrentLineToView">
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="OnTestClicked">
                             Test
                         </button> 
                     </div> 
@@ -270,7 +276,13 @@
         set => Editor.OutputCharMode = value;
     }
 
-    async void ScrollCurrentLineToView(MouseEventArgs args)
+    bool AutoFormatOnSave
+    {
+        get => Editor?.AutoFormatOnSave == true;
+        set => Editor.AutoFormatOnSave = value;
+    }
+
+    async void OnTestClicked(MouseEventArgs args)
     {
         // await JS.InvokeVoidAsync("codemirrorInterop.scrollToAndHighlightLine", 1, 2);
         // var los = await JS.InvokeAsync<int>("codemirrorInterop.getCaretAbsolutePosition");

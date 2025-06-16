@@ -234,6 +234,14 @@ public class Ide
         set { _outputCharMode = value; Storage.Write("cm_outputCharMode", _outputCharMode ? "1" : "0"); }
     }
 
+    bool _autoFormatOnSave = false; // false = line mode, true = char mode
+
+    public bool AutoFormatOnSave
+    {
+        get => _autoFormatOnSave;
+        set { _autoFormatOnSave = value; Storage.Write("cm_formatOnSave", _autoFormatOnSave ? "1" : "0"); }
+    }
+
     string _lastSessionFileName;
 
     public string LastSessionFileName
