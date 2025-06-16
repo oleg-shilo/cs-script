@@ -251,6 +251,7 @@ a, .btn-link {
 #sidebar-panel {
     border-right: 2px solid #e0e0e0;
     border-bottom: 2px solid #e0e0e0;
+    min-width: 220px;
 }
 
 .statusbar-panel {
@@ -808,7 +809,7 @@ button:focus, button:focus-visible, button:active:focus {
 
     .commands-table th,
     .commands-table td {
-        padding: 6px;
+        padding: 0px 6px 0px 6px;
         text-align: left;
     }
 
@@ -818,7 +819,6 @@ button:focus, button:focus-visible, button:active:focus {
 
     .commands-table thead tr {
         border-bottom: 2px solid #888;
-        /*background: #f8f8f8;*/
     }
 
     .commands-table th {
@@ -924,17 +924,20 @@ button:focus, button:focus-visible, button:active:focus {
 }
 
 .cm-tooltip-content {
-    padding: 0px 0px;
-    border-radius: 4px;
-    font-size: 0.95em;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    max-width: 400px;
-    white-space: pre;
-    margin: 0px 0px 0px 0px;
-    /* Default styling (light theme) */
-    background: #f8f9fa;
-    color: #212529;
-    border: 1px solid #dee2e6;
+    padding: 6px 10px !important; /* More generous padding */
+    border-radius: 4px !important;
+    font-size: 0.95em !important;
+    white-space: pre !important;
+    margin: 0 !important;
+    /* Light theme default */
+    background: #f8f9fa !important;
+    color: #212529 !important;
+    border: 2px solid #aaa !important; /* Gray border for light theme */
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.2) !important;
+    /* Override any max-width settings */
+    max-width: none !important;
+    width: auto !important;
+    overflow-wrap: normal !important;
 }
 
 /* Light theme specific styling */
@@ -1059,3 +1062,15 @@ button:focus, button:focus-visible, button:active:focus {
         font-family: 'Consolas', 'Monaco', monospace;
         font-size: 14px;
     }
+
+
+.command-list-button {
+    background: none;
+    border: none;
+    margin-left: -4px;
+    color: inherit;
+    text-align: left;
+    text-decoration: underline;
+    cursor: pointer;
+    font: inherit;
+}

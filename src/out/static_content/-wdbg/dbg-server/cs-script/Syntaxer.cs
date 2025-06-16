@@ -95,25 +95,35 @@ namespace wdbg.cs_script
         public static string FindReferences(string editorText, string file, int location)
         {
             return editorText.WithTempCopy(file,
-                tempFile => SendSyntaxCommand(tempFile, location, "references"));//.ToReferences();
+                tempFile => SendSyntaxCommand(tempFile, location, "references"));
         }
 
         public static string GetMapOf(string editorText, string file)
         {
             return editorText.WithTempCopy(file,
-                tempFile => SendSyntaxCommand(tempFile, "codemap"));//.ToCodeMapItems();
+                tempFile => SendSyntaxCommand(tempFile, "codemap"));
         }
 
         public static string Resolve(string editorText, string file, int location)
         {
             return editorText.WithTempCopy(file,
-                tempFile => SendSyntaxCommand(tempFile, location, "resolve"));//.ToDomRegion();
+                tempFile => SendSyntaxCommand(tempFile, location, "resolve"));
         }
 
         public static string GetPossibleNamespaces(string editorText, string file, string word)
         {
             return editorText.WithTempCopy(file,
-                tempFile => SendSyntaxCommand(tempFile, $"suggest_usings:{word}"));//.ToTypeInfos();
+                tempFile => SendSyntaxCommand(tempFile, $"suggest_usings:{word}"));
+        }
+
+        public static string GetTooltip(string editorText, string file, int location)
+        {
+            var response = editorText.WithTempCopy(file,
+                tempFile => SendCommand($"-client:{procId}\n" +
+                                        $"-op:tooltip:\n" +
+                                        $"-script:{tempFile}\n" +
+                                        $"-pos:{location}"));
+            return response;
         }
 
         public static string GetMemberInfo(string editorText, string file, int location, bool collapseOverloads, out int methodStartPosTemp)
@@ -129,15 +139,6 @@ namespace wdbg.cs_script
                                                                      $"-rich\n" +
                                                                      $"{overloads}"));
             return response;
-            // var result = response.ToMemberInfoData();
-
-            // if (result.Any())
-            // {
-            //     methodStartPosTemp = result.First().MemberStartPosition;
-            //     return result.Select(x => x.Info).ToArray();
-            // }
-            // else
-            //     return new string[0];
         }
 
         public static string Format(string editorText, string file, ref int caretPosition)

@@ -200,6 +200,11 @@
         else if (theme === "darkone") hintThemeClass = 'hint-theme-darkone';
 
         hintContainer.classList.add(hintThemeClass);
+
+        const hintItems = hintContainer.querySelectorAll('.CodeMirror-hint');
+        hintItems.forEach(item => {
+            item.style.paddingRight = '10px';
+        });
     },
 
     setTheme: function (theme) {
@@ -333,11 +338,16 @@
         window.editor.scrollIntoView({ line: line, ch: 0 }, 100);
     },
 
-    getCaretAbsolutePosition: function () {
+    getCaretAbsolutePosition: function (line, ch) {
         const cm = window.codemirrorInterop.editor;
         if (!cm) return { left: 0, top: 0, bottom: 0, characterOffset: 0 };
 
         const pos = cm.getCursor();
+        if (line)
+            pos.line = line;
+        if (ch)
+            pos.ch = ch;
+
         const fullText = cm.getValue();
 
         // Use the original line ending style
@@ -587,7 +597,7 @@
             tooltipDiv.style.width = 'auto';
             tooltipDiv.style.height = 'auto';
             tooltipDiv.style.overflow = 'auto';
-            tooltipDiv.style.maxHeight = '200px';
+            tooltipDiv.style.maxWidth = 'none';
             tooltipDiv.style.border = '1px solid rgba(0,0,0,0.2)';
             tooltipDiv.style.borderRadius = '4px';
             tooltipDiv.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
@@ -933,7 +943,7 @@ window.registerWindowKeyHandlers = function (dotNetRef) {
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnCtrlE');
         }
-        else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+        else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'f') {
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnCtrlF');
         }
@@ -951,8 +961,7 @@ window.registerWindowKeyHandlers = function (dotNetRef) {
         }
         else if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (e.key === "F9" || e.keyCode === 120)) {
             e.preventDefault();
-            if (window.editor)
-                window.codemirrorInterop.toggleBreakpointAtCursor(window.editor);
+            window.codemirrorInterop.toggleBreakpointAtCursor();
         }
         else if (!e.ctrlKey && !e.metaKey && !e.altKey && e.shiftKey && (e.key === "F9" || e.keyCode === 120)) {
             e.preventDefault();
@@ -1101,4 +1110,13 @@ window.codemirrorInterop.setCaretPosition = function (line, ch, scroll) {
         // Scroll to make the cursor visible
         cm.scrollIntoView({ line: line, ch: ch }, 100);
     }
+};
+
+window.codemirrorInterop.triggerCompletion = function () {
+    if (window.editor) {
+        // Use the existing showCustomCompletion method with the current editor instance
+        window.codemirrorInterop.showCustomCompletion(window.editor);
+        return true;
+    }
+    return false;
 };

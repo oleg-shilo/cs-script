@@ -41,17 +41,90 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr> <td>Check Syntax</td> <td>F7</td> </tr>
-                            <tr> <td>Start/Resume</td> <td>F5</td> </tr>
-                            <tr> <td>Stop</td> <td>Shift+F5</td> </tr>
-                            <tr> <td>Step Over</td> <td>F10</td> </tr>
-                            <tr> <td>Step Into</td> <td>F11</td> </tr>
-                            <tr> <td>Toggle Breakpoint</td> <td>F9</td> </tr>
-                            <tr> <td>Clear Breakpoints</td> <td>Shift+F9</td> </tr>
-                            <tr> <td>Open Location</td> <td>Ctrl+E</td> </tr>
-                            <tr> <td>Next Error</td> <td>F4</td> </tr>
-                            <tr> <td>Format Document</td> <td>Ctrl+F</td> </tr>
-                            <tr> <td>Save</td> <td>Ctrl+S</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Check code for syntax errors" 
+                                    @onclick="() => Editor?.MainPage.OnSyntaxCheckClicked()" >
+                                    Check Syntax </button> </td>
+                                    <td>F7</td></tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Start or resume execution" 
+                                    @onclick="() => Editor?.MainPage.OnStartClicked()" >
+                                    Start/Resume </button> </td>
+                                    <td>F5</td></tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Stop the active code execution" 
+                                    @onclick="() => Editor?.MainPage.OnStopClicked()" >
+                                    Stop </button> </td>
+                                    <td>Shift+F5</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Step Over" 
+                                    @onclick="() => Editor?.MainPage.OnStepOverClicked(null)" >
+                                    Step Over </button> </td>
+                                    <td>F10</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Step Into" 
+                                    @onclick="() => Editor?.MainPage.OnStepIntoClicked(null)" >
+                                    Step Into </button> </td>
+                                    <td>F11</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Toggle Breakpoint at cursor position" 
+                                    @onclick="async () => await Editor?.MainPage.OnF9()" >
+                                    Toggle Breakpoints</button> </td>
+                                    <td>F9</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Clear Breakpoints" 
+                                    @onclick="async () => await Editor?.MainPage.OnShiftF9()" >
+                                    Clear Breakpoints</button> </td>
+                                    <td>Shift+F9</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Save current document" 
+                                    @onclick="async () => await Editor?.MainPage.SaveToFileOnServer(false)" >
+                                    Save</button> </td>
+                                    <td>Ctrl+S</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Open current document location" 
+                                    @onclick="async () => await Editor?.MainPage.OpenScriptFolder()" >
+                                    Open Location</button> </td>
+                                    <td>Ctrl+E</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Open the next location from the output panel (e.g. error)" 
+                                    @onclick="() => Editor?.MainPage.GoToNextCompileError()" >
+                                    Next Location</button> </td>
+                                    <td>F4</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Format document" 
+                                    @onclick="async () => await Editor?.MainPage.OnFormatRequest()" >
+                                    Format code</button> </td>
+                                    <td>Ctrl+Shift+F</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Go to definition of the symbol at the caret." 
+                                    @onclick="() => Editor?.MainPage.GoToDefinition()" >
+                                    Go To Definition</button> </td>
+                                    <td>Ctrl+F12</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Show the references of the symbol at the caret." 
+                                    @onclick="() => Editor?.MainPage.ShowReferences()" >
+                                    Find References</button> </td>
+                                    <td>Shift+F12</td> </tr>
+                            <tr> <td>
+                                <button class="command-list-button" 
+                                    title="Trigger completion suggestion." 
+                                    @onclick="() => Editor?.MainPage.TriggerCompletionSuggestion()" >
+                                    Suggestions</button> </td>
+                                    <td>Ctrl+Space</td> </tr>
                         </tbody>
                     </table>
 
@@ -105,7 +178,7 @@
                             Output Char Mode
                         </label>
                     </div>
-                    <div class="nav-item px-3" >
+                    <div class="nav-item px-3" hidden >
                         <button class="btn btn-outline-secondary btn-sm" @onclick="ScrollCurrentLineToView">
                             Test
                         </button> 

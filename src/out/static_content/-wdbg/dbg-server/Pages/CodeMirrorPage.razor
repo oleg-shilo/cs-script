@@ -388,6 +388,7 @@
         }
     }
 
+    public async Task TriggerCompletionSuggestion() => await js("codemirrorInterop.triggerCompletion");
     async Task AutoSizeFileNameInput(ChangeEventArgs e) => await js("autoSizeInput", fileNameInputRef);
     async Task StartLeftHorizontalResize(MouseEventArgs e) => await js("startLeftHorizontalResize");
     async Task<string> GetDocumentContent() => await js<string>("codemirrorInterop.getValue");
@@ -395,6 +396,7 @@
     async Task RenderBreakpoints() => await js("codemirrorInterop.setBreakpoints", Document.Breakpoints.ToArray());
     async Task<int[]> GetBreakpoints() => await js<int[]>("codemirrorInterop.getBreakpoints");
     async Task<int> GetCaretPosition() => await js<int>("codemirrorInterop.getCaretAbsolutePosition");
+    async Task<int> GetCaretPosition(int line, int ch) => await js<int>("codemirrorInterop.getCaretAbsolutePosition", line, ch);
     async Task SetCaretPosition(int position) => await js("codemirrorInterop.setCaretAbsolutePosition", position);
     async Task ScrollCurrentLineToView() => await js("codemirrorInterop.scrollCurrentLineToView");
     async Task ScrollLineToView(int line) => await js("codemirrorInterop.scrollLineToView", line);
@@ -484,6 +486,8 @@
     [JSInvokable] public async Task OnF5() => OnStartClicked();
     [JSInvokable] public async Task OnShiftF5() => this.OnStopClicked();
     [JSInvokable] public async Task OnF7() => OnSyntaxCheckClicked();
+    [JSInvokable] public async Task OnF9() => await js("codemirrorInterop.toggleBreakpointAtCursor");
+    [JSInvokable] public async Task OnShiftF9() => await js("codemirrorInterop.clearAllBreakpoints");
     [JSInvokable] public async Task OnF10() => OnStepOverClicked(null);
     [JSInvokable] public async Task OnF11() => OnStepIntoClicked(null);
     [JSInvokable] public async Task OnCtrlF12() => GoToDefinition();
@@ -491,12 +495,25 @@
     [JSInvokable]
     public async Task<string> GetTooltipFor(string text, int line, int charPos)
     {
-        // Return HTML content with a clickable "Go To Definition" link
-        return
-        $@"Tooltip: [{text}] (Line: {line}, Char: {charPos})<br/>" +
-        $@"<a href='#' onclick='window.goToDefinitionFromTooltip({line}, {charPos}); return false;'
-                        style = 'color: #007bff; text-decoration: underline; cursor: pointer '>" +
-        "Go To Definition</a>";
+        var editorText = await GetDocumentContent();
+        var caretPosition = await GetCaretPosition(line, charPos);
+
+        var roslynCompatible = editorText.NormalizeLineBreaks(caretPosition);
+
+        var result = Syntaxer.GetTooltip(roslynCompatible.newText, Editor.LoadedScript, roslynCompatible.newOffset);
+
+        if (result == null)
+            return "";
+
+        // Example result:
+        // 103
+        // Method: void Console.WriteLine(string? value) (+ 18 overloads)
+
+        // Return HTML content with a button styled as a hyperlink
+        return $@"{(result.GetLines().LastOrDefault())}<br/>" +
+               $@"<button onclick='window.goToDefinitionFromTooltip({line}, {charPos}); return false;'
+                          style='color: #007bff; text-decoration: underline; cursor: pointer; background: none; border: none; padding: 0; font: inherit; outline: none;'>" +
+               "Go To Definition</button>";
     }
 
     [JSInvokable]
