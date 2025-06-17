@@ -58,235 +58,276 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
     {
         InvokeAsync(() =>
         {
-            setCurrentStepLine(DebugSession.CurrentStepLineNumber);
-
-            if (DebugSession.IsScriptExecutionInProgress)
+            try
             {
-                if (DebugSession.CurrentStepLineNumber != -1)
-                    ScrollLineToView(DebugSession.CurrentStepLineNumber);
+                _ = setCurrentStepLine(DebugSession.CurrentStepLineNumber);
 
-                var prevSelectefLocalName = selectedLocalName; // save it before Variables are updated
+                if (DebugSession.IsScriptExecutionInProgress)
+                {
+                    if (DebugSession.CurrentStepLineNumber != -1)
+                        _ = ScrollLineToView(DebugSession.CurrentStepLineNumber);
 
-                if (variables.HasText())
-                    Variables = JsonSerializer.Deserialize<List<VariableInfo>>(variables);
+                    var prevSelectefLocalName = selectedLocalName; // save it before Variables are updated
 
-                // set selectedLocalIndex to the index of Variables item with the prevSelectefLocalName
-                selectedLocalIndex = Variables.FindIndex(item => item.Name == prevSelectefLocalName);
+                    if (variables.HasText())
+                        Variables = JsonSerializer.Deserialize<List<VariableInfo>>(variables);
 
-                WatchVariables.ForEach(expression => DebugSession.RequestEvaluate(expression.Name));
-                RequestSelectedVariablesInfo(locals: true, watch: true);
+                    // set selectedLocalIndex to the index of Variables item with the prevSelectefLocalName
+                    selectedLocalIndex = Variables.FindIndex(item => item.Name == prevSelectefLocalName);
+
+                    WatchVariables.ForEach(expression => DebugSession.RequestEvaluate(expression.Name));
+                    RequestSelectedVariablesInfo(locals: true, watch: true);
+                }
             }
-
+            catch (Exception e) { e.Log(); }
             StateHasChangedSafe();
         });
     }
 
     public void DebugObjectStateChanged(string data) // received on debug stack variable value evaluated
     {
-        string variables = null;
-        string objectInfo = null;
-
-        if (data.StartsWith("variables:"))
-            variables = data.Substring("variables:".Length).Trim();
-        else if (data.StartsWith("objectInfo:"))
-            objectInfo = data.Substring("objectInfo:".Length).Trim();
-
-        if (variables.HasText())
+        try
         {
-            var variablesInfo = JsonSerializer.Deserialize<List<VariableInfo>>(variables);
+            string variables = null;
+            string objectInfo = null;
 
-            foreach (var item in variablesInfo)
+            if (data.StartsWith("variables:"))
+                variables = data.Substring("variables:".Length).Trim();
+            else if (data.StartsWith("objectInfo:"))
+                objectInfo = data.Substring("objectInfo:".Length).Trim();
+
+            if (variables.HasText())
             {
-                var impactedVariables =
-                    Variables.Where(x => x.Name == item.Name).Concat(
-                    WatchVariables.Where(x => x.Name == item.Name)).ToList();
+                var variablesInfo = JsonSerializer.Deserialize<List<VariableInfo>>(variables);
 
-                impactedVariables.ForEach(x =>
-                    {
-                        x.Type = item.Type;
-                        x.Value = item.Value;
-                    });
+                foreach (var item in variablesInfo)
+                {
+                    var impactedVariables =
+                        Variables.Where(x => x.Name == item.Name).Concat(
+                        WatchVariables.Where(x => x.Name == item.Name)).ToList();
+
+                    impactedVariables.ForEach(x =>
+                        {
+                            x.Type = item.Type;
+                            x.Value = item.Value;
+                        });
+                }
+            }
+            else if (objectInfo.HasText())
+            {
+                var variableName = objectInfo.Split(':').FirstOrDefault()?.Trim();
+
+                if (variableName == selectedLocalName)
+                    selectedLocalValue = objectInfo;
+
+                if (variableName == selectedWatchName)
+                    selectedWatchValue = objectInfo;
             }
         }
-        else if (objectInfo.HasText())
+        catch (Exception e) { e.Log(); }
+        finally
         {
-            var variableName = objectInfo.Split(':').FirstOrDefault()?.Trim();
-
-            if (variableName == selectedLocalName)
-                selectedLocalValue = objectInfo;
-
-            if (variableName == selectedWatchName)
-                selectedWatchValue = objectInfo;
+            StateHasChangedSafe();
         }
-
-        StateHasChangedSafe();
     }
 
     public async Task LoadFileFromServer()
     {
-        if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
+        try
         {
-            Document.EditorContent = await File.ReadAllTextAsync(Editor.LoadedScript);
-
-            (Document.EditorContent, _) = Document.EditorContent.NormalizeLineBreaks();
-
-            await SetDocumentContent(Document.EditorContent);
-
-            Document.IsModified = false;
-
-            Editor.LastSessionFileName = Editor.LoadedScript;
-            Editor.LocateLoadedScriptDebuggInfo();
-            Editor.RunStatus = "ready";
-            Editor.Ready = true;
-            Editor.AddToRecentFiles(Editor.LoadedScript);
-
-            await LoadBreakpoints();
-            UIEvents.NotifyStateChanged();
-
-            if (!Editor.IsScriptReadyForDebugging)
-                StartGeneratingDebugMetadata(false);
-        }
-        else
-        {
-            if (!File.Exists(Editor.LoadedScript))
+            if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
             {
-                Editor.ShowToastError($"File '{Editor.LoadedScript}' cannot be found.");
+                Document.EditorContent = await File.ReadAllTextAsync(Editor.LoadedScript);
+
+                (Document.EditorContent, _) = Document.EditorContent.NormalizeLineBreaks();
+
+                await SetDocumentContent(Document.EditorContent);
+
+                Document.IsModified = false;
+
+                Editor.LastSessionFileName = Editor.LoadedScript;
+                Editor.LocateLoadedScriptDebuggInfo();
+                Editor.RunStatus = "ready";
+                Editor.Ready = true;
+                Editor.AddToRecentFiles(Editor.LoadedScript);
+
+                await LoadBreakpoints();
+                UIEvents.NotifyStateChanged();
+
+                if (!Editor.IsScriptReadyForDebugging)
+                    _ = StartGeneratingDebugMetadata(false);
+            }
+            else
+            {
+                if (!File.Exists(Editor.LoadedScript))
+                {
+                    Editor.ShowToastError($"File '{Editor.LoadedScript}' cannot be found.");
+                }
             }
         }
+        catch (Exception e) { e.Log(); }
     }
 
     public async Task LoadRecentFile(string file)
     {
-        if (file.HasText())
+        try
         {
-            Editor.LoadedScript = file;
-            await LoadFileFromServer();
-            StateHasChanged();
-            AutoSizeFileNameInput(null);
+            if (file.HasText())
+            {
+                Editor.LoadedScript = file;
+                await LoadFileFromServer();
+                StateHasChanged();
+                AutoSizeFileNameInput(null);
+            }
         }
+        catch (Exception e) { e.Log(); }
     }
 
     public async Task OpenScriptFolder()
     {
-        if (UserSession.IsLocalClient)
+        try
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (UserSession.IsLocalClient)
             {
-                if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    // Open Explorer and select the file
-                    var argument = $"/select,\"{Editor.LoadedScript}\"";
-                    Process.Start(new ProcessStartInfo("explorer.exe", argument) { UseShellExecute = true });
+                    if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
+                    {
+                        // Open Explorer and select the file
+                        var argument = $"/select,\"{Editor.LoadedScript}\"";
+                        Process.Start(new ProcessStartInfo("explorer.exe", argument) { UseShellExecute = true });
+                    }
                 }
             }
         }
+        catch (Exception e) { e.Log(); }
     }
 
     public async Task SaveToFileOnServer(bool showError)
     {
-        if (Editor.AutoFormatOnSave)
-            await OnFormatRequest();
-
-        var content = await GetDocumentContent();
-        (content, _) = content.NormalizeLineBreaks();
-
-        if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
+        try
         {
-            File.WriteAllTextAsync(Editor.LoadedScript, content);
+            if (Editor.AutoFormatOnSave)
+                await OnFormatRequest();
 
-            var currentBreakpoints = await GetBreakpoints();
-            await UpdateBreakpoints(currentBreakpoints);
+            var content = await GetDocumentContent();
+            (content, _) = content.NormalizeLineBreaks();
 
-            Document.IsModified = false;
+            if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
+            {
+                File.WriteAllTextAsync(Editor.LoadedScript, content);
 
-            UIEvents.NotifyStateChanged();
+                var currentBreakpoints = await GetBreakpoints();
+                await UpdateBreakpoints(currentBreakpoints);
 
-            if (!Editor.IsScriptReadyForDebugging)
-                StartGeneratingDebugMetadata(showError);
+                Document.IsModified = false;
+
+                UIEvents.NotifyStateChanged();
+
+                if (!Editor.IsScriptReadyForDebugging)
+                    StartGeneratingDebugMetadata(showError);
+            }
+            else
+            {
+                // Optionally, show an error or prompt for a file path
+            }
         }
-        else
-        {
-            // Optionally, show an error or prompt for a file path
-        }
+        catch (Exception e) { e.Log(); }
     }
 
     public void ClearOutput()
     {
-        Editor.Output.Clear();
-        currentOutputIndex = -1;
-        StateHasChanged();
+        try
+        {
+            Editor.Output.Clear();
+            currentOutputIndex = -1;
+            StateHasChanged();
+        }
+        catch (Exception e) { e.Log(); }
     }
 
     public void AddOutputLine(string data)
     {
-        if (string.IsNullOrEmpty(data))
-            return;
-
-        // Normalize line endings
-        data = data.Replace("\r\n", "\n").Replace('\r', '\n');
-
-        // If the message starts with a single \r (carriage return), replace the last line
-        if (data.StartsWith("\n") && Editor.Output.Count > 0)
+        try
         {
-            // Remove the first \n for processing
-            data = data.Substring(1);
+            if (string.IsNullOrEmpty(data))
+                return;
 
-            var lines = data.Split('\n');
-            // Replace the last line with the first new line
-            Editor.Output[Editor.Output.Count - 1] = lines[0];
-            // Add any additional lines as new output
-            for (int i = 1; i < lines.Length; i++)
+            // Normalize line endings
+            data = data.Replace("\r\n", "\n").Replace('\r', '\n');
+
+            // If the message starts with a single \r (carriage return), replace the last line
+            if (data.StartsWith("\n") && Editor.Output.Count > 0)
             {
-                Editor.Output.Add(lines[i]);
+                // Remove the first \n for processing
+                data = data.Substring(1);
+
+                var lines = data.Split('\n');
+                // Replace the last line with the first new line
+                Editor.Output[Editor.Output.Count - 1] = lines[0];
+                // Add any additional lines as new output
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    Editor.Output.Add(lines[i]);
+                }
             }
-        }
-        else
-        {
-            // Standard append for all other cases
-            foreach (var line in data.Split('\n'))
+            else
             {
-                Editor.Output.Add(line);
+                // Standard append for all other cases
+                foreach (var line in data.Split('\n'))
+                {
+                    Editor.Output.Add(line);
+                }
             }
+            StateHasChanged(); // it's speed critical so it's better than UIEvents.NotifyStateChanged()
+            OutputScrollToEnd();
         }
-        StateHasChanged(); // it's speed critical so it's better than UIEvents.NotifyStateChanged()
-        OutputScrollToEnd();
+        catch (Exception e) { e.Log(); }
     }
 
     public void AddOutputChar(string data)
     {
-        if (data == "\n")
+        try
         {
-            Editor.Output.Add("");
-            outputPosition = 0;
-        }
-        else if (data == "\r")
-        {
-            outputPosition = 0;
-        }
-        else
-        {
-            var lastLine = Editor.Output.LastOrDefault() ?? "";
-
-            if (outputPosition < lastLine.Length)
-                lastLine = data + lastLine.Substring(outputPosition + 1);
+            if (data == "\n")
+            {
+                Editor.Output.Add("");
+                outputPosition = 0;
+            }
+            else if (data == "\r")
+            {
+                outputPosition = 0;
+            }
             else
-                lastLine += data;
+            {
+                var lastLine = Editor.Output.LastOrDefault() ?? "";
 
-            if (Editor.Output.Count == 0)
-                Editor.Output.Add(lastLine);
-            else
-                Editor.Output[Editor.Output.Count - 1] = lastLine;
+                if (outputPosition < lastLine.Length)
+                    lastLine = data + lastLine.Substring(outputPosition + 1);
+                else
+                    lastLine += data;
 
-            outputPosition++;
+                if (Editor.Output.Count == 0)
+                    Editor.Output.Add(lastLine);
+                else
+                    Editor.Output[Editor.Output.Count - 1] = lastLine;
+
+                outputPosition++;
+            }
+
+            StateHasChanged();
+            OutputScrollToEnd();
         }
-
-        StateHasChanged();
-        OutputScrollToEnd();
+        catch (Exception e) { e.Log(); }
     }
 
     public async Task SaveBreakpoints()
     {
-        await Editor.Storage.Write("breakpoints", Document.Breakpoints.ToArray());
+        try
+        {
+            await Editor.Storage.Write("breakpoints", Document.Breakpoints.ToArray());
+        }
+        catch (Exception e) { e.Log(); }
     }
 
     public async Task LoadBreakpoints()
@@ -314,59 +355,67 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
     [JSInvokable]
     public Task UpdateBreakpoints(int[] lines)
     {
-        Document.Breakpoints = lines.ToHashSet();
-        DebugSession.Breakpoints = lines.ToList(); // <-- Synchronize with DebugSession
-        UIEvents.NotifyStateChanged();
-        SaveBreakpoints();
+        try
+        {
+            Document.Breakpoints = lines.ToHashSet();
+            DebugSession.Breakpoints = lines.ToList(); // <-- Synchronize with DebugSession
+            UIEvents.NotifyStateChanged();
+            SaveBreakpoints();
+        }
+        catch (Exception e) { e.Log(); }
         return Task.CompletedTask;
     }
 
     public async Task StartGeneratingDebugMetadata(bool showNotification)
     {
-        if (!Editor.Ready)
-            return; // still busy preparing the debug info
+        try
+        {
+            if (!Editor.Ready)
+                return; // still busy preparing the debug info
 
-        Editor.LoadedScriptDbg = null;
-        Editor.RunStatus = "Generating debug metadata...";
-        Editor.Ready = false;
-        Editor.DebugGenerationError = null;
-        UIEvents.NotifyStateChanged();
+            Editor.LoadedScriptDbg = null;
+            Editor.RunStatus = "Generating debug metadata...";
+            Editor.Ready = false;
+            Editor.DebugGenerationError = null;
+            UIEvents.NotifyStateChanged();
 
-        var ttt = Editor.LoadedScript.HasText() && Editor.LoadedScriptDbg.HasText() &&
-            File.Exists(Editor.LoadedScript) && File.Exists(Editor.LoadedScript) &&
-            File.GetLastWriteTimeUtc(Editor.LoadedScriptDbg) == File.GetLastWriteTimeUtc(Editor.LoadedScript);
+            var ttt = Editor.LoadedScript.HasText() && Editor.LoadedScriptDbg.HasText() &&
+                File.Exists(Editor.LoadedScript) && File.Exists(Editor.LoadedScript) &&
+                File.GetLastWriteTimeUtc(Editor.LoadedScriptDbg) == File.GetLastWriteTimeUtc(Editor.LoadedScript);
 
-        if (!Editor.IsScriptReadyForDebugging)
-            Task.Run(() =>
-            {
-                try
+            if (!Editor.IsScriptReadyForDebugging)
+                _ = Task.Run(() =>
                 {
-                    Editor.ResetDbgGenerator();
-
-                    (Editor.LoadedScriptDbg, Editor.LoadedScriptValidBreakpoints) = DbgService.Prepare(Editor.LoadedScript,
-                        p => Editor.DbgGenerator = p);
-                }
-                catch (Exception e)
-                {
-                    var error = e.Message ?? "Generating debug information for the loaded script has failed.";
-
-                    if (e.Message?.Contains("Error: Specified file could not be compiled.") == true)
+                    try
                     {
-                        Editor.DebugGenerationError =
-                        error = "Generating debug metadata for the loaded script has failed. Check the script for the compile errors.";
-                        UIEvents.NotifyStateChanged();
+                        Editor.ResetDbgGenerator();
+
+                        (Editor.LoadedScriptDbg, Editor.LoadedScriptValidBreakpoints) = DbgService.Prepare(Editor.LoadedScript,
+                            p => Editor.DbgGenerator = p);
+                    }
+                    catch (Exception e)
+                    {
+                        var error = e.Message ?? "Generating debug information for the loaded script has failed.";
+
+                        if (e.Message?.Contains("Error: Specified file could not be compiled.") == true)
+                        {
+                            Editor.DebugGenerationError =
+                            error = "Generating debug metadata for the loaded script has failed. Check the script for the compile errors.";
+                            UIEvents.NotifyStateChanged();
+                        }
+
+                        if (showNotification)
+                            Editor.ShowToastError(error); // failures can happen (e.g. *.dbg.cs is still locked)
+
+                        Editor.ResetDbgGenerator();
+                        Editor.LoadedScriptDbg = null;
                     }
 
-                    if (showNotification)
-                        Editor.ShowToastError(error); // failures can happen (e.g. *.dbg.cs is still locked)
-
-                    Editor.ResetDbgGenerator();
-                    Editor.LoadedScriptDbg = null;
-                }
-
-                Editor.RunStatus = $"Ready";
-                Editor.Ready = true;
-            });
+                    Editor.RunStatus = $"Ready";
+                    Editor.Ready = true;
+                });
+        }
+        catch (Exception e) { e.Log(); }
     }
 
     bool syntaxCheckAvailable => DebugSession?.IsScriptExecutionInProgress == false;
@@ -378,6 +427,12 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public async void OnSyntaxCheckClicked()
     {
+        if (!syntaxCheckAvailable)
+        {
+            Editor.ShowToastInfo("The command is not available in the current state of the application.");
+            return;
+        }
+
         try
         {
             var scriptPath = Editor.LoadedScript;
@@ -407,6 +462,12 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public async void OnStartExternalClicked()
     {
+        if (!startDetachedlAvailable)
+        {
+            Editor.ShowToastInfo("The command is not available in the current state of the application.");
+            return;
+        }
+
         try
         {
             var scriptPath = Editor.LoadedScript;
@@ -430,80 +491,96 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public async void OnStartAndPauseClicked() => Start(breakAtStart: true, detached: false);
 
-    public async void OnStartClicked() => Start(breakAtStart: false, detached: false);
+    public async void OnStartClicked()
+    {
+        if (!startAvailable)
+            Editor.ShowToastInfo("The command is not available in the current state of the application.");
+        else
+            Start(breakAtStart: false, detached: false);
+    }
 
     async void Start(bool breakAtStart, bool detached)
     {
-        if (DebugSession.IsScriptExecutionInProgress)
+        try
         {
-            if (DebugSession.IsInBreakMode)
+            if (DebugSession.IsScriptExecutionInProgress)
             {
-                DebugSession.RequestResume();
-                UIEvents.NotifyDbgChanged(); // to clear current step
+                if (DebugSession.IsInBreakMode)
+                {
+                    DebugSession.RequestResume();
+                    UIEvents.NotifyDbgChanged(); // to clear current step
+                }
+                else
+                    Editor.ShowToastError("Script is already running. Please stop it before starting a new one.");
             }
             else
-                Editor.ShowToastError("Script is already running. Please stop it before starting a new one.");
-        }
-        else
-        {
-            if (Document.IsModified || !Editor.IsScriptReadyForDebugging)
             {
-                await SaveToFileOnServer(true); // this will trigger debugger info generation, which will be done when Editor.Ready istrue
-                if (!detached)
-                    while (!Editor.IsScriptReadyForDebugging)
-                        await Task.Delay(500);
-            }
-
-            ClearOutput();
-            ClearLocals();
-            this.DebugSession.Reset();
-            this.DebugSession.Breakpoints.AddRange(Document.Breakpoints);
-
-            try
-            {
-                var scriptToExecute = detached ? Editor.LoadedScript : Editor.LoadedScriptDbg;
-
-                if (!scriptToExecute.HasText() || !File.Exists(scriptToExecute))
+                if (Document.IsModified || !Editor.IsScriptReadyForDebugging)
                 {
-                    Editor.ShowToastError("File not found.");
-                    return;
+                    await SaveToFileOnServer(true); // this will trigger debugger info generation, which will be done when Editor.Ready istrue
+                    if (!detached)
+                        while (!Editor.IsScriptReadyForDebugging)
+                            await Task.Delay(500);
                 }
 
-                await CSScriptHost.Start(
-                    scriptToExecute, null, null,
-                    onStart: proc =>
+                ClearOutput();
+                ClearLocals();
+                this.DebugSession.Reset();
+                this.DebugSession.Breakpoints.AddRange(Document.Breakpoints);
+
+                try
+                {
+                    var scriptToExecute = detached ? Editor.LoadedScript : Editor.LoadedScriptDbg;
+
+                    if (!scriptToExecute.HasText() || !File.Exists(scriptToExecute))
                     {
-                        DebugSession.RunningScript = proc;
-                        Editor.RunStatus = $"execution started (pid: {proc.Id})";
-                    },
-                    onExit: () => InvokeAsync(() =>
-                    {
-                        Editor.RunStatus = "execution completed";
-                        DebugSession.Reset();
-                    }),
-                    onOutput: (proc, data) => InvokeAsync(() =>
-                    {
-                        if (Editor.OutputCharMode)
-                            AddOutputChar(data);
-                        else
-                            AddOutputLine(data);
-                    }),
-                    onError: error => Editor.ShowToastError(error),
-                    DebugSession.Id,
-                    Editor.OutputCharMode,
-                    envars: breakAtStart ?
-                                [("EntryScript", Editor.LoadedScript), ("pauseOnStart", "true")] :
-                                [("EntryScript", Editor.LoadedScript)]);
-            }
-            catch (Exception ex)
-            {
-                Editor.ShowToastError(ex.Message);
+                        Editor.ShowToastError("File not found.");
+                        return;
+                    }
+
+                    await CSScriptHost.Start(
+                        scriptToExecute, null, null,
+                        onStart: proc =>
+                        {
+                            DebugSession.RunningScript = proc;
+                            Editor.RunStatus = $"execution started (pid: {proc.Id})";
+                        },
+                        onExit: () => InvokeAsync(() =>
+                        {
+                            Editor.RunStatus = "execution completed";
+                            DebugSession.Reset();
+                        }),
+                        onOutput: (proc, data) => InvokeAsync(() =>
+                        {
+                            if (Editor.OutputCharMode)
+                                AddOutputChar(data);
+                            else
+                                AddOutputLine(data);
+                        }),
+                        onError: error => Editor.ShowToastError(error),
+                        DebugSession.Id,
+                        Editor.OutputCharMode,
+                        envars: breakAtStart ?
+                                    [("EntryScript", Editor.LoadedScript), ("pauseOnStart", "true")] :
+                                    [("EntryScript", Editor.LoadedScript)]);
+                }
+                catch (Exception ex)
+                {
+                    Editor.ShowToastError(ex.Message);
+                }
             }
         }
+        catch (Exception e) { e.Log(); }
     }
 
     public void OnStopClicked()
     {
+        if (!stopAvailable)
+        {
+            Editor.ShowToastInfo("The command is not available in the current state of the application.");
+            return;
+        }
+
         if (DebugSession.IsScriptExecutionInProgress)
             try
             {
@@ -523,86 +600,122 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public void OnPauseClicked()
     {
-        DebugSession.RequestPause(); // no need to to clear current step as we are not in the break mode
-                                     // Editor.ShowToastError($"Pausing Script is not implemented by DbgHost");
+        try
+        {
+            if (!pauseAvailable)
+                Editor.ShowToastInfo("The command is not available in the current state of the application.");
+            else
+                DebugSession.RequestPause(); // no need to to clear current step as we are not in the break mode
+                                             // Editor.ShowToastError($"Pausing Script is not implemented by DbgHost");
+        }
+        catch (Exception e) { e.Log(); }
     }
 
     public void OnStepOverClicked(MouseEventArgs args)
     {
-        if (DebugSession.IsScriptExecutionInProgress)
+        try
         {
-            DebugSession.RequestStepOver();
-            UIEvents.NotifyDbgChanged(); // to clear current step
+            if (!stepCommandsAvailable)
+            {
+                Editor.ShowToastInfo("The command is not available in the current state of the application.");
+                return;
+            }
+
+            if (DebugSession.IsScriptExecutionInProgress)
+            {
+                DebugSession.RequestStepOver();
+                UIEvents.NotifyDbgChanged(); // to clear current step
+            }
+            else
+            {
+                OnStartAndPauseClicked();
+            }
         }
-        else
-        {
-            OnStartAndPauseClicked();
-        }
+        catch (Exception e) { e.Log(); }
     }
 
     public void OnStepIntoClicked(MouseEventArgs args)
     {
-        if (DebugSession.IsScriptExecutionInProgress)
+        try
         {
-            DebugSession.RequestStepIn();
-            UIEvents.NotifyDbgChanged(); // to clear current step
+            if (!stepCommandsAvailable)
+            {
+                Editor.ShowToastInfo("The command is not available in the current state of the application.");
+                return;
+            }
+
+            if (DebugSession.IsScriptExecutionInProgress)
+            {
+                DebugSession.RequestStepIn();
+                UIEvents.NotifyDbgChanged(); // to clear current step
+            }
+            else
+            {
+                OnStartAndPauseClicked();
+            }
         }
-        else
-        {
-            OnStartAndPauseClicked();
-        }
+        catch (Exception e) { e.Log(); }
     }
 
     string newWatchExpression = "";
 
     void AddWatchVariable()
     {
-        var expression = newWatchExpression?.Trim();
-
-        if (!expression.HasText())
-            return;
-
-        // Prevent duplicates
-        if (WatchVariables.Any(v => v.Name == expression))
+        try
         {
-            Editor.ShowToastInfo("Watch already exists.");
-            return;
+            var expression = newWatchExpression?.Trim();
+
+            if (!expression.HasText())
+                return;
+
+            // Prevent duplicates
+            if (WatchVariables.Any(v => v.Name == expression))
+            {
+                Editor.ShowToastInfo("Watch already exists.");
+                return;
+            }
+
+            // Add with placeholder value; in a real app, trigger evaluation here
+            WatchVariables.Add(VariableInfo.New(expression));
+            newWatchExpression = "";
+            // selectedWatchIndex = WatchVariables.Count - 1;
+            UIEvents.NotifyStateChanged();
+
+            DebugSession.RequestEvaluate(expression);  // send the request to evaluate and return the value
         }
-
-        // Add with placeholder value; in a real app, trigger evaluation here
-        WatchVariables.Add(VariableInfo.New(expression));
-        newWatchExpression = "";
-        // selectedWatchIndex = WatchVariables.Count - 1;
-        UIEvents.NotifyStateChanged();
-
-        DebugSession.RequestEvaluate(expression);  // send the request to evaluate and return the value
+        catch (Exception e) { e.Log(); }
     }
 
     void RemoveWatchVariable(int index)
     {
-        if (index >= 0 && index < WatchVariables.Count)
+        try
         {
-            WatchVariables.RemoveAt(index);
-            if (selectedWatchIndex >= WatchVariables.Count)
-                selectedWatchIndex = WatchVariables.Count - 1;
-            UIEvents.NotifyStateChanged();
+            if (index >= 0 && index < WatchVariables.Count)
+            {
+                WatchVariables.RemoveAt(index);
+                if (selectedWatchIndex >= WatchVariables.Count)
+                    selectedWatchIndex = WatchVariables.Count - 1;
+                UIEvents.NotifyStateChanged();
+            }
         }
+        catch (Exception e) { e.Log(); }
     }
-
-
 
     public void GoToNextCompileError()
     {
-        if (Editor.Output.Count == 0)
-            return;
-
-        for (int i = 0; i < Editor.Output.Count; i++)
+        try
         {
-            currentOutputIndex = (currentOutputIndex + 1) % Editor.Output.Count;
-            if (OnOutputLineClick(currentOutputIndex))
-                break;
-        }
+            if (Editor.Output.Count == 0)
+                return;
 
+            for (int i = 0; i < Editor.Output.Count; i++)
+            {
+                currentOutputIndex = (currentOutputIndex + 1) % Editor.Output.Count;
+                if (OnOutputLineClick(currentOutputIndex))
+                    break;
+            }
+        }
+        catch (Exception e) { e.Log(); }
         StateHasChangedSafe();
     }
 }

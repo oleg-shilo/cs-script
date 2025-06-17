@@ -44,7 +44,7 @@
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Check code for syntax errors" 
-                                    @onclick="() => Editor?.MainPage.OnSyntaxCheckClicked()" >
+                                    @onclick="() => Editor?.MainPage?.OnSyntaxCheckClicked()" >
                                     Check Syntax </button> </td>
                                     <td>F7</td></tr>
                             <tr> <td>
@@ -56,31 +56,31 @@
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Stop the active code execution" 
-                                    @onclick="() => Editor?.MainPage.OnStopClicked()" >
+                                    @onclick="() => Editor?.MainPage?.OnStopClicked()" >
                                     Stop </button> </td>
                                     <td>Shift+F5</td> </tr>
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Step Over" 
-                                    @onclick="() => Editor?.MainPage.OnStepOverClicked(null)" >
+                                    @onclick="() => Editor?.MainPage?.OnStepOverClicked(null)" >
                                     Step Over </button> </td>
                                     <td>F10</td> </tr>
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Step Into" 
-                                    @onclick="() => Editor?.MainPage.OnStepIntoClicked(null)" >
+                                    @onclick="() => Editor?.MainPage?.OnStepIntoClicked(null)" >
                                     Step Into </button> </td>
                                     <td>F11</td> </tr>
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Toggle Breakpoint at cursor position" 
-                                    @onclick="async () => await Editor?.MainPage.OnF9()" >
+                                    @onclick="async () => await Editor?.MainPage?.OnF9()" >
                                     Toggle Breakpoints</button> </td>
                                     <td>F9</td> </tr>
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Clear Breakpoints" 
-                                    @onclick="async () => await Editor?.MainPage.OnShiftF9()" >
+                                    @onclick="async () => await Editor?.MainPage?.OnShiftF9()" >
                                     Clear Breakpoints</button> </td>
                                     <td>Shift+F9</td> </tr>
                             <tr> <td>
@@ -98,31 +98,31 @@
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Open the next location from the output panel (e.g. error)" 
-                                    @onclick="() => Editor?.MainPage.GoToNextCompileError()" >
+                                    @onclick="() => Editor?.MainPage?.GoToNextCompileError()" >
                                     Next Location</button> </td>
                                     <td>F4</td> </tr>
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Format document" 
-                                    @onclick="async () => await Editor?.MainPage.OnFormatRequest()" >
+                                    @onclick="async () => await Editor?.MainPage?.OnFormatRequest()" >
                                     Format code</button> </td>
                                     <td>Ctrl+Shift+F</td> </tr>
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Go to definition of the symbol at the caret." 
-                                    @onclick="() => Editor?.MainPage.GoToDefinition()" >
+                                    @onclick="() => Editor?.MainPage?.GoToDefinition()" >
                                     Go To Definition</button> </td>
                                     <td>Ctrl+F12</td> </tr>
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Show the references of the symbol at the caret." 
-                                    @onclick="() => Editor?.MainPage.ShowReferences()" >
+                                    @onclick="() => Editor?.MainPage?.ShowReferences()" >
                                     Find References</button> </td>
                                     <td>Shift+F12</td> </tr>
                             <tr> <td>
                                 <button class="command-list-button" 
                                     title="Trigger completion suggestion." 
-                                    @onclick="() => Editor?.MainPage.TriggerCompletionSuggestion()" >
+                                    @onclick="() => Editor?.MainPage?.TriggerCompletionSuggestion()" >
                                     Suggestions</button> </td>
                                     <td>Ctrl+Space</td> </tr>
                         </tbody>
@@ -286,40 +286,27 @@
     {
         // await JS.InvokeVoidAsync("codemirrorInterop.scrollToAndHighlightLine", 1, 2);
         // var los = await JS.InvokeAsync<int>("codemirrorInterop.getCaretAbsolutePosition");
-        Editor.ShowExternalFile(Editor.LoadedScript);
+        // Editor?.ShowExternalFile(Editor.LoadedScript);
     }
 
     List<(string script, int pid)> runningScripts = new();
     System.Timers.Timer runningScriptsTimer;
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        StartRunningScriptsTimer();
-    }
-
-    void StartRunningScriptsTimer()
-    {
-        return; // disable for now. The UX is not good enough yet.
-        runningScriptsTimer?.Dispose();
-        runningScriptsTimer = new (10000); // 10 seconds
-        runningScriptsTimer.Elapsed += async (s, e) =>
-        {
-            await InvokeAsync(RefreshRunningScripts);
-        };
-        runningScriptsTimer.AutoReset = true;
-        runningScriptsTimer.Start();
-        _ = RefreshRunningScripts();
-    }
-
     async Task RefreshRunningScripts()
     {
-        if (Editor == null)
-            return;
-        // If GetRunningScripts returns a single tuple, wrap in a list for display
-        var result = (await Editor?.GetRunningScripts())??[];
-        runningScripts = new();
-        runningScripts.AddRange(result);
+        try
+        {
+            if (Editor == null)
+                return;
+            // If GetRunningScripts returns a single tuple, wrap in a list for display
+            var result = (await Editor?.GetRunningScripts()) ?? [];
+            runningScripts = new();
+            runningScripts.AddRange(result);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error refreshing running scripts: {ex.Message}");
+        }
 
         StateHasChanged();
     }
@@ -342,6 +329,5 @@
     public void Dispose()
     {
         UIEvents.OnChange -= StateHasChangedSafe;
-        runningScriptsTimer?.Dispose();
     }
 }

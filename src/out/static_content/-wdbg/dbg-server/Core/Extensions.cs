@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
@@ -80,6 +81,9 @@ static class Extensions
         return result;
     }
 
+    public static void Log(this Exception ex, [CallerMemberName] string caller = null)
+        => Console.WriteLine($"Error in {caller}: {ex.Message}");
+
     public static string[] GetLines(this string text)
         => text?.Replace("\r\n", "\n").Split('\n') ?? [];
 
@@ -125,7 +129,7 @@ static class Extensions
     {
         var bytes = new byte[client.ReceiveBufferSize];
         var len = client.GetStream()
-                      .Read(bytes, 0, bytes.Length);
+                        .Read(bytes, 0, bytes.Length);
         var result = new byte[len];
         Array.Copy(bytes, result, len);
         return result;

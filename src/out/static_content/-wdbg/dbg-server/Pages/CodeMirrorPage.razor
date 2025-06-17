@@ -388,21 +388,21 @@
         }
     }
 
-    public async Task TriggerCompletionSuggestion() => await js("codemirrorInterop.triggerCompletion");
-    async Task AutoSizeFileNameInput(ChangeEventArgs e) => await js("autoSizeInput", fileNameInputRef);
-    async Task StartLeftHorizontalResize(MouseEventArgs e) => await js("startLeftHorizontalResize");
-    async Task<string> GetDocumentContent() => await js<string>("codemirrorInterop.getValue");
-    async Task SetDocumentContent(string content) => await js("codemirrorInterop.setValue", content);
-    async Task RenderBreakpoints() => await js("codemirrorInterop.setBreakpoints", Document.Breakpoints.ToArray());
-    async Task<int[]> GetBreakpoints() => await js<int[]>("codemirrorInterop.getBreakpoints");
-    async Task<int> GetCaretPosition() => await js<int>("codemirrorInterop.getCaretAbsolutePosition");
-    async Task<int> GetCaretPosition(int line, int ch) => await js<int>("codemirrorInterop.getCaretAbsolutePosition", line, ch);
-    async Task SetCaretPosition(int position) => await js("codemirrorInterop.setCaretAbsolutePosition", position);
-    async Task ScrollCurrentLineToView() => await js("codemirrorInterop.scrollCurrentLineToView");
-    async Task ScrollLineToView(int line) => await js("codemirrorInterop.scrollLineToView", line);
-    async Task setCurrentStepLine(int line) => await js("codemirrorInterop.setCurrentStepLine", line);
-    async Task SetCaretPosition(int line, int lineCh) => await js("codemirrorInterop.setCaretPosition", line, lineCh);
-    async Task ScrollToAndHighlightLine(int line, int ch) => await js("codemirrorInterop.scrollToAndHighlightLine", line, ch);
+    public async Task TriggerCompletionSuggestion() { try { await js("codemirrorInterop.triggerCompletion"); } catch (Exception e) { e.Log(); } }
+    async Task AutoSizeFileNameInput(ChangeEventArgs e) { try { await js("autoSizeInput", fileNameInputRef); } catch (Exception ex) { ex.Log(); } }
+    async Task StartLeftHorizontalResize(MouseEventArgs e) { try { await js("startLeftHorizontalResize"); } catch (Exception ex) { ex.Log(); } }
+    async Task<string> GetDocumentContent() { try { return await js<string>("codemirrorInterop.getValue"); } catch (Exception e) { e.Log(); } return ""; }
+    async Task SetDocumentContent(string content) { try { await js("codemirrorInterop.setValue", content); } catch (Exception e) { e.Log(); } }
+    async Task RenderBreakpoints() { try { await js("codemirrorInterop.setBreakpoints", Document.Breakpoints.ToArray()); } catch (Exception e) { e.Log(); } }
+    async Task<int[]> GetBreakpoints() { try { return await js<int[]>("codemirrorInterop.getBreakpoints"); } catch (Exception e) { e.Log(); } return []; }
+    async Task<int> GetCaretPosition() { try { return await js<int>("codemirrorInterop.getCaretAbsolutePosition"); } catch (Exception e) { e.Log(); } return -1; }
+    async Task<int> GetCaretPosition(int line, int ch) { try { return await js<int>("codemirrorInterop.getCaretAbsolutePosition", line, ch); } catch (Exception e) { e.Log(); } return -1; }
+    async Task SetCaretPosition(int position) { try { await js("codemirrorInterop.setCaretAbsolutePosition", position); } catch (Exception e) { e.Log(); } }
+    async Task ScrollCurrentLineToView() { try { await js("codemirrorInterop.scrollCurrentLineToView"); } catch (Exception e) { e.Log(); } }
+    async Task ScrollLineToView(int line) { try { await js("codemirrorInterop.scrollLineToView", line); } catch (Exception e) { e.Log(); } }
+    async Task setCurrentStepLine(int line) { try { await js("codemirrorInterop.setCurrentStepLine", line); } catch (Exception e) { e.Log(); } }
+    async Task SetCaretPosition(int line, int lineCh) { try { await js("codemirrorInterop.setCaretPosition", line, lineCh); } catch (Exception e) { e.Log(); } }
+    async Task ScrollToAndHighlightLine(int line, int ch) { try { await js("codemirrorInterop.scrollToAndHighlightLine", line, ch); } catch (Exception e) { e.Log(); } }
 
     async Task OnThemeChanged(ChangeEventArgs e)
     {
@@ -410,8 +410,7 @@
         await js("codemirrorInterop.setTheme", Editor.SelectedCmTheme);
     }
 
-    public void OutputScrollToEnd() =>
-        _ = js("setTimeout", $"document.querySelector('.bottom-panel-output')?.scrollTo(0, 1e6)", 50);
+    public void OutputScrollToEnd() { try { _ = js("setTimeout", $"document.querySelector('.bottom-panel-output')?.scrollTo(0, 1e6)", 50); } catch (Exception e) { e.Log(); } }
 
     [JSInvokable]
     public async Task OnEditorChanged()
@@ -533,8 +532,6 @@
         var result = Syntaxer.Resolve(roslynCompatible.newText, Editor.LoadedScript, roslynCompatible.newOffset)?.GetLines() ?? [];
         if (result.Any())
         {
-            // file:C:\Users\user\AppData\Local\Temp\Roslyn.Intellisense\ReflctedTypes\System.Int32.609508192.r.cs
-            // line: 24
             try
             {
                 var file = result.FirstOrDefault(x => x.StartsWith("file:"))?.Replace("file:", "");
@@ -554,9 +551,7 @@
             }
             catch
             {
-                Editor.ShowToastError("Failed to navigate to definition. Please check the output for details.");
             }
-            ///////////////////////////
         }
     }
 
@@ -577,21 +572,29 @@
     [JSInvokable]
     public async Task OnFormatRequest()
     {
-        var editorText = await GetDocumentContent();
-        int caretPosition = await GetCaretPosition();
+        try
+        {
+            var editorText = await GetDocumentContent();
+            int caretPosition = await GetCaretPosition();
 
-        var roslynCompatible = editorText.NormalizeLineBreaks(caretPosition);
+            var roslynCompatible = editorText.NormalizeLineBreaks(caretPosition);
 
-        // Syntaxer.Format uses Roslyn and it always replaces line breaks with the ones specific for the OS
-        // so prepare the text with consistent line breaks.
+            // Syntaxer.Format uses Roslyn and it always replaces line breaks with the ones specific for the OS
+            // so prepare the text with consistent line breaks.
 
-        var formattedCode = Syntaxer.Format(roslynCompatible.newText, Editor.LoadedScript, ref roslynCompatible.newOffset);
+            var formattedCode = Syntaxer.Format(roslynCompatible.newText, Editor.LoadedScript, ref roslynCompatible.newOffset);
 
-        // CodeMirror always work with \n line breaks
-        var cmSpecific = formattedCode.NormalizeLineBreaks(roslynCompatible.newOffset, "\n");
+            // CodeMirror always work with \n line breaks
+            var cmSpecific = formattedCode.NormalizeLineBreaks(roslynCompatible.newOffset, "\n");
 
-        await SetDocumentContent(cmSpecific.newText);
-        await SetCaretPosition(cmSpecific.newOffset);
+            await SetDocumentContent(cmSpecific.newText);
+            await SetCaretPosition(cmSpecific.newOffset);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in OnFormatRequest: {ex.Message}");
+            StateHasChangedSafe();
+        }
     }
 
     [JSInvokable]

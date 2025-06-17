@@ -26,6 +26,7 @@ namespace wdbg.cs_script
 
         static int timeout = 60000;
         static int procId = Process.GetCurrentProcess().Id;
+        static Process syntaxer;
 
         public static void StartServer(bool onlyIfNotRunning)
         {
@@ -41,24 +42,31 @@ namespace wdbg.cs_script
                     bool hidden = true;
                     if (hidden)
                     {
-                        var p = new Process();
+                        try
+                        {
+                            syntaxer?.Kill();
+                        }
+                        catch { }
+                        finally { syntaxer?.Dispose(); }
 
-                        p.StartInfo.UseShellExecute = false;
-                        p.StartInfo.CreateNoWindow = true;
-                        p.StartInfo.RedirectStandardOutput = true;
-                        p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
-                        p.StartInfo.FileName = "dotnet";
-                        p.StartInfo.Arguments = $"\"{SyntaxerFile}\" -listen -port:{SyntaxerPort} -timeout:{timeout}";
+                        syntaxer = new Process();
+
+                        syntaxer.StartInfo.UseShellExecute = false;
+                        syntaxer.StartInfo.CreateNoWindow = true;
+                        syntaxer.StartInfo.RedirectStandardOutput = true;
+                        syntaxer.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+                        syntaxer.StartInfo.FileName = "dotnet";
+                        syntaxer.StartInfo.Arguments = $"\"{SyntaxerFile}\" -listen -port:{SyntaxerPort} -timeout:{timeout}";
 
                         if (CscsFile.HasText())
-                            p.StartInfo.Arguments += $" \"-cscs_path:{CscsFile}\"";
+                            syntaxer.StartInfo.Arguments += $" \"-cscs_path:{CscsFile}\"";
 
-                        p.Start();
+                        syntaxer.Start();
                     }
                     else
                     {
                         var args = $"-listen -port:{SyntaxerPort} -timeout:{timeout}" + (CscsFile.HasText() ? "" : $" \"-cscs_path:{CscsFile}\"");
-                        Process.Start(SyntaxerFile, args);
+                        syntaxer = Process.Start(SyntaxerFile, args);
                     }
                 });
 
@@ -196,13 +204,24 @@ namespace wdbg.cs_script
                 using (var clientSocket = new TcpClient())
                 {
                     clientSocket.Connect(IPAddress.Loopback, SyntaxerPort);
+                    clientSocket.ReceiveTimeout = 10000; // 10 seconds
                     clientSocket.WriteAllText(command);
                     return clientSocket.ReadAllText();
                 }
                 ;
             }
-            catch { }
-            return null;
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
+            {
+                // Handle timeout explicitly
+                Console.WriteLine($"Timeout communicating with syntax server: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                // Optional: Log other exceptions
+                // Console.WriteLine($"Error communicating with syntax server: {ex.Message}");
+                return null;
+            }
         }
 
         public static void HandeErrors(Action action, string logContext = null)
