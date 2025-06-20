@@ -47,7 +47,7 @@ namespace wdbg.cs_script
                             syntaxer?.Kill();
                         }
                         catch { }
-                        finally { syntaxer?.Dispose(); }
+                        finally { try { syntaxer?.Dispose(); } catch { } }
 
                         syntaxer = new Process();
 

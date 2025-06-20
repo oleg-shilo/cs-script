@@ -1,6 +1,7 @@
 ﻿@using System.Diagnostics
 @using System.Reflection
 @using wdbg.Pages
+@using wdbg.cs_script
 @inject IJSRuntime JS
 
 <div class="editor-title">
@@ -172,18 +173,23 @@
                 }
                 else if (selectedTab == 1)
                 {
-                    <div title="Intercept the script output character by character. Otherwise intercept output lines." class="form-check mt-3" style="margin-left:20px">
+                    <div title="Intercept the script output character by character. Otherwise intercept output lines." class="form-check " style="margin-left:20px">
                         <input class="form-check-input" id="outputCharModeCheck" @bind="OutputCharMode" type="checkbox" />
                         <label class="form-check-label" for="outputCharModeCheck">
                             Output Char Mode
                         </label>
                     </div>
-                    <div title="Auto format document on saving." class="form-check mt-3" style="margin-left:20px">
+                    <div title="Auto format document on saving." class="form-check" style="margin-left:20px">
                         <input class="form-check-input" id="formatOnSave" @bind="AutoFormatOnSave" type="checkbox" />
                         <label class="form-check-label" for="formatOnSave">
                             Format On Save
                         </label>
                     </div>
+                    <div class="nav-item px-3" >
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="()=>Syntaxer.StartServer(onlyIfNotRunning:false)">
+                            Restart Syntaxer
+                        </button> 
+                    </div> 
                     <div class="nav-item px-3" hidden >
                         <button class="btn btn-outline-secondary btn-sm" @onclick="OnTestClicked">
                             Test
@@ -222,7 +228,6 @@
                         This version does not support yet: 
                         <ul>
                             <li>Multi-file scripts</li>
-                            <li>Intellisense</li>
                         </ul>
                     </span>
                     </div>
@@ -327,7 +332,11 @@
     }
 
     public void Dispose()
-    {
-        UIEvents.OnChange -= StateHasChangedSafe;
+    {   
+        try
+        {
+            UIEvents.OnChange -= StateHasChangedSafe;
+        }
+        catch (Exception e) { e.Log(); }
     }
 }

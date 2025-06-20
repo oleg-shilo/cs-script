@@ -24,9 +24,13 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        UIEvents.OnChange -= StateHasChangedSafe;
-        UIEvents.OnDbgChange -= DebugStateHasChanged;
-        UIEvents.OnObjectValue -= DebugObjectStateChanged;
+        try
+        {
+            UIEvents.OnChange -= StateHasChangedSafe;
+            UIEvents.OnDbgChange -= DebugStateHasChanged;
+            UIEvents.OnObjectValue -= DebugObjectStateChanged;
+        }
+        catch (Exception e) { e.Log(); }
     }
 
     // void StateHasChangedSafe() => InvokeAsync(StateHasChanged); // Ensure StateHasChanged is called on the UI thread

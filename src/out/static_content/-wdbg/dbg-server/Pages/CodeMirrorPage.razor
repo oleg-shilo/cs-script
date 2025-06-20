@@ -182,7 +182,7 @@
                             </table>
 
                             <div class="locals-value-label" style="margin-top:12px; margin-bottom:4px;">
-                                Selected Value:
+                                Selected Object:
                                 <span style="font-weight:normal; color:#888; margin-left:8px;">
                                     @selectedLocalName
                                 </span>
@@ -240,7 +240,7 @@
                             </table>
 
                             <div class="locals-value-label" style="margin-top:12px; margin-bottom:4px;">
-                                Selected Value:
+                                Selected Object:
                                 <span style="font-weight:normal; color:#888; margin-left:8px;">
                                     @selectedWatchName
                                 </span>
@@ -313,6 +313,7 @@
     {
         ClearLocals();
 
+
         (this.UserSession, bool created) = await JS.FindOrCreateUserSessionFor(this);
         this.Document = this.UserSession.Document;
         this.Editor = this.UserSession.Editor;
@@ -323,6 +324,13 @@
         UIEvents.OnChange += StateHasChangedSafe;
         UIEvents.OnDbgChange += DebugStateHasChanged;
         UIEvents.OnObjectValue += DebugObjectStateChanged;
+
+        _ = Tools.Locate()
+            .ContinueWith(t =>
+            {
+                if (t.Result.HasText())
+                    Editor.ShowToastInfo(t.Result);
+            });
 
         await Editor.ReadPersistedConfig();
         await js("codemirrorInterop.init", Editor.SelectedCmTheme, DotNetObjectReference.Create(this));

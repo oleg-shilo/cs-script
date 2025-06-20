@@ -81,24 +81,23 @@ public class Ide
         // 01 | 0000035112 | C:\Users\user\.dotnet\tools\.store\cs-script.cli\4.9.6\cs-script.cli\4.9.6\tools\net9.0\any\cscs.dll -ls
         try
         {
-            var proc = CSScriptHost.CssRun(["-ls"]);
-            var output = proc.StandardOutput.ReadToEnd();
-            proc.WaitForExit();
+            var output = CSScriptHost.CssRun(["-ls"]);
 
-            var scripts = output.Trim().Split('\n', StringSplitOptions.RemoveEmptyEntries)
-                .Where(line => !line.Trim().StartsWith("-") && !line.Trim().StartsWith("#"))
-                .Select(line => line.Split('|').Skip(1).Select(x => x.Trim()).ToArray())
-                .Select(parts => (script: parts[1].Split(' ', 2).LastOrDefault(), pid: int.Parse(parts[0])))
-                .Where(x => x.pid != proc.Id)
-                .ToArray();
+            if (!output.Contains("No running scripts found.", StringComparison.OrdinalIgnoreCase))
 
-            return scripts;
+            {
+                var scripts = output.Trim().Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                    .Where(line => !line.Trim().StartsWith("-") && !line.Trim().StartsWith("#"))
+                    .Select(line => line.Split('|').Skip(1).Select(x => x.Trim()).ToArray())
+                    .Select(parts => (script: parts[1].Split(' ', 2).LastOrDefault(), pid: int.Parse(parts[0])))
+                    // .Where(x => x.pid != proc.Id)
+                    .ToArray();
+
+                return scripts;
+            }
         }
-        catch
-        {
-            // If there is an error, return an empty array
-            return [];
-        }
+        catch { }
+        return [];
     }
 
     public bool IsScriptReadyForDebugging
@@ -283,11 +282,11 @@ public class Ide
 
     public async Task ReadPersistedConfig()
     {
-        var value = await Storage.Read<string>("cm_outputCharMode");
-        _outputCharMode = value == "1";
-
+        _outputCharMode = (await Storage.Read<string>("cm_outputCharMode")) == "1";
+        _autoFormatOnSave = (await Storage.Read<string>("cm_formatOnSave")) == "1";
         _lastSessionFileName = await Storage.Read<string>("cm_loadedFileName");
         _theme = await Storage.Read<string>("cm_theme") ?? "darkone"; // application default for sheme is 'darkone' even though CM default is a light theme
+
         _recentFiles.Clear();
         var items = (await Storage.Read<string>("editor_recent_files") ?? "").Split('\n', ',').Distinct();
         _recentFiles.AddRange(items);

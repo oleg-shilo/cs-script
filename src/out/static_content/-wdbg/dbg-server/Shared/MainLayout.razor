@@ -46,7 +46,7 @@
     public Ide Editor;
     public Document Document;
 
-    public void Dispose() => UIEvents.OnChange -= StateHasChangedSafe;
+    public void Dispose() { try { UIEvents.OnChange -= StateHasChangedSafe; } catch (Exception e) { e.Log(); } }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
