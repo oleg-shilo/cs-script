@@ -1074,3 +1074,7 @@ button:focus, button:focus-visible, button:active:focus {
     cursor: pointer;
     font: inherit;
 }
+
+.caret-info {
+    padding-right: 10px;
+}

@@ -33,8 +33,9 @@
         <span>@runStatus</span>
     </div>
     <div class="d-flex align-items-center">
-        <span style="min-width:50px" class="me-2">Ln: @caretLine</span>
-        <span style="min-width:50px" class="me-2">Ch: @caretCh</span>
+        <span class="me-2 caret-info">Offset: @caretPos</span>
+        <span class="me-2 caret-info">Ln: @caretLine</span>
+        <span class="me-2 caret-info">Ch: @caretCh</span>
         <button class="toast-history-btn" title="Show last message (click to view again)" @onclick="ShowLastToast">
             <span class="oi oi-comment-square statusbar-message-icon" aria-label="Show last message"></span>
         </button>
@@ -64,6 +65,7 @@
 
     void ShowLastToast() => Editor?.ShowLastToast();
     string runStatus => Editor?.RunStatus;
+    int? caretPos => Document?.CaretPos;
     int? caretCh => Document?.CaretCh;
     int? caretLine => Document?.CaretLine;
 }

@@ -35,10 +35,11 @@
         this.setTheme(theme);
 
         this.editor.on("cursorActivity", (cm) => {
-            const pos = cm.getCursor();
-            const lineText = cm.getLine(pos.line);
             if (this.dotnetRef) {
-                this.dotnetRef.invokeMethodAsync("UpdateCaretInfo", lineText, pos.line, pos.ch);
+                const pos = cm.getCursor();
+                const lineText = cm.getLine(pos.line);
+                const offset = window.codemirrorInterop.getCaretAbsolutePosition();
+                this.dotnetRef.invokeMethodAsync("UpdateCaretInfo", lineText, pos.line, pos.ch, offset);
             }
         });
 
