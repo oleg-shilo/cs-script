@@ -65,6 +65,10 @@ namespace wdbg.cs_script
         {
             Shell.StartProcessInTerminal("dotnet", $"tool {(update ? "update" : "install")} --global cs-script.cli", null);
         }
+        public static void OpenInVs(string script)
+        {
+            Shell.StartProcessInTerminal("css", $"-vs {script}", null);
+        }
     }
 
     public static class CSScriptHost

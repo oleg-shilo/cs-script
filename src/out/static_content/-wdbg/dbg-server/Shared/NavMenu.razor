@@ -326,13 +326,13 @@
     void InstallSyntaxer(bool update = false)
     {
         Tools.InstallSyntaxer(update);
-        Editor?.ShowToastInfo("Refresh the page after install/update is completed.");
+        Editor?.ShowToastSuccess("Refresh the page after install/update is completed.");
     }
     
     void InstallCSScript(bool update = false)
     {
         Tools.InstallCSScript(update);
-        Editor?.ShowToastInfo("Refresh the page after install/update is completed.");
+        Editor?.ShowToastSuccess("Refresh the page after install/update is completed.");
     }
 
     async Task RefreshRunningScripts()
