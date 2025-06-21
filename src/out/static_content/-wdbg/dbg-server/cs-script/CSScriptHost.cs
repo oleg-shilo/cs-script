@@ -55,6 +55,16 @@ namespace wdbg.cs_script
                 else
                     return "";
             });
+
+        public static void InstallSyntaxer(bool update = false)
+        {
+            Shell.StartProcessInTerminal("dotnet", $"tool {(update ? "update" : "install")} --global cs-syntaxer", null);
+        }
+
+        public static void InstallCSScript(bool update = false)
+        {
+            Shell.StartProcessInTerminal("dotnet", $"tool {(update ? "update" : "install")} --global cs-script.cli", null);
+        }
     }
 
     public static class CSScriptHost
@@ -87,9 +97,10 @@ namespace wdbg.cs_script
                     if (ngArgs != null)
                         allArgs = ngArgs.Concat(allArgs).ToArray(); // goes before the script name
 
+                    allArgs = [Tools.cscs_dll, .. allArgs];
                     var proc = singleCharOputput ?
-                        Start("css", allArgs, onOutput, sessionId, envars, onError) :
-                        StartAndCatchLines("css", allArgs, onOutput, sessionId, envars);
+                        Start("dotnet", allArgs, onOutput, sessionId, envars, onError) :
+                        StartAndCatchLines("dotnet", allArgs, onOutput, sessionId, envars);
 
                     onStart?.Invoke(proc);
                     proc.WaitForExit();
@@ -101,7 +112,7 @@ namespace wdbg.cs_script
                 }
             });
 
-        public static string CssRun(string[] args) => "css".Run(args);
+        public static string CssRun(string[] args) => "dotnet".Run([Tools.cscs_dll, .. args]);
 
         public static Process Start(string exe, string[] args, Action<Process, string> onOutput, string sessionId, (string, string)[] envars = null, Action<string> onError = null)
         {
@@ -158,11 +169,15 @@ namespace wdbg.cs_script
             // Read StandardError char by char
             Task.Run(() =>
             {
-                int ch;
-                while ((ch = process.StandardError.Read()) != -1)
+                try
                 {
-                    onOutput?.Invoke(process, ((char)ch).ToString());
+                    int ch;
+                    while ((ch = process.StandardError.Read()) != -1)
+                    {
+                        onOutput?.Invoke(process, ((char)ch).ToString());
+                    }
                 }
+                catch { } // doesn't matter why; it's expected behavior if the process exits before we finish reading
             });
 
             // Wait for the process to exit

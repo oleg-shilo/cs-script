@@ -186,9 +186,35 @@
                         </label>
                     </div>
                     <div class="nav-item px-3" >
-                        <button class="btn btn-outline-secondary btn-sm" @onclick="()=>Syntaxer.StartServer(onlyIfNotRunning:false)">
-                            Restart Syntaxer
-                        </button> 
+                        @if (Tools.cscs_dll == null)
+                        {
+                             <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript()" >
+                                    Install CS-Script
+                             </button>
+                        }
+                        else
+                        {
+                             <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript(update: true)" >
+                                    Update CS-Script
+                             </button>
+                        }
+
+                        @if (Tools.syntaxer_dll == null)
+                        {
+                             <button class="command-list-button" title="Install CS-Syntaxer" @onclick="() => InstallSyntaxer()" >
+                                    Install CS-Syntaxer
+                             </button>
+                        }
+                        else
+                        {
+                             <button class="command-list-button" title="Update CS-Syntaxer" @onclick="() => InstallSyntaxer(update: true)" >
+                                    Update CS-Syntaxer
+                             </button>
+                        }
+                        
+                        <button class="command-list-button" title="Restart CS-Syntaxer to reset syntax services." @onclick="()=>Syntaxer.StartServer(onlyIfNotRunning:false)">
+                            Restart CS-Syntaxer
+                        </button>
                     </div> 
                     <div class="nav-item px-3" hidden >
                         <button class="btn btn-outline-secondary btn-sm" @onclick="OnTestClicked">
@@ -296,6 +322,18 @@
 
     List<(string script, int pid)> runningScripts = new();
     System.Timers.Timer runningScriptsTimer;
+
+    void InstallSyntaxer(bool update = false)
+    {
+        Tools.InstallSyntaxer(update);
+        Editor?.ShowToastInfo("Refresh the page after install/update is completed.");
+    }
+    
+    void InstallCSScript(bool update = false)
+    {
+        Tools.InstallCSScript(update);
+        Editor?.ShowToastInfo("Refresh the page after install/update is completed.");
+    }
 
     async Task RefreshRunningScripts()
     {

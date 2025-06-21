@@ -266,7 +266,10 @@
              @onclick="Editor.HideToast"
              @onmouseover="Editor.PauseToastTimer"
              @onmouseout="Editor.ResumeToastTimer">
-            @Editor.ToastMessage
+             @foreach (var item in Editor.ToastMessage?.GetLines() ?? [])
+             {
+                 @item <br />
+             }
         </div>
     }
 </div>
