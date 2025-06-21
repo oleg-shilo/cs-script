@@ -65,8 +65,10 @@ namespace wdbg.cs_script
         {
             Shell.StartProcessInTerminal("dotnet", $"tool {(update ? "update" : "install")} --global cs-script.cli", null);
         }
+
         public static void OpenInVs(string script)
         {
+            // it's OK to start `css` instead of `dotnet cscsc.dll` since the terminal will show all possible integration errors
             Shell.StartProcessInTerminal("css", $"-vs {script}", null);
         }
     }

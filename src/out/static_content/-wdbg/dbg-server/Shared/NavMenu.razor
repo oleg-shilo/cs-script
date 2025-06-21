@@ -34,7 +34,111 @@
             <div>
                 @if (selectedTab == 0)
                 {
+                    <br>
                     <table class="commands-table">
+                        <thead>
+                            <tr class="commands-table-header">
+                                <th>Recent scripts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    @foreach (var file in Editor?.RecentFiles??[])
+                                    {
+                                        <li>
+                                             <button type="button"
+                                                    title="@file"
+                                                    @onclick="async () => await Editor?.LoadRecentFile(file)"
+                                                    style="background:none;border:none;padding:0;margin:0;color:#0d6efd;text-decoration:underline;cursor:pointer;font:inherit;">
+                                                @(Path.GetFileName(file))
+                                            </button>
+                                        </li>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <br>
+                    <table hidden class="commands-table">
+                        <thead>
+                            <tr class="commands-table-header">
+                                <th>Favorites</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    &lt; empty &gt;
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="nav-item px-3">
+                        <br />
+                    <h3>Limitations</h3>
+                    <span>
+
+                        This version does not support yet: 
+                        <ul>
+                            <li>Multi-file scripts</li>
+                        </ul>
+                    </span>
+                    </div>
+                }
+                else if (selectedTab == 1)
+                {
+                    <div title="Intercept the script output character by character. Otherwise intercept output lines." class="form-check " style="margin-left:20px">
+                        <input class="form-check-input" id="outputCharModeCheck" @bind="OutputCharMode" type="checkbox" />
+                        <label class="form-check-label" for="outputCharModeCheck">
+                            Output Char Mode
+                        </label>
+                    </div>
+                    <div title="Auto format document on saving." class="form-check" style="margin-left:20px">
+                        <input class="form-check-input" id="formatOnSave" @bind="AutoFormatOnSave" type="checkbox" />
+                        <label class="form-check-label" for="formatOnSave">
+                            Format On Save
+                        </label>
+                    </div>
+                    <div class="nav-item px-3" >
+                        @if (Tools.cscs_dll == null)
+                        {
+                             <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript()" >
+                                    Install CS-Script
+                             </button>
+                        }
+                        else
+                        {
+                             <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript(update: true)" >
+                                    Update CS-Script
+                             </button>
+                        }
+
+                        @if (Tools.syntaxer_dll == null)
+                        {
+                             <button class="command-list-button" title="Install CS-Syntaxer" @onclick="() => InstallSyntaxer()" >
+                                    Install CS-Syntaxer
+                             </button>
+                        }
+                        else
+                        {
+                             <button class="command-list-button" title="Update CS-Syntaxer" @onclick="() => InstallSyntaxer(update: true)" >
+                                    Update CS-Syntaxer
+                             </button>
+                        }
+                        
+                        <button class="command-list-button" title="Restart CS-Syntaxer to reset syntax services." @onclick="()=>Syntaxer.StartServer(onlyIfNotRunning:false)">
+                            Restart CS-Syntaxer
+                        </button>
+                    </div> 
+                    <div class="nav-item px-3" hidden >
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="OnTestClicked">
+                            Test
+                        </button> 
+                    </div> 
+                                        <table class="commands-table">
                         <thead>
                             <tr class="commands-table-header">
                                 <th>Command</th>
@@ -128,99 +232,6 @@
                                     <td>Ctrl+Space</td> </tr>
                         </tbody>
                     </table>
-
-                    <br>
-                    <table class="commands-table">
-                        <thead>
-                            <tr class="commands-table-header">
-                                <th>Recent scripts</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    @foreach (var file in Editor?.RecentFiles??[])
-                                    {
-                                        <li>
-                                             <button type="button"
-                                                    title="@file"
-                                                    @onclick="async () => await Editor?.LoadRecentFile(file)"
-                                                    style="background:none;border:none;padding:0;margin:0;color:#0d6efd;text-decoration:underline;cursor:pointer;font:inherit;">
-                                                @(Path.GetFileName(file))
-                                            </button>
-                                        </li>
-                                    }
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <br>
-                    <table hidden class="commands-table">
-                        <thead>
-                            <tr class="commands-table-header">
-                                <th>Favorites</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    &lt; empty &gt;
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                }
-                else if (selectedTab == 1)
-                {
-                    <div title="Intercept the script output character by character. Otherwise intercept output lines." class="form-check " style="margin-left:20px">
-                        <input class="form-check-input" id="outputCharModeCheck" @bind="OutputCharMode" type="checkbox" />
-                        <label class="form-check-label" for="outputCharModeCheck">
-                            Output Char Mode
-                        </label>
-                    </div>
-                    <div title="Auto format document on saving." class="form-check" style="margin-left:20px">
-                        <input class="form-check-input" id="formatOnSave" @bind="AutoFormatOnSave" type="checkbox" />
-                        <label class="form-check-label" for="formatOnSave">
-                            Format On Save
-                        </label>
-                    </div>
-                    <div class="nav-item px-3" >
-                        @if (Tools.cscs_dll == null)
-                        {
-                             <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript()" >
-                                    Install CS-Script
-                             </button>
-                        }
-                        else
-                        {
-                             <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript(update: true)" >
-                                    Update CS-Script
-                             </button>
-                        }
-
-                        @if (Tools.syntaxer_dll == null)
-                        {
-                             <button class="command-list-button" title="Install CS-Syntaxer" @onclick="() => InstallSyntaxer()" >
-                                    Install CS-Syntaxer
-                             </button>
-                        }
-                        else
-                        {
-                             <button class="command-list-button" title="Update CS-Syntaxer" @onclick="() => InstallSyntaxer(update: true)" >
-                                    Update CS-Syntaxer
-                             </button>
-                        }
-                        
-                        <button class="command-list-button" title="Restart CS-Syntaxer to reset syntax services." @onclick="()=>Syntaxer.StartServer(onlyIfNotRunning:false)">
-                            Restart CS-Syntaxer
-                        </button>
-                    </div> 
-                    <div class="nav-item px-3" hidden >
-                        <button class="btn btn-outline-secondary btn-sm" @onclick="OnTestClicked">
-                            Test
-                        </button> 
-                    </div> 
                     <div class="nav-item px-3 mt-3">
                         <label style="font-weight:bold;">Running Scripts</label>
                         <button class="btn btn-outline-secondary btn-sm tools-btn" @onclick="RefreshRunningScripts">
@@ -246,17 +257,7 @@
                         </ul>
                     </div>
 
-                    <div class="nav-item px-3">
-                        <br />
-                    <h4>Limitations</h4>
-                    <span>
-
-                        This version does not support yet: 
-                        <ul>
-                            <li>Multi-file scripts</li>
-                        </ul>
-                    </span>
-                    </div>
+                    
                 }
             </div>
         </div>
