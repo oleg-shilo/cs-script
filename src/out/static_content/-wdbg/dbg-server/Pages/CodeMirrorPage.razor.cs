@@ -172,7 +172,10 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         catch (Exception e) { e.Log(); }
     }
 
-    public async Task LoadRecentFile(string file)
+    public async Task LoadDocFile(string file)
+    {
+    }
+    public async Task LoadRecentScriptFile(string file)
     {
         try
         {

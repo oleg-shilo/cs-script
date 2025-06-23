@@ -200,6 +200,8 @@ public class Decorator
 
                     if (methodInfo != null)
                         variablesToAnalyse.AddRange(methodInfo.Params);
+                    else
+                        variablesToAnalyse.Add("args"); // top-level statement; if it's wrong, the first compilation will invalidate this variable anyway
 
                     if (invalidVariables.Any())
                     {
@@ -267,7 +269,7 @@ public class Decorator
 
     static bool IsInsideBracketlessScope(string code, int line)
     {
-        codeTree = codeTree ?? CSharpSyntaxTree.ParseText(code).GetRoot();
+        SyntaxNode codeTree = CSharpSyntaxTree.ParseText(code).GetRoot();
 
         // Find the statement at the given line
         var statement = codeTree.DescendantNodes()
@@ -306,11 +308,11 @@ public class Decorator
         return false;
     }
 
-    static SyntaxNode codeTree;
+    // static SyntaxNode codeTree;
 
     static MethodSyntaxInfo[] GetMethodSignatures(string code)
     {
-        codeTree = codeTree ?? CSharpSyntaxTree.ParseText(code).GetRoot();
+        SyntaxNode codeTree = CSharpSyntaxTree.ParseText(code).GetRoot();
         var nodes = codeTree.DescendantNodes();
 
         return nodes.OfType<MethodDeclarationSyntax>()
@@ -623,21 +625,33 @@ public class Pdb
     public IEnumerable<LocalVariable> GetLocalVariableNamesForMethod(int methodToken)
     {
         var methodHandle = MetadataTokens.MethodImplementationHandle(methodToken);
-        var methodSpec = reader.GetMethodImplementation(methodHandle);
+        var methodImpl = reader.GetMethodImplementation(methodHandle);
         // var method_token = MetadataTokens.GetToken(methodSpec.Method);
 
-        // var methodHandle = MetadataTokens.MethodSpecificationHandle(methodToken);
-        // var methodSpec = reader.GetMethodSpecification(methodHandle);
+        // 'methodSpec.Signature' threw an exception of type 'System.BadImageFormatException'
+        // var methodSpecHandle = MetadataTokens.MethodSpecificationHandle(methodToken);
+        // var methodSpec = reader.GetMethodSpecification(methodSpecHandle);
         // var method_token = MetadataTokens.GetToken(methodSpec.Method);
 
-        // var handle = MetadataTokens.MethodDefinitionHandle(methodToken);
-        // var definition = reader.GetMethodDefinition(handle);
-        // var parent = definition.GetDeclaringType();
+        // Handle the potential BadImageFormatException when reading parameters
+        ParameterHandleCollection parameters = default;
+        try
+        {
+            var handle = MetadataTokens.MethodDefinitionHandle(methodToken);
+            var definition = reader.GetMethodDefinition(handle);
+            parameters = definition.GetParameters();
+        }
+        catch (BadImageFormatException)
+        {
+            // Parameter information couldn't be read from the PDB
+            // Continue with default (empty) parameters collection
+        }
 
         var debugInformationHandle = MetadataTokens.MethodDefinitionHandle(methodToken).ToDebugInformationHandle();
         var localScopes = reader.GetLocalScopes(debugInformationHandle);
         var variables = new List<LocalVariable>();
 
+        // note the scope variable may not be available for the evaluation at the start of the scope
         foreach (var localScopeHandle in localScopes)
         {
             ProbeScopeForLocals(variables, localScopeHandle);

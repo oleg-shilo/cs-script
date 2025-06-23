@@ -89,6 +89,19 @@ namespace wdbg.cs_script
             return output;
         }
 
+        public static string[] GetAllScriptFiles(string script)
+        {
+            var prefix = "file:";
+            var output = CssRun("-proj", script);
+            var files = output
+                .GetLines()
+                .Where(x => x.StartsWith(prefix))
+                .Select(x => x.Substring(prefix.Length))
+                .ToArray();
+
+            return files;
+        }
+
         public static async Task Start(string script, string[] args = null, string[] ngArgs = null, Action<Process> onStart = null, Action onExit = null,
             Action<Process, string> onOutput = null, Action<string> onError = null, string sessionId = "", bool singleCharOputput = false, (string, string)[] envars = null)
             => _ = Task.Run(() =>
@@ -118,7 +131,7 @@ namespace wdbg.cs_script
                 }
             });
 
-        public static string CssRun(string[] args) => "dotnet".Run([Tools.cscs_dll, .. args]);
+        public static string CssRun(params string[] args) => "dotnet".Run([Tools.cscs_dll, .. args]);
 
         public static Process Start(string exe, string[] args, Action<Process, string> onOutput, string sessionId, (string, string)[] envars = null, Action<string> onError = null)
         {

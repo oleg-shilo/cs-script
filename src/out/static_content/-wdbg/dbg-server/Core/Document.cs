@@ -112,7 +112,9 @@ public class Ide
         }
     }
 
-    public async Task LoadRecentFile(string file) => await MainPage?.LoadRecentFile(file);
+    public async Task LoadRecentScriptFile(string file) => await MainPage?.LoadRecentScriptFile(file);
+
+    public async Task LoadDocFile(string file) => await MainPage?.LoadDocFile(file);
 
     public async void ShowExternalFile(string path, int navigateToline = -1)
     {
@@ -261,20 +263,25 @@ public class Ide
 
     public void AddToRecentFiles(string file)
     {
-        if (RecentFiles.Contains(file))
-            RecentFiles.Remove(file);
-        RecentFiles.Insert(0, file);
-        while (RecentFiles.Count > 10)
-            RecentFiles.RemoveAt(10);
-        Storage.Write("editor_recent_files", RecentFiles);
+        if (RecentScripts.Contains(file))
+            RecentScripts.Remove(file);
+        RecentScripts.Insert(0, file);
+        while (RecentScripts.Count > 10)
+            RecentScripts.RemoveAt(10);
+        Storage.Write("editor_recent_files", RecentScripts);
     }
 
     List<string> _recentFiles = new();
 
-    public List<string> RecentFiles
+    public List<string> RecentScripts
     {
         get => _recentFiles;
         set { _recentFiles = value; Storage.Write("editor_recent_files", string.Join('\n', _recentFiles)); }
+    }
+
+    public List<string> CurrentScriptFiles
+    {
+        get => CSScriptHost.GetAllScriptFiles(this.LoadedScript).ToList();
     }
 
     // use accurate CM names of the themes

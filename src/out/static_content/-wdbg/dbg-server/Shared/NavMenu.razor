@@ -34,6 +34,62 @@
             <div>
                 @if (selectedTab == 0)
                 {
+                    <table class="commands-table">
+                        <thead>
+                            <tr class="commands-table-header">
+                                <th>Current Script</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    @{
+                                        var currentScriptFiles = Editor?.CurrentScriptFiles ?? [];
+                                        for (int i = 0; i < currentScriptFiles.Count; i++)
+                                        {
+                                            var file = currentScriptFiles[i];
+                                            var _class = "tree-view-item";
+                                            var isPrimaryScript = i == 0;
+                                            var isSelected = (file == Editor?.LoadedScript);
+                                            if(isSelected)
+                                                _class += " selected-item";
+                                            if(!isPrimaryScript)
+                                                _class += " child-item";
+
+                                            <li>
+                                                <button type="button"
+                                                        title="@((isPrimaryScript ? " Primary script: ":"Imported script: ")+ file)"
+                                                        @onclick="async () => await Editor?.LoadDocFile(file)"
+                                                         class="@_class"
+                                                        >
+                                                   @if(isSelected) 
+                                                   {
+                                                       // ●► 
+                                                       // <span>☑️</span>
+                                                       <span class="selected-item">●</span>
+                                                   }  
+                                                   else
+                                                   {
+                                                       <span>○</span>
+                                                   }
+                                                   @if(isPrimaryScript) 
+                                                   {
+                                                       <span>📜</span> // primary script
+                                                   }  
+                                                   else
+                                                   {
+                                                       <span>🧾</span>
+                                                   }
+                                                   @(Path.GetFileName(file))
+                                                </button>
+                                            </li>
+                                        }
+                                     }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <br>
                     <table class="commands-table">
                         <thead>
@@ -44,12 +100,12 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    @foreach (var file in Editor?.RecentFiles??[])
+                                    @foreach (var file in Editor?.RecentScripts??[])
                                     {
                                         <li>
                                              <button type="button"
                                                     title="@file"
-                                                    @onclick="async () => await Editor?.LoadRecentFile(file)"
+                                                    @onclick="async () => await Editor?.LoadRecentScriptFile(file)"
                                                     style="background:none;border:none;padding:0;margin:0;color:#0d6efd;text-decoration:underline;cursor:pointer;font:inherit;">
                                                 @(Path.GetFileName(file))
                                             </button>
@@ -82,7 +138,7 @@
                     <span>
 
                         This version does not support yet: 
-                        <ul>
+  Script                      <ul>
                             <li>Multi-file scripts</li>
                         </ul>
                     </span>
