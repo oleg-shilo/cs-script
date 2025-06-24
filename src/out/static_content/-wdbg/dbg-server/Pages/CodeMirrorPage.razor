@@ -14,6 +14,7 @@
 <div class="@($"theme-{Editor.SelectedTheme}")">
     <div class="top-row px-4 d-flex justify-content-between align-items-center" id="top-row-panel">
         <div class="d-flex align-items-center gap-2">
+            <span> Script: </span>
             <input type="text"
                    @bind="Editor.LoadedScript"
                    @ref="fileNameInputRef"
@@ -27,7 +28,7 @@
                     <span style="color: #dc3545; font-weight: bold;">*</span>
                 }
             </span>
-            <button title="Load the specified script to the editor/debugger" class="btn btn-outline-secondary btn-sm" @onclick="LoadFileFromServer">Load</button>
+            <button title="Load the specified script to the editor/debugger" class="btn btn-outline-secondary btn-sm" @onclick="LoadScriptFromServer">Load</button>
             <button title="Save the loaded document at the specified script path" class="btn btn-outline-secondary btn-sm" @onclick="() => SaveToFileOnServer(false)">Save</button>
         </div>
         <div class="d-flex align-items-center ">
@@ -362,7 +363,7 @@
         {
             Editor.LoadedScript = fileToLoad;
 
-            await LoadFileFromServer();
+            await LoadScriptFromServer();
             Editor.LastSessionFileName = fileToLoad;
         }
 

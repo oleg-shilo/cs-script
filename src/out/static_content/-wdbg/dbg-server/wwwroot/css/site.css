@@ -1098,3 +1098,9 @@ button:focus, button:focus-visible, button:active:focus {
 .selected-item {
     font-weight: bold !important;
 }
+
+.form-check {
+    margin-left: 20px;
+    font-size: 0.85rem;
+    margin-bottom: 0rem;
+}

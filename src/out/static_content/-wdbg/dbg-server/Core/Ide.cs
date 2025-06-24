@@ -27,14 +27,31 @@ public class Ide
     public string DebugGenerationError;
     public string LoadedScriptDbg;
     public bool IsLoadedScriptDbg;
-    public int[] LoadedScriptValidBreakpoints;
+
+    public int[] ValidBreakpointsOf(string documentFile)
+    {
+        if (LoadedScriptDbg.HasText() && File.Exists(LoadedScriptDbg))
+        {
+            var documentBreakpoints = Path.Combine(Path.GetDirectoryName(LoadedScriptDbg), Path.GetFileName(documentFile)) + ".bp";
+            if (File.Exists(documentBreakpoints))
+            {
+                var lines = File.ReadAllLines(documentBreakpoints);
+                // -10 - disabled bp
+                // +10 - enabled bp
+                return lines.Select(x => x.Substring(1).ToInt()).ToArray();
+            }
+        }
+        return [];
+    }
+
     public Process DbgGenerator;
 
-    public void LocateLoadedScriptDebuggInfo()
+    public void LocateLoadedScriptDebugInfo()
     {
-        var decoratedScript = Path.ChangeExtension(LoadedScript, ".dbg.cs");
+        var decoratedScript = LoadedScript.LocateLoadedScriptDebuggInfo();
 
-        if (File.Exists(LoadedScript) && File.Exists(decoratedScript) &&
+        if (decoratedScript.HasText() &&
+            File.Exists(LoadedScript) && File.Exists(decoratedScript) &&
             File.GetLastWriteTimeUtc(decoratedScript) == File.GetLastWriteTimeUtc(LoadedScript))
         {
             LoadedScriptDbg = decoratedScript;

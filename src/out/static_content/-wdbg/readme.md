@@ -89,7 +89,3 @@ void foo(string name)
 THis problem is solved by double-compiling the decorated (original code with the injections) code. The first run has all scope variables listed. 
 And if any of them are not available at the corresponding line then they are eliminated based on the analysis of the compile error information before the 
 final compilation takes place.
-
-
-
-

@@ -22,7 +22,7 @@ using CSScripting;
 
 // using static System.Formats.Asn1.AsnWriter;
 
-public class Decorator
+public static class Decorator
 {
     static int Main(string[] args)
     {
@@ -39,6 +39,23 @@ public class Decorator
 
     static string global_usings_import = "global-usings";
 
+    static string ChangeToCahcheDir(this string file, string dir) => Path.Combine(dir, Path.GetFileName(file));
+
+    static string GetCacheDirectory(string script)
+    {
+        // return Runtime.GetCacheDirectory(primaryScript); // the API not ready yet in cscs.dll
+        var result = typeof(csscript.Runtime).Assembly
+                         .GetType("csscript.CSExecutor")
+                         .GetMethod("GetCacheDirectory")
+                         .Invoke(null, new object[] { script }) as string;
+
+        result = Path.Combine(result, ".wdbg", Path.GetFileName(script));
+        Directory.CreateDirectory(result); // ensure the directory exists
+        return result;
+    }
+
+    static Dictionary<string, string> DecoratedScriptsMap = new();
+
     public static (string decoratedScript, int[] breakpoints)[] Process(string script)
     {
         if (File.Exists(script))
@@ -48,18 +65,21 @@ public class Decorator
             var result = new List<(string decoratedScript, int[] breakpoints)>();
 
             var sourceFiles = Project.GenerateProjectFor(script).Files;
-
             var primaryScript = sourceFiles.First(); // always at least one script is present
+            var cacheDir = GetCacheDirectory(primaryScript);
             var importedScripts = sourceFiles.Skip(1).Where(x => Path.GetFileNameWithoutExtension(x) != global_usings_import);
-            var decoratedPrimaryScript = Path.ChangeExtension(primaryScript, ".dbg.cs");
+            var decoratedPrimaryScript = primaryScript.ChangeToCahcheDir(cacheDir);
 
             var globalImport = $"//css_inc {dbgAgentScript}";
-            var importedScriptsInfo = importedScripts.Select(x => new { script = x, decoratedScript = Path.ChangeExtension(x, ".dbg.cs") }).ToArray();
+            var importedScriptsInfo = importedScripts.Select(x => new { script = x, decoratedScript = x.ChangeToCahcheDir(cacheDir) }).ToArray();
+
+            DecoratedScriptsMap[primaryScript] = decoratedPrimaryScript;
 
             foreach (var item in importedScriptsInfo)
             {
                 globalImport += Environment.NewLine + $"//css_inc {item.decoratedScript}";
                 File.WriteAllText(item.decoratedScript, File.ReadAllText(item.script)); // copy the script content to the decorated script, later it will be decorated
+                DecoratedScriptsMap[item.script] = item.decoratedScript;
             }
 
             // inject dbg info into the primary and imported scripts
@@ -132,6 +152,21 @@ public class Decorator
                 try { File.Delete(pdbFile); }
                 catch { }
             }
+
+            foreach ((var scriptFile, var breakpoints) in result)
+            {
+                var breakPointFile = scriptFile + ".bp";
+                if (breakpoints.Length == 0)
+                {
+                    try { File.Delete(breakPointFile); }
+                    catch { }
+                }
+                else
+                {
+                    File.WriteAllLines(breakPointFile, breakpoints.Select(x => $"-{x}").ToArray());
+                }
+            }
+
             return result.ToArray();
         }
         else
@@ -351,13 +386,15 @@ public class Decorator
                                                   || error.StartsWith("error CS0165:")
                                                   || error.StartsWith("error CS0026:");
 
+        Func<string, string> toOriginalFileName = (string file) => DecoratedScriptsMap.FirstOrDefault(x => x.Value == file).Key;
+
         return error.Split('\n', '\r')
             .Select(x => x.Split("): "))
             .Where(x => x.Length > 1 && isVariableNameError(x[1]))
             .Select(x => new
             {
                 Line = x[0].Split("(").LastOrDefault().Split(',').FirstOrDefault()?.ToInt(),
-                File = x[0].Split("(").FirstOrDefault()?.Replace(".dbg.cs", ".cs"), // remap it to the original file name
+                File = toOriginalFileName(x[0].Split("(").FirstOrDefault()), // remap it to the original file name
                 Variable = x[1].Split('\'').Skip(1).FirstOrDefault()
             })
             .Where(x => x.Line.HasValue)
@@ -521,6 +558,81 @@ static class Extensions
     static public bool BelongsToFile(this ScopeInfo scope, string file)
     {
         return 0 == string.Compare(Path.GetFullPath(scope.File), Path.GetFullPath(file), ignoreCase: OperatingSystem.IsWindows());
+    }
+
+    static public int IndexOfClosestMatchingItem(this string[] items, string pattern)
+    {
+        if (items == null || items.Length == 0 || string.IsNullOrEmpty(pattern))
+            return -1;
+
+        // Fast path: look for exact matches first
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (string.Equals(items[i], pattern, StringComparison.OrdinalIgnoreCase))
+                return i;
+        }
+
+        // Fast path: look for prefix matches
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].StartsWith(pattern, StringComparison.OrdinalIgnoreCase))
+                return i;
+        }
+
+        // If no exact or prefix match, find closest match using Levenshtein distance
+        int closestIndex = -1;
+        int smallestDistance = int.MaxValue;
+
+        for (int i = 0; i < items.Length; i++)
+        {
+            int distance = LevenshteinDistance(items[i].ToLowerInvariant(), pattern.ToLowerInvariant());
+
+            // If this is a better match than what we've seen so far
+            if (distance < smallestDistance)
+            {
+                smallestDistance = distance;
+                closestIndex = i;
+            }
+        }
+
+        // Only return if the match is reasonably close (threshold is ~30% of pattern length)
+        int threshold = Math.Max(2, pattern.Length / 3);
+        return smallestDistance <= threshold ? closestIndex : -1;
+    }
+
+    // Calculate Levenshtein (edit) distance between two strings
+    static private int LevenshteinDistance(string s, string t)
+    {
+        if (string.IsNullOrEmpty(s))
+            return string.IsNullOrEmpty(t) ? 0 : t.Length;
+        if (string.IsNullOrEmpty(t))
+            return s.Length;
+
+        int[] v0 = new int[t.Length + 1];
+        int[] v1 = new int[t.Length + 1];
+
+        // Initialize v0 (previous row of distances)
+        for (int i = 0; i <= t.Length; i++)
+            v0[i] = i;
+
+        for (int i = 0; i < s.Length; i++)
+        {
+            // Calculate v1 (current row distances) from v0
+            v1[0] = i + 1;
+
+            for (int j = 0; j < t.Length; j++)
+            {
+                int cost = (s[i] == t[j]) ? 0 : 1;
+                v1[j + 1] = Math.Min(
+                    Math.Min(v1[j] + 1, v0[j + 1] + 1),
+                    v0[j] + cost);
+            }
+
+            // Swap v0 and v1 for next iteration
+            (v0, v1) = (v1, v0);
+        }
+
+        return v0[t.Length];
     }
 }
 

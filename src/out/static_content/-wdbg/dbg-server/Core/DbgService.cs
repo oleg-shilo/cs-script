@@ -5,21 +5,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.JSInterop;
 
-public class DbgService
+public static class DbgService
 {
-    static public (string decoratedScript, int[] breakpouints) Prepare(string script, Action<Process> onStart)
+    static public string Prepare(string script, Action<Process> onStart)
     {
         var output = Shell.RunScript(Shell.dbg_inject, script.qt(), onStart);
 
-        var lines = output.Split("\n").Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x));
+        var decoratedScripts = output.Split("\n")
+            .Where(x => !string.IsNullOrEmpty(x))
+            .Where(x => x.StartsWith("file:"))
+            .Select(x => x.Substring("file:".Length))
+            .ToArray();
 
-        var decoratedScript = lines.First();
-        var breakpoints = lines.Skip(1).SelectMany(x => x.Split(',').Select(i => int.Parse(i))).ToArray();
+        // the first file is the primary script file
+        File.SetLastWriteTimeUtc(decoratedScripts.First(), File.GetLastWriteTimeUtc(script));
 
-        File.SetLastWriteTimeUtc(decoratedScript, File.GetLastWriteTimeUtc(script));
-
-        return (decoratedScript, breakpoints);
+        return decoratedScripts.First();
     }
+
+    // static (bool enabled,int line)[] GetBreakpoints(this string decoratedScriptFile)
+    // {
+    //     File.ReadAllLines(decoratedScriptFile);
+    // }
 }
 
 public class VariableInfo

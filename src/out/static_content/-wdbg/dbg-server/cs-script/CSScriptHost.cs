@@ -75,6 +75,29 @@ namespace wdbg.cs_script
 
     public static class CSScriptHost
     {
+        public static string LocateLoadedScriptDebuggInfo(this string script)
+        {
+            var cacheRoot = Environment.GetEnvironmentVariable("CSS_CUSTOM_TEMPDIR") ??
+                            Path.GetTempPath().PathJoin("csscript.core", "cache");
+
+            cacheRoot.EnsureDir();
+            var scriptName = script.GetFileName();
+            foreach (var info in Directory.GetFiles(cacheRoot, "css_info.txt", SearchOption.AllDirectories))
+            {
+                var linkedDir = File.ReadAllLines(info).Skip(1).FirstOrDefault();
+
+                if (linkedDir == script.GetDirName())
+                {
+                    var decoratedScript = info.GetDirName().PathJoin(".wdbg", scriptName, scriptName);
+                    if (File.Exists(decoratedScript))
+                    {
+                        return decoratedScript;
+                    }
+                }
+            }
+            return null;
+        }
+
         public static string Run(this string exe, params string[] args)
         {
             using var process = new Process();
