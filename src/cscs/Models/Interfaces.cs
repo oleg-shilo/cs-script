@@ -35,7 +35,7 @@ namespace csscript
 
         void ShowHelp(string helpType, params object[] context);
 
-        void DoCacheOperations(string command);
+        void DoCacheOperations(string command, string context = null);
 
         void ShowVersion(string arg = null, string context = null);
 

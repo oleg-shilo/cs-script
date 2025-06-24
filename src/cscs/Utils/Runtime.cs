@@ -31,6 +31,23 @@ namespace csscript
 
         internal static string CacheDir = GetScriptTempDir().PathJoin("cache");
 
+        // CSScriptLib does not support the cache directory for class library projects.
+#if !class_lib
+
+        // summary>
+        /// Gets the cache directory path for a given script file.
+        /// <para>
+        /// Note that the cache directory is not the same as the script directory. The cache
+        /// directory is used to store compiled assemblies and other artifacts related to script
+        /// execution.
+        /// </para>
+        /// </summary>
+        /// <param name="scriptFileName">Name of the script file.</param>
+        /// <returns>The cache directory path.</returns>
+        public static string GetCacheDir(string scriptFileName) => csscript.CSExecutor.GetCacheDirectory(scriptFileName);
+
+#endif
+
         internal static bool RaiseUnhandledExceptionIfSubscribed(object sender, UnhandledExceptionEventArgs e)
         {
             var handlers = UnhandledException?.GetInvocationList();
@@ -125,7 +142,7 @@ namespace csscript
             builder.AppendLine($"#  | PID        | Arguments");
             builder.AppendLine($"----------------------------");
             // foreach ((int pid, string args) in Runtime.GetScriptProcesses().OrderByDescending(x => x.pid == currentProcId))
-            foreach ((int pid, string args) in Runtime.GetScriptProcesses().Where(x=> x.pid != currentProcId).OrderDescending())
+            foreach ((int pid, string args) in Runtime.GetScriptProcesses().Where(x => x.pid != currentProcId).OrderDescending())
             {
                 builder.AppendLine($"{++i:D2} | {pid:D10} | {args}");
                 result.Add((i.ToString(), pid));

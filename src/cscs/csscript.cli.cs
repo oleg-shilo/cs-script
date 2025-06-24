@@ -196,7 +196,7 @@ namespace csscript
         /// Performs the cache operations and shows the operation output.
         /// </summary>
         /// <param name="command">The command.</param>
-        public void DoCacheOperations(string command)
+        public void DoCacheOperations(string command, string context = null)
         {
             if (print != null)
             {
@@ -206,9 +206,11 @@ namespace csscript
                     print(Cache.Trim());
                 else if (command == "clear")
                     print(Cache.Clear());
+                else if (context.HasText())
+                    print(csscript.CSExecutor.GetCacheDirectory(context));
                 else
                     print("Unknown cache command." + Environment.NewLine
-                        + "Expected: 'cache:ls', 'cache:trim' or 'cache:clear'" + Environment.NewLine);
+                        + "Expected: '-cache:ls', '-cache:trim', '-cache:clear' or '-cache <script>'" + Environment.NewLine);
             }
         }
 

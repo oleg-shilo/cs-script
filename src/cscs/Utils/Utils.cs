@@ -888,7 +888,7 @@ class HostingRuntime
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.cache, out argValue)) // -cache[:<ls|trim|clear>]
                     {
-                        executor.DoCacheOperations(argValue);
+                        executor.DoCacheOperations(argValue, nextArg);
                         CLIExitRequest.Throw();
                     }
                     else if (Args.ParseValuedArg(arg, AppArgs.wait, out argValue)) // -wait
