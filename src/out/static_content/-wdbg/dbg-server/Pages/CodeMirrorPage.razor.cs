@@ -135,7 +135,44 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         }
     }
 
-    public async Task LoadFileFromServer()
+    public async Task LoadDocFromServer()
+    {
+        try
+        {
+            if (Editor.LoadedDocument.HasText() && File.Exists(Editor.LoadedDocument))
+            {
+                Document.EditorContent = await File.ReadAllTextAsync(Editor.LoadedDocument);
+
+                (Document.EditorContent, _) = Document.EditorContent.NormalizeLineBreaks();
+
+                await SetDocumentContent(Document.EditorContent);
+
+                Document.IsModified = false;
+
+                Editor.LastSessionFileName = Editor.LoadedScript;
+                Editor.LocateLoadedScriptDebugInfo();
+                Editor.RunStatus = "ready";
+                Editor.Ready = true;
+                Editor.AddToRecentFiles(Editor.LoadedScript);
+
+                await LoadBreakpoints();
+                UIEvents.NotifyStateChanged();
+
+                if (!Editor.IsScriptReadyForDebugging)
+                    _ = StartGeneratingDebugMetadata(false);
+            }
+            else
+            {
+                if (!File.Exists(Editor.LoadedScript))
+                {
+                    Editor.ShowToastError($"File '{Editor.LoadedScript}' cannot be found.");
+                }
+            }
+        }
+        catch (Exception e) { e.Log(); }
+    }
+
+    public async Task LoadScriptFromServer()
     {
         try
         {
@@ -150,7 +187,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 Document.IsModified = false;
 
                 Editor.LastSessionFileName = Editor.LoadedScript;
-                Editor.LocateLoadedScriptDebuggInfo();
+                Editor.LocateLoadedScriptDebugInfo();
                 Editor.RunStatus = "ready";
                 Editor.Ready = true;
                 Editor.AddToRecentFiles(Editor.LoadedScript);
@@ -174,7 +211,18 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public async Task LoadDocFile(string file)
     {
+        try
+        {
+            if (file.HasText())
+            {
+                Editor.LoadedDocument = file;
+                await LoadDocFromServer();
+                StateHasChanged();
+            }
+        }
+        catch (Exception e) { e.Log(); }
     }
+
     public async Task LoadRecentScriptFile(string file)
     {
         try
@@ -182,7 +230,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             if (file.HasText())
             {
                 Editor.LoadedScript = file;
-                await LoadFileFromServer();
+                await LoadScriptFromServer();
                 StateHasChanged();
                 AutoSizeFileNameInput(null);
             }
@@ -386,10 +434,6 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             Editor.DebugGenerationError = null;
             UIEvents.NotifyStateChanged();
 
-            var ttt = Editor.LoadedScript.HasText() && Editor.LoadedScriptDbg.HasText() &&
-                File.Exists(Editor.LoadedScript) && File.Exists(Editor.LoadedScript) &&
-                File.GetLastWriteTimeUtc(Editor.LoadedScriptDbg) == File.GetLastWriteTimeUtc(Editor.LoadedScript);
-
             if (!Editor.IsScriptReadyForDebugging)
                 _ = Task.Run(() =>
                 {
@@ -397,8 +441,9 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                     {
                         Editor.ResetDbgGenerator();
 
-                        (Editor.LoadedScriptDbg, Editor.LoadedScriptValidBreakpoints) = DbgService.Prepare(Editor.LoadedScript,
-                            p => Editor.DbgGenerator = p);
+                        // Editor.LoadedScriptDbg
+                        Editor.LoadedScriptDbg = DbgService.Prepare(Editor.LoadedScript, process => Editor.DbgGenerator = process);
+                        // Editor.LoadedScriptValidBreakpoints
                     }
                     catch (Exception e)
                     {

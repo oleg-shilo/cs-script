@@ -72,6 +72,8 @@ static class Extensions
 
     public static string GetDirName(this string path) => Path.GetDirectoryName(path);
 
+    public static string GetFileName(this string path) => Path.GetFileName(path);
+
     public static ValueTask<string>? ClearField(this IJSObjectReference module, string id)
         => module?.InvokeAsync<string>("clearInputField", id);
 
