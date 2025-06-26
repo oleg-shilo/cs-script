@@ -33,6 +33,8 @@
         <span>@runStatus</span>
     </div>
     <div class="d-flex align-items-center">
+        <span class="me-2 caret-info">Document: @docPath</span>
+        <span class="statusbar-group-separator" />
         <span class="me-2 caret-info">Offset: @caretPos</span>
         <span class="me-2 caret-info">Ln: @caretLine</span>
         <span class="me-2 caret-info">Ch: @caretCh</span>
@@ -68,4 +70,5 @@
     int? caretPos => Document?.CaretPos;
     int? caretCh => Document?.CaretCh;
     int? caretLine => Document?.CaretLine;
+    string docPath => Editor?.LoadedDocument;
 }

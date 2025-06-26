@@ -1024,6 +1024,14 @@ button:focus, button:focus-visible, button:active:focus {
         color: #f8f8f2;
     }
 
+.statusbar-group-separator {
+    display: inline-block;
+    width: 0.08em;
+    height: 2em;
+    margin-right: 15px;
+    background-color: #f8f9fa;
+}
+
 .group-separator {
     display: inline-block;
     width: 0.15em;

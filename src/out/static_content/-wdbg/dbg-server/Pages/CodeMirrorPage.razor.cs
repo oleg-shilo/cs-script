@@ -157,9 +157,6 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
                 await LoadBreakpoints();
                 UIEvents.NotifyStateChanged();
-
-                if (!Editor.IsScriptReadyForDebugging)
-                    _ = StartGeneratingDebugMetadata(false);
             }
             else
             {
@@ -178,22 +175,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         {
             if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
             {
-                Document.EditorContent = await File.ReadAllTextAsync(Editor.LoadedScript);
-
-                (Document.EditorContent, _) = Document.EditorContent.NormalizeLineBreaks();
-
-                await SetDocumentContent(Document.EditorContent);
-
-                Document.IsModified = false;
-
-                Editor.LastSessionFileName = Editor.LoadedScript;
-                Editor.LocateLoadedScriptDebugInfo();
-                Editor.RunStatus = "ready";
-                Editor.Ready = true;
-                Editor.AddToRecentFiles(Editor.LoadedScript);
-
-                await LoadBreakpoints();
-                UIEvents.NotifyStateChanged();
+                Editor.LoadedDocument = Editor.LoadedScript;
+                await LoadDocFromServer();
 
                 if (!Editor.IsScriptReadyForDebugging)
                     _ = StartGeneratingDebugMetadata(false);
