@@ -26,11 +26,14 @@ public static class Decorator
 {
     static int Main(string[] args)
     {
-        (string decoratedScript, int[] breakpoints)[] items = Decorator.Process(args.FirstOrDefault() ?? "<unknown script>");
+        (string script, string decoratedScript, int[] breakpoints)[] items = Decorator.Process(args.FirstOrDefault() ?? "<unknown script>");
+
+        Console.WriteLine("script-dbg:" + items[0].decoratedScript);
 
         foreach (var item in items)
         {
-            Console.WriteLine("file:" + item.decoratedScript);
+            Console.WriteLine("file:" + item.script);
+            Console.WriteLine("file-dbg:" + item.decoratedScript);
             Console.WriteLine("bp:" + string.Join(",", item.breakpoints.Select(x => x.ToString())));
         }
 
@@ -57,13 +60,13 @@ public static class Decorator
 
     static Dictionary<string, string> DecoratedScriptsMap = new();
 
-    public static (string decoratedScript, int[] breakpoints)[] Process(string script)
+    public static (string script, string decoratedScript, int[] breakpoints)[] Process(string script)
     {
         if (File.Exists(script))
         {
             var dbgAgentScript = Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "dbg-runtime.cs");
 
-            var result = new List<(string decoratedScript, int[] breakpoints)>();
+            var result = new List<(string script, string decoratedScript, int[] breakpoints)>();
 
             var sourceFiles = Project.GenerateProjectFor(script).Files;
             var primaryScript = sourceFiles.First(); // always at least one script is present
@@ -158,7 +161,7 @@ public static class Decorator
             var breakPointsFile = decoratedPrimaryScript + ".bp";
 
             var lines = result.Select((info) =>
-                $"{info.decoratedScript}|{(info.breakpoints.Select(x => $"-{x}").JoinBy(","))}").ToArray();
+                $"{info.script}|{info.decoratedScript}|{(info.breakpoints.Select(x => $"-{x}").JoinBy(","))}").ToArray();
             File.WriteAllLines(breakPointsFile, lines);
 
             return result.ToArray();
@@ -172,7 +175,7 @@ public static class Decorator
     // file, breakpoint line, list of invalid local variables
     static Dictionary<string, Dictionary<int, List<string>>> invalidBreakpointVariables = new();
 
-    static (string decoratedScript, int[] breakpoints) InjectDbgInfo(string script, string decoratedScript, MethodDbgInfo[] map, Func<string> check, string globalImport = null)
+    static (string script, string decoratedScript, int[] breakpoints) InjectDbgInfo(string script, string decoratedScript, MethodDbgInfo[] map, Func<string> check, string globalImport = null)
     {
         string error = null;
 
@@ -293,7 +296,7 @@ public static class Decorator
                            .Select(x => x.index)
                            .ToArray();
 
-        return (script, breakpoints);
+        return (script, decoratedScript, breakpoints);
     }
 
     static bool IsInsideBracketlessScope(string code, int line)

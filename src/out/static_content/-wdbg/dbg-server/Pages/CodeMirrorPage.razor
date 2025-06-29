@@ -342,7 +342,6 @@
     {
         ClearLocals();
 
-
         (this.UserSession, bool created) = await JS.FindOrCreateUserSessionFor(this);
         this.Document = this.UserSession.Document;
         this.Editor = this.UserSession.Editor;
@@ -354,12 +353,13 @@
         UIEvents.OnDbgChange += DebugStateHasChanged;
         UIEvents.OnObjectValue += DebugObjectStateChanged;
 
-        _ = Tools.Locate()
-            .ContinueWith(t =>
-            {
-                if (t.Result.HasText())
-                    Editor.ShowToastInfo(t.Result);
-            });
+        while (Tools.cscs_dll.IsEmpty() && Tools.lastLookupError.IsEmpty())
+        {
+            await Task.Delay(100);
+        }
+        
+        if(Tools.lastLookupError.HasText())
+            Editor.ShowToastInfo(Tools.lastLookupError);
 
         await Editor.ReadPersistedConfig();
         await js("codemirrorInterop.init", Editor.SelectedCmTheme, DotNetObjectReference.Create(this));
@@ -373,8 +373,9 @@
         if (fileToLoad != null)
         {
             Editor.LoadedScript = fileToLoad;
-
+            1.ProfileLog();
             await LoadScriptFromServer();
+            2.ProfileLog();
             Editor.LastSessionFileName = fileToLoad;
         }
 

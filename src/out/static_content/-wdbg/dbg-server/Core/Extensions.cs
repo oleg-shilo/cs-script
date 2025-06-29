@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.JSInterop;
@@ -67,6 +68,8 @@ static class Extensions
     }
 
     public static bool HasText(this string text) => !string.IsNullOrEmpty(text);
+
+    public static bool IsEmpty(this string text) => string.IsNullOrEmpty(text);
 
     public static string qt(this string path) => $"\"{path}\"";
 
@@ -158,6 +161,39 @@ static class Extensions
     public static void WriteAllText(this TcpClient client, string data)
     {
         client.WriteAllBytes(data.GetBytes());
+    }
+
+    static DateTime? lastProfilerLogTime = null;
+
+    public static void ProfileLog(this object obj, [CallerMemberName] string caller = null)
+    {
+        var dif = (int)(DateTime.Now - (lastProfilerLogTime ?? DateTime.Now)).TotalMilliseconds;
+        lastProfilerLogTime = DateTime.Now;
+        Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}]({dif:D5}) {caller}: {obj}");
+    }
+
+    public static IDisposable Profile(this object obj, [CallerMemberName] string caller = null)
+        => new Profiler(obj, caller);
+}
+
+class Profiler : IDisposable
+{
+    DateTime created;
+    object context;
+    string caller;
+
+    public Profiler(object context, string caller)
+    {
+        this.caller = caller;
+        this.context = context;
+        created = DateTime.Now;
+        Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}](start: {0:D5}) {caller}: {context}");
+    }
+
+    public void Dispose()
+    {
+        var dif = (int)(DateTime.Now - created).TotalMilliseconds;
+        Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}](end:   {dif:D5}) {caller}: {context}");
     }
 }
 

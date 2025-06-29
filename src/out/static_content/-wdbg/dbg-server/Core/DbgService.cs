@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.JSInterop;
+using wdbg.cs_script;
 
 public static class DbgService
 {
@@ -11,23 +12,14 @@ public static class DbgService
     {
         var output = Shell.RunScript(Shell.dbg_inject, script.qt(), onStart);
 
-        var decoratedScripts = output.Split("\n")
-            .Where(x => !string.IsNullOrEmpty(x))
-            .Where(x => x.StartsWith("file:"))
-            .Select(x => x.Substring("file:".Length).Trim())
-            .ToArray();
+        var decoratedPrimaryScript = output
+            .GetLines()
+            .FirstOrDefault(x => x.StartsWith("script-dbg:")).Substring("script-dbg:".Length).Trim();
 
-        // the first file is the primary script file
-        var decoratedPrimaryScript = decoratedScripts.First();
         File.SetLastWriteTimeUtc(decoratedPrimaryScript, File.GetLastWriteTimeUtc(script));
 
         return decoratedPrimaryScript;
     }
-
-    // static (bool enabled,int line)[] GetBreakpointsFromDoc(this string decoratedScriptFile)
-    // {
-    //     File.ReadAllLines(decoratedScriptFile);
-    // }
 }
 
 public class VariableInfo

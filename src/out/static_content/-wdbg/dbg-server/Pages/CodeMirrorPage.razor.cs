@@ -138,20 +138,26 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public async Task LoadDocFromServer()
     {
+        1.ProfileLog();
         try
         {
             if (Editor.LoadedDocument.HasText() && File.Exists(Editor.LoadedDocument))
             {
-                (Document.EditorContent, Document.IsModified) = await Editor.State.GetContentFromFileOrCache(Editor.LoadedDocument);
+                bool isModified;
+                (Document.EditorContent, isModified) = await Editor.State.GetContentFromFileOrCache(Editor.LoadedDocument);
                 (Document.EditorContent, _) = Document.EditorContent.NormalizeLineBreaks();
+                Document.Breakpoints = Editor.State.GetDocumentBreakpoints(Editor.LoadedDocument);
 
                 await SetDocumentContent(Document.EditorContent);
+                Document.IsModified = isModified;
 
                 Editor.LastSessionFileName = Editor.LoadedScript;
                 Editor.LocateLoadedScriptDebugInfo();
                 Editor.RunStatus = "ready";
                 Editor.Ready = true;
                 Editor.AddToRecentFiles(Editor.LoadedScript);
+
+                await RenderBreakpoints();
 
                 UIEvents.NotifyStateChanged();
             }
@@ -164,16 +170,19 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
         }
         catch (Exception e) { e.Log(); }
+        2.ProfileLog();
     }
 
     public async Task LoadScriptFromServer()
     {
+        1.ProfileLog();
         try
         {
             if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
             {
                 Editor.LoadedDocument = Editor.LoadedScript;
-                Editor.ReadSavedStateOf(Editor.LoadedScript);
+
+                await Editor.ReadSavedStateOf(Editor.LoadedScript);
 
                 await LoadDocFromServer();
 
@@ -196,7 +205,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             if (file.HasText())
             {
                 if (Editor.LoadedDocument != file)
-                    Editor.State.UpdateFor(Editor.LoadedDocument, Document.Breakpoints);
+                    Editor.State.UpdateFor(Editor.LoadedDocument, await GetDocumentContent(), Document.Breakpoints);
 
                 Editor.LoadedDocument = file;
                 await LoadDocFromServer();
@@ -258,7 +267,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
             {
                 var isModified = Document.IsModified;
-                Editor.State.UpdateFor(Editor.LoadedDocument, Document.Breakpoints);
+                Editor.State.UpdateFor(Editor.LoadedDocument, content, Document.Breakpoints);
                 await Editor.SaveStateOf(Editor.LoadedScript);
                 await File.WriteAllTextAsync(Editor.LoadedScript, content);
 
@@ -273,6 +282,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             {
                 // Optionally, show an error or prompt for a file path
             }
+            await RenderBreakpoints();
         }
         catch (Exception e) { e.Log(); }
     }
@@ -374,7 +384,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
     {
         try
         {
-            Editor.State.UpdateFor(Editor.LoadedDocument, lines);
+            Editor.State.UpdateFor(Editor.LoadedDocument, null, lines);
 
             if (DebugSession.IsScriptExecutionInProgress)
             {
@@ -416,7 +426,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                         Editor.LoadedScriptDbg = DbgService.Prepare(Editor.LoadedScript, process => Editor.DbgGenerator = process);
 
                         await Editor.FetchLatestDebugInfo(Editor.LoadedScript);
-                        Document.Breakpoints = Editor.State.AllDocumentsBreakpoints[Editor.LoadedDocument]; // this will update the Document.Breakpoints with the new breakpoints
+                        Document.Breakpoints = Editor.State.GetDocumentBreakpoints(Editor.LoadedDocument); // this will update the Document.Breakpoints with the new breakpoints
                         await RenderBreakpoints(); // this will update the UI with the new breakpoints
                     }
                     catch (Exception e)

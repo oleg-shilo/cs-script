@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text;
 
@@ -8,6 +9,9 @@ namespace wdbg.cs_script
     {
         public static string cscs_dll;
         public static string syntaxer_dll;
+        public static string lastLookupError;
+
+        public static Func<string, string> GetCacheDirectory;
 
         public static async Task<string> Locate() => await Task.Run(() =>
             {
@@ -21,8 +25,8 @@ namespace wdbg.cs_script
                             .Select(x => x.Split([':'], 2))
                             .ToDictionary(x => x[0], y => y[1]);
 
-                    cscs_dll = output["css"];
-                    syntaxer_dll = output["syntaxer"];
+                    cscs_dll = output["css"].Trim();
+                    syntaxer_dll = output["syntaxer"].Trim();
                 }
                 catch
                 {
@@ -44,16 +48,30 @@ namespace wdbg.cs_script
                         cscs_dll = null;
                     }
 
+                if (cscs_dll != null)
+                {
+                    var asm = Assembly.LoadFrom(cscs_dll);
+                    var method = asm.GetType("csscript.Runtime").GetMethod("GetCacheDir");
+
+                    GetCacheDirectory = (script) =>
+                    {
+                        var result = method.Invoke(null, new object[] { script }) as string;
+                        result = Path.Combine(result, ".wdbg", Path.GetFileName(script));
+                        Directory.CreateDirectory(result); // ensure the directory exists
+                        return result;
+                    };
+                }
+
                 if (syntaxer_dll == null)
-                    return "Cannot find external tool Syntaxer. " +
+                    return lastLookupError = "Cannot find external tool Syntaxer. " +
                         "You can install it from the Misc tab of the left-side panel.\n" +
                         "If you installed it recently, refresh the page so the application can detect it";
                 else if (cscs_dll == null)
-                    return "Cannot find external CS-Script installation. " +
+                    return lastLookupError = "Cannot find external CS-Script installation. " +
                         "You can install it from the Misc tab of the left-side panel.\n" +
                         "If you installed it recently, refresh the page so the application can detect it";
                 else
-                    return "";
+                    return lastLookupError = "";
             });
 
         public static void InstallSyntaxer(bool update = false)
@@ -75,33 +93,41 @@ namespace wdbg.cs_script
 
     public static class CSScriptHost
     {
-        public static string LocateLoadedScriptDebuggInfo(this string script)
+        public static string LocateLoadedScriptDebugCode(this string script)
         {
             var scriptName = script.GetFileName();
 
-            var output = CssRun("-cache", script).Trim();
-            if (output.HasText() && Directory.Exists(output))
+            var dir = Tools.GetCacheDirectory?.Invoke(script);
+            if (dir.HasText() && Directory.Exists(dir))
             {
-                return output.PathJoin(".wdbg", scriptName, scriptName); ;
+                return dir.PathJoin(".wdbg", scriptName, scriptName); ;
             }
             else
             {
-                // old version of cscs.dll that does not support -cache <file> option
-
-                var cacheRoot = Environment.GetEnvironmentVariable("CSS_CUSTOM_TEMPDIR") ??
-                                Path.GetTempPath().PathJoin("csscript.core", "cache");
-
-                cacheRoot.EnsureDir();
-                foreach (var info in Directory.GetFiles(cacheRoot, "css_info.txt", SearchOption.AllDirectories))
+                dir = CssRun("-cache", script).Trim();
+                if (dir.HasText() && Directory.Exists(dir))
                 {
-                    var linkedDir = File.ReadAllLines(info).Skip(1).FirstOrDefault();
+                    return dir.PathJoin(".wdbg", scriptName, scriptName); ;
+                }
+                else
+                {
+                    // old version of cscs.dll that does not support -cache <file> option
 
-                    if (linkedDir == script.GetDirName())
+                    var cacheRoot = Environment.GetEnvironmentVariable("CSS_CUSTOM_TEMPDIR") ??
+                                    Path.GetTempPath().PathJoin("csscript.core", "cache");
+
+                    cacheRoot.EnsureDir();
+                    foreach (var info in Directory.GetFiles(cacheRoot, "css_info.txt", SearchOption.AllDirectories))
                     {
-                        var decoratedScript = info.GetDirName().PathJoin(".wdbg", scriptName, scriptName);
-                        if (File.Exists(decoratedScript))
+                        var linkedDir = File.ReadAllLines(info).Skip(1).FirstOrDefault();
+
+                        if (linkedDir == script.GetDirName())
                         {
-                            return decoratedScript;
+                            var decoratedScript = info.GetDirName().PathJoin(".wdbg", scriptName, scriptName);
+                            if (File.Exists(decoratedScript))
+                            {
+                                return decoratedScript;
+                            }
                         }
                     }
                 }
