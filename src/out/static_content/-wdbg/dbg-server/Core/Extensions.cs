@@ -74,6 +74,12 @@ static class Extensions
 
     public static string GetFileName(this string path) => Path.GetFileName(path);
 
+    public static string ChangeExtension(this string path, string extension) => Path.ChangeExtension(path, extension);
+
+    public static string ChangeDir(this string path, string newDir) => Path.Combine(newDir, Path.GetFileName(path));
+
+    public static string UpdateFromUp(this string path) => Path.GetFileName(path);
+
     public static ValueTask<string>? ClearField(this IJSObjectReference module, string id)
         => module?.InvokeAsync<string>("clearInputField", id);
 

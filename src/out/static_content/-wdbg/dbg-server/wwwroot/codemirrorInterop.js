@@ -90,7 +90,7 @@
                 cm.setGutterMarker(n, "breakpoints", marker);
                 this.breakpoints.add(n);
             }
-            this.dotnetRef.invokeMethodAsync("UpdateBreakpoints", Array.from(this.breakpoints));
+            this.dotnetRef.invokeMethodAsync("UserUpdatedBreakpoints", Array.from(this.breakpoints));
         });
 
         const editorElem = document.getElementById('editor');
@@ -265,7 +265,7 @@
             this.breakpoints.add(line);
         }
         if (this.dotnetRef) {
-            this.dotnetRef.invokeMethodAsync("UpdateBreakpoints", Array.from(this.breakpoints));
+            this.dotnetRef.invokeMethodAsync("UserUpdatedBreakpoints", Array.from(this.breakpoints));
         }
     },
 
@@ -313,7 +313,7 @@
         }
         // Notify .NET side if needed
         if (window.codemirrorInterop.dotnetRef) {
-            window.codemirrorInterop.dotnetRef.invokeMethodAsync("UpdateBreakpoints", []);
+            window.codemirrorInterop.dotnetRef.invokeMethodAsync("UserUpdatedBreakpoints", []);
         }
     },
 

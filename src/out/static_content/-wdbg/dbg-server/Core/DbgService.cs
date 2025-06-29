@@ -24,7 +24,7 @@ public static class DbgService
         return decoratedPrimaryScript;
     }
 
-    // static (bool enabled,int line)[] GetBreakpoints(this string decoratedScriptFile)
+    // static (bool enabled,int line)[] GetBreakpointsFromDoc(this string decoratedScriptFile)
     // {
     //     File.ReadAllLines(decoratedScriptFile);
     // }

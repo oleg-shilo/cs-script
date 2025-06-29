@@ -83,7 +83,7 @@ public class DbgSession
     public bool IsScriptExecutionInProgress => RunningScript != null;
     public string StackFrameFileName;
     public UINotificationService UIEvents;
-    public List<int> Breakpoints = new();
+    public Dictionary<string, int[]> Breakpoints = new();
 
     static public DbgSession Current => throw new NotImplementedException();
 
@@ -138,31 +138,31 @@ public class DbgSession
         UIEvents.NotifyDbgChanged(null);
     }
 
-    public void UpdateCurrentBreakpoints(int[] validBreakPointLines)
-    {
-        lock (Breakpoints)
-        {
-            if (validBreakPointLines != null) // valid lines for placing break points are known
-            {
-                var invalidBreakPoints = Breakpoints.Except(validBreakPointLines).ToArray();
-                var validBreakPoints = Breakpoints.Except(invalidBreakPoints).ToArray();
+    // public void UpdateCurrentBreakpoints(int[] validBreakPointLines)
+    // {
+    //     lock (Breakpoints)
+    //     {
+    //         if (validBreakPointLines != null) // valid lines for placing break points are known
+    //         {
+    //             var invalidBreakPoints = Breakpoints.Except(validBreakPointLines).ToArray();
+    //             var validBreakPoints = Breakpoints.Except(invalidBreakPoints).ToArray();
 
-                Breakpoints.Clear();
-                Breakpoints.AddRange(validBreakPoints);
+    //             Breakpoints.Clear();
+    //             Breakpoints.AddRange(validBreakPoints);
 
-                foreach (int invalidBreakPoint in invalidBreakPoints)
-                {
-                    var nextValidBreaktPointLine = validBreakPointLines.SkipWhile(x => x < invalidBreakPoint).FirstOrDefault();
+    //             foreach (int invalidBreakPoint in invalidBreakPoints)
+    //             {
+    //                 var nextValidBreaktPointLine = validBreakPointLines.SkipWhile(x => x < invalidBreakPoint).FirstOrDefault();
 
-                    if (nextValidBreaktPointLine != 0) // since default for int is 0
-                    {
-                        if (!validBreakPoints.Contains(nextValidBreaktPointLine))
-                        {
-                            Breakpoints.Add(nextValidBreaktPointLine);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    //                 if (nextValidBreaktPointLine != 0) // since default for int is 0
+    //                 {
+    //                     if (!validBreakPoints.Contains(nextValidBreaktPointLine))
+    //                     {
+    //                         Breakpoints.Add(nextValidBreaktPointLine);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }

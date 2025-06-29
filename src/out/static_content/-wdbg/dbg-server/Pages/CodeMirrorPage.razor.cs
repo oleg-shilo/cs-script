@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using wdbg.cs_script;
@@ -141,13 +142,10 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         {
             if (Editor.LoadedDocument.HasText() && File.Exists(Editor.LoadedDocument))
             {
-                Document.EditorContent = await File.ReadAllTextAsync(Editor.LoadedDocument);
-
+                (Document.EditorContent, Document.IsModified) = await Editor.State.GetContentFromFileOrCache(Editor.LoadedDocument);
                 (Document.EditorContent, _) = Document.EditorContent.NormalizeLineBreaks();
 
                 await SetDocumentContent(Document.EditorContent);
-
-                Document.IsModified = false;
 
                 Editor.LastSessionFileName = Editor.LoadedScript;
                 Editor.LocateLoadedScriptDebugInfo();
@@ -155,7 +153,6 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 Editor.Ready = true;
                 Editor.AddToRecentFiles(Editor.LoadedScript);
 
-                await LoadBreakpoints();
                 UIEvents.NotifyStateChanged();
             }
             else
@@ -176,6 +173,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
             {
                 Editor.LoadedDocument = Editor.LoadedScript;
+                Editor.ReadSavedStateOf(Editor.LoadedScript);
+
                 await LoadDocFromServer();
 
                 if (!Editor.IsScriptReadyForDebugging)
@@ -183,10 +182,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
             else
             {
-                if (!File.Exists(Editor.LoadedScript))
-                {
-                    Editor.ShowToastError($"File '{Editor.LoadedScript}' cannot be found.");
-                }
+                Editor.ShowToastError($"File '{Editor.LoadedScript}' cannot be found.");
             }
         }
         catch (Exception e) { e.Log(); }
@@ -194,10 +190,14 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public async Task LoadDocFile(string file)
     {
+        // called from the project file tree
         try
         {
             if (file.HasText())
             {
+                if (Editor.LoadedDocument != file)
+                    Editor.State.UpdateFor(Editor.LoadedDocument, Document.Breakpoints);
+
                 Editor.LoadedDocument = file;
                 await LoadDocFromServer();
                 StateHasChanged();
@@ -212,10 +212,14 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         {
             if (file.HasText())
             {
+                if (Editor.LoadedScript.HasText() && Editor.LoadedScript != file)
+                    Editor.SaveStateOf(Editor.LoadedScript);
+
                 Editor.LoadedScript = file;
                 await LoadScriptFromServer();
+
                 StateHasChanged();
-                AutoSizeFileNameInput(null);
+                _ = AutoSizeFileNameInput(null);
             }
         }
         catch (Exception e) { e.Log(); }
@@ -253,17 +257,17 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
             if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
             {
-                File.WriteAllTextAsync(Editor.LoadedScript, content);
-
-                var currentBreakpoints = await GetBreakpoints();
-                await UpdateBreakpoints(currentBreakpoints);
+                var isModified = Document.IsModified;
+                Editor.State.UpdateFor(Editor.LoadedDocument, Document.Breakpoints);
+                await Editor.SaveStateOf(Editor.LoadedScript);
+                await File.WriteAllTextAsync(Editor.LoadedScript, content);
 
                 Document.IsModified = false;
 
                 UIEvents.NotifyStateChanged();
 
-                if (!Editor.IsScriptReadyForDebugging)
-                    StartGeneratingDebugMetadata(showError);
+                if (isModified)
+                    _ = StartGeneratingDebugMetadata(showError);
             }
             else
             {
@@ -286,122 +290,107 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public void AddOutputLine(string data)
     {
-        try
+        lock (this)
         {
-            if (string.IsNullOrEmpty(data))
-                return;
-
-            // Normalize line endings
-            data = data.Replace("\r\n", "\n").Replace('\r', '\n');
-
-            // If the message starts with a single \r (carriage return), replace the last line
-            if (data.StartsWith("\n") && Editor.Output.Count > 0)
+            try
             {
-                // Remove the first \n for processing
-                data = data.Substring(1);
+                if (string.IsNullOrEmpty(data))
+                    return;
 
-                var lines = data.Split('\n');
-                // Replace the last line with the first new line
-                Editor.Output[Editor.Output.Count - 1] = lines[0];
-                // Add any additional lines as new output
-                for (int i = 1; i < lines.Length; i++)
+                // Normalize line endings
+                data = data.Replace("\r\n", "\n").Replace('\r', '\n');
+
+                // If the message starts with a single \r (carriage return), replace the last line
+                if (data.StartsWith("\n") && Editor.Output.Count > 0)
                 {
-                    Editor.Output.Add(lines[i]);
+                    // Remove the first \n for processing
+                    data = data.Substring(1);
+
+                    var lines = data.Split('\n');
+                    // Replace the last line with the first new line
+                    Editor.Output[Editor.Output.Count - 1] = lines[0];
+                    // Add any additional lines as new output
+                    for (int i = 1; i < lines.Length; i++)
+                    {
+                        Editor.Output.Add(lines[i]);
+                    }
                 }
-            }
-            else
-            {
-                // Standard append for all other cases
-                foreach (var line in data.Split('\n'))
+                else
                 {
-                    Editor.Output.Add(line);
+                    // Standard append for all other cases
+                    foreach (var line in data.Split('\n'))
+                    {
+                        Editor.Output.Add(line);
+                    }
                 }
+                StateHasChanged(); // it's speed critical so it's better than UIEvents.NotifyStateChanged()
+                OutputScrollToEnd();
             }
-            StateHasChanged(); // it's speed critical so it's better than UIEvents.NotifyStateChanged()
-            OutputScrollToEnd();
+            catch (Exception e) { e.Log(); }
         }
-        catch (Exception e) { e.Log(); }
     }
 
     public void AddOutputChar(string data)
     {
-        try
+        lock (this)
         {
-            if (data == "\n")
+            try
             {
-                Editor.Output.Add("");
-                outputPosition = 0;
-            }
-            else if (data == "\r")
-            {
-                outputPosition = 0;
-            }
-            else
-            {
-                var lastLine = Editor.Output.LastOrDefault() ?? "";
-
-                if (outputPosition < lastLine.Length)
-                    lastLine = data + lastLine.Substring(outputPosition + 1);
+                if (data == "\n")
+                {
+                    Editor.Output.Add("");
+                    outputPosition = 0;
+                }
+                else if (data == "\r")
+                {
+                    outputPosition = 0;
+                }
                 else
-                    lastLine += data;
+                {
+                    var lastLine = Editor.Output.LastOrDefault() ?? "";
 
-                if (Editor.Output.Count == 0)
-                    Editor.Output.Add(lastLine);
-                else
-                    Editor.Output[Editor.Output.Count - 1] = lastLine;
+                    if (outputPosition < lastLine.Length)
+                        lastLine = data + lastLine.Substring(outputPosition + 1);
+                    else
+                        lastLine += data;
 
-                outputPosition++;
+                    if (Editor.Output.Count == 0)
+                        Editor.Output.Add(lastLine);
+                    else
+                        Editor.Output[Editor.Output.Count - 1] = lastLine;
+
+                    outputPosition++;
+                }
+
+                StateHasChanged();
+                OutputScrollToEnd();
             }
-
-            StateHasChanged();
-            OutputScrollToEnd();
+            catch (Exception e) { e.Log(); }
         }
-        catch (Exception e) { e.Log(); }
-    }
-
-    public async Task SaveBreakpoints()
-    {
-        try
-        {
-            await Editor.Storage.Write("breakpoints", Document.Breakpoints.ToArray());
-        }
-        catch (Exception e) { e.Log(); }
-    }
-
-    public async Task LoadBreakpoints()
-    {
-        try
-        {
-            var bpList = await Editor.Storage.Read<string>("breakpoints");
-
-            if (bpList.HasText())
-            {
-                var lines = bpList.Split(',').Select(int.Parse).ToArray();
-                Document.Breakpoints = lines?.ToHashSet() ?? new();
-            }
-            else
-            {
-                Document.Breakpoints = new();
-                // No breakpoints saved
-            }
-            await RenderBreakpoints();
-            UIEvents.NotifyStateChanged();
-        }
-        catch { } // Ignore errors in loading breakpoints, e.g. if the storage is empty or corrupted
     }
 
     [JSInvokable]
-    public Task UpdateBreakpoints(int[] lines)
+    public async Task UserUpdatedBreakpoints(int[] lines)
     {
         try
         {
-            Document.Breakpoints = lines.ToHashSet();
-            DebugSession.Breakpoints = lines.ToList(); // <-- Synchronize with DebugSession
-            UIEvents.NotifyStateChanged();
-            SaveBreakpoints();
+            Editor.State.UpdateFor(Editor.LoadedDocument, lines);
+
+            if (DebugSession.IsScriptExecutionInProgress)
+            {
+                await Editor.FetchLatestDebugInfo(Editor.LoadedDocument); // this will get rid of invalid breakpoints in the state
+                Document.Breakpoints = Editor.State.AllDocumentsBreakpoints[Editor.LoadedDocument];
+                DebugSession.Breakpoints = Editor.State.AllDocumentsBreakpoints;
+
+                _ = RenderBreakpoints(); // this will remove invalid breakpoints from the view
+            }
+            else
+            {
+                Document.Breakpoints = lines;
+                UIEvents.NotifyStateChanged();
+            }
         }
         catch (Exception e) { e.Log(); }
-        return Task.CompletedTask;
     }
 
     public async Task StartGeneratingDebugMetadata(bool showNotification)
@@ -418,15 +407,17 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             UIEvents.NotifyStateChanged();
 
             if (!Editor.IsScriptReadyForDebugging)
-                _ = Task.Run(() =>
+                _ = Task.Run(async () =>
                 {
                     try
                     {
                         Editor.ResetDbgGenerator();
 
-                        // Editor.LoadedScriptDbg
                         Editor.LoadedScriptDbg = DbgService.Prepare(Editor.LoadedScript, process => Editor.DbgGenerator = process);
-                        // Editor.LoadedScriptValidBreakpoints
+
+                        await Editor.FetchLatestDebugInfo(Editor.LoadedScript);
+                        Document.Breakpoints = Editor.State.AllDocumentsBreakpoints[Editor.LoadedDocument]; // this will update the Document.Breakpoints with the new breakpoints
+                        await RenderBreakpoints(); // this will update the UI with the new breakpoints
                     }
                     catch (Exception e)
                     {
@@ -446,6 +437,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                         Editor.LoadedScriptDbg = null;
                     }
 
+                    await Editor.SaveStateOf(Editor.LoadedScript);
                     Editor.RunStatus = $"Ready";
                     Editor.Ready = true;
                 });
@@ -561,7 +553,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 ClearOutput();
                 ClearLocals();
                 this.DebugSession.Reset();
-                this.DebugSession.Breakpoints.AddRange(Document.Breakpoints);
+                this.DebugSession.Breakpoints = Editor.State.AllDocumentsBreakpoints;
 
                 try
                 {

@@ -213,6 +213,10 @@ namespace wdbg.cs_script
                             buf.Append(c);
                     }
                 }
+                catch (ObjectDisposedException e)
+                {
+                    // just ignore, the process has exited
+                }
                 catch (Exception e)
                 {
                     onError?.Invoke(e.Message);

@@ -430,8 +430,8 @@
     async Task StartLeftHorizontalResize(MouseEventArgs e) { try { await js("startLeftHorizontalResize"); } catch (Exception ex) { ex.Log(); } }
     async Task<string> GetDocumentContent() { try { return await js<string>("codemirrorInterop.getValue"); } catch (Exception e) { e.Log(); } return ""; }
     async Task SetDocumentContent(string content) { try { await js("codemirrorInterop.setValue", content); } catch (Exception e) { e.Log(); } }
-    async Task RenderBreakpoints() { try { await js("codemirrorInterop.setBreakpoints", Document.Breakpoints.ToArray()); } catch (Exception e) { e.Log(); } }
-    async Task<int[]> GetBreakpoints() { try { return await js<int[]>("codemirrorInterop.getBreakpoints"); } catch (Exception e) { e.Log(); } return []; }
+    async Task RenderBreakpoints() { try { await js("codemirrorInterop.setBreakpoints", Document.Breakpoints.ToHashSet()); } catch (Exception e) { e.Log(); } }
+    async Task<int[]> GetBreakpointsFromDoc() { try { return await js<int[]>("codemirrorInterop.getBreakpoints"); } catch (Exception e) { e.Log(); } return []; }
     async Task<int> GetCaretPosition() { try { return await js<int>("codemirrorInterop.getCaretAbsolutePosition"); } catch (Exception e) { e.Log(); } return -1; }
     async Task<int> GetCaretPosition(int line, int ch) { try { return await js<int>("codemirrorInterop.getCaretAbsolutePosition", line, ch); } catch (Exception e) { e.Log(); } return -1; }
     async Task SetCaretPosition(int position) { try { await js("codemirrorInterop.setCaretAbsolutePosition", position); } catch (Exception e) { e.Log(); } }

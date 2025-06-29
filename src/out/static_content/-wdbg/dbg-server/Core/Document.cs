@@ -10,7 +10,7 @@ using wdbg.Shared;
 
 public class Document
 {
-    public HashSet<int> Breakpoints = new();
+    public int[] Breakpoints = [];
 
     public int CaretLine = 0;
     public int CaretCh = 0;

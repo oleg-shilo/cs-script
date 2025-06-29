@@ -43,7 +43,8 @@ public static class Decorator
 
     static string GetCacheDirectory(string script)
     {
-        // return Runtime.GetCacheDirectory(primaryScript); // the API not ready yet in cscs.dll
+        return Runtime.GetCacheDir(script);
+        // If the above API is not ready yet in cscs.dll:
         var result = typeof(csscript.Runtime).Assembly
                          .GetType("csscript.CSExecutor")
                          .GetMethod("GetCacheDirectory")
@@ -66,7 +67,8 @@ public static class Decorator
 
             var sourceFiles = Project.GenerateProjectFor(script).Files;
             var primaryScript = sourceFiles.First(); // always at least one script is present
-            var cacheDir = GetCacheDirectory(primaryScript);
+            var cacheDir = GetCacheDirectory(primaryScript).PathJoin(".wdbg", script.GetFileName());
+            cacheDir.EnsureDir();
             var importedScripts = sourceFiles.Skip(1).Where(x => Path.GetFileNameWithoutExtension(x) != global_usings_import);
             var decoratedPrimaryScript = primaryScript.ChangeToCahcheDir(cacheDir);
 
@@ -153,19 +155,11 @@ public static class Decorator
                 catch { }
             }
 
-            foreach ((var scriptFile, var breakpoints) in result)
-            {
-                var breakPointFile = scriptFile + ".bp";
-                if (breakpoints.Length == 0)
-                {
-                    try { File.Delete(breakPointFile); }
-                    catch { }
-                }
-                else
-                {
-                    File.WriteAllLines(breakPointFile, breakpoints.Select(x => $"-{x}").ToArray());
-                }
-            }
+            var breakPointsFile = decoratedPrimaryScript + ".bp";
+
+            var lines = result.Select((info) =>
+                $"{info.decoratedScript}|{(info.breakpoints.Select(x => $"-{x}").JoinBy(","))}").ToArray();
+            File.WriteAllLines(breakPointsFile, lines);
 
             return result.ToArray();
         }
@@ -299,7 +293,7 @@ public static class Decorator
                            .Select(x => x.index)
                            .ToArray();
 
-        return (decoratedScript, breakpoints);
+        return (script, breakpoints);
     }
 
     static bool IsInsideBracketlessScope(string code, int line)

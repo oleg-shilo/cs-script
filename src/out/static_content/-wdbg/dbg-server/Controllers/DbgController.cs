@@ -20,7 +20,20 @@ public class DbgController : ControllerBase
         {
             // if debugging is not in progress the session.StackFrameFileName will be empty
             // note, dbg host lines are 1-based
-            var result = breakpoints.Select(x => $"{fileWithBreakpoints}:{x + 1}").JoinBy("\n");
+
+            string breakpointSpec = "";
+
+            foreach (var kvp in breakpoints)
+            {
+                var file = kvp.Key;
+                var lines = kvp.Value;
+                foreach (var line in lines)
+                {
+                    breakpointSpec += $"{fileWithBreakpoints}:{line + 1}\n";
+                }
+            }
+
+            var result = breakpoints.SelectMany(x => x.Value.Select(line => $"{x.Key}:{line + 1}")).JoinBy("\n");
             return Ok(result);
         }
     }
