@@ -56,7 +56,6 @@ namespace wdbg.cs_script
                     GetCacheDirectory = (script) =>
                     {
                         var result = method.Invoke(null, new object[] { script }) as string;
-                        result = Path.Combine(result, ".wdbg", Path.GetFileName(script));
                         Directory.CreateDirectory(result); // ensure the directory exists
                         return result;
                     };
@@ -107,7 +106,7 @@ namespace wdbg.cs_script
                 dir = CssRun("-cache", script).Trim();
                 if (dir.HasText() && Directory.Exists(dir))
                 {
-                    return dir.PathJoin(".wdbg", scriptName, scriptName); ;
+                    return dir.PathJoin(".wdbg", scriptName, scriptName).EnsureDir();
                 }
                 else
                 {

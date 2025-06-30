@@ -8,8 +8,6 @@ using wdbg.Pages;
 
 public class ActiveState
 {
-    public string DbgView;
-
     public Dictionary<string, (DateTime timestamp, string content)> AllDocumentsContents = new();
 
     // document path -> array of line numbers with breakpoints (even invalid breakpoints that will be validated on doc save)
@@ -17,27 +15,20 @@ public class ActiveState
 
     public int[] GetDocumentBreakpoints(string document) => AllDocumentsBreakpoints.ContainsKey(document) ? AllDocumentsBreakpoints[document] : [];
 
+    public bool HasInfoFor(string document) => AllDocumentsBreakpoints.ContainsKey(document) && AllDocumentsBreakpoints.ContainsKey(document);
+
     public void UpdateFor(string path, string content, int[] breakpoints)
     {
         if (breakpoints != null)
         {
             // add all new breakpoints even if they are not valid
-            if (!AllDocumentsBreakpoints.ContainsKey(path))
-                AllDocumentsBreakpoints[path] = [];
-            else
-                AllDocumentsBreakpoints[path] = breakpoints.Distinct().ToArray();
+            AllDocumentsBreakpoints[path] = breakpoints.Distinct().ToArray();
         }
 
         if (content != null)
         {
-            if (!AllDocumentsContents.ContainsKey(path))
-                AllDocumentsContents[path] = (DateTime.UtcNow, "");
-            else
-                AllDocumentsContents[path] = (DateTime.UtcNow, content);
+            AllDocumentsContents[path] = (DateTime.UtcNow, content);
         }
-
-        // reset debug view to ensure it is reloaded
-        DbgView = AllDocumentsBreakpoints.Select(x => $"{x.Key.GetFileName()}:{(x.Value.Select(y => $"{y}").JoinBy(","))}").JoinBy("\n");
     }
 
     public async Task<(string content, bool isModified)> GetContentFromFileOrCache(string path)
@@ -75,7 +66,7 @@ public class Ide
     public string LoadedScriptDbg;
     public bool IsLoadedScriptDbg;
 
-    public async Task SaveStateOf(string script)
+    public async Task<int[]> SaveStateOf(string script)
     {
         // ensure the latest debug info is fetched before and State.AllDocumentsBreakpoints has only valid breakpoints
         await FetchLatestDebugInfo(script);
@@ -104,6 +95,8 @@ public class Ide
         {
             // not implemented yet, but will be used to store document contents.
         }
+
+        return State.GetDocumentBreakpoints(script); // return fresh updated breakpoints
     }
 
     public async Task ReadSavedStateOf(string script)
@@ -129,35 +122,31 @@ public class Ide
 
     public async Task FetchLatestDebugInfo(string script)
     {
-        var currentState = State.AllDocumentsBreakpoints;
+        // var currentState = State.AllDocumentsBreakpoints;
         var persistedDbgInfo = ReadBreakpoints(script.LocateLoadedScriptDebugCode() + ".bp");
 
         // update State.AllDocumentsBreakpoints to ensure it contains only valid
         foreach (var file in State.AllDocumentsBreakpoints.Keys)
         {
-            if (persistedDbgInfo.ContainsKey(file))
-            {
-                var documentBreakpoints = State.AllDocumentsBreakpoints[file].ToList();
-                var persistedBreakpoints = persistedDbgInfo[file];
+            var documentBreakpoints = State.AllDocumentsBreakpoints[file].ToList();
 
-                foreach (var lineNumber in documentBreakpoints.ToArray()) // iterate through the cloned list to avoid modifying it while iterating
-                {
-                    var valid = persistedBreakpoints.Any(x => x.line == lineNumber);
-                    if (!valid)
-                        documentBreakpoints.Remove(lineNumber); // remove invalid breakpoints
-                }
+            // persistedDbgInfo may not have file
+            var persistedBreakpoints = persistedDbgInfo[file];
 
-                State.AllDocumentsBreakpoints[file] = documentBreakpoints.ToArray();
-            }
-            else
+            foreach (var lineNumber in documentBreakpoints.ToArray()) // iterate through the cloned list to avoid modifying it while iterating
             {
-                State.AllDocumentsBreakpoints[file] = [];
+                var valid = persistedBreakpoints.Any(x => x.line == lineNumber);
+                if (!valid)
+                    documentBreakpoints.Remove(lineNumber); // remove invalid breakpoints
             }
+
+            State.AllDocumentsBreakpoints[file] = documentBreakpoints.ToArray();
         }
     }
 
     public static void SaveBreakpoints(string breakpointsFile, Dictionary<string, (bool enabled, int line)[]> breakpoints)
     {
+        // IMPORTANT: script.csbp contain lines that are 1-based; IDE uses 0-based line numbers
         var dbgCacheDir = breakpointsFile.GetDirName().EnsureDir();
         var lines = breakpoints.Select(item =>
         {
@@ -166,7 +155,7 @@ public class Ide
             var decoratedFile = file.ChangeDir(dbgCacheDir);
 
             return $"{file}|{decoratedFile}|" +
-                   $"{(item.Value.Select(x => $"{(x.enabled ? "+" : "-")}{x.line}").JoinBy(","))}";
+                   $"{(item.Value.Select(x => $"{(x.enabled ? "+" : "-")}{x.line + 1}").JoinBy(","))}";
         }).ToArray();
 
         File.WriteAllLines(breakpointsFile, lines);
@@ -174,6 +163,7 @@ public class Ide
 
     public static Dictionary<string, (bool enabled, int line)[]> ReadBreakpoints(string breakpointsFile)
     {
+        // IMPORTANT: script.csbp contain lines that are 1-based; IDE uses 0-based line numbers
         Dictionary<string, (bool enabled, int line)[]> result = new();
         if (File.Exists(breakpointsFile))
         {
@@ -184,7 +174,7 @@ public class Ide
                     var parts = line.Split('|', 3);
                     var file = parts[0].Trim();
                     var decoratedFile = parts[1].Trim();
-                    var breakpoints = parts[2].Split(',').Select(x => (x.StartsWith("+"), x.Substring(1).ToInt())).ToArray();
+                    var breakpoints = parts[2].Split(',').Select(x => (x.StartsWith("+"), x.Substring(1).ToInt() - 1)).ToArray();
                     result[file] = breakpoints;
                 }
                 catch { } // ignore malformed lines

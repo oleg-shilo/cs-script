@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components;
@@ -144,20 +145,34 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             if (Editor.LoadedDocument.HasText() && File.Exists(Editor.LoadedDocument))
             {
                 bool isModified;
+                2.ProfileLog();
                 (Document.EditorContent, isModified) = await Editor.State.GetContentFromFileOrCache(Editor.LoadedDocument);
+
+                if (!Editor.State.HasInfoFor(Editor.LoadedDocument)) // the debug file is missing or corrupted
+                {
+                    _ = StartGeneratingDebugMetadata(true);
+                }
+
+                3.ProfileLog();
                 (Document.EditorContent, _) = Document.EditorContent.NormalizeLineBreaks();
+                4.ProfileLog();
                 Document.Breakpoints = Editor.State.GetDocumentBreakpoints(Editor.LoadedDocument);
+                5.ProfileLog();
 
                 await SetDocumentContent(Document.EditorContent);
+                6.ProfileLog();
                 Document.IsModified = isModified;
 
                 Editor.LastSessionFileName = Editor.LoadedScript;
                 Editor.LocateLoadedScriptDebugInfo();
+                7.ProfileLog();
                 Editor.RunStatus = "ready";
                 Editor.Ready = true;
                 Editor.AddToRecentFiles(Editor.LoadedScript);
 
+                8.ProfileLog();
                 await RenderBreakpoints();
+                9.ProfileLog();
 
                 UIEvents.NotifyStateChanged();
             }
@@ -170,7 +185,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
         }
         catch (Exception e) { e.Log(); }
-        2.ProfileLog();
+        10.ProfileLog();
     }
 
     public async Task LoadScriptFromServer()
@@ -205,8 +220,12 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             if (file.HasText())
             {
                 if (Editor.LoadedDocument != file)
-                    Editor.State.UpdateFor(Editor.LoadedDocument, await GetDocumentContent(), Document.Breakpoints);
-
+                {
+                    1.ProfileLog();
+                    var content = await GetDocumentContent();
+                    2.ProfileLog();
+                    Editor.State.UpdateFor(Editor.LoadedDocument, content, Document.Breakpoints);
+                }
                 Editor.LoadedDocument = file;
                 await LoadDocFromServer();
                 StateHasChanged();
@@ -222,7 +241,9 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             if (file.HasText())
             {
                 if (Editor.LoadedScript.HasText() && Editor.LoadedScript != file)
-                    Editor.SaveStateOf(Editor.LoadedScript);
+                {
+                    Document.Breakpoints = await Editor.SaveStateOf(Editor.LoadedScript);
+                }
 
                 Editor.LoadedScript = file;
                 await LoadScriptFromServer();
@@ -268,7 +289,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             {
                 var isModified = Document.IsModified;
                 Editor.State.UpdateFor(Editor.LoadedDocument, content, Document.Breakpoints);
-                await Editor.SaveStateOf(Editor.LoadedScript);
+                Document.Breakpoints = await Editor.SaveStateOf(Editor.LoadedScript);
                 await File.WriteAllTextAsync(Editor.LoadedScript, content);
 
                 Document.IsModified = false;
@@ -447,7 +468,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                         Editor.LoadedScriptDbg = null;
                     }
 
-                    await Editor.SaveStateOf(Editor.LoadedScript);
+                    Document.Breakpoints = await Editor.SaveStateOf(Editor.LoadedScript);
                     Editor.RunStatus = $"Ready";
                     Editor.Ready = true;
                 });
@@ -560,10 +581,14 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                             await Task.Delay(500);
                 }
 
+                Document.Breakpoints = await Editor.SaveStateOf(Editor.LoadedScript);
+
+                _ = RenderBreakpoints();
+
                 ClearOutput();
                 ClearLocals();
                 this.DebugSession.Reset();
-                this.DebugSession.Breakpoints = Editor.State.AllDocumentsBreakpoints;
+                this.DebugSession.Breakpoints = Editor.State.AllDocumentsBreakpoints.Clone(); // cloning is very important to avoid modifying the original state
 
                 try
                 {

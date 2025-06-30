@@ -357,7 +357,7 @@
         {
             await Task.Delay(100);
         }
-        
+
         if(Tools.lastLookupError.HasText())
             Editor.ShowToastInfo(Tools.lastLookupError);
 
@@ -453,17 +453,26 @@
     [JSInvokable]
     public async Task OnEditorChanged()
     {
-        Document.IsModified = true;
-        UIEvents.NotifyStateChanged();
+        '>'.ProfileLog();
+        if(!Document.IsModified)
+        {
+
+            "called".ProfileLog();
+            Document.IsModified = true;
+            UIEvents.NotifyStateChanged();
+        }
+        '<'.ProfileLog();
     }
 
     [JSInvokable]
     public Task UpdateCaretInfo(string lineText, int line, int ch, int pos)
     {
+        '>'.ProfileLog();
         Document.CaretLine = line + 1; // 1-based for display
         Document.CaretCh = ch + 1;     // 1-based for display
         Document.CaretPos = pos;     // 0-based for display
         UIEvents.NotifyStateChanged();
+        '<'.ProfileLog();
         return Task.CompletedTask;
     }
 

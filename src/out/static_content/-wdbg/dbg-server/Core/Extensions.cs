@@ -158,6 +158,16 @@ static class Extensions
         stream.Flush();
     }
 
+    public static Dictionary<string, int[]> Clone(this Dictionary<string, int[]> collection)
+    {
+        var clone = new Dictionary<string, int[]>(collection.Count);
+        foreach (var kvp in collection)
+        {
+            clone[kvp.Key] = kvp.Value.ToArray(); // create a copy of the array
+        }
+        return clone;
+    }
+
     public static void WriteAllText(this TcpClient client, string data)
     {
         client.WriteAllBytes(data.GetBytes());
