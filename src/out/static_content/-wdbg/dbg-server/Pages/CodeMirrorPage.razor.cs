@@ -411,7 +411,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             {
                 await Editor.FetchLatestDebugInfo(Editor.LoadedDocument); // this will get rid of invalid breakpoints in the state
                 Document.Breakpoints = Editor.State.AllDocumentsBreakpoints[Editor.LoadedDocument];
-                DebugSession.Breakpoints = Editor.State.AllDocumentsBreakpoints;
+                DebugSession.Breakpoints = Editor.AllEnabledBreakpoints;
+                DebugSession.dbgScriptMaping = Editor.dbgScriptMaping;
 
                 _ = RenderBreakpoints(); // this will remove invalid breakpoints from the view
             }
@@ -588,7 +589,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 ClearOutput();
                 ClearLocals();
                 this.DebugSession.Reset();
-                this.DebugSession.Breakpoints = Editor.State.AllDocumentsBreakpoints.Clone(); // cloning is very important to avoid modifying the original state
+                this.DebugSession.Breakpoints = Editor.AllEnabledBreakpoints; // not State.AllDocumentsBreakpoints that is not mapped to the decorated scripts
+                this.DebugSession.dbgScriptMaping = Editor.dbgScriptMaping;
 
                 try
                 {

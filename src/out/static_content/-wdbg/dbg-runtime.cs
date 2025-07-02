@@ -415,7 +415,7 @@ public class BreakPoint
         if (!ShouldStop())
             return;
 
-        DBG.PostBreakInfo($"{sourceFilePath}|{sourceLineNumber - 1}|{variables.ToJson()}"); // let debugger to show BP as the start of the next line
+        DBG.PostBreakInfo($"{sourceFilePath}|{sourceLineNumber}|{variables.ToJson()}"); // let debugger to show BP as the start of the next line
 
         WaitTillResumed(variables);
     }

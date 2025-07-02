@@ -74,6 +74,8 @@ public class DbgSession
         this.Id = id; this.UIEvents = uiEvents ?? new();
     }
 
+    public Dictionary<string, string> dbgScriptMaping = new();
+
     public Queue<string> UserRequest = new();
     public string UserInterrupt;
     public Process RunningScript;

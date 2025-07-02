@@ -18,33 +18,21 @@ public class DbgController : ControllerBase
 
         lock (session)
         {
-            // if debugging is not in progress the session.StackFrameFileName will be empty
             // note, dbg host lines are 1-based
 
-            string breakpointSpec = "";
-
+            Debug.WriteLine($"GetBreakpoints");
             foreach (var kvp in breakpoints)
             {
                 var file = kvp.Key;
                 var lines = kvp.Value;
-                foreach (var line in lines)
-                {
-                    breakpointSpec += $"{fileWithBreakpoints}:{line + 1}\n";
-                }
+                if (lines.Any())
+                    Debug.WriteLine($"  {file?.GetFileName()}: {lines.Select(x => (x + 1).ToString()).JoinBy(",")}");
             }
 
             var result = breakpoints.SelectMany(x => x.Value.Select(line => $"{x.Key}:{line + 1}")).JoinBy("\n");
+
             return Ok(result);
         }
-    }
-
-    [HttpPost("output")]
-    [IgnoreAntiforgeryToken]
-    public ActionResult<string> DbgOutput()
-    {
-        var message = this.Request.BodyAsString();
-        Debug.WriteLine(message);
-        return "OK";
     }
 
     [HttpPost("break")]
@@ -53,17 +41,36 @@ public class DbgController : ControllerBase
     {
         (DbgSession session, ObjectResult error) = Request.FindServerSession();
 
-        if (error != null)
-            return error;
+        lock (session)
+        {
+            // if debugging is not in progress the session.StackFrameFileName will be empty
+            // note, dbg host lines are 1-based
 
-        var parts = this.Request.BodyAsString().Split('|', 3);
+            if (error != null)
+                return error;
 
-        session.StackFrameFileName = parts[0]?.Replace(".dbg.cs", ".cs");
-        session.StackFrameLineNumber.Parse(parts[1]);
+            var parts = this.Request.BodyAsString().Split('|', 3);
 
-        session.UIEvents.NotifyStateChanged(); // to refresh the output window
-        session.UIEvents.NotifyDbgChanged(variables: parts[2]);   // to show the current debug step
+            var dbgFile = parts[0]?.Trim();
+            string scriptFile = session.dbgScriptMaping.First(x => x.Value == dbgFile).Key;
 
+            session.StackFrameFileName = scriptFile;
+            session.StackFrameLineNumber = parts[1].ToInt() - 1;
+
+            Debug.WriteLine($"OnPostBreakInfo: {scriptFile?.GetFileName()} at line {session.StackFrameLineNumber}");
+
+            session.UIEvents.NotifyStateChanged(); // to refresh the output window
+            session.UIEvents.NotifyDbgChanged(variables: parts[2]);   // to show the current debug step
+        }
+        return "OK";
+    }
+
+    [HttpPost("output")]
+    [IgnoreAntiforgeryToken]
+    public ActionResult<string> DbgOutput()
+    {
+        var message = this.Request.BodyAsString();
+        Debug.WriteLine(message);
         return "OK";
     }
 

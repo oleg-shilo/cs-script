@@ -66,6 +66,21 @@ public class Ide
     public string LoadedScriptDbg;
     public bool IsLoadedScriptDbg;
 
+    public Dictionary<string, int[]> AllEnabledBreakpoints
+    {
+        get
+        {
+            var result = new Dictionary<string, int[]>();
+
+            foreach (var script in State.AllDocumentsBreakpoints.Keys)
+            {
+                var decoratedScript = dbgScriptMaping[script];
+                result[decoratedScript] = State.AllDocumentsBreakpoints[script].ToArray();
+            }
+            return result;
+        }
+    }
+
     public async Task<int[]> SaveStateOf(string script)
     {
         // ensure the latest debug info is fetched before and State.AllDocumentsBreakpoints has only valid breakpoints
@@ -161,10 +176,14 @@ public class Ide
         File.WriteAllLines(breakpointsFile, lines);
     }
 
-    public static Dictionary<string, (bool enabled, int line)[]> ReadBreakpoints(string breakpointsFile)
+    public Dictionary<string, string> dbgScriptMaping = new();
+
+    public Dictionary<string, (bool enabled, int line)[]> ReadBreakpoints(string breakpointsFile)
     {
         // IMPORTANT: script.csbp contain lines that are 1-based; IDE uses 0-based line numbers
         Dictionary<string, (bool enabled, int line)[]> result = new();
+        dbgScriptMaping.Clear();
+
         if (File.Exists(breakpointsFile))
         {
             foreach (var line in File.ReadAllLines(breakpointsFile))
@@ -174,6 +193,7 @@ public class Ide
                     var parts = line.Split('|', 3);
                     var file = parts[0].Trim();
                     var decoratedFile = parts[1].Trim();
+                    dbgScriptMaping[file] = decoratedFile;
                     var breakpoints = parts[2].Split(',').Select(x => (x.StartsWith("+"), x.Substring(1).ToInt() - 1)).ToArray();
                     result[file] = breakpoints;
                 }
