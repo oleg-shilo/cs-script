@@ -79,11 +79,11 @@ public class DbgSession
     public Queue<string> UserRequest = new();
     public string UserInterrupt;
     public Process RunningScript;
+    public string StackFrameFileName;
     public int? StackFrameLineNumber; // 1-based
-    public int CurrentStepLineNumber => StackFrameLineNumber.HasValue ? StackFrameLineNumber.Value - 1 : -1; // 0-based
+    public int CurrentStepLineNumber => StackFrameLineNumber.HasValue ? StackFrameLineNumber.Value : -1; // 0-based
     public bool IsInBreakMode => StackFrameLineNumber.HasValue;
     public bool IsScriptExecutionInProgress => RunningScript != null;
-    public string StackFrameFileName;
     public UINotificationService UIEvents;
     public Dictionary<string, int[]> Breakpoints = new();
 

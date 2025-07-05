@@ -551,7 +551,25 @@
 
     getValue: function () {
         if (window.editor) {
-            return window.editor.getValue();
+            let content = window.editor.getValue();
+
+            // Determine the appropriate line ending for the current OS
+            const osLineEnding = navigator.platform.toLowerCase().includes('win') ? '\r\n' : '\n';
+
+            // If we stored the original line ending when the content was loaded, use that
+            // Otherwise, use the OS default
+            const targetLineEnding = window.codemirrorInterop.originalLineEnding || osLineEnding;
+
+            // Convert line endings if they don't match the target
+            if (targetLineEnding === '\r\n' && !content.includes('\r\n')) {
+                // Convert \n to \r\n
+                content = content.replace(/\r?\n/g, '\r\n');
+            } else if (targetLineEnding === '\n' && content.includes('\r\n')) {
+                // Convert \r\n to \n
+                content = content.replace(/\r\n/g, '\n');
+            }
+
+            return content;
         }
         return "";
     },

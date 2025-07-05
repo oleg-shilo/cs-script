@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -21,15 +22,30 @@ public class DbgController : ControllerBase
             // note, dbg host lines are 1-based
 
             Debug.WriteLine($"GetBreakpoints");
+            var buffer = new StringBuilder();
             foreach (var kvp in breakpoints)
             {
+                var extraDecoratedLines = 0;
                 var file = kvp.Key;
                 var lines = kvp.Value;
-                if (lines.Any())
-                    Debug.WriteLine($"  {file?.GetFileName()}: {lines.Select(x => (x + 1).ToString()).JoinBy(",")}");
+                var isPrimary = (file == breakpoints.Keys.First());
+
+                if (isPrimary)
+                {
+                    extraDecoratedLines++; // for dbg-runtime.cs
+                    extraDecoratedLines += breakpoints.Skip(1).Count(); // for any imported script file
+                }
+
+                lines = lines.Select(x => x + 1 + extraDecoratedLines).ToArray();
+
+                foreach (var line in lines)
+                {
+                    buffer.Append($"{file}:{line}\n");
+                }
+                Debug.WriteLine($"  {file?.GetFileName()}: {lines.Select(x => x.ToString()).JoinBy(",")}");
             }
 
-            var result = breakpoints.SelectMany(x => x.Value.Select(line => $"{x.Key}:{line + 1}")).JoinBy("\n");
+            var result = buffer.ToString();
 
             return Ok(result);
         }
@@ -57,7 +73,14 @@ public class DbgController : ControllerBase
             session.StackFrameFileName = scriptFile;
             session.StackFrameLineNumber = parts[1].ToInt() - 1;
 
-            Debug.WriteLine($"OnPostBreakInfo: {scriptFile?.GetFileName()} at line {session.StackFrameLineNumber}");
+            ///////////////////////
+            var isPrimary = (scriptFile.GetFileName() == session.Breakpoints.Keys.First().GetFileName());
+
+            if (isPrimary)
+            {
+                session.StackFrameLineNumber--; // for dbg-runtime.cs
+                session.StackFrameLineNumber -= session.Breakpoints.Skip(1).Count(); // for any imported script file
+            }
 
             session.UIEvents.NotifyStateChanged(); // to refresh the output window
             session.UIEvents.NotifyDbgChanged(variables: parts[2]);   // to show the current debug step

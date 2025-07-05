@@ -438,7 +438,7 @@
     async Task SetCaretPosition(int position) { try { await js("codemirrorInterop.setCaretAbsolutePosition", position); } catch (Exception e) { e.Log(); } }
     async Task ScrollCurrentLineToView() { try { await js("codemirrorInterop.scrollCurrentLineToView"); } catch (Exception e) { e.Log(); } }
     async Task ScrollLineToView(int line) { try { await js("codemirrorInterop.scrollLineToView", line); } catch (Exception e) { e.Log(); } }
-    async Task setCurrentStepLine(int line) { try { await js("codemirrorInterop.setCurrentStepLine", line); } catch (Exception e) { e.Log(); } }
+    async Task setCurrentStepLine(int line) { try { await js("codemirrorInterop.setCurrentStepLine", line == -1 ? null : line); } catch (Exception e) { e.Log(); } }
     async Task SetCaretPosition(int line, int lineCh) { try { await js("codemirrorInterop.setCaretPosition", line, lineCh); } catch (Exception e) { e.Log(); } }
     async Task ScrollToAndHighlightLine(int line, int ch) { try { await js("codemirrorInterop.scrollToAndHighlightLine", line, ch); } catch (Exception e) { e.Log(); } }
 

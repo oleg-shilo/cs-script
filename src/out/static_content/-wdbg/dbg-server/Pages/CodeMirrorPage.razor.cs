@@ -62,10 +62,16 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public void DebugStateHasChanged(string variables) // received on breakpoint hit
     {
-        InvokeAsync(() =>
+        InvokeAsync(async () =>
         {
             try
             {
+                if (DebugSession.StackFrameFileName != Editor.LoadedDocument)
+                {
+                    await setCurrentStepLine(-1);
+                    await LoadDocFile(DebugSession.StackFrameFileName);
+                }
+
                 _ = setCurrentStepLine(DebugSession.CurrentStepLineNumber);
 
                 if (DebugSession.IsScriptExecutionInProgress)

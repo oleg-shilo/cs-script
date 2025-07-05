@@ -179,7 +179,7 @@ static class Extensions
     {
         var dif = (int)(DateTime.Now - (lastProfilerLogTime ?? DateTime.Now)).TotalMilliseconds;
         lastProfilerLogTime = DateTime.Now;
-        Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}]({dif:D5}) {caller}: {obj}");
+        // Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}]({dif:D5}) {caller}: {obj}");
     }
 
     public static IDisposable Profile(this object obj, [CallerMemberName] string caller = null)

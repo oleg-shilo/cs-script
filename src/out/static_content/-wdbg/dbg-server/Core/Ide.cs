@@ -27,16 +27,33 @@ public class ActiveState
 
         if (content != null)
         {
-            AllDocumentsContents[path] = (DateTime.UtcNow, content);
+            if (AllDocumentsContents.ContainsKey(path))
+            {
+                int cacheHashCode = AllDocumentsContents[path].content.GetHashCode();
+                int contentHashCode = content.GetHashCode();
+
+                // if (AllDocumentsContents[path].content != content)
+                if (cacheHashCode != contentHashCode)
+                    AllDocumentsContents[path] = (DateTime.UtcNow, content);
+            }
+            else
+                AllDocumentsContents[path] = (DateTime.UtcNow, content);
         }
     }
 
     public async Task<(string content, bool isModified)> GetContentFromFileOrCache(string path)
     {
-        if (AllDocumentsContents.ContainsKey(path) && AllDocumentsContents[path].timestamp > File.GetLastWriteTimeUtc(path))
-            return (AllDocumentsContents[path].content, true);
-        return
-            (await File.ReadAllTextAsync(path), false);
+        var newDocument = !AllDocumentsContents.ContainsKey(path) || !AllDocumentsContents[path].content.HasText();
+
+        if (newDocument || File.GetLastWriteTimeUtc(path) > AllDocumentsContents[path].timestamp)
+        {
+            AllDocumentsContents[path] = (File.GetLastWriteTimeUtc(path), await File.ReadAllTextAsync(path));
+        }
+
+        var fileTimestamp = File.GetLastWriteTimeUtc(path);
+        var isModified = AllDocumentsContents[path].timestamp > File.GetLastWriteTimeUtc(path);
+
+        return (AllDocumentsContents[path].content, isModified);
     }
 }
 
