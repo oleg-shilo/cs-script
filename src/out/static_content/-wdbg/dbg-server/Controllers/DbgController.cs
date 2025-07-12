@@ -73,7 +73,6 @@ public class DbgController : ControllerBase
             session.StackFrameFileName = scriptFile;
             session.StackFrameLineNumber = parts[1].ToInt() - 1;
 
-            ///////////////////////
             var isPrimary = (scriptFile.GetFileName() == session.Breakpoints.Keys.First().GetFileName());
 
             if (isPrimary)

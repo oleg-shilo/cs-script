@@ -17,6 +17,36 @@ public class ActiveState
 
     public bool HasInfoFor(string document) => AllDocumentsBreakpoints.ContainsKey(document) && AllDocumentsBreakpoints.ContainsKey(document);
 
+    public bool AnyScriptFilesModified()
+    {
+        foreach (var doc in AllDocumentsContents.Keys.ToArray())
+            if (AllDocumentsContents[doc].content.HasText() && AllDocumentsContents[doc].timestamp > File.GetLastWriteTimeUtc(doc))
+                return true;
+        return false;
+    }
+
+    public List<string> SaveAllFilesIfModified()
+    {
+        List<string> result = new();
+        foreach (var doc in AllDocumentsContents.Keys.ToArray())
+        {
+            if (AllDocumentsContents[doc].content.HasText() && AllDocumentsContents[doc].timestamp > File.GetLastWriteTimeUtc(doc))
+            {
+                try
+                {
+                    result.Add(doc);
+                    File.WriteAllText(doc, AllDocumentsContents[doc].content);
+                    AllDocumentsContents[doc] = (File.GetLastWriteTimeUtc(doc), AllDocumentsContents[doc].content);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error saving document {doc}: {ex.Message}");
+                }
+            }
+        }
+        return result;
+    }
+
     public void UpdateFor(string path, string content, int[] breakpoints)
     {
         if (breakpoints != null)
@@ -162,7 +192,11 @@ public class Ide
         {
             var documentBreakpoints = State.AllDocumentsBreakpoints[file].ToList();
 
-            // persistedDbgInfo may not have file
+            // persistedDbgInfo may not have file. continue so if any breakpoints are defined for the file
+            // they will be saved on next save
+            if (!persistedDbgInfo.ContainsKey(file))
+                continue;
+
             var persistedBreakpoints = persistedDbgInfo[file];
 
             foreach (var lineNumber in documentBreakpoints.ToArray()) // iterate through the cloned list to avoid modifying it while iterating

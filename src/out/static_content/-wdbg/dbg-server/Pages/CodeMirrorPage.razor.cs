@@ -291,18 +291,21 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             var content = await GetDocumentContent();
             (content, _) = content.NormalizeLineBreaks();
 
-            if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
+            if (Document.IsModified || Editor.State.AnyScriptFilesModified())
             {
                 var isModified = Document.IsModified;
                 Editor.State.UpdateFor(Editor.LoadedDocument, content, Document.Breakpoints);
                 Document.Breakpoints = await Editor.SaveStateOf(Editor.LoadedScript);
-                await File.WriteAllTextAsync(Editor.LoadedScript, content);
+                await File.WriteAllTextAsync(Editor.LoadedDocument, content);
 
                 Document.IsModified = false;
 
                 UIEvents.NotifyStateChanged();
 
-                if (isModified)
+                // this will save all other files of the script files that are modified but not in the active view
+                var updatedFiles = Editor.State.SaveAllFilesIfModified();
+
+                if (isModified || updatedFiles.Any())
                     _ = StartGeneratingDebugMetadata(showError);
             }
             else
@@ -580,7 +583,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
             else
             {
-                if (Document.IsModified || !Editor.IsScriptReadyForDebugging)
+                if (Document.IsModified || !Editor.IsScriptReadyForDebugging || Editor.State.AnyScriptFilesModified())
                 {
                     await SaveToFileOnServer(true); // this will trigger debugger info generation, which will be done when Editor.Ready istrue
                     if (!detached)
