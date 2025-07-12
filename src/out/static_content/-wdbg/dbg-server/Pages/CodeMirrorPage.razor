@@ -582,12 +582,15 @@
                 var line = result.FirstOrDefault(x => x.StartsWith("line:"))?.Replace("line:", "").Trim();
                 if (file.HasText() && File.Exists(file))
                 {
-                    if (file != Editor.LoadedScript)
+                    if (!Editor.CurrentScriptFiles.Contains(file))
                     {
                         Editor.ShowExternalFile(file, line.ToInt());
                     }
                     else
                     {
+                        if (file != Editor.LoadedDocument)
+                            await LoadDocFile(file);
+
                         var lineNumber = int.Parse(line);
                         ScrollToAndHighlightLine(lineNumber - 1, 0);
                     }

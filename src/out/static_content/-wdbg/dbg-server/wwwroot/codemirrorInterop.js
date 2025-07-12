@@ -130,7 +130,7 @@
         cm.showHint({
             hint: async function () {
                 var caret = window.codemirrorInterop.getCaretAbsolutePosition();
-                const fullText = cm.getValue();
+                const fullText = window.codemirrorInterop.getValue();
                 const cursor = cm.getCursor();
                 const lineText = cm.getLine(cursor.line);
 
@@ -349,7 +349,7 @@
         if (ch)
             pos.ch = ch;
 
-        const fullText = cm.getValue();
+        const fullText = window.codemirrorInterop.getValue();
 
         // Use the original line ending style
         const lineEndingStyle = /\r\n/.test(fullText) ? '\r\n' : '\n';
@@ -370,7 +370,7 @@
         const cm = window.codemirrorInterop.editor;
         if (!cm) return;
 
-        const fullText = cm.getValue();
+        const fullText = window.codemirrorInterop.getValue();
         if (newOffset < 0 || newOffset > fullText.length) return;
 
         // Use the original line ending style

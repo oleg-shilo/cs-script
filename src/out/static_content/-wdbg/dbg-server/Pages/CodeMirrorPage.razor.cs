@@ -84,7 +84,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 if (DebugSession.StackFrameFileName != Editor.LoadedDocument)
                 {
                     await setCurrentStepLine(-1);
-                    await LoadDocFile(DebugSession.StackFrameFileName);
+                    await LoadDocFileOptimized(DebugSession.StackFrameFileName);
                 }
 
                 _ = setCurrentStepLine(DebugSession.CurrentStepLineNumber);
@@ -235,6 +235,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public async Task LoadDocFile(string file)
     {
+        await LoadDocFileOptimized(file); return;
         // called from the project file tree
         try
         {
@@ -292,7 +293,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     private async Task SetDocumentContentAndBreakpoints(string content, IEnumerable<int> breakpoints)
     {
-        await js("batchDocumentUpdate", content, breakpoints.ToArray());
+        await js("codemirrorInterop.batchDocumentUpdate", content, breakpoints.ToArray());
     }
 
     public async Task LoadRecentScriptFile(string file)

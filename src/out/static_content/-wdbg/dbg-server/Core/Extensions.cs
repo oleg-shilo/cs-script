@@ -44,6 +44,11 @@ static class Extensions
 
     public static (string newText, int newOffset) NormalizeLineBreaks(this string text, int offset = 0, string desiredLineBreak = null)
     {
+        if (offset == -1)
+        {
+            return (text, -1);
+        }
+
         if (offset == 0)
         {
             var newText = text.Replace("\r\n", "\n");
