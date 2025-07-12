@@ -8,6 +8,21 @@ using wdbg.Pages;
 
 public class ActiveState
 {
+    // Add LRU cache for document contents
+    private readonly Dictionary<string, CachedDocument> _documentCache = new();
+
+    private readonly Queue<string> _accessOrder = new();
+    private const int MAX_CACHE_SIZE = 50;
+
+    public class CachedDocument
+    {
+        public DateTime Timestamp { get; set; }
+        public string Content { get; set; }
+        public int[] Breakpoints { get; set; }
+        public bool IsLoaded { get; set; }
+        public DateTime LastAccessed { get; set; }
+    }
+
     public Dictionary<string, (DateTime timestamp, string content)> AllDocumentsContents = new();
 
     // document path -> array of line numbers with breakpoints (even invalid breakpoints that will be validated on doc save)
@@ -85,6 +100,46 @@ public class ActiveState
 
         return (AllDocumentsContents[path].content, isModified);
     }
+
+    public async Task<(string content, bool isModified)> GetContentFromFileOrCacheOptimized(string path)
+    {
+        // Update access order for LRU
+        if (_documentCache.ContainsKey(path))
+        {
+            _documentCache[path].LastAccessed = DateTime.UtcNow;
+            _accessOrder.Enqueue(path);
+        }
+
+        // Check if cache is valid
+        if (_documentCache.TryGetValue(path, out var cached) &&
+            cached.Content.HasText() &&
+            File.GetLastWriteTimeUtc(path) <= cached.Timestamp)
+        {
+            return (cached.Content, cached.Timestamp > File.GetLastWriteTimeUtc(path));
+        }
+
+        // Load from file
+        var content = await File.ReadAllTextAsync(path);
+        var fileTime = File.GetLastWriteTimeUtc(path);
+
+        // Update cache
+        _documentCache[path] = new CachedDocument
+        {
+            Content = content,
+            Timestamp = fileTime,
+            LastAccessed = DateTime.UtcNow,
+            IsLoaded = true
+        };
+
+        // Maintain cache size
+        while (_documentCache.Count > MAX_CACHE_SIZE)
+        {
+            var oldestKey = _documentCache.OrderBy(x => x.Value.LastAccessed).First().Key;
+            _documentCache.Remove(oldestKey);
+        }
+
+        return (content, false);
+    }
 }
 
 public class Ide
@@ -121,8 +176,11 @@ public class Ide
 
             foreach (var script in State.AllDocumentsBreakpoints.Keys)
             {
-                var decoratedScript = dbgScriptMaping[script];
-                result[decoratedScript] = State.AllDocumentsBreakpoints[script].ToArray();
+                if (dbgScriptMaping.ContainsKey(script))
+                {
+                    var decoratedScript = dbgScriptMaping[script];
+                    result[decoratedScript] = State.AllDocumentsBreakpoints[script].ToArray();
+                }
             }
             return result;
         }

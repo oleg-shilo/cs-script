@@ -400,3 +400,26 @@ static class Shell
         return proc;
     }
 }
+
+public static class PerformanceExtensions
+{
+    private static readonly Dictionary<string, (DateTime start, string operation)> _timers = new();
+
+    public static void StartTimer(this string operation)
+    {
+        _timers[operation] = (DateTime.UtcNow, operation);
+    }
+
+    public static void EndTimer(this string operation, int thresholdMs = 100)
+    {
+        if (_timers.TryGetValue(operation, out var timer))
+        {
+            var elapsed = (DateTime.UtcNow - timer.start).TotalMilliseconds;
+            if (elapsed > thresholdMs)
+            {
+                Console.WriteLine($"Performance: {operation} took {elapsed:F2}ms");
+            }
+            _timers.Remove(operation);
+        }
+    }
+}

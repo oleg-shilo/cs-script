@@ -44,10 +44,10 @@
                             <tr>
                                 <td>
                                     @{
-                                        var currentScriptFiles = Editor?.CurrentScriptFiles ?? [];
-                                        for (int i = 0; i < currentScriptFiles.Count; i++)
+                                        UpdateVisibleLists();
+                                        for (int i = 0; i < _visibleCurrentScripts.Count; i++)
                                         {
-                                            var file = currentScriptFiles[i];
+                                            var file = _visibleCurrentScripts[i];
                                             var _class = "tree-view-item";
                                             var isPrimaryScript = i == 0;
                                             var isSelected = (file == Editor?.LoadedDocument);
@@ -90,7 +90,7 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    @foreach (var file in Editor?.RecentScripts??[])
+                                    @foreach (var file in _visibleRecentScripts)
                                     {
                                         <li>
                                              <button type="button"
@@ -316,6 +316,19 @@
 
     void StateHasChangedSafe() => InvokeAsync(StateHasChanged); // Ensure StateHasChanged is called on the UI thread
 
+    void StateHasChangedSafeDebounced() 
+    {
+        _debounceTimer?.Stop();
+        _debounceTimer = new System.Timers.Timer(DEBOUNCE_DELAY);
+        _debounceTimer.Elapsed += (s, e) => {
+            InvokeAsync(StateHasChanged);
+            _debounceTimer?.Dispose();
+            _debounceTimer = null;
+        };
+        _debounceTimer.AutoReset = false;
+        _debounceTimer.Start();
+    }
+
     bool collapseNavMenu = true;
 
     string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -335,7 +348,7 @@
             this.Document = userSession.Document;
             this.Editor = userSession.Editor;
             this.UIEvents = userSession.UIEvents;
-            UIEvents.OnChange += StateHasChangedSafe;
+            UIEvents.OnChange += StateHasChangedSafeDebounced;
         }
     }
 
@@ -360,6 +373,19 @@
 
     List<(string script, int pid)> runningScripts = new();
     System.Timers.Timer runningScriptsTimer;
+
+    private System.Timers.Timer _debounceTimer;
+    private const int DEBOUNCE_DELAY = 100; // 100ms debounce
+
+    private List<string> _visibleCurrentScripts = new();
+    private List<string> _visibleRecentScripts = new();
+    private const int MAX_VISIBLE_ITEMS = 20;
+
+    private void UpdateVisibleLists()
+    {
+        _visibleCurrentScripts = (Editor?.CurrentScriptFiles ?? []).Take(MAX_VISIBLE_ITEMS).ToList();
+        _visibleRecentScripts = (Editor?.RecentScripts ?? []).Take(MAX_VISIBLE_ITEMS).ToList();
+    }
 
     void InstallSyntaxer(bool update = false)
     {
@@ -411,7 +437,7 @@
     {   
         try
         {
-            UIEvents.OnChange -= StateHasChangedSafe;
+            UIEvents.OnChange -= StateHasChangedSafeDebounced;
         }
         catch (Exception e) { e.Log(); }
     }

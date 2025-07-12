@@ -24,6 +24,21 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
     int maxRecentItemsCount = 10;
     int currentOutputIndex = -1;
 
+    private bool _isUpdating = false;
+
+    void StateHasChangedSafeOptimized()
+    {
+        if (_isUpdating) return;
+
+        _isUpdating = true;
+        InvokeAsync(async () =>
+        {
+            await Task.Delay(10); // Small delay to batch updates
+            StateHasChanged();
+            _isUpdating = false;
+        });
+    }
+
     public void Dispose()
     {
         try
@@ -238,6 +253,46 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
         }
         catch (Exception e) { e.Log(); }
+    }
+
+    public async Task LoadDocFileOptimized(string file)
+    {
+        try
+        {
+            if (file.HasText() && Editor.LoadedDocument != file)
+            {
+                // Batch operations to reduce JS interop calls
+                var operations = new List<Func<Task>>();
+
+                // Save current document state
+                var content = await GetDocumentContent();
+                Editor.State.UpdateFor(Editor.LoadedDocument, content, Document.Breakpoints);
+
+                // Prepare new document
+                Editor.LoadedDocument = file;
+
+                // Batch content and breakpoint updates
+                operations.Add(async () =>
+                {
+                    (Document.EditorContent, Document.IsModified) = await Editor.State.GetContentFromFileOrCacheOptimized(file);
+                    Document.Breakpoints = Editor.State.GetDocumentBreakpoints(file);
+                });
+
+                // Execute batched operations
+                await Task.WhenAll(operations.Select(op => op()));
+
+                // Single UI update instead of multiple
+                await SetDocumentContentAndBreakpoints(Document.EditorContent, Document.Breakpoints);
+
+                UIEvents.NotifyStateChanged();
+            }
+        }
+        catch (Exception e) { e.Log(); }
+    }
+
+    private async Task SetDocumentContentAndBreakpoints(string content, IEnumerable<int> breakpoints)
+    {
+        await js("batchDocumentUpdate", content, breakpoints.ToArray());
     }
 
     public async Task LoadRecentScriptFile(string file)

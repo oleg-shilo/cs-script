@@ -527,7 +527,6 @@ a, .btn-link {
         outline: 2px solid #6c757d;
     }
 
-
 .debug-commands .btn-pause:hover {
     color: #fff !important;
 }
@@ -947,7 +946,6 @@ button:focus, button:focus-visible, button:active:focus {
     border: 1px solid #dee2e6;
 }
 
-
 /* Dark theme variations */
 .panel-theme-dracula .cm-tooltip-content,
 .panel-theme-material-darker .cm-tooltip-content,
@@ -1043,7 +1041,6 @@ button:focus, button:focus-visible, button:active:focus {
     background-color: lightgray;
 }
 
-
 .fullscreen-editor-container {
     position: fixed;
     top: 0;
@@ -1071,7 +1068,6 @@ button:focus, button:focus-visible, button:active:focus {
         font-size: 14px;
     }
 
-
 .command-list-button {
     background: none;
     border: none;
@@ -1087,24 +1083,29 @@ button:focus, button:focus-visible, button:active:focus {
     padding-right: 10px;
 }
 
-
-
 .tree-view-item {
     background: none;
     border: none;
     padding: 0;
     margin: 0;
     cursor: pointer;
-    padding-left: 5px;
     color: inherit;
     font: inherit;
+    width: 100%;
+    text-align: left;
+    display: block;
 }
+
+    .tree-view-item.selected-item {
+        background-color: #2a5298 !important;
+        color: white !important;
+        padding: 0px 8px;
+        margin: 0px -8px;
+        width: calc(100% + 16px);
+        border-radius: 2px;
+    }
 
 .child-item {
-}
-
-.selected-item {
-    font-weight: bold !important;
 }
 
 .form-check {

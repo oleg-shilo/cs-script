@@ -738,6 +738,33 @@
         cm.getWrapperElement().addEventListener('mousemove', cm._tokenTooltipHandler);
         cm.getWrapperElement().addEventListener('mouseleave', cm._tokenTooltipLeaveHandler);
     },
+
+    batchDocumentUpdate: function (content, breakpoints) {
+        if (!this.editor) return;
+
+        // Disable events during batch update
+        this.editor.off("change");
+
+        try {
+            // Update content
+            this.setValue(content);
+
+            // Update breakpoints
+            this.setBreakpoints(breakpoints);
+
+            // Refresh editor once
+            this.editor.refresh();
+        } finally {
+            // Re-enable events
+            this.editor.on("change", function () {
+                if (window.codemirrorInterop && window.codemirrorInterop.dotnetRef) {
+                    window.codemirrorInterop.dotnetRef.invokeMethodAsync("OnEditorChanged");
+                }
+                window.codemirrorInterop.syncBreakpoints();
+                window.codemirrorInterop.renderIndentGuides();
+            });
+        }
+    },
 };
 
 // =============================
