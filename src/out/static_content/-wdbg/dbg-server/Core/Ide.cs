@@ -216,7 +216,7 @@ public class Ide
             // not implemented yet, but will be used to store document contents.
         }
 
-        return State.GetDocumentBreakpoints(script); // return fresh updated breakpoints
+        return State.GetDocumentBreakpoints(this.LoadedDocument); // return fresh updated breakpoints
     }
 
     public async Task ReadSavedStateOf(string script)
