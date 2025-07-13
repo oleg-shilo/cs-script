@@ -84,7 +84,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 if (DebugSession.StackFrameFileName != Editor.LoadedDocument)
                 {
                     await setCurrentStepLine(-1);
-                    await LoadDocFileOptimized(DebugSession.StackFrameFileName);
+                    await LoadDocFile(DebugSession.StackFrameFileName);
                 }
 
                 _ = setCurrentStepLine(DebugSession.CurrentStepLineNumber);
@@ -160,13 +160,11 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public async Task LoadDocFromServer()
     {
-        1.ProfileLog();
         try
         {
             if (Editor.LoadedDocument.HasText() && File.Exists(Editor.LoadedDocument))
             {
                 bool isModified;
-                2.ProfileLog();
                 (Document.EditorContent, isModified) = await Editor.State.GetContentFromFileOrCache(Editor.LoadedDocument);
 
                 if (!Editor.State.HasInfoFor(Editor.LoadedDocument)) // the debug file is missing or corrupted
@@ -174,26 +172,19 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                     _ = StartGeneratingDebugMetadata(true);
                 }
 
-                3.ProfileLog();
                 (Document.EditorContent, _) = Document.EditorContent.NormalizeLineBreaks();
-                4.ProfileLog();
                 Document.Breakpoints = Editor.State.GetDocumentBreakpoints(Editor.LoadedDocument);
-                5.ProfileLog();
 
                 await SetDocumentContent(Document.EditorContent);
-                6.ProfileLog();
                 Document.IsModified = isModified;
 
                 Editor.LastSessionFileName = Editor.LoadedScript;
                 Editor.LocateLoadedScriptDebugInfo();
-                7.ProfileLog();
                 Editor.RunStatus = "ready";
                 Editor.Ready = true;
                 Editor.AddToRecentFiles(Editor.LoadedScript);
 
-                8.ProfileLog();
                 await RenderBreakpoints();
-                9.ProfileLog();
 
                 UIEvents.NotifyStateChanged();
             }
@@ -206,12 +197,10 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
         }
         catch (Exception e) { e.Log(); }
-        10.ProfileLog();
     }
 
     public async Task LoadScriptFromServer()
     {
-        1.ProfileLog();
         try
         {
             if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
@@ -235,17 +224,14 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public async Task LoadDocFile(string file)
     {
-        await LoadDocFileOptimized(file); return;
-        // called from the project file tree
+        var currentDoc = Editor.LoadedDocument;
         try
         {
             if (file.HasText())
             {
                 if (Editor.LoadedDocument != file)
                 {
-                    1.ProfileLog();
                     var content = await GetDocumentContent();
-                    2.ProfileLog();
                     Editor.State.UpdateFor(Editor.LoadedDocument, content, Document.Breakpoints);
                 }
                 Editor.LoadedDocument = file;
@@ -254,46 +240,14 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
         }
         catch (Exception e) { e.Log(); }
+        if (currentDoc != file)
+            Editor.PreviousLoadedDocument = currentDoc; // save the previous document for the optimized version
     }
 
-    public async Task LoadDocFileOptimized(string file)
+    public async Task SwapLastTabs()
     {
-        try
-        {
-            if (file.HasText() && Editor.LoadedDocument != file)
-            {
-                // Batch operations to reduce JS interop calls
-                var operations = new List<Func<Task>>();
-
-                // Save current document state
-                var content = await GetDocumentContent();
-                Editor.State.UpdateFor(Editor.LoadedDocument, content, Document.Breakpoints);
-
-                // Prepare new document
-                Editor.LoadedDocument = file;
-
-                // Batch content and breakpoint updates
-                operations.Add(async () =>
-                {
-                    (Document.EditorContent, Document.IsModified) = await Editor.State.GetContentFromFileOrCacheOptimized(file);
-                    Document.Breakpoints = Editor.State.GetDocumentBreakpoints(file);
-                });
-
-                // Execute batched operations
-                await Task.WhenAll(operations.Select(op => op()));
-
-                // Single UI update instead of multiple
-                await SetDocumentContentAndBreakpoints(Document.EditorContent, Document.Breakpoints);
-
-                UIEvents.NotifyStateChanged();
-            }
-        }
-        catch (Exception e) { e.Log(); }
-    }
-
-    private async Task SetDocumentContentAndBreakpoints(string content, IEnumerable<int> breakpoints)
-    {
-        await js("codemirrorInterop.batchDocumentUpdate", content, breakpoints.ToArray());
+        if (Editor.PreviousLoadedDocument.HasText() && Editor.PreviousLoadedDocument != Editor.LoadedDocument)
+            await LoadDocFile(Editor.PreviousLoadedDocument);
     }
 
     public async Task LoadRecentScriptFile(string file)
@@ -354,6 +308,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 Document.Breakpoints = await Editor.SaveStateOf(Editor.LoadedScript);
                 await File.WriteAllTextAsync(Editor.LoadedDocument, content);
 
+                // "Document.IsModified = false".ProfileLog();
                 Document.IsModified = false;
 
                 UIEvents.NotifyStateChanged();
@@ -368,6 +323,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             {
                 // Optionally, show an error or prompt for a file path
             }
+
+            Debug.WriteLine(Document.Breakpoints.FirstOrDefault());
             await RenderBreakpoints();
         }
         catch (Exception e) { e.Log(); }

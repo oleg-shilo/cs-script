@@ -57,7 +57,7 @@
                                                 _class += " child-item";
 
                                                 // title="@((isPrimaryScript ? " Primary script: ":"Imported script: ")+ file)"
-                                            <li>
+                                            <div>
                                                 <button type="button"
                                                         @onclick="async () => await Editor?.LoadDocFile(file)"
                                                          class="@_class"
@@ -72,7 +72,7 @@
                                                    }
                                                    @(Path.GetFileName(file))
                                                 </button>
-                                            </li>
+                                            </div>
                                         }
                                      }
                                 </td>

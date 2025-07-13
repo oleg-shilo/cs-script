@@ -654,7 +654,10 @@
         function hideTooltip() {
             if (tooltipDiv) {
                 if (!mouseOverTooltip) {
-                    document.body.removeChild(tooltipDiv);
+                    try {
+                        document.body.removeChild(tooltipDiv);
+                    } catch (e) {
+                    }
                     tooltipDiv = null;
                 }
             }
@@ -739,30 +742,15 @@
         cm.getWrapperElement().addEventListener('mouseleave', cm._tokenTooltipLeaveHandler);
     },
 
-    batchDocumentUpdate: function (content, breakpoints) {
-        if (!this.editor) return;
-
-        // Disable events during batch update
-        this.editor.off("change");
-
+    openFullscreenEditor: function (path, navigateToLine = -1) {
         try {
-            // Update content
-            this.setValue(content);
-
-            // Update breakpoints
-            this.setBreakpoints(breakpoints);
-
-            // Refresh editor once
-            this.editor.refresh();
-        } finally {
-            // Re-enable events
-            this.editor.on("change", function () {
-                if (window.codemirrorInterop && window.codemirrorInterop.dotnetRef) {
-                    window.codemirrorInterop.dotnetRef.invokeMethodAsync("OnEditorChanged");
-                }
-                window.codemirrorInterop.syncBreakpoints();
-                window.codemirrorInterop.renderIndentGuides();
-            });
+            const encodedPath = encodeURIComponent(path);
+            const url = `/fullscreen-editor?file=${encodedPath}&line=${navigateToLine}`;
+            window.open(url, '_blank');
+            return true;
+        } catch (error) {
+            console.error('Error opening fullscreen editor:', error);
+            return false;
         }
     },
 };
@@ -980,8 +968,17 @@ window.codemirrorInterop.currentFontSize = 14; // default font size
 
 window.registerWindowKeyHandlers = function (dotNetRef) {
     document.addEventListener('keydown', function (e) {
-        // Ctrl+S
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        console.log('Key pressed:', e.key, 'Ctrl:', e.ctrlKey, 'KeyCode:', e.keyCode);
+
+        // Ctrl+Tab - Check this first and prevent default immediately
+        if ((!(e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && (e.key === 'Tab' || e.keyCode === 9)) ||
+            ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'Tab' || e.keyCode === 9))) {
+            console.log('Ctrl+Tab detected!');
+            e.preventDefault();
+            e.stopPropagation();
+            dotNetRef.invokeMethodAsync('OnCtrlTab');
+        }
+        else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnCtrlS');
         }
@@ -1025,7 +1022,8 @@ window.registerWindowKeyHandlers = function (dotNetRef) {
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnF11');
         }
-        else if (e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (e.key === "F12" || e.keyCode === 123)) {
+        else if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (e.key === "F12" || e.keyCode === 123)) {
+            // IMPORTANT: F12 (er are using no Ctrl key) is often used for developer tools, so we check for it last
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnCtrlF12');
         }

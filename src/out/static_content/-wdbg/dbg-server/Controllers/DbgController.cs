@@ -20,23 +20,17 @@ public class DbgController : ControllerBase
         lock (session)
         {
             // note, dbg host lines are 1-based
+            // we are sending the line indexes of the decorated file
 
             Debug.WriteLine($"GetBreakpoints");
             var buffer = new StringBuilder();
             foreach (var kvp in breakpoints)
             {
-                var extraDecoratedLines = 0;
                 var file = kvp.Key;
                 var lines = kvp.Value;
                 var isPrimary = (file == breakpoints.Keys.First());
 
-                if (isPrimary)
-                {
-                    extraDecoratedLines++; // for dbg-runtime.cs
-                    extraDecoratedLines += breakpoints.Skip(1).Count(); // for any imported script file
-                }
-
-                lines = lines.Select(x => x + 1 + extraDecoratedLines).ToArray();
+                lines = lines.Select(x => x + 1).ToArray();
 
                 foreach (var line in lines)
                 {

@@ -34,7 +34,7 @@ public static class Decorator
         {
             Console.WriteLine("file:" + item.script);
             Console.WriteLine("file-dbg:" + item.decoratedScript);
-            Console.WriteLine("bp:" + string.Join(",", item.breakpoints.Select(x => x.ToString())));
+            Console.WriteLine("bp:" + string.Join(",", item.breakpoints.Select(x => (x + 1).ToString())));
         }
 
         return 0;
@@ -161,7 +161,10 @@ public static class Decorator
             var breakPointsFile = decoratedPrimaryScript + ".bp";
 
             var lines = result.Select((info) =>
-                $"{info.script}|{info.decoratedScript}|{(info.breakpoints.Select(x => $"-{x}").JoinBy(","))}").ToArray();
+            {
+                return $"{info.script}|{info.decoratedScript}|{(info.breakpoints.Select(x => $"-{x + 1}").JoinBy(","))}";
+            })
+            .ToArray();
             File.WriteAllLines(breakPointsFile, lines);
 
             return result.ToArray();
@@ -286,14 +289,21 @@ public static class Decorator
                 lines[j] = lines[j].Replace("//css_inc", "//css_diasbled_inc");
         }
 
+        int offset = 0;
         if (globalImport.HasText())
-            lines.Insert(0, globalImport);
+        {
+            lines.Insert(0, globalImport); // even if globalImport is a multiline text it will take only one item in the `lines` list
+            offset++;
+        }
 
         File.WriteAllLines(decoratedScript, lines);
 
+        // lines contains as many elements as the original undecorated script file + one extra line if global imports were inserted
+
         breakpoints = lines.Select((x, i) => new { index = i, line = x })
                            .Where(x => x.line.Contains("DBG.Line().Inspect("))
-                           .Select(x => x.index)
+                           .Select(x => x.index - offset) // adjust for the global import line
+                                                          // .Select(x => x.index)
                            .ToArray();
 
         return (script, decoratedScript, breakpoints);

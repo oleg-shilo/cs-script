@@ -17,7 +17,9 @@ public class Document
     public int CaretPos = 0;
 
     public string EditorContent;
-    public bool IsModified = false;
+    private bool isModified = false;
+
+    public bool IsModified { get => isModified; set => isModified = value; }
 }
 
 public class UINotificationService

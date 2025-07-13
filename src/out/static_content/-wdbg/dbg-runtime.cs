@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
@@ -33,6 +34,22 @@ public static class DBG
 
     public static string SessionId => Environment.GetEnvironmentVariable("CSS_DBG_SESSION");
 
+    static int GetDecorationOffset(string sourceFilePath)
+    {
+        int offset = 0;
+        var decoretedScriptsDir = Path.GetDirectoryName(sourceFilePath);
+        var isPrimaryScript = Path.GetFileName(sourceFilePath) == Path.GetFileName(decoretedScriptsDir);
+
+        if (isPrimaryScript)
+        {
+            var importedScriptsCount = Directory.GetFiles(decoretedScriptsDir, "*.cs").Count() - 1;
+            offset += importedScriptsCount;
+            offset += 1;  // for the import of dbg-runtime.cs
+        }
+
+        return offset;
+    }
+
     public static string[] Breakpoints
     {
         get
@@ -47,8 +64,10 @@ public static class DBG
                     {
                         // in the decorated script there is an extra line at top so increment the line number
                         var parts = x.Trim().Split(":");
-                        var bp = $"{string.Join(":", parts[0..^1])}:{int.Parse(parts.Last()) + 1}";
-                        return bp;
+                        var file = string.Join(":", parts[0..^1]);
+                        var line = int.Parse(parts.Last());
+                        line += GetDecorationOffset(file);
+                        return $"{file}:{line}";
                     })
                     .ToArray();
             }
@@ -144,13 +163,16 @@ public static class DBG
     }
 
     public static BreakPoint Line([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
-        => new BreakPoint
+    {
+        // Console.WriteLine($"DBG.Line() called from {sourceFilePath}:{sourceLineNumber} in {memberName}");
+        return new BreakPoint
         {
             methodDeclaringType = new StackFrame(1).GetMethod().ReflectedType.ToString(),
             methodName = memberName,
             sourceFilePath = sourceFilePath,
             sourceLineNumber = sourceLineNumber
         };
+    }
 }
 
 public class BreakPoint
@@ -391,7 +413,10 @@ public class BreakPoint
         }
 
         var bp = DBG.Breakpoints;
-
+        // Console.WriteLine($"----");
+        // Console.WriteLine($"  DBG.Breakpoints: {string.Join("\n                   ", bp.Select(x => Path.GetFileName(x)))}");
+        // Console.WriteLine($"  id: {id}");
+        // Console.WriteLine($"----");
         if (DBG.Breakpoints.Contains(id))
         {
             DBG.StopOnNextInspectionPointInMethod = null;

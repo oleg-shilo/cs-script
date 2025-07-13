@@ -184,7 +184,7 @@ static class Extensions
     {
         var dif = (int)(DateTime.Now - (lastProfilerLogTime ?? DateTime.Now)).TotalMilliseconds;
         lastProfilerLogTime = DateTime.Now;
-        // Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}]({dif:D5}) {caller}: {obj}");
+        Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}]({dif:D5}) {caller}: {obj}");
     }
 
     public static IDisposable Profile(this object obj, [CallerMemberName] string caller = null)
@@ -410,21 +410,21 @@ public static class PerformanceExtensions
 {
     private static readonly Dictionary<string, (DateTime start, string operation)> _timers = new();
 
-    public static void StartTimer(this string operation)
+    public static void StartTimer(this object operation)
     {
-        _timers[operation] = (DateTime.UtcNow, operation);
+        _timers[operation.ToString()] = (DateTime.UtcNow, operation.ToString());
     }
 
-    public static void EndTimer(this string operation, int thresholdMs = 100)
+    public static void EndTimer(this object operation, int thresholdMs = 10)
     {
-        if (_timers.TryGetValue(operation, out var timer))
+        if (_timers.TryGetValue(operation.ToString(), out var timer))
         {
             var elapsed = (DateTime.UtcNow - timer.start).TotalMilliseconds;
             if (elapsed > thresholdMs)
             {
-                Console.WriteLine($"Performance: {operation} took {elapsed:F2}ms");
+                Debug.WriteLine($"Performance: {operation} took {elapsed:F2}ms");
             }
-            _timers.Remove(operation);
+            _timers.Remove(operation.ToString());
         }
     }
 }

@@ -8,21 +8,6 @@ using wdbg.Pages;
 
 public class ActiveState
 {
-    // Add LRU cache for document contents
-    private readonly Dictionary<string, CachedDocument> _documentCache = new();
-
-    private readonly Queue<string> _accessOrder = new();
-    private const int MAX_CACHE_SIZE = 50;
-
-    public class CachedDocument
-    {
-        public DateTime Timestamp { get; set; }
-        public string Content { get; set; }
-        public int[] Breakpoints { get; set; }
-        public bool IsLoaded { get; set; }
-        public DateTime LastAccessed { get; set; }
-    }
-
     public Dictionary<string, (DateTime timestamp, string content)> AllDocumentsContents = new();
 
     // document path -> array of line numbers with breakpoints (even invalid breakpoints that will be validated on doc save)
@@ -96,49 +81,10 @@ public class ActiveState
         }
 
         var fileTimestamp = File.GetLastWriteTimeUtc(path);
+        //var isModified = (AllDocumentsContents[path].timestamp - File.GetLastWriteTimeUtc(path)).TotalSeconds > 1;
         var isModified = AllDocumentsContents[path].timestamp > File.GetLastWriteTimeUtc(path);
 
         return (AllDocumentsContents[path].content, isModified);
-    }
-
-    public async Task<(string content, bool isModified)> GetContentFromFileOrCacheOptimized(string path)
-    {
-        // Update access order for LRU
-        if (_documentCache.ContainsKey(path))
-        {
-            _documentCache[path].LastAccessed = DateTime.UtcNow;
-            _accessOrder.Enqueue(path);
-        }
-
-        // Check if cache is valid
-        if (_documentCache.TryGetValue(path, out var cached) &&
-            cached.Content.HasText() &&
-            File.GetLastWriteTimeUtc(path) <= cached.Timestamp)
-        {
-            return (cached.Content, cached.Timestamp > File.GetLastWriteTimeUtc(path));
-        }
-
-        // Load from file
-        var content = await File.ReadAllTextAsync(path);
-        var fileTime = File.GetLastWriteTimeUtc(path);
-
-        // Update cache
-        _documentCache[path] = new CachedDocument
-        {
-            Content = content,
-            Timestamp = fileTime,
-            LastAccessed = DateTime.UtcNow,
-            IsLoaded = true
-        };
-
-        // Maintain cache size
-        while (_documentCache.Count > MAX_CACHE_SIZE)
-        {
-            var oldestKey = _documentCache.OrderBy(x => x.Value.LastAccessed).First().Key;
-            _documentCache.Remove(oldestKey);
-        }
-
-        return (content, false);
     }
 }
 
@@ -164,6 +110,7 @@ public class Ide
 
     public string LoadedScript = "Untitled";
     public string LoadedDocument = "Untitled";
+    public string PreviousLoadedDocument = "";
     public string DebugGenerationError;
     public string LoadedScriptDbg;
     public bool IsLoadedScriptDbg;
@@ -221,15 +168,11 @@ public class Ide
 
     public async Task ReadSavedStateOf(string script)
     {
-        "in".ProfileLog();
         if (!script.HasText())
             return;
 
-        1.ProfileLog();
         var dbgFile = script.LocateLoadedScriptDebugCode() + ".bp";
-        2.ProfileLog();
         var dbgInfo = ReadBreakpoints(dbgFile);
-        3.ProfileLog();
 
         State.AllDocumentsBreakpoints = dbgInfo.ToDictionary(x => x.Key,
                                                              x => x.Value.Where(x => x.enabled).Select(y => y.line).ToArray());
@@ -237,7 +180,6 @@ public class Ide
         // it's not clear what is the best way to save cross-session data for the documents.
         // so save "very old" empty contents for now.
         State.AllDocumentsContents = dbgInfo.ToDictionary(x => x.Key, x => (DateTime.MinValue, ""));
-        "out".ProfileLog();
     }
 
     public async Task FetchLatestDebugInfo(string script)
@@ -289,7 +231,7 @@ public class Ide
 
     public Dictionary<string, (bool enabled, int line)[]> ReadBreakpoints(string breakpointsFile)
     {
-        // IMPORTANT: script.csbp contain lines that are 1-based; IDE uses 0-based line numbers
+        // IMPORTANT: script.cs.bp contain lines that are 1-based; IDE uses 0-based line numbers
         Dictionary<string, (bool enabled, int line)[]> result = new();
         dbgScriptMaping.Clear();
 
@@ -365,19 +307,10 @@ public class Ide
 
     public async Task LoadRecentScriptFile(string file) => await MainPage?.LoadRecentScriptFile(file);
 
-    public async Task LoadDocFile(string file) => await MainPage?.LoadDocFile(file);
-
-    public async void ShowExternalFile(string path, int navigateToline = -1)
+    public async Task LoadDocFile(string file)
     {
-        try
-        {
-            Interop.InvokeVoidAsync("open", $"/fullscreen-editor?file={Uri.EscapeDataString(path)}&line={navigateToline}", "_blank");
-        }
-        catch (Exception ex)
-        {
-            ConsoleLog($"Error opening external file: {ex.Message}");
-            ShowToastError($"Error opening file: {ex.Message}");
-        }
+        if (MainPage != null)
+            await MainPage.LoadDocFile(file);
     }
 
     public void ResetDbgGenerator()
