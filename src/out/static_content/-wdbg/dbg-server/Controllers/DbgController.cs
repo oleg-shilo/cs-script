@@ -22,7 +22,7 @@ public class DbgController : ControllerBase
             // note, dbg host lines are 1-based
             // we are sending the line indexes of the decorated file
 
-            Debug.WriteLine($"GetBreakpoints");
+            // Debug.WriteLine($"GetBreakpoints");
             var buffer = new StringBuilder();
             foreach (var kvp in breakpoints)
             {
@@ -36,7 +36,7 @@ public class DbgController : ControllerBase
                 {
                     buffer.Append($"{file}:{line}\n");
                 }
-                Debug.WriteLine($"  {file?.GetFileName()}: {lines.Select(x => x.ToString()).JoinBy(",")}");
+                // Debug.WriteLine($"  {file?.GetFileName()}: {lines.Select(x => x.ToString()).JoinBy(",")}");
             }
 
             var result = buffer.ToString();

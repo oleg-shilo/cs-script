@@ -1118,3 +1118,52 @@ button:focus, button:focus-visible, button:active:focus {
     font-size: 0.85rem;
     margin-bottom: 0rem;
 }
+
+/*==============*/
+/* Step Over button styling */
+.step-over-icon-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin: 0 auto;
+}
+
+.step-arrow {
+    font-size: 1em;
+    margin-bottom: 8px;
+    line-height: 1;
+    transform: scale(0.8);
+    transform-origin: center;
+}
+
+.step-over-arrow {
+    transform: scale(1.0) rotate(-45deg);
+    margin-bottom: 0px;
+}
+
+.step-over-line {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background-color: currentColor;
+    border-radius: 50%;
+    /*    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    right: 2px;
+    height: 2px;
+    background-color: currentColor;
+    border-radius: 1px;*/
+}
+
+/* Ensure proper alignment with other debug buttons */
+.debug-commands .step-over-icon-container {
+    color: inherit;
+}

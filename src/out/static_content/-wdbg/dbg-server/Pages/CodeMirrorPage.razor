@@ -15,7 +15,7 @@
     <div class="top-row px-4 d-flex justify-content-between align-items-center" id="top-row-panel">
         <div class="d-flex align-items-center gap-2">
             <button title="Load the specified script to the editor/debugger" class="btn btn-outline-secondary btn-sm" style="margin-left:-15px;" @onclick="LoadScriptFromServer">
-                Load Script
+                Reload Script
             </button>
             <input type="text"
                    @bind="Editor.LoadedScript"
@@ -85,13 +85,22 @@
                     <span class="oi oi-caret-right"></span>
                 </button>
                 <button class="btn btn-run btn-sm" title="Step Over (F10)" @onclick="OnStepOverClicked" disabled="@(!stepCommandsAvailable)">
-                    <span class="oi oi-data-transfer-download rotate-90" title="Step Over"></span>
+                    @* <span class="oi oi-data-transfer-download rotate-90" title="Step Over"></span> *@
+                     @* <span class="oi oi-caret-right step-over-arrow"></span> *@
+                     @* <span class="oi oi-arrow-thick-right step-over-arrow"></span> *@
+                     <span class="oi oi-action-redo step-arrow step-over-arrow "></span>
+                     <div class="step-over-line"></div>
                 </button>
                 <button class="btn btn-run btn-sm" title="StepInto (F11)" @onclick="OnStepIntoClicked" disabled="@(!stepCommandsAvailable)">
-                    <span class="oi oi-data-transfer-download" title="Step Into"></span>
+                    @* <span class="oi oi-data-transfer-download" title="Step Into"></span> *@
+                     <span class="oi oi-arrow-thick-bottom step-arrow"></span>
+                     <div class="step-over-line"></div>
                 </button>
+
                 <button class="btn btn-run btn-sm" title="Step Out (Shift+F11)" @onclick="OnStepOutClicked" disabled="@(!stepCommandsAvailable)">
-                    <span class="oi oi-data-transfer-download rotate180" title="Step Out"></span>
+                    @* <span class="oi oi-data-transfer-download rotate180" title="Step Out"></span> *@
+                     <span class="oi oi-arrow-thick-top step-arrow"></span>
+                     <div class="step-over-line"></div>
                 </button>
                 <button class="btn btn-pause btn-sm" title="Pause" @onclick="OnPauseClicked" disabled="@(!pauseAvailable)">
                     <span class="oi oi-media-pause"></span>
@@ -533,6 +542,7 @@
     [JSInvokable] public async Task OnShiftF9() => await js("codemirrorInterop.clearAllBreakpoints");
     [JSInvokable] public async Task OnF10() => OnStepOverClicked(null);
     [JSInvokable] public async Task OnF11() => OnStepIntoClicked(null);
+    [JSInvokable] public async Task OnShiftF11() => OnStepOutClicked(null);
     [JSInvokable] public async Task OnCtrlF12() => GoToDefinition();
 
     [JSInvokable]

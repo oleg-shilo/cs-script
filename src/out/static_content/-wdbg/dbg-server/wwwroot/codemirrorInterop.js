@@ -1022,6 +1022,10 @@ window.registerWindowKeyHandlers = function (dotNetRef) {
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnF11');
         }
+        else if (!e.ctrlKey && !e.metaKey && !e.altKey && e.shiftKey && (e.key === "F11" || e.keyCode === 122)) {
+            e.preventDefault();
+            dotNetRef.invokeMethodAsync('OnShiftF11');
+        }
         else if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (e.key === "F12" || e.keyCode === 123)) {
             // IMPORTANT: F12 (er are using no Ctrl key) is often used for developer tools, so we check for it last
             e.preventDefault();

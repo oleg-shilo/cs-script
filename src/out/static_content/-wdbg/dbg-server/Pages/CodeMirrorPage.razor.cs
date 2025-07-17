@@ -634,6 +634,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                         onExit: () => InvokeAsync(() =>
                         {
                             Editor.RunStatus = "execution completed";
+                            AddOutputLine($"> Script (pid: {DebugSession.RunningScript.Id}) has exited " +
+                                $"with code {DebugSession.RunningScript.ExitCode} (0x{DebugSession.RunningScript.ExitCode:X}).");
                             DebugSession.Reset();
                         }),
                         onOutput: (proc, data) => InvokeAsync(() =>
@@ -699,20 +701,20 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public void OnStepOverClicked(MouseEventArgs args)
     {
-
-        OnStepOutClicked(DebugSession.RequestStepOver);
+        OnStepClicked(DebugSession.RequestStepOver);
     }
 
     public void OnStepIntoClicked(MouseEventArgs args)
     {
-        OnStepOutClicked(DebugSession.RequestStepIn);
-    }
-    public void OnStepOutClicked(MouseEventArgs args)
-    {
-        OnStepOutClicked(DebugSession.RequestStepOut);
+        OnStepClicked(DebugSession.RequestStepIn);
     }
 
-    public void OnStepOutClicked(Action command)
+    public void OnStepOutClicked(MouseEventArgs args)
+    {
+        OnStepClicked(DebugSession.RequestStepOut);
+    }
+
+    public void OnStepClicked(Action command)
     {
         try
         {
