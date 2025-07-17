@@ -90,6 +90,9 @@
                 <button class="btn btn-run btn-sm" title="StepInto (F11)" @onclick="OnStepIntoClicked" disabled="@(!stepCommandsAvailable)">
                     <span class="oi oi-data-transfer-download" title="Step Into"></span>
                 </button>
+                <button class="btn btn-run btn-sm" title="Step Out (Shift+F11)" @onclick="OnStepOutClicked" disabled="@(!stepCommandsAvailable)">
+                    <span class="oi oi-data-transfer-download rotate180" title="Step Out"></span>
+                </button>
                 <button class="btn btn-pause btn-sm" title="Pause" @onclick="OnPauseClicked" disabled="@(!pauseAvailable)">
                     <span class="oi oi-media-pause"></span>
                 </button>

@@ -114,6 +114,12 @@ public class DbgSession
             UserRequest.Enqueue("step_in");
         StackFrameLineNumber = null;
     }
+    public void RequestStepOut()
+    {
+        lock (UserRequest)
+            UserRequest.Enqueue("step_out");
+        StackFrameLineNumber = null;
+    }
 
     public void RequestPause()
     {

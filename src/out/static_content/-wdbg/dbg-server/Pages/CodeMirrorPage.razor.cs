@@ -699,28 +699,20 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
     public void OnStepOverClicked(MouseEventArgs args)
     {
-        try
-        {
-            if (!stepCommandsAvailable)
-            {
-                Editor.ShowToastInfo("The command is not available in the current state of the application.");
-                return;
-            }
 
-            if (DebugSession.IsScriptExecutionInProgress)
-            {
-                DebugSession.RequestStepOver();
-                UIEvents.NotifyDbgChanged(); // to clear current step
-            }
-            else
-            {
-                OnStartAndPauseClicked();
-            }
-        }
-        catch (Exception e) { e.Log(); }
+        OnStepOutClicked(DebugSession.RequestStepOver);
     }
 
     public void OnStepIntoClicked(MouseEventArgs args)
+    {
+        OnStepOutClicked(DebugSession.RequestStepIn);
+    }
+    public void OnStepOutClicked(MouseEventArgs args)
+    {
+        OnStepOutClicked(DebugSession.RequestStepOut);
+    }
+
+    public void OnStepOutClicked(Action command)
     {
         try
         {
@@ -732,7 +724,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
 
             if (DebugSession.IsScriptExecutionInProgress)
             {
-                DebugSession.RequestStepIn();
+                command();
                 UIEvents.NotifyDbgChanged(); // to clear current step
             }
             else

@@ -682,6 +682,11 @@ button:focus, button:focus-visible, button:active:focus {
     transform: rotate(-90deg);
 }
 
+.rotate180 {
+    display: inline-block;
+    transform: rotate(180deg);
+}
+
 .rotate45 {
     display: inline-block;
     transform: rotate(45deg);

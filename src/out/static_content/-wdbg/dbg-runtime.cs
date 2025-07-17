@@ -13,6 +13,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using csscript;
+using CSScripting;
+using wdbg;
 
 public static class DBG
 {
@@ -165,13 +168,19 @@ public static class DBG
     public static BreakPoint Line([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
         // Console.WriteLine($"DBG.Line() called from {sourceFilePath}:{sourceLineNumber} in {memberName}");
-        return new BreakPoint
+
+        var result = new BreakPoint
         {
             methodDeclaringType = new StackFrame(1).GetMethod().ReflectedType.ToString(),
             methodName = memberName,
+            runtimeCallChain = new StackTrace(true).GetFrames().GetCallChain(),
             sourceFilePath = sourceFilePath,
             sourceLineNumber = sourceLineNumber
         };
+
+        Console.WriteLine($"DBG.Line(): {(string.Join(">", result.CallingMethods.Reverse()))}");
+
+        return result;
     }
 }
 
@@ -179,6 +188,11 @@ public class BreakPoint
 {
     public string methodDeclaringType = "";
     public string methodName = "";
+    public string[] runtimeCallChain = [];
+
+    // "Program.Main (program.cs:10)"
+    public string[] CallingMethods => runtimeCallChain.Select(x => x.Split('[').First().Trim()).ToArray();
+
     public string sourceFilePath = "";
     public int sourceLineNumber = 0;
     static bool monitorStarted = false;
@@ -193,6 +207,8 @@ public class BreakPoint
         while (true)
         {
             var request = DBG.UserRequest;
+
+            // Console.WriteLine($"DBG.UserRequest: {request}");
 
             if (request.StartsWith("serializeObject:"))
                 SerializeObject(variables, watchExpressions, request.Replace("serializeObject:", ""));
@@ -218,11 +234,20 @@ public class BreakPoint
                 break;
             }
 
-            // continue to the next point of inspection but only in the same method
+            // continue to the next point of inspection
             if (IsStepOverRequested(request))
             {
                 // DBG.DebugOutputLine($"Step-Over requested in {methodName} at {sourceFilePath}:{sourceLineNumber}");
-                DBG.StopOnNextInspectionPointInMethod = methodName;
+                // DBG.StopOnNextInspectionPointInMethod = methodName;
+                DBG.StopOnNextInspectionPointInMethod = CallingMethods.JoinBy("|");
+                //DBG.StopOnNextInspectionPointInMethod = "*";
+                break;
+            }
+
+            if (IsStepOutRequested(request))
+            {
+                // DBG.DebugOutputLine($"Step-Out requested in {methodName} at {sourceFilePath}:{sourceLineNumber}");
+                DBG.StopOnNextInspectionPointInMethod = CallingMethods.Skip(1).JoinBy("|");
                 break;
             }
 
@@ -234,6 +259,7 @@ public class BreakPoint
 
             Thread.Sleep(700);
         }
+        // Console.WriteLine($"DBG.StopOnNextInspectionPointInMethod: {DBG.StopOnNextInspectionPointInMethod}");
     }
 
     private static void SerializeObject((string name, object value)[] variables, Dictionary<string, object> watchExpressions, string varName)
@@ -406,7 +432,7 @@ public class BreakPoint
             return true;
         }
 
-        if (methodName == DBG.StopOnNextInspectionPointInMethod)
+        if (DBG.StopOnNextInspectionPointInMethod?.Split('|').Contains($"{methodDeclaringType}.{methodName}") == true)
         {
             DBG.StopOnNextInspectionPointInMethod = null;
             return true;
@@ -424,6 +450,8 @@ public class BreakPoint
         }
         return false;
     }
+
+    bool IsStepOutRequested(string request) => request == "step_out";
 
     bool IsStepOverRequested(string request) => request == "step_over";
 
@@ -754,7 +782,7 @@ namespace wdbg
         }
     }
 
-    internal static class Extension
+    static class Extension
     {
         static public string ReplaceWholeWord(this string text, string pattern, string replacement)
         {
@@ -802,5 +830,40 @@ namespace wdbg
         }
 
         // for reflecting dynamic objects look at dbg.dynamic.cs
+
+        public static string[] GetCallChain(this StackFrame[] frames)
+        {
+            var result = new List<string>();
+
+            // Skip frame 0 (current Line method) and start from frame 1
+            for (int i = 1; i < frames.Length; i++)
+            {
+                var frame = frames[i];
+                var method = frame.GetMethod();
+
+                if (method.DeclaringType.Assembly != Assembly.GetExecutingAssembly())
+                    break;
+
+                if (method != null)
+                {
+                    var declaringType = method.DeclaringType?.Name ?? "UnknownType";
+
+                    var methodName = method.Name;
+                    var fileName = frame.GetFileName();
+                    var lineNumber = frame.GetFileLineNumber();
+
+                    // Format: TypeName.MethodName (file:line)
+                    var frameInfo = $"{declaringType}.{methodName}";
+                    if (!string.IsNullOrEmpty(fileName) && lineNumber > 0)
+                    {
+                        frameInfo += $"[{Path.GetFileName(fileName)}:{lineNumber}]";
+                    }
+
+                    result.Add(frameInfo);
+                }
+            }
+
+            return result.ToArray();
+        }
     }
 }
