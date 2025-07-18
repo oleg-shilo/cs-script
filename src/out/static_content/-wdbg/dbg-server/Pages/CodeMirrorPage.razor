@@ -456,6 +456,7 @@
     async Task SetCaretPosition(int line, int lineCh) { try { await js("codemirrorInterop.setCaretPosition", line, lineCh); } catch (Exception e) { e.Log(); } }
     async Task ScrollToAndHighlightLine(int line, int ch) { try { await js("codemirrorInterop.scrollToAndHighlightLine", line, ch); } catch (Exception e) { e.Log(); } }
     async Task OpenFullscreenEditor(string path, int navigateToLine) { try{ await js("codemirrorInterop.openFullscreenEditor", path, navigateToLine);} catch (Exception e) { e.Log(); } }
+    async Task ClearUndoBuffer() { try{ await js("codemirrorInterop.clearUndoBuffer");} catch (Exception e) { e.Log(); } }
 
 
     async Task OnThemeChanged(ChangeEventArgs e)

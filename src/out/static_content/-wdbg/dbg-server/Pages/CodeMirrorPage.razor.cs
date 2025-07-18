@@ -240,6 +240,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 }
                 Editor.LoadedDocument = file;
                 await LoadDocFromServer();
+                ClearUndoBuffer();
                 UIEvents.NotifyStateChanged();
 
                 if (lineNum != -1)

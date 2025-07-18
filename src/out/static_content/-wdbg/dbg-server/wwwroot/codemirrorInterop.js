@@ -125,6 +125,19 @@
         window.codemirrorInterop.enableTokenTooltips();
     },
 
+    // Clear the undo/redo history buffer
+    clearUndoBuffer: function () {
+        if (!this.editor) return false;
+        try {
+            // CodeMirror method to clear the undo history
+            this.editor.clearHistory();
+            return true;
+        } catch (error) {
+            console.error('Error clearing undo buffer:', error);
+            return false;
+        }
+    },
+
     showCustomCompletion: function (cm) {
         if (!cm) return;
         cm.showHint({
