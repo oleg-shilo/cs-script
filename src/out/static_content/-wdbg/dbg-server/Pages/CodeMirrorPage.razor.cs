@@ -227,6 +227,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
     public async Task LoadDocFile(string file, int lineNum = -1, int colNum = -1)
     {
         var currentDoc = Editor.LoadedDocument;
+        Editor.State.UpdateState(Editor.LoadedDocument, Document);
+
         try
         {
             if (file.HasText())
@@ -238,11 +240,20 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 }
                 Editor.LoadedDocument = file;
                 await LoadDocFromServer();
-                // StateHasChanged();
                 UIEvents.NotifyStateChanged();
 
                 if (lineNum != -1)
-                    ScrollToAndHighlightLine(lineNum, colNum);
+                {
+                    _ = ScrollToAndHighlightLine(lineNum, colNum);
+                }
+                else
+                {
+                    var state = Editor.State.GetDocumentViewState(file);
+                    // Debug.WriteLine($"read = file: {file.GetFileName()}({state.CaretLine}, {state.CaretCh})");
+
+                    await SetCaretPosition(state.CaretPos);
+                    await ScrollCurrentLineToView();
+                }
             }
         }
         catch (Exception e) { e.Log(); }
@@ -530,7 +541,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
             else
             {
-                if (Editor.State.AnyScriptFilesModified())
+                if (Editor.State.AnyScriptFilesModified() || Document.IsModified)
                     await SaveToFileOnServer(false);
 
                 ClearOutput();

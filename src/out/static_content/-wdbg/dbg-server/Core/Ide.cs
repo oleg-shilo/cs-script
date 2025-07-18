@@ -13,7 +13,32 @@ public class ActiveState
     // document path -> array of line numbers with breakpoints (even invalid breakpoints that will be validated on doc save)
     public Dictionary<string, int[]> AllDocumentsBreakpoints = new();
 
+    // document path -> view state (caret position and scroll position)
+    public Dictionary<string, DocumentViewState> AllDocumentsViewStates = new();
+
     public int[] GetDocumentBreakpoints(string document) => AllDocumentsBreakpoints.ContainsKey(document) ? AllDocumentsBreakpoints[document] : [];
+
+    public DocumentViewState GetDocumentViewState(string document) => AllDocumentsViewStates.ContainsKey(document) ? AllDocumentsViewStates[document] : new DocumentViewState();
+
+
+    public void UpdateState(string path, Document document)
+    {
+        var state = GetDocumentViewState(path);
+        AllDocumentsViewStates[path] = state;
+        state.CaretLine = document.CaretLine;
+        state.CaretCh = document.CaretCh;
+        state.CaretPos = document.CaretPos;
+
+        // Debug.WriteLine($"write = file: {path.GetFileName()}({state.CaretLine}, {state.CaretCh})");
+    }
+
+    public void SaveDocumentViewState(string document, DocumentViewState viewState)
+    {
+        if (document.HasText() && viewState != null)
+        {
+            AllDocumentsViewStates[document] = viewState;
+        }
+    }
 
     public bool HasInfoFor(string document) => AllDocumentsBreakpoints.ContainsKey(document) && AllDocumentsBreakpoints.ContainsKey(document);
 

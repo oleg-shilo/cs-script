@@ -8,6 +8,15 @@ using wdbg.cs_script;
 using wdbg.Pages;
 using wdbg.Shared;
 
+public class DocumentViewState
+{
+    public int CaretLine { get; set; } = 0;
+    public int CaretCh { get; set; } = 0;
+    public int CaretPos { get; set; } = 0;
+    public double ScrollTop { get; set; } = 0;
+    public double ScrollLeft { get; set; } = 0;
+}
+
 public class Document
 {
     public int[] Breakpoints = [];

@@ -178,7 +178,7 @@ public static class DBG
             sourceLineNumber = sourceLineNumber
         };
 
-        Console.WriteLine($"DBG.Line(): {(string.Join(">", result.CallingMethods.Reverse()))}");
+        // Console.WriteLine($"DBG.Line(): {(string.Join(">", result.CallingMethods.Reverse()))}");
 
         return result;
     }

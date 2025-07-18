@@ -484,6 +484,7 @@
         Document.CaretLine = line + 1; // 1-based for display
         Document.CaretCh = ch + 1;     // 1-based for display
         Document.CaretPos = pos;       // 0-based for display
+        
         UIEvents.NotifyCaretPositionChanged();
         return Task.CompletedTask;
     }
