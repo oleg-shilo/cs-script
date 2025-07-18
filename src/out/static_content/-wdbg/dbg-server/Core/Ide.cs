@@ -21,13 +21,14 @@ public class ActiveState
     public DocumentViewState GetDocumentViewState(string document) => AllDocumentsViewStates.ContainsKey(document) ? AllDocumentsViewStates[document] : new DocumentViewState();
 
 
-    public void UpdateState(string path, Document document)
+    public void UpdateState(string path, Document document, string changeHistory)
     {
         var state = GetDocumentViewState(path);
         AllDocumentsViewStates[path] = state;
         state.CaretLine = document.CaretLine;
         state.CaretCh = document.CaretCh;
         state.CaretPos = document.CaretPos;
+        state.ChangeHistory = changeHistory;
 
         // Debug.WriteLine($"write = file: {path.GetFileName()}({state.CaretLine}, {state.CaretCh})");
     }

@@ -13,6 +13,7 @@ public class DocumentViewState
     public int CaretLine { get; set; } = 0;
     public int CaretCh { get; set; } = 0;
     public int CaretPos { get; set; } = 0;
+    public string ChangeHistory { get; set; } = "";
     public double ScrollTop { get; set; } = 0;
     public double ScrollLeft { get; set; } = 0;
 }

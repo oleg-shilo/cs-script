@@ -138,6 +138,35 @@
         }
     },
 
+    // Get the current undo buffer state
+    getUndoBuffer: function () {
+        if (!this.editor) return null;
+        try {
+            // Get the history object from CodeMirror
+            const history = this.editor.getHistory();
+            return JSON.stringify(history);
+        } catch (error) {
+            console.error('Error getting undo buffer:', error);
+            return null;
+        }
+    },
+
+    // Set the undo buffer state
+    setUndoBuffer: function (historyJson) {
+        if (!this.editor) return false;
+        try {
+            if (!historyJson) return false;
+
+            // Parse the history JSON and set it
+            const history = JSON.parse(historyJson);
+            this.editor.setHistory(history);
+            return true;
+        } catch (error) {
+            console.error('Error setting undo buffer:', error);
+            return false;
+        }
+    },
+
     showCustomCompletion: function (cm) {
         if (!cm) return;
         cm.showHint({
@@ -764,6 +793,12 @@
         } catch (error) {
             console.error('Error opening fullscreen editor:', error);
             return false;
+        }
+    },
+
+    focusEditor: function () {
+        if (this.editor) {
+            this.editor.focus();
         }
     },
 };

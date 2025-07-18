@@ -227,7 +227,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
     public async Task LoadDocFile(string file, int lineNum = -1, int colNum = -1)
     {
         var currentDoc = Editor.LoadedDocument;
-        Editor.State.UpdateState(Editor.LoadedDocument, Document);
+        Editor.State.UpdateState(Editor.LoadedDocument, Document, await GetUndoBuffer());
 
         try
         {
@@ -240,7 +240,6 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 }
                 Editor.LoadedDocument = file;
                 await LoadDocFromServer();
-                ClearUndoBuffer();
                 UIEvents.NotifyStateChanged();
 
                 if (lineNum != -1)
@@ -253,8 +252,11 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                     // Debug.WriteLine($"read = file: {file.GetFileName()}({state.CaretLine}, {state.CaretCh})");
 
                     await SetCaretPosition(state.CaretPos);
+                    _ = SetUndoBuffer(state.ChangeHistory);
                     await ScrollCurrentLineToView();
                 }
+
+                await FocusEditor();
             }
         }
         catch (Exception e) { e.Log(); }

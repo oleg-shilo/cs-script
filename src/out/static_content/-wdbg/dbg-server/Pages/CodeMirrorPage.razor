@@ -457,7 +457,9 @@
     async Task ScrollToAndHighlightLine(int line, int ch) { try { await js("codemirrorInterop.scrollToAndHighlightLine", line, ch); } catch (Exception e) { e.Log(); } }
     async Task OpenFullscreenEditor(string path, int navigateToLine) { try{ await js("codemirrorInterop.openFullscreenEditor", path, navigateToLine);} catch (Exception e) { e.Log(); } }
     async Task ClearUndoBuffer() { try{ await js("codemirrorInterop.clearUndoBuffer");} catch (Exception e) { e.Log(); } }
-
+    async Task<string> GetUndoBuffer() { try{ return await js<string>("codemirrorInterop.getUndoBuffer");} catch (Exception e) { e.Log(); } return ""; }
+    async Task SetUndoBuffer(string buffer) { try{ await js("codemirrorInterop.setUndoBuffer", buffer);} catch (Exception e) { e.Log(); } }
+    async Task FocusEditor() { try { await js("codemirrorInterop.focusEditor"); } catch (Exception e) { e.Log(); } }
 
     async Task OnThemeChanged(ChangeEventArgs e)
     {
