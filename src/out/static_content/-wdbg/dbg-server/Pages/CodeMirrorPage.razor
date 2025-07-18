@@ -88,11 +88,7 @@
                 <button class="btn btn-run btn-sm" title="Start/Resume (F5)" @onclick="OnStartClicked" disabled="@(!startAvailable)">
                     <span class="oi oi-caret-right"></span>
                 </button>
-                <button class="btn btn-run btn-sm" title="StepInto (F11)" @onclick="OnStepIntoClicked" disabled="@(!stepCommandsAvailable)">
-                    @* <span class="oi oi-data-transfer-download" title="Step Into"></span> *@
-                     <span class="oi oi-arrow-thick-bottom step-arrow"></span>
-                     <div class="step-over-line"></div>
-                </button>
+
                 <button class="btn btn-run btn-sm" title="Step Over (F10)" @onclick="OnStepOverClicked" disabled="@(!stepCommandsAvailable)">
                     @* <span class="oi oi-data-transfer-download rotate-90" title="Step Over"></span> *@
                      @* <span class="oi oi-caret-right step-over-arrow"></span> *@
@@ -100,7 +96,11 @@
                      <span class="oi oi-action-redo step-arrow step-over-arrow "></span>
                      <div class="step-over-line"></div>
                 </button>
-
+                <button class="btn btn-run btn-sm" title="StepInto (F11)" @onclick="OnStepIntoClicked" disabled="@(!stepCommandsAvailable)">
+                    @* <span class="oi oi-data-transfer-download" title="Step Into"></span> *@
+                     <span class="oi oi-arrow-thick-bottom step-arrow"></span>
+                     <div class="step-over-line"></div>
+                </button>
                 <button class="btn btn-run btn-sm" title="Step Out (Shift+F11)" @onclick="OnStepOutClicked" disabled="@(!stepCommandsAvailable)">
                     @* <span class="oi oi-data-transfer-download rotate180" title="Step Out"></span> *@
                      <span class="oi oi-arrow-thick-top step-arrow"></span>

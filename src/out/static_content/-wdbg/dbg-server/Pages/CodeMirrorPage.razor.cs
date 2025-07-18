@@ -530,7 +530,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
             else
             {
-                if (Document.IsModified)
+                if (Editor.State.AnyScriptFilesModified())
                     await SaveToFileOnServer(false);
 
                 ClearOutput();
