@@ -17,14 +17,18 @@
             <button title="Load the specified script to the editor/debugger" class="btn btn-outline-secondary btn-sm" style="margin-left:-15px;" @onclick="LoadScriptFromServer">
                 Reload Script
             </button>
+            <div>@Editor.LoadedScript</div>
             <input type="text"
+                hidden
                    @bind="Editor.LoadedScript"
                    @ref="fileNameInputRef"
                    @oninput="AutoSizeFileNameInput"
                    placeholder="Server file path..."
                    class="theme-input @($"theme-input-{Editor.SelectedTheme}")"
                    style="min-width: 320px; max-width: 100%; display: inline-block;" />
-            <span style="width:5px;margin-left:-18px;margin-top:-5px;">
+            <span
+                hidden
+                style="width:5px;margin-left:-18px;margin-top:-5px;">
                 @if (Document?.IsModified == true)
                 {
                     <span style="color: #dc3545; font-weight: bold;">*</span>
@@ -84,16 +88,16 @@
                 <button class="btn btn-run btn-sm" title="Start/Resume (F5)" @onclick="OnStartClicked" disabled="@(!startAvailable)">
                     <span class="oi oi-caret-right"></span>
                 </button>
+                <button class="btn btn-run btn-sm" title="StepInto (F11)" @onclick="OnStepIntoClicked" disabled="@(!stepCommandsAvailable)">
+                    @* <span class="oi oi-data-transfer-download" title="Step Into"></span> *@
+                     <span class="oi oi-arrow-thick-bottom step-arrow"></span>
+                     <div class="step-over-line"></div>
+                </button>
                 <button class="btn btn-run btn-sm" title="Step Over (F10)" @onclick="OnStepOverClicked" disabled="@(!stepCommandsAvailable)">
                     @* <span class="oi oi-data-transfer-download rotate-90" title="Step Over"></span> *@
                      @* <span class="oi oi-caret-right step-over-arrow"></span> *@
                      @* <span class="oi oi-arrow-thick-right step-over-arrow"></span> *@
                      <span class="oi oi-action-redo step-arrow step-over-arrow "></span>
-                     <div class="step-over-line"></div>
-                </button>
-                <button class="btn btn-run btn-sm" title="StepInto (F11)" @onclick="OnStepIntoClicked" disabled="@(!stepCommandsAvailable)">
-                    @* <span class="oi oi-data-transfer-download" title="Step Into"></span> *@
-                     <span class="oi oi-arrow-thick-bottom step-arrow"></span>
                      <div class="step-over-line"></div>
                 </button>
 
@@ -465,13 +469,13 @@
     [JSInvokable]
     public async Task OnEditorChanged()
     {
-        if(!Document.IsModified)
+        if(!Document.IsModified && !Editor.DocLoadingInProgress)
         {
-
-            "Document.IsModified = true".ProfileLog();
+            // "Document.IsModified = true".ProfileLog();
             Document.IsModified = true;
             UIEvents.NotifyStateChanged();
         }
+        Editor.DocLoadingInProgress = false;
     }
 
     [JSInvokable]
@@ -479,8 +483,8 @@
     {
         Document.CaretLine = line + 1; // 1-based for display
         Document.CaretCh = ch + 1;     // 1-based for display
-        Document.CaretPos = pos;     // 0-based for display
-        UIEvents.NotifyStateChanged();
+        Document.CaretPos = pos;       // 0-based for display
+        UIEvents.NotifyCaretPositionChanged();
         return Task.CompletedTask;
     }
 
@@ -500,11 +504,16 @@
             var lineNum = int.Parse(match.Groups["line"].Value);
             var colNum = int.Parse(match.Groups["col"].Value);
 
+            // CodeMirror is 0-based, so subtract 1
             // Only navigate if the file matches the currently loaded script
-            if (file.Equals(Editor.LoadedScript, StringComparison.OrdinalIgnoreCase))
+            if (file != Editor.LoadedDocument)
             {
-                // CodeMirror is 0-based, so subtract 1
-                ScrollToAndHighlightLine(lineNum - 1, colNum - 1);
+                _ = LoadDocFile(file, lineNum - 1, colNum - 1);
+                return true;
+            }
+            else
+            {
+                _ = ScrollToAndHighlightLine(lineNum - 1, colNum - 1);
                 return true;
             }
         }

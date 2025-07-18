@@ -80,11 +80,20 @@ public class ActiveState
             AllDocumentsContents[path] = (File.GetLastWriteTimeUtc(path), await File.ReadAllTextAsync(path));
         }
 
-        var fileTimestamp = File.GetLastWriteTimeUtc(path);
-        //var isModified = (AllDocumentsContents[path].timestamp - File.GetLastWriteTimeUtc(path)).TotalSeconds > 1;
         var isModified = AllDocumentsContents[path].timestamp > File.GetLastWriteTimeUtc(path);
 
         return (AllDocumentsContents[path].content, isModified);
+    }
+
+    public bool IsDocumentModified(string path)
+    {
+        if (AllDocumentsContents.ContainsKey(path) && AllDocumentsContents[path].content.HasText())
+        {
+            var isModified = AllDocumentsContents[path].timestamp > File.GetLastWriteTimeUtc(path);
+            return isModified;
+        }
+
+        return false;
     }
 }
 
@@ -108,6 +117,7 @@ public class Ide
         Interop = interop;
     }
 
+    public bool DocLoadingInProgress;
     public string LoadedScript = "Untitled";
     public string LoadedDocument = "Untitled";
     public string PreviousLoadedDocument = "";
@@ -309,7 +319,7 @@ public class Ide
 
     public async Task LoadDocFile(string file)
     {
-        if (MainPage != null)
+        if (MainPage != null && !DocLoadingInProgress)
             await MainPage.LoadDocFile(file);
     }
 

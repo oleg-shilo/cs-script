@@ -175,8 +175,10 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 (Document.EditorContent, _) = Document.EditorContent.NormalizeLineBreaks();
                 Document.Breakpoints = Editor.State.GetDocumentBreakpoints(Editor.LoadedDocument);
 
+                Editor.DocLoadingInProgress = true;
                 await SetDocumentContent(Document.EditorContent);
                 Document.IsModified = isModified;
+                // $"Document.IsModified = {Document.IsModified}".ProfileLog();
 
                 Editor.LastSessionFileName = Editor.LoadedScript;
                 Editor.LocateLoadedScriptDebugInfo();
@@ -222,7 +224,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         catch (Exception e) { e.Log(); }
     }
 
-    public async Task LoadDocFile(string file)
+    public async Task LoadDocFile(string file, int lineNum = -1, int colNum = -1)
     {
         var currentDoc = Editor.LoadedDocument;
         try
@@ -236,7 +238,11 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 }
                 Editor.LoadedDocument = file;
                 await LoadDocFromServer();
-                StateHasChanged();
+                // StateHasChanged();
+                UIEvents.NotifyStateChanged();
+
+                if (lineNum != -1)
+                    ScrollToAndHighlightLine(lineNum, colNum);
             }
         }
         catch (Exception e) { e.Log(); }
@@ -324,7 +330,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 // Optionally, show an error or prompt for a file path
             }
 
-            Debug.WriteLine(Document.Breakpoints.FirstOrDefault());
+            // Debug.WriteLine(Document.Breakpoints.FirstOrDefault());
             await RenderBreakpoints();
         }
         catch (Exception e) { e.Log(); }
@@ -634,8 +640,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                         onExit: () => InvokeAsync(() =>
                         {
                             Editor.RunStatus = "execution completed";
-                            AddOutputLine($"> Script (pid: {DebugSession.RunningScript.Id}) has exited " +
-                                $"with code {DebugSession.RunningScript.ExitCode} (0x{DebugSession.RunningScript.ExitCode:X}).");
+                            AddOutputLine($"> Script (pid: {DebugSession.RunningScript?.Id}) has exited " +
+                                $"with code {DebugSession.RunningScript?.ExitCode} (0x{DebugSession.RunningScript?.ExitCode:X}).");
                             DebugSession.Reset();
                         }),
                         onOutput: (proc, data) => InvokeAsync(() =>

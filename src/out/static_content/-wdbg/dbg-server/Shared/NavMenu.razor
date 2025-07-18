@@ -70,7 +70,7 @@
                                                    {
                                                        <span>🧾</span>
                                                    }
-                                                   @(Path.GetFileName(file))
+                                                   @(DocumentDisplayName(file))
                                                 </button>
                                             </div>
                                         }
@@ -392,7 +392,7 @@
         Tools.InstallSyntaxer(update);
         Editor?.ShowToastSuccess("Refresh the page after install/update is completed.");
     }
-    
+
     void InstallCSScript(bool update = false)
     {
         Tools.InstallCSScript(update);
@@ -433,6 +433,12 @@
         _ = RefreshRunningScripts();
     }
 
+    public string DocumentDisplayName(string path)
+    {
+        var isModified = Editor.State.IsDocumentModified(path) || (Document.IsModified && Editor.LoadedDocument == path);
+        // Debug.WriteLine($"DocumentDisplayName: {Path.GetFileName(path) } isModified: {isModified}");
+        return Path.GetFileName(path) + (isModified? " *":"");
+    }
     public void Dispose()
     {   
         try

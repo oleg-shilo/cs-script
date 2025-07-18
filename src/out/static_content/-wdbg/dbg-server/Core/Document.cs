@@ -28,9 +28,13 @@ public class UINotificationService
 
     public event Action OnChange;
 
+    public event Action OnCaretPositionChange;
+
     public event Action<string> OnDbgChange;
 
     public event Action<string> OnObjectValue;
+
+    public void NotifyCaretPositionChanged() => OnCaretPositionChange?.Invoke();
 
     public void NotifyStateChanged() => OnChange?.Invoke();
 
