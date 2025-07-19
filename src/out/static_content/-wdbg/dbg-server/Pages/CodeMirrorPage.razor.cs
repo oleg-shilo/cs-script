@@ -289,11 +289,20 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                     Document.Breakpoints = await Editor.SaveStateOf(Editor.LoadedScript);
                 }
 
-                Editor.LoadedScript = file;
-                await LoadScriptFromServer();
+                if (File.Exists(file))
+                {
+                    Editor.LoadedScript = file;
+                    await LoadScriptFromServer();
 
-                StateHasChanged();
-                _ = AutoSizeFileNameInput(null);
+                    StateHasChanged();
+                    _ = AutoSizeFileNameInput(null);
+                }
+                else
+                {
+                    Editor?.ShowToastError($"File '{file}' cannot be found. It will be removed from the Recent list.");
+                    Editor?.RecentScripts.Remove(file);
+                    UIEvents.NotifyStateChanged();
+                }
             }
         }
         catch (Exception e) { e.Log(); }
@@ -319,6 +328,26 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         catch (Exception e) { e.Log(); }
     }
 
+    public async Task<bool> SaveAll()
+    {
+        var content = await GetDocumentContent();
+        (content, _) = content.NormalizeLineBreaks();
+
+        var isModified = Document.IsModified;
+        Editor.State.UpdateFor(Editor.LoadedDocument, content, Document.Breakpoints);
+        Document.Breakpoints = await Editor.SaveStateOf(Editor.LoadedScript);
+        await File.WriteAllTextAsync(Editor.LoadedDocument, content);
+
+        // "Document.IsModified = false".ProfileLog();
+        Document.IsModified = false;
+
+        // this will save all other files of the script files that are modified but not in the active view
+        var updatedFiles = Editor.State.SaveAllFilesIfModified();
+
+        bool needToGenerateDbg = (isModified || updatedFiles.Any());
+        return needToGenerateDbg;
+    }
+
     public async Task SaveToFileOnServer(bool showError)
     {
         try
@@ -326,26 +355,14 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             if (Editor.AutoFormatOnSave)
                 await OnFormatRequest();
 
-            var content = await GetDocumentContent();
-            (content, _) = content.NormalizeLineBreaks();
-
             if (Document.IsModified || Editor.State.AnyScriptFilesModified())
             {
-                var isModified = Document.IsModified;
-                Editor.State.UpdateFor(Editor.LoadedDocument, content, Document.Breakpoints);
-                Document.Breakpoints = await Editor.SaveStateOf(Editor.LoadedScript);
-                await File.WriteAllTextAsync(Editor.LoadedDocument, content);
+                var needToGenerateDbg = await SaveAll();
 
-                "Document.IsModified = false".ProfileLog();
-                Document.IsModified = false;
+                if (needToGenerateDbg)
+                    _ = StartGeneratingDebugMetadata(showError);
 
                 UIEvents.NotifyStateChanged();
-
-                // this will save all other files of the script files that are modified but not in the active view
-                var updatedFiles = Editor.State.SaveAllFilesIfModified();
-
-                if (isModified || updatedFiles.Any())
-                    _ = StartGeneratingDebugMetadata(showError);
             }
             else
             {
@@ -460,6 +477,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             if (DebugSession.IsScriptExecutionInProgress)
             {
                 await Editor.FetchLatestDebugInfo(Editor.LoadedScript); // this will get rid of invalid breakpoints in the state
+
                 Document.Breakpoints = Editor.State.AllDocumentsBreakpoints[Editor.LoadedDocument];
                 DebugSession.dbgScriptMaping = Editor.dbgScriptMaping;
                 DebugSession.Breakpoints = Editor.AllEnabledBreakpoints;

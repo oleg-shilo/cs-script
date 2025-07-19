@@ -123,6 +123,20 @@
                     </table>
 
                     <div class="nav-item px-3">
+                        <span class="" >
+                            Script: 
+                            <button class="command-list-button " title="Create new script and open in the editor." @onclick="() => CreateNewScript()" >
+                                New
+                            </button>
+                        
+                            <button class="command-list-button" title="Rename currently loaded script." @onclick="() => RenameScript()" >
+                                Rename
+                            </button>
+
+                            <button class="command-list-button" title="Reload currently loaded script." @onclick="() => ReloadScript()" >
+                                Reload
+                            </button>
+                        </span>
                     </div>
                 }
                 else if (selectedTab == 1)
@@ -140,6 +154,7 @@
                         </label>
                     </div>
                     <div class="nav-item px-3" >
+
                         @if (Tools.cscs_dll == null)
                         {
                              <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript()" >
@@ -397,6 +412,77 @@
     {
         Tools.InstallCSScript(update);
         Editor?.ShowToastSuccess("Refresh the page after install/update is completed.");
+    }
+
+    async void CreateNewScript()
+    {
+        try
+        {
+            // Prompt user for script name
+            var scriptName = await JS.InvokeAsync<string>("prompt", "Enter script name (without .cs extension):", "NewScript");
+
+            if (scriptName.IsEmpty())
+                return; // User cancelled or entered empty name
+
+            if (!scriptName.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+                scriptName += ".cs";
+
+            scriptName = scriptName.SanitizeFileName();
+
+            var dir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).PathJoin("CS-Script").EnsureDir();
+            var newScriptFile = dir.PathJoin(scriptName);
+            if (File.Exists(newScriptFile))
+                File.Copy(newScriptFile, newScriptFile + ".bak", true);
+            Shell.StartProcess("css", $"-new {scriptName}", dir).WaitForExit();
+            Shell.StartProcess("css", $"-wdbg {scriptName}", dir);
+
+            Editor.ShowToastSuccess($"New script '{scriptName}' created successfully! Opening it...");
+        }
+        catch (Exception ex)
+        {
+            Editor?.ShowToastError($"Failed to create new script: {ex.Message}");
+        }
+    }
+
+    async void ReloadScript()
+    {
+        await Editor.MainPage.LoadScriptFromServer();
+    }
+
+    async void RenameScript()
+    {
+        try
+        {
+            var oldScript =  Editor.LoadedScript;
+            
+            // Prompt user for script name
+            var scriptName = await JS.InvokeAsync<string>("prompt", $"Enter new script name:", Editor.LoadedScript.GetFileNameWithoutExtension());
+
+            if (scriptName.IsEmpty())
+                return; // User cancelled or entered empty name
+
+            if (!scriptName.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+                scriptName += ".cs";
+
+            scriptName = scriptName.SanitizeFileName();
+
+            if (Document.IsModified || Editor.State.AnyScriptFilesModified())
+            {
+                await Editor?.MainPage.SaveAll();
+            }
+
+            var newScriptFile = Editor.LoadedScript.GetDirName().PathJoin(scriptName);
+            File.Move(Editor.LoadedScript, newScriptFile, true);
+            await Task.Delay(1000);
+            await Editor?.LoadRecentScriptFile(newScriptFile);
+            
+            Editor?.RecentScripts.Remove(oldScript);
+            // UIEvents.NotifyStateChanged();
+        }
+        catch (Exception ex)
+        {
+            Editor?.ShowToastError($"Failed to create new script: {ex.Message}");
+        }
     }
 
     async Task RefreshRunningScripts()

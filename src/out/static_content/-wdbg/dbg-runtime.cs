@@ -442,10 +442,10 @@ public class BreakPoint
         }
 
         var bp = DBG.Breakpoints;
-        Console.WriteLine($"----");
-        Console.WriteLine($"  DBG.Breakpoints: {string.Join("\n                   ", bp.Select(x => Path.GetFileName(x)))}");
-        Console.WriteLine($"  id: {id}");
-        Console.WriteLine($"----");
+        // Console.WriteLine($"----");
+        // Console.WriteLine($"  DBG.Breakpoints: {string.Join("\n                   ", bp.Select(x => Path.GetFileName(x)))}");
+        // Console.WriteLine($"  id: {id}");
+        // Console.WriteLine($"----");
         if (DBG.Breakpoints.Contains(id))
         {
             DBG.StopOnNextInspectionPointInMethod = null;

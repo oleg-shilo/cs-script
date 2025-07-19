@@ -1,15 +1,16 @@
-using System;
-using System.Diagnostics;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.JSInterop;
+using System;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using System.Net.Sockets;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 static class WebDbgExtensions
 {
@@ -81,6 +82,7 @@ static class Extensions
     public static string GetDirName(this string path) => Path.GetDirectoryName(path);
 
     public static string GetFileName(this string path) => Path.GetFileName(path);
+    public static string GetFileNameWithoutExtension(this string path) => Path.GetFileNameWithoutExtension(path);
 
     public static string ChangeExtension(this string path, string extension) => Path.ChangeExtension(path, extension);
 
@@ -154,6 +156,17 @@ static class Extensions
     public static string ReadAllText(this TcpClient client)
     {
         return client.ReadAllBytes().GetString();
+    }
+
+    public static string SanitizeFileName(this string fileName)
+    {
+        // Remove invalid characters for file names
+        var invalidChars = Path.GetInvalidFileNameChars();
+        foreach (char c in invalidChars)
+        {
+            fileName = fileName.Replace(c, '_');
+        }
+        return fileName;
     }
 
     public static void WriteAllBytes(this TcpClient client, byte[] data)
