@@ -90,7 +90,7 @@
                 cm.setGutterMarker(n, "breakpoints", marker);
                 this.breakpoints.add(n);
             }
-            this.dotnetRef.invokeMethodAsync("UpdateBreakpoints", Array.from(this.breakpoints));
+            this.dotnetRef.invokeMethodAsync("UserUpdatedBreakpoints", Array.from(this.breakpoints));
         });
 
         const editorElem = document.getElementById('editor');
@@ -125,12 +125,54 @@
         window.codemirrorInterop.enableTokenTooltips();
     },
 
+    // Clear the undo/redo history buffer
+    clearUndoBuffer: function () {
+        if (!this.editor) return false;
+        try {
+            // CodeMirror method to clear the undo history
+            this.editor.clearHistory();
+            return true;
+        } catch (error) {
+            console.error('Error clearing undo buffer:', error);
+            return false;
+        }
+    },
+
+    // Get the current undo buffer state
+    getUndoBuffer: function () {
+        if (!this.editor) return null;
+        try {
+            // Get the history object from CodeMirror
+            const history = this.editor.getHistory();
+            return JSON.stringify(history);
+        } catch (error) {
+            console.error('Error getting undo buffer:', error);
+            return null;
+        }
+    },
+
+    // Set the undo buffer state
+    setUndoBuffer: function (historyJson) {
+        if (!this.editor) return false;
+        try {
+            if (!historyJson) return false;
+
+            // Parse the history JSON and set it
+            const history = JSON.parse(historyJson);
+            this.editor.setHistory(history);
+            return true;
+        } catch (error) {
+            console.error('Error setting undo buffer:', error);
+            return false;
+        }
+    },
+
     showCustomCompletion: function (cm) {
         if (!cm) return;
         cm.showHint({
             hint: async function () {
                 var caret = window.codemirrorInterop.getCaretAbsolutePosition();
-                const fullText = cm.getValue();
+                const fullText = window.codemirrorInterop.getValue();
                 const cursor = cm.getCursor();
                 const lineText = cm.getLine(cursor.line);
 
@@ -265,7 +307,7 @@
             this.breakpoints.add(line);
         }
         if (this.dotnetRef) {
-            this.dotnetRef.invokeMethodAsync("UpdateBreakpoints", Array.from(this.breakpoints));
+            this.dotnetRef.invokeMethodAsync("UserUpdatedBreakpoints", Array.from(this.breakpoints));
         }
     },
 
@@ -313,7 +355,7 @@
         }
         // Notify .NET side if needed
         if (window.codemirrorInterop.dotnetRef) {
-            window.codemirrorInterop.dotnetRef.invokeMethodAsync("UpdateBreakpoints", []);
+            window.codemirrorInterop.dotnetRef.invokeMethodAsync("UserUpdatedBreakpoints", []);
         }
     },
 
@@ -349,7 +391,7 @@
         if (ch)
             pos.ch = ch;
 
-        const fullText = cm.getValue();
+        const fullText = window.codemirrorInterop.getValue();
 
         // Use the original line ending style
         const lineEndingStyle = /\r\n/.test(fullText) ? '\r\n' : '\n';
@@ -370,7 +412,7 @@
         const cm = window.codemirrorInterop.editor;
         if (!cm) return;
 
-        const fullText = cm.getValue();
+        const fullText = window.codemirrorInterop.getValue();
         if (newOffset < 0 || newOffset > fullText.length) return;
 
         // Use the original line ending style
@@ -551,7 +593,25 @@
 
     getValue: function () {
         if (window.editor) {
-            return window.editor.getValue();
+            let content = window.editor.getValue();
+
+            // Determine the appropriate line ending for the current OS
+            const osLineEnding = navigator.platform.toLowerCase().includes('win') ? '\r\n' : '\n';
+
+            // If we stored the original line ending when the content was loaded, use that
+            // Otherwise, use the OS default
+            const targetLineEnding = window.codemirrorInterop.originalLineEnding || osLineEnding;
+
+            // Convert line endings if they don't match the target
+            if (targetLineEnding === '\r\n' && !content.includes('\r\n')) {
+                // Convert \n to \r\n
+                content = content.replace(/\r?\n/g, '\r\n');
+            } else if (targetLineEnding === '\n' && content.includes('\r\n')) {
+                // Convert \r\n to \n
+                content = content.replace(/\r\n/g, '\n');
+            }
+
+            return content;
         }
         return "";
     },
@@ -636,7 +696,10 @@
         function hideTooltip() {
             if (tooltipDiv) {
                 if (!mouseOverTooltip) {
-                    document.body.removeChild(tooltipDiv);
+                    try {
+                        document.body.removeChild(tooltipDiv);
+                    } catch (e) {
+                    }
                     tooltipDiv = null;
                 }
             }
@@ -719,6 +782,24 @@
 
         cm.getWrapperElement().addEventListener('mousemove', cm._tokenTooltipHandler);
         cm.getWrapperElement().addEventListener('mouseleave', cm._tokenTooltipLeaveHandler);
+    },
+
+    openFullscreenEditor: function (path, navigateToLine = -1) {
+        try {
+            const encodedPath = encodeURIComponent(path);
+            const url = `/fullscreen-editor?file=${encodedPath}&line=${navigateToLine}`;
+            window.open(url, '_blank');
+            return true;
+        } catch (error) {
+            console.error('Error opening fullscreen editor:', error);
+            return false;
+        }
+    },
+
+    focusEditor: function () {
+        if (this.editor) {
+            this.editor.focus();
+        }
     },
 };
 
@@ -935,8 +1016,17 @@ window.codemirrorInterop.currentFontSize = 14; // default font size
 
 window.registerWindowKeyHandlers = function (dotNetRef) {
     document.addEventListener('keydown', function (e) {
-        // Ctrl+S
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        console.log('Key pressed:', e.key, 'Ctrl:', e.ctrlKey, 'KeyCode:', e.keyCode);
+
+        // Ctrl+Tab - Check this first and prevent default immediately
+        if ((!(e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && (e.key === 'Tab' || e.keyCode === 9)) ||
+            ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'Tab' || e.keyCode === 9))) {
+            console.log('Ctrl+Tab detected!');
+            e.preventDefault();
+            e.stopPropagation();
+            dotNetRef.invokeMethodAsync('OnCtrlTab');
+        }
+        else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnCtrlS');
         }
@@ -980,7 +1070,12 @@ window.registerWindowKeyHandlers = function (dotNetRef) {
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnF11');
         }
-        else if (e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (e.key === "F12" || e.keyCode === 123)) {
+        else if (!e.ctrlKey && !e.metaKey && !e.altKey && e.shiftKey && (e.key === "F11" || e.keyCode === 122)) {
+            e.preventDefault();
+            dotNetRef.invokeMethodAsync('OnShiftF11');
+        }
+        else if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && (e.key === "F12" || e.keyCode === 123)) {
+            // IMPORTANT: F12 (er are using no Ctrl key) is often used for developer tools, so we check for it last
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnCtrlF12');
         }

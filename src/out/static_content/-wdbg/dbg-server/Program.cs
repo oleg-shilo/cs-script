@@ -16,6 +16,8 @@ using wdbg.cs_script;
 
 string arg(string name) => args.SkipWhile(x => x != name).Skip(1).Take(1).FirstOrDefault();
 
+_ = Tools.Locate(); // ensure we start tools lookup asap so we do not wast our time
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

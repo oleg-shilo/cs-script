@@ -527,7 +527,6 @@ a, .btn-link {
         outline: 2px solid #6c757d;
     }
 
-
 .debug-commands .btn-pause:hover {
     color: #fff !important;
 }
@@ -681,6 +680,11 @@ button:focus, button:focus-visible, button:active:focus {
 .rotate-90 {
     display: inline-block;
     transform: rotate(-90deg);
+}
+
+.rotate180 {
+    display: inline-block;
+    transform: rotate(180deg);
 }
 
 .rotate45 {
@@ -947,7 +951,6 @@ button:focus, button:focus-visible, button:active:focus {
     border: 1px solid #dee2e6;
 }
 
-
 /* Dark theme variations */
 .panel-theme-dracula .cm-tooltip-content,
 .panel-theme-material-darker .cm-tooltip-content,
@@ -1043,7 +1046,6 @@ button:focus, button:focus-visible, button:active:focus {
     background-color: lightgray;
 }
 
-
 .fullscreen-editor-container {
     position: fixed;
     top: 0;
@@ -1071,7 +1073,6 @@ button:focus, button:focus-visible, button:active:focus {
         font-size: 14px;
     }
 
-
 .command-list-button {
     background: none;
     border: none;
@@ -1087,28 +1088,82 @@ button:focus, button:focus-visible, button:active:focus {
     padding-right: 10px;
 }
 
-
-
 .tree-view-item {
     background: none;
     border: none;
     padding: 0;
     margin: 0;
     cursor: pointer;
-    padding-left: 5px;
     color: inherit;
     font: inherit;
+    width: 100%;
+    text-align: left;
+    display: block;
 }
+
+    .tree-view-item.selected-item {
+        background-color: #2a5298 !important;
+        color: white !important;
+        padding: 0px 8px;
+        margin: 0px -8px;
+        width: calc(100% + 16px);
+        border-radius: 2px;
+    }
 
 .child-item {
-}
-
-.selected-item {
-    font-weight: bold !important;
 }
 
 .form-check {
     margin-left: 20px;
     font-size: 0.85rem;
     margin-bottom: 0rem;
+}
+
+/*==============*/
+/* Step Over button styling */
+.step-over-icon-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin: 0 auto;
+}
+
+.step-arrow {
+    font-size: 1em;
+    margin-bottom: 8px;
+    line-height: 1;
+    transform: scale(0.8);
+    transform-origin: center;
+}
+
+.step-over-arrow {
+    transform: scale(1.0) rotate(-45deg);
+    margin-bottom: 0px;
+}
+
+.step-over-line {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background-color: currentColor;
+    border-radius: 50%;
+    /*    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    right: 2px;
+    height: 2px;
+    background-color: currentColor;
+    border-radius: 1px;*/
+}
+
+/* Ensure proper alignment with other debug buttons */
+.debug-commands .step-over-icon-container {
+    color: inherit;
 }

@@ -9,22 +9,26 @@
 
 @* https://skmedix.github.io/ikonli-java-8/cheat-sheet-openiconic.html *@
 
-<PageTitle>CodeMirror Editor</PageTitle>
+<PageTitle>CS-Script Editor</PageTitle>
 
 <div class="@($"theme-{Editor.SelectedTheme}")">
     <div class="top-row px-4 d-flex justify-content-between align-items-center" id="top-row-panel">
         <div class="d-flex align-items-center gap-2">
             <button title="Load the specified script to the editor/debugger" class="btn btn-outline-secondary btn-sm" style="margin-left:-15px;" @onclick="LoadScriptFromServer">
-                Load Script
+                Reload Script
             </button>
+            <div>@Editor.LoadedScript</div>
             <input type="text"
+                hidden
                    @bind="Editor.LoadedScript"
                    @ref="fileNameInputRef"
                    @oninput="AutoSizeFileNameInput"
                    placeholder="Server file path..."
                    class="theme-input @($"theme-input-{Editor.SelectedTheme}")"
                    style="min-width: 320px; max-width: 100%; display: inline-block;" />
-            <span style="width:5px;margin-left:-18px;margin-top:-5px;">
+            <span
+                hidden
+                style="width:5px;margin-left:-18px;margin-top:-5px;">
                 @if (Document?.IsModified == true)
                 {
                     <span style="color: #dc3545; font-weight: bold;">*</span>
@@ -84,11 +88,23 @@
                 <button class="btn btn-run btn-sm" title="Start/Resume (F5)" @onclick="OnStartClicked" disabled="@(!startAvailable)">
                     <span class="oi oi-caret-right"></span>
                 </button>
+
                 <button class="btn btn-run btn-sm" title="Step Over (F10)" @onclick="OnStepOverClicked" disabled="@(!stepCommandsAvailable)">
-                    <span class="oi oi-data-transfer-download rotate-90" title="Step Over"></span>
+                    @* <span class="oi oi-data-transfer-download rotate-90" title="Step Over"></span> *@
+                     @* <span class="oi oi-caret-right step-over-arrow"></span> *@
+                     @* <span class="oi oi-arrow-thick-right step-over-arrow"></span> *@
+                     <span class="oi oi-action-redo step-arrow step-over-arrow "></span>
+                     <div class="step-over-line"></div>
                 </button>
                 <button class="btn btn-run btn-sm" title="StepInto (F11)" @onclick="OnStepIntoClicked" disabled="@(!stepCommandsAvailable)">
-                    <span class="oi oi-data-transfer-download" title="Step Into"></span>
+                    @* <span class="oi oi-data-transfer-download" title="Step Into"></span> *@
+                     <span class="oi oi-arrow-thick-bottom step-arrow"></span>
+                     <div class="step-over-line"></div>
+                </button>
+                <button class="btn btn-run btn-sm" title="Step Out (Shift+F11)" @onclick="OnStepOutClicked" disabled="@(!stepCommandsAvailable)">
+                    @* <span class="oi oi-data-transfer-download rotate180" title="Step Out"></span> *@
+                     <span class="oi oi-arrow-thick-top step-arrow"></span>
+                     <div class="step-over-line"></div>
                 </button>
                 <button class="btn btn-pause btn-sm" title="Pause" @onclick="OnPauseClicked" disabled="@(!pauseAvailable)">
                     <span class="oi oi-media-pause"></span>
@@ -179,6 +195,7 @@
                 <div class="tab-header">
                     <button class="tab-btn @(selectedTab == 0 ? "active" : "")" @onclick="() => SelectTab(0)">Locals</button>
                     <button class="tab-btn @(selectedTab == 1 ? "active" : "")" @onclick="() => SelectTab(1)">Watch</button>
+                    <button class="tab-btn @(selectedTab == 2 ? "active" : "")" @onclick="() => SelectTab(2)">Call Stack</button>
                 </div>
                 <div class="tab-content">
                     @if (selectedTab == 0)
@@ -278,6 +295,54 @@
                                       @oncontextmenu:preventDefault> </textarea>
                         </div>
                     }
+                    else if (selectedTab == 2)
+                    {
+                        <div class="locals-table-container">
+                            <table class="table table-sm table-bordered locals-table watch-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < CallStack.Count; i++)
+                                    {
+                                        try
+                                        {
+                                            // Program.<Main>$:test.cs:9
+                                            var parts = CallStack[i].Replace("<Main>$", "Main").Split(':');
+                                            var method = $"{parts[0]}(..)  [{parts[1]}:{parts[2]}]" ;
+
+                                            var index = i;
+
+                                            <tr class="@(i == 0 ? "selected-row" : null)"
+                                            @onclick="(() => OnCallStackItemClicked(parts[1], parts[2].ToInt()))">
+                                                <td title="@(method)">@(method)</td>
+                                            </tr>
+                                        }
+                                        catch
+                                        {
+                                             <tr >
+                                                <td >unknown error</td>
+                                            </tr>   
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+
+                            <div class="locals-value-label" style="margin-top:12px; margin-bottom:4px;">
+                                Selected Object:
+                                <span style="font-weight:normal; color:#888; margin-left:8px;">
+                                    @selectedLocalName
+                                </span>
+                            </div>
+
+                            <textarea class="locals-value-textarea" readonly
+                                      value="@selectedLocalValue"
+                                      @oncontextmenu="ShowLocalsContextMenu"
+                                      @oncontextmenu:preventDefault> </textarea>
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -313,6 +378,7 @@
     ElementReference fileNameInputRef;
     int outputPosition = 0;
     List<VariableInfo> Variables = new();
+    List<string> CallStack = new();
 
     int selectedTab = 0; // 0 = Locals, 1 = Watch
 
@@ -342,7 +408,6 @@
     {
         ClearLocals();
 
-
         (this.UserSession, bool created) = await JS.FindOrCreateUserSessionFor(this);
         this.Document = this.UserSession.Document;
         this.Editor = this.UserSession.Editor;
@@ -354,12 +419,13 @@
         UIEvents.OnDbgChange += DebugStateHasChanged;
         UIEvents.OnObjectValue += DebugObjectStateChanged;
 
-        _ = Tools.Locate()
-            .ContinueWith(t =>
-            {
-                if (t.Result.HasText())
-                    Editor.ShowToastInfo(t.Result);
-            });
+        while (Tools.cscs_dll.IsEmpty() && Tools.lastLookupError.IsEmpty())
+        {
+            await Task.Delay(100);
+        }
+
+        if(Tools.lastLookupError.HasText())
+            Editor.ShowToastInfo(Tools.lastLookupError);
 
         await Editor.ReadPersistedConfig();
         await js("codemirrorInterop.init", Editor.SelectedCmTheme, DotNetObjectReference.Create(this));
@@ -373,7 +439,6 @@
         if (fileToLoad != null)
         {
             Editor.LoadedScript = fileToLoad;
-
             await LoadScriptFromServer();
             Editor.LastSessionFileName = fileToLoad;
         }
@@ -430,16 +495,21 @@
     async Task StartLeftHorizontalResize(MouseEventArgs e) { try { await js("startLeftHorizontalResize"); } catch (Exception ex) { ex.Log(); } }
     async Task<string> GetDocumentContent() { try { return await js<string>("codemirrorInterop.getValue"); } catch (Exception e) { e.Log(); } return ""; }
     async Task SetDocumentContent(string content) { try { await js("codemirrorInterop.setValue", content); } catch (Exception e) { e.Log(); } }
-    async Task RenderBreakpoints() { try { await js("codemirrorInterop.setBreakpoints", Document.Breakpoints.ToArray()); } catch (Exception e) { e.Log(); } }
-    async Task<int[]> GetBreakpoints() { try { return await js<int[]>("codemirrorInterop.getBreakpoints"); } catch (Exception e) { e.Log(); } return []; }
+    async Task RenderBreakpoints() { try { await js("codemirrorInterop.setBreakpoints", Document.Breakpoints.ToHashSet()); } catch (Exception e) { e.Log(); } }
+    async Task<int[]> GetBreakpointsFromDoc() { try { return await js<int[]>("codemirrorInterop.getBreakpoints"); } catch (Exception e) { e.Log(); } return []; }
     async Task<int> GetCaretPosition() { try { return await js<int>("codemirrorInterop.getCaretAbsolutePosition"); } catch (Exception e) { e.Log(); } return -1; }
     async Task<int> GetCaretPosition(int line, int ch) { try { return await js<int>("codemirrorInterop.getCaretAbsolutePosition", line, ch); } catch (Exception e) { e.Log(); } return -1; }
     async Task SetCaretPosition(int position) { try { await js("codemirrorInterop.setCaretAbsolutePosition", position); } catch (Exception e) { e.Log(); } }
     async Task ScrollCurrentLineToView() { try { await js("codemirrorInterop.scrollCurrentLineToView"); } catch (Exception e) { e.Log(); } }
     async Task ScrollLineToView(int line) { try { await js("codemirrorInterop.scrollLineToView", line); } catch (Exception e) { e.Log(); } }
-    async Task setCurrentStepLine(int line) { try { await js("codemirrorInterop.setCurrentStepLine", line); } catch (Exception e) { e.Log(); } }
+    async Task setCurrentStepLine(int line) { try { await js("codemirrorInterop.setCurrentStepLine", line == -1 ? null : line); } catch (Exception e) { e.Log(); } }
     async Task SetCaretPosition(int line, int lineCh) { try { await js("codemirrorInterop.setCaretPosition", line, lineCh); } catch (Exception e) { e.Log(); } }
     async Task ScrollToAndHighlightLine(int line, int ch) { try { await js("codemirrorInterop.scrollToAndHighlightLine", line, ch); } catch (Exception e) { e.Log(); } }
+    async Task OpenFullscreenEditor(string path, int navigateToLine) { try{ await js("codemirrorInterop.openFullscreenEditor", path, navigateToLine);} catch (Exception e) { e.Log(); } }
+    async Task ClearUndoBuffer() { try{ await js("codemirrorInterop.clearUndoBuffer");} catch (Exception e) { e.Log(); } }
+    async Task<string> GetUndoBuffer() { try{ return await js<string>("codemirrorInterop.getUndoBuffer");} catch (Exception e) { e.Log(); } return ""; }
+    async Task SetUndoBuffer(string buffer) { try{ await js("codemirrorInterop.setUndoBuffer", buffer);} catch (Exception e) { e.Log(); } }
+    async Task FocusEditor() { try { await js("codemirrorInterop.focusEditor"); } catch (Exception e) { e.Log(); } }
 
     async Task OnThemeChanged(ChangeEventArgs e)
     {
@@ -452,8 +522,13 @@
     [JSInvokable]
     public async Task OnEditorChanged()
     {
-        Document.IsModified = true;
-        UIEvents.NotifyStateChanged();
+        if(!Document.IsModified && !Editor.DocLoadingInProgress)
+        {
+            Document.IsModified = true;
+            // $"Document.IsModified = {Document.IsModified}".ProfileLog();
+            UIEvents.NotifyStateChanged();
+        }
+        Editor.DocLoadingInProgress = false;
     }
 
     [JSInvokable]
@@ -461,8 +536,9 @@
     {
         Document.CaretLine = line + 1; // 1-based for display
         Document.CaretCh = ch + 1;     // 1-based for display
-        Document.CaretPos = pos;     // 0-based for display
-        UIEvents.NotifyStateChanged();
+        Document.CaretPos = pos;       // 0-based for display
+
+        UIEvents.NotifyCaretPositionChanged();
         return Task.CompletedTask;
     }
 
@@ -482,11 +558,16 @@
             var lineNum = int.Parse(match.Groups["line"].Value);
             var colNum = int.Parse(match.Groups["col"].Value);
 
+            // CodeMirror is 0-based, so subtract 1
             // Only navigate if the file matches the currently loaded script
-            if (file.Equals(Editor.LoadedScript, StringComparison.OrdinalIgnoreCase))
+            if (file != Editor.LoadedDocument)
             {
-                // CodeMirror is 0-based, so subtract 1
-                ScrollToAndHighlightLine(lineNum - 1, colNum - 1);
+                _ = LoadDocFile(file, lineNum - 1, colNum - 1);
+                return true;
+            }
+            else
+            {
+                _ = ScrollToAndHighlightLine(lineNum - 1, colNum - 1);
                 return true;
             }
         }
@@ -504,7 +585,23 @@
 
     async Task StartResize(MouseEventArgs e) => await js("startSplitResize");
 
-    public void OnWatchItemSelected(int index)
+    void OnCallStackItemClicked(string fileName, int line)
+    {
+        try
+        {
+            var filePath = Editor.State.FindDocument(fileName);
+            if (filePath != null)
+            {
+                _ = LoadDocFile(filePath, line - 1, 0);
+            }
+        } 
+        catch (Exception e)
+        {
+            e.Log();
+        }
+    }
+
+    void OnWatchItemSelected(int index)
     {
         selectedWatchIndex = index;
         selectedWatchValue = null;
@@ -512,6 +609,7 @@
         RequestSelectedVariablesInfo(locals: false, watch: true);
     }
 
+    [JSInvokable] public async Task OnCtrlTab() => await SwapLastTabs();
     [JSInvokable] public async Task OnCtrlS() => await SaveToFileOnServer(false);
     [JSInvokable] public async Task OnCtrlE() => await OpenScriptFolder();
     [JSInvokable] public async Task OnCtrlF() => await OnFormatRequest();
@@ -523,6 +621,7 @@
     [JSInvokable] public async Task OnShiftF9() => await js("codemirrorInterop.clearAllBreakpoints");
     [JSInvokable] public async Task OnF10() => OnStepOverClicked(null);
     [JSInvokable] public async Task OnF11() => OnStepIntoClicked(null);
+    [JSInvokable] public async Task OnShiftF11() => OnStepOutClicked(null);
     [JSInvokable] public async Task OnCtrlF12() => GoToDefinition();
 
     [JSInvokable]
@@ -572,14 +671,17 @@
                 var line = result.FirstOrDefault(x => x.StartsWith("line:"))?.Replace("line:", "").Trim();
                 if (file.HasText() && File.Exists(file))
                 {
-                    if (file != Editor.LoadedScript)
+                    if (!Editor.CurrentScriptFiles.Contains(file))
                     {
-                        Editor.ShowExternalFile(file, line.ToInt());
+                        await OpenFullscreenEditor(file, line.ToInt());
                     }
                     else
                     {
+                        if (file != Editor.LoadedDocument)
+                            await LoadDocFile(file);
+
                         var lineNumber = int.Parse(line);
-                        ScrollToAndHighlightLine(lineNumber - 1, 0);
+                        await ScrollToAndHighlightLine(lineNumber - 1, 0);
                     }
                 }
             }
@@ -605,7 +707,7 @@
             Editor?.ShowToastError(e.Message);
         }
     }
-    
+
     public async void ShowReferences()
     {
         var editorText = await GetDocumentContent();
@@ -635,11 +737,17 @@
 
             var formattedCode = Syntaxer.Format(roslynCompatible.newText, Editor.LoadedScript, ref roslynCompatible.newOffset);
 
-            // CodeMirror always work with \n line breaks
-            var cmSpecific = formattedCode.NormalizeLineBreaks(roslynCompatible.newOffset, "\n");
+            if (formattedCode.HasText())
+            {
+                // CodeMirror always work with \n line breaks
+                var cmSpecific = formattedCode.NormalizeLineBreaks(roslynCompatible.newOffset, "\n");
 
-            await SetDocumentContent(cmSpecific.newText);
-            await SetCaretPosition(cmSpecific.newOffset);
+                //if (formattedCode != roslynCompatible.newText)
+                {
+                    await SetDocumentContent(cmSpecific.newText);
+                    await SetCaretPosition(cmSpecific.newOffset);
+                }
+            }
         }
         catch (Exception ex)
         {

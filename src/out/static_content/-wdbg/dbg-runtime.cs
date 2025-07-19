@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
@@ -12,6 +13,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using csscript;
+using CSScripting;
+using wdbg;
 
 public static class DBG
 {
@@ -33,6 +37,25 @@ public static class DBG
 
     public static string SessionId => Environment.GetEnvironmentVariable("CSS_DBG_SESSION");
 
+    static int GetDecorationOffset(string sourceFilePath)
+    {
+        int offset = 0;
+        var decoretedScriptsDir = Path.GetDirectoryName(sourceFilePath);
+        var isPrimaryScript = Path.GetFileName(sourceFilePath) == Path.GetFileName(decoretedScriptsDir);
+
+        if (isPrimaryScript)
+        {
+            var bpFile = Directory.GetFiles(decoretedScriptsDir, "*.cs.bp").FirstOrDefault();
+            var scriptSourceFilesCount = File.ReadAllLines(bpFile).Count();
+
+            var importedScriptsCount = scriptSourceFilesCount - 1;
+            offset += importedScriptsCount;
+            offset += 1;  // for the import of dbg-runtime.cs
+        }
+
+        return offset;
+    }
+
     public static string[] Breakpoints
     {
         get
@@ -47,8 +70,10 @@ public static class DBG
                     {
                         // in the decorated script there is an extra line at top so increment the line number
                         var parts = x.Trim().Split(":");
-                        var bp = $"{string.Join(":", parts[0..^1])}:{int.Parse(parts.Last()) + 1}";
-                        return bp;
+                        var file = string.Join(":", parts[0..^1]);
+                        var line = int.Parse(parts.Last());
+                        line += GetDecorationOffset(file);
+                        return $"{file}:{line}";
                     })
                     .ToArray();
             }
@@ -144,19 +169,33 @@ public static class DBG
     }
 
     public static BreakPoint Line([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
-        => new BreakPoint
+    {
+        // Console.WriteLine($"DBG.Line() called from {sourceFilePath}:{sourceLineNumber} in {memberName}");
+
+        var result = new BreakPoint
         {
             methodDeclaringType = new StackFrame(1).GetMethod().ReflectedType.ToString(),
             methodName = memberName,
+            runtimeCallChain = new StackTrace(true).GetFrames().GetCallChain(),
             sourceFilePath = sourceFilePath,
             sourceLineNumber = sourceLineNumber
         };
+
+        // Console.WriteLine($"DBG.Line(): {(string.Join(">", result.CallingMethods.Reverse()))}");
+
+        return result;
+    }
 }
 
 public class BreakPoint
 {
     public string methodDeclaringType = "";
     public string methodName = "";
+    public string[] runtimeCallChain = [];
+
+    // "Program.Main (program.cs:10)"
+    public string[] CallingMethods => runtimeCallChain.Select(x => x.Split('[').First().Trim()).ToArray();
+
     public string sourceFilePath = "";
     public int sourceLineNumber = 0;
     static bool monitorStarted = false;
@@ -171,6 +210,8 @@ public class BreakPoint
         while (true)
         {
             var request = DBG.UserRequest;
+
+            // Console.WriteLine($"DBG.UserRequest: {request}");
 
             if (request.StartsWith("serializeObject:"))
                 SerializeObject(variables, watchExpressions, request.Replace("serializeObject:", ""));
@@ -196,11 +237,20 @@ public class BreakPoint
                 break;
             }
 
-            // continue to the next point of inspection but only in the same method
+            // continue to the next point of inspection
             if (IsStepOverRequested(request))
             {
                 // DBG.DebugOutputLine($"Step-Over requested in {methodName} at {sourceFilePath}:{sourceLineNumber}");
-                DBG.StopOnNextInspectionPointInMethod = methodName;
+                // DBG.StopOnNextInspectionPointInMethod = methodName;
+                DBG.StopOnNextInspectionPointInMethod = CallingMethods.JoinBy("|");
+                //DBG.StopOnNextInspectionPointInMethod = "*";
+                break;
+            }
+
+            if (IsStepOutRequested(request))
+            {
+                // DBG.DebugOutputLine($"Step-Out requested in {methodName} at {sourceFilePath}:{sourceLineNumber}");
+                DBG.StopOnNextInspectionPointInMethod = CallingMethods.Skip(1).JoinBy("|");
                 break;
             }
 
@@ -212,6 +262,7 @@ public class BreakPoint
 
             Thread.Sleep(700);
         }
+        // Console.WriteLine($"DBG.StopOnNextInspectionPointInMethod: {DBG.StopOnNextInspectionPointInMethod}");
     }
 
     private static void SerializeObject((string name, object value)[] variables, Dictionary<string, object> watchExpressions, string varName)
@@ -384,14 +435,17 @@ public class BreakPoint
             return true;
         }
 
-        if (methodName == DBG.StopOnNextInspectionPointInMethod)
+        if (DBG.StopOnNextInspectionPointInMethod?.Split('|').Contains($"{methodDeclaringType}.{methodName}") == true)
         {
             DBG.StopOnNextInspectionPointInMethod = null;
             return true;
         }
 
         var bp = DBG.Breakpoints;
-
+        Console.WriteLine($"----");
+        Console.WriteLine($"  DBG.Breakpoints: {string.Join("\n                   ", bp.Select(x => Path.GetFileName(x)))}");
+        Console.WriteLine($"  id: {id}");
+        Console.WriteLine($"----");
         if (DBG.Breakpoints.Contains(id))
         {
             DBG.StopOnNextInspectionPointInMethod = null;
@@ -399,6 +453,8 @@ public class BreakPoint
         }
         return false;
     }
+
+    bool IsStepOutRequested(string request) => request == "step_out";
 
     bool IsStepOverRequested(string request) => request == "step_over";
 
@@ -415,7 +471,9 @@ public class BreakPoint
         if (!ShouldStop())
             return;
 
-        DBG.PostBreakInfo($"{sourceFilePath}|{sourceLineNumber - 1}|{variables.ToJson()}"); // let debugger to show BP as the start of the next line
+        DBG.PostBreakInfo($"{sourceFilePath}|{sourceLineNumber}|{variables.ToJson()}\n{runtimeCallChain.JoinBy("|")}"); // let debugger to show BP as the start of the next line
+
+        // Console.WriteLine($"DBG.Inspect: {runtimeCallChain.JoinBy("|")}");
 
         WaitTillResumed(variables);
     }
@@ -729,7 +787,7 @@ namespace wdbg
         }
     }
 
-    internal static class Extension
+    static class Extension
     {
         static public string ReplaceWholeWord(this string text, string pattern, string replacement)
         {
@@ -777,5 +835,40 @@ namespace wdbg
         }
 
         // for reflecting dynamic objects look at dbg.dynamic.cs
+
+        public static string[] GetCallChain(this StackFrame[] frames)
+        {
+            var result = new List<string>();
+
+            // Skip frame 0 (current Line method) and start from frame 1
+            for (int i = 1; i < frames.Length; i++)
+            {
+                var frame = frames[i];
+                var method = frame.GetMethod();
+
+                if (method.DeclaringType.Assembly != Assembly.GetExecutingAssembly())
+                    break;
+
+                if (method != null)
+                {
+                    var declaringType = method.DeclaringType?.Name ?? "UnknownType";
+
+                    var methodName = method.Name;
+                    var fileName = frame.GetFileName();
+                    var lineNumber = frame.GetFileLineNumber();
+
+                    // Format: TypeName.MethodName (file:line)
+                    var frameInfo = $"{declaringType}.{methodName}";
+                    if (!string.IsNullOrEmpty(fileName) && lineNumber > 0)
+                    {
+                        frameInfo += $"[{Path.GetFileName(fileName)}:{lineNumber}]";
+                    }
+
+                    result.Add(frameInfo);
+                }
+            }
+
+            return result.ToArray();
+        }
     }
 }

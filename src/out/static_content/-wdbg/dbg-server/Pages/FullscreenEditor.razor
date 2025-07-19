@@ -49,7 +49,7 @@
             {
                 // Add a small delay to ensure editor is fully initialized
                 await Task.Delay(100);
-                await _module.InvokeVoidAsync("scrollToLine", line);
+                await _module.InvokeVoidAsync("scrollToLine", line - 1);
             }
         }
     }

@@ -26,12 +26,15 @@ public static class Decorator
 {
     static int Main(string[] args)
     {
-        (string decoratedScript, int[] breakpoints)[] items = Decorator.Process(args.FirstOrDefault() ?? "<unknown script>");
+        (string script, string decoratedScript, int[] breakpoints)[] items = Decorator.Process(args.FirstOrDefault() ?? "<unknown script>");
+
+        Console.WriteLine("script-dbg:" + items[0].decoratedScript);
 
         foreach (var item in items)
         {
-            Console.WriteLine("file:" + item.decoratedScript);
-            Console.WriteLine("bp:" + string.Join(",", item.breakpoints.Select(x => x.ToString())));
+            Console.WriteLine("file:" + item.script);
+            Console.WriteLine("file-dbg:" + item.decoratedScript);
+            Console.WriteLine("bp:" + string.Join(",", item.breakpoints.Select(x => (x + 1).ToString())));
         }
 
         return 0;
@@ -43,7 +46,8 @@ public static class Decorator
 
     static string GetCacheDirectory(string script)
     {
-        // return Runtime.GetCacheDirectory(primaryScript); // the API not ready yet in cscs.dll
+        return Runtime.GetCacheDir(script);
+        // If the above API is not ready yet in cscs.dll:
         var result = typeof(csscript.Runtime).Assembly
                          .GetType("csscript.CSExecutor")
                          .GetMethod("GetCacheDirectory")
@@ -56,17 +60,18 @@ public static class Decorator
 
     static Dictionary<string, string> DecoratedScriptsMap = new();
 
-    public static (string decoratedScript, int[] breakpoints)[] Process(string script)
+    public static (string script, string decoratedScript, int[] breakpoints)[] Process(string script)
     {
         if (File.Exists(script))
         {
             var dbgAgentScript = Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("EntryScript")), "dbg-runtime.cs");
 
-            var result = new List<(string decoratedScript, int[] breakpoints)>();
+            var result = new List<(string script, string decoratedScript, int[] breakpoints)>();
 
             var sourceFiles = Project.GenerateProjectFor(script).Files;
             var primaryScript = sourceFiles.First(); // always at least one script is present
-            var cacheDir = GetCacheDirectory(primaryScript);
+            var cacheDir = GetCacheDirectory(primaryScript).PathJoin(".wdbg", script.GetFileName());
+            cacheDir.EnsureDir();
             var importedScripts = sourceFiles.Skip(1).Where(x => Path.GetFileNameWithoutExtension(x) != global_usings_import);
             var decoratedPrimaryScript = primaryScript.ChangeToCahcheDir(cacheDir);
 
@@ -153,19 +158,14 @@ public static class Decorator
                 catch { }
             }
 
-            foreach ((var scriptFile, var breakpoints) in result)
+            var breakPointsFile = decoratedPrimaryScript + ".bp";
+
+            var lines = result.Select((info) =>
             {
-                var breakPointFile = scriptFile + ".bp";
-                if (breakpoints.Length == 0)
-                {
-                    try { File.Delete(breakPointFile); }
-                    catch { }
-                }
-                else
-                {
-                    File.WriteAllLines(breakPointFile, breakpoints.Select(x => $"-{x}").ToArray());
-                }
-            }
+                return $"{info.script}|{info.decoratedScript}|{(info.breakpoints.Select(x => $"-{x + 1}").JoinBy(","))}";
+            })
+            .ToArray();
+            File.WriteAllLines(breakPointsFile, lines);
 
             return result.ToArray();
         }
@@ -178,7 +178,7 @@ public static class Decorator
     // file, breakpoint line, list of invalid local variables
     static Dictionary<string, Dictionary<int, List<string>>> invalidBreakpointVariables = new();
 
-    static (string decoratedScript, int[] breakpoints) InjectDbgInfo(string script, string decoratedScript, MethodDbgInfo[] map, Func<string> check, string globalImport = null)
+    static (string script, string decoratedScript, int[] breakpoints) InjectDbgInfo(string script, string decoratedScript, MethodDbgInfo[] map, Func<string> check, string globalImport = null)
     {
         string error = null;
 
@@ -289,17 +289,24 @@ public static class Decorator
                 lines[j] = lines[j].Replace("//css_inc", "//css_diasbled_inc");
         }
 
+        int offset = 0;
         if (globalImport.HasText())
-            lines.Insert(0, globalImport);
+        {
+            lines.Insert(0, globalImport); // even if globalImport is a multiline text it will take only one item in the `lines` list
+            offset++;
+        }
 
         File.WriteAllLines(decoratedScript, lines);
 
+        // lines contains as many elements as the original undecorated script file + one extra line if global imports were inserted
+
         breakpoints = lines.Select((x, i) => new { index = i, line = x })
                            .Where(x => x.line.Contains("DBG.Line().Inspect("))
-                           .Select(x => x.index)
+                           .Select(x => x.index - offset) // adjust for the global import line
+                                                          // .Select(x => x.index)
                            .ToArray();
 
-        return (decoratedScript, breakpoints);
+        return (script, decoratedScript, breakpoints);
     }
 
     static bool IsInsideBracketlessScope(string code, int line)

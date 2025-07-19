@@ -44,10 +44,10 @@
                             <tr>
                                 <td>
                                     @{
-                                        var currentScriptFiles = Editor?.CurrentScriptFiles ?? [];
-                                        for (int i = 0; i < currentScriptFiles.Count; i++)
+                                        UpdateVisibleLists();
+                                        for (int i = 0; i < _visibleCurrentScripts.Count; i++)
                                         {
-                                            var file = currentScriptFiles[i];
+                                            var file = _visibleCurrentScripts[i];
                                             var _class = "tree-view-item";
                                             var isPrimaryScript = i == 0;
                                             var isSelected = (file == Editor?.LoadedDocument);
@@ -56,20 +56,12 @@
                                             if(!isPrimaryScript)
                                                 _class += " child-item";
 
-                                            <li>
+                                                // title="@((isPrimaryScript ? " Primary script: ":"Imported script: ")+ file)"
+                                            <div>
                                                 <button type="button"
-                                                        title="@((isPrimaryScript ? " Primary script: ":"Imported script: ")+ file)"
                                                         @onclick="async () => await Editor?.LoadDocFile(file)"
                                                          class="@_class"
                                                         >
-                                                   @if(isSelected) 
-                                                   {
-                                                       <span class="selected-item">●</span>
-                                                   }  
-                                                   else
-                                                   {
-                                                       <span>○</span>
-                                                   }
                                                    @if(isPrimaryScript) 
                                                    {
                                                        <span>📜</span> 
@@ -78,9 +70,9 @@
                                                    {
                                                        <span>🧾</span>
                                                    }
-                                                   @(Path.GetFileName(file))
+                                                   @(DocumentDisplayName(file))
                                                 </button>
-                                            </li>
+                                            </div>
                                         }
                                      }
                                 </td>
@@ -98,7 +90,7 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    @foreach (var file in Editor?.RecentScripts??[])
+                                    @foreach (var file in _visibleRecentScripts)
                                     {
                                         <li>
                                              <button type="button"
@@ -131,15 +123,6 @@
                     </table>
 
                     <div class="nav-item px-3">
-                        <br />
-                    <h3>Limitations</h3>
-                    <span>
-
-                        This version does not support yet: 
-  Script                      <ul>
-                            <li>Multi-file scripts</li>
-                        </ul>
-                    </span>
                     </div>
                 }
                 else if (selectedTab == 1)
@@ -333,6 +316,19 @@
 
     void StateHasChangedSafe() => InvokeAsync(StateHasChanged); // Ensure StateHasChanged is called on the UI thread
 
+    void StateHasChangedSafeDebounced() 
+    {
+        _debounceTimer?.Stop();
+        _debounceTimer = new System.Timers.Timer(DEBOUNCE_DELAY);
+        _debounceTimer.Elapsed += (s, e) => {
+            InvokeAsync(StateHasChanged);
+            _debounceTimer?.Dispose();
+            _debounceTimer = null;
+        };
+        _debounceTimer.AutoReset = false;
+        _debounceTimer.Start();
+    }
+
     bool collapseNavMenu = true;
 
     string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -352,7 +348,7 @@
             this.Document = userSession.Document;
             this.Editor = userSession.Editor;
             this.UIEvents = userSession.UIEvents;
-            UIEvents.OnChange += StateHasChangedSafe;
+            UIEvents.OnChange += StateHasChangedSafeDebounced;
         }
     }
 
@@ -378,12 +374,25 @@
     List<(string script, int pid)> runningScripts = new();
     System.Timers.Timer runningScriptsTimer;
 
+    private System.Timers.Timer _debounceTimer;
+    private const int DEBOUNCE_DELAY = 100; // 100ms debounce
+
+    private List<string> _visibleCurrentScripts = new();
+    private List<string> _visibleRecentScripts = new();
+    private const int MAX_VISIBLE_ITEMS = 20;
+
+    private void UpdateVisibleLists()
+    {
+        _visibleCurrentScripts = (Editor?.CurrentScriptFiles ?? []).Take(MAX_VISIBLE_ITEMS).ToList();
+        _visibleRecentScripts = (Editor?.RecentScripts ?? []).Take(MAX_VISIBLE_ITEMS).ToList();
+    }
+
     void InstallSyntaxer(bool update = false)
     {
         Tools.InstallSyntaxer(update);
         Editor?.ShowToastSuccess("Refresh the page after install/update is completed.");
     }
-    
+
     void InstallCSScript(bool update = false)
     {
         Tools.InstallCSScript(update);
@@ -424,11 +433,17 @@
         _ = RefreshRunningScripts();
     }
 
+    public string DocumentDisplayName(string path)
+    {
+        var isModified = Editor.State.IsDocumentModified(path) || (Document.IsModified && Editor.LoadedDocument == path);
+        // Debug.WriteLine($"DocumentDisplayName: {Path.GetFileName(path) } isModified: {isModified}");
+        return Path.GetFileName(path) + (isModified? " *":"");
+    }
     public void Dispose()
     {   
         try
         {
-            UIEvents.OnChange -= StateHasChangedSafe;
+            UIEvents.OnChange -= StateHasChangedSafeDebounced;
         }
         catch (Exception e) { e.Log(); }
     }

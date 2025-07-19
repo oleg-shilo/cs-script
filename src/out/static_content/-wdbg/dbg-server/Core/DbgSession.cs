@@ -74,16 +74,18 @@ public class DbgSession
         this.Id = id; this.UIEvents = uiEvents ?? new();
     }
 
+    public Dictionary<string, string> dbgScriptMaping = new();
+
     public Queue<string> UserRequest = new();
     public string UserInterrupt;
     public Process RunningScript;
+    public string StackFrameFileName;
     public int? StackFrameLineNumber; // 1-based
-    public int CurrentStepLineNumber => StackFrameLineNumber.HasValue ? StackFrameLineNumber.Value - 1 : -1; // 0-based
+    public int CurrentStepLineNumber => StackFrameLineNumber.HasValue ? StackFrameLineNumber.Value : -1; // 0-based
     public bool IsInBreakMode => StackFrameLineNumber.HasValue;
     public bool IsScriptExecutionInProgress => RunningScript != null;
-    public string StackFrameFileName;
     public UINotificationService UIEvents;
-    public List<int> Breakpoints = new();
+    public Dictionary<string, int[]> Breakpoints = new();
 
     static public DbgSession Current => throw new NotImplementedException();
 
@@ -112,6 +114,12 @@ public class DbgSession
             UserRequest.Enqueue("step_in");
         StackFrameLineNumber = null;
     }
+    public void RequestStepOut()
+    {
+        lock (UserRequest)
+            UserRequest.Enqueue("step_out");
+        StackFrameLineNumber = null;
+    }
 
     public void RequestPause()
     {
@@ -138,31 +146,31 @@ public class DbgSession
         UIEvents.NotifyDbgChanged(null);
     }
 
-    public void UpdateCurrentBreakpoints(int[] validBreakPointLines)
-    {
-        lock (Breakpoints)
-        {
-            if (validBreakPointLines != null) // valid lines for placing break points are known
-            {
-                var invalidBreakPoints = Breakpoints.Except(validBreakPointLines).ToArray();
-                var validBreakPoints = Breakpoints.Except(invalidBreakPoints).ToArray();
+    // public void UpdateCurrentBreakpoints(int[] validBreakPointLines)
+    // {
+    //     lock (Breakpoints)
+    //     {
+    //         if (validBreakPointLines != null) // valid lines for placing break points are known
+    //         {
+    //             var invalidBreakPoints = Breakpoints.Except(validBreakPointLines).ToArray();
+    //             var validBreakPoints = Breakpoints.Except(invalidBreakPoints).ToArray();
 
-                Breakpoints.Clear();
-                Breakpoints.AddRange(validBreakPoints);
+    //             Breakpoints.Clear();
+    //             Breakpoints.AddRange(validBreakPoints);
 
-                foreach (int invalidBreakPoint in invalidBreakPoints)
-                {
-                    var nextValidBreaktPointLine = validBreakPointLines.SkipWhile(x => x < invalidBreakPoint).FirstOrDefault();
+    //             foreach (int invalidBreakPoint in invalidBreakPoints)
+    //             {
+    //                 var nextValidBreaktPointLine = validBreakPointLines.SkipWhile(x => x < invalidBreakPoint).FirstOrDefault();
 
-                    if (nextValidBreaktPointLine != 0) // since default for int is 0
-                    {
-                        if (!validBreakPoints.Contains(nextValidBreaktPointLine))
-                        {
-                            Breakpoints.Add(nextValidBreaktPointLine);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    //                 if (nextValidBreaktPointLine != 0) // since default for int is 0
+    //                 {
+    //                     if (!validBreakPoints.Contains(nextValidBreaktPointLine))
+    //                     {
+    //                         Breakpoints.Add(nextValidBreaktPointLine);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }

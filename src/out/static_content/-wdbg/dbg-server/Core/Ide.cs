@@ -1,7 +1,129 @@
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using wdbg.cs_script;
 using wdbg.Pages;
+
+public class ActiveState
+{
+    public Dictionary<string, (DateTime timestamp, string content)> AllDocumentsContents = new();
+
+    // document path -> array of line numbers with breakpoints (even invalid breakpoints that will be validated on doc save)
+    public Dictionary<string, int[]> AllDocumentsBreakpoints = new();
+
+    // document path -> view state (caret position and scroll position)
+    public Dictionary<string, DocumentViewState> AllDocumentsViewStates = new();
+
+    public int[] GetDocumentBreakpoints(string document) => AllDocumentsBreakpoints.ContainsKey(document) ? AllDocumentsBreakpoints[document] : [];
+
+    public DocumentViewState GetDocumentViewState(string document) => AllDocumentsViewStates.ContainsKey(document) ? AllDocumentsViewStates[document] : new DocumentViewState();
+
+    public void UpdateState(string path, Document document, string changeHistory)
+    {
+        var state = GetDocumentViewState(path);
+        AllDocumentsViewStates[path] = state;
+        state.CaretLine = document.CaretLine;
+        state.CaretCh = document.CaretCh;
+        state.CaretPos = document.CaretPos;
+        state.ChangeHistory = changeHistory;
+
+        // Debug.WriteLine($"write = file: {path.GetFileName()}({state.CaretLine}, {state.CaretCh})");
+    }
+
+    public void SaveDocumentViewState(string document, DocumentViewState viewState)
+    {
+        if (document.HasText() && viewState != null)
+        {
+            AllDocumentsViewStates[document] = viewState;
+        }
+    }
+
+    public bool HasInfoFor(string document) => AllDocumentsBreakpoints.ContainsKey(document) && AllDocumentsBreakpoints.ContainsKey(document);
+
+    public bool AnyScriptFilesModified()
+    {
+        foreach (var doc in AllDocumentsContents.Keys.ToArray())
+            if (AllDocumentsContents[doc].content.HasText() && AllDocumentsContents[doc].timestamp > File.GetLastWriteTimeUtc(doc))
+                return true;
+        return false;
+    }
+
+    public string FindDocument(string fileName)
+        => AllDocumentsContents.Keys.FirstOrDefault(x => x.GetFileName() == fileName);
+
+    public List<string> SaveAllFilesIfModified()
+    {
+        List<string> result = new();
+        foreach (var doc in AllDocumentsContents.Keys.ToArray())
+        {
+            if (AllDocumentsContents[doc].content.HasText() && AllDocumentsContents[doc].timestamp > File.GetLastWriteTimeUtc(doc))
+            {
+                try
+                {
+                    result.Add(doc);
+                    File.WriteAllText(doc, AllDocumentsContents[doc].content);
+                    AllDocumentsContents[doc] = (File.GetLastWriteTimeUtc(doc), AllDocumentsContents[doc].content);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error saving document {doc}: {ex.Message}");
+                }
+            }
+        }
+        return result;
+    }
+
+    public void UpdateFor(string path, string content, int[] breakpoints)
+    {
+        if (breakpoints != null)
+        {
+            // add all new breakpoints even if they are not valid
+            AllDocumentsBreakpoints[path] = breakpoints.Distinct().ToArray();
+        }
+
+        if (content != null)
+        {
+            if (AllDocumentsContents.ContainsKey(path))
+            {
+                int cacheHashCode = AllDocumentsContents[path].content.GetHashCode();
+                int contentHashCode = content.GetHashCode();
+
+                // if (AllDocumentsContents[path].content != content)
+                if (cacheHashCode != contentHashCode)
+                    AllDocumentsContents[path] = (DateTime.UtcNow, content);
+            }
+            else
+                AllDocumentsContents[path] = (DateTime.UtcNow, content);
+        }
+    }
+
+    public async Task<(string content, bool isModified)> GetContentFromFileOrCache(string path)
+    {
+        var newDocument = !AllDocumentsContents.ContainsKey(path) || !AllDocumentsContents[path].content.HasText();
+
+        if (newDocument || File.GetLastWriteTimeUtc(path) > AllDocumentsContents[path].timestamp)
+        {
+            AllDocumentsContents[path] = (File.GetLastWriteTimeUtc(path), await File.ReadAllTextAsync(path));
+        }
+
+        var isModified = AllDocumentsContents[path].timestamp > File.GetLastWriteTimeUtc(path);
+
+        return (AllDocumentsContents[path].content, isModified);
+    }
+
+    public bool IsDocumentModified(string path)
+    {
+        if (AllDocumentsContents.ContainsKey(path) && AllDocumentsContents[path].content.HasText())
+        {
+            var isModified = AllDocumentsContents[path].timestamp > File.GetLastWriteTimeUtc(path);
+            return isModified;
+        }
+
+        return false;
+    }
+}
 
 public class Ide
 {
@@ -9,6 +131,7 @@ public class Ide
     public UINotificationService UINotification;
     public CodeMirrorPage MainPage;
     IJSRuntime Interop;
+    public ActiveState State = new();
 
     public Ide()
     {
@@ -22,37 +145,161 @@ public class Ide
         Interop = interop;
     }
 
+    public bool DocLoadingInProgress;
     public string LoadedScript = "Untitled";
     public string LoadedDocument = "Untitled";
+    public string PreviousLoadedDocument = "";
     public string DebugGenerationError;
     public string LoadedScriptDbg;
     public bool IsLoadedScriptDbg;
 
-    public int[] ValidBreakpointsOf(string documentFile)
+    public Dictionary<string, int[]> AllEnabledBreakpoints
     {
-        if (LoadedScriptDbg.HasText() && File.Exists(LoadedScriptDbg))
+        get
         {
-            var documentBreakpoints = Path.Combine(Path.GetDirectoryName(LoadedScriptDbg), Path.GetFileName(documentFile)) + ".bp";
-            if (File.Exists(documentBreakpoints))
+            var result = new Dictionary<string, int[]>();
+
+            foreach (var script in State.AllDocumentsBreakpoints.Keys)
             {
-                var lines = File.ReadAllLines(documentBreakpoints);
-                // -10 - disabled bp
-                // +10 - enabled bp
-                return lines.Select(x => x.Substring(1).ToInt()).ToArray();
+                if (dbgScriptMaping.ContainsKey(script))
+                {
+                    var decoratedScript = dbgScriptMaping[script];
+                    result[decoratedScript] = State.AllDocumentsBreakpoints[script].ToArray();
+                }
+            }
+            return result;
+        }
+    }
+
+    public async Task<int[]> SaveStateOf(string script)
+    {
+        // ensure the latest debug info is fetched before and State.AllDocumentsBreakpoints has only valid breakpoints
+        await FetchLatestDebugInfo(script);
+
+        var dbgFile = script.LocateLoadedScriptDebugCode() + ".bp";
+        var persistedDbgInfo = ReadBreakpoints(dbgFile);
+
+        foreach (var file in State.AllDocumentsBreakpoints.Keys)
+        {
+            if (persistedDbgInfo.ContainsKey(file))
+            {
+                var documentBreakpoints = State.AllDocumentsBreakpoints[file];
+                var persistedBreakpoints = persistedDbgInfo[file];
+                for (int i = 0; i < persistedBreakpoints.Length; i++)
+                {
+                    var line = persistedBreakpoints[i].line;
+                    var enabled = documentBreakpoints.Contains(line);
+                    persistedBreakpoints[i] = (enabled, line);
+                }
             }
         }
-        return [];
+
+        SaveBreakpoints(dbgFile, persistedDbgInfo);
+
+        foreach (var file in State.AllDocumentsContents.Keys)
+        {
+            // not implemented yet, but will be used to store document contents.
+        }
+
+        return State.GetDocumentBreakpoints(this.LoadedDocument); // return fresh updated breakpoints
+    }
+
+    public async Task ReadSavedStateOf(string script)
+    {
+        if (!script.HasText())
+            return;
+
+        var dbgFile = script.LocateLoadedScriptDebugCode() + ".bp";
+        var dbgInfo = ReadBreakpoints(dbgFile);
+
+        State.AllDocumentsBreakpoints = dbgInfo.ToDictionary(x => x.Key,
+                                                             x => x.Value.Where(x => x.enabled).Select(y => y.line).ToArray());
+        // not ready yet, but will be used to store document contents.
+        // it's not clear what is the best way to save cross-session data for the documents.
+        // so save "very old" empty contents for now.
+        State.AllDocumentsContents = dbgInfo.ToDictionary(x => x.Key, x => (DateTime.MinValue, ""));
+    }
+
+    public async Task FetchLatestDebugInfo(string script)
+    {
+        // var currentState = State.AllDocumentsBreakpoints;
+        var persistedDbgInfo = ReadBreakpoints(script.LocateLoadedScriptDebugCode() + ".bp");
+
+        // update State.AllDocumentsBreakpoints to ensure it contains only valid
+        foreach (var file in State.AllDocumentsBreakpoints.Keys)
+        {
+            var documentBreakpoints = State.AllDocumentsBreakpoints[file].ToList();
+
+            // persistedDbgInfo may not have file. continue so if any breakpoints are defined for the file
+            // they will be saved on next save
+            if (!persistedDbgInfo.ContainsKey(file))
+                continue;
+
+            var persistedBreakpoints = persistedDbgInfo[file];
+
+            foreach (var lineNumber in documentBreakpoints.ToArray()) // iterate through the cloned list to avoid modifying it while iterating
+            {
+                var valid = persistedBreakpoints.Any(x => x.line == lineNumber);
+                if (!valid)
+                    documentBreakpoints.Remove(lineNumber); // remove invalid breakpoints
+            }
+
+            State.AllDocumentsBreakpoints[file] = documentBreakpoints.ToArray();
+        }
+    }
+
+    public static void SaveBreakpoints(string breakpointsFile, Dictionary<string, (bool enabled, int line)[]> breakpoints)
+    {
+        // IMPORTANT: script.csbp contain lines that are 1-based; IDE uses 0-based line numbers
+        var dbgCacheDir = breakpointsFile.GetDirName().EnsureDir();
+        var lines = breakpoints.Select(item =>
+        {
+            // file|decoratedFile|-1,-2,+3
+            var file = item.Key;
+            var decoratedFile = file.ChangeDir(dbgCacheDir);
+
+            return $"{file}|{decoratedFile}|" +
+                   $"{(item.Value.Select(x => $"{(x.enabled ? "+" : "-")}{x.line + 1}").JoinBy(","))}";
+        }).ToArray();
+
+        File.WriteAllLines(breakpointsFile, lines);
+    }
+
+    public Dictionary<string, string> dbgScriptMaping = new();
+
+    public Dictionary<string, (bool enabled, int line)[]> ReadBreakpoints(string breakpointsFile)
+    {
+        // IMPORTANT: script.cs.bp contain lines that are 1-based; IDE uses 0-based line numbers
+        Dictionary<string, (bool enabled, int line)[]> result = new();
+        dbgScriptMaping.Clear();
+
+        if (File.Exists(breakpointsFile))
+        {
+            foreach (var line in File.ReadAllLines(breakpointsFile))
+                try
+                {
+                    // file|decoratedFile|-1,-2,+3
+                    var parts = line.Split('|', 3);
+                    var file = parts[0].Trim();
+                    var decoratedFile = parts[1].Trim();
+                    dbgScriptMaping[file] = decoratedFile;
+                    var breakpoints = parts[2].Split(',').Select(x => (x.StartsWith("+"), x.Substring(1).ToInt() - 1)).ToArray();
+                    result[file] = breakpoints;
+                }
+                catch { } // ignore malformed lines
+        }
+        return result;
     }
 
     public Process DbgGenerator;
 
     public void LocateLoadedScriptDebugInfo()
     {
-        var decoratedScript = LoadedScript.LocateLoadedScriptDebuggInfo();
+        var decoratedScript = LoadedScript.LocateLoadedScriptDebugCode();
 
         if (decoratedScript.HasText() &&
             File.Exists(LoadedScript) && File.Exists(decoratedScript) &&
-            File.GetLastWriteTimeUtc(decoratedScript) == File.GetLastWriteTimeUtc(LoadedScript))
+            File.GetLastWriteTimeUtc(decoratedScript) >= File.GetLastWriteTimeUtc(LoadedScript))
         {
             LoadedScriptDbg = decoratedScript;
         }
@@ -90,7 +337,7 @@ public class Ide
         {
             bool filesDefined() => LoadedScript.HasText() && LoadedScriptDbg.HasText();
             bool filesExist() => File.Exists(LoadedScript) && File.Exists(LoadedScriptDbg);
-            bool filesAreInSync() => File.GetLastWriteTimeUtc(LoadedScriptDbg) == File.GetLastWriteTimeUtc(LoadedScript);
+            bool filesAreInSync() => File.GetLastWriteTimeUtc(LoadedScriptDbg) >= File.GetLastWriteTimeUtc(LoadedScript);
 
             return filesDefined() && filesExist() && filesAreInSync();
         }
@@ -98,19 +345,10 @@ public class Ide
 
     public async Task LoadRecentScriptFile(string file) => await MainPage?.LoadRecentScriptFile(file);
 
-    public async Task LoadDocFile(string file) => await MainPage?.LoadDocFile(file);
-
-    public async void ShowExternalFile(string path, int navigateToline = -1)
+    public async Task LoadDocFile(string file)
     {
-        try
-        {
-            Interop.InvokeVoidAsync("open", $"/fullscreen-editor?file={Uri.EscapeDataString(path)}&line={navigateToline}", "_blank");
-        }
-        catch (Exception ex)
-        {
-            ConsoleLog($"Error opening external file: {ex.Message}");
-            ShowToastError($"Error opening file: {ex.Message}");
-        }
+        if (MainPage != null && !DocLoadingInProgress)
+            await MainPage.LoadDocFile(file);
     }
 
     public void ResetDbgGenerator()

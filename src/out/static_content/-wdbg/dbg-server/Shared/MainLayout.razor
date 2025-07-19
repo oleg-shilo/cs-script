@@ -49,7 +49,15 @@
     public Ide Editor;
     public Document Document;
 
-    public void Dispose() { try { UIEvents.OnChange -= StateHasChangedSafe; } catch (Exception e) { e.Log(); } }
+    public void Dispose()
+    {
+        try
+        {
+            UIEvents.OnChange -= StateHasChangedSafe;
+            UIEvents.OnCaretPositionChange -= StateHasChangedSafe;
+        }
+        catch (Exception e) { e.Log(); }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -60,6 +68,7 @@
             this.Editor = userSession.Editor;
             this.UIEvents = userSession.UIEvents;
             UIEvents.OnChange += StateHasChangedSafe;
+            UIEvents.OnCaretPositionChange += StateHasChangedSafe;
         }
     }
 

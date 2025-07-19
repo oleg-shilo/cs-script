@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.JSInterop;
@@ -43,6 +44,11 @@ static class Extensions
 
     public static (string newText, int newOffset) NormalizeLineBreaks(this string text, int offset = 0, string desiredLineBreak = null)
     {
+        if (offset == -1)
+        {
+            return (text, -1);
+        }
+
         if (offset == 0)
         {
             var newText = text.Replace("\r\n", "\n");
@@ -68,11 +74,19 @@ static class Extensions
 
     public static bool HasText(this string text) => !string.IsNullOrEmpty(text);
 
+    public static bool IsEmpty(this string text) => string.IsNullOrEmpty(text);
+
     public static string qt(this string path) => $"\"{path}\"";
 
     public static string GetDirName(this string path) => Path.GetDirectoryName(path);
 
     public static string GetFileName(this string path) => Path.GetFileName(path);
+
+    public static string ChangeExtension(this string path, string extension) => Path.ChangeExtension(path, extension);
+
+    public static string ChangeDir(this string path, string newDir) => Path.Combine(newDir, Path.GetFileName(path));
+
+    public static string UpdateFromUp(this string path) => Path.GetFileName(path);
 
     public static ValueTask<string>? ClearField(this IJSObjectReference module, string id)
         => module?.InvokeAsync<string>("clearInputField", id);
@@ -149,9 +163,52 @@ static class Extensions
         stream.Flush();
     }
 
+    public static Dictionary<string, int[]> Clone(this Dictionary<string, int[]> collection)
+    {
+        var clone = new Dictionary<string, int[]>(collection.Count);
+        foreach (var kvp in collection)
+        {
+            clone[kvp.Key] = kvp.Value.ToArray(); // create a copy of the array
+        }
+        return clone;
+    }
+
     public static void WriteAllText(this TcpClient client, string data)
     {
         client.WriteAllBytes(data.GetBytes());
+    }
+
+    static DateTime? lastProfilerLogTime = null;
+
+    public static void ProfileLog(this object obj, [CallerMemberName] string caller = null)
+    {
+        var dif = (int)(DateTime.Now - (lastProfilerLogTime ?? DateTime.Now)).TotalMilliseconds;
+        lastProfilerLogTime = DateTime.Now;
+        Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}]({dif:D5}) {caller}: {obj}");
+    }
+
+    public static IDisposable Profile(this object obj, [CallerMemberName] string caller = null)
+        => new Profiler(obj, caller);
+}
+
+class Profiler : IDisposable
+{
+    DateTime created;
+    object context;
+    string caller;
+
+    public Profiler(object context, string caller)
+    {
+        this.caller = caller;
+        this.context = context;
+        created = DateTime.Now;
+        Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}](start: {0:D5}) {caller}: {context}");
+    }
+
+    public void Dispose()
+    {
+        var dif = (int)(DateTime.Now - created).TotalMilliseconds;
+        Debug.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}](end:   {dif:D5}) {caller}: {context}");
     }
 }
 
@@ -346,5 +403,28 @@ static class Shell
         // var output = proc.StandardOutput.ReadToEnd();
 
         return proc;
+    }
+}
+
+public static class PerformanceExtensions
+{
+    private static readonly Dictionary<string, (DateTime start, string operation)> _timers = new();
+
+    public static void StartTimer(this object operation)
+    {
+        _timers[operation.ToString()] = (DateTime.UtcNow, operation.ToString());
+    }
+
+    public static void EndTimer(this object operation, int thresholdMs = 10)
+    {
+        if (_timers.TryGetValue(operation.ToString(), out var timer))
+        {
+            var elapsed = (DateTime.UtcNow - timer.start).TotalMilliseconds;
+            if (elapsed > thresholdMs)
+            {
+                Debug.WriteLine($"Performance: {operation} took {elapsed:F2}ms");
+            }
+            _timers.Remove(operation.ToString());
+        }
     }
 }
