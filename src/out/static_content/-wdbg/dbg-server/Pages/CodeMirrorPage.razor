@@ -195,6 +195,7 @@
                 <div class="tab-header">
                     <button class="tab-btn @(selectedTab == 0 ? "active" : "")" @onclick="() => SelectTab(0)">Locals</button>
                     <button class="tab-btn @(selectedTab == 1 ? "active" : "")" @onclick="() => SelectTab(1)">Watch</button>
+                    <button class="tab-btn @(selectedTab == 2 ? "active" : "")" @onclick="() => SelectTab(2)">Call Stack</button>
                 </div>
                 <div class="tab-content">
                     @if (selectedTab == 0)
@@ -294,6 +295,54 @@
                                       @oncontextmenu:preventDefault> </textarea>
                         </div>
                     }
+                    else if (selectedTab == 2)
+                    {
+                        <div class="locals-table-container">
+                            <table class="table table-sm table-bordered locals-table watch-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < CallStack.Count; i++)
+                                    {
+                                        try
+                                        {
+                                            // Program.<Main>$:test.cs:9
+                                            var parts = CallStack[i].Replace("<Main>$", "Main").Split(':');
+                                            var method = $"{parts[0]}(..)  [{parts[1]}:{parts[2]}]" ;
+
+                                            var index = i;
+
+                                            <tr class="@(i == 0 ? "selected-row" : null)"
+                                            @onclick="(() => OnCallStackItemClicked(parts[1], parts[2].ToInt()))">
+                                                <td title="@(method)">@(method)</td>
+                                            </tr>
+                                        }
+                                        catch
+                                        {
+                                             <tr >
+                                                <td >unknown error</td>
+                                            </tr>   
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+
+                            <div class="locals-value-label" style="margin-top:12px; margin-bottom:4px;">
+                                Selected Object:
+                                <span style="font-weight:normal; color:#888; margin-left:8px;">
+                                    @selectedLocalName
+                                </span>
+                            </div>
+
+                            <textarea class="locals-value-textarea" readonly
+                                      value="@selectedLocalValue"
+                                      @oncontextmenu="ShowLocalsContextMenu"
+                                      @oncontextmenu:preventDefault> </textarea>
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -329,6 +378,7 @@
     ElementReference fileNameInputRef;
     int outputPosition = 0;
     List<VariableInfo> Variables = new();
+    List<string> CallStack = new();
 
     int selectedTab = 0; // 0 = Locals, 1 = Watch
 
@@ -474,8 +524,8 @@
     {
         if(!Document.IsModified && !Editor.DocLoadingInProgress)
         {
-            // "Document.IsModified = true".ProfileLog();
             Document.IsModified = true;
+            // $"Document.IsModified = {Document.IsModified}".ProfileLog();
             UIEvents.NotifyStateChanged();
         }
         Editor.DocLoadingInProgress = false;
@@ -487,7 +537,7 @@
         Document.CaretLine = line + 1; // 1-based for display
         Document.CaretCh = ch + 1;     // 1-based for display
         Document.CaretPos = pos;       // 0-based for display
-        
+
         UIEvents.NotifyCaretPositionChanged();
         return Task.CompletedTask;
     }
@@ -535,7 +585,23 @@
 
     async Task StartResize(MouseEventArgs e) => await js("startSplitResize");
 
-    public void OnWatchItemSelected(int index)
+    void OnCallStackItemClicked(string fileName, int line)
+    {
+        try
+        {
+            var filePath = Editor.State.FindDocument(fileName);
+            if (filePath != null)
+            {
+                _ = LoadDocFile(filePath, line - 1, 0);
+            }
+        } 
+        catch (Exception e)
+        {
+            e.Log();
+        }
+    }
+
+    void OnWatchItemSelected(int index)
     {
         selectedWatchIndex = index;
         selectedWatchValue = null;

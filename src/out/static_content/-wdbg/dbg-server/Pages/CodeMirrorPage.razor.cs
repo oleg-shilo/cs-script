@@ -75,12 +75,18 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
             }
     }
 
-    public void DebugStateHasChanged(string variables) // received on breakpoint hit
+    public void DebugStateHasChanged(string variables, string callStack) // received on breakpoint hit
     {
         InvokeAsync(async () =>
         {
             try
             {
+                if (callStack.HasText())
+                {
+                    CallStack.Clear();
+                    CallStack.AddRange(callStack.Split('|'));
+                }
+
                 if (DebugSession.StackFrameFileName != Editor.LoadedDocument)
                 {
                     await setCurrentStepLine(-1);
@@ -179,6 +185,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 await SetDocumentContent(Document.EditorContent);
                 Document.IsModified = isModified;
                 // $"Document.IsModified = {Document.IsModified}".ProfileLog();
+                // $"Editor.State.AnyScriptFilesModified:{Editor.State.AnyScriptFilesModified()}".ProfileLog();
 
                 Editor.LastSessionFileName = Editor.LoadedScript;
                 Editor.LocateLoadedScriptDebugInfo();
@@ -328,7 +335,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 Document.Breakpoints = await Editor.SaveStateOf(Editor.LoadedScript);
                 await File.WriteAllTextAsync(Editor.LoadedDocument, content);
 
-                // "Document.IsModified = false".ProfileLog();
+                "Document.IsModified = false".ProfileLog();
                 Document.IsModified = false;
 
                 UIEvents.NotifyStateChanged();

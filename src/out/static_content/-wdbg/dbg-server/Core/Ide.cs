@@ -20,7 +20,6 @@ public class ActiveState
 
     public DocumentViewState GetDocumentViewState(string document) => AllDocumentsViewStates.ContainsKey(document) ? AllDocumentsViewStates[document] : new DocumentViewState();
 
-
     public void UpdateState(string path, Document document, string changeHistory)
     {
         var state = GetDocumentViewState(path);
@@ -50,6 +49,9 @@ public class ActiveState
                 return true;
         return false;
     }
+
+    public string FindDocument(string fileName)
+        => AllDocumentsContents.Keys.FirstOrDefault(x => x.GetFileName() == fileName);
 
     public List<string> SaveAllFilesIfModified()
     {

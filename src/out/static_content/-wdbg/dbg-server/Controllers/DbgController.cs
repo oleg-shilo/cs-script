@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
@@ -59,24 +60,46 @@ public class DbgController : ControllerBase
             if (error != null)
                 return error;
 
-            var parts = this.Request.BodyAsString().Split('|', 3);
+            var lines = this.Request.BodyAsString().Split('\n');
+            var parts = lines.First().Split('|', 3);
+            var variables = parts[2];
+            var primaryScript = session.dbgScriptMaping.First().Key;
 
             var dbgFile = parts[0]?.Trim();
-            string scriptFile = session.dbgScriptMaping.First(x => x.Value == dbgFile).Key;
+            string sourceFileUnderBreak = session.dbgScriptMaping.First(x => x.Value == dbgFile).Key;
 
-            session.StackFrameFileName = scriptFile;
+            session.StackFrameFileName = sourceFileUnderBreak;
             session.StackFrameLineNumber = parts[1].ToInt() - 1;
 
-            var isPrimary = (scriptFile.GetFileName() == session.Breakpoints.Keys.First().GetFileName());
+            int primaryScriptExtraLinesCount = 0;
+            primaryScriptExtraLinesCount++;                                      // for dbg-runtime.cs
+            primaryScriptExtraLinesCount += session.Breakpoints.Skip(1).Count(); // for any imported script file
+
+            var isPrimary = (sourceFileUnderBreak.GetFileName() == session.Breakpoints.Keys.First().GetFileName());
 
             if (isPrimary)
             {
-                session.StackFrameLineNumber--; // for dbg-runtime.cs
-                session.StackFrameLineNumber -= session.Breakpoints.Skip(1).Count(); // for any imported script file
+                session.StackFrameLineNumber -= primaryScriptExtraLinesCount;
             }
 
+            // Program.<Main>$[test.cs:9]
+            var callStack = lines.Skip(1).FirstOrDefault().Split('|')
+                .Select(x =>
+                        {
+                            var parts = x.Split('[');
+                            var method = parts[0].Trim();
+                            var fileAndLine = parts[1].TrimEnd(']').Split(':');
+                            var file = fileAndLine[0].Trim();
+                            var line = fileAndLine[1].ToInt();
+                            if (primaryScript.GetFileName() == fileAndLine.First()) // primary script
+                            {
+                                line -= primaryScriptExtraLinesCount;
+                            }
+                            return $"{method}:{file}:{line}";
+                        }).JoinBy("|");
+
             session.UIEvents.NotifyStateChanged(); // to refresh the output window
-            session.UIEvents.NotifyDbgChanged(variables: parts[2]);   // to show the current debug step
+            session.UIEvents.NotifyDbgChanged(variables, callStack);   // to show the current debug step and call stack
         }
         return "OK";
     }

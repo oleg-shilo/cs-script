@@ -40,7 +40,7 @@ public class UINotificationService
 
     public event Action OnCaretPositionChange;
 
-    public event Action<string> OnDbgChange;
+    public event Action<string, string> OnDbgChange;
 
     public event Action<string> OnObjectValue;
 
@@ -48,7 +48,7 @@ public class UINotificationService
 
     public void NotifyStateChanged() => OnChange?.Invoke();
 
-    public void NotifyDbgChanged(string variables = null) => OnDbgChange?.Invoke(variables);
+    public void NotifyDbgChanged(string variables = null, string callStack = null) => OnDbgChange?.Invoke(variables, callStack);
 
     public void NotifyObjectValueReceived(string variables) => OnObjectValue?.Invoke(variables);
 }
