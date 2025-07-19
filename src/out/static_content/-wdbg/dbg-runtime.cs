@@ -45,7 +45,10 @@ public static class DBG
 
         if (isPrimaryScript)
         {
-            var importedScriptsCount = Directory.GetFiles(decoretedScriptsDir, "*.cs").Count() - 1;
+            var bpFile = Directory.GetFiles(decoretedScriptsDir, "*.cs.bp").FirstOrDefault();
+            var scriptSourceFilesCount = File.ReadAllLines(bpFile).Count();
+
+            var importedScriptsCount = scriptSourceFilesCount - 1;
             offset += importedScriptsCount;
             offset += 1;  // for the import of dbg-runtime.cs
         }
@@ -439,10 +442,10 @@ public class BreakPoint
         }
 
         var bp = DBG.Breakpoints;
-        // Console.WriteLine($"----");
-        // Console.WriteLine($"  DBG.Breakpoints: {string.Join("\n                   ", bp.Select(x => Path.GetFileName(x)))}");
-        // Console.WriteLine($"  id: {id}");
-        // Console.WriteLine($"----");
+        Console.WriteLine($"----");
+        Console.WriteLine($"  DBG.Breakpoints: {string.Join("\n                   ", bp.Select(x => Path.GetFileName(x)))}");
+        Console.WriteLine($"  id: {id}");
+        Console.WriteLine($"----");
         if (DBG.Breakpoints.Contains(id))
         {
             DBG.StopOnNextInspectionPointInMethod = null;
@@ -468,7 +471,9 @@ public class BreakPoint
         if (!ShouldStop())
             return;
 
-        DBG.PostBreakInfo($"{sourceFilePath}|{sourceLineNumber}|{variables.ToJson()}"); // let debugger to show BP as the start of the next line
+        DBG.PostBreakInfo($"{sourceFilePath}|{sourceLineNumber}|{variables.ToJson()}\n{runtimeCallChain.JoinBy("|")}"); // let debugger to show BP as the start of the next line
+
+        // Console.WriteLine($"DBG.Inspect: {runtimeCallChain.JoinBy("|")}");
 
         WaitTillResumed(variables);
     }

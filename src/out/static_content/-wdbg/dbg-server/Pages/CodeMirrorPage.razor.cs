@@ -194,7 +194,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                 Editor.AddToRecentFiles(Editor.LoadedScript);
 
                 await RenderBreakpoints();
-
+                if (DebugSession.IsInBreakMode && DebugSession.StackFrameFileName == Editor.LoadedDocument)
+                    _ = setCurrentStepLine(DebugSession.CurrentStepLineNumber);
                 UIEvents.NotifyStateChanged();
             }
             else
@@ -661,8 +662,11 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                         onExit: () => InvokeAsync(() =>
                         {
                             Editor.RunStatus = "execution completed";
-                            AddOutputLine($"> Script (pid: {DebugSession.RunningScript?.Id}) has exited " +
-                                $"with code {DebugSession.RunningScript?.ExitCode} (0x{DebugSession.RunningScript?.ExitCode:X}).");
+                            if (DebugSession.RunningScript != null)
+                            {
+                                var proc = DebugSession.RunningScript;
+                                AddOutputLine($"> Script (pid: {proc.Id}) has exited with code {proc.ExitCode} (0x{proc.ExitCode:X}).");
+                            }
                             DebugSession.Reset();
                         }),
                         onOutput: (proc, data) => InvokeAsync(() =>
