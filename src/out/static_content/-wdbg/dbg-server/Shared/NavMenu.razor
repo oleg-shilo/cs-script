@@ -7,15 +7,14 @@
 <div class="editor-title">
     <img class="logo-bg" src="logo.png" alt="Logo" />
 
-<a class="editor-title-link"
-   href="https://github.com/oleg-shilo/cs-script/wiki/WDBG"
-   target="_blank"
-   rel="noopener noreferrer"
-  >
-    <span>
-        CS-Script <br> v@(AssemblyVersion)
-    </span>
-</a>
+    <a class="editor-title-link"
+       href="https://github.com/oleg-shilo/cs-script/wiki/WDBG"
+       target="_blank"
+       rel="noopener noreferrer">
+        <span>
+            CS-Script <br> v@(AssemblyVersion)
+        </span>
+    </a>
 </div>
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
@@ -51,30 +50,29 @@
                                             var _class = "tree-view-item";
                                             var isPrimaryScript = i == 0;
                                             var isSelected = (file == Editor?.LoadedDocument);
-                                            if(isSelected)
+                                            if (isSelected)
                                                 _class += " selected-item";
-                                            if(!isPrimaryScript)
+                                            if (!isPrimaryScript)
                                                 _class += " child-item";
 
-                                                // title="@((isPrimaryScript ? " Primary script: ":"Imported script: ")+ file)"
+                                            // title="@((isPrimaryScript ? " Primary script: ":"Imported script: ")+ file)"
                                             <div>
                                                 <button type="button"
                                                         @onclick="async () => await Editor?.LoadDocFile(file)"
-                                                         class="@_class"
-                                                        >
-                                                   @if(isPrimaryScript) 
-                                                   {
-                                                       <span>📜</span> 
-                                                   }  
-                                                   else
-                                                   {
-                                                       <span>🧾</span>
-                                                   }
-                                                   @(DocumentDisplayName(file))
+                                                        class="@_class">
+                                                    @if (isPrimaryScript)
+                                                    {
+                                                        <span>📜</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>🧾</span>
+                                                    }
+                                                    @(DocumentDisplayName(file))
                                                 </button>
                                             </div>
                                         }
-                                     }
+                                    }
                                 </td>
                             </tr>
                         </tbody>
@@ -93,7 +91,7 @@
                                     @foreach (var file in _visibleRecentScripts)
                                     {
                                         <li>
-                                             <button type="button"
+                                            <button type="button"
                                                     title="@file"
                                                     @onclick="async () => await Editor?.LoadRecentScriptFile(file)"
                                                     style="background:none;border:none;padding:0;margin:0;color:#0d6efd;text-decoration:underline;cursor:pointer;font:inherit;">
@@ -123,20 +121,15 @@
                     </table>
 
                     <div class="nav-item px-3">
-                        <span class="" >
-                            Script: 
-                            <button class="command-list-button " title="Create new script and open in the editor." @onclick="() => CreateNewScript()" >
-                                New
-                            </button>
-                        
-                            <button class="command-list-button" title="Rename currently loaded script." @onclick="() => RenameScript()" >
-                                Rename
-                            </button>
-
-                            <button class="command-list-button" title="Reload currently loaded script." @onclick="() => ReloadScript()" >
-                                Reload
-                            </button>
-                        </span>
+                        <button title="Create new script and open in the editor." class="btn btn-outline-secondary btn-sm" style="width: 100%;margin-bottom: 10px;" @onclick="CreateNewScript">
+                            New Script
+                        </button>
+                        <button title="Rename currently loaded script." class="btn btn-outline-secondary btn-sm" style="width: 100%; margin-bottom: 10px;" @onclick="RenameScript">
+                            Rename Script
+                        </button>
+                        <button title="Reload currently loaded script." class="btn btn-outline-secondary btn-sm" style="width: 100%;margin-bottom: 10px;" @onclick="ReloadScript">
+                            Reload Script
+                        </button>
                     </div>
                 }
                 else if (selectedTab == 1)
@@ -153,44 +146,44 @@
                             Format On Save
                         </label>
                     </div>
-                    <div class="nav-item px-3" >
+                    <div class="nav-item px-3">
 
                         @if (Tools.cscs_dll == null)
                         {
-                             <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript()" >
-                                    Install CS-Script
-                             </button>
+                            <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript()">
+                                Install CS-Script
+                            </button>
                         }
                         else
                         {
-                             <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript(update: true)" >
-                                    Update CS-Script
-                             </button>
+                            <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript(update: true)">
+                                Update CS-Script
+                            </button>
                         }
 
                         @if (Tools.syntaxer_dll == null)
                         {
-                             <button class="command-list-button" title="Install CS-Syntaxer" @onclick="() => InstallSyntaxer()" >
-                                    Install CS-Syntaxer
-                             </button>
+                            <button class="command-list-button" title="Install CS-Syntaxer" @onclick="() => InstallSyntaxer()">
+                                Install CS-Syntaxer
+                            </button>
                         }
                         else
                         {
-                             <button class="command-list-button" title="Update CS-Syntaxer" @onclick="() => InstallSyntaxer(update: true)" >
-                                    Update CS-Syntaxer
-                             </button>
+                            <button class="command-list-button" title="Update CS-Syntaxer" @onclick="() => InstallSyntaxer(update: true)">
+                                Update CS-Syntaxer
+                            </button>
                         }
-                        
-                        <button class="command-list-button" title="Restart CS-Syntaxer to reset syntax services." @onclick="()=>Syntaxer.StartServer(onlyIfNotRunning:false)">
+
+                        <button class="command-list-button" title="Restart CS-Syntaxer to reset syntax services." @onclick="() => Syntaxer.StartServer(onlyIfNotRunning: false)">
                             Restart CS-Syntaxer
                         </button>
-                    </div> 
-                    <div class="nav-item px-3" hidden >
+                    </div>
+                    <div class="nav-item px-3" hidden>
                         <button class="btn btn-outline-secondary btn-sm" @onclick="OnTestClicked">
                             Test
-                        </button> 
-                    </div> 
-                                        <table class="commands-table">
+                        </button>
+                    </div>
+                    <table class="commands-table">
                         <thead>
                             <tr class="commands-table-header">
                                 <th>Command</th>
@@ -198,97 +191,153 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Check code for syntax errors" 
-                                    @onclick="() => Editor?.MainPage?.OnSyntaxCheckClicked()" >
-                                    Check Syntax </button> </td>
-                                    <td>F7</td></tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Start or resume execution" 
-                                    @onclick="() => Editor?.MainPage.OnStartClicked()" >
-                                    Start/Resume </button> </td>
-                                    <td>F5</td></tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Stop the active code execution" 
-                                    @onclick="() => Editor?.MainPage?.OnStopClicked()" >
-                                    Stop </button> </td>
-                                    <td>Shift+F5</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Step Over" 
-                                    @onclick="() => Editor?.MainPage?.OnStepOverClicked(null)" >
-                                    Step Over </button> </td>
-                                    <td>F10</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Step Into" 
-                                    @onclick="() => Editor?.MainPage?.OnStepIntoClicked(null)" >
-                                    Step Into </button> </td>
-                                    <td>F11</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Toggle Breakpoint at cursor position" 
-                                    @onclick="async () => await Editor?.MainPage?.OnF9()" >
-                                    Toggle Breakpoints</button> </td>
-                                    <td>F9</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Clear Breakpoints" 
-                                    @onclick="async () => await Editor?.MainPage?.OnShiftF9()" >
-                                    Clear Breakpoints</button> </td>
-                                    <td>Shift+F9</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Save current document" 
-                                    @onclick="async () => await Editor?.MainPage.SaveToFileOnServer(false)" >
-                                    Save</button> </td>
-                                    <td>Ctrl+S</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Open current document location" 
-                                    @onclick="async () => await Editor?.MainPage.OpenScriptFolder()" >
-                                    Open Location</button> </td>
-                                    <td>Ctrl+E</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Open the next location from the output panel (e.g. error)" 
-                                    @onclick="() => Editor?.MainPage?.GoToNextCompileError()" >
-                                    Next Location</button> </td>
-                                    <td>F4</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Format document" 
-                                    @onclick="async () => await Editor?.MainPage?.OnFormatRequest()" >
-                                    Format code</button> </td>
-                                    <td>Ctrl+Shift+F</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Go to definition of the symbol at the caret." 
-                                    @onclick="() => Editor?.MainPage?.GoToDefinition()" >
-                                    Go To Definition</button> </td>
-                                    <td>Ctrl+F12</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Show the references of the symbol at the caret." 
-                                    @onclick="() => Editor?.MainPage?.ShowReferences()" >
-                                    Find References</button> </td>
-                                    <td>Shift+F12</td> </tr>
-                            <tr> <td>
-                                <button class="command-list-button" 
-                                    title="Trigger completion suggestion." 
-                                    @onclick="() => Editor?.MainPage?.TriggerCompletionSuggestion()" >
-                                    Suggestions</button> </td>
-                                    <td>Ctrl+Space</td> </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Check code for syntax errors"
+                                            @onclick="() => Editor?.MainPage?.OnSyntaxCheckClicked()">
+                                        Check Syntax
+                                    </button>
+                                </td>
+                                <td>F7</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Start or resume execution"
+                                            @onclick="() => Editor?.MainPage.OnStartClicked()">
+                                        Start/Resume
+                                    </button>
+                                </td>
+                                <td>F5</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Stop the active code execution"
+                                            @onclick="() => Editor?.MainPage?.OnStopClicked()">
+                                        Stop
+                                    </button>
+                                </td>
+                                <td>Shift+F5</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Step Over"
+                                            @onclick="() => Editor?.MainPage?.OnStepOverClicked(null)">
+                                        Step Over
+                                    </button>
+                                </td>
+                                <td>F10</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Step Into"
+                                            @onclick="() => Editor?.MainPage?.OnStepIntoClicked(null)">
+                                        Step Into
+                                    </button>
+                                </td>
+                                <td>F11</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Toggle Breakpoint at cursor position"
+                                            @onclick="async () => await Editor?.MainPage?.OnF9()">
+                                        Toggle Breakpoints
+                                    </button>
+                                </td>
+                                <td>F9</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Clear Breakpoints"
+                                            @onclick="async () => await Editor?.MainPage?.OnShiftF9()">
+                                        Clear Breakpoints
+                                    </button>
+                                </td>
+                                <td>Shift+F9</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Save current document"
+                                            @onclick="async () => await Editor?.MainPage.SaveToFileOnServer(false)">
+                                        Save
+                                    </button>
+                                </td>
+                                <td>Ctrl+S</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Open current document location"
+                                            @onclick="async () => await Editor?.MainPage.OpenScriptFolder()">
+                                        Open Location
+                                    </button>
+                                </td>
+                                <td>Ctrl+E</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Open the next location from the output panel (e.g. error)"
+                                            @onclick="() => Editor?.MainPage?.GoToNextCompileError()">
+                                        Next Location
+                                    </button>
+                                </td>
+                                <td>F4</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Format document"
+                                            @onclick="async () => await Editor?.MainPage?.OnFormatRequest()">
+                                        Format code
+                                    </button>
+                                </td>
+                                <td>Ctrl+Shift+F</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Go to definition of the symbol at the caret."
+                                            @onclick="() => Editor?.MainPage?.GoToDefinition()">
+                                        Go To Definition
+                                    </button>
+                                </td>
+                                <td>Ctrl+F12</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Show the references of the symbol at the caret."
+                                            @onclick="() => Editor?.MainPage?.ShowReferences()">
+                                        Find References
+                                    </button>
+                                </td>
+                                <td>Shift+F12</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Trigger completion suggestion."
+                                            @onclick="() => Editor?.MainPage?.TriggerCompletionSuggestion()">
+                                        Suggestions
+                                    </button>
+                                </td>
+                                <td>Ctrl+Space</td>
+                            </tr>
                         </tbody>
                     </table>
                     <div class="nav-item px-3 mt-3">
                         <label style="font-weight:bold;">Running Scripts</label>
                         <button class="btn btn-outline-secondary btn-sm tools-btn" @onclick="RefreshRunningScripts">
-                            <span class="oi oi-reload" ></span>
-                        </button> 
+                            <span class="oi oi-reload"></span>
+                        </button>
                         <ul class="running-scripts-list" style="list-style:none; padding-left:0; margin-bottom:0;">
                             @if (runningScripts.Count == 0)
                             {
@@ -302,14 +351,14 @@
                                         <button class="btn btn-sm tools-btn" title="Stop script" @onclick="() => StopScript(pid)">
                                             <span class="oi oi-circle-x stop-script-icon" style="color:#dc3545;"></span>
                                         </button>
-                                        <span title="@($"{pid}: {script}")"  class="active-script-name" style="font-family:monospace;">@Path.GetFileName(script)</span>
+                                        <span title="@($"{pid}: {script}")" class="active-script-name" style="font-family:monospace;">@Path.GetFileName(script)</span>
                                     </li>
                                 }
                             }
                         </ul>
                     </div>
 
-                    
+
                 }
             </div>
         </div>
@@ -331,11 +380,12 @@
 
     void StateHasChangedSafe() => InvokeAsync(StateHasChanged); // Ensure StateHasChanged is called on the UI thread
 
-    void StateHasChangedSafeDebounced() 
+    void StateHasChangedSafeDebounced()
     {
         _debounceTimer?.Stop();
         _debounceTimer = new System.Timers.Timer(DEBOUNCE_DELAY);
-        _debounceTimer.Elapsed += (s, e) => {
+        _debounceTimer.Elapsed += (s, e) =>
+        {
             InvokeAsync(StateHasChanged);
             _debounceTimer?.Dispose();
             _debounceTimer = null;
@@ -347,7 +397,7 @@
     bool collapseNavMenu = true;
 
     string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-    string AssemblyVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString()+"-pre";
+    string AssemblyVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
     void ToggleNavMenu()
     {
@@ -453,8 +503,8 @@
     {
         try
         {
-            var oldScript =  Editor.LoadedScript;
-            
+            var oldScript = Editor.LoadedScript;
+
             // Prompt user for script name
             var scriptName = await JS.InvokeAsync<string>("prompt", $"Enter new script name:", Editor.LoadedScript.GetFileNameWithoutExtension());
 
@@ -475,7 +525,7 @@
             File.Move(Editor.LoadedScript, newScriptFile, true);
             await Task.Delay(1000);
             await Editor?.LoadRecentScriptFile(newScriptFile);
-            
+
             Editor?.RecentScripts.Remove(oldScript);
             // UIEvents.NotifyStateChanged();
         }
@@ -513,7 +563,7 @@
                 var proc = Process.GetProcessById(pid);
                 proc?.Kill();
                 proc?.Dispose();
-            } 
+            }
         }
         catch { }
         _ = RefreshRunningScripts();
@@ -523,10 +573,10 @@
     {
         var isModified = Editor.State.IsDocumentModified(path) || (Document.IsModified && Editor.LoadedDocument == path);
         // Debug.WriteLine($"DocumentDisplayName: {Path.GetFileName(path) } isModified: {isModified}");
-        return Path.GetFileName(path) + (isModified? " *":"");
+        return Path.GetFileName(path) + (isModified ? " *" : "");
     }
     public void Dispose()
-    {   
+    {
         try
         {
             UIEvents.OnChange -= StateHasChangedSafeDebounced;

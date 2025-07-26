@@ -1,116 +1,121 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
-        <AssemblyName>cscs</AssemblyName>
-        <RootNamespace>CSScripting</RootNamespace>
-        <StartupObject />
-        <Version>4.9.8.0</Version>
-        <Authors>Oleg Shilo</Authors>
-        <Product>CS-Script</Product>
-        <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
-        <PackageLicenseUrl></PackageLicenseUrl>
-        <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
-        <PackageIconUrl></PackageIconUrl>
-        <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>C# script dynamic</PackageTags>
-        <AssemblyVersion>4.9.8.0</AssemblyVersion>
-        <FileVersion>4.9.8.0</FileVersion>
-        <PackageReleaseNotes>
-            ---
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
+    <AssemblyName>cscs</AssemblyName>
+    <RootNamespace>CSScripting</RootNamespace>
+    <StartupObject />
+    <Version>4.9.9.0</Version>
+    <Authors>Oleg Shilo</Authors>
+    <Product>CS-Script</Product>
+    <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>C# script dynamic</PackageTags>
+    <AssemblyVersion>4.9.9.0</AssemblyVersion>
+    <FileVersion>4.9.9.0</FileVersion>
+    <PackageReleaseNotes>---
 
-            ## Changes
+## Changes
 
-            ### CLI
-            - Stop killing its own process on `css -lists kill *`
-            - Bumped version: Microsoft.CodeAnalysis.CSharp.Scripting v4.14.0
-            - New WDBG environment
-            - WDBG - Addressed multiple parsing problems when preparing the script for execution
+### CLI
+ - added `cscs.exe` to the cs-script.cli .NET Tool package; Triggered by #423
+ - added option for `css -cache &lt;script&gt;` command to print the cache location for a given script
+ - WDBG:
+   - Implemented Call Stack panel
+   - implemented "New Script" functionality
+   - on switch doc restore caret and scroll position
+   - show "is modified" mark in the project tree
+   - implemented dbg-step-out
+   - mult-file support
+   - Code formatting and line breaks normalization
+   - autocompletlion and tooltips are styled with themes
 
-            ### CSScriptLib
-            - #416: CompileInfo parameter for CompileMethod()
-        </PackageReleaseNotes>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageIcon>css_logo.png</PackageIcon>
-        <ApplicationIcon>css_logo.ico</ApplicationIcon>
-        <PackageId>cs-script.cli</PackageId>
-        <Title>cs-script.cli</Title>
-        <PackAsTool>true</PackAsTool>
-        <ToolCommandName>css</ToolCommandName>
-        <PackageOutputPath>./nupkg</PackageOutputPath>
-        <!--<PackageReadmeFile>package_readme.md</PackageReadmeFile>-->
-    </PropertyGroup>
-    <!-- Conditional descriptions -->
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
-        <Description>C# Script engine .NET8.0 CLI executable</Description>
-        <ProductName>C# Script (.NET8.0)</ProductName>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
-        <Description>C# Script engine .NET9.0 CLI executable</Description>
-        <ProductName>C# Script (.NET9.0)</ProductName>
-    </PropertyGroup>
-    <!-- Apply the description -->
-    <PropertyGroup>
-        <AssemblyDescription>$(Description)</AssemblyDescription>
-        <AssemblyProductAttribute>$(ProductName)</AssemblyProductAttribute>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <WarningLevel>3</WarningLevel>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DefineConstants>TRACE;CS_SCRIPT</DefineConstants>
-    </PropertyGroup>
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Command="set css_bin=&quot;$(ProjectDir)..\css\bin\$(ConfigurationName)&quot;&#xD;&#xA;IF exist %25css_bin%25 ( echo . ) ELSE ( md %25css_bin%25)&#xD;&#xA;&#xD;&#xA;echo &quot;Target framework: $(TargetFramework)&quot;&#xD;&#xA;&#xD;&#xA;md &quot;$(ProjectDir)..\css\bin\$(TargetFramework)&quot;&#xD;&#xA;&#xD;&#xA;pushd .\&#xD;&#xA;cd $(TargetDir)&#xD;&#xA;IF exist deploy.cmd ( deploy.cmd )&#xD;&#xA;popd&#xD;&#xA; &#xD;&#xA;&#xD;&#xA;IF exist &quot;$(TargetDir)cscs.exe&quot; (set exe_file=$(TargetName).exe) ELSE (set exe_file=$(TargetName))&#xD;&#xA;echo &quot;$(TargetDir)%25exe_file%25&quot;&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(TargetFramework)\$(TargetName).dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)%25exe_file%25&quot; &quot;$(ProjectDir)..\css\bin\$(TargetFramework)\%25exe_file%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(TargetFramework)\cscs.runtimeconfig.json&quot;&#xD;&#xA;" />
-    </Target>
-    <ItemGroup>
-        <Compile Remove="GACHelper.cs" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="..\logo\css_logo.png">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Update="Properties\Resources.Designer.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Resources.resx</DependentUpon>
-        </Compile>
-    </ItemGroup>
-    <ItemGroup>
-        <EmbeddedResource Update="Properties\Resources.resx">
-            <LogicalName>CSScripting.Properties.Resources.resources</LogicalName>
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-            <CustomToolNamespace>CSScripting</CustomToolNamespace>
-        </EmbeddedResource>
-    </ItemGroup>
-    <PropertyGroup>
-        <RollForward>LatestMajor</RollForward>
-        <ExcludeFiles>*.pdb</ExcludeFiles>
-        <PackageReadmeFile>package_readme.md</PackageReadmeFile>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
-        <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0|AnyCPU'">
-        <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
-        <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0|AnyCPU'">
-        <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
-    </PropertyGroup>
-    <ItemGroup>
-        <!-- start: nuget tool package custom commands (keep this line here, it is a marker for automation)  -->
+### CSScriptLib
+ - no changes</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>css_logo.png</PackageIcon>
+    <ApplicationIcon>css_logo.ico</ApplicationIcon>
+    <PackageId>cs-script.cli</PackageId>
+    <Title>cs-script.cli</Title>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>css</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <!--<PackageReadmeFile>package_readme.md</PackageReadmeFile>-->
+  </PropertyGroup>
+  <!-- Conditional descriptions -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <Description>C# Script engine .NET8.0 CLI executable</Description>
+    <ProductName>C# Script (.NET8.0)</ProductName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <Description>C# Script engine .NET9.0 CLI executable</Description>
+    <ProductName>C# Script (.NET9.0)</ProductName>
+  </PropertyGroup>
+  <!-- Apply the description -->
+  <PropertyGroup>
+    <AssemblyDescription>$(Description)</AssemblyDescription>
+    <AssemblyProductAttribute>$(ProductName)</AssemblyProductAttribute>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;CS_SCRIPT</DefineConstants>
+  </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="set css_bin=&quot;$(ProjectDir)..\css\bin\$(ConfigurationName)&quot;&#xD;&#xA;IF exist %25css_bin%25 ( echo . ) ELSE ( md %25css_bin%25)&#xD;&#xA;&#xD;&#xA;echo &quot;Target framework: $(TargetFramework)&quot;&#xD;&#xA;&#xD;&#xA;md &quot;$(ProjectDir)..\css\bin\$(TargetFramework)&quot;&#xD;&#xA;&#xD;&#xA;pushd .\&#xD;&#xA;cd $(TargetDir)&#xD;&#xA;IF exist deploy.cmd ( deploy.cmd )&#xD;&#xA;popd&#xD;&#xA; &#xD;&#xA;&#xD;&#xA;IF exist &quot;$(TargetDir)cscs.exe&quot; (set exe_file=$(TargetName).exe) ELSE (set exe_file=$(TargetName))&#xD;&#xA;echo &quot;$(TargetDir)%25exe_file%25&quot;&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\css\bin\$(TargetFramework)\$(TargetName).dll&quot;&#xD;&#xA;copy &quot;$(TargetDir)%25exe_file%25&quot; &quot;$(ProjectDir)..\css\bin\$(TargetFramework)\%25exe_file%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)cscs.runtimeconfig.json&quot; &quot;$(ProjectDir)..\css\bin\$(TargetFramework)\cscs.runtimeconfig.json&quot;&#xD;&#xA;" />
+  </Target>
+  <ItemGroup>
+    <Compile Remove="GACHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\logo\css_logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <LogicalName>CSScripting.Properties.Resources.resources</LogicalName>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>CSScripting</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+  <PropertyGroup>
+    <!--<RollForward>LatestMajor</RollForward>-->
+    <ExcludeFiles>*.pdb</ExcludeFiles>
+    <PackageReadmeFile>package_readme.md</PackageReadmeFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
+    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0|AnyCPU'">
+    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
+    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0|AnyCPU'">
+    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- start: nuget tool package custom commands (keep this line here, it is a marker for automation)  -->
     <Content Include="..\out\static_content\-edit\**\*" Link="ToolPackage/-edit" Pack="true" PackagePath="tools/net9.0/any/-edit" />
     <Content Include="..\out\static_content\-edit\**\*" Link="ToolPackage/-edit" Pack="true" PackagePath="tools/net8.0/any/-edit" />
     <Content Include="..\out\static_content\-mkshim\**\*" Link="ToolPackage/-mkshim" Pack="true" PackagePath="tools/net9.0/any/-mkshim" />
@@ -132,22 +137,23 @@
     <Content Include="..\out\static_content\-which\**\*" Link="ToolPackage/-which" Pack="true" PackagePath="tools/net8.0/any/-which" />
     <Content Include="..\out\static_content\-who\**\*" Link="ToolPackage/-who" Pack="true" PackagePath="tools/net9.0/any/-who" />
     <Content Include="..\out\static_content\-who\**\*" Link="ToolPackage/-who" Pack="true" PackagePath="tools/net8.0/any/-who" />
-        <!-- end: nuget tool package custom commands (keep this line here, it is a marker for automation)  -->
-        <Content Include="..\css\bin\net9.0-windows\csws.runtimeconfig.json" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.runtimeconfig.json" />
-        <Content Include="..\css\bin\net9.0-windows\csws.dll" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.dll" />
-        <Content Include="..\css\bin\net9.0-windows\csws.exe" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.exe" />
-        <Content Include="..\css\bin\net9.0-windows\csws.deps.json" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.deps.json" />
-
-        <Content Include="..\out\windows\cscs.exe" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/cscs.exe" />
-        <Content Include="..\out\win.net8\cscs.exe" Link="ToolPackage/net.8" Pack="true" PackagePath="tools/net8.0/any/cscs.exe" />
-
-        <Content Include="..\out\static_content\global-usings.cs" Pack="true" PackagePath="tools/net9.0/any/lib" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="package_readme.md">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-    </ItemGroup>
-    <Target Name="PreBuild" BeforeTargets="PreBuildEvent"></Target>
+    <!-- end: nuget tool package custom commands (keep this line here, it is a marker for automation)  -->
+    <!-- adding csws, which is not part of the default package content since this project file is does not build csws binaries
+             adding csws for the .NET 9 only -->
+    <Content Include="..\out\windows\csws.runtimeconfig.json" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.runtimeconfig.json" />
+    <Content Include="..\out\windows\csws.dll" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.dll" />
+    <Content Include="..\out\windows\csws.exe" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.exe" />
+    <Content Include="..\out\windows\csws.deps.json" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/csws.deps.json" />
+    <!-- adding cscs.exe, because for some reason it's not included in the package by default even though it is the output of this very project. -->
+    <Content Include="..\out\windows\cscs.exe" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/cscs.exe" />
+    <Content Include="..\out\win.net8\cscs.exe" Link="ToolPackage/net.8" Pack="true" PackagePath="tools/net8.0/any/cscs.exe" />
+    <Content Include="..\out\static_content\global-usings.cs" Pack="true" PackagePath="tools/net9.0/any/lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="package_readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent"></Target>
 </Project>

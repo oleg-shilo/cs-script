@@ -1,16 +1,23 @@
-# Release v4.9.8.0
+# Release v4.9.9.0
 
 ---
 
 ## Changes
 
 ### CLI
-- Stop killing its own process on `css -lists kill *`
-- Bumped version: Microsoft.CodeAnalysis.CSharp.Scripting v4.14.0
-- New WDBG environment
-- WDBG - Addressed multiple parsing problems when preparing the script for execution
+ - added `cscs.exe` to the cs-script.cli .NET Tool package; Triggered by #423
+ - added option for `css -cache <script>` command to print the cache location for a given script
+ - WDBG:
+   - Implemented Call Stack panel
+   - implemented "New Script" functionality
+   - on switch doc restore caret and scroll position
+   - show "is modified" mark in the project tree
+   - implemented dbg-step-out
+   - mult-file support
+   - Code formatting and line breaks normalization
+   - autocompletlion and tooltips are styled with themes
 
 ### CSScriptLib
- - #416: CompileInfo parameter for CompileMethod()
+ - no changes
 
 

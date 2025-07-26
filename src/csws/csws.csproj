@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.9.8.0</Version>
+    <Version>4.9.9.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -19,20 +19,27 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.9.8.0</AssemblyVersion>
-    <FileVersion>4.9.8.0</FileVersion>
+    <AssemblyVersion>4.9.9.0</AssemblyVersion>
+    <FileVersion>4.9.9.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
-- Stop killing its own process on `css -lists kill *`
-- Bumped version: Microsoft.CodeAnalysis.CSharp.Scripting v4.14.0
-- New WDBG environment
-- WDBG - Addressed multiple parsing problems when preparing the script for execution
+ - added `cscs.exe` to the cs-script.cli .NET Tool package; Triggered by #423
+ - added option for `css -cache &lt;script&gt;` command to print the cache location for a given script
+ - WDBG:
+   - Implemented Call Stack panel
+   - implemented "New Script" functionality
+   - on switch doc restore caret and scroll position
+   - show "is modified" mark in the project tree
+   - implemented dbg-step-out
+   - mult-file support
+   - Code formatting and line breaks normalization
+   - autocompletlion and tooltips are styled with themes
 
 ### CSScriptLib
- - #416: CompileInfo parameter for CompileMethod()</PackageReleaseNotes>
+ - no changes</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
     <PackageIcon>..\logo\css_logo.png</PackageIcon>

@@ -60,13 +60,6 @@ dotnet publish -c Release -f %target% -o "..\out\Windows\console" cscs.csproj
 rem goto:exit
 
 echo ----------------
-echo Building cs-script.cli .NET tool from %cd%
-echo ----------------
-if exist .\nupkg (del .\nupkg\*.*nupkg)
-dotnet pack cscs.csproj
-copy .\nupkg\*  ..\out\
-
-echo ----------------
 echo Building cscs.dll (Linux) from %cd%
 echo ----------------
 
@@ -77,6 +70,17 @@ echo ----------------
 echo Building csws.dll from %cd%
 echo ----------------
 dotnet publish -c Release -f %target%-windows -o "..\out\Windows\win"
+
+copy "..\out\Windows\win" "..\out\Windows" /Y
+copy "..\out\Windows\console" "..\out\Windows" /Y
+
+cd ..\cscs
+echo ----------------
+echo Building cs-script.cli .NET tool from %cd%
+echo ----------------
+if exist .\nupkg (del .\nupkg\*.*nupkg)
+dotnet pack cscs.csproj
+copy .\nupkg\*  ..\out\
 
 cd ..\CSScriptLib\src\CSScriptLib
 echo ----------------
@@ -98,8 +102,6 @@ popd
 echo =====================
 echo Aggregating (cd: %cd%)
 echo ---------------------
-copy "out\Windows\win" "out\Windows" /Y
-copy "out\Windows\console" "out\Windows" /Y
 del "out\Linux\*.pdb" 
 del "out\Windows\*.pdb" 
 rd "out\Windows\win" /S /Q

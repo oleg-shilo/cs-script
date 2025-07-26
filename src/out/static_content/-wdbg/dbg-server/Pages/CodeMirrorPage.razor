@@ -13,11 +13,11 @@
 
 <div class="@($"theme-{Editor.SelectedTheme}")">
     <div class="top-row px-4 d-flex justify-content-between align-items-center" id="top-row-panel">
-        <div class="d-flex align-items-center gap-2">
-            <button title="Load the specified script to the editor/debugger" class="btn btn-outline-secondary btn-sm" style="margin-left:-15px;" @onclick="LoadScriptFromServer">
+        <div class="d-flex align-items-center gap-2" >
+            <button hidden title="Load the specified script to the editor/debugger" class="btn btn-outline-secondary btn-sm" style="margin-left:-15px;" @onclick="LoadScriptFromServer">
                 Reload Script
             </button>
-            <div>@Editor.LoadedScript</div>
+            <div>@Editor.LoadedDocument</div>
             <input type="text"
                 hidden
                    @bind="Editor.LoadedScript"
