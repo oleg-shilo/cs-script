@@ -1167,3 +1167,10 @@ button:focus, button:focus-visible, button:active:focus {
 .debug-commands .step-over-icon-container {
     color: inherit;
 }
+
+/* Add this CSS rule to suppress bullet points for recent scripts */
+.commands-table li {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+}
