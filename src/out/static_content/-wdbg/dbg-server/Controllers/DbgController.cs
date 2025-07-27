@@ -18,6 +18,7 @@ public class DbgController : ControllerBase
         var fileWithBreakpoints = Request.GetScriptPath(); // debug host is requesting the breakpoints for the script file being executed
         var breakpoints = session.Breakpoints;// zos in the future we will need to read the breakpoints for a specific script file even if it is not open (e.g. multi-file script)
 
+        Debug.WriteLine($"GetBreakpoints for script: " + breakpoints.Keys.FirstOrDefault());
         lock (session)
         {
             // note, dbg host lines are 1-based
@@ -83,11 +84,16 @@ public class DbgController : ControllerBase
             }
 
             // Program.<Main>$[test.cs:9]
+            // Program.<<Main>$>g__setup_say_hello|0_0[NewScript3.cs:7]|Program.<Main>$[NewScript3.cs:11]
             var callStack = lines.Skip(1).FirstOrDefault().Split('|')
                 .Select(x =>
                         {
                             var parts = x.Split('[');
-                            var method = parts[0].Trim();
+                            var method = parts[0].Trim().Replace("<Main>$", "Main").Replace("g__", ".");
+                            if (parts.Length == 1)
+                            {
+                                return $"{method}:{-1}:{-1}";
+                            }
                             var fileAndLine = parts[1].TrimEnd(']').Split(':');
                             var file = fileAndLine[0].Trim();
                             var line = fileAndLine[1].ToInt();
@@ -96,10 +102,10 @@ public class DbgController : ControllerBase
                                 line -= primaryScriptExtraLinesCount;
                             }
                             return $"{method}:{file}:{line}";
-                        }).JoinBy("|");
+                        });
 
             session.UIEvents.NotifyStateChanged(); // to refresh the output window
-            session.UIEvents.NotifyDbgChanged(variables, callStack);   // to show the current debug step and call stack
+            session.UIEvents.NotifyDbgChanged(variables, callStack.JoinBy("|"));   // to show the current debug step and call stack
         }
         return "OK";
     }

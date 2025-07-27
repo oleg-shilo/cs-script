@@ -170,7 +170,7 @@ public static class DBG
 
     public static BreakPoint Line([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        // Console.WriteLine($"DBG.Line() called from {sourceFilePath}:{sourceLineNumber} in {memberName}");
+        Console.WriteLine($"DBG.Line() called from {sourceFilePath}:{sourceLineNumber} in {memberName}");
 
         var result = new BreakPoint
         {
@@ -838,7 +838,7 @@ namespace wdbg
 
         public static string[] GetCallChain(this StackFrame[] frames)
         {
-            var result = new List<string>();
+            var stack = new List<(string type, string method, string file, int line)>();
 
             // Skip frame 0 (current Line method) and start from frame 1
             for (int i = 1; i < frames.Length; i++)
@@ -853,19 +853,40 @@ namespace wdbg
                 {
                     var declaringType = method.DeclaringType?.Name ?? "UnknownType";
 
-                    var methodName = method.Name;
-                    var fileName = frame.GetFileName();
+                    // local methods and lambdas
+                    //<<Main>$>g__setup_say_hello|0_0
+                    //<<Main>$>g__test|0_1
+                    //<Main>$
+
+                    var methodName = method.Name?
+                        .Replace("<", "")
+                        .Replace(">", "")
+                        .Replace("$", "")
+                        .Replace("g__", ".")
+                        .Split('|')
+                        .First();
+
+                    var fileName = frame.GetFileName() ?? "";
                     var lineNumber = frame.GetFileLineNumber();
 
-                    // Format: TypeName.MethodName (file:line)
-                    var frameInfo = $"{declaringType}.{methodName}";
-                    if (!string.IsNullOrEmpty(fileName) && lineNumber > 0)
-                    {
-                        frameInfo += $"[{Path.GetFileName(fileName)}:{lineNumber}]";
-                    }
-
-                    result.Add(frameInfo);
+                    stack.Add((declaringType, methodName, fileName, lineNumber));
                 }
+            }
+
+            var result = new List<string>();
+            for (int i = 0; i < stack.Count; i++)
+            {
+                var point = stack[i];
+
+                // result.Add(stack[i].ToString());
+                // Format: TypeName.MethodName[file:line]
+                var frameInfo = $"{point.type}.{point.method}";
+                if (!string.IsNullOrEmpty(point.file) && point.line > 0)
+                {
+                    frameInfo += $"[{Path.GetFileName(point.file)}:{point.line}]";
+                }
+
+                result.Add(frameInfo);
             }
 
             return result.ToArray();
