@@ -213,6 +213,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
     {
         try
         {
+            _ = Server.PurgeAbandonedSessions();
+
             if (Editor.LoadedScript.HasText() && File.Exists(Editor.LoadedScript))
             {
                 Editor.LoadedDocument = Editor.LoadedScript;

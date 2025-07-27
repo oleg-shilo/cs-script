@@ -7,6 +7,25 @@ static class Server
 {
     public static Dictionary<string, UserSession> UserSessions = new();
 
+    public static async Task PurgeAbandonedSessions()
+    {
+        Debug.WriteLine("UserSessions: " + Server.UserSessions.Count());
+        foreach (var session in Server.UserSessions.Values.ToArray())
+        {
+            var connected = await session.IsConnectedToBrowser();
+            if (!connected)
+                lock (UserSessions)
+                {
+                    try
+                    {
+                        Debug.WriteLine($"Server.UserSessions.Remove({session.Id})");
+                        Server.UserSessions.Remove(session.Id);
+                    }
+                    catch { }
+                }
+        }
+    }
+
     public static async Task<(UserSession, bool created)> FindOrCreateUserSessionFor(this IJSRuntime interop, CodeMirrorPage mainPage)
     {
         // Despite the promise scoped DI objects are not unique for the browser tab. IE the builder.Services.AddScoped<UINotificationService>();
@@ -14,13 +33,17 @@ static class Server
         // Thus we need to create a globally available session entities based on the JS-based tab id (getOrCreateTabId).
 
         var sessionId = await interop.InvokeAsync<string>("getOrCreateTabId");
+        UserSession session;
+        bool created;
 
-        bool created = !Server.UserSessions.ContainsKey(sessionId);
-
-        var session =
-            Server.UserSessions.ContainsKey(sessionId) ?
-            Server.UserSessions[sessionId] :
-            Server.UserSessions[sessionId] = new(sessionId, mainPage, interop);
+        lock (UserSessions)
+        {
+            created = !Server.UserSessions.ContainsKey(sessionId);
+            session =
+                Server.UserSessions.ContainsKey(sessionId) ?
+                Server.UserSessions[sessionId] :
+                Server.UserSessions[sessionId] = new(sessionId, mainPage, interop);
+        }
 
         if (session.Editor.MainPage == null)
         {
@@ -60,6 +83,39 @@ public class UserSession
     public IJSRuntime Interop;
 
     public bool IsLocalClient;
+
+    /// <summary>
+    /// Checks if the browser session is still connected by attempting to call JavaScript
+    /// </summary>
+    /// <returns>True if connected, false if disconnected</returns>
+    public async Task<bool> IsConnectedToBrowser()
+    {
+        try
+        {
+            // Try to get the tab ID from the browser - this is a lightweight JS call
+            var tabId = await Interop.InvokeAsync<string>("getOrCreateTabId");
+
+            // If we got a response and it matches our session ID, the connection is alive
+            bool isConnected = !string.IsNullOrEmpty(tabId) && tabId == Id;
+
+            return isConnected;
+        }
+        catch (JSDisconnectedException)
+        {
+            // Browser tab was closed or connection lost
+            return false;
+        }
+        catch (TaskCanceledException)
+        {
+            // Timeout or cancellation - likely disconnected
+            return false;
+        }
+        catch (Exception)
+        {
+            // Any other JS interop error - likely disconnected
+            return false;
+        }
+    }
 }
 
 /// <summary>
@@ -114,6 +170,7 @@ public class DbgSession
             UserRequest.Enqueue("step_in");
         StackFrameLineNumber = null;
     }
+
     public void RequestStepOut()
     {
         lock (UserRequest)
