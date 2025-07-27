@@ -895,6 +895,12 @@ button:focus, button:focus-visible, button:active:focus {
     margin: 0 !important;
 }
 
+    .stop-script-icon:hover,
+    .stop-script-icon:focus,
+    .stop-script-icon:active {
+        color: #fffbe7 !important;
+    }
+
 .status-icon {
     font-size: 0.9em !important;
     vertical-align: middle !important;
