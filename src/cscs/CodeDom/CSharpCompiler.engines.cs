@@ -261,6 +261,7 @@ namespace CSScripting.CodeDom
             var source_args = new List<string>();
             var common_args = new List<string>
             {
+                "/shared",
                 "/utf8output",
                 "/nostdlib+"
             };

@@ -124,8 +124,9 @@ namespace CSScripting.CodeDom
                 return engine switch
                 {
                     Directives.compiler_dotnet => CompileAssemblyFromFileBatch_with_Build(options, fileNames),
+                    Directives.compiler_csc_outproc => CompileAssemblyFromFileBatch_with_Csc(options, fileNames, true),
+                    Directives.compiler_csc => CompileAssemblyFromFileBatch_with_Csc(options, fileNames, false),
                     Directives.compiler_csc_inproc => CompileAssemblyFromFileBatch_with_Csc(options, fileNames, false),
-                    Directives.compiler_csc => CompileAssemblyFromFileBatch_with_Csc(options, fileNames, true),
                     Directives.compiler_roslyn => RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, false),
                     Directives.compiler_roslyn_inproc => RoslynService.CompileAssemblyFromFileBatch_with_roslyn(options, fileNames, true),
                     _ => CompileAssemblyFromFileBatch_with_Build(options, fileNames),
@@ -215,7 +216,8 @@ namespace CSScripting.CodeDom
                 constants.Add("NETFRAMEWORK");
 
             project_element.Add(new XElement("PropertyGroup",
-                                    new XElement("DefineConstants", constants.JoinBy(compileConstantsDelimiter))));
+                                    new XElement("DefineConstants", constants.JoinBy(compileConstantsDelimiter)),
+                                    new XElement("UseSharedCompilation", "true")));
 
             if (options.AppType.HasText())
                 project_element.Attribute("Sdk").SetValue($"Microsoft.NET.Sdk.{options.AppType}");

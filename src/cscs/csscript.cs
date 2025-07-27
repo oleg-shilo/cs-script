@@ -797,7 +797,9 @@ namespace csscript
                         }
                         catch { }
 
-                        if (options.compilerEngine == Directives.compiler_csc)
+                        if (options.compilerEngine.IsOneOf(Directives.compiler_csc,
+                                                           Directives.compiler_csc_inproc,
+                                                           Directives.compiler_csc_outproc))
                         {
                             Console.WriteLine($"  Compiler engine: {options.compilerEngine} ({Globals.csc})");
                             Console.WriteLine($"                   of dotnet ({Globals.dotnet})");
