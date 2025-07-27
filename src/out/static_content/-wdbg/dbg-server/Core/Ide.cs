@@ -497,8 +497,16 @@ public class Ide
 
     public List<string> RecentScripts
     {
-        get => _recentFiles;
-        set { _recentFiles = value; Storage.Write("editor_recent_files", string.Join('\n', _recentFiles)); }
+        get
+        {
+            _recentFiles.RemoveAll(string.IsNullOrEmpty);
+            return _recentFiles;
+        }
+        set
+        {
+            _recentFiles = value.Distinct().Where(x => x.HasText()).ToList();
+            Storage.Write("editor_recent_files", string.Join('\n', _recentFiles));
+        }
     }
 
     public List<string> CurrentScriptFiles

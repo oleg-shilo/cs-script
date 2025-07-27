@@ -11,7 +11,7 @@
         },
         "https": {
             "commandName": "Project",
-            "commandLineArgs": "--urls \"https://localhost:5101\" -pre \"C:\\Users\\oleg\\.dotnet\\tools\\.store\\cs-script.cli\\4.9.8\\cs-script.cli\\4.9.8\\tools\\net9.0\\any\\-wdbg\\dbg-inject.cs\"",
+            "commandLineArgs": "--urls \"https://localhost:5101\" -pre \"C:\\Users\\oleg\\.dotnet\\tools\\.store\\cs-script.cli\\4.9.9\\cs-script.cli\\4.9.9\\tools\\net9.0\\any\\-wdbg\\dbg-inject.cs\"",
             "commandLineArgs1": "\"D:\\dev\\cs-script\\src\\out\\static_content\\-wdbg\\dbg-server\\output\\server.dll\" --urls \"https://localhost:5101\" -pre \"D:\\dev\\cs-script\\src\\out\\static_content\\-wdbg\\dbg-inject.cs\" ",
             "launchBrowser": true,
             "launchUrl": "https://localhost:5101",

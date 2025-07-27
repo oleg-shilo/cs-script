@@ -91,6 +91,10 @@
                                     @foreach (var file in _visibleRecentScripts)
                                     {
                                         <li>
+                                            <button class="btn btn-sm tools-btn" title="Remove from Recent Scripts list"
+                                                    @onclick="() => RemoveFromRecentFiles(file)">
+                                                <span class="oi oi-circle-x stop-script-icon" style="color:gray;"></span>
+                                            </button>
                                             <button type="button"
                                                     title="@file"
                                                     @onclick="async () => await Editor?.LoadRecentScriptFile(file)"
@@ -533,6 +537,12 @@
         {
             Editor?.ShowToastError($"Failed to create new script: {ex.Message}");
         }
+    }
+
+    void RemoveFromRecentFiles(string file)
+    {
+        Editor?.RecentScripts.Remove(file);
+        UpdateVisibleLists();
     }
 
     async Task RefreshRunningScripts()

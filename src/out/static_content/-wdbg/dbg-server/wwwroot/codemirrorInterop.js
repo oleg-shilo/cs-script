@@ -1014,9 +1014,14 @@ window.codemirrorInterop.setFontSize = function (size) {
 
 window.codemirrorInterop.currentFontSize = 14; // default font size
 
+// Global Ctrl key state tracker
+
 window.registerWindowKeyHandlers = function (dotNetRef) {
     document.addEventListener('keydown', function (e) {
-        console.log('Key pressed:', e.key, 'Ctrl:', e.ctrlKey, 'KeyCode:', e.keyCode);
+        // console.log('Key pressed:', e.key, 'Ctrl:', e.ctrlKey, 'KeyCode:', e.keyCode);
+
+        // Update global Ctrl key state
+        window.isCtrlPressed = e.ctrlKey;
 
         // Ctrl+Tab - Check this first and prevent default immediately
         if ((!(e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && (e.key === 'Tab' || e.keyCode === 9)) ||
@@ -1079,6 +1084,11 @@ window.registerWindowKeyHandlers = function (dotNetRef) {
             e.preventDefault();
             dotNetRef.invokeMethodAsync('OnCtrlF12');
         }
+    });
+
+    document.addEventListener('keyup', function (e) {
+        // Update global Ctrl key state
+        window.isCtrlPressed = e.ctrlKey;
     });
 }
 
@@ -1162,6 +1172,9 @@ window.codemirrorInterop.addIndentGuideOverlay = function () {
     window.editor.addOverlay(overlay);
     window.codemirrorInterop._indentGuideOverlay = overlay;
 };
+
+window.isCtrlPressed = false;
+window.getIsCtrlPressed = function () { return window.isCtrlPressed; }
 
 window.getOrCreateTabId = function () {
     let tabId = sessionStorage.getItem('tabId');
