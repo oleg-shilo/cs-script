@@ -19,6 +19,13 @@ class Script
 {
     static public int Main(string[] args)
     {
+        static void ConsoleWriteLine(string text, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
+        }
+
         if (args.Contains("?") || args.Contains("-?") || args.Contains("-help"))
         {
             string version = Path.GetFileNameWithoutExtension(
@@ -81,14 +88,14 @@ class Script
             {
                 Console.Write($"{index}> {test.Name}: ");
                 test.Invoke(test_class, no_args);
-                Console.WriteLine("passed");
+                ConsoleWriteLine("passed", ConsoleColor.Green);
                 passed++;
             }
             catch (Exception e)
             {
                 failed++;
                 // Console.Write($"{index}> {test.Name}: ");
-                Console.WriteLine("failed");
+                ConsoleWriteLine("failed", ConsoleColor.Red);
                 if (requestedTest.HasValue)
                     Console.WriteLine(e.InnerException?.Message ?? e.Message);
             }
@@ -97,7 +104,14 @@ class Script
 
         print("================================");
         print("Time: " + sw.Elapsed.TotalSeconds);
-        print("Result: " + (failed > 0 ? "failure" : "success")); ;
+
+        Console.Write("Result: ");
+
+        if (failed > 0)
+            ConsoleWriteLine("failure", ConsoleColor.Red);
+        else
+            ConsoleWriteLine("success", ConsoleColor.Green);
+
         print("--------------------------------");
         print($"Passed tests: {passed}");
         print($"Failed tests: {failed}");

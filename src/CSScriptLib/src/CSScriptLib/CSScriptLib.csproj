@@ -14,7 +14,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.9.9.0</Version>
+    <Version>4.10.0.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
     <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
@@ -29,24 +29,18 @@
 ## Changes
 
 ### CLI
- - added `cscs.exe` to the cs-script.cli .NET Tool package; Triggered by #423
- - added option for `css -cache &lt;script&gt;` command to print the cache location for a given script
- - WDBG:
-   - Implemented Call Stack panel
-   - implemented "New Script" functionality
-   - on switch doc restore caret and scroll position
-   - show "is modified" mark in the project tree
-   - implemented dbg-step-out
-   - mult-file support
-   - Code formatting and line breaks normalization
-   - autocompletlion and tooltips are styled with themes
+  - `-ng:csc` is now using running csc.exe with the "magic" `/shared` parameter that keeps `VBCSCompiler.exe` running and improves the compilation performance dramatically.
+  - `-ng:csc` is now routed to `-ng:csc-inproc`
+  - WDBG: 
+    - Added disposing abandoned user sessions
+    - fixed problem with local methods in the call stack
 
 ### CSScriptLib
  - no changes</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.9.9.0</AssemblyVersion>
-    <FileVersion>4.9.9.0</FileVersion>
-    <PackageVersion>4.9.9.0</PackageVersion>
+    <AssemblyVersion>4.10.0.0</AssemblyVersion>
+    <FileVersion>4.10.0.0</FileVersion>
+    <PackageVersion>4.10.0.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>

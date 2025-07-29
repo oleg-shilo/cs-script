@@ -1,23 +1,17 @@
-# Release v4.9.9.0
+# Release v4.10.0.0
 
 ---
 
 ## Changes
 
 ### CLI
- - added `cscs.exe` to the cs-script.cli .NET Tool package; Triggered by #423
- - added option for `css -cache <script>` command to print the cache location for a given script
- - WDBG:
-   - Implemented Call Stack panel
-   - implemented "New Script" functionality
-   - on switch doc restore caret and scroll position
-   - show "is modified" mark in the project tree
-   - implemented dbg-step-out
-   - mult-file support
-   - Code formatting and line breaks normalization
-   - autocompletlion and tooltips are styled with themes
+  - `-ng:csc` is now using running csc.exe with the "magic" `/shared` parameter that keeps `VBCSCompiler.exe` running and improves the compilation performance dramatically.
+  - `-ng:csc` is now routed to `-ng:csc-inproc`
+  - WDBG: 
+    - Added disposing abandoned user sessions
+    - fixed problem with local methods in the call stack
 
 ### CSScriptLib
- - no changes
-
-
+- CSScript.CodeDomEvaluator local build is now using running csc.exe with the "magic" `/shared` parameter that keeps `VBCSCompiler.exe` running and improves the compilation performance dramatically.(triggered by #423)
+- `CodeDomEvaluator.CompileOnServer` default value now is set to `true`.
+- `CSScript.EvaluatorConfig.CompilerOptions` now allows removing some of default compiler options that you may find undesirable for whatever reason. This can be accomplished by specifying the option value with the `!no` prefix (e.g. `!no/shared` will remove `/shared`.
