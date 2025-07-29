@@ -55,7 +55,11 @@ namespace CSScriptLib
         /// <summary>
         /// The flag indicating if the compilation should happen on the build server or locally.
         /// </summary>
-        public static bool CompileOnServer = true;
+        [Obsolete("Starting from v4.10.0.0 compiling scripts on CS-Script own build server is no " +
+            "longer recommended as using csc.exe native build server brings the same performance benefits " +
+            "but without the cost of the custom build server. The default value of this field is also changed  " +
+            "to 'false' for the same reason.")]
+        public static bool CompileOnServer = false;
 
         /// <summary>
         /// Timeout for the C# CLI compiler `csc.exe`.
@@ -234,6 +238,8 @@ namespace CSScriptLib
 
                 if (Runtime.IsCore)
                 {
+                    common_args.Add("/shared");
+
                     var gac_asms = Directory.GetFiles(gac, "System.*.dll").ToList();
                     gac_asms.AddRange(Directory.GetFiles(gac, "netstandard.dll"));
                     // Microsoft.DiaSymReader.Native.amd64.dll is a native dll
@@ -255,6 +261,18 @@ namespace CSScriptLib
 
                 foreach (string file in sources)
                     source_args.Add($"\"{file}\"");
+
+                common_args = common_args.Select(x => x.Trim()).ToList();
+
+                var exclusionPrefix = "!no";
+                var excludedArgs = common_args.Where(x => x.StartsWith(exclusionPrefix)).ToArray();
+
+                foreach (string cmdArg in excludedArgs)
+                {
+                    var arg = cmdArg.Substring(exclusionPrefix.Length);
+                    common_args.RemoveAll(x => x == cmdArg);
+                    common_args.RemoveAll(x => x == arg);
+                }
 
                 string cmd;
 

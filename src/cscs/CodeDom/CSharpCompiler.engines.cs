@@ -261,7 +261,6 @@ namespace CSScripting.CodeDom
             var source_args = new List<string>();
             var common_args = new List<string>
             {
-                "/shared",
                 "/utf8output",
                 "/nostdlib+"
             };
@@ -288,6 +287,8 @@ namespace CSScripting.CodeDom
             }
             else
             {
+                common_args.Add("/shared");
+
                 if (options.GetTargetPlatform() == "x86" && Environment.Is64BitProcess)
                 {
                     throw new CLIException("Executing scripts targeting x86 platform with `csc` compiling engine is not supported due to the " +

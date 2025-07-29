@@ -141,6 +141,10 @@ namespace CSScriptLib
         /// Gets or sets the compiler options. Since out of two supported compilers (for hosting scenarios) only CodeDom engine (csc.exe)
         /// supports options effectively this property is a user specified string of CLI arguments for `csc.exe`.
         /// <para>If you want to specify compiler options per script execution then you can use <see cref="CompileInfo.CompilerOptions"/>.</para>
+        /// <para>You can also remove some of default compiler options that you may find undesirable for whatever reason.
+        /// This can be accomplished by specifying the option value with the `!no` prefix (e.g. <c>!no/shared</c> will remove
+        /// <c>/shared</c> option).
+        /// </para>
         /// </summary>
         /// <value>
         /// The compiler options.

@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.9.9.0.
+C# Script execution engine (.NET Core). Version 4.10.0.0.
 Copyright (C) 2004-2023 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -107,16 +107,16 @@ params	Specifies optional parameters for a script file to be run.
                system.
       
     csc   - csc.exe compiler; the fastest compiler available. It is not suitable for WPF scripts as csc.exe cannot
-              compile XAML.
-              The compilation is performed in the separate child process build.exe which is somewhat equivalent to
-              VBCSCompiler.exe (build server) from .NET toolset. It requires .NET SDK to be installed on the target
-              system.
-              CS-Script communicates with build.exe build server via socket (default port 17001). You can control port
-              value via the environment variable 'CSS_BUILDSERVER_CSC_PORT'
-              Value csc-inproc will suppress spinning off an build server process and .NET csc.exe will be called
-              directly instead. This option convenient when socket communication is undesirable for whatever reason.
-              Though in this case all the performance benefits of -ng:csc will be lost and then you are better off
-              using -ng:dotnet instead.
+              compile XAML. It requires .NET SDK to be installed on the target system.
+              This value is just a shorter form of the full equivalent csc-inproc.
+              Legacy:
+              Value csc-outproc triggers the compilation in the separate child process build.exe which is somewhat
+              equivalent to VBCSCompiler.exe from .NET toolset. CS-Script communicates with build.exe build server via
+              socket (default port 17001). You can control port value via the environment variable
+              'CSS_BUILDSERVER_CSC_PORT'.
+              This functionality was implemented before VBCSCompiler.exe became fully functional in the .NET Core
+              family distributions. And it's only retained for the compatibility reasons. Starting from v4.10.0 the
+              use of csc-outproc offers no benefits.
       
     roslyn - Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation engine. It
                does not require .NET SDK being installed. Though it does have limitations (see documentation).
@@ -784,13 +784,9 @@ This directive is used to select compiler services for building a script into an
           WPF scripts.
  csc    - use csc.exe. 
           This compiler shows much better performance. Though it is not suitable for WPF scripts.
-          For csc-inproc version of this parameter see css -ng ? help documentation.
-This feature is conceptually similar to the VBCSCompiler.exe build server, which is not available in in
-.NET5/.NET-Core. Even though available on .NET-Fx (Roslyn).
           Using this option can in order of magnitude improve compilation speed. However it's not suitable for
           compiling WPF scripts because csc.exe cannot compile XAML.
-          While this feature is useful it will be deprecated when .NET5+ starts distributing its own properly working
-          build server VBCSCompiler.exe.
+          For csc more detailed information see css -ng ? help documentation.
 roslyn - use Microsoft.CodeAnalysis.CSharp.Scripting.dll (Roslyn). 
          This compiler shows good performance and does not require .NET SDK. Though, it is not suitable for WPF
          scripts.           ${<==}For roslyn-inproc version of this parameter see css -ng ? help documentation.
