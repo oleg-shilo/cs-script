@@ -170,12 +170,12 @@ public static class DBG
 
     public static BreakPoint Line([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
-        Console.WriteLine($"DBG.Line() called from {sourceFilePath}:{sourceLineNumber} in {memberName}");
+        // Console.WriteLine($"DBG.Line() called from {sourceFilePath}:{sourceLineNumber} in {memberName}");
 
         var result = new BreakPoint
         {
             methodDeclaringType = new StackFrame(1).GetMethod().ReflectedType.ToString(),
-            methodName = memberName,
+            methodName = memberName.ToReadable(),
             runtimeCallChain = new StackTrace(true).GetFrames().GetCallChain(),
             sourceFilePath = sourceFilePath,
             sourceLineNumber = sourceLineNumber
@@ -834,6 +834,18 @@ namespace wdbg
             }
         }
 
+        public static string ToReadable(this string methodName)
+        {
+            var result = methodName?
+                         .Replace("<", "")
+                         .Replace(">", "")
+                         .Replace("$", "")
+                         .Replace("g__", ".")
+                         .Split('|')
+                         .First();
+            return result;
+        }
+
         // for reflecting dynamic objects look at dbg.dynamic.cs
 
         public static string[] GetCallChain(this StackFrame[] frames)
@@ -858,14 +870,7 @@ namespace wdbg
                     //<<Main>$>g__test|0_1
                     //<Main>$
 
-                    var methodName = method.Name?
-                        .Replace("<", "")
-                        .Replace(">", "")
-                        .Replace("$", "")
-                        .Replace("g__", ".")
-                        .Split('|')
-                        .First();
-
+                    var methodName = method.Name?.ToReadable() ?? "UnknownMethod";
                     var fileName = frame.GetFileName() ?? "";
                     var lineNumber = frame.GetFileLineNumber();
 

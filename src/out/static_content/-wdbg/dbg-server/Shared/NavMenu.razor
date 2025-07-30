@@ -160,7 +160,7 @@
                         }
                         else
                         {
-                            <button class="command-list-button" title="Install CS-Script" @onclick="() => InstallCSScript(update: true)">
+                            <button class="command-list-button" title="Update CS-Script" @onclick="() => InstallCSScript(update: true)">
                                 Update CS-Script
                             </button>
                         }
@@ -334,6 +334,16 @@
                                     </button>
                                 </td>
                                 <td>Ctrl+Space</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="command-list-button"
+                                            title="Show current script debugging folder."
+                                            @onclick="() => Editor?.MainPage?.OpenScriptDebugFolder()">
+                                        Debug Folder
+                                    </button>
+                                </td>
+                                <td></td>
                             </tr>
                         </tbody>
                     </table>

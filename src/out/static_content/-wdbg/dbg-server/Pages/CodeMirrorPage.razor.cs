@@ -329,6 +329,25 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         }
         catch (Exception e) { e.Log(); }
     }
+    public async Task OpenScriptDebugFolder()
+    {
+        try
+        {
+            if (UserSession.IsLocalClient)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    if (Editor.LoadedScriptDbg.HasText() && File.Exists(Editor.LoadedScriptDbg))
+                    {
+                        // Open Explorer and select the file
+                        var argument = $"/select,\"{Editor.LoadedScriptDbg}\"";
+                        Process.Start(new ProcessStartInfo("explorer.exe", argument) { UseShellExecute = true });
+                    }
+                }
+            }
+        }
+        catch (Exception e) { e.Log(); }
+    }
 
     public async Task<bool> SaveAll()
     {

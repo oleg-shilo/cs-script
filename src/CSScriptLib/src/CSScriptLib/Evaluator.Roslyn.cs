@@ -511,6 +511,12 @@ namespace CSScriptLib
 
                 var scriptOptions = CompilerSettings;
 
+                // Apply language version for non-script scenarios
+                if (info?.CodeKind != SourceCodeKind.Script && info?.LanguageVersion != null)
+                {
+                    scriptOptions = scriptOptions.WithLanguageVersion(info.LanguageVersion);
+                }
+
                 // unfortunately the next code block will not work. Roslyn scripting fails to
                 // create compilation if ParseOptions are set
 
