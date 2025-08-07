@@ -7,6 +7,14 @@
         <AssemblyVersion>1.0.1.0</AssemblyVersion>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <NoWarn>1701;1702;1998</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <NoWarn>1701;1702;1998</NoWarn>
+    </PropertyGroup>
+
     <ItemGroup>
         <Compile Remove="output\**" />
         <Content Remove="output\**" />

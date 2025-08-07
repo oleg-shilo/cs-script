@@ -454,7 +454,7 @@ public class Ide
     public bool OutputCharMode
     {
         get => _outputCharMode;
-        set { _outputCharMode = value; Storage.Write("cm_outputCharMode", _outputCharMode ? "1" : "0"); }
+        set { _outputCharMode = value; _ = Storage.Write("cm_outputCharMode", _outputCharMode ? "1" : "0"); }
     }
 
     bool _autoFormatOnSave = false; // false = line mode, true = char mode
@@ -462,7 +462,7 @@ public class Ide
     public bool AutoFormatOnSave
     {
         get => _autoFormatOnSave;
-        set { _autoFormatOnSave = value; Storage.Write("cm_formatOnSave", _autoFormatOnSave ? "1" : "0"); }
+        set { _autoFormatOnSave = value; _ = Storage.Write("cm_formatOnSave", _autoFormatOnSave ? "1" : "0"); }
     }
 
     string _lastSessionFileName;
@@ -470,7 +470,7 @@ public class Ide
     public string LastSessionFileName
     {
         get => _lastSessionFileName;
-        set { _lastSessionFileName = value; Storage.Write("cm_loadedFileName", _lastSessionFileName); }
+        set { _lastSessionFileName = value; _ = Storage.Write("cm_loadedFileName", _lastSessionFileName); }
     }
 
     string _theme;
@@ -478,7 +478,7 @@ public class Ide
     public string SelectedTheme
     {
         get => _theme;
-        set { _theme = value; Storage.Write("cm_theme", _theme); }
+        set { _theme = value; _ = Storage.Write("cm_theme", _theme); }
     }
 
     public List<string> FavoriteFiles = new();
@@ -490,7 +490,7 @@ public class Ide
         RecentScripts.Insert(0, file);
         while (RecentScripts.Count > 10)
             RecentScripts.RemoveAt(10);
-        Storage.Write("editor_recent_files", RecentScripts);
+        _ = Storage.Write("editor_recent_files", RecentScripts);
     }
 
     List<string> _recentFiles = new();
@@ -505,7 +505,7 @@ public class Ide
         set
         {
             _recentFiles = value.Distinct().Where(x => x.HasText()).ToList();
-            Storage.Write("editor_recent_files", string.Join('\n', _recentFiles));
+            _ = Storage.Write("editor_recent_files", string.Join('\n', _recentFiles));
         }
     }
 

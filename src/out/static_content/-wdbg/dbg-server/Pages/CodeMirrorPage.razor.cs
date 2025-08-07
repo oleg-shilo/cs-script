@@ -706,11 +706,11 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                             {
                                 var proc = DebugSession.RunningScript;
                                 AddOutputLine($"> Script (pid: {proc.Id}) has exited with code {proc.ExitCode} (0x{proc.ExitCode:X}).");
-                                if (proc.ExitCode != 0 && 
-                                    Editor.Output.Any(x => x.Contains("Error: Specified file could not be compiled.") && 
-                                                           x.Contains("-wdbg".PathJoin("dbg-runtime.cs"))))
+                                if (proc.ExitCode != 0 &&
+                                    Editor.Output.Any(x => x.Contains("Error: Specified file could not be compiled.")) &&
+                                    Editor.Output.Any(x => x.Contains("-wdbg".PathJoin("dbg-runtime.cs"))))
                                 {
-                                    Editor.ShowToastError("Your debug metadata might be out of date. Save your script to trigger the metadata reset.");
+                                    Editor.ShowToastError("Your debug metadata might be out of date.\nSave your script to trigger the metadata reset.");
                                 }
                             }
                             DebugSession.Reset();

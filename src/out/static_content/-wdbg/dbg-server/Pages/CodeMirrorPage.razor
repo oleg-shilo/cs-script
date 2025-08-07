@@ -397,8 +397,8 @@
     double contextMenuX, contextMenuY;
     string contextMenuValueToCopy = "";
 
-    ValueTask<TValue> js<TValue>(string identifier, params object?[]? args) => JS.InvokeAsync<TValue>(identifier, args);
-    ValueTask js(string identifier, params object?[]? args) => JS.InvokeVoidAsync(identifier, args);
+    ValueTask<TValue> js<TValue>(string identifier, params object[] args) => JS.InvokeAsync<TValue>(identifier, args);
+    ValueTask js(string identifier, params object[] args) => JS.InvokeVoidAsync(identifier, args);
 
     void StateHasChangedSafe() => InvokeAsync(StateHasChanged); // Ensure StateHasChanged is called on the UI thread
 

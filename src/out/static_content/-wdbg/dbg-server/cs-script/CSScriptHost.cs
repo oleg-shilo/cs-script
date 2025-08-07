@@ -163,7 +163,7 @@ namespace wdbg.cs_script
 
         public static async Task Start(string script, string[] args = null, string[] ngArgs = null, Action<Process> onStart = null, Action onExit = null,
             Action<Process, string> onOutput = null, Action<string> onError = null, string sessionId = "", bool singleCharOputput = false, (string, string)[] envars = null)
-            => _ = Task.Run(() =>
+            => await Task.Run(() =>
             {
                 try
                 {
@@ -225,20 +225,9 @@ namespace wdbg.cs_script
                     {
                         char c = (char)ch;
                         onOutput?.Invoke(process, c.ToString());
-                        continue;
-
-                        if (c == '\n')
-                        {
-                            buf.Append(c);
-                            var line = buf.ToString();
-                            onOutput?.Invoke(process, buf.ToString());
-                            buf.Clear();
-                        }
-                        else
-                            buf.Append(c);
                     }
                 }
-                catch (ObjectDisposedException e)
+                catch (ObjectDisposedException)
                 {
                     // just ignore, the process has exited
                 }

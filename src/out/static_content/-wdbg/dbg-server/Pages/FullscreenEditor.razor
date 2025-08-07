@@ -18,7 +18,7 @@
     public string Line { get; set; } = "";
     int line => Line.ToInt();
 
-    private IJSObjectReference? _module;
+    private IJSObjectReference _module;
     private string _fileContent = "";
     private const string _theme = "darkone"; // Set your preferred theme
 

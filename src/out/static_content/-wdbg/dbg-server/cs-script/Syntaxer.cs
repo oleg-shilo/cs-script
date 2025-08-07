@@ -216,7 +216,7 @@ namespace wdbg.cs_script
                 Console.WriteLine($"Timeout communicating with syntax server: {ex.Message}");
                 return null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Optional: Log other exceptions
                 // Console.WriteLine($"Error communicating with syntax server: {ex.Message}");
