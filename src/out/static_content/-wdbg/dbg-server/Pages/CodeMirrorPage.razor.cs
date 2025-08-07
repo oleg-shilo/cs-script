@@ -1,12 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text.Json;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 using wdbg.cs_script;
 
 namespace wdbg.Pages;
@@ -322,6 +323,25 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                     {
                         // Open Explorer and select the file
                         var argument = $"/select,\"{Editor.LoadedScript}\"";
+                        Process.Start(new ProcessStartInfo("explorer.exe", argument) { UseShellExecute = true });
+                    }
+                }
+            }
+        }
+        catch (Exception e) { e.Log(); }
+    }
+    public async Task OpenScriptDebugFolder()
+    {
+        try
+        {
+            if (UserSession.IsLocalClient)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    if (Editor.LoadedScriptDbg.HasText() && File.Exists(Editor.LoadedScriptDbg))
+                    {
+                        // Open Explorer and select the file
+                        var argument = $"/select,\"{Editor.LoadedScriptDbg}\"";
                         Process.Start(new ProcessStartInfo("explorer.exe", argument) { UseShellExecute = true });
                     }
                 }
@@ -686,6 +706,12 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                             {
                                 var proc = DebugSession.RunningScript;
                                 AddOutputLine($"> Script (pid: {proc.Id}) has exited with code {proc.ExitCode} (0x{proc.ExitCode:X}).");
+                                if (proc.ExitCode != 0 && 
+                                    Editor.Output.Any(x => x.Contains("Error: Specified file could not be compiled.") && 
+                                                           x.Contains("-wdbg".PathJoin("dbg-runtime.cs"))))
+                                {
+                                    Editor.ShowToastError("Your debug metadata might be out of date. Save your script to trigger the metadata reset.");
+                                }
                             }
                             DebugSession.Reset();
                         }),

@@ -8,9 +8,12 @@ using NuGet.Versioning;
 void move(string mask)
 {
     // CS-Script.4.9.9-pre.nupkg
-    var package = Directory.GetFiles(@"..\bin\Release", mask)
-                           .OrderByDescending(x => ExtractVersionFromFileName(x))
-                           .FirstOrDefault();
+    var packages = Directory.GetFiles(@"..\bin\Release", mask)
+                           .Select(x => new { path = x, version = ExtractVersionFromFileName(x) })
+                           .OrderByDescending(x => x.version)
+                           .ToArray();
+
+    var package = packages.FirstOrDefault()?.path;
     File.Copy(package, Path.GetFileName(package), true);
     Console.WriteLine(package);
 }
@@ -20,7 +23,10 @@ NuGetVersion ExtractVersionFromFileName(string fileName)
     // This regex captures the version part, including pre-release suffixes.
     // It looks for a sequence of numbers and dots, optionally followed by a hyphen and any characters (for pre-release).
     // It ensures this pattern is followed by ".nupkg".
-    string pattern = @"(?<version>\d+(\.\d+){1,3}(-\w+)?)\.nupkg$";
+
+    // "..\\bin\\Release\\CS-Script.cli.4.9.9.snupkg"
+    // string pattern = @"(?<version>\d+(\.\d+){1,3}(-\w+)?)\.nupkg$";
+    string pattern = @"(?<version>\d+(\.\d+){1,3}(-\w+)?)\.(s?nupkg)$";
     Match match = Regex.Match(Path.GetFileName(fileName), pattern);
 
     if (match.Success)

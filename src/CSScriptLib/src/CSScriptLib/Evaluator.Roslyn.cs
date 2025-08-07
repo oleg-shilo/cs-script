@@ -171,6 +171,18 @@ namespace CSScriptLib
         /// </value>
         public SourceCodeKind CodeKind { set; get; } = SourceCodeKind.Regular;
 
+        /// <summary>
+        /// Gets or sets the C# language version to be used for compilation.
+        /// <para>
+        /// By default it is <see cref="LanguageVersion.Latest"/> which uses the latest supported C# language version.
+        /// You can specify a specific version to ensure compatibility or to use features from a particular C# version.
+        /// </para>
+        /// </summary>
+        /// <value>
+        /// The C# language version.
+        /// </value>
+        public LanguageVersion LanguageVersion { set; get; } = LanguageVersion.Latest;
+
         internal string ScriptEntryPointType;
         internal string ScriptEntryPoint;
     }
@@ -499,6 +511,12 @@ namespace CSScriptLib
 
                 var scriptOptions = CompilerSettings;
 
+                // Apply language version for non-script scenarios
+                if (info?.CodeKind != SourceCodeKind.Script && info?.LanguageVersion != null)
+                {
+                    scriptOptions = scriptOptions.WithLanguageVersion(info.LanguageVersion);
+                }
+
                 // unfortunately the next code block will not work. Roslyn scripting fails to
                 // create compilation if ParseOptions are set
 
@@ -524,7 +542,7 @@ namespace CSScriptLib
                             scriptText,
                             new CSharpParseOptions(
                                 kind: SourceCodeKind.Script,
-                                languageVersion: LanguageVersion.Latest));
+                                languageVersion: info?.LanguageVersion ?? LanguageVersion.Latest));
 
                     var references = new List<MetadataReference>();
 
