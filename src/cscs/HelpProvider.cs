@@ -641,6 +641,7 @@ namespace csscript
                                                     $"(see {help_url}/help/non_cs_compilers.html)");
             switch2Help[nuget] = new ArgInfo("-nuget[:restore]",
                                              "Installs new or updates existing NuGet packages. It is a very close equivalent of `dotnet restore` command",
+                                             "Note, using nuget directives in the script text aoffers more flexibility (e.g. version support. See `cscs -syntax //css_nuget` ",
                                              "```",
                                              " -nuget         - ${<==}prints the list of all root packages in the repository",
                                              " -nuget:restore - ${<==}Downloads and installs all packages specified in the script without executing the script. " +
@@ -767,7 +768,7 @@ namespace csscript
                          "``` ",
                          section_sep, //------------------------------------
                          " ",
-                         "`//css_nuget [-force] [-ver:<version>] package0[,package1]..[,packageN];`",
+                         "`//css_nuget [-force] [-ver:<version>] [-pre|--prerelease] package0[,package1]..[,packageN];`",
                          " ",
                          "Downloads/Installs the NuGet package. It also automatically references the downloaded package assemblies.",
                          "By default, the package is not downloaded again if it was already downloaded.",
@@ -775,10 +776,12 @@ namespace csscript
                          "traditional SW development of compiled .NET applications.",
                          "```txt",
                          " -force - ${<==}switch to force individual packages downloading even when they were already downloaded.",
-                         " -ver:<version> - ${<==}switch to download/reference a specific package version.",
+                         " <-ver|-v>:<version> - ${<==}switch to download/reference a specific package version.",
+                         " -pre|--prerelease   - ${<==}allows prerelease packages to be used.",
                          "``` ",
                          " Examples: //css_nuget cs-script;",
-                         "           //css_nuget -force NLog",
+                         "           //css_nuget -force -pre NLog",
+                         "           //css_nuget -pre Microsoft.SqlServer.SqlManagementObjects, Microsoft.SqlServer.ConnectionInfo",
                          " ",
                          "--- Legacy NuGet support ---",
                          " ",

@@ -1,15 +1,17 @@
+using CSScripting;
+using CSScripting.CodeDom;
+using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using static System.Environment;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Microsoft.CodeAnalysis.Scripting;
-using CSScripting;
-using CSScripting.CodeDom;
+using static System.Environment;
 
 namespace csscript
 {
@@ -592,20 +594,7 @@ namespace csscript
             var projectDir = SpecialFolder.LocalApplicationData.GetPath("Temp", "csscript.core", "nuget", projId);
             Directory.CreateDirectory(projectDir);
 
-            var packagsSection = "";
             var restoreArgs = "";
-            foreach (var item in packages)
-            {
-                string[] packageArgs = item.SplitCommandLine();
-                string package = packageArgs.FirstOrDefault(x => !x.StartsWith('-'));
-
-                restoreArgs += packageArgs.ArgValue("-ng") + " "; // temp, until `-ng` is dropped
-                restoreArgs += packageArgs.ArgValue("-restore") + " ";
-
-                string packageVersion = packageArgs.ArgValue("-ver") ?? "*"; // latest available version
-
-                packagsSection += $"<PackageReference Include=\"{package}\" Version=\"{packageVersion}\"/> {NewLine}";
-            }
 
             restoreArgs += $" --packages \"{NuGetCache}\"";
 
@@ -623,18 +612,24 @@ namespace csscript
 
             try
             {
-                // var projectFile = projectDir.PathJoin("nuget.ref.csproj");
                 var projectFile = projectDir.PathJoin($"{projId}.csproj");
 
                 dotnet_run("new classlib");
+                foreach (var item in packages)
+                {
+                    string[] packageArgs = item.SplitCommandLine();
 
-                var projContent = File.ReadAllText(projectDir.PathJoin($"{projId}.csproj"))
-                    .Replace("</Project>", $@"<ItemGroup>
-                                                {packagsSection}
-                                              </ItemGroup>
-                                          </Project>");
+                    // accumulate restore args
+                    restoreArgs += packageArgs.ArgValue("-ng") + " "; // temp, until `-ng` is dropped
+                    restoreArgs += packageArgs.ArgValue("-restore") + " ";
 
-                File.WriteAllText(projectFile, projContent);
+                    var package = packageArgs.FirstOrDefault(x => !x.StartsWith('-'));
+                    var prerelease = packageArgs.ContainsAny("-pre", "--prerelease") ? "--prerelease" : "";
+                    var packageVersion = packageArgs.ArgValue("-ver") ?? packageArgs.ArgValue("-v");
+                    packageVersion = packageVersion.IsNotEmpty() ? $"-v {packageVersion} " : "";
+
+                    var output = dotnet_run($"add package {package} {prerelease} -n"); // `-n` is to prevent restoring at this stage as it will be called for the whole project
+                }
 
                 packages = packages.OrderBy(x => x).ToArray();
 

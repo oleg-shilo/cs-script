@@ -290,12 +290,12 @@ namespace csscript
                             }
                             else
                             {
-                                if (context.Contains("kill") || context.Contains("-kill") || context.Contains("k"))
+                                if (context.ContainsAny("kill", "-kill", "kill-all", "ka", "k"))
                                 {
                                     // not sure ignoring any script process is a good idea but it is better than killing the current process
                                     var thisProcess = Process.GetCurrentProcess().Id;
 
-                                    if (context.Contains("*"))
+                                    if (context.ContainsAny("*", "kill-all", "ka"))
                                     {
                                         foreach (var pid in result.scripts.Select(x => x.pid).Where(x => x != 0 && x != thisProcess))
                                             try { Process.GetProcessById(pid).Kill(); }

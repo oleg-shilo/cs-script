@@ -66,6 +66,18 @@ namespace CSScripting
             new[] { item }.Concat(newItems).ToArray();
 
         /// <summary>
+        /// Determines whether any of the specified items are present in the collection.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="itemsToMatch">The items to match.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified items to match contains any; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool ContainsAny<T>(this IEnumerable<T> collection, params T[] itemsToMatch) =>
+            collection.Any(x => itemsToMatch.Contains(x));
+
+        /// <summary>
         /// Determines whether the collection is empty.
         /// </summary>
         /// <typeparam name="T"></typeparam>
