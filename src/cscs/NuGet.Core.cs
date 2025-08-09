@@ -584,7 +584,7 @@ namespace csscript
         public static (string[] assemblies, string[] nativeAssetsDirs) FindAssembliesOf(IEnumerable<string> packages)
         {
             // TODO
-            // - create a project template based on "dotnet new classlib" output
+            // - create a project template based on "dotnet new classlib" runResult
             // - analyse only directories that are listed in `*.nuget.cache` file (e.g. test\obj\project.nuget.cache)
 
             var result = new List<string>();
@@ -628,7 +628,10 @@ namespace csscript
                     var packageVersion = packageArgs.ArgValue("-ver") ?? packageArgs.ArgValue("-v");
                     packageVersion = packageVersion.IsNotEmpty() ? $"-v {packageVersion} " : "";
 
-                    var output = dotnet_run($"add package {package} {prerelease} -n"); // `-n` is to prevent restoring at this stage as it will be called for the whole project
+                    var runResult = dotnet_run($"add package {package} {prerelease} -n"); // `-n` is to prevent restoring at this stage as it will be called for the whole project
+
+                    if (runResult.exitCode != 0)
+                        Console.WriteLine($"Cannot add package {package}: {runResult.output}");
                 }
 
                 packages = packages.OrderBy(x => x).ToArray();

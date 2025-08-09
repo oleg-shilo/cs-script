@@ -125,6 +125,30 @@ namespace CLI
         }
 
         [Fact]
+        public void add_nuget_package_from_code()
+        {
+            if (SkipIfIncompatibile) return;
+
+            var script_file = nameof(add_nuget_package_from_code) + ".cs";
+
+            var output = cscs_run($"-new {script_file}");
+
+            var script_code = File.ReadAllText(script_file);
+            File.WriteAllText(script_file, "//css_nuget -force -pre nlog" + NewLine + script_code);
+
+            /*
+                Restoring packages...
+                   -force -pre nlog
+                Mapping packages to assemblies...
+                Compile: OK
+             */
+            output = cscs_run($"-check {script_file}");
+            Assert.Contains("-force -pre nlog", output);
+            Assert.Contains("Mapping packages to assemblies...", output);
+            Assert.Contains("Compile: OK", output);
+        }
+
+        [Fact]
         public void switch_engine_from_code_with_full_directive()
         {
             if (SkipIfIncompatibile) return;
