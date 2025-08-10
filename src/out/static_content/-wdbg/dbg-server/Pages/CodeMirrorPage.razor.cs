@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using wdbg.cs_script;
 
 namespace wdbg.Pages;
@@ -330,6 +330,7 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
         }
         catch (Exception e) { e.Log(); }
     }
+
     public async Task OpenScriptDebugFolder()
     {
         try
@@ -545,6 +546,8 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                     {
                         var error = e.Message ?? "Generating debug information for the loaded script has failed.";
 
+                        _ = BrowserLog(error);
+
                         if (e.Message?.Contains("Error: Specified file could not be compiled.") == true)
                         {
                             Editor.DebugGenerationError =
@@ -553,7 +556,12 @@ public partial class CodeMirrorPage : ComponentBase, IDisposable
                         }
 
                         if (showNotification)
+                        {
+                            if (error.Length > 400)
+                                error = error.Substring(0, 400) + "... (error text is truncated, see browser console log for the complete error text)";
                             Editor.ShowToastError(error); // failures can happen (e.g. *.dbg.cs is still locked)
+                        }
+
 
                         Editor.ResetDbgGenerator();
                         Editor.LoadedScriptDbg = null;

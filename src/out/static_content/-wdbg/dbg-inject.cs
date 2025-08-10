@@ -258,7 +258,8 @@ public static class Decorator
                             variablesToAnalyse = variablesToAnalyse.Except(invalidVariables[indexInErrorOutput]).ToList();
                     }
 
-                    var inspectionObjects = string.Join(", ", variablesToAnalyse.Select(x => $"(\"{x}\", {x})"));
+                    // var inspectionObjects = string.Join(", ", variablesToAnalyse.Select(x => $"(\"{x}\", {x})"));
+                    var inspectionObjects = string.Join(", ", variablesToAnalyse.Select(x => $"{x}.v()"));
 
                     if (scope.File == script && lines.Count() >= scope.StartLine)
                     {

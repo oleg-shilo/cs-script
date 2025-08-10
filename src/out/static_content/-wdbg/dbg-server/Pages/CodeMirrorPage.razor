@@ -510,6 +510,7 @@
     async Task<string> GetUndoBuffer() { try{ return await js<string>("codemirrorInterop.getUndoBuffer");} catch (Exception e) { e.Log(); } return ""; }
     async Task SetUndoBuffer(string buffer) { try{ await js("codemirrorInterop.setUndoBuffer", buffer);} catch (Exception e) { e.Log(); } }
     async Task FocusEditor() { try { await js("codemirrorInterop.focusEditor"); } catch (Exception e) { e.Log(); } }
+    async Task BrowserLog(string message) { try { await js("codemirrorInterop.log", message); } catch (Exception e) { e.Log(); } }
 
     async Task OnThemeChanged(ChangeEventArgs e)
     {

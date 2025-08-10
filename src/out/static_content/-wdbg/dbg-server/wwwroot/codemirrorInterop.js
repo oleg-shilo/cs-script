@@ -1229,3 +1229,7 @@ window.codemirrorInterop.triggerCompletion = function () {
     }
     return false;
 };
+
+window.codemirrorInterop.log = function (message) {
+    console.log(message);
+};

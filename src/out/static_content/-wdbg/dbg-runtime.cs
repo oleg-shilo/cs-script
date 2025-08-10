@@ -19,6 +19,11 @@ using wdbg;
 
 public static class DBG
 {
+    public static (string, object) v(this object value, [CallerArgumentExpression("value")] string expr = null)
+    {
+        return (expr, value);
+    }
+
     static DBG()
     {
         if (Environment.GetEnvironmentVariable("CSS_WEB_DEBUGGING_URL") == null)
@@ -836,6 +841,10 @@ namespace wdbg
 
         public static string ToReadable(this string methodName)
         {
+            if (methodName.Contains("<Main>")) // at runtime CLR decorates even normal mail (e.g. if it is async)
+                return "Main";
+
+            // classless main, local methods and lambdas
             var result = methodName?
                          .Replace("<", "")
                          .Replace(">", "")
@@ -863,7 +872,7 @@ namespace wdbg
 
                 if (method != null)
                 {
-                    var declaringType = method.DeclaringType?.Name ?? "UnknownType";
+                    var declaringType = method.DeclaringType?.FullName ?? "UnknownType";
 
                     // local methods and lambdas
                     //<<Main>$>g__setup_say_hello|0_0
@@ -871,6 +880,9 @@ namespace wdbg
                     //<Main>$
 
                     var methodName = method.Name?.ToReadable() ?? "UnknownMethod";
+                    if (method.ReflectedType.FullName?.Contains("+<Main>") == true)
+                        methodName = "Main";
+
                     var fileName = frame.GetFileName() ?? "";
                     var lineNumber = frame.GetFileLineNumber();
 
