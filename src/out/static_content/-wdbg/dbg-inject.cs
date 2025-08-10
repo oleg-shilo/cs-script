@@ -1,4 +1,4 @@
-//css_ng csc
+﻿//css_ng csc
 //css_ref Microsoft.CodeAnalysis.CSharp.dll
 //css_ref Microsoft.CodeAnalysis.dll
 using System;
@@ -14,9 +14,11 @@ using System.Reflection.Metadata.Ecma335;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using csscript;
 using CSScripting;
 
@@ -24,8 +26,15 @@ using CSScripting;
 
 public static class Decorator
 {
+    static void RoslynProcessing()
+    {
+        var code = File.ReadAllText(@"C:\Users\oleg\OneDrive\Documents\CS-Script\NewScript.cs");
+        BreakpointVariableAnalyzer.Analyze(code);
+    }
+
     static int Main(string[] args)
     {
+        // RoslynProcessing(); return 0;
         (string script, string decoratedScript, int[] breakpoints)[] items = Decorator.Process(args.FirstOrDefault() ?? "<unknown script>");
 
         Console.WriteLine("script-dbg:" + items[0].decoratedScript);
@@ -87,14 +96,21 @@ public static class Decorator
                 DecoratedScriptsMap[item.script] = item.decoratedScript;
             }
 
-            // inject dbg info into the primary and imported scripts
+            var map_byRoslyn = new List<MethodDbgInfo>();
+            map_byRoslyn.Add(new MethodDbgInfo
+            {
+                Scopes = BreakpointVariableAnalyzer.Map(primaryScript)
+            });
 
-            var pdbFile = BuildPdb(script);
-            if (pdbFile.IsEmpty())
-                throw new Exception($"Cannot build PDB for the script: {script}. Please ensure the script is compilable.");
+            foreach (var item in importedScripts)
+            {
+                map_byRoslyn.Add(new MethodDbgInfo
+                {
+                    Scopes = BreakpointVariableAnalyzer.Map(item)
+                });
+            }
 
-            var pdb = new Pdb(pdbFile);
-            var map = pdb.Map();
+            var map = map_byRoslyn.ToArray();
             var check = new Func<string>(() => Check(decoratedPrimaryScript));
 
             invalidBreakpointVariables[primaryScript] = new Dictionary<int, List<string>>();
@@ -150,13 +166,6 @@ public static class Decorator
             {
                 throw new Exception($"Error injecting debug info into the script: {script}\n{ex.Message}", ex);
             }
-            finally
-            {
-                pdb.provider.Dispose();
-
-                try { File.Delete(pdbFile); }
-                catch { }
-            }
 
             var breakPointsFile = decoratedPrimaryScript + ".bp";
 
@@ -183,7 +192,9 @@ public static class Decorator
         string error = null;
 
         var code = File.ReadAllText(script) + Environment.NewLine;
+
         MethodSyntaxInfo[] methodDeclarations = GetMethodSignatures(code);
+
         int[] breakpoints = new int[0]; // line that user can put a break point at.
 
         var invalidVariables = invalidBreakpointVariables[script];
@@ -196,7 +207,6 @@ public static class Decorator
         {
             foreach (var scope in method.Scopes)
             {
-                // if (scope.BelongsToFile(script) && scope != method.Scopes.Last())
                 if (scope.BelongsToFile(script))
                 {
                     // scope is 1-based
@@ -205,10 +215,10 @@ public static class Decorator
                     // string prevLine = ";";
                     var trimmedLine = line.TrimStart();
 
-                    if (trimmedLine.StartsWith("public") ||
-                        trimmedLine.StartsWith("private") ||
-                        trimmedLine.StartsWith("internal") ||
-                        trimmedLine.StartsWith("static"))
+                    if (trimmedLine.StartsWithAny(
+                        "public", "private", "internal", "static",
+                        "=>", ".",
+                        "catch", "finally"))
                     {
                         continue; // skip public method declarations (e.g `string GetName()=>_name;`)
                     }
@@ -233,15 +243,17 @@ public static class Decorator
                     if (methodInfo?.IsStatic == false)
                         variablesToAnalyse.Add("this");
 
-                    if (methodInfo != null)
-                        variablesToAnalyse.AddRange(methodInfo.Params);
-                    else
-                        variablesToAnalyse.Add("args"); // top-level statement; if it's wrong, the first compilation will invalidate this variable anyway
+                    // not needed any more because BreakpointVariableAnalyzer extracts method params anyway
+                    // if (methodInfo != null)
+                    //     variablesToAnalyse.AddRange(methodInfo.Params);
+                    // else
+                    //     variablesToAnalyse.Add("args"); // top-level statement; if it's wrong, the first compilation will invalidate this variable anyway
 
                     if (invalidVariables.Any())
                     {
                         // if errors are detected then we are dealing with a decorated script with extra lines on top
                         var indexInErrorOutput = scope.StartLine + extraImports; // adjust for an injected line on top
+
                         if (invalidVariables.ContainsKey(indexInErrorOutput))
                             variablesToAnalyse = variablesToAnalyse.Except(invalidVariables[indexInErrorOutput]).ToList();
                     }
@@ -290,6 +302,7 @@ public static class Decorator
         }
 
         int offset = 0;
+
         if (globalImport.HasText())
         {
             lines.Insert(0, globalImport); // even if globalImport is a multiline text it will take only one item in the `lines` list
@@ -431,43 +444,6 @@ public static class Decorator
             return output;
     }
 
-    static string BuildPdb(string script)
-    {
-        List<string> tempFiles = new();
-        tempFiles.Add(script + ".x");
-        tempFiles.Add(script + ".x.exe");
-        tempFiles.Add(script + ".x.dll");
-        tempFiles.Add(script + ".x.deps.json");
-        tempFiles.Add(script + ".x.runtimeconfig.json");
-
-        var sw = Stopwatch.StartNew();
-        try
-        {
-            var assembly = script + ".x.exe";
-
-            var output = "";
-            var err = "";
-            var compilation = Shell.StartProcess(
-                "dotnet", $"\"{css}\" -e -dbg -out:\"{assembly}\" \"{script}\"", // you can add -verbose to see the compilation details
-                Path.GetDirectoryName(script),
-                line => output += line + "\n",
-                line => err += line + "\n");
-            compilation.WaitForExit();
-
-            if (err.HasText())
-                throw new Exception($"Error building PDB for {script}: {err}");
-
-            var ellapsed = sw.Elapsed;
-
-            return compilation.ExitCode == 0 ? (script + ".x.pdb") : null;
-        }
-        finally
-        {
-            foreach (var item in tempFiles)
-                try { File.Delete(item); } catch { }
-        }
-    }
-
     static string css
     {
         get
@@ -499,6 +475,7 @@ public static class Decorator
             while (dir != null)
             {
                 var candidate = Path.Combine(dir, "cscs.dll");
+
                 if (File.Exists(candidate))
                 {
                     found = candidate;
@@ -652,133 +629,6 @@ public class MethodSyntaxInfo
     public int EndLine;
 }
 
-public class LocalVariable
-{
-    public LocalVariable(int index, string name, bool compilerGenerated)
-    {
-        Index = index;
-        Name = name;
-        CompilerGenerated = compilerGenerated;
-    }
-
-    public int Index { get; set; }
-    public SequencePoint SequencePoint { get; set; }
-    public string Name { get; set; }
-    public bool CompilerGenerated { get; set; }
-
-    public override string ToString()
-    {
-        return Name;
-    }
-}
-
-public class Pdb
-{
-    public MetadataReader reader;
-    public MetadataReaderProvider provider;
-
-    public Pdb(string pdbPath)
-    {
-        var stream = new StreamReader(pdbPath);
-        provider = MetadataReaderProvider.FromPortablePdbStream(stream.BaseStream, MetadataStreamOptions.PrefetchMetadata, 0);
-        reader = provider.GetMetadataReader();
-    }
-
-    internal MethodDbgInfo[] Map()
-    {
-        // https://csharp.hotexamples.com/examples/System.Reflection.Metadata/MetadataReader/GetMethodDefinition/php-metadatareader-getmethoddefinition-method-examples.html
-        return reader
-            .MethodDebugInformation
-            .Where(h => !h.IsNil)
-            .Select(x => new { MethodDebugInfo = reader.GetMethodDebugInformation(x), Token = MetadataTokens.GetToken(x.ToDefinitionHandle()) })
-            .Where(x => !x.MethodDebugInfo.SequencePointsBlob.IsNil)
-            .Select(x => new MethodDbgInfo
-            {
-                Token = x.Token,
-                Scopes = x.MethodDebugInfo
-                          .GetSequencePoints()
-                          .Where(x => !x.IsHidden)
-                          .Select(sp =>
-                                  {
-                                      var document = reader.GetDocument(sp.Document);
-                                      var name = reader.GetString(document.Name);
-                                      // var def = reader.GetMethodDefinition(MetadataTokens.MethodDefinitionHandle(item.Token));
-                                      // BlobReader signatureReader = reader.GetBlobReader(def.Signature);
-                                      // SignatureHeader header = signatureReader.ReadSignatureHeader();
-
-                                      var variables = GetLocalVariableNamesForMethod(x.Token);
-
-                                      var document1 = reader.GetDocument(x.MethodDebugInfo.Document);
-
-                                      return new ScopeInfo
-                                      {
-                                          File = name,
-                                          StartLine = sp.StartLine,
-                                          EndLine = sp.EndLine,
-                                          ScopeVariables = variables.Select(x => x.Name).ToArray()
-                                      };
-                                  })
-                          .OrderBy(x => x.StartLine)
-                          .ToArray()
-            })
-            .ToArray();
-    }
-
-    void ProbeScopeForLocals(List<LocalVariable> variables, LocalScopeHandle localScopeHandle)
-    {
-        var localScope = reader.GetLocalScope(localScopeHandle);
-
-        // var ttt = reader.GetMethodDefinition(localScope.Method);
-        // var name1 = reader.GetString(ttt.Name);
-
-        foreach (var localVariableHandle in localScope.GetLocalVariables())
-        {
-            var localVariable = reader.GetLocalVariable(localVariableHandle);
-            var name = reader.GetString(localVariable.Name);
-
-            bool compilerGenerated = (localVariable.Attributes & LocalVariableAttributes.DebuggerHidden) != 0;
-            variables.Add(new LocalVariable(localVariable.Index, name, compilerGenerated));
-        }
-    }
-
-    public IEnumerable<LocalVariable> GetLocalVariableNamesForMethod(int methodToken)
-    {
-        var methodHandle = MetadataTokens.MethodImplementationHandle(methodToken);
-        var methodImpl = reader.GetMethodImplementation(methodHandle);
-        // var method_token = MetadataTokens.GetToken(methodSpec.Method);
-
-        // 'methodSpec.Signature' threw an exception of type 'System.BadImageFormatException'
-        // var methodSpecHandle = MetadataTokens.MethodSpecificationHandle(methodToken);
-        // var methodSpec = reader.GetMethodSpecification(methodSpecHandle);
-        // var method_token = MetadataTokens.GetToken(methodSpec.Method);
-
-        // Handle the potential BadImageFormatException when reading parameters
-        ParameterHandleCollection parameters = default;
-        try
-        {
-            var handle = MetadataTokens.MethodDefinitionHandle(methodToken);
-            var definition = reader.GetMethodDefinition(handle);
-            parameters = definition.GetParameters();
-        }
-        catch (BadImageFormatException)
-        {
-            // Parameter information couldn't be read from the PDB
-            // Continue with default (empty) parameters collection
-        }
-
-        var debugInformationHandle = MetadataTokens.MethodDefinitionHandle(methodToken).ToDebugInformationHandle();
-        var localScopes = reader.GetLocalScopes(debugInformationHandle);
-        var variables = new List<LocalVariable>();
-
-        // note the scope variable may not be available for the evaluation at the start of the scope
-        foreach (var localScopeHandle in localScopes)
-        {
-            ProbeScopeForLocals(variables, localScopeHandle);
-        }
-        return variables;
-    }
-}
-
 static class Shell
 {
     public static Process ExecuteAssembly(string assembly, string args, Action<string> onStdOut = null, Action<string> onErrOut = null)
@@ -802,5 +652,134 @@ static class Shell
         proc.BeginOutputReadLine();
 
         return proc;
+    }
+}
+
+public class BreakpointVariableAnalyzer
+{
+    public static ScopeInfo[] Map(string file)
+    {
+        var result = new List<ScopeInfo>();
+
+        var code = File.ReadAllText(file);
+        var tree = CSharpSyntaxTree.ParseText(code);
+        var compilation = CSharpCompilation.Create("Demo",
+            new[] { tree },
+            new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
+
+        var model = compilation.GetSemanticModel(tree);
+
+        var variablesPerLine = ExtractVariablesPerLine(tree, model);
+
+        foreach (var kv in variablesPerLine)
+        {
+            result.Add(new ScopeInfo
+            {
+                File = file,
+                StartLine = kv.Key,
+                EndLine = kv.Key,
+                ScopeVariables = kv.Value.ToArray()
+            });
+        }
+
+        return result.ToArray();
+    }
+
+    public static void Analyze(string code)
+    {
+        var tree = CSharpSyntaxTree.ParseText(code);
+        var compilation = CSharpCompilation.Create("Demo",
+            new[] { tree },
+            new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
+
+        var model = compilation.GetSemanticModel(tree);
+
+        var variablesPerLine = ExtractVariablesPerLine(tree, model);
+
+        foreach (var kv in variablesPerLine)
+        {
+            Console.WriteLine($"Line {kv.Key}: {string.Join(", ", kv.Value)}");
+        }
+    }
+
+    public static List<int> BreakpointCompatibleLines(SyntaxTree tree)
+    {
+        var lines = new HashSet<int>();
+        var root = tree.GetRoot();
+
+        foreach (var statement in root.DescendantNodes().OfType<StatementSyntax>())
+        {
+            var line = tree.GetLineSpan(statement.Span).StartLinePosition.Line + 1;
+
+            // Simple heuristic: skip empty blocks, braces, or declarations without bodies
+            if (!(statement is BlockSyntax) &&
+                !(statement is EmptyStatementSyntax) &&
+                !(statement is LocalFunctionStatementSyntax lf && lf.Body == null && lf.ExpressionBody == null))
+            {
+                lines.Add(line);
+            }
+        }
+
+        return lines.OrderBy(l => l).ToList();
+    }
+
+    public static Dictionary<int, List<string>> ExtractVariablesPerLine(SyntaxTree tree, SemanticModel model)
+    {
+        var result = new Dictionary<int, List<string>>();
+        var root = tree.GetRoot();
+
+        // Tracks declared symbol and line number where it becomes available
+        var symbolDeclarations = new List<(ISymbol Symbol, int DeclaredLine)>();
+
+        // 1 Gather method parameters
+        foreach (var method in root.DescendantNodes().OfType<BaseMethodDeclarationSyntax>())
+        {
+            var paramSymbols = method.ParameterList?.Parameters
+                .Select(p => model.GetDeclaredSymbol(p))
+                .Where(s => s != null);
+
+            var methodStartLine = tree.GetLineSpan(method.Span).StartLinePosition.Line + 2;
+            foreach (var p in paramSymbols)
+                symbolDeclarations.Add((p!, methodStartLine));
+        }
+
+        // Gather local variables & local functions
+        foreach (var local in root.DescendantNodes().OfType<VariableDeclaratorSyntax>())
+        {
+            var symbol = model.GetDeclaredSymbol(local);
+            if (symbol != null)
+            {
+                var declLine = tree.GetLineSpan(local.Span).StartLinePosition.Line + 2;
+                symbolDeclarations.Add((symbol, declLine));
+            }
+        }
+
+        foreach (var localFunc in root.DescendantNodes().OfType<LocalFunctionStatementSyntax>())
+        {
+            // local function parameters
+            var paramSymbols = localFunc.ParameterList?.Parameters
+                .Select(p => model.GetDeclaredSymbol(p))
+                .Where(s => s != null);
+
+            var funcStartLine = tree.GetLineSpan(localFunc.Span).StartLinePosition.Line + 2;
+            foreach (var p in paramSymbols)
+                symbolDeclarations.Add((p!, funcStartLine));
+        }
+
+        //  Assign symbols to every line AFTER they’re declared
+        var breakLines = BreakpointCompatibleLines(tree);
+        foreach (var line in breakLines)
+        {
+            var available = symbolDeclarations
+                .Where(s => s.DeclaredLine <= line)
+                .Select(s => s.Symbol.Name)
+                .Distinct()
+                .OrderBy(n => n)
+                .ToList();
+
+            result[line] = available;
+        }
+
+        return result;
     }
 }
