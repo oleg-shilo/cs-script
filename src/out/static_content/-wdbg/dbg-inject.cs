@@ -730,7 +730,7 @@ public class BreakpointVariableAnalyzer
         var root = tree.GetRoot();
 
         // Tracks declared symbol and line number where it becomes available
-        var symbolDeclarations = new List<(ISymbol Symbol, int DeclaredLine)>();
+        var symbolDeclarations = new List<(ISymbol Symbol, int DeclaredLine, SyntaxNode Scope)>();
 
         // 1 Gather method parameters
         foreach (var method in root.DescendantNodes().OfType<BaseMethodDeclarationSyntax>())
@@ -741,7 +741,7 @@ public class BreakpointVariableAnalyzer
 
             var methodStartLine = tree.GetLineSpan(method.Span).StartLinePosition.Line + 2;
             foreach (var p in paramSymbols)
-                symbolDeclarations.Add((p!, methodStartLine));
+                symbolDeclarations.Add((p!, methodStartLine, method));
         }
 
         // Gather local variables & local functions
@@ -751,7 +751,19 @@ public class BreakpointVariableAnalyzer
             if (symbol != null)
             {
                 var declLine = tree.GetLineSpan(local.Span).StartLinePosition.Line + 2;
-                symbolDeclarations.Add((symbol, declLine));
+                // Find the containing scope (block, method, etc.)
+                var containingScope = local.Ancestors().FirstOrDefault(a =>
+                    a is BlockSyntax ||
+                    a is BaseMethodDeclarationSyntax ||
+                    a is LocalFunctionStatementSyntax ||
+                    a is IfStatementSyntax ||
+                    a is ElseClauseSyntax ||
+                    a is ForStatementSyntax ||
+                    a is ForEachStatementSyntax ||
+                    a is WhileStatementSyntax ||
+                    a is DoStatementSyntax);
+
+                symbolDeclarations.Add((symbol, declLine, containingScope));
             }
         }
 
@@ -764,23 +776,71 @@ public class BreakpointVariableAnalyzer
 
             var funcStartLine = tree.GetLineSpan(localFunc.Span).StartLinePosition.Line + 2;
             foreach (var p in paramSymbols)
-                symbolDeclarations.Add((p!, funcStartLine));
+                symbolDeclarations.Add((p!, funcStartLine, localFunc));
         }
 
-        //  Assign symbols to every line AFTER they’re declared
+        //  Assign symbols to every line AFTER they're declared
         var breakLines = BreakpointCompatibleLines(tree);
         foreach (var line in breakLines)
         {
-            var available = symbolDeclarations
-                .Where(s => s.DeclaredLine <= line)
-                .Select(s => s.Symbol.Name)
-                .Distinct()
-                .OrderBy(n => n)
-                .ToList();
+            var available = new List<string>();
 
-            result[line] = available;
+            // Find the syntax node at this line
+            var position = tree.GetText().Lines[line - 1].Start;
+            var nodeAtLine = root.FindNode(new TextSpan(position, 0));
+
+            foreach (var (symbol, declaredLine, scope) in symbolDeclarations)
+            {
+                if (declaredLine <= line)
+                {
+                    // Check if the variable is visible from the current line
+                    if (IsVariableVisibleAtLine(nodeAtLine, scope, tree))
+                    {
+                        available.Add(symbol.Name);
+                    }
+                }
+            }
+
+            result[line] = available.Distinct().OrderBy(n => n).ToList();
         }
 
         return result;
+    }
+
+    private static bool IsVariableVisibleAtLine(SyntaxNode nodeAtLine, SyntaxNode declarationScope, SyntaxTree tree)
+    {
+        // If the declaration scope is null, assume it's visible (global scope)
+        if (declarationScope == null)
+            return true;
+
+        // Check if the current node is within the declaration scope
+        var currentNode = nodeAtLine;
+        while (currentNode != null)
+        {
+            if (currentNode == declarationScope)
+                return true;
+
+            // Special handling for if/else clauses - variables declared in one clause
+            // are not visible in sibling clauses
+            if (declarationScope is BlockSyntax declarationBlock)
+            {
+                var declarationParent = declarationBlock.Parent;
+                var currentParent = currentNode.Parent;
+
+                // Check if we're in sibling if/else blocks
+                if (declarationParent is IfStatementSyntax ifStmt && currentParent is ElseClauseSyntax)
+                {
+                    return false; // Variable from if block not visible in else block
+                }
+                if (declarationParent is ElseClauseSyntax && currentParent is IfStatementSyntax)
+                {
+                    return false; // Variable from else block not visible in if block
+                }
+            }
+
+            currentNode = currentNode.Parent;
+        }
+
+        return false;
     }
 }
