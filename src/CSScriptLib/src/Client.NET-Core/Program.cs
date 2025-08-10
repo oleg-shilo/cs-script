@@ -45,7 +45,6 @@ namespace ConsoleApp1
 
         static void Test_CodeDom()
         {
-            CodeDomEvaluator.CompileOnServer = true;
             dynamic script = CSScript.CodeDomEvaluator
                                      .LoadMethod(@"public (int, int) func()
                                                    {

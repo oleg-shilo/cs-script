@@ -58,7 +58,7 @@ namespace CSScriptLib
         [Obsolete("Starting from v4.10.0.0 compiling scripts on CS-Script own build server is no " +
             "longer recommended as using csc.exe native build server brings the same performance benefits " +
             "but without the cost of the custom build server. The default value of this field is also changed  " +
-            "to 'false' for the same reason.")]
+            "to 'false' for the same reason.", true)]
         public static bool CompileOnServer = false;
 
         /// <summary>
@@ -284,65 +284,66 @@ namespace CSScriptLib
 
                 if (Runtime.IsCore)
                 {
-                    if (CompileOnServer && Globals.BuildServerIsDeployed)
-                    {
-                        var usingCli = false;
-                        /////////////////////
-                        if (usingCli)
-                        {
-                            // using CLI app to send/receive sockets data
+                    // should be deleted after the build server is removed v4.11.0+
+                    // if (CompileOnServer && Globals.BuildServerIsDeployed)
+                    // {
+                    //     var usingCli = false;
+                    //     /////////////////////
+                    //     if (usingCli)
+                    //     {
+                    //         // using CLI app to send/receive sockets data
 
-                            // statr server; it will exit if it is already started
-                            dotnet.RunAsync($"\"{Globals.build_server}\" -start -port:{BuildServer.serverPort}");
+                    //         // statr server; it will exit if it is already started
+                    //         dotnet.RunAsync($"\"{Globals.build_server}\" -start -port:{BuildServer.serverPort}");
 
-                            // send the buld request
-                            cmd = $@"""{Globals.build_server}"" -port:{BuildServer.serverPort} csc {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
-                            result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x));
-                        }
-                        else
-                        {
-                            // using sockets directly
-                            var request = $@"csc {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}"
-                                          .SplitCommandLine();
+                    //         // send the buld request
+                    //         cmd = $@"""{Globals.build_server}"" -port:{BuildServer.serverPort} csc {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                    //         result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x));
+                    //     }
+                    //     else
+                    //     {
+                    //         // using sockets directly
+                    //         var request = $@"csc {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}"
+                    //                       .SplitCommandLine();
 
-                            // ensure server running it will gracefully exit if another instance is running
-                            var startBuildServerCommand = $@"""{Globals.build_server}"" -listen -port:{BuildServer.serverPort} -csc:""{Globals.csc}""";
+                    //         // ensure server running it will gracefully exit if another instance is running
+                    //         var startBuildServerCommand = $@"""{Globals.build_server}"" -listen -port:{BuildServer.serverPort} -csc:""{Globals.csc}""";
 
-                            dotnet.RunAsync(startBuildServerCommand);
-                            Thread.Sleep(30);
+                    //         dotnet.RunAsync(startBuildServerCommand);
+                    //         Thread.Sleep(30);
 
-                            var response = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
+                    //         var response = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
 
-                            bool buildServerNotRunning() => response.GetLines()
-                                                                    .FirstOrDefault()?
-                                                                    .Contains("System.Net.Internals.SocketExceptionFactory+ExtendedSocketException")
-                                                                    == true;
+                    //         bool buildServerNotRunning() => response.GetLines()
+                    //                                                 .FirstOrDefault()?
+                    //                                                 .Contains("System.Net.Internals.SocketExceptionFactory+ExtendedSocketException")
+                    //                                                 == true;
 
-                            for (int i = 0; i < 10 && buildServerNotRunning(); i++)
-                            {
-                                Thread.Sleep(100);
-                                response = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
-                            }
+                    //         for (int i = 0; i < 10 && buildServerNotRunning(); i++)
+                    //         {
+                    //             Thread.Sleep(100);
+                    //             response = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
+                    //         }
 
-                            if (buildServerNotRunning())
-                            {
-                                throw new CompilerException($"{sdk_warning}CS-Script build server is not running:\n" +
-                                    $"Either\n" +
-                                    $"  - start server from the host application 'CSScript.StartBuildServer();'\n" +
-                                    $"  - start server manually with 'dotnet {startBuildServerCommand}'\n" +
-                                    $"  - use RoslynEvaluator\n" +
-                                    $"  - compile script with CodeDom in the same process (`CodeDomEvaluator.CompileOnServer = false;`)");
-                            }
-                            result.NativeCompilerReturnValue = 0;
-                            result.Output.AddRange(response.GetLines());
-                        }
-                    }
-                    else
-                    {
-                        cmd = $@"""{Globals.csc}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                    //         if (buildServerNotRunning())
+                    //         {
+                    //             throw new CompilerException($"{sdk_warning}CS-Script build server is not running:\n" +
+                    //                 $"Either\n" +
+                    //                 $"  - start server from the host application 'CSScript.StartBuildServer();'\n" +
+                    //                 $"  - start server manually with 'dotnet {startBuildServerCommand}'\n" +
+                    //                 $"  - use RoslynEvaluator\n" +
+                    //                 $"  - compile script with CodeDom in the same process (`CodeDomEvaluator.CompileOnServer = false;`)");
+                    //         }
+                    //         result.NativeCompilerReturnValue = 0;
+                    //         result.Output.AddRange(response.GetLines());
+                    //     }
+                    // }
+                    // else
+                    // {
+                    cmd = $@"""{Globals.csc}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
 
-                        result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x, CodeDomEvaluator.CscTimeout);
-                    }
+                    result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x, CodeDomEvaluator.CscTimeout);
+                    // }
                 }
                 else
                 {

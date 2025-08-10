@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.10.1.0</Version>
+    <Version>4.11.0.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
@@ -16,18 +16,23 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.10.1.0</AssemblyVersion>
-    <FileVersion>4.10.1.0</FileVersion>
+    <AssemblyVersion>4.11.0.0</AssemblyVersion>
+    <FileVersion>4.11.0.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
-  - WDBG: 
-    - usability updates
+  - fixed problem with `css -ls &lt;kill-all|ka&gt;`
+  - Added support for pre-release packages `//css_nuget -pre &lt;package&gt;`
+  - WDBG:
+    - Improved tracking of declaration scope
+    - UX improvements
+    - Inject dbg metadata is ported to pure Roslyn.
+    - Detect debug metadata out of sync and report it (2)
 
 ### CSScriptLib
-  - &lt;no changes&gt;</PackageReleaseNotes>
+  - Added NativeAOT sample</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
@@ -94,16 +99,16 @@
     <PackageReadmeFile>package_readme.md</PackageReadmeFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
-    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
+    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062;NU5119</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0|AnyCPU'">
-    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
+    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062;NU5119</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
-    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
+    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062;NU5119</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0|AnyCPU'">
-    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062s</NoWarn>
+    <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062;NU5119</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <!-- start: nuget tool package custom commands (keep this line here, it is a marker for automation)  -->

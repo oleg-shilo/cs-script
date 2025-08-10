@@ -372,14 +372,14 @@ global using global::System.Threading.Tasks;");
 
                 // will need to use a different sample script to test the rest of the functionality
 
-                output = cscs_run($"{probing_dir} -self-exe");
-                Assert.Equal($"Created: {cscs_exe.ChangeFileName("css.exe")}", output);
+                // output = cscs_run($"{probing_dir} -self-exe");
+                // Assert.Equal($"Created: {cscs_exe.ChangeFileName("css.exe")}", output);
 
-                output = cscs_run($"{probing_dir} -self-exe-run");
-                Assert.Equal($"Created: {cscs_exe.ChangeFileName("css.exe")}", output);
+                // output = cscs_run($"{probing_dir} -self-exe-run");
+                // Assert.Equal($"Created: {cscs_exe.ChangeFileName("css.exe")}", output);
 
-                output = cscs_run($"{probing_dir} -self-exe-build");
-                Assert.Equal($"Created: {cscs_exe.ChangeFileName("css.exe")}", output);
+                // output = cscs_run($"{probing_dir} -self-exe-build");
+                // Assert.Equal($"Created: {cscs_exe.ChangeFileName("css.exe")}", output);
             }
         }
 

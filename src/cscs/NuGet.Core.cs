@@ -628,7 +628,7 @@ namespace csscript
                     var packageVersion = packageArgs.ArgValue("-ver") ?? packageArgs.ArgValue("-v");
                     packageVersion = packageVersion.IsNotEmpty() ? $"-v {packageVersion} " : "";
 
-                    var runResult = dotnet_run($"add package {package} {prerelease} -n"); // `-n` is to prevent restoring at this stage as it will be called for the whole project
+                    var runResult = dotnet_run($"add package {package} {prerelease} {packageVersion} -n");// `-n` is to prevent restoring at this stage as it will be called for the whole project
 
                     if (runResult.exitCode != 0)
                         Console.WriteLine($"Cannot add package {package}: {runResult.output}");

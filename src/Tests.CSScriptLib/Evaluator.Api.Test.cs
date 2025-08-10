@@ -27,7 +27,6 @@ namespace EvaluatorTests
         {
             base.GetEvaluator = () => CSScript.CodeDomEvaluator;
             // CSScript.EvaluatorConfig.DebugBuild = true;
-            CodeDomEvaluator.CompileOnServer = true;
         }
 
         [Fact]

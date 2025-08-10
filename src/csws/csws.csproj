@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.10.1.0</Version>
+    <Version>4.11.0.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
@@ -19,18 +19,23 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.10.1.0</AssemblyVersion>
-    <FileVersion>4.10.1.0</FileVersion>
+    <AssemblyVersion>4.11.0.0</AssemblyVersion>
+    <FileVersion>4.11.0.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
-  - WDBG: 
-    - usability updates
+  - fixed problem with `css -ls &lt;kill-all|ka&gt;`
+  - Added support for pre-release packages `//css_nuget -pre &lt;package&gt;`
+  - WDBG:
+    - Improved tracking of declaration scope
+    - UX improvements
+    - Inject dbg metadata is ported to pure Roslyn.
+    - Detect debug metadata out of sync and report it (2)
 
 ### CSScriptLib
-  - &lt;no changes&gt;</PackageReleaseNotes>
+  - Added NativeAOT sample</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
     <PackageIcon>..\logo\css_logo.png</PackageIcon>

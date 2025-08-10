@@ -66,7 +66,6 @@ namespace EvaluatorTests
         public void call_LoadMethod()
         {
             CSScript.EvaluatorConfig.DebugBuild = true;
-            CodeDomEvaluator.CompileOnServer = true;
 
             dynamic script = CSScript.CodeDomEvaluator
                                      .LoadMethod(@"public object func()

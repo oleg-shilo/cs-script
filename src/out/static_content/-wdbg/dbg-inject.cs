@@ -4,17 +4,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -26,15 +20,8 @@ using CSScripting;
 
 public static class Decorator
 {
-    static void RoslynProcessing()
-    {
-        var code = File.ReadAllText(@"C:\Users\oleg\OneDrive\Documents\CS-Script\NewScript.cs");
-        BreakpointVariableAnalyzer.Analyze(code);
-    }
-
     static int Main(string[] args)
     {
-        // RoslynProcessing(); return 0;
         (string script, string decoratedScript, int[] breakpoints)[] items = Decorator.Process(args.FirstOrDefault() ?? "<unknown script>");
 
         Console.WriteLine("script-dbg:" + items[0].decoratedScript);
@@ -53,19 +40,7 @@ public static class Decorator
 
     static string ChangeToCahcheDir(this string file, string dir) => Path.Combine(dir, Path.GetFileName(file));
 
-    static string GetCacheDirectory(string script)
-    {
-        return Runtime.GetCacheDir(script);
-        // If the above API is not ready yet in cscs.dll:
-        var result = typeof(csscript.Runtime).Assembly
-                         .GetType("csscript.CSExecutor")
-                         .GetMethod("GetCacheDirectory")
-                         .Invoke(null, new object[] { script }) as string;
-
-        result = Path.Combine(result, ".wdbg", Path.GetFileName(script));
-        Directory.CreateDirectory(result); // ensure the directory exists
-        return result;
-    }
+    static string GetCacheDirectory(string script) => Runtime.GetCacheDir(script);
 
     static Dictionary<string, string> DecoratedScriptsMap = new();
 
@@ -189,8 +164,6 @@ public static class Decorator
 
     static (string script, string decoratedScript, int[] breakpoints) InjectDbgInfo(string script, string decoratedScript, MethodDbgInfo[] map, Func<string> check, string globalImport = null)
     {
-        string error = null;
-
         var code = File.ReadAllText(script) + Environment.NewLine;
 
         MethodSyntaxInfo[] methodDeclarations = GetMethodSignatures(code);
@@ -429,7 +402,6 @@ public static class Decorator
 
     static string Check(string script)
     {
-        var assembly = script + ".dll";
         var output = "";
         var err = "";
         var compilation = Shell.StartProcess(
@@ -467,8 +439,6 @@ public static class Decorator
 
             if (found.HasText() && File.Exists(found))
                 return found;
-            else
-                found = null;
 
             // 2
             var dir = Environment.CurrentDirectory;
@@ -820,8 +790,7 @@ public class BreakpointVariableAnalyzer
             if (currentNode == declarationScope)
                 return true;
 
-            // Special handling for if/else clauses - variables declared in one clause
-            // are not visible in sibling clauses
+            // Special handling for if/else clauses - variables declared in one clause are not visible in sibling clauses
             if (declarationScope is BlockSyntax declarationBlock)
             {
                 var declarationParent = declarationBlock.Parent;
