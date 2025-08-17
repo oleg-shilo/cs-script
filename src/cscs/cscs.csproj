@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.11.0.0</Version>
+    <Version>4.11.1.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
@@ -16,23 +16,17 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.11.0.0</AssemblyVersion>
-    <FileVersion>4.11.0.0</FileVersion>
+    <AssemblyVersion>4.11.1.0</AssemblyVersion>
+    <FileVersion>4.11.1.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
-  - fixed problem with `css -ls &lt;kill-all|ka&gt;`
-  - Added support for pre-release packages `//css_nuget -pre &lt;package&gt;`
-  - WDBG:
-    - Improved tracking of declaration scope
-    - UX improvements
-    - Inject dbg metadata is ported to pure Roslyn.
-    - Detect debug metadata out of sync and report it (2)
+  - Added `-self-rt` custom command for setting the script engine runtime version
 
 ### CSScriptLib
-  - Added NativeAOT sample</PackageReleaseNotes>
+  - no changes</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
@@ -120,6 +114,8 @@
     <Content Include="..\out\static_content\-pkill\**\*" Link="ToolPackage/-pkill" Pack="true" PackagePath="tools/net8.0/any/-pkill" />
     <Content Include="..\out\static_content\-runas\**\*" Link="ToolPackage/-runas" Pack="true" PackagePath="tools/net9.0/any/-runas" />
     <Content Include="..\out\static_content\-runas\**\*" Link="ToolPackage/-runas" Pack="true" PackagePath="tools/net8.0/any/-runas" />
+    <Content Include="..\out\static_content\-scramble\**\*" Link="ToolPackage/-scramble" Pack="true" PackagePath="tools/net9.0/any/-scramble" />
+    <Content Include="..\out\static_content\-scramble\**\*" Link="ToolPackage/-scramble" Pack="true" PackagePath="tools/net8.0/any/-scramble" />
     <Content Include="..\out\static_content\-self\**\*" Link="ToolPackage/-self" Pack="true" PackagePath="tools/net9.0/any/-self" />
     <Content Include="..\out\static_content\-self\**\*" Link="ToolPackage/-self" Pack="true" PackagePath="tools/net8.0/any/-self" />
     <Content Include="..\out\static_content\-set\**\*" Link="ToolPackage/-set" Pack="true" PackagePath="tools/net9.0/any/-set" />

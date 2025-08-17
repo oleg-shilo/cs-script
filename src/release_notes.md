@@ -1,17 +1,11 @@
-# Release v4.11.0.0
+# Release v4.11.1.0
 
 ---
 
 ## Changes
 
 ### CLI
-  - fixed problem with `css -ls <kill-all|ka>`
-  - Added support for pre-release packages `//css_nuget -pre <package>`
-  - WDBG:
-    - Improved tracking of declaration scope
-    - UX improvements
-    - Inject dbg metadata is ported to pure Roslyn.
-    - Detect debug metadata out of sync and report it (2)
+  - Added `-self-rt` custom command for setting the script engine runtime version
 
 ### CSScriptLib
-  - Added NativeAOT sample
+  - no changes
