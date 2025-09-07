@@ -16,7 +16,7 @@ if (arg1 == "?" || arg1 == "/?" || arg1 == "-?" || arg1 == "-help")
                                   .FirstOrDefault() ?? "0.0.0.0.version");
 
     WriteLine($@"v{version} ({Environment.GetEnvironmentVariable("EntryScript")})");
-    WriteLine($"Sets the script engine target runtime to one of the available .NET ideployments.");
+    WriteLine($"Sets the script engine target runtime to one of the available .NET deployments.");
     WriteLine($"    css -self-rt [-help] ");
     return;
 }
@@ -46,6 +46,7 @@ var input = ReadLine();
 if (int.TryParse(input, out int index))
 {
     var i = index - 1;
+
     if (i < 0 || i >= sdk_list.Count)
     {
         WriteLine($"Invalid index: {index}. Please enter a number between 1 and {sdk_list.Count}.");
