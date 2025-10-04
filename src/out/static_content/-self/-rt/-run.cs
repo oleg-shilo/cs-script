@@ -6,6 +6,7 @@ using static System.Environment;
 using static System.Reflection.Assembly;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using csscript;
 
 var arg1 = args.FirstOrDefault();
 
@@ -46,7 +47,6 @@ var input = ReadLine();
 if (int.TryParse(input, out int index))
 {
     var i = index - 1;
-
     if (i < 0 || i >= sdk_list.Count)
     {
         WriteLine($"Invalid index: {index}. Please enter a number between 1 and {sdk_list.Count}.");
@@ -58,8 +58,14 @@ if (int.TryParse(input, out int index))
         $"  CLR: {sdk_list[i].Version}{NewLine}" +
         $"  Assembly: {GetEntryAssembly()?.Location}{NewLine}");
 
-    var runtimeconfig = Path.ChangeExtension(GetEntryAssembly().Location, ".runtimeconfig.json");
+    // .net build template project file
+    var buildDir = Path.Combine(Runtime.GetScriptTempDir(), "build");
+    if (Directory.Exists(buildDir))
+    {
+        Directory.Delete(buildDir, true);
+    }
 
+    var runtimeconfig = Path.ChangeExtension(GetEntryAssembly().Location, ".runtimeconfig.json");
     //update the .runtimeconfig.json file
     if (File.Exists(runtimeconfig))
     {

@@ -1,20 +1,20 @@
 //css_ng csc
 //css_webapp
 //css_include global-usings
-using System.Net.Sockets;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
 
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.FileProviders;
-using System.IO;
+using Microsoft.Extensions.Logging;
 
 var derfaultUrl = $"http://localhost:{ThisOrNextAvailable(5050)}";
 
-var help = $@"Custom command for starting a Web server for servicing static files.
+var help = $@"CS-Script custom command for starting a Web server for servicing static files.
 v{GetVersion()} ({Environment.GetEnvironmentVariable("EntryScript")})
 
-  css -web [web content folder] [-url:<url>] 
+  css -web [web content folder] [-url:<url>]
   Example: css -web d:\www -url:http://localhost:5000
            css -web .\
            css -web";

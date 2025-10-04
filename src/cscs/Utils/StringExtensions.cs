@@ -19,7 +19,6 @@ namespace CSScripting
         /// </returns>
         public static bool IsEmpty(this string text) => string.IsNullOrEmpty(text);
 
-
         /// <summary>
         /// Determines whether the string is not empty (or null).
         /// </summary>
@@ -56,6 +55,25 @@ namespace CSScripting
                 return text.Substring(startOffset, (text.Length - startOffset) - endOffset);
             else
                 return text;
+        }
+
+        /// <summary>
+        /// Trims the length of the text and inserts ellipses at the end of the trimmed text.
+        /// <p>You can choose to pad with spaces the text that is shorter than the trimming length.</p>
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="padIfShorter">if set to <c>true</c> [pad if shorter].</param>
+        /// <returns></returns>
+        public static string TrimLength(this string text, int length, bool padIfShorter = true)
+        {
+            var result = text.Length > length ?
+                text.Substring(0, length - 3) + "..." :
+                text;
+
+            if (padIfShorter && result.Length < length)
+                result += new string(' ', length - result.Length);
+            return result;
         }
 
         /// <summary>
@@ -105,6 +123,40 @@ namespace CSScripting
         /// <returns>The method result.</returns>
         public static string JoinBy(this IEnumerable<string> values, string separator)
             => string.Join(separator, values);
+
+        /// <summary>
+        /// Converts a string representation of a date and time to its DateTime equivalent.
+        /// </summary>
+        /// <param name="text">The string representation of a date and time.</param>
+        /// <returns>A DateTime object if parsing succeeds; otherwise, null.</returns>
+        public static DateTime? ToDateTime(this string text)
+            => DateTime.TryParse(text, out var date) ? date : null;
+
+        /// <summary>
+        /// Converts a string representation of a boolean value to its Boolean equivalent.
+        /// </summary>
+        /// <param name="text">The string representation of a boolean value.</param>
+        /// <returns>
+        ///   <c>true</c> if the text is "true" or "1" (case-insensitive); otherwise, <c>false</c>.
+        /// </returns>
+        public static bool ToBool(this string text)
+            => string.Compare("true", text, true) == 0 || string.Compare("1", text, true) == 0 ? true : false;
+
+        /// <summary>
+        /// Converts a string representation of a number to its 32-bit signed integer equivalent.
+        /// </summary>
+        /// <param name="text">The string representation of a number.</param>
+        /// <returns>The parsed integer value, or the default value if parsing fails.</returns>
+        public static int? ToInt(this string text)
+            => int.TryParse(text, out var result) ? result : null;
+
+        /// <summary>
+        /// Converts a string representation of a number to its 64-bit decimal (System.Double) equivalent.
+        /// </summary>
+        /// <param name="text">The string representation of a number.</param>
+        /// <returns>The parsed integer value, or the default value if parsing fails.</returns>
+        public static double? ToDouble(this string text)
+            => double.TryParse(text, out var result) ? result : null;
 
         /// <summary>
         /// The custom implementation of the <see cref="string.GetHashCode"/> method.

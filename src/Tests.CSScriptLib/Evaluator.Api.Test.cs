@@ -386,6 +386,15 @@ namespace EvaluatorTests
             dynamic script = asm.CreateObject("*");
             var result = script.Sum(7, 3);
 
+            asm = new_evaluator.CompileCode(@"using System;
+                                                   public class Script
+                                                   {
+                                                       public int Sum(int a, int b)
+                                                       {
+                                                           return a+b;
+                                                       }
+                                                   }");
+
             Assert.Equal(10, result);
         }
 

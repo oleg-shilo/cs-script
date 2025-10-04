@@ -1,30 +1,64 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
 using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using CSScripting;
 
+/// <summary>
+/// Provides utility methods for common shell operations including file hashing, HTTP downloads,
+/// file manipulation, and process execution.
+/// </summary>
 public static class shell
 {
-    static public string sha256(this string file)
+    /// <summary>
+    /// Calculates the SHA256 hash of a file.
+    /// </summary>
+    /// <param name="file">The path to the file to hash.</param>
+    /// <returns>The SHA256 hash as a hexadecimal string without dashes.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the specified file does not exist.</exception>
+    /// <exception cref="UnauthorizedAccessException">Thrown when access to the file is denied.</exception>
+    static public string sha256(string file)
     {
         byte[] checksum = SHA256.HashData(File.ReadAllBytes(file));
         var sha256 = BitConverter.ToString(checksum).Replace("-", "");
         return sha256;
     }
 
-    static public string downloadString(string url)
+    /// <summary>
+    /// Downloads the content of a URL as a string.
+    /// </summary>
+    /// <param name="url">The URL to download from.</param>
+    /// <returns>The content of the URL as a string.</returns>
+    /// <exception cref="HttpRequestException">Thrown when the HTTP request fails.</exception>
+    /// <exception cref="TaskCanceledException">Thrown when the request times out.</exception>
+    static public string downloadString(this string url)
     {
         using var client = new HttpClient();
         return client.GetStringAsync(url).Result;
     }
 
-    static public void downloadFile(string url, string destinationPath, Action<long, long> onProgress = null)
+    /// <summary>
+    /// Displays download progress as a percentage to the console.
+    /// </summary>
+    /// <param name="x">The current progress value.</param>
+    /// <param name="y">The total/maximum value.</param>
+    static public void progressToConsole(long x, long y) => Console.Write($"\r{(x * 100) / y}%");
+
+    /// <summary>
+    /// Downloads a file from a URL to a local destination with optional progress tracking.
+    /// </summary>
+    /// <param name="url">The URL to download from.</param>
+    /// <param name="destinationPath">The local file path where the downloaded content will be saved.</param>
+    /// <param name="onProgress">Optional callback to track download progress. Receives (bytesDownloaded, totalBytes).</param>
+    /// <exception cref="HttpRequestException">Thrown when the HTTP request fails.</exception>
+    /// <exception cref="Exception">Thrown when the Content-Length header is missing from the response.</exception>
+    /// <exception cref="UnauthorizedAccessException">Thrown when access to the destination path is denied.</exception>
+    static public void downloadTo(this string url, string destinationPath, Action<long, long>? onProgress = null)
     {
         using var client = new HttpClient();
         using var response = client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).Result;
@@ -54,12 +88,26 @@ public static class shell
         }
     }
 
+    /// <summary>
+    /// Reads a line of input from the console with an optional prompt.
+    /// </summary>
+    /// <param name="prompt">Optional prompt message to display before reading input.</param>
+    /// <returns>The line of text entered by the user, or null if end of stream is reached.</returns>
     static public string readLine(string prompt = null)
     {
         if (prompt != null) Console.WriteLine(prompt);
         return Console.ReadLine();
     }
 
+    /// <summary>
+    /// Replaces all occurrences of a pattern in a file with a replacement string.
+    /// </summary>
+    /// <param name="file">The path to the file to modify.</param>
+    /// <param name="pattern">The string pattern to search for.</param>
+    /// <param name="replacement">The string to replace the pattern with.</param>
+    /// <returns>The file path that was modified.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the specified file does not exist.</exception>
+    /// <exception cref="UnauthorizedAccessException">Thrown when access to the file is denied.</exception>
     static public string replaceInFile(this string file, string pattern, string replacement)
     {
         var content = File.ReadAllText(file);
@@ -68,6 +116,15 @@ public static class shell
         return file;
     }
 
+    /// <summary>
+    /// Executes an application with the specified arguments and returns the output and exit code.
+    /// </summary>
+    /// <param name="app">The application or command to execute.</param>
+    /// <param name="args">The command-line arguments. Can contain newlines for multi-line arguments.</param>
+    /// <param name="workingDir">Optional working directory for the process.</param>
+    /// <returns>A tuple containing the standard output and the exit code of the process.</returns>
+    /// <exception cref="Win32Exception">Thrown when the application cannot be started.</exception>
+    /// <exception cref="FileNotFoundException">Thrown when the specified application is not found.</exception>
     public static (string output, int exitCode) run(this string app, string args, string workingDir = null)
     {
         var appArgs = Environment.ExpandEnvironmentVariables(args);
@@ -84,26 +141,35 @@ public static class shell
     }
 }
 
+/// <summary>
+/// Provides extension methods for common string and path operations.
+/// </summary>
 static class Extensions
 {
-    static public string GetFullPath(this string path) => Path.GetFullPath(path);
-
-    static public string PathJoin(this string path1, string path2) => Path.Combine(path1, path2);
-
-    public static bool IsEmpty(this string text) => string.IsNullOrEmpty(text) || string.IsNullOrWhiteSpace(text);
-
-    public static bool HasText(this string text) => !text.IsEmpty();
-
+    /// <summary>
+    /// Converts a string representation of a date and time to its DateTime equivalent.
+    /// </summary>
+    /// <param name="text">The string representation of a date and time.</param>
+    /// <returns>A DateTime object if parsing succeeds; otherwise, null.</returns>
     public static DateTime? ToDateTime(this string text)
-    {
-        if (DateTime.TryParse(text, out var date))
-            return date;
-        return null;
-    }
+        => DateTime.TryParse(text, out var date) ? date : null;
 
-    public static int ToInt(this string text, int defaultValue = default)
-        => int.TryParse(text, out var result) ? result : defaultValue;
+    /// <summary>
+    /// Converts a string representation of a number to its 32-bit signed integer equivalent.
+    /// </summary>
+    /// <param name="text">The string representation of a number.</param>
+    /// <returns>The parsed integer value, or the default value if parsing fails.</returns>
+    public static int? ToInt(this string text)
+        => int.TryParse(text, out var result) ? result : null;
 
+    /// <summary>
+    /// Trims a string to a specified maximum length, adding ellipsis if truncated.
+    /// Optionally pads the result with spaces if shorter than the specified length.
+    /// </summary>
+    /// <param name="text">The string to trim.</param>
+    /// <param name="length">The maximum length of the result.</param>
+    /// <param name="padIfShorter">Whether to pad with spaces if the result is shorter than the specified length.</param>
+    /// <returns>The trimmed and optionally padded string.</returns>
     public static string TrimLength(this string text, int length, bool padIfShorter = true)
     {
         var result = text.Length > length ?
@@ -114,10 +180,4 @@ static class Extensions
             result += new string(' ', length - result.Length);
         return result;
     }
-
-    public static string[] GetLines(this string text, bool deflate = true)
-        => text?.Split('\n')?
-                .Select(x => deflate ? x.Trim() : x)
-                .Where(x => deflate ? !x.IsEmpty() : true)
-                .ToArray() ?? [];
 }
