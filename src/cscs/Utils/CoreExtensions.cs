@@ -229,9 +229,6 @@ namespace csscript
         /// Converts to bool.
         /// </summary>
         /// <param name="text">The text.</param>
-        /// <returns>Conversion result</returns>
-        internal static bool ToBool(this string text) => text.ToLower() == "true";
-
         /// <summary>
         /// Removes the assembly extension.
         /// </summary>

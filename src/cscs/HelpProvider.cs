@@ -460,7 +460,8 @@ namespace csscript
             switch2Help[dbg] = new ArgInfo("-dbg|-d",
                                            "Forces compiler to include debug information.");
             switch2Help[l] = new ArgInfo("-l[:<0|1>]",
-                                         "'local' (makes the script directory a 'current directory'). '1' is a default value.");
+                                         "'local' (makes the script directory a 'current directory'). '1' is a default value.",
+                                         "Note, updating current directory this way is disabled for all custom command scripts.");
             switch2Help[version2] =
             switch2Help[version] =
             switch2Help[ver] =

@@ -527,6 +527,11 @@ namespace csscript
                                          .PathJoin("cs-script", "commands")
                                          .EnsureDir(false);
 
+        static internal string DefaultCommandsDir
+          => "CSSCRIPT_ROOT".GetEnvar() ??
+             "ENTRY_ASM".GetEnvar().GetDirName() ??
+             Assembly.GetExecutingAssembly().Location()?.GetDirName();
+
         static internal string GlobalIncludsDir
         {
             get

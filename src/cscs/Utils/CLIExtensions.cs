@@ -57,8 +57,9 @@ public static class CLIExtensions
     // public static string[] Split(this string str, string[] separators, int count) =>
     //     str.Split(separators, count, StringSplitOptions.None);
 
-    public static bool IsCustomCommandScript(this string scriptFile) => scriptFile.GetFileName().EndsWith("-run.cs") &&
-                                                                        scriptFile.StartsWith(Runtime.CustomCommandsDir);
+    public static bool IsCustomCommandScript(this string scriptFile)
+        => scriptFile.GetFileName().EndsWith("-run.cs") &&
+           (scriptFile.StartsWith(Runtime.CustomCommandsDir) || scriptFile.StartsWith(Runtime.DefaultCommandsDir ?? "unknown-dir"));
 
     public static string NormalizeNewLines(this string str) =>// too simplistic though adequate
         str.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
