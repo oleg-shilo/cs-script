@@ -5,8 +5,10 @@ using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using CSScripting;
 
 /// <summary>
@@ -146,38 +148,15 @@ public static class shell
 /// </summary>
 static class Extensions
 {
-    /// <summary>
-    /// Converts a string representation of a date and time to its DateTime equivalent.
-    /// </summary>
-    /// <param name="text">The string representation of a date and time.</param>
-    /// <returns>A DateTime object if parsing succeeds; otherwise, null.</returns>
-    public static DateTime? ToDateTime(this string text)
-        => DateTime.TryParse(text, out var date) ? date : null;
+    public static T FromJson<T>(this string json) => JsonSerializer.Deserialize<T>(json);
 
-    /// <summary>
-    /// Converts a string representation of a number to its 32-bit signed integer equivalent.
-    /// </summary>
-    /// <param name="text">The string representation of a number.</param>
-    /// <returns>The parsed integer value, or the default value if parsing fails.</returns>
-    public static int? ToInt(this string text)
-        => int.TryParse(text, out var result) ? result : null;
+    public static string ToJson(this object obj)
+        => JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
 
-    /// <summary>
-    /// Trims a string to a specified maximum length, adding ellipsis if truncated.
-    /// Optionally pads the result with spaces if shorter than the specified length.
-    /// </summary>
-    /// <param name="text">The string to trim.</param>
-    /// <param name="length">The maximum length of the result.</param>
-    /// <param name="padIfShorter">Whether to pad with spaces if the result is shorter than the specified length.</param>
-    /// <returns>The trimmed and optionally padded string.</returns>
-    public static string TrimLength(this string text, int length, bool padIfShorter = true)
+    public static HttpClient SetBasicAuthentication(this HttpClient client, string username, string password)
     {
-        var result = text.Length > length ?
-            text.Substring(0, length - 3) + "..." :
-            text;
-
-        if (padIfShorter && result.Length < length)
-            result += new string(' ', length - result.Length);
-        return result;
+        var authToken = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
+        return client;
     }
 }

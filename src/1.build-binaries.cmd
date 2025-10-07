@@ -110,6 +110,8 @@ rd "out\Windows\console" /S /Q
 rem .\static_content contains Linux and Win specific files
 copy "out\static_content\global-usings.cs" "out\Windows\lib\global-usings.cs" 
 copy "out\static_content\global-usings.cs" "out\Linux\lib\global-usings.cs"
+copy "out\static_content\lib\*" "out\Windows\lib\" 
+copy "out\static_content\lib\*" "out\Linux\lib\"
 
 rem goto:exit
 echo =====================

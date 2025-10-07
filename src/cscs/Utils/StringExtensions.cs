@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using csscript;
 
 namespace CSScripting
@@ -158,6 +159,7 @@ namespace CSScripting
         public static double? ToDouble(this string text)
             => double.TryParse(text, out var result) ? result : null;
 
+        //needed to have reliable HASH as x64 and x32 have different algorithms; This leads to the inability of script clients calculate cache directory correctly
         /// <summary>
         /// The custom implementation of the <see cref="string.GetHashCode"/> method.
         /// </summary>
@@ -190,7 +192,21 @@ namespace CSScripting
 #endif
         }
 
-        //needed to have reliable HASH as x64 and x32 have different algorithms; This leads to the inability of script clients calculate cache directory correctly
+        /// <summary>
+        /// Gets the bytes.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns></returns>
+        public static byte[] GetBytes(this string data, Encoding encoding = null) => (encoding ?? Encoding.UTF8).GetBytes(data);
+
+        /// <summary>
+        /// Gets the string.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns></returns>
+        public static string GetString(this byte[] data, Encoding encoding = null) => (encoding ?? Encoding.UTF8).GetString(data);
     }
 }
 

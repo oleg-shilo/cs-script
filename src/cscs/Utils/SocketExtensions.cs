@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using CSScripting;
 
 static class SharedExtensions // will need to be refactored into a truly shared set of extension methods
 {

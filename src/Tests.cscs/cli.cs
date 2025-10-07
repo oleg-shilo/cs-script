@@ -58,6 +58,7 @@ namespace CLI
             var config = "Release";
 #endif
             cscs_exe = Environment.GetEnvironmentVariable("css_test_asm") ?? $@"..\..\..\..\..\cscs\bin\{config}\net{Environment.Version.Major}.0\cscs.dll".GetFullPath();
+
             var cmd_dir = cscs_exe.ChangeFileName("-self");
 
             if (cmd_dir.DirExists())
@@ -76,7 +77,9 @@ namespace CLI
         string cscs_run(string args, string dir = null)
         {
             // print method input
+            // Console.WriteLine($"currdir: {Environment.CurrentDirectory}");
             // Console.WriteLine($"{cscs_exe} {args}");
+            // Console.WriteLine($"==================");
 
             var output = "dotnet".Run($"\"{cscs_exe}\" {args}", dir).output.Trim();
 
@@ -328,6 +331,7 @@ global using global::System.Threading.Tasks;");
             var is_win = (Environment.OSVersion.Platform == PlatformID.Win32NT);
 
             var commands = Directory.GetFiles(static_content, "-run.cs", SearchOption.AllDirectories);
+
             foreach (var file in commands)
             {
                 var cmd = file.GetDirName().GetFileName();
@@ -335,9 +339,13 @@ global using global::System.Threading.Tasks;");
                 if (cmd == "-exe") continue;
 
                 var probing_dir = $"-dir:{static_content}";
-                var extra_arg = cmd.IsOneOf("-wdbg", "-web", "-test", "-exe", "-update", "-alias") ? "-?" : "";
+                // var extra_arg = cmd.IsOneOf("-wdbg", "-web", "-test", "-exe", "-update", "-scramble", "-alias", "-rt") ? "-?" : "";
+                var extra_arg = "-?";
 
                 (var output, var exitCode) = cscs_runx($"{file} {extra_arg}");
+
+                // Console.WriteLine($"{cmd}: {file}");
+                // Console.WriteLine($"{exitCode}: {output}");
 
                 var context = $"{file}\n{output.TakeMax(100)}";
 

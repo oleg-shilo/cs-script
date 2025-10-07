@@ -37,7 +37,11 @@ class Script
             return 0;
         }
 
-        Environment.SetEnvironmentVariable("css_test_asm", Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", "..", @"cscs.dll")));
+        var engine_path = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "..", "..", @"cscs.dll"));
+
+        if (!File.Exists(engine_path))
+            engine_path = Environment.GetEnvironmentVariable("CSScriptRuntimeLocation");
+        Environment.SetEnvironmentVariable("css_test_asm", engine_path);
 
         var test_class = new cscs_cli(new ConsoleTestOutputHelper());
 

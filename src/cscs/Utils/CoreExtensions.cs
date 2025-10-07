@@ -226,10 +226,6 @@ namespace csscript
         internal static string[] SharedAssembliesNames => Directory.GetFiles(sdk_root, "*.dll").Select(Path.GetFileName).ToArray();
 
         /// <summary>
-        /// Converts to bool.
-        /// </summary>
-        /// <param name="text">The text.</param>
-        /// <summary>
         /// Removes the assembly extension.
         /// </summary>
         /// <param name="asmName">Name of the asm.</param>
