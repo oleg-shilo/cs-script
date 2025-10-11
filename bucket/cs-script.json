@@ -1,9 +1,9 @@
 {
-    "version": "4.11.1.0",
+    "version": "4.11.2.0",
     "description": "CS-Script is a C# scripting platform for Windows.",
     "homepage": "https://github.com/oleg-shilo/cs-script",
     "license": "MIT",
-    "url": "https://github.com/oleg-shilo/cs-script/releases/download/v4.11.1.0/cs-script.win.v4.11.1.0.zip",
-    "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "url": "https://github.com/oleg-shilo/cs-script/releases/download/v4.11.2.0/cs-script.win.v4.11.2.0.zip",
+    "hash": "sha256:2C35356AEBED17F186F7D559B7A2C8E50222B35A823D8DC24AB19B899FF7549C",
     "bin": "css.exe"
 }

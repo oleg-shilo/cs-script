@@ -132,7 +132,7 @@ namespace csscript
     /// </summary>
     class AppInfo
     {
-        public static string AppName = Environment.GetEnvironmentVariable("ENTRY_ASM") ?? Assembly.GetExecutingAssembly().GetName().Name;
+        public static string AppName => Environment.GetEnvironmentVariable("ENTRY_ASM") ?? Assembly.GetExecutingAssembly().GetName().Name;
         public static bool AppConsole = true;
 
         public static string AppLogo =>

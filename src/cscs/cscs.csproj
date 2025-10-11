@@ -145,6 +145,8 @@
     <Content Include="..\out\windows\cscs.exe" Link="ToolPackage/net.9" Pack="true" PackagePath="tools/net9.0/any/cscs.exe" />
     <Content Include="..\out\win.net8\cscs.exe" Link="ToolPackage/net.8" Pack="true" PackagePath="tools/net8.0/any/cscs.exe" />
     <Content Include="..\out\static_content\global-usings.cs" Pack="true" PackagePath="tools/net9.0/any/lib" />
+    <Content Include="..\out\static_content\lib\**\*" Link="ToolPackage/lib" Pack="true" PackagePath="tools/net9.0/any/lib" />
+    <Content Include="..\out\static_content\lib\**\*" Link="ToolPackage/lib" Pack="true" PackagePath="tools/net8.0/any/lib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="package_readme.md">

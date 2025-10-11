@@ -141,6 +141,13 @@ public static class shell
         using var p = Process.Start(info);
         return (p.StandardOutput.ReadToEnd(), p.ExitCode);
     }
+
+    public static void copyFilesTo(this string srcDir, string destDir)
+    {
+        destDir.EnsureDir();
+        Directory.GetFiles(srcDir, "*")
+                 .ForEach(f => File.Copy(f, destDir.PathJoin(f.GetFileName()), true));
+    }
 }
 
 /// <summary>

@@ -591,7 +591,7 @@ namespace csscript
                                                   // inmem + "=true", // may need to resurrect if
                                                   // users do miss it :)
 
-                                                  "${<=6}" + AppInfo.AppName + " -config:set:DefaultCompilerEngine=dotnet",
+                                                  "${<=6}" + AppInfo.AppName + " -config:set:DefaultCompilerEngine=csc",
                                                   "${<=6}" + AppInfo.AppName + " -config:set:DefaultArguments=add:-ac",
                                                   "${<=6}" + AppInfo.AppName + " -config:set:default_arguments=del:-ac",
                                                   "${<=6}" + AppInfo.AppName + " -config:c:\\cs-script\\css_VB.xml sample.vb)",
@@ -1634,12 +1634,12 @@ auto            Auto-class (classless) script application; use 'toplevel' instea
 freestyle       Freestyle (no entry point) script application; use 'toplevel' instead
 {emptyLine}
 Examples:
-    cscs -new script
-    cscs -new:toplevel script.cs
-    cscs -new:console console.cs
-    cscs -new:winform myapp.cs
-    cscs -new:wpf hello
-    cscs -new:cmd -edit
+    css -new script
+    css -new:toplevel script.cs
+    css -new:console console.cs
+    css -new:winform myapp.cs
+    css -new:wpf hello
+    css -new:cmd -edit
 ```".NormalizeNewLines();
 
         internal static SampleInfo[] BuildSampleCode(string appType, string context)
