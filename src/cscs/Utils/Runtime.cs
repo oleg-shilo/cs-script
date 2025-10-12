@@ -521,6 +521,23 @@ namespace csscript
         /// <value><c>true</c> if the runtime is core; otherwise, <c>false</c>.</value>
         public static bool IsCore { get; } = "".GetType().Assembly.Location.Split(Path.DirectorySeparatorChar).Contains("Microsoft.NETCore.App");
 
+        public static bool IsGloballyInstalled
+        {
+            get
+            {
+                var thisAsm = Assembly.GetExecutingAssembly().Location();
+
+                // check if deployed in system wide location
+                var systemWideInstall =
+                    thisAsm.StartsWith(Environment.SpecialFolder.CommonApplicationData.GetPath()) // will cover chocolatey and dotnet-tool
+                    || thisAsm.Contains(".dotnet".PathJoin("tools", ".store", "cs-script.cli"))
+                    || thisAsm.StartsWith(Environment.SpecialFolder.UserProfile.GetPath())       // will cover Scoop and WinGet
+                    || thisAsm.Contains("/usr/local/bin/cs-script"); // Linux global install (Debian package)
+
+                return systemWideInstall;
+            }
+        }
+
         static internal string CustomCommandsDir
             => "CSSCRIPT_COMMANDS".GetEnvar() ??
                 Environment.SpecialFolder.CommonApplicationData.GetPath()

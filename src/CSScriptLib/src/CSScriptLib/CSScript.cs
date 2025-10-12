@@ -104,6 +104,9 @@ namespace CSScriptLib
         /// </summary>
         public static Func<string, Settings> Load = (file) => new Settings();
 
+        [Obsolete($"This property is obsolete, use {nameof(CurrentConfigFile)} instead.")]
+        public static string DefaultConfigFile => CurrentConfigFile;
+
         /// <summary>
         /// Gets the default configuration file path. It is a "css_config.xml" file located in the same directory where the assembly
         /// being executed is (e.g. cscs.exe).
@@ -111,7 +114,7 @@ namespace CSScriptLib
         /// <value>
         /// The default configuration file location. Returns null if the file is not found.
         /// </value>
-        public static string DefaultConfigFile
+        public static string CurrentConfigFile
         {
             get
             {

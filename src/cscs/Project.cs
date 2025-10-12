@@ -182,7 +182,7 @@ namespace CSScriptLib
                 items.asms.AddRange(splitPathItems(DefaultRefAsms ?? ""));
                 items.namespaces.AddRange(splitPathItems(DefaultNamespaces ?? ""));
 
-                var configFile = Settings.DefaultConfigFile;
+                var configFile = Settings.CurrentConfigFile;
                 var settings = Settings.Load(configFile);
 #if !class_lib
                 items.dirs.AddRange(splitPathItems(settings.SearchDirs));

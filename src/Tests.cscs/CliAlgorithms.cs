@@ -1,8 +1,34 @@
-﻿using CSScripting;
+﻿using System;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
+using csscript;
+using CSScripting;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace CLI
 {
+    public class CliSettings
+    {
+        [Fact]
+        public void DefaultSettings()
+        {
+            // we are not testing JsonSerializer but only the options we configure to support enums
+            var settings = new csscript.Settings
+            {
+                ConcurrencyControl = ConcurrencyControl.HighResolution, // enum
+            };
+
+            string json = settings.ToJson();
+
+            var settings2 = json.FromJson<csscript.Settings>();
+
+            Assert.Equal(settings.ConcurrencyControl, settings2.ConcurrencyControl);
+        }
+    }
+
     public class CliAlgorithms
     {
         string ToCode(string staticMain)

@@ -44,10 +44,12 @@ namespace csscript
                 }
                 else if (command == "ls" || command == null)
                 {
+                    print("Current config: " + Settings.CurrentConfigFile);
                     print(Settings.Load(false).ToString());
                 }
-                else if (command == "raw" || command == "xml")
+                else if (command == "raw")
                 {
+                    print("Current config: " + Settings.CurrentConfigFile);
                     var currentConfig = Settings.Load(false) ?? new Settings();
                     print(currentConfig.ToStringRaw());
                 }
@@ -219,7 +221,8 @@ namespace csscript
         /// </summary>
         public void CreateDefaultConfigFile()
         {
-            string file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml");
+            // string file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.xml");
+            string file = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "css_config.json");
             new Settings().Save(file);
             print("The default config file has been created: " + file);
         }

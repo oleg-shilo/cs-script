@@ -569,8 +569,8 @@ namespace csscript
                                               "```",
                                               " -config:none                   - ${<==}ignores config file (uses default settings)",
                                               " -config:create                 - ${<==}creates config file with default settings",
-                                              " -config:default                - ${<==}prints default config file",
-                                              " -config:<raw|xml>              - ${<==}prints current config file content",
+                                              " -config:default                - ${<==}prints default config file content",
+                                              " -config:<raw>                  - ${<==}prints current config file content",
                                               " -config[:ls]                   - ${<==}lists/prints current config values",
                                               " -config:<name> ?               - ${<==}prints help for the configuration value specified by name",
                                               " -config:get:<name>             - ${<==}prints current config value",
@@ -2215,7 +2215,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
 
                 if (asm_path.HasText())
                 {
-                    var settings = Settings.Load(Settings.DefaultConfigFile, false) ?? new Settings();
+                    var settings = Settings.Load(Settings.CurrentConfigFile, false) ?? new Settings();
 
                     var alt_compiler = settings.ExpandUseAlternativeCompiler();
 
@@ -2273,7 +2273,8 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
                        .AppendLine("   NuGet cache:     " + NuGet.NuGetCacheView)
                        .AppendLine("   Script cache:    " + Runtime.CacheDir)
                        .AppendLine("   Custom commands: " + Runtime.CustomCommandsDir)
-                       .AppendLine("   Global includes: " + Runtime.GlobalIncludsDir);
+                       .AppendLine("   Global includes: " + Runtime.GlobalIncludsDir)
+                       .AppendLine("   Congfig file:    " + Settings.CurrentConfigFile);
             }
             return builder.ToString();
         }

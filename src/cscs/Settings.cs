@@ -420,14 +420,14 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
         /// <returns></returns>
         public override string ToString()
         {
-            var props = this.GetType()
-                            .GetProperties()
-                            .Where(p => p.CanRead && p.CanWrite)
-                            .Where(p => p.Name != "SuppressTimestamping")
-                            .Select(p => " " + p.Name + ": " + (p.PropertyType == typeof(string) ? "\"" + p.GetValue(this, dummy) + "\"" : p.GetValue(this, dummy)))
-                            .JoinBy(NewLine);
-
-            return props;
+            var yaml = this // poor-man yaml serializer
+                .ToJson()
+                .Replace("\":", ":")
+                .Trim('{', '}')
+                .Split('\n')
+                .Select(x => x.Trim().TrimStart('"').TrimEnd(','))
+                .JoinBy("\n");
+            return yaml;
         }
 
         internal string ToStringRaw()
@@ -524,61 +524,14 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
         /// <param name="fileName">File name of the settings file</param>
         public void Save(string fileName)
         {
-            Save(fileName, false);
+            SaveJson(fileName, false);
         }
 
-        internal void Save(string fileName, bool throwOnError)
+        internal void SaveJson(string fileName, bool throwOnError)
         {
-            //It is very tempting to use XmlSerializer but it adds 200 ms to the
-            //application startup time. Whereas current startup delay for cscs.exe is just a 100 ms.
             try
             {
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml("<CSSConfig/>");
-
-                //write the all most important elements and less important ones only if they have non-default values.
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(DefaultArguments))).AppendChild(doc.CreateTextNode(DefaultArguments));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(DefaultRefAssemblies))).AppendChild(doc.CreateTextNode(DefaultRefAssemblies));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(SearchDirs))).AppendChild(doc.CreateTextNode(SearchDirs));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(UseAlternativeCompiler))).AppendChild(doc.CreateTextNode(UseAlternativeCompiler));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(DefaultCompilerEngine))).AppendChild(doc.CreateTextNode(DefaultCompilerEngine));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(ConsoleEncoding))).AppendChild(doc.CreateTextNode(ConsoleEncoding));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(InMemoryAssembly))).AppendChild(doc.CreateTextNode(InMemoryAssembly.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(HideCompilerWarnings))).AppendChild(doc.CreateTextNode(HideCompilerWarnings.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(ReportDetailedErrorInfo))).AppendChild(doc.CreateTextNode(ReportDetailedErrorInfo.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(EnableDbgPrint))).AppendChild(doc.CreateTextNode(EnableDbgPrint.ToString()));
-                doc.DocumentElement.AppendChild(doc.CreateElement(nameof(LegacyNugetSupport))).AppendChild(doc.CreateTextNode(LegacyNugetSupport.ToString()));
-
-                if (ResolveRelativeFromParentScriptLocation != false)
-                    doc.DocumentElement.AppendChild(doc.CreateElement(nameof(ResolveRelativeFromParentScriptLocation))).AppendChild(doc.CreateTextNode(ResolveRelativeFromParentScriptLocation.ToString()));
-
-                if (!string.IsNullOrEmpty(CustomTempDirectory))
-                    doc.DocumentElement.AppendChild(doc.CreateElement(nameof(CustomTempDirectory))).AppendChild(doc.CreateTextNode(CustomTempDirectory));
-
-                if (!string.IsNullOrEmpty(precompiler))
-                    doc.DocumentElement.AppendChild(doc.CreateElement(nameof(Precompiler))).AppendChild(doc.CreateTextNode(Precompiler));
-
-                if (ConcurrencyControl != ConcurrencyControl.Standard)
-                    doc.DocumentElement.AppendChild(doc.CreateElement(nameof(ConcurrencyControl))).AppendChild(doc.CreateTextNode(ConcurrencyControl.ToString()));
-
-                if (!OpenEndDirectiveSyntax)
-                    doc.DocumentElement.AppendChild(doc.CreateElement(nameof(OpenEndDirectiveSyntax))).AppendChild(doc.CreateTextNode(OpenEndDirectiveSyntax.ToString()));
-
-                if (!CustomHashing)
-                    doc.DocumentElement.AppendChild(doc.CreateElement(nameof(CustomHashing))).AppendChild(doc.CreateTextNode(CustomHashing.ToString()));
-
-                //note node.ParentNode.InsertAfter(doc.CreateComment("") injects int node inner text and it is not what we want
-                //very simplistic formatting
-                var xml = doc.InnerXml.Replace("><", $">{NewLine}  <")
-                                      .Replace(">\n  </", "></")
-                                      .Replace(">\r\n  </", "></")
-                                      .Replace("></CSSConfig>", $">{NewLine}</CSSConfig>");
-
-                xml = CommentElement(xml, "consoleEncoding", "if 'default' then system default is used; otherwise specify the name of the encoding (e.g. 'utf-8')");
-                xml = CommentElement(xml, "useAlternativeCompiler", "Custom script compiler. For example C# 7 (Roslyn): '%CSSCRIPT_ROOT%!lib!CSSRoslynProvider.dll'".Replace('!', Path.DirectorySeparatorChar));
-                xml = CommentElement(xml, "enableDbgPrint", "Gets or sets a value indicating whether to enable Python-like print methods (e.g. dbg.print(DateTime.Now))");
-
-                File.WriteAllText(fileName, xml);
+                File.WriteAllText(fileName, this.ToJson());
             }
             catch
             {
@@ -604,17 +557,35 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
 
         internal static Settings LoadDefault()
         {
-            return Load(DefaultConfigFile, true);
+            return Load(CurrentConfigFile, true);
         }
 
         /// <summary>
-        /// Gets the default configuration file path. It is a "css_config.xml" file located in the same directory where the assembly
+        /// Gets the default configuration file path. It is a "css_config.json" file located in the same directory where the assembly
         /// being executed is (e.g. cscs.exe).
         /// </summary>
         /// <value>
         /// The default configuration file location. Returns null if the file is not found.
         /// </value>
         public static string DefaultConfigFile
+        {
+            get
+            {
+                try
+                {
+                    string asm_path = Assembly.GetExecutingAssembly().Location;
+                    if (asm_path.IsNotEmpty())
+                        return asm_path.ChangeFileName("css_config.json");
+                }
+                catch { }
+                return null;
+            }
+        }
+
+        public static string DefaultGlobalConfigFile = Environment.SpecialFolder.CommonApplicationData.GetPath().PathJoin("cs-script", "css_config.json");
+        public static string CurrentConfigFile => Runtime.IsGloballyInstalled || "CSS_GLOBAL_CONFIG".GetEnvar() != null ? DefaultGlobalConfigFile : DefaultConfigFile;
+
+        internal static string DefaultConfigFileXml
         {
             get
             {
@@ -636,12 +607,12 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
         /// <returns>Setting object deserialized from the XML file</returns>
         public static Settings Load(bool createAlways)
         {
-            return Load(DefaultConfigFile, createAlways);
+            return Load(CurrentConfigFile, createAlways);
         }
 
         internal void Save()
         {
-            Save(DefaultConfigFile, true);
+            SaveJson(CurrentConfigFile, true);
         }
 
         /// <summary>
@@ -651,6 +622,55 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
         /// <param name="createAlways">Create and return default settings object if it cannot be loaded from the file.</param>
         /// <returns>Setting object deserialized from the XML file</returns>
         public static Settings Load(string fileName, bool createAlways)
+        {
+            if (!fileName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+                return LoadJson(fileName, createAlways);
+            else
+                return LoadXml(fileName, createAlways);
+        }
+
+        public static Settings LoadJson(string fileName, bool createAlways)
+        {
+            Settings settings = new Settings();
+
+            var filePath = fileName;
+
+            if (filePath != null)
+            {
+                var isFileNameOnly = Path.GetDirectoryName(fileName) == "";
+
+                filePath = Path.GetFullPath(filePath);
+
+                if (!File.Exists(filePath) && isFileNameOnly)
+                {
+                    try
+                    {
+                        var candidate = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location()), fileName);
+                        if (File.Exists(candidate))
+                            filePath = candidate;
+                    }
+                    catch { }
+                }
+            }
+
+            if (filePath != null && File.Exists(filePath))
+            {
+                try
+                {
+                    settings = File.ReadAllText(fileName).FromJson<Settings>();
+                }
+                catch
+                {
+                    if (!createAlways)
+                        settings = null;
+                    else
+                        settings.Save(filePath);
+                }
+            }
+            return settings;
+        }
+
+        public static Settings LoadXml(string fileName, bool createAlways)
         {
             Settings settings = new Settings();
 
