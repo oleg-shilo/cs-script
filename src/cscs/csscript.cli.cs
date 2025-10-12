@@ -45,11 +45,13 @@ namespace csscript
                 else if (command == "ls" || command == null)
                 {
                     print("Current config: " + Settings.CurrentConfigFile);
+                    print("--------------");
                     print(Settings.Load(false).ToString());
                 }
                 else if (command == "raw")
                 {
                     print("Current config: " + Settings.CurrentConfigFile);
+                    print("--------------");
                     var currentConfig = Settings.Load(false) ?? new Settings();
                     print(currentConfig.ToStringRaw());
                 }

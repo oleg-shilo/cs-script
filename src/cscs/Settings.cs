@@ -424,6 +424,7 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
                 .ToJson()
                 .Replace("\":", ":")
                 .Trim('{', '}')
+                .Trim()
                 .Split('\n')
                 .Select(x => x.Trim().TrimStart('"').TrimEnd(','))
                 .JoinBy("\n");
