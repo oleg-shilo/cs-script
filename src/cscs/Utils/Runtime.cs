@@ -521,6 +521,25 @@ namespace csscript
         /// <value><c>true</c> if the runtime is core; otherwise, <c>false</c>.</value>
         public static bool IsCore { get; } = "".GetType().Assembly.Location.Split(Path.DirectorySeparatorChar).Contains("Microsoft.NETCore.App");
 
+        /// <summary>
+        /// Gets a value indicating whether CS-Script is installed globally (system-wide) rather than locally.
+        /// <para>
+        /// This property checks if the current assembly is located in system-wide installation directories
+        /// such as those used by package managers like Chocolatey, dotnet tool, Scoop, WinGet, or Linux package managers.
+        /// </para>
+        /// <para>
+        /// The following installation paths are considered global:
+        /// <list type="bullet">
+        /// <item><description>Common Application Data directory (Chocolatey, dotnet tool)</description></item>
+        /// <item><description>.dotnet tools store directory (dotnet tool global installs)</description></item>
+        /// <item><description>User Profile directory (Scoop, WinGet)</description></item>
+        /// <item><description>/usr/local/bin/cs-script (Linux Debian package)</description></item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if CS-Script is installed globally; otherwise, <c>false</c> for local installations.
+        /// </value>
         public static bool IsGloballyInstalled
         {
             get

@@ -1099,7 +1099,7 @@ namespace csscript
                          "${<=6}location of the NuGet packages, which scripts can load/reference",
                          " ",
                          " 'CSSCRIPT_ROOT'",
-                         "${<=6}script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is during the CS-Script installation.",
+                         "${<=6}script engine location. Used by the engine to locate dependencies (e.g. resgen.exe). Typically this variable is set during the CS-Script installation.",
                          " ",
                          " 'CSSCRIPT_CONSOLE_ENCODING_OVERWRITE'",
                          "${<=6}script engine output encoding if the one from the css_confix.xml needs to be overwritten.",

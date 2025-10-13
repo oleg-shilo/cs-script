@@ -213,6 +213,6 @@ namespace CSScriptLib
         /// </summary>
         /// <returns>Default config file location</returns>
         static public string GetCSSConfig()
-            => Settings.DefaultConfigFile;
+            => Settings.CurrentConfigFile;
     }
 }

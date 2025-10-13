@@ -1,16 +1,13 @@
-# Release v4.11.2.0
+# Release v4.11.3.0
 
 ---
 
 ## Changes
 
 ### CLI
-  - Updating current directory via -l switch is disabled for all custom command scripts.
-  - Added public extension methods
-  - Reset dotnet-engine project template on the change of the target framework (set via `-self-rt`)
-  - Added a small automation library `shell.cs` to the distribution
-  - added `-scrumble` custom command
-  - added `shell.cs` lib-script
+- CS-Script config file is moved to JSON format (custom XML config files are still supported)
+- For system wide (global) installation of CS-Script, its config file location is changed to: `%Environment.SpecialFolder.CommonApplicationData%/cs-script/css_config.json`)
+- Added `-csproj` custom command
 
 ### CSScriptLib
   - no changes
