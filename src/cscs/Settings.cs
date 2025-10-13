@@ -583,7 +583,33 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
             }
         }
 
+        /// <summary>
+        /// Gets the default global configuration file path. It is a "css_config.json" file located in the common application data directory
+        /// under "cs-script" subfolder (e.g., "C:\ProgramData\cs-script\css_config.json" on Windows).
+        /// <para>
+        /// This configuration file is used when CS-Script is installed globally (system-wide) and provides shared settings
+        /// across all users and applications on the system.
+        /// </para>
+        /// </summary>
+        /// <value>
+        /// The default global configuration file path.
+        /// </value>
         public static string DefaultGlobalConfigFile = Environment.SpecialFolder.CommonApplicationData.GetPath().PathJoin("cs-script", "css_config.json");
+
+        /// <summary>
+        /// Gets the current configuration file path based on the CS-Script installation type.
+        /// <para>
+        /// Returns <see cref="DefaultGlobalConfigFile"/> if CS-Script is globally installed (system-wide) or if the
+        /// "CSS_GLOBAL_CONFIG" environment variable is set; otherwise, returns <see cref="DefaultConfigFile"/>.
+        /// </para>
+        /// <para>
+        /// This property dynamically selects between local (per-installation) and global (system-wide)
+        /// configuration files to ensure the appropriate settings are used regardless of how CS-Script was installed.
+        /// </para>
+        /// </summary>
+        /// <value>
+        /// The path to the current configuration file that should be used for loading and saving CS-Script settings.
+        /// </value>
         public static string CurrentConfigFile => Runtime.IsGloballyInstalled || "CSS_GLOBAL_CONFIG".GetEnvar() != null ? DefaultGlobalConfigFile : DefaultConfigFile;
 
         internal static string DefaultConfigFileXml
