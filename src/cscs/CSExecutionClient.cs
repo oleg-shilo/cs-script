@@ -133,6 +133,7 @@ namespace csscript
     class AppInfo
     {
         public static string AppName =>
+            Runtime.IsScoopInstalled ? "css" :  // scoop is a special case because its way of creating shims is incompatible with `Process.GetCurrentProcess()?.MainModule.FileName` approach
             Process.GetCurrentProcess()?.MainModule.FileName?.GetFileNameWithoutExtension() ??
             Environment.GetEnvironmentVariable("ENTRY_ASM") ?? Assembly.GetExecutingAssembly().GetName().Name;
 

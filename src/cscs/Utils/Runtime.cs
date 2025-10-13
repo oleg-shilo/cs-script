@@ -557,6 +557,8 @@ namespace csscript
             }
         }
 
+        internal static bool IsScoopInstalled = Assembly.GetExecutingAssembly().Location().StartsWith(Environment.SpecialFolder.UserProfile.GetPath().PathJoin("scoop", "apps", "cs-script"));
+
         static internal string CustomCommandsDir
             => "CSSCRIPT_COMMANDS".GetEnvar() ??
                 Environment.SpecialFolder.CommonApplicationData.GetPath()
