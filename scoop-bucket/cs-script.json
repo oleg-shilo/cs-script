@@ -1,5 +1,5 @@
 {
-    "version": "4.11.3.1",
+    "version": "4.11.4.0",
     "description": "CS-Script is a C# scripting platform for Windows.",
     "homepage": "https://github.com/oleg-shilo/cs-script",
     "license": "MIT",
@@ -9,8 +9,7 @@
     "checkver": {
       "github": "oleg-shilo/cs-script"
     },
-    "post_install": [
-      "Write-Host 'Setting CSSCRIPT_ROOT environment variable...'",
-      "scoop env add CSSCRIPT_ROOT \"$dir\""
-    ]
+    "env_set": {
+        "CSSCRIPT_ROOT": "$dir"
+    }
 }
