@@ -397,10 +397,10 @@ namespace csscript
                                                     "#r        ->    <\\r>",
                                                     "#''       ->    \"   ",
                                                     "''        ->    \"   ",
-                                                    "#``         ->    \"   ",
-                                                    "`n         ->    <\\n>",
-                                                    "`r         ->    <\\r>",
+                                                    "#``       ->    \"   ",
                                                     "``        ->    \"   ",
+                                                    "`n        ->    <\\n>",
+                                                    "`r        ->    <\\r>",
                                                     "```"
                                            );
 
@@ -2250,7 +2250,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
                                                                    Directives.compiler_csc_outproc))
                         {
                             builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Globals.csc})");
-                            builder.AppendLine($"                    of dotnet ({Globals.dotnet})");
+                            builder.AppendLine($"                        of dotnet ({Globals.dotnet})");
                             if (sdkWarning.HasText())
                                 builder.AppendLine($"                    {sdkWarning}");
                         }

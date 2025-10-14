@@ -802,7 +802,7 @@ namespace csscript
                                                            Directives.compiler_csc_outproc))
                         {
                             Console.WriteLine($"  Compiler engine: {options.compilerEngine} ({Globals.csc})");
-                            Console.WriteLine($"                   of dotnet ({Globals.dotnet})");
+                            Console.WriteLine($"                        of dotnet ({Globals.dotnet})");
                             if (sdkWarning.HasText())
                                 Console.WriteLine($"                    {sdkWarning}");
                         }
