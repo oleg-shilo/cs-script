@@ -5,5 +5,12 @@
     "license": "MIT",
     "url": "https://github.com/oleg-shilo/cs-script/releases/download/v4.11.3.0/cs-script.win.v4.11.3.0.zip",
     "hash": "sha256:61f5f25efa419f9349261d372acfd33a4ecb50780335ae3a4785070da7504df7",
-    "bin": "css.exe"
+    "bin": "css.exe",
+    "checkver": {
+      "github": "oleg-shilo/cs-script"
+    },
+    "post_install": [
+      "Write-Host 'Setting CSSCRIPT_ROOT environment variable...'",
+      "scoop env add CSSCRIPT_ROOT \"$dir\""
+    ]
 }
