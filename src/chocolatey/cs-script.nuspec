@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.11.3.0</version>
+    <version>4.11.4.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -29,12 +29,11 @@
 ## Changes
 
 ### CLI
-- CS-Script config file is moved to JSON format (custom XML config files are still supported)
-- For system wide (global) installation of CS-Script, its config file location is changed to: `%Environment.SpecialFolder.CommonApplicationData%/cs-script/css_config.json`)
-- Added `-csproj` custom command
+- Added -csproj custom command
+- improved shim detection for Scoop installations
 
 ### CSScriptLib
-  - no changes</releaseNotes>
+- no changes</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>

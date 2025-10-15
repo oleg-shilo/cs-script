@@ -383,12 +383,13 @@ namespace csscript
                                                     "after the `<script code>` is `//x`",
                                                     " ",
                                                     "Escaping special characters sometimes can be problematic as many shells have their own techniques " +
-                                                    "(e.g. PowerShell collapses two single quote characters) that may conflict with CS-Script escaping approach." +
+                                                    "(e.g. PowerShell collapses two single quote characters) that may conflict with other shells' escaping approaches." +
                                                     "This is the reason why CS-Script offers multiple escape techniques.",
+                                                    "",
                                                     "It can be beneficial during the troubleshooting to use `-code:show` command that outputs the received " +
                                                     "CLI arguments and the interpreted C# code without the execution.",
                                                     " ",
-                                                    "Since command-line interface does not allow some special characters they need to be escaped.",
+                                                    "CS-Script character escaping summary:",
                                                     "",
                                                     "```",
                                                     "Escaped         Interpreted character",
@@ -402,8 +403,9 @@ namespace csscript
                                                     "`n        ->    <\\n>",
                                                     "`r        ->    <\\r>",
                                                     "```"
-                                           );
-
+                                           )
+            {
+            };
             switch1Help[wait] = new ArgInfo("-wait[:prompt]",
                                             "Waits for user input after the execution before exiting.",
                                                 "If specified the execution will proceed with exit only after any std input is received.",
@@ -2250,7 +2252,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
                                                                    Directives.compiler_csc_outproc))
                         {
                             builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Globals.csc})");
-                            builder.AppendLine($"                        of dotnet ({Globals.dotnet})");
+                            builder.AppendLine($"                         of dotnet ({Globals.dotnet})");
                             if (sdkWarning.HasText())
                                 builder.AppendLine($"                    {sdkWarning}");
                         }

@@ -1,13 +1,12 @@
-# Release v4.11.3.0
+# Release v4.11.4.0
 
 ---
 
 ## Changes
 
 ### CLI
-- CS-Script config file is moved to JSON format (custom XML config files are still supported)
-- For system wide (global) installation of CS-Script, its config file location is changed to: `%Environment.SpecialFolder.CommonApplicationData%/cs-script/css_config.json`)
-- Added `-csproj` custom command
+- Added -csproj custom command
+- improved shim detection for Scoop installations
 
 ### CSScriptLib
-  - no changes
+- no changes

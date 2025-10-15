@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.11.3.0</Version>
+    <Version>4.11.4.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
@@ -16,19 +16,18 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.11.3.0</AssemblyVersion>
-    <FileVersion>4.11.3.0</FileVersion>
+    <AssemblyVersion>4.11.4.0</AssemblyVersion>
+    <FileVersion>4.11.4.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
-- CS-Script config file is moved to JSON format (custom XML config files are still supported)
-- For system wide (global) installation of CS-Script, its config file location is changed to: `%Environment.SpecialFolder.CommonApplicationData%/cs-script/css_config.json`)
-- Added `-csproj` custom command
+- Added -csproj custom command
+- improved shim detection for Scoop installations
 
 ### CSScriptLib
-  - no changes</PackageReleaseNotes>
+- no changes</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
