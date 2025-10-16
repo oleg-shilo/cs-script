@@ -35,32 +35,41 @@ namespace CSScripting
                 Console.WriteLine("Visual Studio found:");
                 ides.Select((x, i) => $"  {i}: {x}").ForEach(x => Console.WriteLine(x));
 
-                var prompt = "Enter the option you want to use or 'x' to exit: ";
-                Console.WriteLine();
-                Console.Write(prompt);
+                string selectedIde = "";
                 string input = "";
-                int index;
-
-                if (arg.HasText())
+                if (ides.Count() > 1)
                 {
-                    input = arg;
-                    Console.WriteLine(arg);
+                    var prompt = "Enter the option you want to use or 'x' to exit: ";
+                    Console.WriteLine();
+                    Console.Write(prompt);
+                    int index;
+
+                    if (arg.HasText())
+                    {
+                        input = arg;
+                        Console.WriteLine(arg);
+                    }
+                    else
+                        input = Console.ReadLine();
+
+                    while (!int.TryParse(input, out index) && input != "x" && (index < 0 || ides.Count() < index))
+                    {
+                        Console.Write(prompt);
+                        input = Console.ReadLine();
+                    }
+
+                    if (input != "x")
+                        selectedIde = ides[index];
                 }
                 else
-                    input = Console.ReadLine();
-
-                while (!int.TryParse(input, out index) && input != "x" && (index < 0 || ides.Count() < index))
-                {
-                    Console.Write(prompt);
-                    input = Console.ReadLine();
-                }
+                    selectedIde = ides.LastOrDefault();
 
                 if (input != "x")
                 {
                     Console.WriteLine($"Setting environment variable\n" +
-                        $"CSSCRIPT_VSEXE={ides[index]}");
-                    Environment.SetEnvironmentVariable("CSSCRIPT_VSEXE", ides[index], EnvironmentVariableTarget.User);
-                    try { Win32.SetEnvironmentVariable("CSSCRIPT_VSEXE", ides[index]); } catch { } // so the child process can consume this var
+                        $"CSSCRIPT_VSEXE={selectedIde}");
+                    Environment.SetEnvironmentVariable("CSSCRIPT_VSEXE", selectedIde, EnvironmentVariableTarget.User);
+                    try { Win32.SetEnvironmentVariable("CSSCRIPT_VSEXE", selectedIde); } catch { } // so the child process can consume this var
 
                     IntPtr HWND_BROADCAST = (IntPtr)0xffff;
                     uint WM_SETTINGCHANGE = 0x1a;
@@ -105,6 +114,47 @@ namespace CSScripting
             }
             else
                 return new string[0];
+        }
+
+        internal static string FindVSCode()
+        {
+            if (Runtime.IsWin)
+            {
+                // Common install paths
+                string[] commonPaths =
+                {
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\Microsoft VS Code\Code.exe"),
+                    @"C:\Program Files\Microsoft VS Code\Code.exe",
+                    @"C:\Program Files (x86)\Microsoft VS Code\Code.exe"
+                };
+
+                foreach (var path in commonPaths)
+                    if (File.Exists(path))
+                        return path;
+
+                // Try PATH environment
+                string found = "where".run("code").output?.GetLines().FirstOrDefault()?.Trim();
+                if (found.FileExists())
+                {
+                    return found;
+                }
+            }
+            else
+            {
+                // macOS or Linux
+                string result = "which".run("code").output?.GetLines().FirstOrDefault()?.Trim();
+                if (result.FileExists())
+                    return result.Trim();
+
+                // macOS possible GUI path
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    string macAppPath = "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code";
+                    if (macAppPath.FileExists())
+                        return macAppPath;
+                }
+            }
+            return null;
         }
     }
 }

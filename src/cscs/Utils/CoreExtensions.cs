@@ -51,6 +51,67 @@ namespace csscript
             return process;
         }
 
+        /// <summary>
+        /// Executes a process synchronously and returns its combined output and exit code.
+        /// This is a simplified version of the more complex <c>Run</c> method that handles basic process execution scenarios.
+        /// </summary>
+        /// <param name="exe">The executable file path or command to run.</param>
+        /// <param name="args">The command line arguments to pass to the executable. Can be null or empty.</param>
+        /// <param name="dir">The working directory for the process. If null, uses the current directory.</param>
+        /// <returns>
+        /// A tuple containing:
+        /// <list type="bullet">
+        /// <item><description><c>output</c> - Combined standard output and standard error streams as a single string</description></item>
+        /// <item><description><c>exitCode</c> - The exit code returned by the process (0 typically indicates success)</description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// <para>This method:</para>
+        /// <list type="bullet">
+        /// <item><description>Runs the process synchronously and waits for it to complete</description></item>
+        /// <item><description>Captures both standard output and standard error streams</description></item>
+        /// <item><description>Combines the output streams into a single string</description></item>
+        /// <item><description>Does not display any console windows (CreateNoWindow = true)</description></item>
+        /// <item><description>Does not use shell execute for security and control</description></item>
+        /// </list>
+        /// <para>For more advanced scenarios requiring timeout handling, output callbacks, or asynchronous execution,
+        /// use the overloaded <c>Run</c> method instead.</para>
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// // Execute a simple command
+        /// var (output, exitCode) = "ping".run("google.com -n 1");
+        /// if (exitCode == 0)
+        ///     Console.WriteLine($"Ping successful: {output}");
+        ///
+        /// // Execute with working directory
+        /// var (result, code) = "git".run("status", @"C:\MyRepo");
+        ///
+        /// // Execute without arguments
+        /// var (version, _) = "dotnet".run("--version");
+        /// </code>
+        /// </example>
+        public static (string output, int exitCode) run(this string exe, string args = null, string dir = null)
+        {
+            using var process = new Process();
+
+            process.StartInfo.FileName = exe;
+            process.StartInfo.Arguments = args;
+            process.StartInfo.WorkingDirectory = dir;
+
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.CreateNoWindow = true;
+            process.Start();
+
+            var output = process.StandardOutput.ReadToEnd();
+            output += process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            return (output, process.ExitCode);
+        }
+
         internal static int Run(this string exe, string args, string dir = null, Action<string> onOutput = null,
             Action<string> onError = null, int timeout = -1, bool terminateOnTimeout = true, string buildArtifact = null)
         {

@@ -62,6 +62,7 @@ namespace csscript
             }
             else if (request == AppArgs.vs || request == AppArgs.vscode)
             {
+                print("Generating project...");
                 var project = Project.GenerateProjectFor(options.scriptFileName);
 
                 var compileParams = new CompilerParameters();
@@ -95,6 +96,12 @@ namespace csscript
                     copy_config("packages.config");
                     copy_config("NuGet.config");
 
+                    if (vs_exe.IsEmpty() || !vs_exe.FileExists())
+                    {
+                        VSConfig.Init(null);
+                        vs_exe = Environment.GetEnvironmentVariable(envarName);
+                    }
+
                     if (vs_exe.IsEmpty())
                     {
                         try
@@ -116,25 +123,7 @@ namespace csscript
                     if (vs_exe.IsEmpty())
                     {
                         var vscode_exe = (Runtime.IsWin ? "code.exe" : "code");
-                        string ide = null;
-                        if (Runtime.IsWin)
-                        {
-                            // C:\Program Files\Microsoft VS Code\Code.exe
-                            ide = Directory.GetDirectories(SpecialFolder.ProgramFiles.GetPath(), "*")
-                                           .Where(d => d.GetFileName().StartsWith("Microsoft", true))
-                                           .Select(d =>
-                                                   {
-                                                       // current user may not have permission to
-                                                       // read some folders
-                                                       try { return Directory.GetFiles(d, vscode_exe, SearchOption.AllDirectories).FirstOrDefault(); }
-                                                       catch { return null; }
-                                                   })
-                                           .FirstOrDefault(f => f != null);
-                        }
-                        else
-                        {
-                            "which".Run(vscode_exe, onOutput: line => ide = line);
-                        }
+                        string ide = VSConfig.FindVSCode();
 
                         try
                         {
