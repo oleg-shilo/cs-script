@@ -1053,7 +1053,6 @@ namespace csscript
                                 CSSUtils.VerbosePrint("", options);
 
                                 TimeSpan initializationTime = Profiler.Stopwatch.Elapsed;
-                                Profiler.Stopwatch.Restart();
 
                                 assemblyFileName = Compile(options.scriptFileName);
 
@@ -1067,16 +1066,25 @@ namespace csscript
                                     TimeSpan compilationTime = Profiler.Stopwatch.Elapsed;
 
                                     var pureCompilerTime = (compilationTime - initializationTime);
-                                    if (Profiler.has("compiler"))
-                                        pureCompilerTime = Profiler.get("compiler").Elapsed;
+
+                                    // May need the higher precision timing in teh future so keeping it
+                                    // TimeSpan compilationOverheadTime = default;
+                                    // if (Profiler.has("compiler"))
+                                    // {
+                                    //     var precise = Profiler.get("compiler").Elapsed;
+                                    //     compilationOverheadTime = (pureCompilerTime - precise);
+                                    //     pureCompilerTime = precise;
+                                    // }
 
                                     if (options.verbose || options.profile)
                                         Console.WriteLine("> ----------------");
 
                                     Console.WriteLine(Profiler.EngineContext);
-                                    Console.WriteLine($"Initialization time: {initializationTime.TotalMilliseconds} msec");
-                                    Console.WriteLine($"Compilation time:    {pureCompilerTime.TotalMilliseconds} msec");
-                                    Console.WriteLine($"Total load time:     {compilationTime.TotalMilliseconds} msec");
+                                    Console.WriteLine($"Initialization time:    {initializationTime.TotalMilliseconds,11} msec");
+                                    Console.WriteLine($"Compilation time:       {pureCompilerTime.TotalMilliseconds,11} msec");
+                                    // Console.WriteLine($"Pure compilation time:  {pureCompilerTime.TotalMilliseconds,11} msec");
+                                    // Console.WriteLine($"Compilation overhead:   {compilationOverheadTime.TotalMilliseconds,11} msec");
+                                    Console.WriteLine($"Total script load time: {compilationTime.TotalMilliseconds,11} msec");
 
                                     if (options.verbose || options.profile)
                                     {
