@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.11.4.0</version>
+    <version>4.11.5.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -29,8 +29,10 @@
 ## Changes
 
 ### CLI
-- Added -csproj custom command
-- improved shim detection for Scoop installations
+- Added auto initialization on the first run of `css -vs`
+- Added convenient `csscript.run(this string app, string args, string dir)` to be available to all script files
+- Improved `-which`
+
 
 ### CSScriptLib
 - no changes</releaseNotes>

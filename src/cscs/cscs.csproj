@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.11.4.0</Version>
+    <Version>4.11.5.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2023 Oleg Shilo</Copyright>
@@ -16,15 +16,17 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.11.4.0</AssemblyVersion>
-    <FileVersion>4.11.4.0</FileVersion>
+    <AssemblyVersion>4.11.5.0</AssemblyVersion>
+    <FileVersion>4.11.5.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
-- Added -csproj custom command
-- improved shim detection for Scoop installations
+- Added auto initialization on the first run of `css -vs`
+- Added convenient `csscript.run(this string app, string args, string dir)` to be available to all script files
+- Improved `-which`
+
 
 ### CSScriptLib
 - no changes</PackageReleaseNotes>
@@ -37,6 +39,10 @@
     <ToolCommandName>css</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <!--<PackageReadmeFile>package_readme.md</PackageReadmeFile>-->
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Only include English (default) -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
   <!-- Conditional descriptions -->
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
