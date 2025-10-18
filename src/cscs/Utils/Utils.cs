@@ -1743,7 +1743,6 @@ class HostingRuntime
                 depInfo.items
                     .Where(x => x.IsDir)
                     .Select(x => x.file.Substring("dir:".Length))
-                    .ToArray()
                     .AddToSystemPath();
 
                 return false;

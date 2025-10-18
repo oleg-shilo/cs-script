@@ -467,12 +467,15 @@ namespace csscript
             return dirs?.Split(';') ?? new string[0];
         }
 
-        internal static void AddToSystemPath(this string[] dirs)
+        internal static void AddToSystemPath(this IEnumerable<string> dirs)
         {
             if (dirs.Any())
             {
                 var newPathDirs = dirs
                     .Where(x => x.HasText())
+#if !class_lib
+                    .Except(Settings.PseudoDirItems)
+#endif
                     .Select(x => x);
 
                 var currentPath = Environment.GetEnvironmentVariable("PATH").Split(';').Where(x => x.HasText());

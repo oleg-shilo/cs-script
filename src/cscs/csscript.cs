@@ -1012,8 +1012,7 @@ namespace csscript
                         // add searchDirs to PATH to support search path for native dlls
                         // need to do this before compilation or execution
 
-                        options.searchDirs.Except(Settings.PseudoDirItems).ToArray()
-                                          .AddToSystemPath();
+                        options.searchDirs.AddToSystemPath();
 
                         // --- COMPILE ---
                         if (options.buildExecutable || !options.useCompiled || (options.useCompiled && assemblyFileName == null) || options.forceCompile)
@@ -1067,7 +1066,7 @@ namespace csscript
 
                                     var pureCompilerTime = (compilationTime - initializationTime);
 
-                                    // May need the higher precision timing in teh future so keeping it
+                                    // May need the higher precision timing in the future so keeping it
                                     // TimeSpan compilationOverheadTime = default;
                                     // if (Profiler.has("compiler"))
                                     // {
@@ -1153,7 +1152,7 @@ namespace csscript
                                     }
                                 }
 
-                                options.searchDirs.AddToSystemPath();
+                                options.searchDirs.Except(Settings.PseudoDirItems).AddToSystemPath();
                                 // Process.GetCurrentProcess().RetreiveProcessPathExtraDirs().AddToSystemPath();
 
                                 if (options.useCompiled)
