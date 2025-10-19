@@ -146,7 +146,12 @@ namespace CSScriptLib
 
             project.Packages = parser.Packages.ToArray();
 
-            project.Refs = parser.AgregateReferences(probingDirs, defaultRefAsms, defaultNamespaces)
+            var allRefs = defaultRefAsms;
+#if !class_lib
+            if (CSExecutor.options.enableDbgPrint)
+                allRefs.Add(Assembly.GetExecutingAssembly().Location());
+#endif
+            project.Refs = parser.AgregateReferences(probingDirs, allRefs, defaultNamespaces)
                                  .Select(PathExtensions.PathNormaliseSeparators)
                                  .ToArray();
 

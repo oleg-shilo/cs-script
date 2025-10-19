@@ -295,7 +295,11 @@ namespace CSScripting.CodeDom
             }
 
             if (CSExecutor.options.enableDbgPrint)
-                ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
+            {
+                var thisAsm = Assembly.GetExecutingAssembly().Location();
+                if (!ref_assemblies.Any(x => x.SamePathAs(thisAsm)))
+                    ref_assemblies.Add(thisAsm);
+            }
 
             void CopySourceToBuildDir(string source)
             {

@@ -67,6 +67,8 @@ namespace csscript
 
                 var compileParams = new CompilerParameters();
                 compileParams.ReferencedAssemblies.AddRange(project.Refs);
+                if (CSExecutor.options.enableDbgPrint)
+                    compileParams.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location());
                 compileParams.GenerateExecutable = true;
 
                 var projectFile = CSharpCompiler.CreateProject(compileParams, project.Files, ScriptVsDir);
@@ -156,6 +158,8 @@ namespace csscript
                 {
                     var compileParams = new CompilerParameters();
                     compileParams.ReferencedAssemblies.AddRange(project.Refs);
+                    if (CSExecutor.options.enableDbgPrint)
+                        compileParams.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location());
                     compileParams.GenerateExecutable = true;
 
                     var projectFile = CSharpCompiler.CreateProject(compileParams, project.Files);
