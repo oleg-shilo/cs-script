@@ -544,7 +544,9 @@ namespace csscript
         {
             get
             {
-                var thisAsm = Assembly.GetExecutingAssembly().Location();
+                var thisAsm = "CSS_ENTRY_ASM".GetEnvar();
+                if (thisAsm.IsEmpty())
+                    thisAsm = Assembly.GetExecutingAssembly().Location();
 
                 // check if deployed in system wide location
                 var systemWideInstall =
