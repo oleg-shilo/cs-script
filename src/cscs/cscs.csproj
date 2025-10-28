@@ -26,6 +26,7 @@
 - Added auto initialization on the first run of `css -vs`
 - Added convenient `csscript.run(this string app, string args, string dir)` to be available to all script files
 - Improved `-which`
+- Addressed integration issue with Notepad++ when including `global_using`
 
 
 ### CSScriptLib
