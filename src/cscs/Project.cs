@@ -189,7 +189,9 @@ namespace CSScriptLib
 
                 var configFile = Settings.CurrentConfigFile;
                 var settings = Settings.Load(configFile);
+
 #if !class_lib
+                var addCssAsm = settings.EnableDbgPrint; // requires referencing CS-Script engine assemly
                 items.dirs.AddRange(splitPathItems(settings.SearchDirs));
 #else
                 items.dirs.AddRange(settings.SearchDirs);
@@ -201,7 +203,16 @@ namespace CSScriptLib
 
                 // `Assembly.GetExecutingAssembly().Location` may not be resolved properly so adding the entry assembly location as well
                 if (Environment.GetEnvironmentVariable("CSS_ENTRY_ASM") != null)
-                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(Environment.GetEnvironmentVariable("CSS_ENTRY_ASM")), "lib"));
+                {
+                    var entryAsm = Environment.GetEnvironmentVariable("CSS_ENTRY_ASM");
+                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(entryAsm), "lib"));
+#if !class_lib
+                    if (addCssAsm)
+                    {
+                        items.asms.Add(entryAsm);
+                    }
+#endif
+                }
 
                 items.asms.AddRange(splitPathItems(settings.DefaultRefAssemblies));
             }
