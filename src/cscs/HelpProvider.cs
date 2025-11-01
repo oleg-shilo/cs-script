@@ -2201,7 +2201,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
                        .AppendLine("   System:          " + OSVersion)
                        .AppendLine("   Architecture:    " + (Is64BitProcess ? "x64" : "x86"));
                 if (Runtime.IsWin)
-                    builder.AppendLine("   Install dir:     " + (GetEnvironmentVariable("CSSCRIPT_INSTALLED") ?? "<not integrated>"));
+                    builder.AppendLine("   Install dir:     " + (GetEnvironmentVariable("CSSCRIPT_INSTALLED") ?? "<not set>"));
 
                 var asm_path = Assembly.GetExecutingAssembly().Location;
                 try
