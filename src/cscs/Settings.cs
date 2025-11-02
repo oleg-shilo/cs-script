@@ -277,9 +277,10 @@ Triggered by issue #61: https://github.com/oleg-shilo/cs-script/issues/61
             set { searchDirs = value; }
         }
 
-        string searchDirs = "%CSSCRIPT_ROOT%".PathJoin("lib") + ";" +
-                   Runtime.CustomCommandsDir + ";" +
-                           "%CSSCRIPT_INC%;";
+        string searchDirs =
+                   "%CSSCRIPT_INC%;" +
+                   "%CSSCRIPT_ROOT%".PathJoin("lib") + ";" +
+                   Runtime.CustomCommandsDir + ";";
 
         /// <summary>
         /// Add search directory to the search (probing) path Settings.SearchDirs.
