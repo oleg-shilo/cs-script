@@ -8,5 +8,6 @@ global using global::System.Net.Http;
 global using global::System.Reflection;
 global using global::System.Threading;
 global using global::System.Threading.Tasks;
+global using csscript;
 global using static global::System.Environment;
 global using static global::dbg;
