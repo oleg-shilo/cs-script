@@ -799,7 +799,7 @@ namespace csscript
                          "thus it's highly recommend that you use this mode only if you have to.",
                          " ",
                          "The legacy NuGet support CLI is somewhat different:",
-                         "`//css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-rt:<runtime>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];`",
+                         "`(Legacy) - //css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-rt:<runtime>] [-ng:<nuget arguments>] package0[,package1]..[,packageN];`",
                          " ",
                          "If no version is specified then the highest downloaded version (if any) will be used.",
                          "Referencing the downloaded packages can only handle simple dependency scenarios when all downloaded assemblies are to be referenced.",
@@ -1255,7 +1255,7 @@ namespace csscript
                                                 .JoinBy(NewLine);
                             return help.FromMdToTxt();
                         }
-                        return AppArgs.SyntaxHelp;
+                        return AppArgs.SyntaxHelp.FromMdToTxt();
                     }
                 case AppArgs.cmd:
                 case AppArgs.commands:

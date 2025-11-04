@@ -154,6 +154,9 @@
     <Content Include="..\out\static_content\lib\**\*" Link="ToolPackage/lib" Pack="true" PackagePath="tools/net8.0/any/lib" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Remove="Properties\Resources.net8.resx" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="package_readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
