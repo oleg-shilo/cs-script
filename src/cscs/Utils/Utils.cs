@@ -80,6 +80,22 @@ namespace CSScripting
             }
         }
 
+        internal static string ToCssNugetDirective(this string statement)
+        {
+            var parts = statement.Split('@');
+
+            var package = parts[0].Trim();
+            if (parts.Length > 1)
+            {
+                var version = parts[1].Trim();
+                return $"-ver:{version} {package}";
+            }
+            else
+            {
+                return package;
+            }
+        }
+
         public static bool NotEmpty(this string text)
         {
             return !string.IsNullOrEmpty(text);

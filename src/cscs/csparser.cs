@@ -556,6 +556,14 @@ namespace csscript
                 foreach (string package in SplitByDelimiter(statement, ','))
                     nugets.Add(package.Trim());
 
+            // .NET 10 specific file-based app execution model
+            // Example: #:package Newtonsoft.Json@13.0.3
+            foreach (string statement in GetRawStatements("#:package", endCodePos))
+            {
+                var package = statement.ToCssNugetDirective();
+                nugets.Add(package);
+            }
+
             var infos = new ImportInfo.Resolver { parentScript = file, dirs = probingDirs };
 
             //analyse script imports/includes
@@ -583,6 +591,13 @@ namespace csscript
                 refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file), directive)
                                             .Select(x => x.file));
             directive = "//css_ref";
+            foreach (string statement in GetRawStatements(directive, endCodePos))
+                refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file), directive)
+                                            .Select(x => x.file));
+
+            // .NET 10 specific file-based app execution model
+            // Example: #r "./libs/MyAssembly.dll"
+            directive = "#r";
             foreach (string statement in GetRawStatements(directive, endCodePos))
                 refAssemblies.AddRange(infos.Resolve(statement.NormaliseAsDirectiveOf(file), directive)
                                             .Select(x => x.file));

@@ -644,7 +644,7 @@ namespace csscript
                                                     $"(see {help_url}/help/non_cs_compilers.html)");
             switch2Help[nuget] = new ArgInfo("-nuget[:restore]",
                                              "Installs new or updates existing NuGet packages. It is a very close equivalent of `dotnet restore` command",
-                                             "Note, using nuget directives in the script text aoffers more flexibility (e.g. version support. See `cscs -syntax //css_nuget` ",
+                                             "Note, using nuget directives in the script text offers more flexibility (e.g. version support. See `cscs -syntax //css_nuget` ",
                                              "```",
                                              " -nuget         - ${<==}prints the list of all root packages in the repository",
                                              " -nuget:restore - ${<==}Downloads and installs all packages specified in the script without executing the script. " +
@@ -772,6 +772,8 @@ namespace csscript
                          section_sep, //------------------------------------
                          " ",
                          "`//css_nuget [-force] [-ver:<version>] [-pre|--prerelease] package0[,package1]..[,packageN];`",
+                         "Note: .NET 10 file-based execution directive '#:package' is also supported by internally converting " +
+                         "it to the //css_nuget equivalent.",
                          " ",
                          "Downloads/Installs the NuGet package. It also automatically references the downloaded package assemblies.",
                          "By default, the package is not downloaded again if it was already downloaded.",
@@ -842,8 +844,10 @@ namespace csscript
                          " ",
                          "`file` - name of the assembly file to be loaded at run-time.",
                          "",
+                         "Note: .NET 10 file-based execution directive '#r' is also supported the same way as //css_reference.",
+                         "",
                          "_**This directive is used to reference assemblies required at run time.**_",
-                         "The assembly must be in GAC, the same folder with the script file or in the 'Script Library' folders (see 'CS-Script settings').",
+                         "The assembly must be in one of the search directories (in config file), the same folder with the script file or in the 'Script Library' folders (see 'CS-Script settings').",
                          " ",
                          "Note if you use wildcard in the referenced assembly name (e.g. socket.*.dll) the directive will only reference from the first " +
                          "probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.dll' as they may lead to " +
