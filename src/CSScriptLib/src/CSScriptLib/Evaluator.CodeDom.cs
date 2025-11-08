@@ -340,14 +340,14 @@ namespace CSScriptLib
                     // }
                     // else
                     // {
-                    cmd = $@"""{Globals.csc}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                    cmd = $@"""{Globals.csc}"" {common_args.JoinBy(" ")} /shared /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
 
                     result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x, CodeDomEvaluator.CscTimeout);
                     // }
                 }
                 else
                 {
-                    cmd = $@" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")} ";
+                    cmd = $@" {common_args.JoinBy(" ")} /shared  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")} ";
 
                     try
                     {

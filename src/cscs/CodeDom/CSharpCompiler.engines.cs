@@ -283,6 +283,7 @@ namespace CSScripting.CodeDom
             if (ExecuteOptions.options.isNetFx)
             {
                 common_args.Add("-define:NETFRAMEWORK");
+                common_args.Add("/shared");
                 gac_asms.Add("mscorlib.dll");
             }
             else
