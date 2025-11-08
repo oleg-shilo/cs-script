@@ -396,6 +396,7 @@ namespace CSScriptLib
                     byte[] assemblyBytes = File.ReadAllBytes(asmPath);
                     var moduleMetadata = ModuleMetadata.CreateFromImage(assemblyBytes);
                     var assemblyMetadata = AssemblyMetadata.Create(moduleMetadata);
+                    return assemblyMetadata;
                 }
                 catch { }
             return null;
@@ -630,6 +631,7 @@ namespace CSScriptLib
                         }
 
                         var errors = message.ToString();
+
                         throw new CompilerException(errors);
                     }
                     else

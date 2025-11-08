@@ -69,6 +69,7 @@ namespace ConsoleApp1
                                                        return (0,5);
                                                    }");
 
+            int sum = CSScript.RoslynEvaluator.Eval("6 + 3");
             (int, int) result = script.func();
         }
     }
