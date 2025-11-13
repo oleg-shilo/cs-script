@@ -1,14 +1,14 @@
 //css_engine csc
 //css_include global-usings
-using csscript;
 using System;
+using static System.Console;
 using System.Diagnostics;
+using static System.Environment;
 using System.Linq;
+using static System.Reflection.Assembly;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static System.Console;
-using static System.Environment;
-using static System.Reflection.Assembly;
+using csscript;
 
 var arg1 = args.FirstOrDefault();
 
@@ -20,13 +20,15 @@ if (arg1 == "?" || arg1 == "/?" || arg1 == "-?" || arg1 == "-help")
 
     WriteLine($@"v{version} ({Environment.GetEnvironmentVariable("EntryScript")})");
     WriteLine($"Sets the script engine target runtime to one of the available .NET deployments.");
-    WriteLine($"    css -self-rt [-help] ");
+    WriteLine($"    css -self-rt [-l] [-help] ");
+    WriteLine($"    -l      - set the latest available version of runtime.");
+    WriteLine($"    -help   - print this help information.");
     return;
 }
 
 // ===============================================
 
-Console.WriteLine("Available .NET runtimes:");
+WriteLine("Available .NET runtimes:");
 
 var sdk_list = "dotnet".run("--list-runtimes") // Microsoft.NETCore.App 9.0.4 [C:\Program Files\dotnet\shared\Microsoft.NETCore.App]
     .Split(NewLine)
@@ -42,9 +44,21 @@ foreach (var line in sdk_list)
     WriteLine($"{line.Index}:  {line.Version}");
 }
 
+var selectLatest = args.Contains("-l");
+
 WriteLine();
 Write("Enter the index of the desired target runtime version: ");
-var input = ReadLine();
+var input = "";
+
+if (selectLatest)
+{
+    input = sdk_list.Count().ToString();
+    Write(input);
+}
+else
+{
+    input = ReadLine();
+}
 
 if (int.TryParse(input, out int index))
 {
