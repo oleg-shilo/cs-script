@@ -303,7 +303,9 @@ namespace csscript
                                               "You can let CS-Script to detect installed Visual Studio executable and interactively select " +
                                               "the detected executable for integrating it with CS-Script by using `-vs:init` option.",
                                               "Alternatively, you can even ask to integrate the first detected executable with: ",
-                                              "      " + AppInfo.AppName + " -vs:init 0");
+                                              "      " + AppInfo.AppName + " -vs:init 0",
+                                              "`-vs:init 0` is also an instruction of selecting the latest version of detected Visual Studio executable " +
+                                              "since the list is of available versions is ordered by the latest version first.");
             switch1Help[vscode] = new ArgInfo("-vscode",
                                           "Generates .NET project file and opens it in Visual Studio Code.",
                                               "The path to the Visual Studio Code executable (code.exe) needs to be defined in the " +
@@ -327,12 +329,13 @@ namespace csscript
             switch1Help[ng] = new ArgInfo("-ng|-engine:<csc|dotnet|roslyn>",
                                           "Forces compilation to be done by one of the supported .NET engines.",
                                           "  ",
-                                          "`dotnet` - ${<==}dotnet.exe compiler; this is the most versatile compilation engine though " +
-                                          "it does have a startup overhead when running the script for the first time. It requires .NET SDK to be installed " +
-                                          "on the target system.",
+                                          "`dotnet` - ${<==}dotnet.exe compiler",
+                                          "This is the most versatile compilation engine though it does have a startup overhead when running the script for the first time. " +
+                                          "It requires .NET SDK to be installed on the target system.",
                                           "  ",
-                                          "`csc`   - ${<==}csc.exe compiler; the fastest compiler available. It is not suitable " +
-                                          "for WPF scripts as csc.exe cannot compile XAML. It requires .NET SDK to be installed on the target system.",
+                                          "`csc`   - ${<==}csc.exe compiler; the fastest compiler available. ",
+                                          "Though it is not suitable for WPF scripts as csc.exe cannot compile XAML.",
+                                          "It also requires .NET SDK to be installed on the target system.",
                                           "          ${<==}This value is just a shorter form of the full equivalent `csc-inproc`.",
                                           "          ${<==}Legacy:",
                                           "          ${<==}Value `csc-outproc` triggers the compilation in the separate child process `build.exe` which is somewhat " +
@@ -342,8 +345,9 @@ namespace csscript
                                           "in the .NET Core family distributions. And it's only retained for the compatibility reasons. Starting from v4.10.0 the use of " +
                                           "`csc-outproc` offers no benefits.",
                                           "  ",
-                                          "`roslyn` - ${<==}Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation " +
-                                          "engine. It does not require .NET SDK being installed. Though it does have limitations (see documentation).",
+                                          "`roslyn` - ${<==}Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler",
+                                          "This is the most portable compilation engine. It does not require .NET SDK being installed.",
+                                          "Though it does have limitations. The script must have `static Main()`, you cannot have nested namespaces etc. (see documentation).",
                                           "           ${<==}The compilation is performed in the separate child process " + AppInfo.AppName + " (another " +
                                           "instance of script engine) which is somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.",
                                           "           ${<==}CS-Script communicates with " + AppInfo.AppName + " build server via socket (default port 17002). " +

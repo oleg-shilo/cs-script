@@ -291,7 +291,6 @@ namespace CLI
             }
         }
 
-        [Fact]
         [FactWinOnly]
         public void syntax_version_10()
         {

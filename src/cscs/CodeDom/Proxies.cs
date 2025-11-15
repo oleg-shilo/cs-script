@@ -117,6 +117,7 @@ namespace CSScripting.CodeDom
                         $"To remove this warning either install .NET {Environment.Version.Major} SDK " +
                         $"or set the default compiler engine to `{compiler_roslyn}` with {NewLine}" +
                         $"  css -config:set:DefaultCompilerEngine={compiler_roslyn}.{NewLine}" +
+                        $"Note, Roslyn engine has some fundamental limitation." +
                         $"--------");
                     engine = compiler_roslyn;
                 }

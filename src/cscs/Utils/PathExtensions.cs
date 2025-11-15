@@ -255,9 +255,13 @@ namespace CSScripting
                                  .ForEach(dirs.Enqueue);
                     }
 
+#if class_lib
+                    var emptyDirs = Directory.GetDirectories(path, "*", SearchOption.AllDirectories).ToList();
+                    emptyDirs.Reverse();
+#else
                     var emptyDirs = Directory.GetDirectories(path, "*", SearchOption.AllDirectories)
                                              .Reverse();
-
+#endif
                     emptyDirs.ForEach(del_dir);
 
                     if (!doNotDeletеRoot)

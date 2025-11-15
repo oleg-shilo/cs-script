@@ -37,7 +37,7 @@ namespace CSScripting
 
                 string selectedIde = "";
                 string input = "";
-                if (ides.Count() > 1)
+                if (ides.Count() > 1 && arg != "l") // 'l' - auto select latest version
                 {
                     var prompt = "Enter the option you want to use or 'x' to exit: ";
                     Console.WriteLine();
@@ -103,17 +103,55 @@ namespace CSScripting
                 // C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\devenv.exe
                 // C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\devenv.exe
 
-                var items = Directory.GetFiles(Path.Combine(
-                                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Microsoft Visual Studio"), "devenv.exe", SearchOption.AllDirectories)
-                            .Concat(
-                            Directory.GetFiles(Path.Combine(
-                                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Microsoft Visual Studio"), "devenv.exe", SearchOption.AllDirectories)
-                                   ).OrderByDescending(x => x);
+                var items = Directory.GetFiles(Environment.SpecialFolder.ProgramFiles.GetPath().PathJoin("Microsoft Visual Studio"),
+                                               "devenv.exe", SearchOption.AllDirectories).ToList();
+                items.AddRange(Directory.GetFiles(Environment.SpecialFolder.ProgramFilesX86.GetPath().PathJoin("Microsoft Visual Studio"),
+                                                  "devenv.exe", SearchOption.AllDirectories));
 
-                return items.ToArray();
+                var result = items.Select(path =>
+                {
+                    // Try to extract version folder
+                    var parts = path.Split(Path.DirectorySeparatorChar);
+                    int vsIndex = Array.FindIndex(parts, p => p.Equals("Microsoft Visual Studio", StringComparison.OrdinalIgnoreCase));
+                    if (vsIndex >= 0 && parts.Length > vsIndex + 1)
+                    {
+                        if (int.TryParse(parts[vsIndex + 1], out int versionFolder))
+                        {
+                            int vsYear = MapToVsYear(versionFolder);
+                            return (path, vsYear);
+                        }
+                    }
+                    return (path, 0);
+                }).OrderByDescending(x => x.Item2).ToList();
+
+                return result.Select(x => x.Item1).ToArray();
             }
             else
                 return new string[0];
+        }
+
+        static int MapToVsYear(int versionFolder)
+        {
+            // Handles both formats:
+            // Year-based: 2019, 2022
+            // Major-based: 16, 17, 18 (VS2026)
+
+            return versionFolder switch
+            {
+                // Year-based dirs
+                2019 => 2019,
+                2022 => 2022,
+
+                // Major version → year map
+                16 => 2019,
+                17 => 2022,
+                18 => 2026, // VS2026
+
+                // For future releases (19 = VS2028 etc.)
+                >= 19 and <= 30 => 2026 + (versionFolder - 18) * 2,
+
+                _ => 0
+            };
         }
 
         internal static string FindVSCode()

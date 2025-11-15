@@ -93,6 +93,7 @@ namespace CSScripting.CodeDom
 
             combinedScript.Add($"#define NETCORE");
             combinedScript.Add($"#define CS_SCRIPT");
+            combinedScript.Add($"#define CS_SCRIPT_ROSLYN");
 
             foreach (string file in imported_sources)
             {
@@ -182,6 +183,10 @@ namespace CSScripting.CodeDom
                     }
                     message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.Message}");
                 }
+
+                if (failures.Any(x => x.Message.Contains("name 'args' does not exist")))
+                    message.Insert(0, "<script>(0,0): warning: Make sure you have static Main(...) defined. It is required by Roslyn. " +
+                        $"Either define it or use different compiler engine.{Environment.NewLine}");
 
                 if (combinedScript.Any(x => x.TrimStart().StartsWith("global using ")))
                     message.Insert(0, "<script>(0,0): warning: It looks like you are using global using statement that is not " +

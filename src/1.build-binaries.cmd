@@ -10,7 +10,7 @@ if exist "C:\Program Files\Microsoft Visual Studio\2022\%vs_edition%" (
 )
 
 set PATH=%PATH%;%%\out\ci\
-set target=net9.0
+set target=net10.0
 set target_prev=net8.0
 md "out\Linux\"
 md "out\Linux\lib"

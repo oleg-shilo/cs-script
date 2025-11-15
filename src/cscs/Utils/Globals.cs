@@ -358,12 +358,22 @@ namespace CSScripting
                         // old algorithm: find first "dotnet" parent dir by trimming till the last "dotnet" token
                         // new algorithm: go back by 4 levels as on Linux in snap based deployments
 
+#if class_lib
+                        // with .NET 10 SDK it thinks that array.Reverse() modifies in place and returns void.
+                        // It's nonsense but I have to accommodate for that.
+                        var parts = dotnet_root.Split(Path.DirectorySeparatorChar).ToList();
+                        parts.Reverse();
+                        parts = parts.Skip(4).ToList();
+                        parts.Reverse();
+                        dotnet_root = parts.JoinBy(Path.DirectorySeparatorChar.ToString());
+
+#else
                         dotnet_root = dotnet_root.Split(Path.DirectorySeparatorChar)
                                                  .Reverse()
-                                                 // .SkipWhile(x => x != "dotnet")
                                                  .Skip(4)
                                                  .Reverse()
                                                  .JoinBy(Path.DirectorySeparatorChar.ToString());
+#endif
 
                         if (dotnet_root.PathJoin("sdk").DirExists()) // need to check as otherwise it will throw
                         {
