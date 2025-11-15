@@ -17,17 +17,17 @@ var zipChecksum = calcChecksum(zip_url);
 
 // scoop
 PatchFile(
-     @".\..\..\..\bucket\cs-script.json",
+     @".\..\..\..\scoop-bucket\cs-script.json",
      x => x.Trim().StartsWith("\"version\": \""),
      $"    \"version\": \"{version}\",");
 
 PatchFile(
-     @".\..\..\..\bucket\cs-script.json",
+     @".\..\..\..\scoop-bucket\cs-script.json",
      x => x.Trim().StartsWith("\"url\": \"https://github.com/oleg-shilo/cs-script/releases"),
     $"    \"url\": \"{zip_url}\",");
 PatchFile(
 
-    @".\..\..\..\bucket\cs-script.json",
+    @".\..\..\..\scoop-bucket\cs-script.json",
     x => x.Trim().StartsWith("\"hash\": \"sha256:"),
     $"    \"hash\": \"sha256:{zipChecksum}\",");
 

@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.11.5.0.
+C# Script execution engine (.NET Core). Version 4.12.0.0.
 Copyright (C) 2004-2023 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -78,6 +78,8 @@ params	Specifies optional parameters for a script file to be run.
     executable for integrating it with CS-Script by using -vs:init option.
     Alternatively, you can even ask to integrate the first detected executable with: 
           cscs -vs:init 0
+    -vs:init 0 is also an instruction of selecting the latest version of detected Visual Studio executable since the
+    list is of available versions is ordered by the latest version first.
 
 -vscode
     Generates .NET project file and opens it in Visual Studio Code.
@@ -102,12 +104,13 @@ params	Specifies optional parameters for a script file to be run.
 -ng|-engine:<csc|dotnet|roslyn>
     Forces compilation to be done by one of the supported .NET engines.
       
-    dotnet - dotnet.exe compiler; this is the most versatile compilation engine though it does have a startup
-               overhead when running the script for the first time. It requires .NET SDK to be installed on the target
-               system.
+    dotnet - dotnet.exe compiler
+    This is the most versatile compilation engine though it does have a startup overhead when running the script for
+    the first time. It requires .NET SDK to be installed on the target system.
       
-    csc   - csc.exe compiler; the fastest compiler available. It is not suitable for WPF scripts as csc.exe cannot
-              compile XAML. It requires .NET SDK to be installed on the target system.
+    csc   - csc.exe compiler; the fastest compiler available. 
+    Though it is not suitable for WPF scripts as csc.exe cannot compile XAML.
+    It also requires .NET SDK to be installed on the target system.
               This value is just a shorter form of the full equivalent csc-inproc.
               Legacy:
               Value csc-outproc triggers the compilation in the separate child process build.exe which is somewhat
@@ -118,8 +121,10 @@ params	Specifies optional parameters for a script file to be run.
               family distributions. And it's only retained for the compatibility reasons. Starting from v4.10.0 the
               use of csc-outproc offers no benefits.
       
-    roslyn - Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler; this is the most portable compilation engine. It
-               does not require .NET SDK being installed. Though it does have limitations (see documentation).
+    roslyn - Microsoft.CodeAnalysis.CSharp.Scripting.dll compiler
+    This is the most portable compilation engine. It does not require .NET SDK being installed.
+    Though it does have limitations. The script must have static Main(), you cannot have nested namespaces etc. (see
+    documentation).
                The compilation is performed in the separate child process cscs (another instance of script engine)
                which is somewhat equivalent of VBCSCompiler.exe (build server) from .NET toolset.
                CS-Script communicates with cscs build server via socket (default port 17002). You can control port
@@ -403,7 +408,7 @@ params	Specifies optional parameters for a script file to be run.
 
 -nuget[:restore]
     Installs new or updates existing NuGet packages. It is a very close equivalent of dotnet restore command
-    Note, using nuget directives in the script text aoffers more flexibility (e.g. version support. See cscs -syntax
+    Note, using nuget directives in the script text offers more flexibility (e.g. version support. See cscs -syntax
     //css_nuget 
     
      -nuget         - prints the list of all root packages in the repository
@@ -461,8 +466,6 @@ Engine directives:
 - //css_include <file>;
 - //css_import <file>[, preserve_main][, rename_namespace(<oldName>, <newName>)];
 - //css_nuget [-force] [-ver:<version>] [-pre|--prerelease] package0[,package1]..[,packageN];
-- //css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-rt:<runtime>] [-ng:<nuget arguments>]
-package0[,package1]..[,packageN];
 - //css_args arg0[,arg1]..[,argN];
 - //css_reference <file>;
 - //css_precompiler <file 1>,<file 2>;
@@ -549,6 +552,8 @@ newName          - new name of a namespace to be renamed during importing
 ------------------------------------
  
 //css_nuget [-force] [-ver:<version>] [-pre|--prerelease] package0[,package1]..[,packageN];
+Note: .NET 10 file-based execution directive '#:package' is also supported by internally converting it to the
+//css_nuget equivalent.
  
 Downloads/Installs the NuGet package. It also automatically references the downloaded package assemblies.
 By default, the package is not downloaded again if it was already downloaded.
@@ -574,7 +579,7 @@ Note: Legacy NuGet support is less reliable, predictable or flexible (e.g. does 
 thus it's highly recommend that you use this mode only if you have to.
  
 The legacy NuGet support CLI is somewhat different:
-//css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-rt:<runtime>] [-ng:<nuget arguments>]
+(Legacy) - //css_nuget [-noref] [-force[:delay]] [-ver:<version>] [-rt:<runtime>] [-ng:<nuget arguments>]
 package0[,package1]..[,packageN];
  
 If no version is specified then the highest downloaded version (if any) will be used.
@@ -623,9 +628,10 @@ Note: the arguments must be coma separated.
 Alias - //css_ref
  
 file - name of the assembly file to be loaded at run-time.
+Note: .NET 10 file-based execution directive '#r' is also supported the same way as //css_reference.
 This directive is used to reference assemblies required at run time.
-The assembly must be in GAC, the same folder with the script file or in the 'Script Library' folders (see 'CS-Script
-settings').
+The assembly must be in one of the search directories (in config file), the same folder with the script file or in the
+'Script Library' folders (see 'CS-Script settings').
  
 Note if you use wildcard in the referenced assembly name (e.g. socket.*.dll) the directive will only reference from
 the first probing directory where the matching file(s) is found. Be careful with the wide wildcard as '*.dll' as they
