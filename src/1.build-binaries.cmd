@@ -29,7 +29,7 @@ del "out\cs-script.linux.7z"
 
 if defined CSSCRIPT_ROOT (
     echo Updating NuGet Tool package spec...
-    css .\out\ci\update_static_content.cs
+    css .\out\ci\update_static_content.cs %target%
 ) 
 
 rem goto:exit

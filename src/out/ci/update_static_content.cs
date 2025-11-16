@@ -14,6 +14,12 @@ using System.Xml.Linq;
 string custom_cmd_src = @"..\static_content";
 string cscs_proj = @"..\..\cscs\cscs.csproj";
 
+var primaryCrt = args.Any() ? args.First() : "net10.0";
+var secondaryCrt = "net8.0";
+
+string[] packagedCrts = [primaryCrt, secondaryCrt];
+string[] unpackagedCrts = "6,7,8,9,10,11,12,13,14,15".Split(',').Select(x => $"net{x}.0").Except(packagedCrts).ToArray();
+
 var comamnds = Directory.GetDirectories(custom_cmd_src, "-*");
 
 var nuspecInjection = new List<string>();
@@ -41,13 +47,27 @@ foreach (var dir in comamnds)
 
     var nuspecTemplate = $"    <Content Include=\"..\\out\\static_content\\{name}\\**\\*\" Link=\"ToolPackage/{name}\" Pack=\"true\" PackagePath=\"tools/$[runtime]/any/{name}\" />";
 
-    nuspecInjection.Add(nuspecTemplate.Replace("$[runtime]", "net9.0"));
+    nuspecInjection.Add(nuspecTemplate.Replace("$[runtime]", primaryCrt));
 
     if (name != "-wdbg")
-        nuspecInjection.Add(nuspecTemplate.Replace("$[runtime]", "net8.0"));
+        nuspecInjection.Add(nuspecTemplate.Replace("$[runtime]", secondaryCrt));
 }
 
 var proj = File.ReadLines(cscs_proj);
+
+foreach (var crt in unpackagedCrts)
+{
+    if (proj.Any(x => x.Contains(crt)))
+    {
+        var msg = $"Error: Found unpackaged CRT {crt} in {cscs_proj}!";
+
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(msg);
+        Console.ResetColor();
+
+        throw new Exception(msg);
+    }
+}
 
 var startMarker = proj.First(x => x.TrimStart().StartsWith("<!-- start: nuget tool package"));
 var endMarker = proj.First(x => x.TrimStart().StartsWith("<!-- end: nuget tool package"));
