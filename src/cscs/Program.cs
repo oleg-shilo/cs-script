@@ -38,7 +38,7 @@ namespace cscs
                 Runtime.GlobalIncludsDir?.EnsureDir(rethrow: false);
                 Runtime.CustomCommandsDir.EnsureDir(rethrow: false);
 
-                var serverCommand = args.LastOrDefault(x => x.StartsWith("-server"));
+                var serverCommand = args.LastOrDefault(x => x.StartsWith("-server")) ?? args.LastOrDefault(x => x.StartsWith("-kill"));
                 var installCommand = args.LastOrDefault(x => x.StartsWith("-install") || x.StartsWith("-uninstall"));
 
                 if (serverCommand.HasText() && !args.Any(x => x == "?"))
