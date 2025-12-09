@@ -31,8 +31,20 @@ namespace csscript
             cmd_dirs_section,
             code_dirs_section,
             config_dirs_section,
-            internal_dirs_section,
             internal_dirs_section
+        };
+
+        internal static string[] ProbingOrderHelp => new[]
+        {
+            $"Directory probing order:",
+            $"  0: script dir",
+            $"  1: current dir",
+            $"  2: script host/engine dir",
+            $"  3: {cmd_dirs_section.Replace("-", "").Trim(" ()".ToArray())}",
+            $"  4: {code_dirs_section.Replace("-", "").Trim(" ()".ToArray())}",
+            $"  5: {config_dirs_section.Replace("-", "").Trim(" ()".ToArray())}",
+            $"  6: {internal_dirs_section.Replace("-", "").Trim(" ()".ToArray())} e.g. cache dir",
+            $"The precise runtime order can be discovered by executing the script with the `-{AppArgs.verbose}` switch.",
         };
 
         internal static bool ProbingLegacyOrder

@@ -37,6 +37,7 @@ namespace csscript
         public const string cmd = "cmd";
         public const string ls = "ls";
         public const string list = "list";
+        public const string kill = "kill";
         public const string syntax = "syntax";
         public const string server = "server";
         public const string install = "install";
@@ -113,7 +114,7 @@ namespace csscript
                         {
                             var parts = x.Split(' ');
 
-                            return $"---{NewLine}{NewLine}### Directive {parts[0]}`{NewLine}{NewLine}{x}";
+                            return $"---{NewLine}{NewLine}### Directive `{parts[0].Trim('`')}`{NewLine}{NewLine}{x}";
                         }
 
                         if (x.Replace("*", "").Trim() == "") // "********************"
@@ -623,7 +624,8 @@ namespace csscript
 
             switch2Help[dir] = new ArgInfo("-dir:<directory 1>,<directory N>",
                                            "Adds path(s) to the assembly probing directory list.",
-                                               "You can use the reserved word 'show' as a directory name to print the configured probing directories.",
+                                           Settings.ProbingOrderHelp.JoinBy(NewLine),
+                                           "You can use the reserved word 'show' as a directory name to print the configured probing directories.",
                                            "(e.g. `" + AppInfo.AppName + " -dir:C:\\MyLibraries myScript.cs; " + AppInfo.AppName + " -dir:show`).");
             switch2Help[pc] =
             switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
@@ -683,13 +685,18 @@ namespace csscript
                                            "Prints list of supported commands (arguments) as well as the custom commands defined by user.",
                                            "-cmd:x - ${<==}Prints detailed information of the custom commands defined by user.");
             switch2Help[ls] =
-            switch2Help[list] = new ArgInfo("-list|-ls [<kill|k> | <kill-all|ka>",
+            switch2Help[list] = new ArgInfo("-list|-ls [<kill|k> | <kill-all|ka|*>",
                                             "Prints list of all currently running scripts.",
                                             "If script execution tracking is undesirable you can disable it by setting " +
                                            $"{Runtime.DisableCSScriptProcessTrackingEnvar} environment variable to a non empty value.",
                                             " kill|k      - ${<==}Allow user to select and terminate any running script.",
                                             " *           - ${<==}Terminate all running scripts when 'kill' option is used.",
                                             "               ${<==}(e.g. " + AppInfo.AppName + " -list kill * ).");
+
+            switch2Help[kill] = new ArgInfo("-kill>",
+                                            "Terminates all instances of running scripts and CS-Script build services.",
+                                            "This command is the easiest way of ensuring no CS-Script files are locked. ",
+                                            "E.g. before updating CS-Script installation.");
 
             miscHelp["file"] = new ArgInfo("file",
                                            "Specifies name of a script file to be run.");
@@ -868,7 +875,7 @@ namespace csscript
                          "This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time just " +
                          "before compiling it. Precompilers are typically used to alter the script coder before the execution. Thus CS-Script uses " +
                          "built-in precompiler to decorate classless scripts executed with -autoclass switch.",
-                         "(see http://www.csscript.net/help/precompilers.html",
+                         "(see http://www.csscript.net/help/precompilers.html)",
                          section_sep, //------------------------------------
                          "`//css_searchdir <directory>;`",
                          " ",
@@ -877,13 +884,14 @@ namespace csscript
                          "directory - name of the directory to be used for script and assembly probing at run-time.",
                          " ",
                          "This directive is used to extend set of search directories (script and assembly probing).",
-                         "The directory name can be a wildcard based expression.In such a case all directories matching the pattern will be this " +
+                         "The directory name can be a wildcard based expression. In such a case all directories matching the pattern will be this " +
                          "case all directories will be probed.",
                          "The special case when the path ends with '**' is reserved to indicate 'sub directories' case. Examples:",
                          "```C#",
                          "${<=4}//css_dir packages\\ServiceStack*.1.0.21\\lib\\net40",
                          "${<=4}//css_dir packages\\**",
                          "```",
+                         Settings.ProbingOrderHelp.JoinBy(NewLine),
                          section_sep, //------------------------------------
                          "`//css_winapp`",
                          " ",
