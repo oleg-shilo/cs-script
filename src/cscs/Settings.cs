@@ -43,7 +43,7 @@ namespace csscript
             $"  3: {cmd_dirs_section.Replace("-", "").Trim(" ()".ToArray())}",
             $"  4: {code_dirs_section.Replace("-", "").Trim(" ()".ToArray())}",
             $"  5: {config_dirs_section.Replace("-", "").Trim(" ()".ToArray())}",
-            $"  6: {internal_dirs_section.Replace("-", "").Trim(" ()".ToArray())} e.g. cache dir",
+            $"  6: {internal_dirs_section.Replace("-", "").Trim(" ()".ToArray())}, e.g. cache dir",
             $"The precise runtime order can be discovered by executing the script with the `-{AppArgs.verbose}` switch.",
         };
 

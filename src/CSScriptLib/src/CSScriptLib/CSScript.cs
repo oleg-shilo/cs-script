@@ -433,7 +433,25 @@ namespace CSScriptLib
 
         static Lazy<RoslynEvaluator> roslynEvaluator = new Lazy<RoslynEvaluator>();
 
-        static internal string WrapMethodToAutoClass(string methodCode, bool injectStatic, bool injectNamespace, string inheritFrom = null, string className = null)
+        /// <summary>
+        /// Wraps a fragment of method code into a complete, compilable class source.
+        /// The method code is scanned for header using directives and the first non-using, non-comment, non-empty
+        /// line is treated as the method signature/start of the body. Depending on the flags the generated
+        /// source will be injected with a containing namespace, a class declaration (optionally inheriting from
+        /// <paramref name="inheritFrom"/>), and a static/public modifier if missing.
+        /// </summary>
+        /// <param name="methodCode">The C# code fragment that contains a method or methods to be wrapped.</param>
+        /// <param name="injectStatic">If true and the method declaration does not already contain the <c>static</c>
+        /// modifier, a <c>static</c> token will be injected into the generated member declaration.</param>
+        /// <param name="injectNamespace">If true the generated class will be placed into the <c>Scripting</c>
+        /// namespace.</param>
+        /// <param name="inheritFrom">Optional base type name to inherit from. If provided the generated class
+        /// will have an inheritance clause using this value.</param>
+        /// <param name="className">Optional name to use for the generated class. If not provided a default
+        /// wrapper class name will be used.</param>
+        /// <returns>A string containing the complete C# source for the auto-generated class that wraps the
+        /// supplied method code.</returns>
+        static public string WrapMethodToAutoClass(string methodCode, bool injectStatic, bool injectNamespace, string inheritFrom = null, string className = null)
         {
             var code = new StringBuilder(4096);
             code.AppendLine("//Auto-generated file")
@@ -491,7 +509,15 @@ namespace CSScriptLib
             return code.ToString();
         }
 
-        static internal string TypeNameForScript(Type type)
+        /// <summary>
+        /// Returns a script-friendly type name for the provided <see cref="Type"/>.
+        /// For non-generic types this is the type's full name. For generic types the
+        /// method constructs a readable generic representation (e.g. "Namespace.TypeName<Arg1, Arg2>")
+        /// by recursively formatting generic type arguments.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> to get the script name for.</param>
+        /// <returns>A string representing the type suitable for use in generated script code.</returns>
+        static public string TypeNameForScript(Type type)
         {
             if (!type.IsGenericType)
             {

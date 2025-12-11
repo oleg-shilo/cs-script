@@ -293,7 +293,16 @@ namespace CSScripting
                   .Where(t => !t.IsRoslynInternalType())
                   .OrderBy(t => !t.IsScriptRootClass());  // ScriptRootClass will be on top
 
-        internal static Type FirstUserTypeAssignableFrom<T>(this Assembly asm)
+        /// <summary>
+        /// Returns the first exported user type from the assembly that is assignable to the specified generic
+        /// type parameter <typeparamref name="T"/>. The search excludes Roslyn internal types and prefers
+        /// script root classes when ordering the results.
+        /// </summary>
+        /// <typeparam name="T">The base type or interface to match.</typeparam>
+        /// <param name="asm">The assembly to search for matching types.</param>
+        /// <returns>The first <see cref="Type"/> that is assignable to <typeparamref name="T"/>, or <c>null</c>
+        /// if no matching type is found.</returns>
+        public static Type FirstUserTypeAssignableFrom<T>(this Assembly asm)
             => asm.OrderedUserTypes().FirstOrDefault(x => typeof(T).IsAssignableFrom(x));
 
         /// <summary>

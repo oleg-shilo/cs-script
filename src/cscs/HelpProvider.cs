@@ -883,8 +883,8 @@ namespace csscript
                          " ",
                          "directory - name of the directory to be used for script and assembly probing at run-time.",
                          " ",
-                         "This directive is used to extend set of search directories (script and assembly probing).",
-                         "The directory name can be a wildcard based expression. In such a case all directories matching the pattern will be this " +
+                         "This directive is used to extend the set of search directories (script and assembly probing).",
+                         "The directory name can be a wildcard-=based expression. In such a case all directories matching the pattern will be this " +
                          "case all directories will be probed.",
                          "The special case when the path ends with '**' is reserved to indicate 'sub directories' case. Examples:",
                          "```C#",
