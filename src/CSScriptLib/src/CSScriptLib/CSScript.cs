@@ -512,7 +512,7 @@ namespace CSScriptLib
         /// <summary>
         /// Returns a script-friendly type name for the provided <see cref="Type"/>.
         /// For non-generic types this is the type's full name. For generic types the
-        /// method constructs a readable generic representation (e.g. "Namespace.TypeName<Arg1, Arg2>")
+        /// method constructs a readable generic representation (e.g. "Namespace.TypeName&lt;Arg1, Arg2&gt;")
         /// by recursively formatting generic type arguments.
         /// </summary>
         /// <param name="type">The <see cref="Type"/> to get the script name for.</param>

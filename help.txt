@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.12.0.1.
+C# Script execution engine (.NET Core). Version 4.13.0.0.
 Copyright (C) 2004-2023 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -384,6 +384,15 @@ params	Specifies optional parameters for a script file to be run.
 
 -dir:<directory 1>,<directory N>
     Adds path(s) to the assembly probing directory list.
+    Directory probing order:
+      0: script dir
+      1: current dir
+      2: script host/engine dir
+      3: dirs from cmd args
+      4: dirs from code
+      5: dirs from config
+      6: csscript special dirs, e.g. cache dir
+    The precise runtime order can be discovered by executing the script with the -verbose switch.
     You can use the reserved word 'show' as a directory name to print the configured probing directories.
     (e.g. cscs -dir:C:\MyLibraries myScript.cs; cscs -dir:show).
 
@@ -447,13 +456,18 @@ params	Specifies optional parameters for a script file to be run.
     Prints list of supported commands (arguments) as well as the custom commands defined by user.
     -cmd:x - Prints detailed information of the custom commands defined by user.
 
--list|-ls [<kill|k> | <kill-all|ka>
+-list|-ls [<kill|k> | <kill-all|ka|*>
     Prints list of all currently running scripts.
     If script execution tracking is undesirable you can disable it by setting DisableCSScriptProcessTracking
     environment variable to a non empty value.
      kill|k      - Allow user to select and terminate any running script.
      *           - Terminate all running scripts when 'kill' option is used.
                    (e.g. cscs -list kill * ).
+
+-kill>
+    Terminates all instances of running scripts and CS-Script build services.
+    This command is the easiest way of ensuring no CS-Script files are locked. 
+    E.g. before updating CS-Script installation.
 
 ---------
 
@@ -649,7 +663,7 @@ file - name of the script or assembly file implementing precompiler.
 This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time
 just before compiling it. Precompilers are typically used to alter the script coder before the execution. Thus
 CS-Script uses built-in precompiler to decorate classless scripts executed with -autoclass switch.
-(see http://www.csscript.net/help/precompilers.html
+(see http://www.csscript.net/help/precompilers.html)
 ------------------------------------
 //css_searchdir <directory>;
  
@@ -657,14 +671,23 @@ Alias - //css_dir
  
 directory - name of the directory to be used for script and assembly probing at run-time.
  
-This directive is used to extend set of search directories (script and assembly probing).
-The directory name can be a wildcard based expression.In such a case all directories matching the pattern will be this
-case all directories will be probed.
+This directive is used to extend the set of search directories (script and assembly probing).
+The directory name can be a wildcard-=based expression. In such a case all directories matching the pattern will be
+this case all directories will be probed.
 The special case when the path ends with '**' is reserved to indicate 'sub directories' case. Examples:
 
     //css_dir packages\ServiceStack*.1.0.21\lib\net40
     //css_dir packages\**
 
+Directory probing order:
+  0: script dir
+  1: current dir
+  2: script host/engine dir
+  3: dirs from cmd args
+  4: dirs from code
+  5: dirs from config
+  6: csscript special dirs, e.g. cache dir
+The precise runtime order can be discovered by executing the script with the -verbose switch.
 ------------------------------------
 //css_winapp
  
