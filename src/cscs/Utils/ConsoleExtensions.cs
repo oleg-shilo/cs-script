@@ -1,16 +1,74 @@
-using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.CodeAnalysis;
 
 namespace csscript
 {
+#if NET10_0_OR_GREATER
+
+    /// <summary>
+    /// Provides extension methods for <see cref="Console"/> to simplify colored output and user input operations.
+    /// This class uses the C# 10.0+ extension feature to add methods directly to the <see cref="Console"/> type.
+    /// </summary>
+    public static class ConsoleExtensions
+    {
+        extension(Console)
+        {
+            /// <summary>
+            /// Prints a message to the console without appending a newline, optionally with a specified foreground color.
+            /// </summary>
+            /// <param name="message">The message to print.</param>
+            /// <param name="color">Optional foreground color for the message. If null, the current console color is used.</param>
+            public static void PrintNoNewLine(string message, ConsoleColor? color = null)
+                => Print(message, color, noReturn: true);
+
+            /// <summary>
+            /// Prints a message to the console with an optional foreground color and optional newline.
+            /// If a color is specified, the original console color is restored after printing.
+            /// </summary>
+            /// <param name="message">The message to print.</param>
+            /// <param name="color">Optional foreground color for the message. If null, the current console color is used.</param>
+            /// <param name="noReturn">If true, no newline is appended after the message.</param>
+            public static void Print(string message, ConsoleColor? color = null, bool noReturn = false)
+            {
+                if (color.HasValue)
+                {
+                    var originalColor = Console.ForegroundColor;
+                    Console.ForegroundColor = color.Value;
+                    Console.Write(message);
+                    if (!noReturn)
+                        Console.WriteLine();
+                    Console.ForegroundColor = originalColor;
+                }
+                else
+                {
+                    Console.WriteLine(message);
+                }
+            }
+
+            /// <summary>
+            /// Displays a prompt message and waits for user input.
+            /// </summary>
+            /// <param name="message">The prompt message to display.</param>
+            /// <param name="color">Optional foreground color for the message. If null, the current console color is used.</param>
+            /// <returns>The string entered by the user, or null if no more lines are available.</returns>
+            public static string Prompt(string message, ConsoleColor? color = null)
+            {
+                Console.PrintNoNewLine(message, color);
+                return Console.ReadLine();
+            }
+        }
+    }
+
+#endif
+
     /// <summary>
     /// Based on "maettu-this" proposal https://github.com/oleg-shilo/cs-script/issues/78
     /// His `SplitLexicallyWithoutTakingNewLineIntoAccount` is taken/used practically without any change.
     /// </summary>
-    static class ConsoleExtensions
+    static class CssConsoleExtensions
     {
         // for free form text when Console is not attached; so make it something big...
         public static int MaxNonConsoleTextWidth = 500;

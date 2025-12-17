@@ -215,6 +215,10 @@ namespace CSScripting.CodeDom
 
             if (isNetFx)
                 constants.Add("NETFRAMEWORK");
+            else if (project_element.Element("PropertyGroup")?.Element("TargetFramework")?.Value?.Contains("net10") == true)
+            {
+                constants.AddRange(["NET10_0_OR_GREATER", "NET10"]);
+            }
 
             project_element.Add(new XElement("PropertyGroup",
                                     new XElement("DefineConstants", constants.JoinBy(compileConstantsDelimiter)),

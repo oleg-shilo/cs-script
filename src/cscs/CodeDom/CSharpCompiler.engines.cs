@@ -47,7 +47,7 @@ namespace CSScripting.CodeDom
             var result = new CompilerResults();
 
             if (!Runtime.IsSdkInstalled())
-                Console.WriteLine("WARNING: .NET SDK is not installed. It is required for CS-Script (with `csc` engine) to function properly.");
+                Console.WriteLine("WARNING: .NET SDK is not installed. It is required for CS-Script (with `dotnet` engine) to function properly.");
 
             // remove compiler options that are present in the project file anyway
             var cliOptions = options.CompilerOptions?
@@ -276,7 +276,7 @@ namespace CSScripting.CodeDom
             if (options.CompilerOptions.HasText())
                 common_args.Add(options.CompilerOptions);
 
-            common_args.Add("-define:TRACE;NETCORE;CS_SCRIPT");
+            common_args.Add("-define:TRACE;CS_SCRIPT");
 
             var gac_asms = new List<string>();
 
@@ -287,6 +287,7 @@ namespace CSScripting.CodeDom
             }
             else
             {
+                common_args.Add("-define:NETCORE");
                 common_args.Add("/shared"); // available only for .NET Core family
 
                 if (options.GetTargetPlatform() == "x86" && Environment.Is64BitProcess)
@@ -410,7 +411,13 @@ namespace CSScripting.CodeDom
                 }
                 else
                 {
-                    cmd = $@"""{Globals.GetCompilerFor(sources.FirstOrDefault())}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                    var compiler = Globals.GetCompilerFor(sources.FirstOrDefault());
+
+                    // is .NET 10 compiler (e.g. C:\Program Files\dotnet\sdk\10.0.101\Roslyn\bincore\csc.dll)
+                    if (compiler.Split("sdk").Last().TrimStart(Path.DirectorySeparatorChar).Split('.').First() == "10")
+                        common_args.Add("-define:NET10_0_OR_GREATER;NET10");
+
+                    cmd = $@"""{compiler}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
                     cmpl_cmd = cmd;
 
                     log_cmd(cmpl_cmd);
