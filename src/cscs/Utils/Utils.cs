@@ -1085,7 +1085,7 @@ class HostingRuntime
                             options.forceCompile = true;
                             options.suppressExecution = true;
                             options.syntaxCheck = true;
-                            options.compileDLL = true;
+                            options.compileDLL = false; // restore is usually applied to the primary script so we should try to compile EXE not DLL since top-level statements are incompatible with DLLs
                         }
                         else
                         {
