@@ -303,8 +303,7 @@ namespace csscript
                                     if (context.ContainsAny("*", "kill-all", "ka"))
                                     {
                                         foreach (var pid in result.scripts.Select(x => x.pid).Where(x => x != 0 && x != thisProcess))
-                                            try { Process.GetProcessById(pid).Kill(); }
-                                            catch { }
+                                            Process.GetProcessById(pid).KillSafe();
                                     }
                                     else
                                     {
@@ -318,18 +317,13 @@ namespace csscript
                                                 if (userInput == "*")
                                                 {
                                                     foreach (var pid in result.scripts.Select(x => x.pid).Where(x => x != 0 && x != thisProcess))
-                                                        try { Process.GetProcessById(pid).Kill(); }
-                                                        catch { }
+                                                        Process.GetProcessById(pid).KillSafe();
                                                 }
                                                 else
                                                 {
                                                     var pid = result.scripts.FirstOrDefault(x => x.index == userInput).pid;
                                                     if (pid != 0)
-                                                        try
-                                                        {
-                                                            Process.GetProcessById(pid).Kill();
-                                                        }
-                                                        catch { }
+                                                        Process.GetProcessById(pid).KillSafe();
                                                     else
                                                         Console.WriteLine("Invalid user input.");
                                                 }

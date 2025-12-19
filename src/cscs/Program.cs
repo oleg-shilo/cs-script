@@ -70,7 +70,7 @@ namespace cscs
                 {
                     Thread.Sleep(200);
                     // alive too long on WLS2
-                    Process.GetCurrentProcess().Kill(); // some background monitors may keep the app
+                    Process.GetCurrentProcess().KillSafe(); // some background monitors may keep the app
                 });
 
                 return Environment.ExitCode;

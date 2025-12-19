@@ -159,7 +159,7 @@ namespace csscript
                     exitCode = -1;
                 }
 
-                try { process.Kill(); } catch { }
+                process.KillSafe();
 
                 return exitCode;
             }
@@ -169,7 +169,7 @@ namespace csscript
                     onOutput?.Invoke($"Process '{exe}' is taking too long to finish. Terminating it forcefully.");
 
                 if (terminateOnTimeout)
-                    try { process.Kill(); } catch { }
+                    process.KillSafe();
 
                 // return typical timeout code for CLI apps
                 return -1;
@@ -177,6 +177,20 @@ namespace csscript
 
             return process.ExitCode;
         }
+
+#if class_lib
+
+        internal static void KillSafe(this Process p)
+        {
+            try { p?.Kill(); } catch { }
+        }
+
+#else
+        internal static void KillSafe(this Process p, bool entireProcessTree = true)
+        {
+            try { p?.Kill(entireProcessTree); } catch { }
+        }
+#endif
 
         static internal void NormaliseFileReference(ref string file, ref int line)
         {

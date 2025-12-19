@@ -1420,8 +1420,7 @@ class HostingRuntime
             try
             {
                 foreach (var p in Process.GetProcessesByName(proc_name))
-                    try { p.Kill(); }
-                    catch { } //cannot analyse main module as it may not be accessible for x86 vs. x64 reasons
+                    p.KillSafe();//cannot analyse main module as it may not be accessible for x86 vs. x64 reasons
             }
             catch { }
         }

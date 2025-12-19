@@ -1,17 +1,18 @@
-using CSScripting;
-using CSScripting.CodeDom;
-using Microsoft.CodeAnalysis.Scripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using static System.Environment;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using static System.Environment;
+using Microsoft.CodeAnalysis.Scripting;
+using CSScripting;
+using CSScripting.CodeDom;
 
 namespace csscript
 {
@@ -598,7 +599,7 @@ namespace csscript
 
             restoreArgs += $" --packages \"{NuGetCache}\"";
 
-            (int exitCode, string output) dotnet_run(string args)
+            (int exitCode, string output) dotnet_run(string args, int timeout = -1)
             {
                 var p = new Process();
                 p.StartInfo.FileName = "dotnet";
@@ -606,8 +607,18 @@ namespace csscript
                 p.StartInfo.WorkingDirectory = projectDir;
                 p.StartInfo.RedirectStandardOutput = true;
                 p.Start();
-                p.WaitForExit();
-                return (p.ExitCode, p.StandardOutput.ReadToEnd());
+
+                var sb = new StringBuilder();
+                p.OutputDataReceived += (_, e) => sb.AppendLine(e.Data);
+                p.BeginOutputReadLine();
+
+                if (!p.WaitForExit(timeout))
+                {
+                    p.KillSafe(true);
+                    return (-1, $"Process timed out after {timeout}ms");
+                }
+
+                return (p.ExitCode, sb.ToString());
             }
 
             try
@@ -615,6 +626,7 @@ namespace csscript
                 var projectFile = projectDir.PathJoin($"{projId}.csproj");
 
                 dotnet_run("new classlib");
+
                 foreach (var item in packages)
                 {
                     string[] packageArgs = item.SplitCommandLine();
@@ -640,11 +652,14 @@ namespace csscript
                 Console.WriteLine(NuGet.RestoreMarker);
                 Console.WriteLine("   " + packages.JoinBy(NewLine + "   "));
 
-                var restore = dotnet_run("restore " + restoreArgs.Trim());
+                var nugetRestoreTimeout = Environment.GetEnvironmentVariable("CSS_NUGET_RESTORE_TIMEOUT")?.ToInt() ?? (int)TimeSpan.FromMinutes(3).TotalMilliseconds;
+                var restore = dotnet_run("restore " + restoreArgs.Trim(), nugetRestoreTimeout);
+
                 if (restore.exitCode != 0)
                 {
                     Console.WriteLine(restore.output);
-                    throw new ApplicationException($"Package restoring failed.");
+                    throw new ApplicationException($"Package restoring failed.{NewLine}If problem persist you may try to download the package before executing the script:{NewLine}" +
+                                                   $"   dotnet nuget download <package-name> --include-dependencies");
                 }
 
                 var publish = dotnet_run("publish --no-restore -o ./publish");
