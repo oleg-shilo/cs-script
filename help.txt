@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.13.0.0.
+C# Script execution engine (.NET Core). Version 4.13.1.0.
 Copyright (C) 2004-2023 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -428,7 +428,10 @@ params	Specifies optional parameters for a script file to be run.
                       updated on every script execution/recompilation.
                       You can set CSS_RESTORE_DONOT_CLEAN environment variable to disable removing temporary folders
                       created during restore operations. This can be useful for troubleshooting NuGet packages
-                      restoring.
+                      restoring.                  ${<==}You can also control how long you want to wait for packages to
+                      download. 
+                      Set environment variable CSS_NUGET_RESTORE_TIMEOUT for that. The default value is 180000
+                      milliseconds.
     ---------------------------------------------
     Note: A the current NuGet support model is available since v4.7.0. The old options of this -nuget command that
     are only available with the legacy NuGet support algorithm. This mode can be enabled by setting

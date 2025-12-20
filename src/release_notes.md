@@ -1,13 +1,18 @@
-# Release v4.13.0.0
+# Release v4.13.1.0
 
 ---
 
 ## Changes
 
 ### CLI
-- #430: //css_reference search order
-- Various improvements around `css -help` output
-- Fixed `css -kill` command
+- #432: "Restoring packages..." hangs
+- Added compiler `NET10_0_OR_GREATER` and `NET10` for .NET10 scripts.
+- Added public ConsoleExtensions
+  ```c#
+  Console.Print("Running on .NET 10 or greater", DarkGreen);
+  Console.Print("Hello");
+  var name = Console.Prompt("Enter your name: ", DarkYellow);
+  ```
 
 ### CSScriptLib
-- multiple API points made public to address "#431 Generic type for CompileMethod()" challenges
+- no changes

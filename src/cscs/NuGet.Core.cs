@@ -652,7 +652,7 @@ namespace csscript
                 Console.WriteLine(NuGet.RestoreMarker);
                 Console.WriteLine("   " + packages.JoinBy(NewLine + "   "));
 
-                var nugetRestoreTimeout = Environment.GetEnvironmentVariable("CSS_NUGET_RESTORE_TIMEOUT")?.ToInt() ?? (int)TimeSpan.FromMinutes(3).TotalMilliseconds;
+                var nugetRestoreTimeout = "CSS_NUGET_RESTORE_TIMEOUT".GetEnvar()?.ToInt() ?? (int)TimeSpan.FromMinutes(3).TotalMilliseconds;
                 var restore = dotnet_run("restore " + restoreArgs.Trim(), nugetRestoreTimeout);
 
                 if (restore.exitCode != 0)
