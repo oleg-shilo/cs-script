@@ -132,6 +132,58 @@ namespace EvaluatorTests
             Assert.Equal(5, result[1]);
         }
 
+        public class Host : IScriptHost
+        {
+            public void WriteLine(string message)
+            {
+                Debug.WriteLine(message);
+            }
+        }
+
+        [Fact]
+        public void issue_417()
+        {
+            Assembly asm = CSScript.RoslynEvaluator
+                                   .CompileCode(@"using System;
+                                                  public class Script
+                                                  {
+                                                      Testing.IScriptHost host;
+                                                      public void SetHost(Testing.IScriptHost host) { this.host = host; }
+                                                      public void foo()
+                                                      {
+                                                          host.WriteLine(""Hello from script!"");
+                                                      }
+                                                  }");
+
+            dynamic script = asm.CreateObject("*");
+
+            script.SetHost(new Host());
+            script.foo();
+        }
+
+        [Fact]
+        public void issue_417_static()
+        {
+            Assembly asm = CSScript.RoslynEvaluator
+                                   .CompileCode(@"using System;
+                                                  public class Script
+                                                  {
+                                                      static Testing.IScriptHost host;
+                                                      public static void SetHost(Testing.IScriptHost host) { Script.host = host; }
+                                                      public static void foo()
+                                                      {
+                                                          host.WriteLine(""Hello from script!"");
+                                                      }
+                                                  }");
+
+            var script = asm.GetType("css_root+Script");
+            var setHost = (Action<IScriptHost>)script.GetMethod("SetHost").CreateDelegate(typeof(Action<IScriptHost>));
+            var foo = (Action)script.GetMethod("foo").CreateDelegate(typeof(Action));
+
+            setHost(new Host());
+            foo();
+        }
+
         [Fact]
         public void issue_251()
         {
@@ -431,6 +483,11 @@ namespace EvaluatorTests
 
 namespace Testing
 {
+    public interface IScriptHost
+    {
+        void WriteLine(string message);
+    }
+
     public interface ICalc
     {
         int Sum(int a, int b);
