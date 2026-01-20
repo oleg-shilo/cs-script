@@ -141,7 +141,7 @@ namespace csscript
 
         public static string AppLogo =>
             $"C# Script execution engine (.NET Core). Version {Assembly.GetExecutingAssembly().GetName().Version}.{NewLine}" +
-            "Copyright (C) 2004-2023 Oleg Shilo." + NewLine;
+            "Copyright (C) 2004-2026 Oleg Shilo." + NewLine;
 
         public static string AppLogoShort =>
             $"C# Script execution engine (.NET Core). Version{Assembly.GetExecutingAssembly().GetName().Version}.{NewLine}";
@@ -205,6 +205,7 @@ namespace csscript
             else
             {
                 var cscs_exe_dir = GetEnvironmentVariable("cscs_exe_dir");
+
                 if (cscs_exe_dir != null)
                     Utils.SetEnvironmentVariable("CSSCRIPT_ROOT", cscs_exe_dir);
             }

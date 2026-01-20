@@ -17,7 +17,7 @@
         <Version>4.8.24.0</Version>
         <Authors>Oleg Shilo</Authors>
         <Description>CS-Script engine Class Library for .NET 5 (and higher)</Description>
-        <Copyright>(C) 2018-2023 Oleg Shilo</Copyright>
+        <Copyright>(C) 2018-2026 Oleg Shilo</Copyright>
         <PackageLicenseUrl></PackageLicenseUrl>
         <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
         <PackageIconUrl></PackageIconUrl>

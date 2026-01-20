@@ -11,7 +11,7 @@
     <Version>4.13.1.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
-    <Copyright>(C) 2004-2022 Oleg Shilo</Copyright>
+    <Copyright>(C) 2004-2026 Oleg Shilo</Copyright>
     <Description>C# Script engine .NET Core executable</Description>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
