@@ -14,6 +14,28 @@ namespace ConsoleApp1
         // this solution only provided for the demo purposes.
         static void Main(string[] args)
         {
+            AppDomain.CurrentDomain.AssemblyResolve += (s, e) =>
+            {
+                // if (e.Name.Split(',')[0] == "Microsoft.CodeAnalysis")
+                //     return typeof(Microsoft.CodeAnalysis.MetadataReference).Assembly;
+                return null;
+            };
+
+            Console.WriteLine("Can run till here...");
+
+            // lad the type by name
+            var test = Activator.CreateInstance("CSScriptLib", "CSScriptLib.AsmProbingTestClass");
+
+            Console.WriteLine("Can still get here...");
+            Test_CodeDom();
+            return;
+
+            run(args);
+        }
+
+        static void run(string[] args)
+        {
+            Test_CodeDom();
             Console.WriteLine("================\n");
             Console.WriteLine($"Loading and unloading script 20 times");
             Test_Unloading();
@@ -45,6 +67,8 @@ namespace ConsoleApp1
 
         static void Test_CodeDom()
         {
+            CSScript.EvaluatorConfig.CompilerOptions = "!no/shared";
+
             dynamic script = CSScript.CodeDomEvaluator
                                      .LoadMethod(@"public (int, int) func()
                                                    {

@@ -659,7 +659,7 @@ namespace csscript
                                              "a more convenient way of updating packages manually instead of having them updated on every script execution/recompilation.",
                                              "                  ${<==}You can set CSS_RESTORE_DONOT_CLEAN environment variable to disable removing temporary folders created during restore operations. This can be useful for troubleshooting NuGet packages restoring." +
                                              "                  ${<==}You can also control how long you want to wait for packages to download. ",
-                                             "                  ${<==}Set environment variable CSS_NUGET_RESTORE_TIMEOUT for that. The default value is 180000 milliseconds." +
+                                             "                  ${<==}Set environment variable CSS_NUGET_RESTORE_TIMEOUT for that. The default value is 180000 milliseconds.",
                                              "```",
                                              "---------------------------------------------",
                                              "Note: A the current NuGet support model is available since v4.7.0. The old options of this `-nuget` command that " +
