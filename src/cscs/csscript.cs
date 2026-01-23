@@ -1507,7 +1507,7 @@ namespace csscript
                 // 1. Script location
                 // 2. Executable location
                 // 3. Executable location + "Lib"
-                // 4. CSScriptLibrary.dll location
+                // 4. CSScriptLib.dll location
 
                 var exeDir = Path.GetFullPath(Assembly.GetEntryAssembly().GetAssemblyDirectoryName());
                 var asmDir = Path.GetFullPath(Assembly.GetExecutingAssembly().GetAssemblyDirectoryName());
@@ -1694,7 +1694,7 @@ namespace csscript
             string scriptDir = Path.GetDirectoryName(scriptFileName);
             string assemblyFileName = "";
 
-            //options may be uninitialized in case we are compiling from CSScriptLibrary
+            //options may be uninitialized in case we are compiling from CSScriptLib
             if (options.searchDirs.Length == 0)
                 options.searchDirs = [scriptDir];
 
