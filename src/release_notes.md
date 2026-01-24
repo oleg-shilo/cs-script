@@ -1,18 +1,15 @@
-# Release v4.13.1.0
+# Release v4.13.2.0
 
 ---
 
 ## Changes
 
 ### CLI
-- #432: "Restoring packages..." hangs
-- Added compiler `NET10_0_OR_GREATER` and `NET10` for .NET10 scripts.
-- Added public ConsoleExtensions
-  ```c#
-  Console.Print("Running on .NET 10 or greater", DarkGreen);
-  Console.Print("Hello");
-  var name = Console.Prompt("Enter your name: ", DarkYellow);
-  ```
+- no changes
 
 ### CSScriptLib
-- no changes
+- #436: SerializationException: Type 'CSScripting.CodeDom.CompilerError' in assembly 'CSScriptLib...
+- #437: updated wrong resource referencing.
+- #435: /share compiler flag causes CS2007 error after upgrading to 4.13.1
+
+

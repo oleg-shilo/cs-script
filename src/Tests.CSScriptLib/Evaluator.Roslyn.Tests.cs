@@ -144,6 +144,7 @@ namespace EvaluatorTests
         public void issue_417()
         {
             Assembly asm = CSScript.RoslynEvaluator
+                                   .ReferenceAssemblyOf<Testing.IScriptHost>()
                                    .CompileCode(@"using System;
                                                   public class Script
                                                   {
@@ -165,6 +166,7 @@ namespace EvaluatorTests
         public void issue_417_static()
         {
             Assembly asm = CSScript.RoslynEvaluator
+                                   .ReferenceAssemblyOf<Testing.IScriptHost>()
                                    .CompileCode(@"using System;
                                                   public class Script
                                                   {

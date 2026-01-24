@@ -18,6 +18,9 @@ md "out\Windows"
 md "out\Windows\lib"
 
 rem in case some content is already there
+
+del /S /Q "out\static_content\-wdbg\dbg-server\bin"
+del /S /Q "BuildServer\out"
 del /S /Q "out\Linux\"
 del /S /Q "out\Windows\"
 rd /S /Q "out\Linux\-wdbg"

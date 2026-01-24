@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.13.1.0</Version>
+    <Version>4.13.2.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2026 Oleg Shilo</Copyright>
@@ -19,24 +19,19 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.13.1.0</AssemblyVersion>
-    <FileVersion>4.13.1.0</FileVersion>
+    <AssemblyVersion>4.13.2.0</AssemblyVersion>
+    <FileVersion>4.13.2.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes
 
 ### CLI
-- #432: "Restoring packages..." hangs
-- Added compiler `NET10_0_OR_GREATER` and `NET10` for .NET10 scripts.
-- Added public ConsoleExtensions
-  ```c#
-  Console.Print("Running on .NET 10 or greater", DarkGreen);
-  Console.Print("Hello");
-  var name = Console.Prompt("Enter your name: ", DarkYellow);
-  ```
+- no changes
 
 ### CSScriptLib
-- no changes</PackageReleaseNotes>
+- #436: SerializationException: Type 'CSScripting.CodeDom.CompilerError' in assembly 'CSScriptLib...
+- #437: updated wrong resource referencing.
+- #435: /share compiler flag causes CS2007 error after upgrading to 4.13.1</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
     <PackageIcon>..\logo\css_logo.png</PackageIcon>
@@ -129,13 +124,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
     <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062;CA2211</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-windows|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows|AnyCPU'">
     <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062;CA2211</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
     <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062;CA2211</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-windows|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows|AnyCPU'">
     <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062;CA2211</NoWarn>
   </PropertyGroup>
 </Project>
