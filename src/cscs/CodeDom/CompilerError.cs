@@ -10,6 +10,7 @@ namespace CSScripting.CodeDom
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class CompilerError
     {
         /// <summary>
