@@ -63,6 +63,7 @@
     <DefineConstants>TRACE;class_lib</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="AppDomain.cs" />
     <Compile Remove="CSScriptLib.Eval.CodeDom.cs" />
     <Compile Remove="output\aggregate.cs" />
     <Compile Remove="output\Test.cs" />
