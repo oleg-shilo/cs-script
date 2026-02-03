@@ -16,6 +16,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("7cea89c9-e906-4852-ba40-16be33bcc2d1")]
 
 // Signed with sgKey.snk
 // The key is published in the repo according the MS recommendation
@@ -23,7 +24,6 @@ using System.Runtime.InteropServices;
 // ✔️ CONSIDER strong naming your library's assemblies.
 // ✔️ CONSIDER adding the strong naming key to your source control system.
 
-[assembly: Guid("7cea89c9-e906-4852-ba40-16be33bcc2d1")]
 [assembly: InternalsVisibleTo("cscs.tests, PublicKey=" +
     "0024000004800000940000000602000000240000525341310004000001000100d17b106c0897f2" +
     "962c69449792d3b89ce228b8413184d66934ead688f75e8526ba162c7e6d4a32a48abdccbc8863" +
