@@ -1,12 +1,21 @@
-using CSScripting;
 using System;
 using System.IO;
 using System.Text;
+using CSScripting;
 
 namespace Scripting
 {
-    class CSScriptException : ApplicationException
+    /// <summary>
+    /// Represents errors that occur during the execution of a CS-Script operation.
+    /// </summary>
+    /// <remarks>Use this exception to indicate failures specific to CS-Script processing. This exception is
+    /// typically thrown when a script cannot be compiled, loaded, or executed as expected.</remarks>
+    public class CSScriptException : ApplicationException
     {
+        /// <summary>
+        /// Initializes a new instance of the CSScriptException class with a specified error message.
+        /// </summary>
+        /// <param name="message">The message that describes the error. This value can be null.</param>
         public CSScriptException(string message = null) : base(message)
         {
         }
@@ -53,7 +62,6 @@ namespace CSScriptLib
 
             if (assemblyFileName != null)
                 code += $"\n[assembly: System.Reflection.AssemblyConfigurationAttribute(@\"{assemblyFileName}\")]";
-
 
             if (scriptFileName.GetExtension().SameAs(".vb"))
             {

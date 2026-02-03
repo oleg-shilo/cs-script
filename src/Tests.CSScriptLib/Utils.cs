@@ -1,12 +1,64 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using Mono.Reflection;
 using static System.Reflection.BindingFlags;
+using System.Threading;
+using Mono.Reflection;
 
 public static class UnloadingTest
 {
+}
+
+class Profiler
+{
+    static public Stopwatch Stopwatch = new Stopwatch();
+}
+
+public static class CSScriptPolyfills
+{
+    internal static string[] GetRawStatements(this CSScriptLib.CSharpParser parser, string codeToAnalyze, string pattern, int endIndex, bool ignoreComments)
+    {
+        MethodInfo method = typeof(CSScriptLib.CSharpParser).GetMethod(
+            "GetRawStatements",
+            NonPublic | Instance,
+            null,
+            new Type[] { typeof(string), typeof(string), typeof(int), typeof(bool) },
+            null
+);
+        if (method != null)
+            return (string[])method.Invoke(parser, new object[] { codeToAnalyze, pattern, endIndex, ignoreComments });
+        throw new MissingMethodException("GetRawStatements method is not found in CSharpParser class.");
+    }
+
+    internal static void FileDelete(this string filePath, bool rethrow)
+    {
+        if (filePath?.Any() == true)
+        {
+            //There are the reports about
+            //anti viruses preventing file deletion
+            //See 18 Feb message in this thread https://groups.google.com/forum/#!topic/cs-script/5Tn32RXBmRE
+
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    if (File.Exists(filePath))
+                        File.Delete(filePath);
+                    break;
+                }
+                catch
+                {
+                    if (rethrow && i == 2)
+                        throw;
+                }
+
+                Thread.Sleep(300);
+            }
+        }
+    }
 }
 
 public static class StaticAnalyzer
