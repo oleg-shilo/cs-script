@@ -255,7 +255,7 @@ namespace CSScriptLib
         /// an accidental referencing of the assembly or <see
         /// cref="System.Runtime.Loader.AssemblyLoadContext"/>. Meaning that if you are planing to
         /// use assembly unloading you need to use interface based scripting. See `Test_Unloading`
-        /// (https://github.com/oleg-shilo/cs-script/blob/master/src/CSScriptLib/src/Client.NET-Core/Program.cs)
+        /// (https://github.com/oleg-shilo/cs-script/blob/master/src/CSScriptLib/src/Client.NET/Program.cs)
         /// sample for details.
         /// </para>
         /// </summary>
