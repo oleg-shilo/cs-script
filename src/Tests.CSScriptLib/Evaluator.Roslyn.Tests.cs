@@ -31,7 +31,7 @@ namespace EvaluatorTests
         {
             // There is something strange happening under xUnit runtime. This very test runs fine
             // from a console app but under a test runner the assembly stays in the memory. Possibly
-            // because xUnit uses dynamic types. See "Test_Unloading" method for details (https://github.com/oleg-shilo/cs-script/blob/master/src/CSScriptLib/src/Client.NET-Core/Program.cs)
+            // because xUnit uses dynamic types. See "Test_Unloading" method for details (https://github.com/oleg-shilo/cs-script/blob/master/src/CSScriptLib/src/Client.NET/Program.cs)
 
             int? count = null;
 

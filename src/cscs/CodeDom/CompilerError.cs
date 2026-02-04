@@ -114,7 +114,7 @@ namespace CSScripting.CodeDom
                         result.ErrorText = description_items.Last();                            // #error: 'this is the error...'
                         result.ErrorNumber = description_items.First().Split(' ').Last();       // CS1029
                         result.IsWarning = isWarning;
-                        result.FileName = match.Value.Substring(0, m.Index);                    // cript.cs
+                        result.FileName = match.Value.Substring(0, m.Index);                    // script.cs
                         result.Line = int.Parse(location_items[0]);                             // 11
                         result.Column = int.Parse(location_items[1]);                           // 8
 

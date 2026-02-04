@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4EB601D3-3643-464E-90C6-A49F97420CDF}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ConsoleApp2</RootNamespace>
-    <AssemblyName>ConsoleApp2</AssemblyName>
+    <RootNamespace>Client.NET472</RootNamespace>
+    <AssemblyName>Client.NET472</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -84,7 +84,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Client.NET-Framework %28CodeDom%29\NetCompiler.cs">
+    <Compile Include="..\Client.NET472 %28CodeDom%29\NetCompiler.cs">
       <Link>NetCompiler.cs</Link>
     </Compile>
     <Compile Include="Program.cs" />

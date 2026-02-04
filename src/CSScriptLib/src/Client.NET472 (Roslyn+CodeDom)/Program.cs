@@ -5,7 +5,7 @@ using System.Reflection;
 using CSScripting;
 using CSScriptLib;
 
-namespace ConsoleApp1
+namespace Client.NET472
 {
     class Program
     {
