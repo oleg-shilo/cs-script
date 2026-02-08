@@ -267,3 +267,27 @@ src/chocolatey/cs-script.7z
 /src/BuildServer/out
 /src/CSScriptLib/src/CSScriptLib/output
 *.xml
+
+
+**/Help/**
+Spikes
+/src/cscs/Properties/launchSettings.json
+support
+/src/out/Linux
+/src/out/static_content/-wdbg/dbg-server/output
+/src/out/win.net8
+
+# Ignore all files in src/out/Windows except csws.runtimeconfig.json
+src/out/Windows/*
+!src/out/Windows/csws.runtimeconfig.json
+src/out/*.7z
+src/out/*.zip
+src/out/*.chm
+src/out/*.deb
+/src/out/add-source.cmd
+/src/out/CS-Script---Command-Line-Interface.md
+/src/out/Script-Syntax.md
+*.snupkg
+/src/cscs/ToolPackage
+/src/cscs/nupkg/add-source.cmd
+/src/csws/Properties/Resources.net8.resx

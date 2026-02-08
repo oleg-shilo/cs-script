@@ -26,16 +26,15 @@ CS-Script is one of the most mature C# scripting solutions. It became publicly a
 
 CS-Script supports both hosted and standalone (CLI) execution models. This makes it possible to use the script engine as a pure C# alternative to PowerShell. As well as extending .NET applications with C# scripts executed at runtime by the hosted script engine.
 
-CS-Script allows seamless switching of underlying compiling technology without affecting the code base. Currently supported compilers are _dotnet.exe_ and _csc.exe_. 
+CS-Script allows seamless switching of underlying compiling technology without affecting the code base. Currently supported compilers are _dotnet.exe_ and _csc.exe_.
 
 CS-Script also offers comprehensive integration with the most common development tools:
 
 - Visual Studio (built-in feature via `-vs` CLI argument)
 - [VSCode](https://github.com/oleg-shilo/cs-script.vscode)
 - [Sublime Text 3](https://github.com/oleg-shilo/cs-script-sublime)
-- _Legacy .NET Framework plugins that are yet to be ported to .NET 5:_
-  - [Notepad++](https://github.com/oleg-shilo/cs-script.npp) .
-  - [Visual Studio](https://github.com/oleg-shilo/CS-Script.VSIX)
+- [Notepad++](https://github.com/oleg-shilo/cs-script.npp) .
+- [Visual Studio](https://github.com/oleg-shilo/CS-Script.VSIX)
 
 It can be run on Win and Linux. Class library for hosting the script engine is compiled for ".NET Standard" so it can be hosted by any managed application.
 
