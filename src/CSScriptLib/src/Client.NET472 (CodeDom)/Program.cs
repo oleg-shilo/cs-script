@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using static System.Environment;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Xml.Linq;
 using CSScripting;
 using CSScriptLib;
 
