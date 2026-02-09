@@ -33,7 +33,8 @@ namespace Client.NET472
             var sw = Stopwatch.StartNew();
 
             Console.WriteLine($"Hosting runtime: .NET {(Runtime.IsCore ? "Core" : "Framework")}");
-            Console.WriteLine("================\n");
+            Console.WriteLine("================");
+            Console.WriteLine();
 
             Console.WriteLine("CodeDOM");
             Test_CodeDom();

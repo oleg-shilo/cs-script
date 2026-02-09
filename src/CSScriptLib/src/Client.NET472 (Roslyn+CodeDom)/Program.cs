@@ -31,7 +31,8 @@ namespace Client.NET472
             var sw = Stopwatch.StartNew();
 
             Console.WriteLine($"Hosting runtime: .NET {(Runtime.IsCore ? "Core" : "Framework")}");
-            Console.WriteLine("================\n");
+            Console.WriteLine("================");
+            Console.WriteLine();
 
             Console.WriteLine("CodeDOM");
             Test_CodeDom();
@@ -40,7 +41,8 @@ namespace Client.NET472
             Test_CodeDom();
             Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
 
-            Console.WriteLine("\nRoslyn");
+            Console.WriteLine();
+            Console.WriteLine("Roslyn");
             sw.Restart();
             Test_Roslyn();
             Console.WriteLine("  first run: " + sw.ElapsedMilliseconds);
