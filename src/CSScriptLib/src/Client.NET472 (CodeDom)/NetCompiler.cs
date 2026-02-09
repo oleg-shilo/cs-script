@@ -39,10 +39,13 @@ namespace CSScripting
 
         public static void EnableLatestSyntax()
         {
-            var vs_professional_csc = @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\Roslyn\csc.exe";
-            var vs_community_csc = @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\Roslyn\csc.exe";
+            var vs_enterprise_csc = @"C:\Program Files\Microsoft Visual Studio\18\Enterprise\MSBuild\Current\Bin\Roslyn\csc.exe";
+            var vs_professional_csc = @"C:\Program Files\Microsoft Visual Studio\18\Professional\MSBuild\Current\Bin\Roslyn\csc.exe";
+            var vs_community_csc = @"C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\Roslyn\csc.exe";
 
-            if (File.Exists(vs_professional_csc))
+            if (File.Exists(vs_enterprise_csc))
+                Globals.csc = vs_enterprise_csc;
+            else if (File.Exists(vs_professional_csc))
                 Globals.csc = vs_professional_csc;
             else if (File.Exists(vs_community_csc))
                 Globals.csc = vs_community_csc;
