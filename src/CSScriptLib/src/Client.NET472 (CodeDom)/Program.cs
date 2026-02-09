@@ -27,7 +27,7 @@ namespace Client.NET472
             // note that csc.exe compiler references some assemblies by default so we need
             // to use WithRefAssembliesFilter to avoid "referenced assembly duplication" compiler error
 
-            NetCompiler.EnableLatestSyntax();
+            NetCompiler.EnableCSharp73Syntax();
             CSScript.EvaluatorConfig.DebugBuild = true;
 
             var sw = Stopwatch.StartNew();

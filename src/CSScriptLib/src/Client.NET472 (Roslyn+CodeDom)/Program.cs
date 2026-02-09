@@ -25,7 +25,7 @@ namespace Client.NET472
         {
             Test_Roslyn();
 
-            NetCompiler.EnableLatestSyntax();
+            NetCompiler.EnableCSharp73Syntax();
             CSScript.EvaluatorConfig.DebugBuild = true;
 
             var sw = Stopwatch.StartNew();
