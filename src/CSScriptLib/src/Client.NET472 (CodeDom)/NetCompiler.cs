@@ -11,7 +11,7 @@ namespace CSScripting
         {
             var packageFile = Path.GetFullPath("roslyn.zip");
             var contentDir = Path.GetFullPath("compilers");
-            var packageUrl = "https://www.nuget.org/api/v2/package/Microsoft.Net.Compilers/5.0.0";
+            var packageUrl = "https://www.nuget.org/api/v2/package/Microsoft.Net.Compilers.Toolset/5.0.0";
             var compilerFile = Path.Combine(contentDir, "tools", "csc.exe");
 
             if (File.Exists(compilerFile))
