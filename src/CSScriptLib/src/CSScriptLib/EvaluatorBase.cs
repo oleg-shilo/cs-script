@@ -292,6 +292,14 @@ namespace CSScriptLib
             => throw new NotImplementedException();
 
         /// <summary>
+        /// Gets the referenced assemblies directories.
+        /// </summary>
+        /// <returns>The method result.</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public virtual string[] GetReferencedAssembliesDirectories()
+            => throw new NotImplementedException();
+
+        /// <summary>
         /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing
         /// a single or multiple class definition(s).
         /// </summary>
