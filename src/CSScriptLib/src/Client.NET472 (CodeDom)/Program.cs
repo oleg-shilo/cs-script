@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using static System.Environment;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Xml.Linq;
 using CSScripting;
 using CSScriptLib;
 
@@ -32,13 +27,14 @@ namespace Client.NET472
             // note that csc.exe compiler references some assemblies by default so we need
             // to use WithRefAssembliesFilter to avoid "referenced assembly duplication" compiler error
 
-            NetCompiler.EnableLatestSyntax();
+            NetCompiler.EnableCSharp73Syntax();
             CSScript.EvaluatorConfig.DebugBuild = true;
 
             var sw = Stopwatch.StartNew();
 
             Console.WriteLine($"Hosting runtime: .NET {(Runtime.IsCore ? "Core" : "Framework")}");
-            Console.WriteLine("================\n");
+            Console.WriteLine("================");
+            Console.WriteLine();
 
             Console.WriteLine("CodeDOM");
             Test_CodeDom();
