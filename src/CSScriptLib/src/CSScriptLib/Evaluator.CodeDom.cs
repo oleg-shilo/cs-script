@@ -250,6 +250,9 @@ namespace CSScriptLib
                 }
                 else
                 {
+                    if (Globals.csc != Globals.DefaultNetFrameworkCompiler)
+                        common_args.Add("/shared");
+
                     foreach (string file in ref_assemblies)
                         refs_args.Add($"/r:\"{file}\"");
 

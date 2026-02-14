@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -9,73 +10,66 @@ namespace Client.NET472
 {
     class Program
     {
+        // Note, csc.exe compiler references some assemblies by default so we need
+        // to use WithRefAssembliesFilter to avoid "referenced assembly duplication" compiler error
+        static IEnumerable<string> FileterOutDefaultAssemblies(IEnumerable<string> asms)
+            => asms.Where(a => !a.EndsWith("System.dll") &&
+                               !a.EndsWith("System.Core.dll") &&
+                               !a.EndsWith("Microsoft.CSharp.dll"));
+
         static void Main(string[] args)
         {
-            // This solution only provided for the demo purposes.
-            // note that CSScriptLib is compiled against the latest `Microsoft.CodeAnalysis.dll`. However .NET Framework does not
-            // support this version of `Microsoft.CodeAnalysis.dll` so the project packages are referencing older version of Microsoft.CodeAnalysis.dll
-            // but we need to use `SimpleAsmProbing` to load the compatible version of `Microsoft.CodeAnalysis.dll` at runtime.
-
-            using (SimpleAsmProbing.For(Assembly.GetExecutingAssembly().Location.GetDirName()))
-            {
-                main(args);
-            }
-        }
-
-        static void main(string[] args)
-        {
-            // note that csc.exe compiler references some assemblies by default so we need
-            // to use WithRefAssembliesFilter to avoid "referenced assembly duplication" compiler error
-
-            NetCompiler.EnableCSharp73Syntax();
             CSScript.EvaluatorConfig.DebugBuild = true;
 
-            var sw = Stopwatch.StartNew();
-
             Console.WriteLine($"Hosting runtime: .NET {(Runtime.IsCore ? "Core" : "Framework")}");
-            Console.WriteLine("================");
-            Console.WriteLine();
 
-            Console.WriteLine("CodeDOM");
-            Test_CodeDom();
-            Console.WriteLine("  first run: " + sw.ElapsedMilliseconds);
-            sw.Restart();
-
-            Test_CodeDom();
-            Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
-            sw.Restart();
-
-            Test_CodeDom_GAC();
-            Console.WriteLine("  next run: " + sw.ElapsedMilliseconds);
+            Test();
+            Test_CSharp7();
+            Test_GAC();
         }
 
-        // private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        // {
-        //     var ttt = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == args.Name);
-
-        //     throw new NotImplementedException();
-        // }
-
-        static void Test_CodeDom()
+        static void Test()
         {
+            Globals.csc = Globals.DefaultNetFrameworkCompiler;
+
             dynamic script = CSScript.CodeDomEvaluator
-                                     .WithRefAssembliesFilter(asms => asms.Where(a => !a.EndsWith("System.Core.dll")))
+                                     .WithRefAssembliesFilter(FileterOutDefaultAssemblies)
                                      .LoadMethod(@"public object func()
                                                    {
-                                                       // return (0,5);   // C# latest syntax
                                                        return new[]{0,5}; // C# 5 syntax
                                                    }");
 
             var result = script.func();
+            Console.WriteLine(result);
         }
 
-        static void Test_CodeDom_GAC()
+        static void Test_CSharp7()
+        {
+            // The C# compiler that comes with .NET Framework 4.7.2 does not support C# 7.3 syntax so we need to use the one (csc.exe)
+            // from Microsoft.Net.Compilers.Toolset package.
+            // Note, when running the first time the load overhead of csc.exe is noticeable but on subsequent runs it is up to 10 times faster
+            // as csc.exe is already loaded in memory. It stays loaded even after the host application is restarted.
+            // It is .NET own caching mechanism that keeps it loaded in memory and it is not related to CS-Script.
+
+            Globals.csc = Globals.MsNetComilersToolsetCompiler;
+
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .WithRefAssembliesFilter(FileterOutDefaultAssemblies)
+                                     .LoadMethod(@"public object func()
+                                                   {
+                                                        return (0,5);   // C# 7.3 syntax
+                                                   }");
+
+            var result = script.func();
+            Console.WriteLine(result);
+        }
+
+        static void Test_GAC()
         {
             // System.Net.Http.dll needs t be referenced from GAC so we need to add its location to the probing dir
 
             dynamic script = CSScript.CodeDomEvaluator
-                                     .WithRefAssembliesFilter(asms => asms.Where(a => !a.EndsWith("System.Core.dll") &&
-                                                                                      !a.EndsWith("System.dll")))
+                                     .WithRefAssembliesFilter(FileterOutDefaultAssemblies)
                                      .LoadCode(@"
                                                 //css_dir C:\Windows\Microsoft.NET\assembly\GAC_MSIL\**
                                                 //css_ref System.Net.Http.dll
@@ -86,7 +80,10 @@ namespace Client.NET472
                                                 {
                                                     public void Foo()
                                                     {
-                                                        using (var client = new HttpClient()) { }
+                                                        using (var client = new HttpClient())
+                                                        {
+                                                            Console.WriteLine(""Test.Foo()"");
+                                                        }
                                                     }
                                                 }");
 
