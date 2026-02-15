@@ -61,7 +61,8 @@ namespace Client.NET472
         static void Test_CodeDom_CSharp7()
         {
             // The C# compiler (csc.exe) that comes with .NET Framework 4.7.2 does not support C# 7.3 syntax so we need to use the one
-            // from Microsoft.Net.Compilers.Toolset package.
+            // from Microsoft.Net.Compilers.Toolset package. This package is added to this project because it is required for the
+            // CodeDom scripts. You can also use the csc.exe from .NET Core SDK if you have it installed.
             //
             // RUNTIME: Note, when running the first time the loading overhead of csc.exe is noticeable but on the subsequent runs it becomes up to 10
             // times faster as csc.exe is already loaded in memory. It stays loaded even after the host application is restarted.
