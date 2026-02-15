@@ -322,37 +322,43 @@ namespace CSScripting
         }
 
         /// <summary>
-        /// Gets the path to the default .NET Framework C# compiler (csc.exe) located in the same directory as the current assembly.
-        /// This compiler is typically used for .NET Framework compilation scenarios.
-        /// </summary>
-        /// <value>The full path to csc.exe in the assembly's directory.</value>
-        static public string DefaultNetFrameworkCompiler = Path.Combine(Path.GetDirectoryName("".GetType().Assembly.Location), "csc.exe");
-
-        /// <summary>
-        /// Gets the path to the latest C# compiler (csc.exe) from the Microsoft.Net.Compilers.Toolset NuGet package.
-        /// The compiler is located by searching the user's NuGet packages directory and selecting the most recent version.
+        /// Gets or sets the path to the C# compiler (csc.dll for .NET Core or csc.exe for .NET Framework).
         /// </summary>
         /// <value>
-        /// The full path to the latest csc.exe from Microsoft.Net.Compilers.Toolset package,
-        /// or <c>null</c> if the package is not found.
+        /// The full path to the C# compiler. When getting, if not previously set, the path is automatically
+        /// determined based on the current runtime:
+        /// <list type="bullet">
+        /// <item><description>For .NET Core/.NET: Locates csc.dll in the SDK installation directory under <c>sdk/[version]/Roslyn/bincore/</c></description></item>
+        /// <item><description>For .NET Framework: Uses csc.exe from the assembly's directory</description></item>
+        /// </list>
         /// </value>
         /// <remarks>
-        /// This property searches in the standard NuGet packages location:
-        /// <c>%USERPROFILE%\.nuget\packages\microsoft.net.compilers.toolset</c>
+        /// <para>
+        /// The getter follows this discovery algorithm:
+        /// </para>
+        /// <list type="number">
+        /// <item><description>Checks the environment variable <c>css_csc_file</c></description></item>
+        /// <item><description>For .NET Framework: Uses <c>csc.exe</c> in the assembly's directory</description></item>
+        /// <item><description>For .NET Core/.NET: Searches the dotnet SDK directory for the latest matching compiler version</description></item>
+        /// </list>
+        /// <para>
+        /// On Windows, typical paths include:
+        /// <c>C:\Program Files\dotnet\sdk\{version}\Roslyn\bincore\csc.dll</c>
+        /// </para>
+        /// <para>
+        /// On Linux, typical paths include:
+        /// <c>/snap/dotnet-sdk/{version}/sdk/{version}/Roslyn/bincore/csc.dll</c>
+        /// </para>
+        /// <para>
+        /// You can override the default discovery by setting this property or the <c>css_csc_file</c> environment variable.
+        /// </para>
         /// </remarks>
-        public static string MsNetComilersToolsetCompiler
-        {
-            get
-            {
-                var packagesDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages", "microsoft.net.compilers.toolset");
-                var latestCsc = Directory.GetFiles(packagesDir, "csc.exe", SearchOption.AllDirectories)
-                                         .OrderByDescending(d => d)
-                                         .FirstOrDefault();
-
-                return latestCsc;
-            }
-        }
-
+        /// <example>
+        /// Setting a custom compiler path:
+        /// <code>
+        /// Globals.csc = @"C:\CustomCompilers\csc.dll";
+        /// </code>
+        /// </example>
         static public string csc
         {
             set

@@ -23,16 +23,12 @@ namespace Client.NET472
 
         static void main(string[] args)
         {
-            Test_Roslyn();
-
-            NetCompiler.EnableCSharp73Syntax();
             CSScript.EvaluatorConfig.DebugBuild = true;
 
             var sw = Stopwatch.StartNew();
 
             Console.WriteLine($"Hosting runtime: .NET {(Runtime.IsCore ? "Core" : "Framework")}");
             Console.WriteLine("================");
-            Console.WriteLine();
 
             Console.WriteLine("CodeDOM");
             Test_CodeDom();
@@ -54,12 +50,12 @@ namespace Client.NET472
         static void Test_CodeDom()
         {
             dynamic script = CSScript.CodeDomEvaluator
-                                     .LoadMethod(@"public (int, int) func()
+                                     .LoadMethod(@"public object func()
                                                    {
-                                                       return (0,5);
+                                                       return new[]{0,5};
                                                    }");
 
-            (int, int) result = script.func();
+            var result = script.func();
         }
 
         static void Test_Roslyn()

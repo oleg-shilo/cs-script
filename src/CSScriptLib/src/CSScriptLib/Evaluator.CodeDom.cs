@@ -53,15 +53,6 @@ namespace CSScriptLib
     public class CodeDomEvaluator : EvaluatorBase<CodeDomEvaluator>, IEvaluator
     {
         /// <summary>
-        /// The flag indicating if the compilation should happen on the build server or locally.
-        /// </summary>
-        [Obsolete("Starting from v4.10.0.0 compiling scripts on CS-Script own build server is no " +
-            "longer recommended as using csc.exe native build server brings the same performance benefits " +
-            "but without the cost of the custom build server. The default value of this field is also changed  " +
-            "to 'false' for the same reason.", true)]
-        public static bool CompileOnServer = false;
-
-        /// <summary>
         /// Timeout for the C# CLI compiler `csc.exe`.
         /// <para>
         /// This compiler is a part of .NET SDK and it is the actual
@@ -85,6 +76,64 @@ namespace CSScriptLib
         /// </para>
         /// </summary>
         public static string CompilerLastOutput = "";
+
+        /// <summary>
+        /// Gets the path to the default .NET Framework C# compiler (csc.exe) located in the system .NET Framework folder.
+        /// This compiler is typically used for .NET Framework compilation scenarios.
+        /// </summary>
+        /// <value>The full path to csc.exe in the assembly's directory.</value>
+        static public string DefaultNetFrameworkCompiler = Path.Combine(Path.GetDirectoryName("".GetType().Assembly.Location), "csc.exe");
+
+        /// <summary>
+        /// Gets or sets a value indicating whether default .NET Framework assemblies should be suppressed during compilation (e.g. from resp file).
+        /// When set to <c>true</c>, prevents automatic referencing of standard .NET Framework assemblies.
+        /// </summary>
+        /// <value><c>true</c> to suppress default .NET Framework assemblies; otherwise, <c>false</c>. Default is <c>true</c>.</value>
+        /// <remarks>
+        /// This flag is useful when you need fine-grained control over assembly references during script compilation,
+        /// particularly in .NET Framework scenarios where certain assemblies might be referenced by default.
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// CodeDomEvaluator.SuppressDefaultNetFrameworkAssemblies = false;
+        /// . . .
+        ///  CSScript.CodeDomEvaluator
+        ///          .WithRefAssembliesFilter(asm =&gt; !asm.EndsWith("&lt;unwanted asm&gt;.dll"))
+        ///          . . .
+        ///  </code>
+        ///  </example>
+
+        static public bool SuppressDefaultNetFrameworkAssemblies = true;
+
+        /// <summary>
+        /// Gets the path to the latest C# compiler (csc.exe) from the Microsoft.Net.Compilers.Toolset NuGet package found on the host environment.
+        /// The compiler is located by searching the user's NuGet packages directory and selecting the most recent version.
+        /// </summary>
+        /// <value>
+        /// The full path to the latest csc.exe from Microsoft.Net.Compilers.Toolset package,
+        /// or <c>null</c> if the package is not found.
+        /// </value>
+        /// <remarks>
+        /// This property searches in the standard NuGet packages location:
+        /// <c>%USERPROFILE%\.nuget\packages\microsoft.net.compilers.toolset</c>.
+        /// <p>
+        /// If you need to deploy your application to an environment where Microsoft.Net.Compilers.Toolset package is not available you can
+        /// copy csc.exe and its dependencies to the same folder as your application and set the path to csc.exe in Globals.csc.
+        /// The Microsoft.Net.Compilers.Toolset package can be downloaded from NuGet: https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/
+        /// </p>
+        /// </remarks>
+        public static string MsNetComilersToolsetCompiler
+        {
+            get
+            {
+                var packagesDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages", "microsoft.net.compilers.toolset");
+                var latestCsc = Directory.GetFiles(packagesDir, "csc.exe", SearchOption.AllDirectories)
+                                         .OrderByDescending(d => d)
+                                         .FirstOrDefault();
+
+                return latestCsc;
+            }
+        }
 
         /// <summary>
         /// Validates the specified information.
@@ -211,6 +260,7 @@ namespace CSScriptLib
 
                 common_args.Add("/utf8output");
                 common_args.Add("/nostdlib+");
+                // common_args.Add("/nostdlib");
                 common_args.Add("-t:library");
                 common_args.Add(CSScript.EvaluatorConfig.CompilerOptions);
 
@@ -250,10 +300,25 @@ namespace CSScriptLib
                 }
                 else
                 {
-                    if (Globals.csc != Globals.DefaultNetFrameworkCompiler)
+                    if (Globals.csc != CodeDomEvaluator.DefaultNetFrameworkCompiler)
                         common_args.Add("/shared");
 
-                    foreach (string file in ref_assemblies)
+                    // When you use csc.exe from the .NET Framework (classic, not .NET Core/.NET SDK),
+                    // the compiler automatically references a small set of framework assemblies (e.g. from resp file).
+                    // For the full.NET Framework(e.g. 4.x), the default referenced assemblies are:
+                    //  mscorlib.dll Core runtime library (System.Object, System.String, etc.)
+                    //  System.dll
+                    //  System.Core.dll (LINQ, IEnumerable<T>, etc.)
+                    //  Microsoft.CSharp.dll (dynamic support and C# runtime binder)
+
+                    var actual_ref_assemblies = ref_assemblies;
+
+                    if (CodeDomEvaluator.SuppressDefaultNetFrameworkAssemblies)
+                        actual_ref_assemblies = ref_assemblies.Where(a => !a.EndsWith("System.dll") &&
+                                                                          !a.EndsWith("System.Core.dll") &&
+                                                                          !a.EndsWith("Microsoft.CSharp.dll")).ToList();
+
+                    foreach (string file in actual_ref_assemblies)
                         refs_args.Add($"/r:\"{file}\"");
 
                     refs_args.Add($"/r:\"System.Design.dll\"");
