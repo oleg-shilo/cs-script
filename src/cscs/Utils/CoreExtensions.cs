@@ -186,10 +186,12 @@ namespace csscript
         }
 
 #else
+
         internal static void KillSafe(this Process p, bool entireProcessTree = true)
         {
             try { p?.Kill(entireProcessTree); } catch { }
         }
+
 #endif
 
         static internal void NormaliseFileReference(ref string file, ref int line)

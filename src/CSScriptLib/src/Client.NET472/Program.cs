@@ -72,7 +72,7 @@ namespace Client.NET472
             // copy csc.exe and its dependencies to the same folder as your application and set the path to csc.exe in Globals.csc.
             // The Microsoft.Net.Compilers.Toolset package can be downloaded from NuGet: https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/
 
-            Globals.csc = CodeDomEvaluator.MsNetComilersToolsetCompiler;
+            Globals.csc = Globals.FindMsNetComilersToolsetCompiler();
 
             dynamic script = CSScript.CodeDomEvaluator
                                      .LoadMethod(@"public object func()

@@ -85,6 +85,7 @@
     <Compile Include="..\cscs\Utils\Profiler.cs" Link="Utils\Profiler.cs" />
     <Compile Include="..\cscs\Utils\ReflectionExtensions.cs" Link="Utils\ReflectionExtensions.cs" />
     <Compile Include="..\cscs\Utils\Runtime.cs" Link="Utils\Runtime.cs" />
+    <Compile Include="..\cscs\Utils\SemanticVersion.cs" Link="SemanticVersion.cs" />
     <Compile Include="..\cscs\Utils\VSConfig.cs" Link="Utils\VSConfig.cs" />
     <Compile Include="..\cscs\Utils\SerializationExtensions.cs" Link="Utils\SerializationExtensions.cs" />
     <Compile Include="..\cscs\Utils\SimpleAsmProbing.cs" Link="SimpleAsmProbing.cs" />

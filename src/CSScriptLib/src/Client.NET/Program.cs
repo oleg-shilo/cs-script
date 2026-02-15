@@ -9,10 +9,13 @@ namespace Client.NET
 {
     public class Program
     {
-        // this solution only provided for the demo purposes.
         static void Main(string[] args)
         {
-            Test_CodeDom();
+            // Globals.csc is initialized the same way. Providing it here for demo purposes.
+            Globals.csc =
+                Globals.FindMsNetSdkComilersToolsetCompiler(includePrerelease: false) ?? // from Microsoft.Net.Sdk.Compilers.Toolset package
+                Globals.FindNetSDKCompiler(); // or from .NET SDK installed on OS
+
             Console.WriteLine("================\n");
             Console.WriteLine($"Loading and unloading script 20 times");
             Test_Unloading();
@@ -44,8 +47,6 @@ namespace Client.NET
 
         static void Test_CodeDom()
         {
-            CSScript.EvaluatorConfig.CompilerOptions = "!no/shared";
-
             dynamic script = CSScript.CodeDomEvaluator
                                      .LoadMethod(@"public (int, int) func()
                                                    {

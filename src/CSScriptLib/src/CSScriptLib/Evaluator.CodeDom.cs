@@ -78,13 +78,6 @@ namespace CSScriptLib
         public static string CompilerLastOutput = "";
 
         /// <summary>
-        /// Gets the path to the default .NET Framework C# compiler (csc.exe) located in the system .NET Framework folder.
-        /// This compiler is typically used for .NET Framework compilation scenarios.
-        /// </summary>
-        /// <value>The full path to csc.exe in the assembly's directory.</value>
-        static public string DefaultNetFrameworkCompiler = Path.Combine(Path.GetDirectoryName("".GetType().Assembly.Location), "csc.exe");
-
-        /// <summary>
         /// Gets or sets a value indicating whether default .NET Framework assemblies should be suppressed during compilation (e.g. from resp file).
         /// When set to <c>true</c>, prevents automatic referencing of standard .NET Framework assemblies.
         /// </summary>
@@ -102,38 +95,7 @@ namespace CSScriptLib
         ///          . . .
         ///  </code>
         ///  </example>
-
         static public bool SuppressDefaultNetFrameworkAssemblies = true;
-
-        /// <summary>
-        /// Gets the path to the latest C# compiler (csc.exe) from the Microsoft.Net.Compilers.Toolset NuGet package found on the host environment.
-        /// The compiler is located by searching the user's NuGet packages directory and selecting the most recent version.
-        /// </summary>
-        /// <value>
-        /// The full path to the latest csc.exe from Microsoft.Net.Compilers.Toolset package,
-        /// or <c>null</c> if the package is not found.
-        /// </value>
-        /// <remarks>
-        /// This property searches in the standard NuGet packages location:
-        /// <c>%USERPROFILE%\.nuget\packages\microsoft.net.compilers.toolset</c>.
-        /// <p>
-        /// If you need to deploy your application to an environment where Microsoft.Net.Compilers.Toolset package is not available you can
-        /// copy csc.exe and its dependencies to the same folder as your application and set the path to csc.exe in Globals.csc.
-        /// The Microsoft.Net.Compilers.Toolset package can be downloaded from NuGet: https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/
-        /// </p>
-        /// </remarks>
-        public static string MsNetComilersToolsetCompiler
-        {
-            get
-            {
-                var packagesDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages", "microsoft.net.compilers.toolset");
-                var latestCsc = Directory.GetFiles(packagesDir, "csc.exe", SearchOption.AllDirectories)
-                                         .OrderByDescending(d => d)
-                                         .FirstOrDefault();
-
-                return latestCsc;
-            }
-        }
 
         /// <summary>
         /// Validates the specified information.
@@ -300,7 +262,7 @@ namespace CSScriptLib
                 }
                 else
                 {
-                    if (Globals.csc != CodeDomEvaluator.DefaultNetFrameworkCompiler)
+                    if (Globals.csc != Globals.FindDefaultNetFrameworkCompiler())
                         common_args.Add("/shared");
 
                     // When you use csc.exe from the .NET Framework (classic, not .NET Core/.NET SDK),
@@ -342,6 +304,7 @@ namespace CSScriptLib
                     common_args.RemoveAll(x => x == arg);
                 }
 
+                string exe;
                 string cmd;
 
                 var sdk_warning = (Runtime.IsSdkInstalled() ?
@@ -352,90 +315,41 @@ namespace CSScriptLib
 
                 if (Runtime.IsCore)
                 {
-                    // should be deleted after the build server is removed v4.11.0+
-                    // if (CompileOnServer && Globals.BuildServerIsDeployed)
-                    // {
-                    //     var usingCli = false;
-                    //     /////////////////////
-                    //     if (usingCli)
-                    //     {
-                    //         // using CLI app to send/receive sockets data
-
-                    //         // statr server; it will exit if it is already started
-                    //         dotnet.RunAsync($"\"{Globals.build_server}\" -start -port:{BuildServer.serverPort}");
-
-                    //         // send the buld request
-                    //         cmd = $@"""{Globals.build_server}"" -port:{BuildServer.serverPort} csc {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
-                    //         result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x));
-                    //     }
-                    //     else
-                    //     {
-                    //         // using sockets directly
-                    //         var request = $@"csc {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}"
-                    //                       .SplitCommandLine();
-
-                    //         // ensure server running it will gracefully exit if another instance is running
-                    //         var startBuildServerCommand = $@"""{Globals.build_server}"" -listen -port:{BuildServer.serverPort} -csc:""{Globals.csc}""";
-
-                    //         dotnet.RunAsync(startBuildServerCommand);
-                    //         Thread.Sleep(30);
-
-                    //         var response = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
-
-                    //         bool buildServerNotRunning() => response.GetLines()
-                    //                                                 .FirstOrDefault()?
-                    //                                                 .Contains("System.Net.Internals.SocketExceptionFactory+ExtendedSocketException")
-                    //                                                 == true;
-
-                    //         for (int i = 0; i < 10 && buildServerNotRunning(); i++)
-                    //         {
-                    //             Thread.Sleep(100);
-                    //             response = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
-                    //         }
-
-                    //         if (buildServerNotRunning())
-                    //         {
-                    //             throw new CompilerException($"{sdk_warning}CS-Script build server is not running:\n" +
-                    //                 $"Either\n" +
-                    //                 $"  - start server from the host application 'CSScript.StartBuildServer();'\n" +
-                    //                 $"  - start server manually with 'dotnet {startBuildServerCommand}'\n" +
-                    //                 $"  - use RoslynEvaluator\n" +
-                    //                 $"  - compile script with CodeDom in the same process (`CodeDomEvaluator.CompileOnServer = false;`)");
-                    //         }
-                    //         result.NativeCompilerReturnValue = 0;
-                    //         result.Output.AddRange(response.GetLines());
-                    //     }
-                    // }
-                    // else
-                    // {
-                    cmd = $@"""{Globals.csc}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
-
-                    result.NativeCompilerReturnValue = dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x, CodeDomEvaluator.CscTimeout);
-                    // }
+                    if (Globals.csc.EndsWith(".dll"))
+                    {
+                        exe = dotnet;
+                        cmd = $@"""{Globals.csc}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                    }
+                    else
+                    {
+                        exe = Globals.csc;
+                        cmd = $@"{common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                    }
                 }
                 else
                 {
+                    exe = Globals.csc;
                     cmd = $@" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")} ";
+                }
 
-                    try
+                try
+                {
+                    result.NativeCompilerReturnValue = exe.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x, CodeDomEvaluator.CscTimeout);
+                }
+                catch (Exception e)
+                {
+                    var message = "Cannot compile script.";
+                    if (!File.Exists(Globals.csc))
                     {
-                        result.NativeCompilerReturnValue = Globals.csc.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x, CodeDomEvaluator.CscTimeout);
+                        if (Globals.csc.GetDirName() == Assembly.GetEntryAssembly().Location.GetDirName())
+                            message = "Cannot find .NET compiler csc.exe. If you are running application build as SelfContained .NET application" +
+                                "then you can only use Roslyn evaluator engine (e.g. 'CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn').";
+                        else
+                            message = "Cannot find .NET compiler csc.exe. You need either install .NET SDK " +
+                                "or use Roslyn evaluator engine instead " +
+                                    "(e.g. 'CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn').";
                     }
-                    catch (Exception e)
-                    {
-                        var message = "Cannot compile script.";
-                        if (!File.Exists(Globals.csc))
-                        {
-                            if (Globals.csc.GetDirName() == Assembly.GetEntryAssembly().Location.GetDirName())
-                                message = "Cannot find .NET compiler csc.exe. If you are running application build as SelfContained .NET application" +
-                                    "then you can only use Roslyn evaluator engine (e.g. 'CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn').";
-                            else
-                                message = "Cannot find .NET compiler csc.exe. You need either install .NET SDK " +
-                                    "or use Roslyn evaluator engine instead " +
-                                        "(e.g. 'CSScript.EvaluatorConfig.Engine = EvaluatorEngine.Roslyn').";
-                        }
-                        throw new CompilerException(message, e);
-                    }
+                    throw new CompilerException(message, e);
                 }
 
                 if (std_err.HasText())

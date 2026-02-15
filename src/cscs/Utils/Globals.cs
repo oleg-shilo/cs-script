@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -123,6 +124,32 @@ namespace CSScripting
 
         /// <summary>
         /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
+        /// /// <summary>
+        /// Removes the build server from the target system.
         /// </summary>
         /// <returns><c>true</c> if success; otherwise <c>false</c></returns>
         static public bool RemoveBuildServer()
@@ -218,6 +245,62 @@ namespace CSScripting
         // .Wait(TimeSpan.FromMilliseconds(20)); } } catch { return false; } }
 
         /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
+        /// Gets a value indicating whether build server is deployed.
+        /// /// <summary>
         /// Gets a value indicating whether build server is deployed.
         /// </summary>
         /// <value><c>true</c> if build server is deployed; otherwise, <c>false</c>.</value>
@@ -322,6 +405,107 @@ namespace CSScripting
         }
 
         /// <summary>
+        /// Gets the path to the default .NET Framework C# compiler (csc.exe) located in the system .NET Framework folder.
+        /// This compiler is typically used for .NET Framework compilation scenarios.
+        /// </summary>
+        /// <value>The full path to csc.exe in the assembly's directory.</value>
+        static public string FindDefaultNetFrameworkCompiler() => Path.Combine(Path.GetDirectoryName("".GetType().Assembly.Location), "csc.exe");
+
+        /// <summary>
+        /// Gets the path to the latest C# compiler (csc.exe) from the Microsoft.Net.Compilers.Toolset NuGet package found on the host environment.
+        /// The compiler is located by searching the user's NuGet packages directory and selecting the most recent version.
+        /// </summary>
+        /// <value>
+        /// The full path to the latest csc.exe from Microsoft.Net.Compilers.Toolset package,
+        /// or <c>null</c> if the package is not found.
+        /// </value>
+        /// <remarks>
+        /// This property searches in the standard NuGet packages location:
+        /// <c>%USERPROFILE%\.nuget\packages\microsoft.net.compilers.toolset</c>.
+        /// <p>
+        /// If you need to deploy your application to an environment where Microsoft.Net.Compilers.Toolset package is not available you can
+        /// copy csc.exe and its dependencies to the same folder as your application and set the path to csc.exe in Globals.csc.
+        /// The Microsoft.Net.Compilers.Toolset package can be downloaded from NuGet: https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/
+        /// </p>
+        /// </remarks>
+        public static string FindMsNetComilersToolsetCompiler() => GetLatestCompiler("microsoft.net.compilers.toolset");
+
+        /// <summary>
+        /// Gets the path to the latest C# compiler (csc.exe) from the Microsoft.Net.Sdk.Compilers.Toolset NuGet package found on the host environment.
+        /// The compiler is located by searching the user's NuGet packages directory and selecting the most recent version.
+        /// </summary>
+        /// <value>
+        /// The full path to the latest csc.exe from Microsoft.Net.Sdk.Compilers.Toolset package,
+        /// or <c>null</c> if the package is not found.
+        /// </value>
+        /// <remarks>
+        /// This property searches in the standard NuGet packages location:
+        /// <c>%USERPROFILE%\.nuget\packages\microsoft.net.sdk.compilers.toolset</c>.
+        /// <para>
+        /// The Microsoft.Net.Sdk.Compilers.Toolset package is the SDK-specific version of the compiler toolset,
+        /// which is typically used in SDK-style projects and .NET Core/.NET applications.
+        /// It differs from <see cref="FindMsNetComilersToolsetCompiler"/> in that it's designed specifically for SDK-based builds.
+        /// </para>
+        /// <para>
+        /// If you need to deploy your application to an environment where Microsoft.Net.Sdk.Compilers.Toolset package is not available,
+        /// you can copy csc.exe and its dependencies to the same folder as your application and set the path to csc.exe in <see cref="csc"/>.
+        /// The Microsoft.Net.Sdk.Compilers.Toolset package can be downloaded from NuGet:
+        /// https://www.nuget.org/packages/Microsoft.Net.Sdk.Compilers.Toolset/
+        /// </para>
+        /// </remarks>
+        /// <seealso cref="FindMsNetComilersToolsetCompiler"/>
+        /// <seealso cref="csc"/>
+        public static string FindMsNetSdkComilersToolsetCompiler(bool includePrerelease = false) => GetLatestCompiler("microsoft.net.sdk.compilers.toolset", includePrerelease);
+
+        static string GetLatestCompiler(string packageName, bool includePrerelease = false)
+        {
+            try
+            {
+                var packagesDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages", packageName);
+
+                if (!Directory.Exists(packagesDir))
+                    return null;
+
+                var csc_packages = Directory.GetFiles(packagesDir, "csc.exe", SearchOption.AllDirectories)
+                    .Select(x =>
+                    {
+                        var versionDir = x.GetDirName().GetFileName();
+
+                        // Parse semantic version
+                        SemanticVersion semanticVersion = null;
+                        try
+                        {
+                            semanticVersion = SemanticVersion.Parse(versionDir);
+                        }
+                        catch
+                        {
+                            return null; // Skip invalid versions
+                        }
+
+                        var isPrerelease = semanticVersion.Prerelease != null;
+
+                        return new
+                        {
+                            Path = x,
+                            SemanticVersion = semanticVersion,
+                            IsPrerelease = isPrerelease
+                        };
+                    })
+                    .Where(x => x != null) // Filter out invalid versions
+                    .Where(x => includePrerelease || !x.IsPrerelease) // Filter prereleases if not included
+                    .OrderByDescending(x => x.SemanticVersion)
+                    .ToList();
+
+                var latestCsc = csc_packages.FirstOrDefault()?.Path;
+                return latestCsc;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the path to the C# compiler (csc.dll for .NET Core or csc.exe for .NET Framework).
         /// </summary>
         /// <value>
@@ -371,60 +555,80 @@ namespace CSScripting
                 if (csc_file == null)
                 {
 #if class_lib
-                    if (!Runtime.IsCore)
+                    if (Runtime.IsCore)
                     {
-                        csc_file = Path.Combine(Path.GetDirectoryName("".GetType().Assembly.Location), "csc.exe");
+                        // Lookup the compiler in the Microsoft.Net.Sdk.Compilers.Toolset package first
+                        // as it is more likely to be compatible with the current SDK and runtime.
+                        // And if not found there, then fallback to the .NET SDK compiler which is more
+                        // general but may not be compatible with all SDK versions.
+                        csc_file =
+                            FindMsNetSdkComilersToolsetCompiler(includePrerelease: false) ??
+                            FindNetSDKCompiler();
                     }
                     else
-#endif
                     {
-                        // Win: C:\Program Files\dotnet\sdk\6.0.100-rc.2.21505.57\Roslyn\bincore\csc.dll
-                        //      C:\Program Files (x86)\dotnet\sdk\5.0.402\Roslyn\bincore\csc.dll
-                        // Linux: ~dotnet/.../3.0.100-preview5-011568/Roslyn/... (cannot find SDK in preview)
-                        //        /snap/dotnet-sdk/current/sdk/6.0.201/Roslyn/bincore/csc.dll
-                        //        /snap/dotnet-sdk/158/sdk/6.0.201/Roslyn/bincore/csc.dll
-
-                        // win:   program_files/dotnet/sdk/<version>/Roslyn/bincore/csc.dll
-                        // linux:          root/dotnet/sdk/<version>/Roslyn/bincore/csc.dll
-
-                        var dotnet_root = "".GetType().Assembly.Location;
-
-                        // old algorithm: find first "dotnet" parent dir by trimming till the last "dotnet" token
-                        // new algorithm: go back by 4 levels as on Linux in snap based deployments
-
-#if class_lib
-                        // with .NET 10 SDK it thinks that array.Reverse() modifies in place and returns void.
-                        // It's nonsense but I have to accommodate for that.
-                        var parts = dotnet_root.Split(Path.DirectorySeparatorChar).ToList();
-                        parts.Reverse();
-                        parts = parts.Skip(4).ToList();
-                        parts.Reverse();
-                        dotnet_root = parts.JoinBy(Path.DirectorySeparatorChar.ToString());
-
-#else
-                        dotnet_root = dotnet_root.Split(Path.DirectorySeparatorChar)
-                                                 .Reverse()
-                                                 .Skip(4)
-                                                 .Reverse()
-                                                 .JoinBy(Path.DirectorySeparatorChar.ToString());
-#endif
-
-                        if (dotnet_root.PathJoin("sdk").DirExists()) // need to check as otherwise it will throw
-                        {
-                            var dirs = dotnet_root.PathJoin("sdk")
-                                                  .PathGetDirs($"{Environment.Version.Major}*")
-                                                  .Where(dir => char.IsDigit(dir.GetFileName()[0]))
-                                                  .OrderBy(x => System.Version.Parse(x.GetFileName().Split('-').First()))
-                                                  .SelectMany(dir => dir.PathGetDirs("Roslyn"))
-                                                  .ToArray();
-
-                            csc_file = dirs.Select(dir => dir.PathJoin("bincore", "csc.dll"))
-                                                   .LastOrDefault(File.Exists);
-                        }
+                        // For .NET Framework, we first try to find the compiler from Microsoft.Net.Compilers.Toolset
+                        // package as it supports newer C# versions.
+                        // If not found, we fallback to the default .NET Framework compiler (csc.exe) located in the
+                        // .NET Framework system folder directory. This compiler is compatible with C# 5 only
+                        csc_file =
+                            FindMsNetComilersToolsetCompiler() ??
+                            FindDefaultNetFrameworkCompiler();
                     }
+#else
+                    csc_file = FindNetSDKCompiler();
+#endif
                 }
                 return csc_file;
             }
+        }
+
+        public static string FindNetSDKCompiler()
+        {
+            // Win: C:\Program Files\dotnet\sdk\6.0.100-rc.2.21505.57\Roslyn\bincore\csc.dll
+            //      C:\Program Files (x86)\dotnet\sdk\5.0.402\Roslyn\bincore\csc.dll
+            // Linux: ~dotnet/.../3.0.100-preview5-011568/Roslyn/... (cannot find SDK in preview)
+            //        /snap/dotnet-sdk/current/sdk/6.0.201/Roslyn/bincore/csc.dll
+            //        /snap/dotnet-sdk/158/sdk/6.0.201/Roslyn/bincore/csc.dll
+
+            // win:   program_files/dotnet/sdk/<version>/Roslyn/bincore/csc.dll
+            // linux:          root/dotnet/sdk/<version>/Roslyn/bincore/csc.dll
+
+            var dotnet_root = "".GetType().Assembly.Location;
+
+            // old algorithm: find first "dotnet" parent dir by trimming till the last "dotnet" token
+            // new algorithm: go back by 4 levels as on Linux in snap based deployments
+
+#if class_lib
+            // with .NET 10 SDK it thinks that array.Reverse() modifies in place and returns void.
+            // It's nonsense but I have to accommodate for that.
+            var parts = dotnet_root.Split(Path.DirectorySeparatorChar).ToList();
+            parts.Reverse();
+            parts = parts.Skip(4).ToList();
+            parts.Reverse();
+            dotnet_root = parts.JoinBy(Path.DirectorySeparatorChar.ToString());
+
+#else
+            dotnet_root = dotnet_root.Split(Path.DirectorySeparatorChar)
+                                     .Reverse()
+                                     .Skip(4)
+                                     .Reverse()
+                                     .JoinBy(Path.DirectorySeparatorChar.ToString());
+#endif
+
+            if (dotnet_root.PathJoin("sdk").DirExists()) // need to check as otherwise it will throw
+            {
+                var dirs = dotnet_root.PathJoin("sdk")
+                                      .PathGetDirs($"{Environment.Version.Major}*")
+                                      .Where(dir => char.IsDigit(dir.GetFileName()[0]))
+                                      .OrderBy(x => System.Version.Parse(x.GetFileName().Split('-').First()))
+                                      .SelectMany(dir => dir.PathGetDirs("Roslyn"))
+                                      .ToArray();
+
+                return dirs.Select(dir => dir.PathJoin("bincore", "csc.dll"))
+                           .LastOrDefault(File.Exists);
+            }
+            return null;
         }
     }
 }

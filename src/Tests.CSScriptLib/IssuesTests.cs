@@ -60,7 +60,7 @@ namespace Misc
                 var result = CSScript.Evaluator.CompileCode(scriptWithError);
 
                 // If we get here, compilation succeeded when it should have failed
-                Assert.True(false, "Expected compilation to fail but it succeeded");
+                Assert.Fail("Expected compilation to fail but it succeeded");
             }
             catch (CompilerException e)
             {
