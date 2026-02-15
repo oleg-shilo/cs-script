@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.CLI", "Tests.cscs\Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client.NET", "CSScriptLib\src\Client.NET\Client.NET.csproj", "{C6172C46-BC09-47A5-B8DC-2987EDDE45EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.NET472", "CSScriptLib\src\Client.NET472 (CodeDom)\Client.NET472.csproj", "{737D212F-67D8-4695-BE1C-C98243ADE993}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.NET472", "CSScriptLib\src\Client.NET472\Client.NET472.csproj", "{737D212F-67D8-4695-BE1C-C98243ADE993}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client.WPF", "CSScriptLib\src\Client.WPF\Client.WPF.csproj", "{67314C02-51A5-48CF-A4F1-43307928F372}"
 EndProject
