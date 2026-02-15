@@ -541,6 +541,13 @@ namespace CSScriptLib
             => referencedAssemblies.ToArray();
 
         /// <summary>
+        /// Gets the referenced assemblies directories.
+        /// </summary>
+        /// <returns>The method result.</returns>
+        public override string[] GetReferencedAssembliesDirectories()
+            => referencedAssemblies.Select(r => Path.GetDirectoryName(r)).Distinct().ToArray();
+
+        /// <summary>
         /// Loads and returns set of referenced assemblies.
         /// <para>Notre: the set of assemblies is cleared on Reset.</para>
         /// </summary>
