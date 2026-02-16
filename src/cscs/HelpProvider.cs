@@ -50,6 +50,7 @@ namespace csscript
         public const string verbose = "verbose";
         public const string verbose2 = "verbose2";
         public const string profile = "profile";
+        public const string deployCsc = "deploy-csc";
         public const string version = "version";
         public const string ver = "ver";
         public const string v = "v";

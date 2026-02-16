@@ -262,7 +262,7 @@ namespace CSScriptLib
                 }
                 else
                 {
-                    if (Globals.csc != Globals.FindDefaultNetFrameworkCompiler())
+                    if (Globals.csc != Globals.FindDefaultFrameworkCompiler())
                         common_args.Add("/shared");
 
                     // When you use csc.exe from the .NET Framework (classic, not .NET Core/.NET SDK),

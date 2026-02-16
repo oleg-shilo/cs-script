@@ -13,6 +13,8 @@ namespace Client.NET472
     {
         static void Main(string[] args)
         {
+            PrepareCodeDomCompilers();
+
             Console.WriteLine($"Hosting runtime: .NET {(Runtime.IsCore ? "Core" : "Framework")}");
 
             Test_CodeDom();
@@ -60,20 +62,6 @@ namespace Client.NET472
 
         static void Test_CodeDom_CSharp7()
         {
-            // The C# compiler (csc.exe) that comes with .NET Framework 4.7.2 does not support C# 7.3 syntax so we need to use the one
-            // from Microsoft.Net.Compilers.Toolset package. This package is added to this project because it is required for the
-            // CodeDom scripts. You can also use the csc.exe from .NET Core SDK if you have it installed.
-            //
-            // RUNTIME: Note, when running the first time the loading overhead of csc.exe is noticeable but on the subsequent runs it becomes up to 10
-            // times faster as csc.exe is already loaded in memory. It stays loaded even after the host application is restarted.
-            // It is .NET own caching mechanism that keeps the compiler loaded in memory and it is not related to CS-Script.
-            //
-            // DEPLOYMENT: If you need to deploy your application to an environment where Microsoft.Net.Compilers.Toolset package is not available you can
-            // copy csc.exe and its dependencies to the same folder as your application and set the path to csc.exe in Globals.csc.
-            // The Microsoft.Net.Compilers.Toolset package can be downloaded from NuGet: https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/
-
-            Globals.csc = Globals.FindMsNetComilersToolsetCompiler();
-
             dynamic script = CSScript.CodeDomEvaluator
                                      .LoadMethod(@"public object func()
                                                    {
@@ -104,6 +92,35 @@ namespace Client.NET472
             (int, int) result = script.func();
 
             Console.WriteLine($"Roslyn:            {result}");
+        }
+
+        static void PrepareCodeDomCompilers()
+        {
+            // The default C# compiler that comes with Windows supports only C# 5 syntax.
+            // For compiling C# 7.3 syntax you will need to install a newer one.
+            // You can install the newer compiler by either installing .NET SDK or downloading SDK tools NuGet package.
+            // If you want to download the compiler from nuget.org either manually from
+            // https://api.nuget.org/v3-flatcontainer/microsoft.net.compilers.toolset/5.0.0/microsoft.net.compilers.toolset.5.0.0.nupkg
+            // or by using CS-Script's own downloader: Uncomment next two lines:
+            //
+            // NugetPackageDownloader.OnProgressOutput = Console.WriteLine;
+            // NugetPackageDownloader.DownloadLatestFrameworkCompiler(includePrereleases: false);
+            //
+            // This sample works even if you do not uncomment the code above because the compiling tools package is added to this
+            // project.
+
+            // Globals.csc is initialized internally the same way. Providing it here for demo purposes only.
+            Globals.csc =
+                Globals.FindFrameworkComilersPackageCompiler() ?? // lookup the installed nuget package with the compiler
+                Globals.FindDefaultFrameworkCompiler(); // the default compiler, which is a part of Windows OS
+
+            // ========================================================
+            // RUNTIME: Note, when running the first time the loading overhead of csc.exe is noticeable but on the subsequent runs it becomes up to 10
+            // times faster as csc.exe is already loaded in memory. It stays loaded even after the host application is restarted.
+            // It is .NET own caching mechanism that keeps the compiler loaded in memory and it is not related to CS-Script.
+            //
+            // DEPLOYMENT: If you need to deploy your application to an environment where Microsoft.Net.Compilers.Toolset package is not available you can
+            // copy csc.exe and its dependencies to the same folder as your application and set the path to csc.exe in Globals.csc.
         }
     }
 }

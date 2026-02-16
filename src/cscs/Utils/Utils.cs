@@ -49,7 +49,7 @@ using CSScriptLib;
 
 namespace CSScripting
 {
-    internal static class Utils
+    internal static partial class Utils
     {
         public static char[] LineWhiteSpaceCharacters = " \t\v".ToCharArray();
         public static char[] WhiteSpaceCharacters = " \t\r\n\v".ToCharArray();

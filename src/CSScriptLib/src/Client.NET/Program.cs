@@ -11,10 +11,7 @@ namespace Client.NET
     {
         static void Main(string[] args)
         {
-            // Globals.csc is initialized the same way. Providing it here for demo purposes.
-            Globals.csc =
-                Globals.FindMsNetSdkComilersToolsetCompiler(includePrerelease: false) ?? // from Microsoft.Net.Sdk.Compilers.Toolset package
-                Globals.FindNetSDKCompiler(); // or from .NET SDK installed on OS
+            PrepareCodeDomCompilers();
 
             Console.WriteLine("================\n");
             Console.WriteLine($"Loading and unloading script 20 times");
@@ -152,6 +149,25 @@ namespace Client.NET
                 // call_UnloadAssembly_Crashing_CLR();
                 GC.Collect();
             }
+        }
+
+        static void PrepareCodeDomCompilers()
+        {
+            // If you are using CodeDom evaluator and your hosting environment does not have .NET SDK installed
+            // you will need to install the compiler by downloading SDK tools NuGet package.
+            // Either manually from
+            // https://api.nuget.org/v3-flatcontainer/microsoft.net.sdk.compilers.toolset/10.0.103/microsoft.net.sdk.compilers.toolset.10.0.103.nupkg
+            // or by using CS-Script's own downloader. Uncomment next two lines:
+            //
+            // NugetPackageDownloader.OnProgressOutput = Console.WriteLine;
+            // NugetPackageDownloader.DownloadLatestSdkCompiler(includePrereleases: false);
+            // This sample works even if you do not uncomment the code above because the compiling tools package is added to this
+            // project.
+
+            // Globals.csc is internally initialized the same way. Providing it here for demo purposes only.
+            Globals.csc =
+                Globals.FindSdkCompilersPackageCompiler(includePrereleases: false) ?? // from the installed Microsoft.Net.Sdk.Compilers.Toolset package
+                Globals.FindSdKCompiler(); // or from .NET SDK installed on OS
         }
     }
 
