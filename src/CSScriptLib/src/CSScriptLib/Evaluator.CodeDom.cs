@@ -415,7 +415,8 @@ namespace CSScriptLib
                             result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error\n" + sdk_warning });
                         }
                     }
-                    throw CompilerException.Create(result.Errors, true, true);
+                    throw CompilerException.Create(result.Errors, true, true)
+                              .With(x => x.CompileCommand = $"{exe} {cmd}");
                 }
             }
             finally

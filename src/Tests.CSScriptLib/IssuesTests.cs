@@ -12,6 +12,42 @@ namespace Misc
     [Collection("Sequential")]
     public class IssuesTests
     {
+        public string GetTempFileName(string seed)
+            => Path.GetFullPath($"{this.GetHashCode()}.{seed}");
+
+        public string GetTempScript(string seed, string content)
+        {
+            var script = GetTempFileName(seed);
+            File.WriteAllText(script, content);
+            return script;
+        }
+
+        [Fact]
+        public void issue_445()
+        {
+            var script = GetTempScript(nameof(issue_445),
+                                       @"
+                                        //css_res Resources1.resx;
+                                        using System;
+                                        public class Calc
+                                        {
+                                            error triggering line
+                                            public int Sum(int a, int b) => a+b;
+                                        }");
+            try
+            {
+                string asmFile = CSScript.CodeDomEvaluator.CompileAssemblyFromFile(script, "MyScript.asm");
+            }
+            catch (CompilerException ex)
+            {
+                Assert.NotEmpty(ex.CompileCommand);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<CompilerException>(ex);
+            }
+        }
+
         [Fact]
         public void issue_279()
         {

@@ -194,6 +194,14 @@ namespace CSScriptLib
     public class CompilerException : ApplicationException
     {
         /// <summary>
+        /// Gets the CLI command used to compile the script. Only applicable for CodeDom compilation.
+        /// </summary>
+        /// <remarks>This property allows the user analyze compile command, which can be
+        /// useful for troubleshooting.</remarks>
+        public string CompileCommand { get; internal set; }
+
+
+        /// <summary>
         /// Gets or sets the error count associated with the last script compilation.
         /// </summary>
         /// <value>The error count.</value>

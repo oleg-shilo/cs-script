@@ -442,7 +442,7 @@ namespace CSScripting
                         };
                     })
                     .Where(x => x != null) // Filter out invalid versions
-                                           // .Where(x => includePrerelease || !x.IsPrerelease) // Filter prereleases if not included
+                    .Where(x => includePrerelease || !x.IsPrerelease) // Filter prereleases if not included
                     .OrderByDescending(x => x.SemanticVersion)
                     .ToList();
 
