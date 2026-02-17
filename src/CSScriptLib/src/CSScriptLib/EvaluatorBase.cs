@@ -299,11 +299,15 @@ namespace CSScriptLib
         /// </summary>
         /// <param name="scriptFile">The C# script file.</param>
         /// <param name="outputFile">The path to the assembly file to be compiled.</param>
-        /// <returns>The compiled assembly file path.</returns>
+        /// <returns>The compiled assembly file path, which you can use load the assembly the same way as any other
+        /// .NET assembly.
+        /// </returns>
         /// <example>
         /// <code>
-        ///string asmFile = CSScript.Evaluator
-        ///                         .CompileAssemblyFromFile("MyScript.cs", "MyScript.dll");
+        /// string asmFile = CSScript.Evaluator
+        ///                          .CompileAssemblyFromFile("MyScript.cs", "MyScript.dll");
+        ///
+        /// var assembly = Assembly.LoadFrom(asmFile);
         /// </code>
         /// </example>
         public string CompileAssemblyFromFile(string scriptFile, string outputFile)
@@ -332,11 +336,15 @@ namespace CSScriptLib
         ///                                       }
         ///                                   }",
         ///                                   "MyScript.dll");
+        ///
+        /// var assembly = Assembly.LoadFrom(asmFile);
         /// </code>
         /// </example>
         /// <param name="scriptText">The C# script text.</param>
         /// <param name="outputFile">The path to the assembly file to be compiled.</param>
-        /// <returns>The compiled assembly file path.</returns>
+        /// <returns>The compiled assembly file path, which you can use load the assembly the same way as any other
+        /// .NET assembly.
+        /// </returns>
         public string CompileAssemblyFromCode(string scriptText, string outputFile)
         {
             var info = new CompileInfo();
