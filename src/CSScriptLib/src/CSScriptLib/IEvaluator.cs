@@ -833,28 +833,7 @@ namespace CSScriptLib
         /// <returns>
         /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
         /// </returns>
-#if net35
-        IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies);
-#else
-
         IEvaluator ReferenceDomainAssemblies(DomainAssemblies assemblies = DomainAssemblies.AllStaticNonGAC);
-
-#endif
-
-#if net35
-        /// <summary>
-        /// References the assemblies the are already loaded into the current <c>AppDomain</c>.
-        /// <para>
-        /// This method is an equivalent of <see
-        /// cref="CSScriptLib.IEvaluator.ReferenceDomainAssemblies"/> with the hard codded
-        /// <c>DomainAssemblies.AllStaticNonGAC</c> input parameter.
-        /// </para>
-        /// </summary>
-        /// <returns>
-        /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
-        /// </returns>
-        IEvaluator ReferenceDomainAssemblies();
-#endif
 
         /// <summary>
         /// Resets Evaluator.
