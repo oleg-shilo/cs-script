@@ -610,7 +610,7 @@ namespace CSScriptLib
         /// Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
         /// class defined in the script file assembly.
         /// <para>
-        /// Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+        /// Note, the order of the classes in the script assembly may not be deterministic.
         /// In such cases you may prefer using <see cref="IEvaluator.CompileCode(string,CompileInfo)"/> or
         /// <see cref="IEvaluator.CompileAssemblyFromCode(string, string)"/> instead.
         /// </para>
@@ -637,7 +637,7 @@ namespace CSScriptLib
         /// will be generated anyway.</para>
         /// </para>
         /// <para>
-        /// Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
+        /// Note, the order of the classes in the script assembly is not may not be deterministic.
         /// In such cases you may prefer using <see cref="IEvaluator.CompileCode(string, CompileInfo)"/> or
         /// <see cref="IEvaluator.CompileAssemblyFromCode(string, string)"/> instead.
         /// </para>
