@@ -212,7 +212,9 @@ namespace CSScriptLib
         /// the same script again and again. Even though in such cases caching is not the greatest optimization that can be achieved.</para>
         /// <para>Note that caching has some limitations. Thus the algorithm for checking if the script is changed since the last execution
         /// is limited to verifying the script code (text) only. Thus it needs to be used with caution. </para>
-        /// <para>Script caching is disabled by default.</para>
+        /// <para>Script caching is disabled by default for Roslyn evaluator to avoid the side effects.</para>
+        /// <para>However caching is enabled for CodeDomEvaluator due to the lower risk of side effects (assemblies are always file based)
+        /// and higher benefits due to the CodeDom compilation is generally slower.</para>
         /// </summary>
         /// <example>The following is an example of caching the compilation.
         ///<code>

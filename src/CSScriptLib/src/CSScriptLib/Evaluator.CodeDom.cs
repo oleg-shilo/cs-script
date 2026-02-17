@@ -53,6 +53,17 @@ namespace CSScriptLib
     public class CodeDomEvaluator : EvaluatorBase<CodeDomEvaluator>, IEvaluator
     {
         /// <summary>
+        /// Initializes a new instance of the CodeDomEvaluator class with caching enabled.
+        /// </summary>
+        /// <remarks>This constructor sets the IsCachingEnabled property to <see langword="true"/>,
+        /// allowing for improved performance by reusing previously compiled code.</remarks>
+        public CodeDomEvaluator()
+        {
+            // Change CodeDomEvaluator.IsCachingEnabled default to true #441
+            IsCachingEnabled = true;
+        }
+
+        /// <summary>
         /// Timeout for the C# CLI compiler `csc.exe`.
         /// <para>
         /// This compiler is a part of .NET SDK and it is the actual
