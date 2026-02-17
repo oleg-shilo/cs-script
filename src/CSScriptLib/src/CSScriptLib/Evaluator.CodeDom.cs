@@ -86,6 +86,7 @@ namespace CSScriptLib
         /// associated with the low level completion. IE non script specific failures of csc.exe.
         /// </para>
         /// </summary>
+        [Obsolete("Instead of checking the last error use compile error exception members `CompilerException.CompilerInput` and `CompilerException.CompilerOutput` instead.", error: false)]
         public static string CompilerLastOutput = "";
 
         /// <summary>
@@ -416,7 +417,11 @@ namespace CSScriptLib
                         }
                     }
                     throw CompilerException.Create(result.Errors, true, true)
-                              .With(x => x.CompileCommand = $"{exe} {cmd}");
+                              .With(x =>
+                              {
+                                  x.CompilerInput = $"{exe} {cmd}";
+                                  x.CompilerOutput = result.Output.JoinBy(Environment.NewLine);
+                              });
                 }
             }
             finally

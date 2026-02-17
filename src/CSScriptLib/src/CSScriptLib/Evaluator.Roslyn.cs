@@ -198,8 +198,15 @@ namespace CSScriptLib
         /// </summary>
         /// <remarks>This property allows the user analyze compile command, which can be
         /// useful for troubleshooting.</remarks>
-        public string CompileCommand { get; internal set; }
+        public string CompilerInput { get; internal set; }
 
+        /// <summary>
+        /// Gets the output produced by the compiler during the build process. Only applicable for CodeDom compilation.
+        /// </summary>
+        /// <remarks>The compiler output may include informational messages, warnings, or errors generated
+        /// during compilation. The content and format of this output can vary depending on the compiler settings and
+        /// the code being compiled.</remarks>
+        public string CompilerOutput { get; internal set; }
 
         /// <summary>
         /// Gets or sets the error count associated with the last script compilation.

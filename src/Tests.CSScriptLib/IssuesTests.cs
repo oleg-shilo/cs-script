@@ -40,11 +40,12 @@ namespace Misc
             }
             catch (CompilerException ex)
             {
-                Assert.NotEmpty(ex.CompileCommand);
+                Assert.NotEmpty(ex.CompilerInput);
+                Assert.NotEmpty(ex.CompilerOutput);
             }
             catch (Exception ex)
             {
-                Assert.IsType<CompilerException>(ex);
+                Assert.IsType<CompilerException>(ex); // to allow informative test outout
             }
         }
 
