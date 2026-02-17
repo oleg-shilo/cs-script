@@ -713,12 +713,15 @@ namespace CSScriptLib
         /// <summary>
         /// Evaluates and loads C# code from the specified file to the current AppDomain. Returns instance of the first
         /// class defined in the script file assembly.
+        /// <para><b>Note:</b></para>
         /// <para>
-        /// After initializing the class instance it is aligned to the interface specified by the parameter <c>T</c>.
-        /// <para><c>Note:</c> the script class does not have to inherit from the <c>T</c> parameter as the proxy type
-        /// will be generated anyway.</para></para><para>
-        /// Note, the order of the classes in the script assembly is not may not be your script imports other scripts.
-        /// In such cases you may prefer using <see cref="IEvaluator.CompileCode(string, CompileInfo)" /> or
+        /// - The script code/file is always compiled into a script assembly (binary blob of IL data). After that the assembly is
+        /// loaded in the current AppDomain and then the first found class is instantiated. If you want to ensure that the assembly
+        /// is saved after it is generated you will need to use <see cref="IEvaluator.CompileCode(string,CompileInfo)" />, which allows
+        /// that.</para>
+        /// <para>
+        /// - The order of the classes in the script assembly is not may not be your script imports other scripts.
+        /// In such cases you may prefer using <see cref="IEvaluator.CompileCode(string,CompileInfo)" /> or
         /// <see cref="IEvaluator.CompileAssemblyFromCode(string, string)" /> instead.
         /// </para>
         /// </summary>
