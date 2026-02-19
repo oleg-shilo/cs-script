@@ -204,7 +204,7 @@ namespace Misc
         public void SemanticVersion_Parse_InvalidVersion_ThrowsException()
         {
             Assert.Throws<ArgumentException>(() => SemanticVersion.Parse("invalid"));
-            Assert.Throws<ArgumentException>(() => SemanticVersion.Parse("4.11.x"));
+            Assert.Throws<FormatException>(() => SemanticVersion.Parse("4.11.x"));
         }
 
         #endregion SemanticVersion Tests

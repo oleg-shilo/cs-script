@@ -119,69 +119,44 @@ namespace CSScriptLib
                 ReferenceDomainAssemblies();
         }
 
-        ///<summary>
-        ///Evaluates (compiles) C# code (script). The C# code is a typical C#
-        ///code containing a single or multiple class definition(s).
-        ///</summary>
-        ///<example>
-        ///<code>
-        /// Assembly asm = CSScript.RoslynEvaluator
-        ///                        .CompileCode(@"using System;
-        ///                                       public class Script
-        ///                                       {
-        ///                                           public int Sum(int a, int b)
-        ///                                           {
-        ///                                               return a+b;
-        ///                                           }
-        ///                                       }");
+        /// <summary>
+        /// Evaluates (compiles) C# code (script). The C# code is a typical C#
+        /// code containing a single or multiple class definition(s).
+        /// <para>
+        /// The method is identical to
+        /// <see cref="IEvaluator.CompileCode(string, CompileInfo)"/> except that
+        /// it allows specifying the destination assembly file with
+        /// <see cref="CompileInfo"/> object.
+        /// </para>
+        /// </summary>
+        /// <example>
+        /// <code>
+        ///  var info = new CompileInfo
+        ///  {
+        ///      AssemblyFile = @"E:\temp\asm.dll"
+        ///  };
         ///
-        /// dynamic script = asm.CreateObject("*");
-        /// var result = script.Sum(7, 3);
+        ///  var code = @"using System;
+        ///               public class Script
+        ///               {
+        ///                   public int Sum(int a, int b)
+        ///                   {
+        ///                       return a+b;
+        ///                   }
+        ///               }";
+        ///
+        ///  Assembly asm = CSScript.Evaluator.CompileCode(code, info);
+        ///
+        ///  // info is optional, so you can omit it if you don't need to specify the assembly file
+        ///  // Assembly asm = CSScript.Evaluator.CompileCode(code);
+        ///
+        ///  dynamic script =  asm.CreateObject("*");
+        ///  var result = script.Sum(7, 3);
         /// </code>
-        ///</example>
-        ///<param name="scriptText">The C# script text.</param>
-        ///<returns>The compiled assembly.</returns>
-        public Assembly CompileCode(string scriptText)
-        {
-            return CompileCode(scriptText, null, null);
-        }
-
-        ///<summary>
-        ///Evaluates (compiles) C# code (script). The C# code is a typical C#
-        ///code containing a single or multiple class definition(s).
-        ///<para>
-        ///The method is identical to
-        ///<see cref="IEvaluator.CompileCode(string, CompileInfo)"/> except that
-        ///it allows specifying the destination assembly file with
-        ///<see cref="CompileInfo"/> object.
-        ///</para>
-        ///</summary>
-        ///<example>
-        ///<code>
-        /// var info = new CompileInfo
-        /// {
-        ///     AssemblyFile = @"E:\temp\asm.dll"
-        /// };
-        ///
-        /// Assembly asm = CSScript.Evaluator
-        ///                        .Cast&lt;RoslynEvaluator&gt;()
-        ///                        .CompileCode(@"using System;
-        ///                                       public class Script
-        ///                                       {
-        ///                                           public int Sum(int a, int b)
-        ///                                           {
-        ///                                               return a+b;
-        ///                                           }
-        ///                                       }",
-        ///                                      info);
-        ///
-        ///dynamic script =  asm.CreateObject("*");
-        ///var result = script.Sum(7, 3);
-        /// </code>
-        ///</example>
-        ///<param name="scriptText">The C# script text.</param>
-        ///<param name="info"></param>
-        ///<returns>The compiled assembly.</returns>
+        /// </example>
+        /// <param name="scriptText">The C# script text.</param>
+        /// <param name="info"></param>
+        /// <returns>The compiled assembly.</returns>
         public Assembly CompileCode(string scriptText, CompileInfo info = null)
         {
             return CompileCode(scriptText, null, info);
@@ -222,41 +197,41 @@ namespace CSScriptLib
         static internal Dictionary<int, (byte[] asm, byte[] pdb)> scriptCache = new Dictionary<int, (byte[] asm, byte[] pdb)>();
         static internal Dictionary<int, Assembly> loadedScriptsCache = new Dictionary<int, Assembly>();
 
-        ///<summary>
-        ///This property controls script caching.
-        ///<para>
-        ///Caching mechanism allows avoiding multiple compilation of the scripts
-        ///that have been already compiled and has not changes since then for
-        ///the duration of the host process. This feature can dramatically
-        ///improve the performance in the cases when you are executing the same
-        ///script again and again. Even though in such cases caching is not the
-        ///greatest optimization that can be achieved.
-        ///</para>
-        ///<para>
-        ///Note that caching has some limitations. Thus the algorithm for
-        ///checking if the script is changed since the last execution is limited
-        ///to verifying the script code (text) only. Thus it needs to be used
-        ///with caution.
-        ///</para>
-        ///<para>
-        ///Script caching is disabled by default for Roslyn evaluator to avoid
-        ///the side effects.
-        ///</para>
-        ///<para>
-        ///However caching is enabled for CodeDomEvaluator due to the lower risk
-        ///of side effects (assemblies are always file based) and higher
-        ///benefits due to the CodeDom compilation is generally slower.
-        ///</para>
-        ///</summary>
-        ///<example>
-        ///The following is an example of caching the compilation.
-        ///<code>
-        /// dynamic printerScript = CSScript.Evaluator
-        ///                                 .With(eval => eval.IsCachingEnabled = true)
-        ///                                 .LoadFile(script_file);
-        /// printerScript.Print();
-        /// </code>
-        ///</example>
+        /// <summary>
+        /// This property controls script caching.
+        /// <para>
+        /// Caching mechanism allows avoiding multiple compilation of the scripts
+        /// that have been already compiled and has not changes since then for
+        /// the duration of the host process. This feature can dramatically
+        /// improve the performance in the cases when you are executing the same
+        /// script again and again. Even though in such cases caching is not the
+        /// greatest optimization that can be achieved.
+        /// </para>
+        /// <para>
+        /// Note that caching has some limitations. Thus the algorithm for
+        /// checking if the script is changed since the last execution is limited
+        /// to verifying the script code (text) only. Thus it needs to be used
+        /// with caution.
+        /// </para>
+        /// <para>
+        /// Script caching is disabled by default for Roslyn evaluator to avoid
+        /// the side effects.
+        /// </para>
+        /// <para>
+        /// However caching is enabled for CodeDomEvaluator due to the lower risk
+        /// of side effects (assemblies are always file based) and higher
+        /// benefits due to the CodeDom compilation is generally slower.
+        /// </para>
+        /// </summary>
+        /// <example>
+        /// The following is an example of caching the compilation.
+        /// <code>
+        ///  dynamic printerScript = CSScript.Evaluator
+        ///                                  .With(eval => eval.IsCachingEnabled = true)
+        ///                                  .LoadFile(script_file);
+        ///  printerScript.Print();
+        ///  </code>
+        /// </example>
         public bool IsCachingEnabled { get; set; } = false;
 
         Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
@@ -328,23 +303,23 @@ namespace CSScriptLib
         public virtual string[] GetReferencedAssembliesFiles()
             => throw new NotImplementedException();
 
-        ///<summary>
-        ///Compiles C# file (script) into assembly file. The C# contains typical
-        ///C# code containing a single or multiple class definition(s).
-        ///</summary>
-        ///<param name="scriptFile">The C# script file.</param>
-        ///<param name="outputFile">The path to the assembly file to be
-        ///    compiled.</param>
-        ///<returns>The compiled assembly file path, which you can use load the
-        ///    assembly the same way as any other .NET assembly.</returns>
-        ///<example>
-        ///<code>
-        /// string asmFile = CSScript.Evaluator
-        ///                          .CompileAssemblyFromFile("MyScript.cs", "MyScript.dll");
+        /// <summary>
+        /// Compiles C# file (script) into assembly file. The C# contains typical
+        /// C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <param name="scriptFile">The C# script file.</param>
+        /// <param name="outputFile">The path to the assembly file to be
+        ///     compiled.</param>
+        /// <returns>The compiled assembly file path, which you can use load the
+        ///     assembly the same way as any other .NET assembly.</returns>
+        /// <example>
+        /// <code>
+        ///  string asmFile = CSScript.Evaluator
+        ///                           .CompileAssemblyFromFile("MyScript.cs", "MyScript.dll");
         ///
-        /// var assembly = Assembly.LoadFrom(asmFile);
+        ///  var assembly = Assembly.LoadFrom(asmFile);
         /// </code>
-        ///</example>
+        /// </example>
         public string CompileAssemblyFromFile(string scriptFile, string outputFile)
         {
             var info = new CompileInfo();
@@ -355,32 +330,32 @@ namespace CSScriptLib
             return info.AssemblyFile;
         }
 
-        ///<summary>
-        ///Compiles C# code (script) into assembly file. The C# code is a
-        ///typical C# code containing a single or multiple class definition(s).
-        ///</summary>
-        ///<example>
-        ///<code>
-        /// string asmFile = CSScript.Evaluator
-        ///                          .CompileAssemblyFromCode(
-        ///                                 @"using System;
-        ///                                   public class Script
-        ///                                   {
-        ///                                       public int Sum(int a, int b)
-        ///                                       {
-        ///                                           return a+b;
-        ///                                       }
-        ///                                   }",
-        ///                                   "MyScript.dll");
+        /// <summary>
+        /// Compiles C# code (script) into assembly file. The C# code is a
+        /// typical C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <example>
+        /// <code>
+        ///  string asmFile = CSScript.Evaluator
+        ///                           .CompileAssemblyFromCode(
+        ///                                  @"using System;
+        ///                                    public class Script
+        ///                                    {
+        ///                                        public int Sum(int a, int b)
+        ///                                        {
+        ///                                            return a+b;
+        ///                                        }
+        ///                                    }",
+        ///                                    "MyScript.dll");
         ///
-        /// var assembly = Assembly.LoadFrom(asmFile);
-        /// </code>
-        ///</example>
-        ///<param name="scriptText">The C# script text.</param>
-        ///<param name="outputFile">The path to the assembly file to be
-        ///    compiled.</param>
-        ///<returns>The compiled assembly file path, which you can use load the
-        ///    assembly the same way as any other .NET assembly.</returns>
+        ///  var assembly = Assembly.LoadFrom(asmFile);
+        ///  </code>
+        /// </example>
+        /// <param name="scriptText">The C# script text.</param>
+        /// <param name="outputFile">The path to the assembly file to be
+        ///     compiled.</param>
+        /// <returns>The compiled assembly file path, which you can use load the
+        ///     assembly the same way as any other .NET assembly.</returns>
         public string CompileAssemblyFromCode(string scriptText, string outputFile)
         {
             var info = new CompileInfo();
@@ -391,12 +366,12 @@ namespace CSScriptLib
             return info.AssemblyFile;
         }
 
-        ///<summary>
-        ///Compiles the specified script text without loading it into the
-        ///AppDomain or writing to the file system.
-        ///</summary>
-        ///<example>
-        ///<code>
+        /// <summary>
+        /// Compiles the specified script text without loading it into the
+        /// AppDomain or writing to the file system.
+        /// </summary>
+        /// <example>
+        /// <code>
         /// try
         /// {
         ///     CSScript.Evaluator
@@ -415,8 +390,8 @@ namespace CSScriptLib
         ///     Console.WriteLine("Compile error: " + e.Message);
         /// }
         /// </code>
-        ///</example>
-        ///<param name="scriptText">The script text.</param>
+        /// </example>
+        /// <param name="scriptText">The script text.</param>
         public void Check(string scriptText)
         {
             Compile(scriptText, null, null);
@@ -435,63 +410,63 @@ namespace CSScriptLib
             throw new NotImplementedException();
         }
 
-        ///<summary>
-        ///Wraps C# code fragment into auto-generated class (type name
-        ///<c>DynamicClass</c>) and evaluates it.
-        ///<para>
-        ///This method is a logical equivalent of
-        ///<see cref="CSScriptLib.IEvaluator.CompileCode"/> but is allows you to
-        ///define your script class by specifying class method instead of whole
-        ///class declaration.
-        ///</para>
-        ///</summary>
-        ///<example>
-        ///<code>
-        /// var info = new CompileInfo { AssemblyFile = "Printer.dll", AssemblyName = "PrintAsm" };
-        /// dynamic script = CSScript.RoslynEvaluator
-        ///                          .CompileMethod(@"int Sum(int a, int b)
-        ///                                           {
-        ///                                               return a+b;
-        ///                                           }"
-        ///                                           , info)
-        ///                          .CreateObject("*");
+        /// <summary>
+        /// Wraps C# code fragment into auto-generated class (type name
+        /// <c>DynamicClass</c>) and evaluates it.
+        /// <para>
+        /// This method is a logical equivalent of
+        /// <see cref="CSScriptLib.IEvaluator.CompileCode"/> but is allows you to
+        /// define your script class by specifying class method instead of whole
+        /// class declaration.
+        /// </para>
+        /// </summary>
+        /// <example>
+        /// <code>
+        ///  var info = new CompileInfo { AssemblyFile = "Printer.dll", AssemblyName = "PrintAsm" };
+        ///  dynamic script = CSScript.RoslynEvaluator
+        ///                           .CompileMethod(@"int Sum(int a, int b)
+        ///                                            {
+        ///                                                return a+b;
+        ///                                            }"
+        ///                                            , info)
+        ///                           .CreateObject("*");
         ///
-        /// var result = script.Sum(7, 3);
-        /// </code>
-        ///</example>
-        ///<param name="code">The C# code.</param>
-        ///<param name="info">The information about compilation context (e.g.
-        ///    location of the compiler output - assembly and pdb file).</param>
-        ///<returns>The compiled assembly.</returns>
+        ///  var result = script.Sum(7, 3);
+        ///  </code>
+        /// </example>
+        /// <param name="code">The C# code.</param>
+        /// <param name="info">The information about compilation context (e.g.
+        ///     location of the compiler output - assembly and pdb file).</param>
+        /// <returns>The compiled assembly.</returns>
         public Assembly CompileMethod(string code, CompileInfo info = null)
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, false, false, null, className: info?.RootClass);
             return CompileCode(scriptText, info);
         }
 
-        ///<summary>
-        ///Wraps C# code fragment into auto-generated class (type name
-        ///<c>DynamicClass</c>), evaluates it and loads the class to the current
-        ///AppDomain.
-        ///<para>
-        ///Returns non-typed <see cref="CSScriptLib.MethodDelegate"/> for
-        ///class-less style of invoking.
-        ///</para>
-        ///</summary>
-        ///<example>
-        ///<code>
-        ///var log = CSScript.Evaluator
-        ///.CreateDelegate(@"void Log(string message)
-        ///{
-        ///Console.WriteLine(message);
-        ///}");
+        /// <summary>
+        /// Wraps C# code fragment into auto-generated class (type name
+        /// <c>DynamicClass</c>), evaluates it and loads the class to the current
+        /// AppDomain.
+        /// <para>
+        /// Returns non-typed <see cref="CSScriptLib.MethodDelegate"/> for
+        /// class-less style of invoking.
+        /// </para>
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// var log = CSScript.Evaluator
+        ///                   .CreateDelegate(@"void Log(string message)
+        ///                                     {
+        ///                                         Console.WriteLine(message);
+        ///                                     }");
         ///
-        ///log("Test message");
-        /// </code>
-        ///</example>
-        ///<param name="code">The C# code.</param>
-        ///<returns>The instance of a non-typed
-        ///    <see cref="CSScriptLib.MethodDelegate"/></returns>
+        /// log("Test message");
+        ///  </code>
+        /// </example>
+        /// <param name="code">The C# code.</param>
+        /// <returns>The instance of a non-typed
+        ///     <see cref="CSScriptLib.MethodDelegate"/></returns>
         public MethodDelegate CreateDelegate(string code)
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
@@ -509,30 +484,30 @@ namespace CSScriptLib
             return invoker;
         }
 
-        ///<summary>
-        ///Wraps C# code fragment into auto-generated class (type name
-        ///<c>DynamicClass</c>), evaluates it and loads the class to the current
-        ///AppDomain.
-        ///<para>
-        ///Returns typed <see cref="CSScriptLib.MethodDelegate{T}"/> for
-        ///class-less style of invoking.
-        ///</para>
-        ///</summary>
-        ///<typeparam name="T">The delegate return type.</typeparam>
-        ///<example>
-        ///<code>
-        ///var product = CSScript.RoslynEvaluator
-        ///.CreateDelegate&lt;int&gt;(@"int Product(int a, int b)
-        ///{
-        ///return a * b;
-        ///}");
+        /// <summary>
+        /// Wraps C# code fragment into auto-generated class (type name
+        /// <c>DynamicClass</c>), evaluates it and loads the class to the current
+        /// AppDomain.
+        /// <para>
+        /// Returns typed <see cref="CSScriptLib.MethodDelegate{T}"/> for
+        /// class-less style of invoking.
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">The delegate return type.</typeparam>
+        /// <example>
+        /// <code>
+        /// var product = CSScript.RoslynEvaluator
+        ///                       .CreateDelegate&lt;int&gt;(@"int Product(int a, int b)
+        ///                       {
+        ///                           return a * b;
+        ///                       }");
         ///
-        ///int result = product(3, 2);
+        /// int result = product(3, 2);
         /// </code>
-        ///</example>
-        ///<param name="code">The C# code.</param>
-        ///<returns>The instance of a typed
-        ///    <see cref="CSScriptLib.MethodDelegate{T}"/></returns>
+        /// </example>
+        /// <param name="code">The C# code.</param>
+        /// <returns>The instance of a typed
+        ///     <see cref="CSScriptLib.MethodDelegate{T}"/></returns>
         public MethodDelegate<T> CreateDelegate<T>(string code)
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
@@ -631,28 +606,28 @@ namespace CSScriptLib
             return retval.Distinct().ToArray();
         }
 
-        ///<summary>
-        ///Evaluates and loads C# code to the current AppDomain. Returns
-        ///instance of the first class defined in the code.
-        ///</summary>
-        ///<example>
-        ///The following is the simple example of the LoadCode usage:
-        ///<code>
-        /// dynamic script = CSScript.RoslynEvaluator
-        ///                          .LoadCode(@"using System;
-        ///                                      public class Script
-        ///                                      {
-        ///                                          public int Sum(int a, int b)
-        ///                                          {
-        ///                                              return a+b;
-        ///                                          }
-        ///                                      }");
-        /// int result = script.Sum(1, 2);
-        /// </code>
-        ///</example>
-        ///<param name="scriptText">The C# script text.</param>
-        ///<param name="args">The non default constructor arguments.</param>
-        ///<returns>Instance of the class defined in the script.</returns>
+        /// <summary>
+        /// Evaluates and loads C# code to the current AppDomain. Returns
+        /// instance of the first class defined in the code.
+        /// </summary>
+        /// <example>
+        /// The following is the simple example of the LoadCode usage:
+        /// <code>
+        ///  dynamic script = CSScript.RoslynEvaluator
+        ///                           .LoadCode(@"using System;
+        ///                                       public class Script
+        ///                                       {
+        ///                                           public int Sum(int a, int b)
+        ///                                           {
+        ///                                               return a+b;
+        ///                                           }
+        ///                                       }");
+        ///  int result = script.Sum(1, 2);
+        ///  </code>
+        /// </example>
+        /// <param name="scriptText">The C# script text.</param>
+        /// <param name="args">The non default constructor arguments.</param>
+        /// <returns>Instance of the class defined in the script.</returns>
         public object LoadCode(string scriptText, params object[] args)
         {
             return CompileCode(scriptText).CreateObject(ExtractClassName(scriptText), args);
@@ -708,29 +683,29 @@ namespace CSScriptLib
             return (T)asm.CreateObject(type.FullName, args);
         }
 
-        ///<summary>
-        ///Wraps C# code fragment into auto-generated class (type name
-        ///<c>DynamicClass</c>), evaluates it and loads the class to the current
-        ///AppDomain.
-        ///<para>
-        ///Returns instance of <c>T</c> delegate for the first method in the
-        ///auto-generated class.
-        ///</para>
-        ///</summary>
-        ///<example>
-        ///<code>
-        ///var Product = CSScript.Evaluator
-        ///.LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
-        ///@"int Product(int a, int b)
-        ///{
-        ///return a * b;
-        ///}");
+        /// <summary>
+        /// Wraps C# code fragment into auto-generated class (type name
+        /// <c>DynamicClass</c>), evaluates it and loads the class to the current
+        /// AppDomain.
+        /// <para>
+        /// Returns instance of <c>T</c> delegate for the first method in the
+        /// auto-generated class.
+        /// </para>
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// var Product = CSScript.Evaluator
+        ///                       .LoadDelegate&lt;Func&lt;int, int, int&gt;&gt;(
+        ///                       @"int Product(int a, int b)
+        ///                        {
+        ///                            return a * b;
+        ///                        }");
         ///
-        ///int result = Product(3, 2);
+        /// int result = Product(3, 2);
         /// </code>
-        ///</example>
-        ///<param name="code">The C# code.</param>
-        ///<returns>Instance of <c>T</c> delegate.</returns>
+        /// </example>
+        /// <param name="code">The C# code.</param>
+        /// <returns>Instance of <c>T</c> delegate.</returns>
         public T LoadDelegate<T>(string code) where T : class
         {
             throw new NotImplementedException("You may want to consider using interfaces with LoadCode/LoadMethod or use CreateDelegate instead.");
@@ -833,66 +808,66 @@ namespace CSScriptLib
             return (T)asm.CreateObject(type.FullName, args);
         }
 
-        ///<summary>
-        ///Wraps C# code fragment into auto-generated class (type name
-        ///<c>DynamicClass</c>), evaluates it and loads the class to the current
-        ///AppDomain.
-        ///</summary>
-        ///<example>
-        ///The following is the simple example of the LoadMethod usage:
-        ///<code>
-        ///dynamic script = CSScript.RoslynEvaluator
-        ///.LoadMethod(@"int Product(int a, int b)
-        ///{
-        ///return a * b;
-        ///}");
+        /// <summary>
+        /// Wraps C# code fragment into auto-generated class (type name
+        /// <c>DynamicClass</c>), evaluates it and loads the class to the current
+        /// AppDomain.
+        /// </summary>
+        /// <example>
+        /// The following is the simple example of the LoadMethod usage:
+        /// <code>
+        /// dynamic script = CSScript.RoslynEvaluator
+        ///                          .LoadMethod(@"int Product(int a, int b)
+        ///                          {
+        ///                              return a * b;
+        ///                          }");
         ///
-        ///int result = script.Product(3, 2);
-        /// </code>
-        ///</example>
-        ///<param name="code">The C# script text.</param>
-        ///<returns>Instance of the first class defined in the script.</returns>
+        /// int result = script.Product(3, 2);
+        ///  </code>
+        /// </example>
+        /// <param name="code">The C# script text.</param>
+        /// <returns>Instance of the first class defined in the script.</returns>
         public object LoadMethod(string code)
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, false, false);
             return LoadCodeByName(scriptText, $"*.{Globals.DynamicWrapperClassName}");
         }
 
-        ///<summary>
-        ///Wraps C# code fragment into auto-generated class (type name
-        ///<c>DynamicClass</c>), evaluates it and loads the class to the current
-        ///AppDomain.
-        ///<para>
-        ///After initializing the class instance it is aligned to the interface
-        ///specified by the parameter <c>T</c>.
-        ///</para>
-        ///</summary>
-        ///<example>
-        ///The following is the simple example of the interface alignment:
-        ///<code>
-        ///public interface ICalc
-        ///{
-        ///int Sum(int a, int b);
-        ///int Div(int a, int b);
-        ///}
-        ///....
-        ///ICalc script = CSScript.RoslynEvaluator
-        ///.LoadMethod&lt;ICalc&gt;(@"public int Sum(int a, int b)
-        ///{
-        ///return a + b;
-        ///}
-        ///public int Div(int a, int b)
-        ///{
-        ///return a/b;
-        ///}");
-        ///int result = script.Div(15, 3);
-        /// </code>
-        ///</example>
-        ///<typeparam name="T">The type of the interface type the script class
-        ///    instance should be aligned to.</typeparam>
-        ///<param name="code">The C# script text.</param>
-        ///<returns>Aligned to the <c>T</c> interface instance of the
-        ///    auto-generated class defined in the script.</returns>
+        /// <summary>
+        /// Wraps C# code fragment into auto-generated class (type name
+        /// <c>DynamicClass</c>), evaluates it and loads the class to the current
+        /// AppDomain.
+        /// <para>
+        /// After initializing the class instance it is aligned to the interface
+        /// specified by the parameter <c>T</c>.
+        /// </para>
+        /// </summary>
+        /// <example>
+        /// The following is the simple example of the interface alignment:
+        /// <code>
+        /// public interface ICalc
+        /// {
+        ///     int Sum(int a, int b);
+        ///     int Div(int a, int b);
+        /// }
+        /// ....
+        /// ICalc script = CSScript.RoslynEvaluator
+        ///                        .LoadMethod&lt;ICalc&gt;(@"public int Sum(int a, int b)
+        ///                         {
+        ///                             return a + b;
+        ///                         }
+        ///                         public int Div(int a, int b)
+        ///                         {
+        ///                             return a/b;
+        ///                         }");
+        /// int result = script.Div(15, 3);
+        ///  </code>
+        /// </example>
+        /// <typeparam name="T">The type of the interface type the script class
+        ///     instance should be aligned to.</typeparam>
+        /// <param name="code">The C# script text.</param>
+        /// <returns>Aligned to the <c>T</c> interface instance of the
+        ///     auto-generated class defined in the script.</returns>
         public T LoadMethod<T>(string code) where T : class
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, false, false, CSScript.TypeNameForScript(typeof(T)));

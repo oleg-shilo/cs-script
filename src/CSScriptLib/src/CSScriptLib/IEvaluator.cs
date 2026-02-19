@@ -368,7 +368,7 @@ namespace CSScriptLib
         /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing a single or multiple class definition(s).
         /// </summary>
         /// <example>
-        ///<code>
+        /// <code>
         /// string asmFile = CSScript.Evaluator
         ///                          .CompileAssemblyFromFile(
         ///                                 "MyScript.cs",
