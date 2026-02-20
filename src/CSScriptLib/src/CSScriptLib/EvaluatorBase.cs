@@ -181,7 +181,9 @@ namespace CSScriptLib
         /// assembly and pdb file).</param>
         /// <returns>The compiled assembly.</returns>
         public Assembly CompileFile(string scriptFile, CompileInfo info = null)
-            => CompileCode(File.ReadAllText(scriptFile), info);
+            => CompileCode(null, scriptFile, info);
+
+        // => CompileCode(File.ReadAllText(scriptFile), info);
 
         /// <summary>
         /// Validates the specified information.
@@ -215,7 +217,7 @@ namespace CSScriptLib
         /// </summary>
         public bool IsAssemblyUnloadingEnabled { get; set; } = false;
 
-        static internal Dictionary<int, (byte[] asm, byte[] pdb)> scriptCache = new Dictionary<int, (byte[] asm, byte[] pdb)>();
+        static internal Dictionary<int, (byte[] asm, byte[] pdb, Project project)> scriptCache = new Dictionary<int, (byte[], byte[], Project)>();
         static internal Dictionary<int, Assembly> loadedScriptsCache = new Dictionary<int, Assembly>();
 
         /// <summary>
@@ -269,7 +271,7 @@ namespace CSScriptLib
                     return loadedScriptsCache[scriptHash];
             }
 
-            (byte[] asm, byte[] pdb) = Compile(scriptText, scriptFile, info);
+            (byte[] asm, byte[] pdb, Project project) = Compile(scriptText, scriptFile, info);
 
             Assembly scriptAssembly;
 
@@ -298,6 +300,8 @@ namespace CSScriptLib
             {
                 loadedScriptsCache[scriptHash] = scriptAssembly;
             }
+
+            scriptAssembly.SetAttached<Project>(project);
 
             return scriptAssembly;
         }
@@ -426,7 +430,7 @@ namespace CSScriptLib
         /// <param name="info">The information.</param>
         /// <returns>The method result.</returns>
         /// <exception cref="NotImplementedException"></exception>
-        protected virtual (byte[] asm, byte[] pdb) Compile(string scriptText, string scriptFile, CompileInfo info)
+        protected virtual (byte[] asm, byte[] pdb, Project project) Compile(string scriptText, string scriptFile, CompileInfo info)
         {
             throw new NotImplementedException();
         }
@@ -1385,11 +1389,11 @@ namespace CSScriptLib
     public class CompilerException : ApplicationException
     {
         /// <summary>
-        /// Gets the CLI command used to compile the script. Only applicable for CodeDom compilation.
+        /// Gets or sets the project that provides the input context for the compiler.
         /// </summary>
-        /// <remarks>This property allows the user analyze compile command, which can be
-        /// useful for troubleshooting.</remarks>
-        public string CompilerInput { get; internal set; }
+        /// <remarks>This property is set internally. Before invoking compilation, ensure that the
+        /// associated project is properly configured to avoid unexpected results.</remarks>
+        public Project CompilerInput { get; internal set; }
 
         /// <summary>
         /// Gets the output produced by the compiler during the build process. Only applicable for CodeDom compilation.

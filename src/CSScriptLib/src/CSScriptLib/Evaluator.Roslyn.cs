@@ -186,7 +186,7 @@ namespace CSScriptLib
         /// <param name="info">The information.</param>
         /// <returns>The method result.</returns>
         /// <exception cref="CSScriptLib.CompilerException"></exception>
-        override protected (byte[] asm, byte[] pdb) Compile(string scriptText, string scriptFile, CompileInfo info)
+        override protected (byte[] asm, byte[] pdb, Project project) Compile(string scriptText, string scriptFile, CompileInfo info)
         {
             // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
 
@@ -412,7 +412,7 @@ namespace CSScriptLib
                     }
                     else
                     {
-                        (byte[], byte[]) binaries;
+                        (byte[] asm, byte[] pdb) binaries;
 
                         asm.Seek(0, SeekOrigin.Begin);
                         byte[] buffer = asm.GetBuffer();
@@ -437,9 +437,9 @@ namespace CSScriptLib
                             binaries = (buffer, null);
 
                         if (IsCachingEnabled)
-                            scriptCache[scriptHash] = binaries;
+                            scriptCache[scriptHash] = (binaries.asm, binaries.pdb, null);
 
-                        return binaries;
+                        return (binaries.asm, binaries.pdb, null);
                     }
                 }
             }

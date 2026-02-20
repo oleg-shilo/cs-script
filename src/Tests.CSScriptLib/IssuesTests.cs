@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
@@ -23,9 +24,46 @@ namespace Misc
         }
 
         [Fact]
-        public void issue_445()
+        public void issue_445_compile_OK()
         {
-            var script = GetTempScript(nameof(issue_445),
+            var script = GetTempScript(nameof(issue_445_compile_OK),
+                                       @"
+                                        //css_res Resources1.resx;
+                                        using System;
+                                        public class Calc
+                                        {
+                                            public int Sum(int a, int b) => a+b;
+                                        }");
+            var asm = CSScript.CodeDomEvaluator.CompileFile(script);
+
+            var proj = asm.GetAttached<Project>();
+
+            Assert.NotNull(proj);
+            Assert.Equal(script, proj.Files.FirstOrDefault());
+        }
+
+        [Fact]
+        public void issue_445_compile_Roslyn()
+        {
+            var script = GetTempScript(nameof(issue_445_compile_OK),
+                                       @"
+                                        //css_res Resources1.resx;
+                                        using System;
+                                        public class Calc
+                                        {
+                                            public int Sum(int a, int b) => a+b;
+                                        }");
+            var asm = CSScript.RoslynEvaluator.CompileFile(script);
+
+            var proj = asm.GetAttached<Project>();
+
+            Assert.Null(proj); // Roslyn evaluator does not process CS-Script directives, so no project info is attached
+        }
+
+        [Fact]
+        public void issue_445_compile_error()
+        {
+            var script = GetTempScript(nameof(issue_445_compile_error),
                                        @"
                                         //css_res Resources1.resx;
                                         using System;
@@ -36,16 +74,46 @@ namespace Misc
                                         }");
             try
             {
-                string asmFile = CSScript.CodeDomEvaluator.CompileAssemblyFromFile(script, "MyScript.asm");
+                var asm = CSScript.CodeDomEvaluator.CompileFile(script);
+
+                var proj = (Project)asm.GetAttachedValue(nameof(CSScriptLib.Project));
             }
             catch (CompilerException ex)
             {
-                Assert.NotEmpty(ex.CompilerInput);
-                Assert.NotEmpty(ex.CompilerOutput);
+                Assert.NotNull(ex.CompilerInput);
+                Assert.Equal(script, ex.CompilerInput.Files.FirstOrDefault());
             }
             catch (Exception ex)
             {
-                Assert.IsType<CompilerException>(ex); // to allow informative test outout
+                Assert.IsType<CompilerException>(ex); // to allow informative test output
+            }
+        }
+
+        [Fact]
+        public void issue_445_compile_error_Roslyn()
+        {
+            var script = GetTempScript(nameof(issue_445_compile_error),
+                                       @"
+                                        //css_res Resources1.resx;
+                                        using System;
+                                        public class Calc
+                                        {
+                                            error triggering line
+                                            public int Sum(int a, int b) => a+b;
+                                        }");
+            try
+            {
+                var asm = CSScript.RoslynEvaluator.CompileFile(script);
+
+                var proj = (Project)asm.GetAttachedValue(nameof(CSScriptLib.Project));
+            }
+            catch (CompilerException ex)
+            {
+                Assert.Null(ex.CompilerInput);  // Roslyn evaluator does not process CS-Script directives, so no project info is attached
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<CompilerException>(ex); // to allow informative test output
             }
         }
 

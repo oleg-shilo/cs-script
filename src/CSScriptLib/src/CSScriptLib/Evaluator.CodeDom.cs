@@ -134,10 +134,12 @@ namespace CSScriptLib
         /// <param name="scriptFile">The script file.</param>
         /// <param name="info">The information.</param>
         /// <returns>The method result.</returns>
-        override protected (byte[] asm, byte[] pdb) Compile(string scriptText, string scriptFile, CompileInfo info)
+        override protected (byte[] asm, byte[] pdb, Project project) Compile(string scriptText, string scriptFile, CompileInfo info)
         {
             string tempScriptFile = null;
             string injection_file = null;
+            Project project = null;
+
             try
             {
                 if (scriptFile == null)
@@ -146,7 +148,7 @@ namespace CSScriptLib
                     File.WriteAllText(tempScriptFile, scriptText);
                 }
 
-                var project = Project.GenerateProjectFor(tempScriptFile ?? scriptFile);
+                project = Project.GenerateProjectFor(tempScriptFile ?? scriptFile);
                 var refs = project.Refs.Concat(this.GetReferencedAssembliesFiles()).Distinct().ToArray();
 
                 refs = FilterAssembliesLocations(refs).ToArray();
@@ -176,12 +178,17 @@ namespace CSScriptLib
                         return scriptCache[scriptHash];
                 }
 
-                (byte[], byte[]) result = CompileAssemblyFromFileBatch_with_Csc(sources, refs, info?.AssemblyFile, this.IsDebug, info);
+                (byte[] asm, byte[] pdb) result = CompileAssemblyFromFileBatch_with_Csc(sources, refs, info?.AssemblyFile, this.IsDebug, info);
 
                 if (IsCachingEnabled)
-                    scriptCache[scriptHash] = result;
+                    scriptCache[scriptHash] = (result.asm, result.pdb, project);
 
-                return result;
+                return (result.asm, result.pdb, project);
+            }
+            catch (CompilerException e)
+            {
+                e.CompilerInput = project;
+                throw;
             }
             finally
             {
@@ -419,7 +426,6 @@ namespace CSScriptLib
                     throw CompilerException.Create(result.Errors, true, true)
                               .With(x =>
                               {
-                                  x.CompilerInput = $"{exe} {cmd}";
                                   x.CompilerOutput = result.Output.JoinBy(Environment.NewLine);
                               });
                 }
