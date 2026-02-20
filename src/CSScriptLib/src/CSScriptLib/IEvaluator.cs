@@ -292,7 +292,7 @@ namespace CSScriptLib
         /// Evaluates (compiles) C# code (script). The C# code is a typical C# code containing a single or multiple class definition(s).
         /// </summary>
         /// <example>
-        ///<code>
+        /// <code>
         /// Assembly asm = CSScript.Evaluator
         ///                        .CompileCode(@"using System;
         ///                                       public class Script
@@ -312,6 +312,26 @@ namespace CSScriptLib
         /// assembly and pdb file).</param>
         /// <returns>The compiled assembly.</returns>
         Assembly CompileCode(string scriptText, CompileInfo info = null);
+
+        /// <summary>
+        /// Evaluates (compiles) C# code from the specified file. The C# code is a typical C# code containing a single or multiple class definition(s).
+        /// <para>Note, this method is a direct equivalent of <see cref="CSScriptLib.IEvaluator.CompileCode(string, CompileInfo)"/>.
+        /// It simply reads the <c>scriptFile</c> content before passing it for the compilation.</para>
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// Assembly asm = CSScript.Evaluator
+        ///                        .CompileFile("script.cs");
+        ///
+        /// dynamic script =  asm.CreateObject("*");
+        /// var result = script.Sum(7, 3);
+        /// </code>
+        /// </example>
+        /// <param name="scriptFile">The C# script text.</param>
+        /// <param name="info">The information about compilation context (e.g. location of the compiler output -
+        /// assembly and pdb file).</param>
+        /// <returns>The compiled assembly.</returns>
+        Assembly CompileFile(string scriptFile, CompileInfo info = null);
 
         /// <summary>
         /// Compiles the specified script text without loading it into the AppDomain or
