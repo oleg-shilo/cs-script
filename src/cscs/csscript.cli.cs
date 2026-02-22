@@ -20,7 +20,7 @@ namespace csscript
             print($"csc    - {Globals.csc}");
             print($"roslyn - {Globals.roslyn}");
             print($"---");
-            print($".NET SDK - {(Runtime.IsSdkInstalled() ? "installed" : "not unstalled")}");
+            print($".NET SDK - {(Runtime.IsSdkCompilerAvailable() ? "installed" : "not unstalled")}");
         }
 
         public void ProcessConfigCommand(string command)

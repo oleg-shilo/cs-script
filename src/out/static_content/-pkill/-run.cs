@@ -26,6 +26,7 @@ if (args.IsEmpty() || "?,-?,-help,--help".Split(',').Contains(args.FirstOrDefaul
 // -----------------------------------------------
 
 string pattern = args.FirstOrDefault();
+string extrtaArg = args.Skip(1).FirstOrDefault();
 Process[] matches;
 int pId = 0;
 
@@ -54,13 +55,19 @@ WriteLine($"-----|-{"".PadRight(maxNameLength, '-')}-|-------");
 foreach (var p in matches)
     WriteLine($" {i++,3} | {p.ProcessName.PadRight(maxNameLength)} | {p.Id}");
 
-WriteLine("");
-WriteLine("Enter: ");
-WriteLine("  - the index of the process to terminate");
-WriteLine("  - 'A' to terminate all");
-WriteLine("  - 'X' to exit");
+string input = extrtaArg;
 
-var input = ReadLine();
+if (input == null)
+{
+    WriteLine("");
+    WriteLine("Enter: ");
+    WriteLine("  - the index of the process to terminate");
+    WriteLine("  - 'A' to terminate all");
+    WriteLine("  - 'X' to exit");
+
+    input = ReadLine();
+}
+
 if (int.TryParse(input, out int index))
 {
     index--;

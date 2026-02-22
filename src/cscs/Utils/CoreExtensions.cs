@@ -128,6 +128,12 @@ namespace csscript
             // var output = StartMonitor(process.StandardOutput, onOutput);
 
             var output = process.StandardOutput.ReadToEnd();
+            try
+            {
+                output += process.StandardError.ReadToEnd();
+            }
+            catch { /* non critical */ }
+
             onOutput?.Invoke(output);
 
             // disabling it as it actually starts another instance of the process. It was a clumsy work around at a stage
@@ -323,6 +329,55 @@ namespace csscript
         /// <returns>The result of the test.</returns>
         public static bool SamePathAs(this string path1, string path2) =>
             string.Compare(path1, path2, Runtime.IsWin) == 0;
+
+        /// <summary>
+        /// Surrounds the specified text into quotation characters.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="quotationCharacter">The quotation character.</param>
+        /// <returns></returns>
+        public static string EnquoteArg(this string text, char quotationCharacter = '"')
+        {
+            if (text.Contains(' '))
+                return string.Format("{1}{0}{1}", text, quotationCharacter);
+            return text;
+        }
+
+        /// <summary>
+        /// Determines whether the specified assembly path corresponds to a runtime assembly.
+        /// </summary>
+        /// <remarks>This method checks if the path contains the directory indicators for runtime
+        /// assemblies, specifically looking for '\dotnet\shared\' or '/dotnet/shared/'.</remarks>
+        /// <param name="path">The path of the assembly to evaluate. This should be a valid file path string.</param>
+        /// <returns>true if the specified path indicates a runtime assembly; otherwise, false.</returns>
+        public static bool IsRuntimeAssembly(this string path)
+        {
+            var normalizedPath = path.ToLowerInvariant();
+            // Runtime assemblies are in "shared" directory, reference assemblies are in "packs"
+            return normalizedPath.Contains("\\dotnet\\shared\\") ||
+                   normalizedPath.Contains("/dotnet/shared/");
+        }
+
+        /// <summary>
+        /// Determines whether the specified assembly path corresponds to a .NET Framework assembly.
+        /// </summary>
+        /// <remarks>This method checks for common indicators of .NET Framework assemblies in the provided
+        /// path, including specific directory names and version numbers associated with the .NET Framework.</remarks>
+        /// <param name="path">The path of the assembly to check. This should be a valid file path string.</param>
+        /// <returns>True if the path indicates a .NET Framework assembly; otherwise, false.</returns>
+        public static bool IsNetFrameworkAssembly(this string path)
+        {
+            // Check for .NET Framework GAC paths
+            var normalizedPath = path.ToLowerInvariant();
+            return normalizedPath.Contains("microsoft.net\\framework") ||
+                   normalizedPath.Contains("microsoft.net/framework") ||
+                   normalizedPath.Contains("gac_msil") ||
+                   normalizedPath.Contains("gac_64") ||
+                   normalizedPath.Contains("gac_32") ||
+                   normalizedPath.Contains(", version=4.0.0.0,") ||
+                   normalizedPath.Contains(", version=2.0.0.0,") ||
+                   normalizedPath.Contains(", version=4.0.30319,");
+        }
 
         /// <summary>
         /// Captures the exception dispatch information.

@@ -46,7 +46,7 @@ namespace CSScripting.CodeDom
 
             var result = new CompilerResults();
 
-            if (!Runtime.IsSdkInstalled())
+            if (!Runtime.IsSdkAvailable())
                 Console.WriteLine("WARNING: .NET SDK is not installed. It is required for CS-Script (with `dotnet` engine) to function properly.");
 
             // remove compiler options that are present in the project file anyway
@@ -180,8 +180,8 @@ namespace CSScripting.CodeDom
                     " - from CLI parameters with [css -ng:dotnet <scriupt.vb>]" + NewLine +
                     " - from your VB script code with [' //css_ng dotnet]");
 
-            if (!Runtime.IsSdkInstalled())
-                Console.WriteLine("WARNING: .NET SDK is not installed. It is required for CS-Script to function properly.");
+            if (!Runtime.IsSdkCompilerAvailable())
+                Console.WriteLine($"WARNING: .NET SDK (or {Globals.SdkCompilerPackageName}) is not installed. It is required for CS-Script to function properly.");
 
             string projectName = fileNames.First().GetFileName();
 
@@ -252,10 +252,9 @@ namespace CSScripting.CodeDom
 
             //pseudo-gac as .NET core does not support GAC but rather common assemblies.
             // C:\Program Files\dotnet\shared\Microsoft.NETCore.App\5.0.4
-            var gac = typeof(string).Assembly.Location.GetDirName();
+            // var gac = typeof(string).Assembly.Location.GetDirName();
 
             // C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\5.0.4
-            string gac2 = (options.AppType == "Web" ? gac.Replace("Microsoft.NETCore.App", "Microsoft.AspNetCore.App") : null);
 
             var refs_args = new List<string>();
             var source_args = new List<string>();
@@ -298,20 +297,24 @@ namespace CSScripting.CodeDom
                         "Find more details in `compile_x86_script_csc` unit test.");
                 }
 
-                gac_asms = Directory.GetFiles(gac, "System.*.dll").ToList();
-                gac_asms.AddRange(Directory.GetFiles(gac, "netstandard.dll"));
-                // Microsoft.DiaSymReader.Native.amd64.dll is a native dll
-                gac_asms.AddRange(Directory.GetFiles(gac, "Microsoft.*.dll").Where(x => !x.Contains("Native")));
+                // <=============================
+                var refPacks = Globals.csc_AsmRefs;
 
-                if (gac2.HasText())
-                    gac_asms.AddRange(Directory.GetFiles(gac2, "Microsoft.*.dll").Where(x => !x.Contains("Native")));
+                if (Directory.Exists(refPacks))
+                    gac_asms = Directory.GetFiles(refPacks, "*.dll").ToList();
 
-                gac_asms.RemoveAll(x => x.Contains(".Native."));
+                if (options.AppType == "Web")
+                    if (Globals.csc_AspAsmRefs.DirExists())
+                        gac_asms.AddRange(Directory.GetFiles(Globals.csc_AspAsmRefs, "*.dll"));
+                    else
+                        Console.WriteLine($"WARNING: no Microsoft.AspNetCore.App assemblies were found on your PC. Ensure .NET SDK or ({Globals.NetCoreAsmRefsPackageName} package is installed.");
             }
 
             // need to remove duplicated assemblies leaving GAC as a preferable reference
             // IE System.Linq.dll exists in GAC and in packages where it can be of a different version so it should not be used.
-            var new_ref_assemblies = ref_assemblies.Where(x => !gac_asms.Any(y => Path.GetFileName(y) == Path.GetFileName(x)));
+            var new_ref_assemblies = ref_assemblies
+                .Where(x => !gac_asms.Any(y => Path.GetFileName(y) == Path.GetFileName(x)))
+                .Where(x => !x.IsRuntimeAssembly());
 
             foreach (string file in gac_asms.Concat(new_ref_assemblies))
                 refs_args.Add($"/r:\"{file}\"");
@@ -342,7 +345,7 @@ namespace CSScripting.CodeDom
                     {
                         File.WriteAllText(logFile, cmd);
                     }
-                    catch { } // just ignore as log_cmd is does not reflect any functional requirement
+                    catch { } // just ignore as log_cmd it does not reflect any functional requirement
             }
 
             if (compile_on_server)
@@ -412,18 +415,35 @@ namespace CSScripting.CodeDom
                 else
                 {
                     var compiler = Globals.GetCompilerFor(sources.FirstOrDefault());
+                    bool isCompilerNativeExe = compiler?.ChangeExtension("runtimeconfig.json").FileExists() == false;
 
                     // is .NET 10 compiler (e.g. C:\Program Files\dotnet\sdk\10.0.101\Roslyn\bincore\csc.dll)
                     if (compiler.Split("sdk").Last().TrimStart(Path.DirectorySeparatorChar).Split('.').First() == "10")
                         common_args.Add("-define:NET10_0_OR_GREATER;NET10");
 
-                    cmd = $@"""{compiler}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
-                    cmpl_cmd = cmd;
+                    var resp = build_dir.PathJoin("csc.resp");
+                    File.WriteAllLines(resp, refs_args);
 
-                    log_cmd(cmpl_cmd);
+                    string exe = Globals.dotnet;
+                    if (isCompilerNativeExe)
+                    {
+                        exe = compiler;
+                        // cmd = $@"{common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                        cmd = $@"{common_args.JoinBy(" ")} /out:{assembly.EnquoteArg()} @{resp.EnquoteArg()} {source_args.JoinBy(" ")}";
+                    }
+                    else
+                    {
+                        exe = Globals.dotnet;
+                        // cmd = $@"""{compiler}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                        cmd = $@"""{compiler}"" {common_args.JoinBy(" ")} /out:""{assembly}"" @{resp.EnquoteArg()} {source_args.JoinBy(" ")}";
+                    }
 
-                    result.NativeCompilerReturnValue = Globals.dotnet.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+                    cmpl_cmd = $"\"{exe}\" {cmd}";
+
+                    result.NativeCompilerReturnValue = exe.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
                 }
+
+                log_cmd(cmpl_cmd);
             }
 
             if (std_err.HasText())

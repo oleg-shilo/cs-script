@@ -21,6 +21,10 @@ namespace cscs
         [STAThread]
         static int Main(string[] args)
         {
+            // NugetPackageDownloader.OnProgressOutput = Console.WriteLine;
+            // NugetPackageDownloader.DownloadLatestPackage(Globals.AspNetCoreAsmRefsPackageName);
+            // return 0;
+
 #if DEBUG
             // Environment.SetEnvironmentVariable("CSS_RESTORE_NUGET_PACKAGES", "true");
             // Environment.SetEnvironmentVariable("CSSCRIPT_NUGET_PACKAGES", @"D:\temp\nuget");

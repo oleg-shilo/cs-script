@@ -107,7 +107,7 @@ namespace CSScripting.CodeDom
             {
                 var engine = CSExecutor.options.compilerEngine;
 
-                if (!Runtime.IsSdkInstalled() &&
+                if (!Runtime.IsSdkCompilerAvailable() &&
                     engine != compiler_roslyn &&
                     engine != compiler_roslyn_inproc)
                 {

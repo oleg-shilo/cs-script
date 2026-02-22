@@ -1,4 +1,5 @@
-﻿//css_include global-usings
+﻿//  css_ng csc
+//css_include global-usings
 using CSScripting;
 using System;
 using System.Diagnostics;
@@ -7,6 +8,8 @@ using System.Linq;
 using static dbg;
 using static System.Console;
 using static System.Environment;
+
+// Environment.Version.print();
 
 var thisScript = GetEnvironmentVariable("EntryScript");
 

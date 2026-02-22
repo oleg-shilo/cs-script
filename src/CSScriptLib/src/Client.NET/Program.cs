@@ -11,6 +11,9 @@ namespace Client.NET
     {
         static void Main(string[] args)
         {
+            NugetPackageDownloader.OnProgressOutput = Console.WriteLine;
+            NugetPackageDownloader.DownloadLatestPackage("Microsoft.NETCore.App.Ref", includePrereleases: false);
+            return;
             PrepareCodeDomCompilers();
 
             Console.WriteLine("================\n");
@@ -166,7 +169,7 @@ namespace Client.NET
 
             // Globals.csc is internally initialized the same way. Providing it here for demo purposes only.
             Globals.csc =
-                Globals.FindSdkCompilersPackageCompiler(includePrereleases: false) ?? // from the installed Microsoft.Net.Sdk.Compilers.Toolset package
+                Globals.FindSdkToolsetPackageCompiler(includePrereleases: false) ?? // from the installed Microsoft.Net.Sdk.Compilers.Toolset package
                 Globals.FindSdKCompiler(); // or from .NET SDK installed on OS
         }
     }

@@ -111,7 +111,7 @@ namespace Client.NET472
 
             // Globals.csc is initialized internally the same way. Providing it here for demo purposes only.
             Globals.csc =
-                Globals.FindFrameworkComilersPackageCompiler() ?? // lookup the installed nuget package with the compiler
+                Globals.FindFrameworkToolsetPackageCompiler() ?? // lookup the installed nuget package with the compiler
                 Globals.FindDefaultFrameworkCompiler(); // the default compiler, which is a part of Windows OS
 
             // ========================================================

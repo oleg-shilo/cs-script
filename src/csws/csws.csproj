@@ -80,6 +80,7 @@
     <Compile Include="..\cscs\Utils\CorFlagsReader.cs" Link="CorFlagsReader.cs" />
     <Compile Include="..\cscs\Utils\CurrentDirGuard.cs" Link="Utils\CurrentDirGuard.cs" />
     <Compile Include="..\cscs\Utils\LinqExtensions.cs" Link="Utils\LinqExtensions.cs" />
+    <Compile Include="..\cscs\Utils\NugetPackageDownloader.cs" Link="NugetPackageDownloader.cs" />
     <Compile Include="..\cscs\Utils\PathExtensions.cs" Link="Utils\PathExtensions.cs" />
     <Compile Include="..\cscs\Utils\Globals.cs" Link="Utils\Globals.cs" />
     <Compile Include="..\cscs\Utils\Profiler.cs" Link="Utils\Profiler.cs" />

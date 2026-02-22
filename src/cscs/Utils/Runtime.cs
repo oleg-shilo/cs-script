@@ -664,12 +664,21 @@ namespace csscript
         }
 
         /// <summary>
-        /// Determines whether .NET SDK is installed.
+        /// Determines whether .NET SDK or Toolset Package compiler csc.exe is available.
         /// </summary>
         /// <returns><c>true</c> if [is SDK installed]; otherwise, <c>false</c>.</returns>
-        public static bool IsSdkInstalled()
+        public static bool IsSdkCompilerAvailable()
         {
-            return Globals.csc.FileExists();
+            return Globals.csc.FileExists(); // the compiler can be also detected in teh toolset packages; see Globals.csc implementations
+        }
+
+        /// <summary>
+        /// Determines whether .NET SDK is installed.
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsSdkAvailable()
+        {
+            return Globals.FindSdKCompiler().FileExists();
             // "dotnet --list-sdks" is more accurate but it is fragile on WLS2
             //var output = "";
             //"dotnet".Run("--list-sdks", null, onOutput: x => output += x);

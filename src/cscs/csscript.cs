@@ -260,7 +260,7 @@ namespace csscript
             var code = Environment.CommandLine;
             var isRoslyn = args.FirstOrDefault(x => x.StartsWith("-ng:") || x.StartsWith("-engine:")) == "-ng:roslyn";
 
-            if (!isRoslyn && !Runtime.IsSdkInstalled())
+            if (!isRoslyn && !Runtime.IsSdkCompilerAvailable())
                 isRoslyn = true; // if SDK not available CS-Script will autoswitch to Roslyn
 
             if (Environment.CommandLine.EndsWith($"-{AppArgs.speed}")) // speed test

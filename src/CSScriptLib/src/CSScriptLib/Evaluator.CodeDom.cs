@@ -326,9 +326,9 @@ namespace CSScriptLib
                 string exe;
                 string cmd;
 
-                var sdk_warning = (Runtime.IsSdkInstalled() ?
+                var sdk_warning = (Runtime.IsSdkCompilerAvailable() ?
                                    "" :
-                                   "WARNING: .NET SDK is not installed. It is required for CS-Script to function properly.\n");
+                                   $"WARNING: .NET SDK (or {Globals.SdkCompilerPackageName}) is not installed. It is required for CS-Script to function properly.\n");
 
                 var std_err = "";
 

@@ -137,6 +137,20 @@ namespace CSScripting
         }
 
         /// <summary>
+        /// Combines the path of the specified special folder with one or more additional path segments to form a
+        /// complete file or directory path.
+        /// </summary>
+        /// <remarks>This method simplifies path construction by automatically handling directory
+        /// separators and ensures that the resulting path is valid for the operating system. Use this method to
+        /// reliably build paths relative to well-known system folders.</remarks>
+        /// <param name="folder">The special folder whose path is used as the base for the combined path.</param>
+        /// <param name="parts">An array of path segments to append to the base folder path. Each segment represents a part of the final
+        /// path. Segments can be strings or objects convertible to string.</param>
+        /// <returns>A string representing the full path created by joining the special folder path with the specified segments.</returns>
+        public static string PathJoin(this Environment.SpecialFolder folder, params object[] parts)
+        => folder.GetPath().PathJoin(parts);
+
+        /// <summary>
         /// Gets the special folder path combined with an array of strings into a path.
         /// </summary>
         /// <param name="folder">The folder.</param>

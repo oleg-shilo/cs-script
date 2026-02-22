@@ -80,7 +80,7 @@ namespace CSScripting
         /// is false.</param>
         /// <returns>A string containing the full path to the downloaded framework compiler.</returns>
         public static string DownloadLatestFrameworkCompiler(string destination = null, bool includePrereleases = false)
-            => DownloadLatestCompiler(Globals.FrameworkCompilerPackageName, destination, includePrereleases);
+            => DownloadLatestCompiler(Globals.FrameworkToolsetPackageName, destination, includePrereleases);
 
         /// <summary>
         /// Downloads the latest version of the Microsoft.Net.Sdk.Compilers.Toolset package from a specified NuGet feed
@@ -99,6 +99,43 @@ namespace CSScripting
         /// <exception cref="ApplicationException">Thrown if the package cannot be found in the specified feed, if csc.exe is not found in the downloaded
         /// package, or if the download or extraction process fails.</exception>
         public static string DownloadLatestCompiler(string packageName, string destination = null, bool includePrereleases = false, string customNuGetFeed = null)
+        {
+            string packagePath = DownloadLatestPackage(packageName, destination, includePrereleases, customNuGetFeed);
+            try
+            {
+                // Find csc.exe in the downloaded package
+                string cscPath = Directory.GetFiles(packagePath, "csc.exe", SearchOption.AllDirectories)
+                                          .FirstOrDefault()?
+                                          .GetFullPath();
+
+                if (cscPath == null)
+                    throw new ApplicationException($"csc.exe not found in downloaded package at {packagePath}");
+
+                OnProgressOutput($"Compiler downloaded successfully: {cscPath}");
+
+                return cscPath;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Failed to download {packageName}: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Downloads the latest available version of a specified NuGet package to a given directory.
+        /// </summary>
+        /// <remarks>If the destination directory does not exist, it will be created automatically. The
+        /// method provides progress output during the download process.</remarks>
+        /// <param name="packageName">The name of the NuGet package to download. Cannot be null or empty.</param>
+        /// <param name="destination">The directory path where the package will be downloaded. If not specified, the default NuGet cache location
+        /// is used.</param>
+        /// <param name="includePrereleases">Specifies whether to include pre-release versions when determining the latest package version. Set to <see
+        /// langword="true"/> to include pre-releases; otherwise, only stable versions are considered.</param>
+        /// <param name="customNuGetFeed">An optional custom NuGet feed URL to use for downloading the package. If not provided, the default NuGet
+        /// feed is used.</param>
+        /// <returns>The file path of the downloaded package.</returns>
+        /// <exception cref="ApplicationException">Thrown if the package cannot be found in the specified feed or if the download fails.</exception>
+        public static string DownloadLatestPackage(string packageName, string destination = null, bool includePrereleases = false, string customNuGetFeed = null)
         {
             string nugetFeed = customNuGetFeed ?? "https://api.nuget.org/v3/index.json";
 
@@ -127,17 +164,9 @@ namespace CSScripting
 
                 DownloadAndExtractNuGetPackage(packageName, latestVersion, nugetFeed, packagePath);
 
-                // Find csc.exe in the downloaded package
-                string cscPath = Directory.GetFiles(packagePath, "csc.exe", SearchOption.AllDirectories)
-                                          .FirstOrDefault()?
-                                          .GetFullPath();
+                OnProgressOutput($"Package downloaded successfully: {packagePath}");
 
-                if (cscPath == null)
-                    throw new ApplicationException($"csc.exe not found in downloaded package at {packagePath}");
-
-                OnProgressOutput($"Compiler downloaded successfully: {cscPath}");
-
-                return cscPath;
+                return packagePath;
             }
             catch (Exception ex)
             {

@@ -252,6 +252,7 @@ namespace CSScripting
         }
 
         static string csc_file = Environment.GetEnvironmentVariable("css_csc_file");
+        static string csc_AsmRefsDir = Environment.GetEnvironmentVariable("css_csc_asm_refs_dir");
 
         static internal string LibDir => Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("lib");
 
@@ -316,8 +317,8 @@ namespace CSScripting
         /// The Microsoft.Net.Compilers.Toolset package can be downloaded from NuGet: https://www.nuget.org/packages/Microsoft.Net.Compilers.Toolset/
         /// </p>
         /// </remarks>
-        public static string FindFrameworkComilersPackageCompiler()
-            => FindLatestPackageCompiler(FrameworkCompilerPackageName);
+        public static string FindFrameworkToolsetPackageCompiler(bool includePrereleases = false)
+            => FindLatestPackageLocation(FrameworkToolsetPackageName, "csc.exe", includePrereleases).PathJoin("csc.exe");
 
         /// <summary>
         /// Gets the path to the latest C# compiler (csc.exe) from the Microsoft.Net.Sdk.Compilers.Toolset NuGet package found on the host environment.
@@ -333,7 +334,7 @@ namespace CSScripting
         /// <para>
         /// The Microsoft.Net.Sdk.Compilers.Toolset package is the SDK-specific version of the compiler toolset,
         /// which is typically used in SDK-style projects and .NET Core/.NET applications.
-        /// It differs from <see cref="FindFrameworkComilersPackageCompiler"/> in that it's designed specifically for SDK-based builds.
+        /// It differs from <see cref="FindFrameworkToolsetPackageCompiler"/> in that it's designed specifically for SDK-based builds.
         /// </para>
         /// <para>
         /// If you need to deploy your application to an environment where Microsoft.Net.Sdk.Compilers.Toolset package is not available,
@@ -342,13 +343,79 @@ namespace CSScripting
         /// https://www.nuget.org/packages/Microsoft.Net.Sdk.Compilers.Toolset/
         /// </para>
         /// </remarks>
-        /// <seealso cref="FindFrameworkComilersPackageCompiler"/>
+        /// <seealso cref="FindFrameworkToolsetPackageCompiler"/>
         /// <seealso cref="csc"/>
-        public static string FindSdkCompilersPackageCompiler(bool includePrereleases = false)
-            => FindLatestPackageCompiler(SdkCompilerPackageName, includePrereleases);
+        public static string FindSdkToolsetPackageCompiler(bool includePrereleases = false)
+            => FindLatestPackageLocation(SdkCompilerPackageName, "csc.exe", includePrereleases).PathJoin("csc.exe");
 
+        /// <summary>
+        /// Finds the location of the latest .NET Core references package, optionally including pre-release versions.
+        /// </summary>
+        /// <remarks>This method searches for the package named 'NetCoreAsmRefsPackageName' and
+        /// specifically looks for 'System.dll'.</remarks>
+        /// <param name="includePrereleases">Specifies whether to include pre-release versions of the package. The default value is <see
+        /// langword="false"/>.</param>
+        /// <returns>A string representing the location of the latest .NET Core references package. Returns <see
+        /// langword="null"/> if the package is not found.</returns>
+        public static string FindNetCoreRefsPackage(bool includePrereleases = false)
+            => FindLatestPackageLocation(NetCoreAsmRefsPackageName, "System.dll", includePrereleases);
+
+        internal const string AspNetCoreAsmRefsPackageName = "microsoft.AspNetCore.app.ref";
+        internal const string NetCoreAsmRefsPackageName = "microsoft.netcore.app.ref";
         internal const string SdkCompilerPackageName = "microsoft.net.sdk.compilers.toolset";
-        internal const string FrameworkCompilerPackageName = "microsoft.net.compilers.toolset";
+        internal const string FrameworkToolsetPackageName = "microsoft.net.compilers.toolset";
+
+        /// <summary>
+        /// Finds the directory containing .NET Core reference assemblies for the current runtime,
+        /// automatically selecting the highest available version.
+        /// </summary>
+        /// <remarks>
+        /// This method searches the dotnet packs directory for Microsoft.NETCore.App.Ref packages
+        /// matching the current runtime major version, and returns the path to the reference assemblies
+        /// from the highest version found.
+        /// </remarks>
+        /// <returns>
+        /// The path to the reference assemblies directory (e.g., "C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.3\ref\net10.0"),
+        /// or <c>null</c> if no matching reference packs are found.
+        /// </returns>
+        public static string FindNetCoreAsmRefs()
+        {
+            var runtime = Environment.Version;
+            var refPacksRoot = Environment.SpecialFolder.ProgramFiles.PathJoin("dotnet", "packs", "Microsoft.NETCore.App.Ref");
+
+            if (!Directory.Exists(refPacksRoot))
+                return null;
+
+            // Find all version directories that match the current runtime major version
+            var highestVersion = Directory.GetDirectories(refPacksRoot)
+                .Select(dir => Path.GetFileName(dir))
+                .Where(version => version.StartsWith($"{runtime.Major}."))
+                .Select(version =>
+                {
+                    try
+                    {
+                        return new
+                        {
+                            Version = SemanticVersion.Parse(version),
+                            VersionString = version
+                        };
+                    }
+                    catch
+                    {
+                        return null; // Skip invalid version strings
+                    }
+                })
+                .Where(x => x != null)
+                .OrderByDescending(x => x.Version)
+                .FirstOrDefault();
+
+            if (highestVersion == null)
+                return null;
+
+            var refPacks = refPacksRoot.PathJoin(highestVersion.VersionString, "ref", $"net{runtime.Major}.0");
+
+            return Directory.Exists(refPacks) ? refPacks : null;
+        }
 
         /// <summary>
         /// Finds the file path to the C# compiler (csc.dll) for the installed .NET SDK on the current system.
@@ -407,7 +474,7 @@ namespace CSScripting
             return null;
         }
 
-        static string FindLatestPackageCompiler(string packageName, bool includePrerelease = false)
+        internal static string FindLatestPackageLocation(string packageName, string targetFile, bool includePrerelease = false)
         {
             try
             {
@@ -416,7 +483,7 @@ namespace CSScripting
                 if (!Directory.Exists(packagesDir))
                     return null;
 
-                var csc_packages = Directory.GetFiles(packagesDir, "csc.exe", SearchOption.AllDirectories)
+                var target_packages = Directory.GetFiles(packagesDir, targetFile, SearchOption.AllDirectories)
                     .Select(x =>
                     {
                         var versionDir = x.Substring(packagesDir.Length + 1).Split(Path.DirectorySeparatorChar).FirstOrDefault();
@@ -446,14 +513,76 @@ namespace CSScripting
                     .OrderByDescending(x => x.SemanticVersion)
                     .ToList();
 
-                var latestCsc = csc_packages.FirstOrDefault()?.Path;
-                return latestCsc;
+                var latestTarget = target_packages.FirstOrDefault()?.Path;
+                return latestTarget.GetDirName();
             }
             catch
             {
                 return null;
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether SDK tools should be preferred over other tools like NuGet packages.
+        /// </summary>
+        /// <remarks>Setting this property to <see langword="true"/> may enable features or optimizations
+        /// specific to SDK tools. Use this property to control tool selection behavior within the
+        /// application.
+        /// <p>Note, it has no impact for: </p></remarks>
+        public static bool PreferSdkTools = false;
+
+        /// <summary>
+        /// Gets or sets the directory path for assembly references used by the compiler.
+        /// </summary>
+        /// <remarks>If the directory path is not already set, it attempts to find the .NET Core
+        /// references package or assembly references automatically.</remarks>
+        static public string csc_AsmRefs
+        {
+            set
+            {
+                csc_AsmRefsDir = value;
+            }
+
+            get
+            {
+                if (csc_AsmRefsDir == null)
+                {
+                    csc_AsmRefsDir =
+                        PreferSdkTools ?
+                        (
+                            FindNetCoreAsmRefs() ??
+                            FindNetCoreRefsPackage(includePrereleases: false)
+                        )
+                        :
+                        (
+                            FindNetCoreRefsPackage(includePrereleases: false) ??
+                            FindNetCoreAsmRefs()
+                        );
+                }
+                return csc_AsmRefsDir;
+            }
+        }
+
+        /// <summary>
+        /// Gets the assembly reference paths required for ASP.NET Core compilation, adjusted based on the SDK tools
+        /// preference.
+        /// </summary>
+        /// <remarks>If SDK tools are preferred, this property replaces references to
+        /// 'Microsoft.NETCore.App' with 'Microsoft.AspNetCore.App'. Otherwise, it retrieves the latest package location
+        /// for 'Microsoft.Extensions.Http.dll' from the ASP.NET Core assembly references package. This property is
+        /// intended for use in scenarios where the correct set of ASP.NET Core assemblies must be resolved for
+        /// compilation.</remarks>
+        static public string csc_AspAsmRefs
+            => PreferSdkTools ?
+               (
+                   csc_AsmRefs?.Replace("Microsoft.NETCore.App", "Microsoft.AspNetCore.App") ??
+                   Globals.FindLatestPackageLocation(Globals.AspNetCoreAsmRefsPackageName, "Microsoft.Extensions.Http.dll")
+               )
+               :
+               (
+                   Globals.FindLatestPackageLocation(Globals.AspNetCoreAsmRefsPackageName, "Microsoft.Extensions.Http.dll") ??
+                   csc_AsmRefs?.Replace("Microsoft.NETCore.App", "Microsoft.AspNetCore.App")
+               );
 
         /// <summary>
         /// Gets or sets the path to the C# compiler (csc.dll for .NET Core or csc.exe for .NET Framework).
@@ -512,7 +641,7 @@ namespace CSScripting
                         // And if not found there, then fallback to the .NET SDK compiler which is more
                         // general but may not be compatible with all SDK versions.
                         csc_file =
-                            FindSdkCompilersPackageCompiler(includePrereleases: false) ??
+                            FindSdkToolsetPackageCompiler(includePrereleases: false) ??
                             FindSdKCompiler();
                     }
                     else
@@ -522,12 +651,12 @@ namespace CSScripting
                         // If not found, we fallback to the default .NET Framework compiler (csc.exe) located in the
                         // .NET Framework system folder directory. This compiler is compatible with C# 5 only
                         csc_file =
-                            FindFrameworkComilersPackageCompiler() ??
+                            FindFrameworkToolsetPackageCompiler(includePrereleases: false) ??
                             FindDefaultFrameworkCompiler();
                     }
 #else
                     csc_file =
-                        FindSdkCompilersPackageCompiler(includePrereleases: false) ??
+                        FindSdkToolsetPackageCompiler(includePrereleases: false) ??
                         FindSdKCompiler();
 #endif
                 }
