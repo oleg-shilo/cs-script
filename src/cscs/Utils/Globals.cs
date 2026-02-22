@@ -523,13 +523,13 @@ namespace CSScripting
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether SDK tools should be preferred over other tools like NuGet packages.
+        /// Gets a value indicating whether SDK tools are preferred based on the environment variable
+        /// 'css_prefer_sdk_tools'.
         /// </summary>
-        /// <remarks>Setting this property to <see langword="true"/> may enable features or optimizations
-        /// specific to SDK tools. Use this property to control tool selection behavior within the
-        /// application.
-        /// <p>Note, it has no impact for: </p></remarks>
-        public static bool PreferSdkTools = false;
+        /// <remarks>This property evaluates the environment variable and returns <see langword="true"/>
+        /// if it is set to 'true'; otherwise, it returns <see langword="false"/>. Use this property to configure
+        /// application behavior according to the development environment.</remarks>
+        public static bool PreferSdkTools = "css_prefer_sdk_tools".GetEnvar() == "true" ? true : false;
 
         /// <summary>
         /// Gets or sets the directory path for assembly references used by the compiler.

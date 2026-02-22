@@ -95,6 +95,7 @@
     <Compile Include="..\cscs\Utils\SystemWideLock.cs" Link="Utils\SystemWideLock.cs" />
     <Compile Include="..\cscs\Utils\Utils.cs" Link="Utils\Utils.cs" />
     <Compile Include="..\cscs\Utils\WildCardExtensions.cs" Link="Utils\WildCardExtensions.cs" />
+    <Compile Include="..\CSScriptLib\src\CSScriptLib\AttachedProperties.cs" Link="AttachedProperties.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\logo\css_logo.png">

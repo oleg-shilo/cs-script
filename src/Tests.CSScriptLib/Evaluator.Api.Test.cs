@@ -405,15 +405,18 @@ namespace EvaluatorTests
             // lock the file simply because it was present in the local dir. So hide the assembly by
             // dropping the file extension.
 
-            var asm_file = GetTempFileName(nameof(CompileCode_InmemAsmLocation));
+            var asm_file = GetTempFileName(nameof(CompileCode_CompileInfo));
 
             var info = new CompileInfo { AssemblyFile = asm_file };
 
+            // Note, the script can be cached so let's make it unique by adding the asm file name in the script text.
+            // Otherwise, if the script is cached, the second compilation will not produce the assembly and thus the test will fail.
             Assembly asm = new_evaluator.CompileCode(@"using System;
                                                    public class Script
                                                    {
                                                        public int Sum(int a, int b)
                                                        {
+                                                           // " + asm_file + @" to ensure script text uniqueness
                                                            return a+b;
                                                        }
                                                    }",
@@ -423,6 +426,12 @@ namespace EvaluatorTests
             var result = script.Sum(7, 3);
 
             Assert.Equal(10, result);
+
+            if (asm_file != asm.Location())
+            {
+                Debugger.Launch();
+            }
+
             Assert.Equal(asm_file, asm.Location());
         }
 

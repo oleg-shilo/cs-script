@@ -283,6 +283,8 @@ namespace CSScriptLib
                 scriptAssembly = IsAssemblyUnloadingEnabled
                                      ? AppDomain.CurrentDomain.LoadCollectableAssemblyFrom(info.AssemblyFile)
                                      : Assembly.LoadFrom(info.AssemblyFile);
+
+                scriptAssembly.SetAttachedValue("AsmLocation", info.AssemblyFile);
             }
             else
             {

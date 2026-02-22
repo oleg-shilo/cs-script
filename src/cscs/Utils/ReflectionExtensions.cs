@@ -166,8 +166,15 @@ namespace CSScripting
             {
                 if (asm.IsDynamic())
                 {
-                    string location = Environment.GetEnvironmentVariable("location:" + asm.GetHashCode());
-                    if (location == null)
+                    string location =
+                        Environment.GetEnvironmentVariable("location:" + asm.GetHashCode())
+                        ?? (string)asm.GetAttachedValue("AsmLocation");
+
+                    if (location != null)
+                    {
+                        return location;
+                    }
+                    else
                     {
                         // Note assembly can contain only single AssemblyConfigurationAttribute
                         var locationFromDescAttr = asm
@@ -187,8 +194,6 @@ namespace CSScripting
 
                         return "";
                     }
-                    else
-                        return location;
                 }
                 else
                     return asm.Location;

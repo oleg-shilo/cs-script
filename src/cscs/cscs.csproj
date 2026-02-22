@@ -155,6 +155,9 @@
     <EmbeddedResource Remove="Properties\Resources.net8.resx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CSScriptLib\src\CSScriptLib\AttachedProperties.cs" Link="Utils\AttachedProperties.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="package_readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

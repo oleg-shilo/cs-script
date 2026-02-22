@@ -597,6 +597,11 @@ global using global::System.Threading.Tasks;");
                 File.WriteAllLines(script_file, content);
 
                 output = cscs_run($"-check -ng:dotnet {script_file}");
+
+                if (output != "Compile: OK")
+                {
+                    Debugger.Launch();
+                }
                 Assert.Equal("Compile: OK", output);
 
                 // csc engine supposed to fail to compile WPF
