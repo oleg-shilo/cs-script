@@ -233,7 +233,7 @@ namespace CSScriptLib
         static string tempDir = null;
 
         /// <summary>
-        /// Returns the name of the temporary folder in the CSSCRIPT subfolder of Path.GetTempPath().
+        /// Returns the name of the temporary folder in the `csscript.lib` subfolder of Path.GetTempPath().
         /// <para>Under certain circumstances it may be desirable to the use the alternative location for the CS-Script temporary files.
         /// In such cases use SetScriptTempDir() to set the alternative location.
         /// </para>
@@ -246,7 +246,7 @@ namespace CSScriptLib
                 tempDir = Environment.GetEnvironmentVariable("CSS_CUSTOM_TEMPDIR");
                 if (tempDir == null)
                 {
-                    tempDir = Path.Combine(Path.GetTempPath(), "CSSCRIPT");
+                    tempDir = Path.Combine(Path.GetTempPath(), "csscript.lib");
                     if (!Directory.Exists(tempDir))
                     {
                         Directory.CreateDirectory(tempDir);
@@ -368,10 +368,12 @@ namespace CSScriptLib
                 purging = true;
                 Task.Run(() =>
                     {
-                        Runtime.CleanUnusedTmpFiles(CSScript.GetScriptTempDir(), "*????????-????-????-????-????????????.???*", ignoreCurrentProcessScripts);
-                        // don't do cscs related cleaning, save time.
-                        // Runtime.CleanSnippets();
-                        // Runtime.CleanAbandonedCache();
+                        try
+                        {
+                            Runtime.CleanUnusedTmpFiles(CSScript.GetScriptTempDir(), "*????????-????-????-????-????????????.???*", ignoreCurrentProcessScripts);
+                            Runtime.CleanAbandonedCache(CSScript.GetCacheDir());
+                        }
+                        catch { }
                         purging = false;
                     });
             }
@@ -491,6 +493,13 @@ namespace CSScriptLib
         }
 
         /// <summary>
+        /// Gets the full path to the cache directory used for temporary script-related files.
+        /// </summary>
+        /// <returns>A string containing the absolute path to the cache directory. The directory is located within the temporary
+        /// script directory.</returns>
+        public static string GetCacheDir() => Path.Combine(GetScriptTempDir(), "cache");
+
+        /// <summary>
         /// Gets the directory path used for caching script-related files based on the specified script file path.
         /// </summary>
         /// <remarks>
@@ -508,7 +517,7 @@ namespace CSScriptLib
         /// </exception>
         public static string GetScriptCacheDir(string scriptFile)
         {
-            string commonCacheDir = Path.Combine(GetScriptTempDir(), "cache");
+            string commonCacheDir = GetCacheDir();
             string directoryPath = Path.GetDirectoryName(Path.GetFullPath(scriptFile));
 
             // Win is case-insensitive so ensure both lower and capital case paths yield the same hash

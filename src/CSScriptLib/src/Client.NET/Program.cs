@@ -13,6 +13,10 @@ namespace Client.NET
         {
             PrepareCodeDomCompilers();
 
+            Test_CodeDom();
+            Console.ReadLine();
+            return;
+
             Console.WriteLine("================\n");
             Console.WriteLine($"Loading and unloading script 20 times");
             Test_Unloading();

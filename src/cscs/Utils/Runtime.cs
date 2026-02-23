@@ -105,11 +105,14 @@ namespace csscript
         }
 
         /// <summary>
-        /// Returns the name of the temporary folder in the CSSCRIPT subfolder of Path.GetTempPath().
+        /// Returns the name of the temporary folder in the `csscript.core` subfolder of Path.GetTempPath().
         /// <para>
-        /// Under certain circumstances it may be desirable to the use the alternative location for
-        /// the CS-Script temporary files. In such cases use SetScriptTempDir() to set the
-        /// alternative location.
+        /// This directory is used by the CS-Script CLI (cscs.exe) for caching compiled assemblies
+        /// and temporary files. The library version (CSScriptLib) uses a separate `csscript.lib` directory.
+        /// </para>
+        /// <para>
+        /// Under certain circumstances it may be desirable to use an alternative location for
+        /// CS-Script temporary files. Set the CSS_CUSTOM_TEMPDIR environment variable to override.
         /// </para>
         /// </summary>
         /// <returns>Temporary directory name.</returns>
@@ -130,9 +133,9 @@ namespace csscript
         /// <summary>
         /// Cleans the abandoned script execution cache.
         /// </summary>
-        public static void CleanAbandonedCache()
+        public static void CleanAbandonedCache(string cacheRootDir = null)
         {
-            var rootDir = Runtime.CacheDir;
+            var rootDir = cacheRootDir ?? Runtime.CacheDir;
 
             if (Directory.Exists(rootDir))
             {
@@ -143,7 +146,7 @@ namespace csscript
                         var infoFile = cacheDir.PathJoin("css_info.txt");
                         var sourceDir = File.Exists(infoFile) ? File.ReadAllLines(infoFile)[1] : null;
 
-                        if (sourceDir.IsEmpty() || !Directory.Exists(sourceDir))
+                        if (sourceDir.IsEmpty() || !Directory.Exists(sourceDir) || !Directory.GetFiles(cacheDir).Any(x => x != infoFile))
                         {
                             cacheDir.DeleteDir();
                         }
