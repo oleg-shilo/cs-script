@@ -2133,63 +2133,28 @@ namespace csscript
         static public void SetScriptTempDir(string path) => tempDir = path;
 
         internal static string GetRunAsExternalProbingFileName(string scriptFileName)
-            => Path.Combine(CSExecutor.GetCacheDirectory(scriptFileName), scriptFileName.GetFileNameWithoutExtension() + $".runex.cs");
+            => Path.Combine(Runtime.GetScriptCacheDir(scriptFileName), scriptFileName.GetFileNameWithoutExtension() + $".runex.cs");
 
         /// <summary>
         /// Generates the name of the cache directory for the specified script file.
         /// </summary>
         /// <param name="file">Script file name.</param>
         /// <returns>Cache directory name.</returns>
+        /// <remarks>
+        /// This method delegates to <see cref="Runtime.GetScriptCacheDir(string)"/>.
+        /// Consider using Runtime.GetScriptCacheDir directly for new code.
+        /// </remarks>
         public static string GetCacheDirectory(string file)
+            => Runtime.GetScriptCacheDir(file);
+
+        /// <summary>
+        /// Generates the name of the temporary cache folder in the CSSCRIPT subfolder of
+        /// Path.GetTempPath(). The cache folder is specific for every script file.
+        /// </summary>
+        /// <param name="scriptFile">script file</param>
+        static public void SetScriptCacheDir(string scriptFile)
         {
-            string commonCacheDir = Runtime.CacheDir;
-
-            string cacheDir;
-            string directoryPath = Path.GetDirectoryName(Path.GetFullPath(file));
-            string dirHash;
-            if (Runtime.IsWin)
-            {
-                //Win is not case-sensitive so ensure, both lower and capital case path yield the same hash
-                dirHash = directoryPath.ToLower().GetHashCodeEx().ToString();
-            }
-            else
-            {
-                dirHash = directoryPath.GetHashCodeEx().ToString();
-            }
-
-            cacheDir = Path.Combine(commonCacheDir, dirHash);
-
-            if (!Directory.Exists(cacheDir))
-                try
-                {
-                    Directory.CreateDirectory(cacheDir);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    var parentDir = commonCacheDir;
-
-                    if (!Directory.Exists(commonCacheDir))
-                        parentDir = Path.GetDirectoryName(commonCacheDir); // GetScriptTempDir()
-
-                    throw new Exception("You do not have write privileges for the CS-Script cache directory (" + parentDir + "). " +
-                                        "Make sure you have sufficient privileges or use an alternative location as the CS-Script " +
-                                        "temporary  directory (cscs -config:set=CustomTempDirectory=<new temp dir>)");
-                }
-
-            string infoFile = Path.Combine(cacheDir, "css_info.txt");
-            if (!File.Exists(infoFile))
-                try
-                {
-                    using var sw = new StreamWriter(infoFile);
-                    sw.Write(Environment.Version.ToString() + NewLine + directoryPath + NewLine);
-                }
-                catch
-                {
-                    //there can be many reasons for the failure (e.g. file is already locked by another writer),
-                    //which in most of the cases does not constitute the error but rather a runtime condition
-                }
-
-            return cacheDir;
+            ScriptCacheDir = Runtime.GetScriptCacheDir(scriptFile);
         }
 
         ///<summary>
@@ -2199,16 +2164,5 @@ namespace csscript
 
         // "<temp_dir>\csscript.core\cache\<script_hash>"
         static internal string ScriptVsDir => CSExecutor.ScriptCacheDir.Replace("cache", ".vs");
-
-        /// <summary>
-        /// Generates the name of the temporary cache folder in the CSSCRIPT subfolder of
-        /// Path.GetTempPath(). The cache folder is specific for every script file.
-        /// </summary>
-        /// <param name="scriptFile">script file</param>
-        static public void SetScriptCacheDir(string scriptFile)
-        {
-            string newCacheDir = GetCacheDirectory(scriptFile); //this will also create the directory if it does not exist
-            ScriptCacheDir = newCacheDir;
-        }
     }
 }

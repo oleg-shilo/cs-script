@@ -11,9 +11,6 @@ namespace Client.NET
     {
         static void Main(string[] args)
         {
-            NugetPackageDownloader.OnProgressOutput = Console.WriteLine;
-            NugetPackageDownloader.DownloadLatestPackage("Microsoft.NETCore.App.Ref", includePrereleases: false);
-            return;
             PrepareCodeDomCompilers();
 
             Console.WriteLine("================\n");

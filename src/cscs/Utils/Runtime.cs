@@ -29,24 +29,67 @@ namespace csscript
         /// </summary>
         static public event UnhandledExceptionEventHandler UnhandledException;
 
-        internal static string CacheDir = GetScriptTempDir().PathJoin("cache");
-
-        // CSScriptLib does not support the cache directory for class library projects.
-#if !class_lib
-
-        // summary>
-        /// Gets the cache directory path for a given script file.
-        /// <para>
-        /// Note that the cache directory is not the same as the script directory. The cache
-        /// directory is used to store compiled assemblies and other artifacts related to script
-        /// execution.
-        /// </para>
+        /// <summary>
+        /// Gets the common cache root directory for all scripts.
         /// </summary>
-        /// <param name="scriptFileName">Name of the script file.</param>
-        /// <returns>The cache directory path.</returns>
-        public static string GetCacheDir(string scriptFileName) => csscript.CSExecutor.GetCacheDirectory(scriptFileName);
+        public static string CacheDir => GetScriptTempDir().PathJoin("cache");
 
-#endif
+        /// <summary>
+        /// Gets the cache directory for a specific script file.
+        /// </summary>
+        /// <param name="scriptFile">The script file path.</param>
+        /// <returns>Script-specific cache directory path.</returns>
+        /// <exception cref="Exception">Thrown if cache directory cannot be created due to insufficient permissions.</exception>
+        public static string GetScriptCacheDir(string scriptFile)
+        {
+            string commonCacheDir = CacheDir;
+            string directoryPath = Path.GetDirectoryName(Path.GetFullPath(scriptFile));
+
+            // Win is case-insensitive so ensure both lower and capital case paths yield the same hash
+            string dirHash = IsWin
+                ? directoryPath.ToLower().GetHashCodeEx().ToString()
+                : directoryPath.GetHashCodeEx().ToString();
+
+            string cacheDir = Path.Combine(commonCacheDir, dirHash);
+
+            // Create directory if needed
+            if (!Directory.Exists(cacheDir))
+            {
+                try
+                {
+                    Directory.CreateDirectory(cacheDir);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    var parentDir = Directory.Exists(commonCacheDir)
+                        ? commonCacheDir
+                        : Path.GetDirectoryName(commonCacheDir);
+
+                    throw new Exception(
+                        $"You do not have write privileges for the CS-Script cache directory ({parentDir}). " +
+                        "Make sure you have sufficient privileges or use an alternative location as the CS-Script " +
+                        "temporary directory (cscs -config:set=CustomTempDirectory=<new temp dir>)");
+                }
+            }
+
+            // Create info file
+            string infoFile = Path.Combine(cacheDir, "css_info.txt");
+            if (!File.Exists(infoFile))
+            {
+                try
+                {
+                    using var sw = new StreamWriter(infoFile);
+                    sw.WriteLine(Environment.Version.ToString());
+                    sw.WriteLine(directoryPath);
+                }
+                catch
+                {
+                    // File might be locked by another process - not critical
+                }
+            }
+
+            return cacheDir;
+        }
 
         internal static bool RaiseUnhandledExceptionIfSubscribed(object sender, UnhandledExceptionEventArgs e)
         {

@@ -53,6 +53,7 @@ namespace Misc
                                         {
                                             public int Sum(int a, int b) => a+b;
                                         }");
+
             var asm = CSScript.RoslynEvaluator.CompileFile(script);
 
             var proj = asm.GetAttached<Project>();

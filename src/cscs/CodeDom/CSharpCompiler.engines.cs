@@ -186,7 +186,7 @@ namespace CSScripting.CodeDom
             string projectName = fileNames.First().GetFileName();
 
             var engine_dir = this.GetType().Assembly.Location.GetDirName();
-            var cache_dir = CSExecutor.ScriptCacheDir; // C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284
+            var cache_dir = Runtime.CacheDir; // C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284
             var build_dir = cache_dir.PathJoin(".build", projectName);
 
             build_dir.DeleteDir(handleExceptions: true)
