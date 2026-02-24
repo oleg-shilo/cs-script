@@ -69,6 +69,27 @@ namespace CSScripting
             => DownloadLatestCompiler(Globals.SdkCompilerPackageName, destination, includePrereleases);
 
         /// <summary>
+        /// Downloads the latest .NET SDK toolset, including compilers and reference assemblies, to the specified
+        /// destination directory.
+        /// </summary>
+        /// <remarks>This method downloads the latest versions of the SDK compilers and reference assemblies
+        /// for .NET Core and ASP.NET Core. Ensure that the destination path has write permissions before calling this
+        /// method.</remarks>
+        /// <param name="destination">The directory path where the SDK toolset will be downloaded. If null, the toolset will not be saved to a
+        /// specific location.</param>
+        /// <param name="includePrereleases">Specifies whether to include pre-release versions of the SDK toolset. Set to <see langword="true"/> to
+        /// include pre-releases; otherwise, <see langword="false"/>.</param>
+        /// <returns>The path to the destination directory where the SDK toolset was downloaded, or null if no destination was
+        /// specified.</returns>
+        public static string DownloadLatestSdkToolset(string destination = null, bool includePrereleases = false)
+        {
+            DownloadLatestCompiler(Globals.SdkCompilerPackageName, destination != null ? destination.PathJoin("compilers") : null, includePrereleases);
+            DownloadLatestPackage(Globals.NetCoreAsmRefsPackageName, destination != null ? destination.PathJoin("AspNetCore.app.ref") : null, includePrereleases);
+            DownloadLatestPackage(Globals.AspNetCoreAsmRefsPackageName, destination != null ? destination.PathJoin("NetCore.app.ref") : null, includePrereleases);
+            return destination;
+        }
+
+        /// <summary>
         /// Downloads the latest version of the framework compiler from the NuGet package repository.
         /// </summary>
         /// <remarks>This method retrieves the latest available version of the framework compiler from the
