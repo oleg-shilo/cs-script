@@ -33,7 +33,9 @@ Temp Directory Root
 You can override the default temporary directory location using the `CSS_CUSTOM_TEMPDIR` environment variable:
 
 **Windows
+```txt
 set CSS_CUSTOM_TEMPDIR=D:\MyCustomTemp\CSScript css script.cs
+```
 
 ## Cache Management
 
@@ -161,9 +163,3 @@ Property that returns the common cache root directory.
 
 ### CSScript.StartPurgingOldTempFiles(bool ignoreCurrentProcess)
 Starts asynchronous cleanup of old temporary files.
-
-## See Also
-
-- [Environment Variables](Environment-Variables.md)
-- [Configuration](Configuration.md)
-- [Performance Tuning](Performance-Tuning.md)
