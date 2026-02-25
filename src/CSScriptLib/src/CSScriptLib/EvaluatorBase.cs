@@ -157,6 +157,17 @@ namespace CSScriptLib
         /// <param name="scriptText">The C# script text.</param>
         /// <param name="info"></param>
         /// <returns>The compiled assembly.</returns>
+        /// <remarks>
+        /// <para>
+        /// In case of CodeDomEvaluator, the returned loaded assembly has attached <see cref="Project"/> object that
+        /// can be used to analyse the compilation input. And in case of compilation error the same <see cref="Project"/> object
+        /// can be accessed via exception object.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success:</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         public Assembly CompileCode(string scriptText, CompileInfo info = null)
         {
             return CompileCode(scriptText, null, info);
@@ -180,6 +191,17 @@ namespace CSScriptLib
         /// <param name="info">The information about compilation context (e.g. location of the compiler output -
         /// assembly and pdb file).</param>
         /// <returns>The compiled assembly.</returns>
+        /// <remarks>
+        /// <para>
+        /// In case of CodeDomEvaluator, the returned loaded assembly has attached <see cref="Project"/> object that
+        /// can be used to analyse the compilation input. And in case of compilation error the same <see cref="Project"/> object
+        /// can be accessed via exception object.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success:</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         public Assembly CompileFile(string scriptFile, CompileInfo info = null)
             => CompileCode(null, scriptFile, info);
 
@@ -465,6 +487,17 @@ namespace CSScriptLib
         /// <param name="info">The information about compilation context (e.g.
         ///     location of the compiler output - assembly and pdb file).</param>
         /// <returns>The compiled assembly.</returns>
+        /// <remarks>
+        /// <para>
+        /// In case of CodeDomEvaluator, the returned loaded assembly has attached <see cref="Project"/> object that
+        /// can be used to analyse the compilation input. And in case of compilation error the same <see cref="Project"/> object
+        /// can be accessed via exception object.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success:</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         public Assembly CompileMethod(string code, CompileInfo info = null)
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, false, false, null, className: info?.RootClass);
@@ -494,6 +527,17 @@ namespace CSScriptLib
         /// <param name="code">The C# code.</param>
         /// <returns>The instance of a non-typed
         ///     <see cref="CSScriptLib.MethodDelegate"/></returns>
+        /// <remarks>
+        /// <para>
+        /// In case of CodeDomEvaluator, the returned object's assembly has attached <see cref="Project"/> object that
+        /// can be used to analyse the compilation input. And in case of compilation error the same <see cref="Project"/> object
+        /// can be accessed via exception object.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success:</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         public MethodDelegate CreateDelegate(string code)
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
@@ -535,6 +579,17 @@ namespace CSScriptLib
         /// <param name="code">The C# code.</param>
         /// <returns>The instance of a typed
         ///     <see cref="CSScriptLib.MethodDelegate{T}"/></returns>
+        /// <remarks>
+        /// <para>
+        /// In case of CodeDomEvaluator, the returned object's assembly has attached <see cref="Project"/> object that
+        /// can be used to analyse the compilation input. And in case of compilation error the same <see cref="Project"/> object
+        /// can be accessed via exception object.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success:</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         public MethodDelegate<T> CreateDelegate<T>(string code)
         {
             string scriptText = CSScript.WrapMethodToAutoClass(code, true, false);
@@ -655,6 +710,17 @@ namespace CSScriptLib
         /// <param name="scriptText">The C# script text.</param>
         /// <param name="args">The non default constructor arguments.</param>
         /// <returns>Instance of the class defined in the script.</returns>
+        /// <remarks>
+        /// <para>
+        /// In case of CodeDomEvaluator, the returned object's assembly has attached <see cref="Project"/> object that
+        /// can be used to analyse the compilation input. And in case of compilation error the same <see cref="Project"/> object
+        /// can be accessed via exception object.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success:</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         public object LoadCode(string scriptText, params object[] args)
         {
             return CompileCode(scriptText).CreateObject(ExtractClassName(scriptText), args);
@@ -682,6 +748,17 @@ namespace CSScriptLib
         ///     arguments.</param>
         /// <returns>Aligned to the <c>T</c> interface instance of the class
         ///     defined in the script.</returns>
+        /// <remarks>
+        /// <para>
+        /// In case of CodeDomEvaluator, the returned object's assembly has attached <see cref="Project"/> object that
+        /// can be used to analyse the compilation input. And in case of compilation error the same <see cref="Project"/> object
+        /// can be accessed via exception object.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success:</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         /// <example>
         /// The following is the simple example of the interface alignment:
         /// <code>
@@ -733,6 +810,17 @@ namespace CSScriptLib
         /// </example>
         /// <param name="code">The C# code.</param>
         /// <returns>Instance of <c>T</c> delegate.</returns>
+        /// <remarks>
+        /// <para>
+        /// In case of CodeDomEvaluator, the returned object's assembly has attached <see cref="Project"/> object that
+        /// can be used to analyse the compilation input. And in case of compilation error the same <see cref="Project"/> object
+        /// can be accessed via exception object.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success:</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         public T LoadDelegate<T>(string code) where T : class
         {
             throw new NotImplementedException("You may want to consider using interfaces with LoadCode/LoadMethod or use CreateDelegate instead.");
@@ -778,6 +866,17 @@ namespace CSScriptLib
         /// int result = script.Sum(1, 2);
         /// </code>
         /// </example>
+        /// <remarks>
+        /// <para>
+        /// In case of CodeDomEvaluator, the returned object's assembly has attached <see cref="Project"/> object that
+        /// can be used to analyse the compilation input. And in case of compilation error the same <see cref="Project"/> object
+        /// can be accessed via exception object.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success:</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         public object LoadFile(string scriptFile, params object[] args)
         {
             var code = File.ReadAllText(scriptFile);

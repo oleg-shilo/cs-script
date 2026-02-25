@@ -47,9 +47,51 @@ using Scripting;
 namespace CSScriptLib
 {
     /// <summary>
-    /// Class implementing CodeDom favor of (csc.exe/csc.dll) <see cref="IEvaluator"/>
+    /// Class implementing CodeDom flavor of (csc.exe/csc.dll) <see cref="IEvaluator"/>
     /// </summary>
+    /// <remarks>
+    /// <para><b>Accessing Compilation Details (CodeDomEvaluator only)</b></para>
+    /// <para>
+    /// CodeDomEvaluator provides detailed compilation metadata through the <see cref="Project"/> object.
+    /// The Project is attached to the loaded assembly and can be retrieved using extension methods:
+    /// </para>
+    ///
+    /// <para><b>On Successful Compilation:</b></para>
+    /// <code>
+    /// Assembly asm = CSScript.CodeDomEvaluator.CompileCode("Console.WriteLine(\"Hi\");");
+    ///
+    /// // Retrieve Project from the loaded assembly
+    /// var project = asm.GetAttached&lt;Project&gt;();
+    /// Console.WriteLine($"Sources: {string.Join(", ", project.Files)}");
+    /// Console.WriteLine($"References: {string.Join(", ", project.Refs)}");
+    /// </code>
+    ///
+    /// <para><b>On Compilation Error:</b></para>
+    /// <code>
+    /// try
+    /// {
+    ///     CSScript.CodeDomEvaluator.CompileCode("invalid C# code");
+    /// }
+    /// catch (CompilerException ex)
+    /// {
+    ///     // Project is directly available (no casting needed)
+    ///     var project = ex.CompilerInput;
+    ///     Console.WriteLine($"Failed sources: {string.Join(", ", project.Files)}");
+    ///     Console.WriteLine($"Failed references: {string.Join(", ", project.Refs)}");
+    /// }
+    /// </code>
+    ///
+    /// <para><b>Important:</b></para>
+    /// <list type="bullet">
+    ///   <item><description>Project metadata is only available with <b>CodeDomEvaluator</b></description></item>
+    ///   <item><description>Success: Retrieve via <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+    ///   <item><description>Error: Access via <c>CompilerException.CompilerInput</c> (already typed as Project)</description></item>
+    ///   <item><description>Project is null for RoslynEvaluator or cached compilations</description></item>
+    /// </list>
+    /// </remarks>
     /// <seealso cref="CSScriptLib.IEvaluator"/>
+    /// <seealso cref="Project"/>
+    /// <seealso cref="CompilerException"/>
     public class CodeDomEvaluator : EvaluatorBase<CodeDomEvaluator>, IEvaluator
     {
         /// <summary>
