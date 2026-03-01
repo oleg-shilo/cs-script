@@ -42,6 +42,11 @@ CodeDom Evaluator
     Globals.csc = Globals.FindSdkToolsetPackageCompiler() ?? 
                   Globals.FindSdKCompiler();
     ```
+    Alternatively, if you install CS-Script CLI you can download teh installers from the terminal:
+    ```txt
+    css -deploy-csc
+    ```
+
 - Option B: NuGet Package Reference
   Note: the code below will only install the package in the build environment but does not copy them into the build folder. 
   If you want to aggregate the package binaries for distribution you will need to do it manually from the environment NuGet store.

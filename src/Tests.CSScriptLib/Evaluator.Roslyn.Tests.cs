@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Scripting;
 using csscript;
 using CSScripting;
@@ -415,6 +417,53 @@ namespace EvaluatorTests
             // .LoadMethod(@"public void TestPrint() => Printing.Printer.Print();");
 
             // Assert.Equal(3, statements.Count());
+        }
+
+        [Fact]
+        public void Issue_448()
+        {
+            var info = new CompileInfo { CodeKind = SourceCodeKind.Script, CompilerOptions = "-define:test" };
+
+            var util_asm = CSScript.Evaluator
+                                   .With(e => e.DebugBuild = true)
+                                   .CompileCode(@"using System;
+                                                  using System.Diagnostics;
+                                                  public class Util
+                                                  {
+                                                      public string foo()
+                                                      {
+                                                         #if test
+                                                          return ""test"";
+                                                         #else
+                                                          return ""not-test"";
+                                                         #endif
+                                                      }
+                                                  }", info);
+
+            dynamic util = util_asm.CreateObject("*");
+            var result = util.foo();
+            Assert.Equal("test", result);
+
+            // =================================
+            CSScript.EvaluatorConfig.CompilerOptions = "-define:test";
+
+            dynamic util2 = CSScript.Evaluator
+                                    .With(e => e.DebugBuild = true)
+                                    .LoadCode(@"using System;
+                                                  using System.Diagnostics;
+                                                  public class Util
+                                                  {
+                                                      public string foo()
+                                                      {
+                                                         #if test
+                                                          return ""test"";
+                                                         #else
+                                                          return ""not-test"";
+                                                         #endif
+                                                      }
+                                                  }");
+            var result2 = util2.foo();
+            Assert.Equal("test", result);
         }
 
         [Fact]

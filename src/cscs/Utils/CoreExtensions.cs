@@ -574,6 +574,22 @@ namespace csscript
             return Environment.ExpandEnvironmentVariables(text).Trim();
         }
 
+        internal static string[] GetCompilerOptonsSymbols(this string compilerOptions)
+        {
+            IEnumerable<string> processOption(string option)
+            {
+                return compilerOptions?.Split(' ')
+                                       .Where(o => o.StartsWith(option))
+                                       .SelectMany(o => o.Substring(option.Length).Split(','));
+            }
+            var result = new List<string>();
+            result.AddRange(processOption("-define:"));
+            result.AddRange(processOption("/define:"));
+            result.AddRange(processOption("-d:"));
+            result.AddRange(processOption("/d:"));
+            return result.ToArray();
+        }
+
         internal static string NormaliseAsDirective(this string statement)
         {
             var text = CSharpParser.UnescapeDirectiveDelimiters(statement);

@@ -294,61 +294,48 @@ namespace CSScriptLib
                     scriptOptions = scriptOptions.WithLanguageVersion(info.LanguageVersion);
                 }
 
-                // unfortunately the next code block will not work. Roslyn scripting fails to
-                // create compilation if ParseOptions are set
-
-                // if (this.IsDebug)
-                //     try
-                //     {
-                //         var WithParseOptions = typeof(ScriptOptions)
-                //                 .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                //                     .FirstOrDefault(x => x.Name.EndsWith("WithParseOptions"));
-
-                //         var op = new CSharpParseOptions(preprocessorSymbols: new[] { "DEBUG", "TRACE" });
-                //         scriptOptions = (ScriptOptions)WithParseOptions.Invoke(scriptOptions, new object[] { po });
-                //     }
-                //     catch
-                //     {
-                //     }
-
                 Compilation compilation;
 
-                if (info?.CodeKind == SourceCodeKind.Script)
+                var compileSymbols = new List<string>();
+
+                if (IsDebug)
+                    compileSymbols.AddRange(["DEBUG", "TRACE"]);
+
+                compileSymbols.AddRange(CSScript.EvaluatorConfig.CompilerOptions.GetCompilerOptonsSymbols());
+                compileSymbols.AddRange(info?.CompilerOptions.GetCompilerOptonsSymbols() ?? []);
+
+                var syntaxTree = SyntaxFactory.ParseSyntaxTree(
+                        scriptText,
+                        new CSharpParseOptions(
+                            kind: info?.CodeKind ?? SourceCodeKind.Script,
+                            preprocessorSymbols: compileSymbols,
+                            languageVersion: info?.LanguageVersion ?? LanguageVersion.Latest));
+
+                var references = new List<MetadataReference>();
+
+                var refs = AppDomain.CurrentDomain.GetAssemblies(); // from appdomain
+                var explicitRefs = this.refAssemblies.Except(refs); // from code
+
+                foreach (var asm in refs.Concat(explicitRefs))
                 {
-                    var syntaxTree = SyntaxFactory.ParseSyntaxTree(
-                            scriptText,
-                            new CSharpParseOptions(
-                                kind: SourceCodeKind.Script,
-                                languageVersion: info?.LanguageVersion ?? LanguageVersion.Latest));
+                    var metadata = ToMetadata(asm);
+                    if (metadata != null)
+                        references.Add(metadata.GetReference());
+                }
 
-                    var references = new List<MetadataReference>();
+                // add references from code and host-specified
 
-                    var refs = AppDomain.CurrentDomain.GetAssemblies(); // from appdomain
-                    var explicitRefs = this.refAssemblies.Except(refs); // from code
+                compilation = CSharpCompilation.CreateScriptCompilation(
+                                  assemblyName: "Script" + Guid.NewGuid(),
+                                      syntaxTree,
+                                      references,
+                                      returnType: typeof(object));
 
-                    foreach (var asm in refs.Concat(explicitRefs))
-                    {
-                        var metadata = ToMetadata(asm);
-                        if (metadata != null)
-                            references.Add(metadata.GetReference());
-                    }
-
-                    // add references from code and host-specified
-
-                    compilation = CSharpCompilation.CreateScriptCompilation(
-                                      assemblyName: "Script" + Guid.NewGuid(),
-                                          syntaxTree,
-                                          references,
-                                          returnType: typeof(object));
-
-                    var entryPoint = compilation.GetEntryPoint(CancellationToken.None);
+                var entryPoint = compilation.GetEntryPoint(CancellationToken.None);
+                if (info != null)
+                {
                     info.ScriptEntryPoint = entryPoint.MetadataName;
                     info.ScriptEntryPointType = $"{entryPoint.ContainingNamespace.MetadataName}.{entryPoint.ContainingType.MetadataName}";
-                }
-                else
-                {
-                    compilation = CSharpScript.Create(scriptText, scriptOptions)
-                                              .GetCompilation();
                 }
 
                 if (info?.AssemblyName.HasText() == true)
