@@ -64,8 +64,11 @@ CodeDom Evaluator
   2. Extract to: 
         - `*Sdk.Compilers.Toolset` - bin\compilers\ or C:\Program Files\dotnet\packs\{package name}\{version}\ref\net{version}\
         - `*.app.ref` - C:\Program Files\dotnet\packs\{package name}\{version}\ref\net{version}\
-  3. Set path:
+  3. Set path (if it is not standard NuGet location):
      `Globals.csc = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "compilers", "csc.exe");`
+     `Globals.csc_AsmRefs = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "NetCore.app.ref");`
+     Or set environment variables `css_csc_file` and `css_csc_asm_refs_dir`   
+
 
 ### Runtime Resolution Algorithm
 

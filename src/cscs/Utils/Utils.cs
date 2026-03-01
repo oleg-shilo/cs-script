@@ -1065,6 +1065,11 @@ class HostingRuntime
                         Environment.SetEnvironmentVariable("DEBUG", "true");
                         options.DBG = true;
                     }
+                    else if (Args.ParseValuedArg(arg, AppArgs.deployCsc, out argValue)) // -deploy-csc[:<sdk|fx|full>]
+                    {
+                        Globals.DeployCompiler(argValue, nextArg);
+                        CLIExitRequest.Throw();
+                    }
                     else if (Args.ParseValuedArg(arg, AppArgs.l, out argValue)) // -l[:<0|1>]
                     {
                         options.local = true;

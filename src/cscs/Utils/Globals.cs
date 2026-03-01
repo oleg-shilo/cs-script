@@ -693,5 +693,90 @@ namespace CSScripting
                 return "<can_not_find_csc>";
             }
         }
+
+        /// <summary>
+        /// Downloads and deploys C# compiler NuGet packages.
+        /// </summary>
+        /// <param name="packageType">Type of package to deploy: "sdk" (default), "fx" (framework), or "toolset" (full toolset with refs)</param>
+        /// <param name="destination">Optional destination path. If null, uses standard package cache location.</param>
+        static public void DeployCompiler(string packageType = null, string destination = null)
+        {
+            try
+            {
+                //
+                // -deploy-csc            Deploy full toolset with references to teh system NuGet location (default)",
+                // -deploy-csc [path]     Deploy full SDK compiler toolset to specified folder",
+                // -deploy-csc:pre        Include pre-release versions",
+                // -deploy-csc:fx [path]  Deploy Framework compiler toolset",
+
+                NugetPackageDownloader.OnProgressOutput = Console.WriteLine;
+
+                packageType = packageType?.ToLower();
+
+                bool includePrereleases = packageType == "pre";
+                if (includePrereleases && destination != null)
+                {
+                    // if 'pre' was specified and there's a next arg, it's the actual package type
+                    packageType = destination;
+                    destination = null;
+                }
+
+                Console.WriteLine($"Deploying C# compiler package ({packageType ?? "sdk"})...");
+                Console.WriteLine();
+
+                string compilerPath = null;
+
+                switch (packageType)
+                {
+                    case "fx":
+                    case "framework":
+                        compilerPath = NugetPackageDownloader.DownloadLatestFrameworkCompiler(destination, includePrereleases);
+                        break;
+
+                    case null:
+                    case "full":
+                    case "":
+                    default:
+                        var toolsetPath = NugetPackageDownloader.DownloadLatestSdkToolset(destination, includePrereleases);
+                        Console.WriteLine();
+                        Console.WriteLine($"✓ Full SDK toolset deployed successfully to: {(toolsetPath ?? Path.Combine(Environment.SpecialFolder.UserProfile.GetPath(), ".nuget", "packages"))}");
+                        Console.WriteLine();
+                        Console.WriteLine("The toolset includes:");
+                        Console.WriteLine("  - C# compiler (csc.exe/csc.dll)");
+                        Console.WriteLine("  - .NET Core reference assemblies");
+                        Console.WriteLine("  - ASP.NET Core reference assemblies");
+                        break;
+                }
+
+                if (compilerPath != null)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine($"✓ Compiler deployed successfully: {compilerPath}");
+                    Console.WriteLine();
+                    Console.WriteLine("To use this compiler, set the environment variable or use:");
+                    Console.WriteLine($"  Globals.csc = @\"{compilerPath}\";");
+                    Console.WriteLine();
+                    Console.WriteLine("Or set CSSCRIPT_CSC environment variable:");
+                    if (Runtime.IsWin)
+                        Console.WriteLine($"  set css_csc_file={compilerPath}");
+                    else
+                        Console.WriteLine($"  export css_csc_file=\"{compilerPath}\"");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine();
+                Console.WriteLine($"Error deploying compiler: {ex.Message}");
+                Console.WriteLine();
+                Console.WriteLine("Troubleshooting:");
+                Console.WriteLine("  - Check your internet connection");
+                Console.WriteLine("  - Verify NuGet feed is accessible (https://api.nuget.org/v3/index.json)");
+                Console.WriteLine("  - Try with -deploy-csc:pre to include pre-release versions");
+                Console.WriteLine("  - Check write permissions for the destination directory");
+
+                if (ex.InnerException != null)
+                    Console.WriteLine($"  - Details: {ex.InnerException.Message}");
+            }
+        }
     }
 }
