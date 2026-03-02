@@ -5,6 +5,7 @@ using System.Diagnostics;
 using static System.Environment;
 using System.IO;
 using System.Text;
+using csscript;
 using CSScripting;
 using LockCheck;
 
@@ -31,7 +32,10 @@ if (Directory.Exists(path))
 {
     try
     {
-        var handle_exe = @"D:\tools\handle\handle.exe";
+        // var handle_exe = @"D:\tools\handle\handle.exe";
+        var handle_exe = "handle.exe";
+
+        // (var output, var exitCode) = csscript.CoreExtensions.run(handle_exe, $"\"{path}\"");
         (var output, var exitCode) = handle_exe.run($"\"{path}\"");
 
         // cmd.exe            pid: 38644  type: File           108: D:\tools\handle

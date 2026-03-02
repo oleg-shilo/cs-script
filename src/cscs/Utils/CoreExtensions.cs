@@ -576,6 +576,9 @@ namespace csscript
 
         internal static string[] GetCompilerOptonsSymbols(this string compilerOptions)
         {
+            if (compilerOptions.IsEmpty())
+                return [];
+
             IEnumerable<string> processOption(string option)
             {
                 return compilerOptions?.Split(' ')

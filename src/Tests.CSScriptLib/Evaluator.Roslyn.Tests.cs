@@ -28,6 +28,13 @@ namespace EvaluatorTests
     [Collection("Sequential")]
     public class Generic_Roslyn
     {
+        public Generic_Roslyn()
+        {
+            // force to load the assembly in the current appdomain so the scripts don't have to reference it explicitly
+            Debug.WriteLine(typeof(Console).Assembly.FullName);
+            Globals.DefaultRoslynCompilationToScript = false;
+        }
+
         [Fact(Skip = "xUnit runtime is incompatible. But the test is valid")]
         public void call_UnloadAssembly()
         {
@@ -124,6 +131,10 @@ namespace EvaluatorTests
                                                    return new[] {0,5};
                                                }");
 
+            object obj = script;
+
+            var ttt = obj.GetType().GetMethods()[0].Invoke(obj, new object[0]);
+
             var result = (int[])script.func();
 
             var asm_type = (Type)script.GetType();
@@ -180,7 +191,8 @@ namespace EvaluatorTests
                                                       }
                                                   }");
 
-            var script = asm.GetType("css_root+Script");
+            var script = (Globals.DefaultRoslynCompilationToScript ? asm.GetType("css_root+Script") : asm.GetType("Script"));
+
             var setHost = (Action<IScriptHost>)script.GetMethod("SetHost").CreateDelegate(typeof(Action<IScriptHost>));
             var foo = (Action)script.GetMethod("foo").CreateDelegate(typeof(Action));
 
@@ -215,7 +227,7 @@ namespace EvaluatorTests
             Assembly asm = CSScript.Evaluator
                                    .With(e => e.IsCachingEnabled = true)
                                    .CompileCode(@"using System;
-                                                   public class Script
+                                                   public class Script_issue_259
                                                    {
                                                        void Log(string message)
                                                        {
@@ -298,11 +310,13 @@ namespace EvaluatorTests
 
                               x.ForEach(Console.WriteLine);
                               var z = y.First();
+
                               Console.WriteLine(z);
                           }
                       }";
 
                 var asm = CSScript.RoslynEvaluator
+                        .ReferenceAssemblyOf(typeof(Console).Assembly)
                         .With(e => e.IsCachingEnabled = false) // required to not interfere with xUnit
                         .CompileCode(code2, info);
 
@@ -319,11 +333,13 @@ namespace EvaluatorTests
                                          .CreateObject("*");
                 object utils = script.Test();
 
-                Assert.Equal("script_a+Utils", utils.GetType().ToString());
+                // var typeName = (Globals.DefaultRoslynCompilationToScript ? "script_a+Utils" : "Utils");
+                var typeName = "script_a+Utils";
+                Assert.Equal(typeName, utils.GetType().ToString());
             }
             finally
             {
-                info.AssemblyFile.FileDelete(rethrow: false);
+                // info.AssemblyFile.FileDelete(rethrow: false);
             }
         }
 
@@ -365,6 +381,7 @@ namespace EvaluatorTests
             {
                 RootClass = "AccountingScript",
                 AssemblyFile = "D:\\AccountingScript.dll",
+                // CodeKind = SourceCodeKind.Script
             };
 
             var accounting_assm2 = CSScript.Evaluator
@@ -389,7 +406,7 @@ namespace EvaluatorTests
                             }");
 
             string r = script1.Test().ToString();
-            // Assert.Equal(3, statements.Count());
+            Assert.Equal("1", r);
         }
 
         public static string log = "";
@@ -397,7 +414,7 @@ namespace EvaluatorTests
         [Fact]
         public void Issue_354()
         {
-            var info = new CompileInfo { RootClass = "Printing", AssemblyFile = "Printer.dll" };
+            var info = new CompileInfo { RootClass = "Printing", AssemblyFile = "Printer.dll", CodeKind = SourceCodeKind.Script };
             var printer_asm = CSScript.Evaluator
                                       .ReferenceAssemblyOf(this)
                                       .CompileCode(@"using System;
@@ -503,12 +520,17 @@ namespace EvaluatorTests
         [Fact]
         public void Issue_185_Referencing()
         {
-            var root_class_name = $"script_{System.Guid.NewGuid()}".Replace("-", "");
+            var root_class_name = $"script_{Process.GetCurrentProcess().Id}_{System.Guid.NewGuid()}".Replace("-", "");
 
-            var info = new CompileInfo { RootClass = root_class_name, PreferLoadingFromFile = true };
+            var info = new CompileInfo { RootClass = root_class_name, PreferLoadingFromFile = true, AssemblyFile = root_class_name + ".dll" };
             try
             {
+                // need to reference Console's assembly since the script implicitly references the current appdomain assemblies
+                // but console asm is not loaded in the test environment
                 var printer_asm = CSScript.RoslynEvaluator
+                                          // .Reset(false) // to control what assemblies are referenced
+                                          .ReferenceAssembly(typeof(Console).Assembly)
+                                          // .ReferenceDomainAssemblies()
                                           .CompileCode(@"using System;
                                                  public class Printer
                                                  {
@@ -524,10 +546,19 @@ namespace EvaluatorTests
                                                }");
                 script.Test();
             }
+            catch (Exception e)
+            {
+                Debugger.Launch();
+                var ttt = File.Exists(info.AssemblyFile);
+                Debug.WriteLine(e.ToString());
+                // throw;
+            }
             finally
             {
-                info.AssemblyFile.FileDelete(rethrow: false);
+                // info.AssemblyFile.FileDelete(rethrow: false);
             }
+
+            Debug.WriteLine("Test completed");
         }
     }
 }

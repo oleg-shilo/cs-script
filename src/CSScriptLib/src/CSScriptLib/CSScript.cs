@@ -370,6 +370,7 @@ namespace CSScriptLib
                     {
                         try
                         {
+                            Debugger.Launch();
                             Runtime.CleanUnusedTmpFiles(CSScript.GetScriptTempDir(), "*????????-????-????-????-????????????.???*", ignoreCurrentProcessScripts);
                             Runtime.CleanAbandonedCache(CSScript.GetCacheDir());
                         }

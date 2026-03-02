@@ -313,13 +313,15 @@ namespace csscript
                                               "The path to the Visual Studio Code executable (code.exe) needs to be defined in the " +
                                               "environment variable `CSSCRIPT_VSCODEEXE`.");
 
-            switch1Help[cache] = new ArgInfo("-cache[:<ls|trim|clear>]",
+            switch1Help[cache] = new ArgInfo("-cache[:<ls|trim|clear>] [script]",
                                              "Performs script cache operations.",
                                              "```",
                                              " ls    - lists all cache items.",
                                              " trim  - removes all abandoned cache items.",
                                              " clear - removes all cache items.",
+                                             " script - prints location of the cache folder.",
                                              "```");
+
             switch1Help[co] = new ArgInfo("-co:<options>",
                                           "Passes compiler options directly to the language compiler (e.g. csc.exe or dotnet.exe).",
                                           "Note, some compiler options may not be compatible if they are passed to the wrong compiler " +

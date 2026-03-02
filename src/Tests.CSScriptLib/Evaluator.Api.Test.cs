@@ -54,6 +54,13 @@ namespace EvaluatorTests
     [Collection("Sequential")]
     public class API_Roslyn
     {
+        public API_Roslyn()
+        {
+            // force to load the assembly in the current appdomain so the scripts don't have to reference it explicitly
+            Debug.WriteLine(typeof(Console).Assembly.FullName);
+            Globals.DefaultRoslynCompilationToScript = false;
+        }
+
         public string GetTempFileName(string seed)
             => $"{this.GetHashCode()}.{seed}".GetFullPath();
 
@@ -172,7 +179,8 @@ namespace EvaluatorTests
             if (!calcAsm.FileExists()) // try to avoid unnecessary compilations as xUnint keeps locking the loaded assemblies
                 CSScript.CodeDomEvaluator
                         .CompileAssemblyFromCode(@"using System;
-                                                   public class Calc
+
+                                                   public class Calc2
                                                    {
                                                        static public int Sum(int a, int b) => a + b;
                                                    }",
@@ -187,21 +195,28 @@ namespace EvaluatorTests
             var code = @"using System;
                          public class Script
                          {
-                             public int Sum(int a, int b) => Calc.Sum(a, b);
+                             public int Sum(int a, int b) => Calc2.Sum(a, b);
                          }";
 
             try
             {
-                new_evaluator.LoadCode(code);
+                var eval = new_evaluator.Reset(false);
+                eval.LoadCode(code);
 
                 Assert.True(false);
             }
             catch (Exception e)
             {
-                Assert.Contains("The name 'Calc' does not exist in the current context", e.Message);
-            }
+                if (!e.Message.Contains(" does not exist in the current context"))
+                {
+                    // <script>(4,62): error CS0433: The type 'Calc' exists in both '13986044.LoadFile, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' and '20613177.LoadFile, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null'
+                    Debugger.Launch();
+                }
 
-            new_evaluator.LoadCode($"//css_ref {calcAsm}" + Environment.NewLine + code);
+                Assert.Contains("The name 'Calc2' does not exist in the current context", e.Message);
+            }
+            var eval2 = new_evaluator.Reset(false);
+            eval2.LoadCode($"//css_ref {calcAsm}" + Environment.NewLine + code);
         }
 
         [Fact]
@@ -247,11 +262,11 @@ namespace EvaluatorTests
                                                     using System;
                                                     public class Script
                                                     {{
-                                                        public int Sum(int a, int b) => Calc.Sum(a ,b);
+                                                        public int Sum(int a, int b) => Calculator.Sum(a ,b);
                                                     }}");
 
                 File.WriteAllText(dependencyScript, @"using System;
-                                                      public class Calc
+                                                      public class Calculator
                                                       {
                                                           static public int Sum(int a, int b)
                                                           {

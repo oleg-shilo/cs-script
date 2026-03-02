@@ -307,7 +307,7 @@ namespace CSScriptLib
                 var syntaxTree = SyntaxFactory.ParseSyntaxTree(
                         scriptText,
                         new CSharpParseOptions(
-                            kind: info?.CodeKind ?? SourceCodeKind.Script,
+                            kind: info?.CodeKind ?? (Globals.DefaultRoslynCompilationToScript ? SourceCodeKind.Script : SourceCodeKind.Regular),
                             preprocessorSymbols: compileSymbols,
                             languageVersion: info?.LanguageVersion ?? LanguageVersion.Latest));
 
@@ -323,19 +323,37 @@ namespace CSScriptLib
                         references.Add(metadata.GetReference());
                 }
 
-                // add references from code and host-specified
+                switch (info?.CodeKind)
+                {
+                    case SourceCodeKind.Script:
+                        compilation = CSharpCompilation.CreateScriptCompilation(
+                                          assemblyName: "Script" + Guid.NewGuid(),
+                                              syntaxTree,
+                                              references,
+                                              returnType: typeof(object));
+                        break;
 
-                compilation = CSharpCompilation.CreateScriptCompilation(
-                                  assemblyName: "Script" + Guid.NewGuid(),
-                                      syntaxTree,
-                                      references,
-                                      returnType: typeof(object));
+                    case SourceCodeKind.Regular:
+                    default:
+                        {
+                            if (Globals.DefaultRoslynCompilationToScript)
+                                compilation = CSharpScript.Create(scriptText, scriptOptions)
+                                                  .GetCompilation();
+                            else
+                                compilation = CSharpCompilation.Create(
+                                              assemblyName: "Script" + Guid.NewGuid(),
+                                              syntaxTrees: new[] { syntaxTree },
+                                              references: references,
+                                              options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                        }
+                        break;
+                }
 
                 var entryPoint = compilation.GetEntryPoint(CancellationToken.None);
-                if (info != null)
+                if (info != null && entryPoint != null)
                 {
                     info.ScriptEntryPoint = entryPoint.MetadataName;
-                    info.ScriptEntryPointType = $"{entryPoint.ContainingNamespace.MetadataName}.{entryPoint.ContainingType.MetadataName}";
+                    info.ScriptEntryPointType = $"{entryPoint.ContainingNamespace.MetadataName}.{entryPoint?.ContainingType.MetadataName}";
                 }
 
                 if (info?.AssemblyName.HasText() == true)
@@ -404,7 +422,8 @@ namespace CSScriptLib
                         asm.Seek(0, SeekOrigin.Begin);
                         byte[] buffer = asm.GetBuffer();
 
-                        if (info?.AssemblyFile != null && info?.CodeKind != SourceCodeKind.Script)
+                        // if (info?.AssemblyFile != null && info?.CodeKind != SourceCodeKind.Script)
+                        if (info?.AssemblyFile != null)
                             File.WriteAllBytes(info.AssemblyFile, buffer);
 
                         if (IsDebug && CSScript.EvaluatorConfig.PdbFormat != DebugInformationFormat.Embedded)
