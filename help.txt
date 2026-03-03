@@ -86,12 +86,13 @@ params	Specifies optional parameters for a script file to be run.
     The path to the Visual Studio Code executable (code.exe) needs to be defined in the environment variable
     CSSCRIPT_VSCODEEXE.
 
--cache[:<ls|trim|clear>]
+-cache[:<ls|trim|clear>] [script]
     Performs script cache operations.
     
      ls    - lists all cache items.
      trim  - removes all abandoned cache items.
      clear - removes all cache items.
+     script - prints location of the cache folder.
 
 -co:<options>
     Passes compiler options directly to the language compiler (e.g. csc.exe or dotnet.exe).
