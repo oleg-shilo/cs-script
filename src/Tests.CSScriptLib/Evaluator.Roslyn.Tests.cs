@@ -418,7 +418,7 @@ namespace EvaluatorTests
         [Fact]
         public void Issue_354()
         {
-            var info = new CompileInfo { RootClass = "Printing", AssemblyFile = testTempFile("Printer.dll"), CodeKind = SourceCodeKind.Script };
+            var info = new CompileInfo { RootClass = "PrintingClass", AssemblyFile = testTempFile("Printer.dll"), CodeKind = SourceCodeKind.Script };
             var printer_asm = CSScript.Evaluator
                                       .ReferenceAssemblyOf(this)
                                       .CompileCode(@"using System;
@@ -434,7 +434,7 @@ namespace EvaluatorTests
 
             dynamic script = CSScript.Evaluator
                                      .ReferenceAssembly(printer_asm)
-                                     .Eval("Printing.Printer.Print();");
+                                     .Eval("PrintingClass.Printer.Print();");
             // .LoadMethod(@"public void TestPrint() => Printing.Printer.Print();");
 
             // Assert.Equal(3, statements.Count());
@@ -524,9 +524,6 @@ namespace EvaluatorTests
         [Fact]
         public void Issue_185_Referencing()
         {
-#if DEBUG
-            return; // to prevent an accidental referencing of the assembly under xUnit runtime. Don't ask...
-#endif
             var root_class_name = $"script_{System.Guid.NewGuid()}".Replace("-", "");
             var info = new CompileInfo
             {
@@ -547,6 +544,11 @@ namespace EvaluatorTests
                                                  {
                                                      public void Print() => Console.Write(""Printing..."");
                                                  }", info);
+
+                // as part of #448 work I have discovered that in the TestEnvironment when AppDomain has all the assemblies of the various
+                // tests loaded the next LoadMethod will trigger file not found exception for the *.tmp.cs.dll file that was generated for the
+                // CodeDom.use_interfaces_between_scripts.
+                // This is because the next LoadMethod will try to reference domain assemblies. `Reset(false)` somehow does not prevent this
 
                 dynamic script = CSScript.RoslynEvaluator
                                          .Reset(false) // to control what assemblies are referenced

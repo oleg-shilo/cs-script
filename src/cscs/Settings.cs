@@ -454,7 +454,7 @@ To overcome this problem CS-Script uses custom string hashing algorithm(default 
             }
             finally
             {
-                File.Delete(file);
+                file.DeleteIfExists();
             }
         }
 

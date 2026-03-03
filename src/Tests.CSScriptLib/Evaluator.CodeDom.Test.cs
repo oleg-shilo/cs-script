@@ -222,18 +222,18 @@ namespace EvaluatorTests
             IPrinter printer = CSScript.CodeDomEvaluator
                                        .ReferenceAssemblyOf<IPrinter>()
                                        .LoadCode<IPrinter>(@"using System;
-                                                         public class Printer : IPrinter
-                                                         {
-                                                            // make it diff
-                                                            public void Print()
-                                                                => Console.Write(""Printing..."");
-                                                         }");
+                                                             public class Printer : IPrinter
+                                                             {
+                                                                public void Print()
+                                                                    => Console.Write(""Printing..."");
+                                                             }");
+
+            var ttt = printer.GetType().Assembly.Location();
 
             dynamic script = CSScript.CodeDomEvaluator
                                      .ReferenceAssemblyOf<IPrinter>()
                                      .LoadMethod(@"void Test(IPrinter printer)
                                                {
-                                                    // make it diff
                                                    printer.Print();
                                                }");
             script.Test(printer);

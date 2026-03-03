@@ -182,10 +182,16 @@ namespace CSScripting
 
         internal static string DeleteIfExists(this string path, bool recursive = false)
         {
+            if (Globals.TestData.HasText())
+            {
+                if (Globals.TestData == path)
+                {
+                }
+            }
             if (Directory.Exists(path))
             {
                 Directory.GetFiles(path, "*", SearchOption.AllDirectories)
-                         .ForEach(File.Delete);
+                         .ForEach(x => x.DeleteIfExists());
                 Directory.Delete(path, recursive);
             }
             else if (File.Exists(path))
@@ -263,7 +269,7 @@ namespace CSScripting
                         var dir = dirs.Dequeue();
 
                         foreach (var file in Directory.GetFiles(dir, "*", SearchOption.AllDirectories))
-                            File.Delete(file);
+                            file.DeleteIfExists();
 
                         Directory.GetDirectories(dir, "*", SearchOption.AllDirectories)
                                  .ForEach(dirs.Enqueue);

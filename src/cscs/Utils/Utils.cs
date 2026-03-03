@@ -121,7 +121,7 @@ namespace CSScripting
             if (Directory.Exists(path))
             {
                 foreach (var file in Directory.GetFiles(path, "*", SearchOption.AllDirectories))
-                    File.Delete(file);
+                    file.DeleteIfExists();
 
                 Directory.GetDirectories(path, "*", SearchOption.AllDirectories)
                          .ForEach(d => Directory.Delete(d, true));
@@ -228,7 +228,7 @@ namespace CSScripting
                     if (File.Exists(path))
                     {
                         File.SetAttributes(path, FileAttributes.Normal); // in case the file is read-only
-                        File.Delete(path);
+                        path.DeleteIfExists();
                     }
                     break;
                 }
@@ -386,7 +386,7 @@ partial class dbg
                 if (item != dbg_file)
                     try
                     {
-                        File.Delete(item);
+                        item.DeleteIfExists();
                     }
                     catch { }
 
@@ -2004,7 +2004,7 @@ class HostingRuntime
             try
             {
                 File.SetAttributes(path, FileAttributes.Normal); //to remove possible read-only
-                File.Delete(path);
+                path.DeleteIfExists();
             }
             catch { }
         }

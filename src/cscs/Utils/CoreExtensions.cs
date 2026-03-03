@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
@@ -680,7 +681,7 @@ namespace csscript
         /// <summary>
         /// Clears the collection.
         /// </summary>
-        public void Clear() => Items.ForEach(File.Delete);
+        public void Clear() => Items.ForEach(x => x.DeleteIfExists());
     }
 
     static class TempTilesManagement

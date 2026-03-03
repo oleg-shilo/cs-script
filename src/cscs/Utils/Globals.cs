@@ -20,6 +20,8 @@ namespace CSScripting
     {
 #if DEBUG
 
+        internal static string TestData;
+
         internal static void DbgLog(string line, string context = null)
         {
             File.AppendAllLines($@"D:\dev\cs-script\src\Tests.CSScriptLib\bin\Debug\net10.0\TestData\error{context}.log", [line]);
@@ -156,9 +158,9 @@ namespace CSScripting
         {
             try
             {
-                File.Delete(build_server);
-                File.Delete(build_server.ChangeExtension(".deps.json"));
-                File.Delete(build_server.ChangeExtension(".runtimeconfig.json"));
+                build_server.DeleteIfExists();
+                build_server.ChangeExtension(".deps.json").DeleteIfExists();
+                build_server.ChangeExtension(".runtimeconfig.json").DeleteIfExists();
             }
             catch (Exception ex)
             {
