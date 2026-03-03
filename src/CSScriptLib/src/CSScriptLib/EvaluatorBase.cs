@@ -1465,7 +1465,8 @@ namespace CSScriptLib
         /// <value>
         /// The kind of the code.
         /// </value>
-        public SourceCodeKind CodeKind { set; get; } = SourceCodeKind.Regular;
+        // public SourceCodeKind CodeKind { set; get; } = SourceCodeKind.Regular;
+        public SourceCodeKind CodeKind { set; get; } = Globals.DefaultRoslynCompilationToScript ? SourceCodeKind.Regular : SourceCodeKind.Script;
 
         /// <summary>
         /// Gets or sets the C# language version to be used for compilation.

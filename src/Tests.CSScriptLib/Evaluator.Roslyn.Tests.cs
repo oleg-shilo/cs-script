@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -28,6 +29,19 @@ namespace EvaluatorTests
     [Collection("Sequential")]
     public class Generic_Roslyn
     {
+        string testTempFile(string fileName, [CallerMemberName] string caller = null)
+        {
+            var rootDir = "TestData".PathJoin(nameof(Generic_Roslyn), caller).GetFullPath().EnsureDir();
+            return Path.Combine(rootDir, fileName);
+        }
+
+        public Generic_Roslyn()
+        {
+            // force to load the assembly in the current appdomain so the scripts don't have to reference it explicitly
+            Debug.WriteLine(typeof(Console).Assembly.FullName);
+            Globals.DefaultRoslynCompilationToScript = false;
+        }
+
         [Fact(Skip = "xUnit runtime is incompatible. But the test is valid")]
         public void call_UnloadAssembly()
         {
@@ -124,6 +138,10 @@ namespace EvaluatorTests
                                                    return new[] {0,5};
                                                }");
 
+            object obj = script;
+
+            var ttt = obj.GetType().GetMethods()[0].Invoke(obj, new object[0]);
+
             var result = (int[])script.func();
 
             var asm_type = (Type)script.GetType();
@@ -180,7 +198,8 @@ namespace EvaluatorTests
                                                       }
                                                   }");
 
-            var script = asm.GetType("css_root+Script");
+            var script = (Globals.DefaultRoslynCompilationToScript ? asm.GetType("css_root+Script") : asm.GetType("Script"));
+
             var setHost = (Action<IScriptHost>)script.GetMethod("SetHost").CreateDelegate(typeof(Action<IScriptHost>));
             var foo = (Action)script.GetMethod("foo").CreateDelegate(typeof(Action));
 
@@ -215,7 +234,7 @@ namespace EvaluatorTests
             Assembly asm = CSScript.Evaluator
                                    .With(e => e.IsCachingEnabled = true)
                                    .CompileCode(@"using System;
-                                                   public class Script
+                                                   public class Script_issue_259
                                                    {
                                                        void Log(string message)
                                                        {
@@ -280,7 +299,7 @@ namespace EvaluatorTests
             {
                 RootClass = "script_a",
                 AssemblyName = "script_a",
-                AssemblyFile = "script_a_asm2\\script_a_asm2.dll".EnsureFileDir()
+                AssemblyFile = testTempFile("script_a_asm2.dll")
             };
 
             try
@@ -291,6 +310,7 @@ namespace EvaluatorTests
 
                       public class Utils
                       {
+                          public string Name => ""Utils"";
                           static void Main(string[] args)
                           {
                               var x = new List<int> {1, 2, 3, 4, 5};
@@ -298,18 +318,18 @@ namespace EvaluatorTests
 
                               x.ForEach(Console.WriteLine);
                               var z = y.First();
+
                               Console.WriteLine(z);
                           }
                       }";
 
                 var asm = CSScript.RoslynEvaluator
+                        .ReferenceAssemblyOf(typeof(Console).Assembly)
                         .With(e => e.IsCachingEnabled = false) // required to not interfere with xUnit
                         .CompileCode(code2, info);
 
                 dynamic script = CSScript.RoslynEvaluator
                                          .With(e => e.IsCachingEnabled = false)
-                                         // .With(e => e.ReferenceDomainAssemblies = false)
-
                                          .ReferenceAssembly(info.AssemblyFile)
                                          .CompileMethod(@"using static script_a;
                                                   Utils Test()
@@ -317,8 +337,8 @@ namespace EvaluatorTests
                                                       return new Utils();
                                                   }")
                                          .CreateObject("*");
-                object utils = script.Test();
 
+                dynamic utils = script.Test();
                 Assert.Equal("script_a+Utils", utils.GetType().ToString());
             }
             finally
@@ -364,7 +384,8 @@ namespace EvaluatorTests
             var info = new CompileInfo
             {
                 RootClass = "AccountingScript",
-                AssemblyFile = "D:\\AccountingScript.dll",
+                AssemblyFile = testTempFile("AccountingScript.dll"),
+                // CodeKind = SourceCodeKind.Script
             };
 
             var accounting_assm2 = CSScript.Evaluator
@@ -389,7 +410,7 @@ namespace EvaluatorTests
                             }");
 
             string r = script1.Test().ToString();
-            // Assert.Equal(3, statements.Count());
+            Assert.Equal("1", r);
         }
 
         public static string log = "";
@@ -397,7 +418,7 @@ namespace EvaluatorTests
         [Fact]
         public void Issue_354()
         {
-            var info = new CompileInfo { RootClass = "Printing", AssemblyFile = "Printer.dll" };
+            var info = new CompileInfo { RootClass = "PrintingClass", AssemblyFile = testTempFile("Printer.dll"), CodeKind = SourceCodeKind.Script };
             var printer_asm = CSScript.Evaluator
                                       .ReferenceAssemblyOf(this)
                                       .CompileCode(@"using System;
@@ -413,7 +434,7 @@ namespace EvaluatorTests
 
             dynamic script = CSScript.Evaluator
                                      .ReferenceAssembly(printer_asm)
-                                     .Eval("Printing.Printer.Print();");
+                                     .Eval("PrintingClass.Printer.Print();");
             // .LoadMethod(@"public void TestPrint() => Printing.Printer.Print();");
 
             // Assert.Equal(3, statements.Count());
@@ -422,47 +443,51 @@ namespace EvaluatorTests
         [Fact]
         public void Issue_448()
         {
+            var code = @"using System;
+                         using System.Diagnostics;
+                         public class Util
+                         {
+                             public string foo()
+                             {
+                                 #if test
+                                 return ""test"";
+                                 #else
+                                 return ""not-test"";
+                                 #endif
+                             }
+                         }";
+
+            // =================================
             var info = new CompileInfo { CodeKind = SourceCodeKind.Script, CompilerOptions = "-define:test" };
 
-            var util_asm = CSScript.Evaluator
-                                   .With(e => e.DebugBuild = true)
-                                   .CompileCode(@"using System;
-                                                  using System.Diagnostics;
-                                                  public class Util
-                                                  {
-                                                      public string foo()
-                                                      {
-                                                         #if test
-                                                          return ""test"";
-                                                         #else
-                                                          return ""not-test"";
-                                                         #endif
-                                                      }
-                                                  }", info);
-
-            dynamic util = util_asm.CreateObject("*");
+            dynamic util = CSScript.Evaluator.CompileCode(code, info).CreateObject("*");
             var result = util.foo();
             Assert.Equal("test", result);
 
             // =================================
+            info = new CompileInfo { CodeKind = SourceCodeKind.Regular, CompilerOptions = "-define:test" };
+
+            util = CSScript.Evaluator.CompileCode(code, info).CreateObject("*");
+            result = util.foo();
+            Assert.Equal("test", result);
+
+            // =================================
+            // if we do not specify dll file to create, the assembly will be created with the default name that is the same as for
+            // one of the prev tests And since it is loaded in the appdomain from the file the file will be locked.
+            // This is specific to SourceCodeKind.Regular, which triggers the initialization of CompileInfo.AssemblyFile to the default
+            // name `$"{RootClass}.dll"`.
+
+            info = new CompileInfo { CodeKind = SourceCodeKind.Regular, AssemblyFile = testTempFile("asm1.dll") };
+
+            util = CSScript.Evaluator.CompileCode(code, info).CreateObject("*");
+            result = util.foo();
+            Assert.Equal("not-test", result);
+
+            // =================================
             CSScript.EvaluatorConfig.CompilerOptions = "-define:test";
 
-            dynamic util2 = CSScript.Evaluator
-                                    .With(e => e.DebugBuild = true)
-                                    .LoadCode(@"using System;
-                                                  using System.Diagnostics;
-                                                  public class Util
-                                                  {
-                                                      public string foo()
-                                                      {
-                                                         #if test
-                                                          return ""test"";
-                                                         #else
-                                                          return ""not-test"";
-                                                         #endif
-                                                      }
-                                                  }");
-            var result2 = util2.foo();
+            util = CSScript.Evaluator.LoadCode(code);
+            result = util.foo();
             Assert.Equal("test", result);
         }
 
@@ -504,18 +529,33 @@ namespace EvaluatorTests
         public void Issue_185_Referencing()
         {
             var root_class_name = $"script_{System.Guid.NewGuid()}".Replace("-", "");
+            var info = new CompileInfo
+            {
+                RootClass = root_class_name,
+                PreferLoadingFromFile = true,
+                AssemblyFile = testTempFile(root_class_name + ".dll")
+            };
 
-            var info = new CompileInfo { RootClass = root_class_name, PreferLoadingFromFile = true };
             try
             {
+                // need to reference Console's assembly since the script implicitly references the current appdomain assemblies
+                // but console asm is not loaded in the test environment
                 var printer_asm = CSScript.RoslynEvaluator
+                                          .Reset(false) // to prevent appdomain assemblies being loaded
+                                          .ReferenceAssembly(typeof(Console).Assembly)
                                           .CompileCode(@"using System;
                                                  public class Printer
                                                  {
                                                      public void Print() => Console.Write(""Printing..."");
                                                  }", info);
 
+                // as part of #448 work I have discovered that in the TestEnvironment when AppDomain has all the assemblies of the various
+                // tests loaded the next LoadMethod will trigger file not found exception for the *.tmp.cs.dll file that was generated for the
+                // CodeDom.use_interfaces_between_scripts.
+                // This is because the next LoadMethod will try to reference domain assemblies. `Reset(false)` somehow does not prevent this
+
                 dynamic script = CSScript.RoslynEvaluator
+                                         .Reset(false) // to control what assemblies are referenced
                                          .ReferenceAssembly(printer_asm)
                                          .LoadMethod($"using static {root_class_name};" + @"
                                                void Test()
@@ -523,6 +563,11 @@ namespace EvaluatorTests
                                                    new Printer().Print();
                                                }");
                 script.Test();
+            }
+            catch (Exception)
+            {
+                // Debugger.Launch();
+                throw;
             }
             finally
             {

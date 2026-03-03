@@ -315,7 +315,7 @@ namespace CSScripting
                 finally
                 {
                     // Cleanup temp file
-                    try { File.Delete(tempNupkg); } catch { }
+                    try { tempNupkg.DeleteIfExists(); } catch { }
                 }
             }
             catch (Exception ex)

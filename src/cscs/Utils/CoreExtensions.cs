@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
@@ -330,6 +331,34 @@ namespace csscript
         public static bool SamePathAs(this string path1, string path2) =>
             string.Compare(path1, path2, Runtime.IsWin) == 0;
 
+#if DEBUG
+
+        internal static string SimpleCallStack(this object obj, string includeAsms = "cscs.tests,CSScriptLib")
+        {
+            var targetAsms = includeAsms.Split(',').Select(x => x.Trim()).ToArray();
+
+            var frames = new StackTrace().GetFrames()
+                                 .Skip(1)
+                                 .Where(x =>
+                                 {
+                                     if (x.HasMethod())
+                                     {
+                                         var asmName = x.GetMethod()?.DeclaringType?.Assembly?.GetName()?.Name ?? "";
+                                         return targetAsms?.Any() == true && targetAsms.Contains(asmName);
+                                     }
+                                     else
+                                         return false;
+                                 }).ToList();
+            frames.Reverse();
+
+            if (frames.Any())
+                return string.Join("->", frames.Select(f => f.GetMethod().Name));
+            else
+                return null;
+        }
+
+#endif
+
         /// <summary>
         /// Surrounds the specified text into quotation characters.
         /// </summary>
@@ -356,6 +385,42 @@ namespace csscript
             // Runtime assemblies are in "shared" directory, reference assemblies are in "packs"
             return normalizedPath.Contains("\\dotnet\\shared\\") ||
                    normalizedPath.Contains("/dotnet/shared/");
+        }
+
+        /// <summary>
+        /// Determines whether the specified assembly is considered a .NET framework assembly.
+        /// <p>"Framework" in this context implies that the assembly is a standard .NET assembly that comes from
+        /// either .NET Runtime or .NET SDK installation, but not from '.NET Framework' vs '.NET Core'.</p>
+        /// </summary>
+        /// <remarks>An assembly is considered a framework assembly if it is not dynamic and is located in
+        /// standard .NET runtime folders. Assemblies with names matching GUID patterns are typically excluded, as they
+        /// are often dynamically compiled.</remarks>
+        /// <param name="asm">The assembly to evaluate. This parameter cannot be null.</param>
+        /// <returns>true if the assembly is identified as a framework assembly; otherwise, false.</returns>
+        public static bool IsFrameworkAssembly(this Assembly asm)
+        {
+            if (asm.IsDynamic)
+                return false;
+
+            var location = asm.Location ?? "";
+            var isInRuntimeFolder =
+                location.Contains(@"\dotnet\shared\", StringComparison.OrdinalIgnoreCase) ||
+                location.Contains(@"\Microsoft.NET\", StringComparison.OrdinalIgnoreCase);
+
+            if (isInRuntimeFolder)
+                return true;
+
+            var name = asm.GetName();
+
+            // Pattern for GUID with dashes: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+            // Pattern for GUID without dashes: 32 consecutive hex characters
+            var guidPattern = @"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})|([0-9a-fA-F]{32})";
+
+            // Assemblies with GUIDs in their names are typically dynamically compiled
+            if (Regex.IsMatch(name.Name, guidPattern))
+                return false;
+
+            return false;
         }
 
         /// <summary>
@@ -576,6 +641,9 @@ namespace csscript
 
         internal static string[] GetCompilerOptonsSymbols(this string compilerOptions)
         {
+            if (compilerOptions.IsEmpty())
+                return [];
+
             IEnumerable<string> processOption(string option)
             {
                 return compilerOptions?.Split(' ')
@@ -649,7 +717,7 @@ namespace csscript
         /// <summary>
         /// Clears the collection.
         /// </summary>
-        public void Clear() => Items.ForEach(File.Delete);
+        public void Clear() => Items.ForEach(x => x.DeleteIfExists());
     }
 
     static class TempTilesManagement

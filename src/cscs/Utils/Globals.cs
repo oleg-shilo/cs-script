@@ -18,6 +18,35 @@ namespace CSScripting
     /// </summary>
     public static partial class Globals
     {
+#if DEBUG
+
+        internal static string TestData;
+
+        internal static void DbgLog(string line, string context = null)
+        {
+            File.AppendAllLines($@"D:\dev\cs-script\src\Tests.CSScriptLib\bin\Debug\net10.0\TestData\error{context}.log", [line]);
+        }
+
+#endif
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to use the legacy Roslyn compilation method when the default is <c>SourceCodeKind.Regular</c>.
+        /// <p>The new approach by default initializes to <c>SourceCodeKind.Script</c>.  </p>
+        /// <p>
+        /// But you can always set the CodeKind explicitly via <see cref="T:CSScriptLib.CompilerInfo.CodeKind"/>.
+        /// </p>
+        /// </summary>
+        /// <remarks>Set this property to <see langword="true"/> to enable the legacy compilation process,
+        /// which may be necessary for compatibility with older codebases or specific environments. Using the legacy
+        /// method may affect performance and limit access to newer Roslyn features. The value is stored in the
+        /// "css_roslyn_legacy_compilation" environment variable.</remarks>
+        public static bool DefaultRoslynCompilationToScript { get; set; } = true;
+
+        // {
+        //     get => Environment.GetEnvironmentVariable("css_complex_roslyn_compilation") != null;
+        //     set => Environment.SetEnvironmentVariable("css_complex_roslyn_compilation", value ? "true" : null);
+        // }
+
         static internal string DynamicWrapperClassName = "DynamicClass";
         static internal string RootClassName = "css_root";
         // Roslyn still does not support anything else but `Submission#0` (17 Jul 2019) [update]
@@ -130,9 +159,9 @@ namespace CSScripting
         {
             try
             {
-                File.Delete(build_server);
-                File.Delete(build_server.ChangeExtension(".deps.json"));
-                File.Delete(build_server.ChangeExtension(".runtimeconfig.json"));
+                build_server.DeleteIfExists();
+                build_server.ChangeExtension(".deps.json").DeleteIfExists();
+                build_server.ChangeExtension(".runtimeconfig.json").DeleteIfExists();
             }
             catch (Exception ex)
             {

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using csscript;
 using CSScripting;
 using CSScriptLib;
@@ -12,6 +13,12 @@ namespace EvaluatorTests
     [Collection("Sequential")]
     public class Generic_CodeDom
     {
+        string testTempFile(string fileName, [CallerMemberName] string caller = null)
+        {
+            var rootDir = "TestData".PathJoin(nameof(Generic_CodeDom), caller).GetFullPath().EnsureDir();
+            return Path.Combine(rootDir, fileName);
+        }
+
         [Fact]
         public void using_CompilerOptions()
         {
@@ -22,7 +29,7 @@ namespace EvaluatorTests
             var info = new CompileInfo
             {
                 CompilerOptions = "-define:test",
-                AssemblyFile = nameof(using_CompilerOptions).PathJoin("test.dll").EnsureFileDir(),
+                AssemblyFile = testTempFile("test.dll"),
             };
 
             Assembly asm = CSScript.CodeDomEvaluator.CompileCode(
@@ -104,12 +111,12 @@ namespace EvaluatorTests
         }
 
         [Fact]
-        public void referencing_script_types_from_another_script()
+        public void referencing_script_types_from_another_codedom_script()
         {
             CSScript.EvaluatorConfig.DebugBuild = true;
             CSScript.EvaluatorConfig.ReferenceDomainAssemblies = false;
 
-            var info = new CompileInfo { AssemblyFile = "utils_asm\\utils_asm.dll".EnsureFileDir() };
+            var info = new CompileInfo { AssemblyFile = testTempFile("utils_asm.dll") };
 
             try
             {
@@ -156,7 +163,7 @@ namespace EvaluatorTests
         [Fact]
         public void use_resp_file()
         {
-            var respFile = $"{nameof(use_resp_file)}.resp".GetFullPath();
+            var respFile = testTempFile($"{nameof(use_resp_file)}.resp");
             File.WriteAllText(respFile, "/r:Foo.dll");
 
             CSScript.EvaluatorConfig.CompilerOptions = $"\"@{respFile}\"";
@@ -210,18 +217,20 @@ namespace EvaluatorTests
         }
 
         [Fact]
-        public void use_interfaces_between_scripts()
+        public void use_interfaces_between_scripts2()
         {
             IPrinter printer = CSScript.CodeDomEvaluator
                                        .ReferenceAssemblyOf<IPrinter>()
                                        .LoadCode<IPrinter>(@"using System;
-                                                         public class Printer : IPrinter
-                                                         {
-                                                            public void Print()
-                                                                => Console.Write(""Printing..."");
-                                                         }");
+                                                             public class Printer : IPrinter
+                                                             {
+                                                                public void Print()
+                                                                    => Console.Write(""Printing..."");
+                                                             }");
 
-            dynamic script = CSScript.Evaluator
+            var ttt = printer.GetType().Assembly.Location();
+
+            dynamic script = CSScript.CodeDomEvaluator
                                      .ReferenceAssemblyOf<IPrinter>()
                                      .LoadMethod(@"void Test(IPrinter printer)
                                                {
@@ -235,8 +244,8 @@ namespace EvaluatorTests
         [Fact]
         public void import_script_from_another_scripts()
         {
-            var script_math = "math.cs".GetFullPath();
-            var script_calc = "calc.cs".GetFullPath();
+            var script_math = testTempFile("math.cs");
+            var script_calc = testTempFile("calc.cs");
 
             File.WriteAllText(script_math,
                               @"using System;

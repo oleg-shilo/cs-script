@@ -62,6 +62,21 @@ namespace Misc
         }
 
         [Fact]
+        public void issue_449()
+        {
+            dynamic script = CSScript.RoslynEvaluator
+                                     .LoadMethod(@"void Test()
+                                                   {
+                                                   }");
+
+            var scriptAssembly = (Assembly)script.GetType().Assembly;
+            var runtimeAssembly = "".GetType().Assembly;
+
+            Assert.False(scriptAssembly.IsFrameworkAssembly());
+            Assert.True(runtimeAssembly.IsFrameworkAssembly());
+        }
+
+        [Fact]
         public void issue_445_compile_error()
         {
             var script = GetTempScript(nameof(issue_445_compile_error),

@@ -1,129 +1,175 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <AssemblyName>CSScriptLib</AssemblyName>
-        <LangVersion>latest</LangVersion>
-        <PackageId>CS-Script</PackageId>
-        <!--<NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>-->
-        <!--<PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>-->
-        <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-        <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <IncludeSymbols>true</IncludeSymbols>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>4.13.2.0</Version>
-        <Authors>Oleg Shilo</Authors>
-        <Description>CS-Script engine Class Library for .NET</Description>
-        <Copyright>(C) 2018-2026 Oleg Shilo</Copyright>
-        <PackageLicenseUrl></PackageLicenseUrl>
-        <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
-        <PackageIconUrl></PackageIconUrl>
-        <RepositoryUrl>https://github.com/oleg-shilo/cs-script.git</RepositoryUrl>
-        <RepositoryType>Git</RepositoryType>
-        <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
-        <PackageReleaseNotes>
-            ---
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>CSScriptLib</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <PackageId>CS-Script</PackageId>
+    <!--<NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>-->
+    <!--<PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>-->
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>4.14.0</Version>
+    <Authors>Oleg Shilo</Authors>
+    <Description>CS-Script engine Class Library for .NET</Description>
+    <Copyright>(C) 2018-2026 Oleg Shilo</Copyright>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/oleg-shilo/cs-script</PackageProjectUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <RepositoryUrl>https://github.com/oleg-shilo/cs-script.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
+    <PackageReleaseNotes>---
 
-            ## Changes
+## Changes
 
-            ### CLI
-            - no changes
+The major changes in this release are around improved support for working with external compile engines in CodeDom evaluator mode. Now both, CLI and CSScriptLib APIs allow automatic download and deployment of the latest .NET compilers (nuget packages) on the target system so the user does not have to install the complete .NET SDK.
 
-            ### CSScriptLib
-            - #436: SerializationException: Type 'CSScripting.CodeDom.CompilerError' in assembly 'CSScriptLib...
-            - #437: updated wrong resource referencing.
-            - #435: /share compiler flag causes CS2007 error after upgrading to 4.13.1
-        </PackageReleaseNotes>
-        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <AssemblyVersion>4.13.2.0</AssemblyVersion>
-        <FileVersion>4.13.2.0</FileVersion>
-        <PackageVersion>4.13.2.0</PackageVersion>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageIcon>css_logo.png</PackageIcon>
-        <SignAssembly>True</SignAssembly>
-        <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    </ItemGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DocumentationFile>CSScriptLib.xml</DocumentationFile>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DefineConstants>TRACE;class_lib</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <DocumentationFile>CSScriptLib.xml</DocumentationFile>
-        <DefineConstants>TRACE;class_lib</DefineConstants>
-    </PropertyGroup>
-    <ItemGroup>
-        <Compile Remove="AppDomain.cs" />
-        <Compile Remove="CSScriptLib.Eval.CodeDom.cs" />
-        <Compile Remove="output\aggregate.cs" />
-        <Compile Remove="output\Test.cs" />
-        <Compile Remove="sample.cs" />
-        <Compile Remove="samples.cs" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Remove="CSScriptLib.xml" />
-        <None Remove="nuget-samples.cmd" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="..\..\..\cscs\CodeDom\CompilerResults.cs" Link="CodeDom\CompilerResults.cs" />
-        <Compile Include="..\..\..\cscs\CodeDom\CompilerError.cs" Link="CodeDom\CompilerError.cs" />
-        <Compile Include="..\..\..\cscs\fileparser.cs" Link="fileparser.cs" />
-        <Compile Include="..\..\..\cscs\Project.cs" Link="Project.cs" />
-        <Compile Include="..\..\..\cscs\ScriptParser.cs" Link="ScriptParser.cs" />
-        <Compile Include="..\..\..\cscs\ScriptParsingResult.cs" Link="ScriptParsingResult.cs" />
-        <Compile Include="..\..\..\cscs\Utils\CoreExtensions.cs" Link="Utils\CoreExtensions.cs" />
-        <Compile Include="..\..\..\cscs\Utils\CurrentDirGuard.cs" Link="Utils\CurrentDirGuard.cs" />
-        <Compile Include="..\..\..\cscs\Utils\LinqExtensions.cs" Link="Utils\LinqExtensions.cs" />
-        <Compile Include="..\..\..\cscs\Utils\NugetPackageDownloader.cs" Link="NugetPackageDownloader.cs" />
-        <Compile Include="..\..\..\cscs\Utils\PathExtensions.cs" Link="Utils\PathExtensions.cs" />
-        <Compile Include="..\..\..\cscs\Utils\Globals.cs" Link="Utils\Globals.cs" />
-        <Compile Include="..\..\..\cscs\Utils\Profiler.cs" Link="Profiler.cs" />
-        <Compile Include="..\..\..\cscs\Utils\ReflectionExtensions.cs" Link="Utils\ReflectionExtensions.cs" />
-        <Compile Include="..\..\..\cscs\Utils\Runtime.cs" Link="Utils\Runtime.cs" />
-        <Compile Include="..\..\..\cscs\Utils\SimpleAsmProbing.cs" Link="SimpleAsmProbing.cs" />
-        <Compile Include="..\..\..\cscs\Utils\SocketExtensions.cs" Link="SocketExtensions.cs" />
-        <Compile Include="..\..\..\cscs\Utils\StringExtensions.cs" Link="Utils\StringExtensions.cs" />
-        <Compile Include="..\..\..\cscs\Utils\WildCardExtensions.cs" Link="Utils\WildCardExtensions.cs" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.14.0" />
-        <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.7" />
-        <PackageReference Include="System.Text.Json" Version="9.0.7" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="..\..\..\logo\css_logo.png">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
-        <None Include="samples.cs" />
-    </ItemGroup>
-    <ItemGroup>
-        <Folder Include="CodeDom\" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Update="Properties\Resources.Designer.cs">
-            <DependentUpon>Resources.resx</DependentUpon>
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-        </Compile>
-    </ItemGroup>
-    <ItemGroup>
-        <EmbeddedResource Update="Properties\Resources.resx">
-            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-            <Generator>ResXFileCodeGenerator</Generator>
-            <CustomToolNamespace>CSScripting</CustomToolNamespace>
-        </EmbeddedResource>
-    </ItemGroup>
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Command="IF exist &quot;$(ProjectDir)out&quot; ( echo . ) ELSE ( md &quot;$(ProjectDir)out&quot;)&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;$(ProjectDir)output\$(TargetFileName)&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(ProjectName).xml&quot; &quot;$(ProjectDir)output\$(ProjectName).xml&quot;&#xD;&#xA;rem copy &quot;$(ProjectDir)..\..\src\CSScriptLib.Client\Test.cs&quot; &quot;$(ProjectDir)output\Test.cs&quot;&#xD;&#xA;rem copy &quot;$(ProjectDir)..\..\src\CSScriptLib.Client\Test.cs&quot; &quot;$(ProjectDir)bin\$(ConfigurationName)\Test.cs&quot;&#xD;&#xA;&#xD;&#xA;" />
-    </Target>
+Caching and temp files management has also been improved dramatically and made more consistent and reliable.
+
+Another significant change is heave refactoring and documentation improvements.
+
+Special thank you to @maettu-this who helped with the requirements for all these changes.
+
+========================================
+
+### Misc
+
+- #444: "The documentation texts of CompileAssemblyFrom..."
+- Updated CodeDom-Evaluator-Dependencies.md to reference the new deployment option.
+- Reworked and unified csc.exe probing for CodeDom compilation.
+- Intensive code housekeeping
+- Major rework of the .NET Framework samples. Triggered by #442
+
+### CLI
+
+- Improved cache cleanup mechanism to prevent endless growth of `csscript.core` directory
+- Enabled `Runtime.CleanAbandonedCache()` to automatically remove cache directories when source scripts are deleted
+- `-pkill` command improvements. Bump version to 1.0.1
+- Added `-deploy-csc` switch for compiler deployment via NuGet
+- Enhanced the LockCheck sample to better handle directory lock checks using handle.exe as a fallback.
+
+### CSScriptLib
+
+- Enabled abandoned cache cleanup to prevent endless growth of `csscript.lib` directory
+- Cache directories are now automatically cleaned when source script directories no longer exist
+- #436: SerializationException: Type 'CSScripting.CodeDom.CompilerError' in assembly 'CSScriptLib...
+- #437: updated wrong resource referencing.
+- #435: /share compiler flag causes CS2007 error after upgrading to 4.13.1
+- #448: Using preprocessor directives with Roslyn / SourceCodeKind.Regular
+- #434: Could not load file or assembly 'Microsoft.CodeAnalysis, Version=4.14.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35' or one of its dependencies
+- #445: Missing information on resulting compilation details?
+* #441: Change CodeDomEvaluator.IsCachingEnabled default to true
+- #447: Proposing EvaluatorBase.CompileFile for consistency with EvaluatorBase.CompileAssemblyFromFile
+        Add AttachedProperties and project context to compilation
+- Added NugetPackageDownloader and unified compiler discovery
+- Deprecated CompilerLastOutput; add CompilerInput/Output
+- Added DownloadLatestSdkToolset to NugetPackageDownloader for automated retrieval of compilers and reference assemblies. It improves support for environments without .NET SDK.
+
+### Temporary Directory Structure
+
+CS-Script now uses separate temporary directories for better isolation:
+
+%TEMP% (or $TMPDIR on Linux)
+├── csscript.core\    # CLI execution (cscs.exe, csws.exe) 
+│   ├── cache\        # Compiled script cache 
+│   ├── snippets\     # `-code` execution cache 
+│   └── DbgAttach\    # Debug metadata 
+└── csscript.lib\     # Library/hosted evaluation (CSScriptLib) 
+    ├── cache\        # Compiled script cache 
+    └── tmp files     # Temporary compilation artifacts</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <AssemblyVersion>4.14.0</AssemblyVersion>
+    <FileVersion>4.14.0</FileVersion>
+    <PackageVersion>4.14.0</PackageVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>css_logo.png</PackageIcon>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>CSScriptLib.xml</DocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DefineConstants>TRACE;class_lib</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>CSScriptLib.xml</DocumentationFile>
+    <DefineConstants>TRACE;class_lib</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="AppDomain.cs" />
+    <Compile Remove="CSScriptLib.Eval.CodeDom.cs" />
+    <Compile Remove="output\aggregate.cs" />
+    <Compile Remove="output\Test.cs" />
+    <Compile Remove="sample.cs" />
+    <Compile Remove="samples.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="CSScriptLib.xml" />
+    <None Remove="nuget-samples.cmd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\cscs\CodeDom\CompilerResults.cs" Link="CodeDom\CompilerResults.cs" />
+    <Compile Include="..\..\..\cscs\CodeDom\CompilerError.cs" Link="CodeDom\CompilerError.cs" />
+    <Compile Include="..\..\..\cscs\fileparser.cs" Link="fileparser.cs" />
+    <Compile Include="..\..\..\cscs\Project.cs" Link="Project.cs" />
+    <Compile Include="..\..\..\cscs\ScriptParser.cs" Link="ScriptParser.cs" />
+    <Compile Include="..\..\..\cscs\ScriptParsingResult.cs" Link="ScriptParsingResult.cs" />
+    <Compile Include="..\..\..\cscs\Utils\CoreExtensions.cs" Link="Utils\CoreExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\CurrentDirGuard.cs" Link="Utils\CurrentDirGuard.cs" />
+    <Compile Include="..\..\..\cscs\Utils\LinqExtensions.cs" Link="Utils\LinqExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\NugetPackageDownloader.cs" Link="NugetPackageDownloader.cs" />
+    <Compile Include="..\..\..\cscs\Utils\PathExtensions.cs" Link="Utils\PathExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\Globals.cs" Link="Utils\Globals.cs" />
+    <Compile Include="..\..\..\cscs\Utils\Profiler.cs" Link="Profiler.cs" />
+    <Compile Include="..\..\..\cscs\Utils\ReflectionExtensions.cs" Link="Utils\ReflectionExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\Runtime.cs" Link="Utils\Runtime.cs" />
+    <Compile Include="..\..\..\cscs\Utils\SimpleAsmProbing.cs" Link="SimpleAsmProbing.cs" />
+    <Compile Include="..\..\..\cscs\Utils\SocketExtensions.cs" Link="SocketExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\StringExtensions.cs" Link="Utils\StringExtensions.cs" />
+    <Compile Include="..\..\..\cscs\Utils\WildCardExtensions.cs" Link="Utils\WildCardExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.14.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.7" />
+    <PackageReference Include="System.Text.Json" Version="9.0.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\logo\css_logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="samples.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CodeDom\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <CustomToolNamespace>CSScripting</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="IF exist &quot;$(ProjectDir)out&quot; ( echo . ) ELSE ( md &quot;$(ProjectDir)out&quot;)&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;$(ProjectDir)output\$(TargetFileName)&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(ProjectName).xml&quot; &quot;$(ProjectDir)output\$(ProjectName).xml&quot;&#xD;&#xA;rem copy &quot;$(ProjectDir)..\..\src\CSScriptLib.Client\Test.cs&quot; &quot;$(ProjectDir)output\Test.cs&quot;&#xD;&#xA;rem copy &quot;$(ProjectDir)..\..\src\CSScriptLib.Client\Test.cs&quot; &quot;$(ProjectDir)bin\$(ConfigurationName)\Test.cs&quot;&#xD;&#xA;&#xD;&#xA;" />
+  </Target>
 </Project>

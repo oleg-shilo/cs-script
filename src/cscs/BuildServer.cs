@@ -273,9 +273,7 @@ namespace CSScripting.CodeDom
         public static void ReportExit()
         {
             var pidFile = Path.Combine(BuildServerActiveInstances, $"{Environment.ProcessId}.pid");
-
-            if (File.Exists(pidFile))
-                File.Delete(pidFile);
+            pidFile.DeleteIfExists();
         }
 
         public static void ListenToRequests(int? port)

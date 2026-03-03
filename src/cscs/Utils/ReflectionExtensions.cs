@@ -205,7 +205,7 @@ namespace CSScripting
                 if (Runtime.IsSingleFileApplication)
                     return null; // a single file compilation (published with PublishSingleFile option)
                 else if (ex.Message.Contains("CodeBase is not supported on assemblies loaded from a single-file bundle")
-                      || ex.StackTrace.Contains("at System.Reflection.RuntimeAssembly.get_CodeBase()"))
+                     || ex.StackTrace.Contains("at System.Reflection.RuntimeAssembly.get_CodeBase()"))
                     return null;
 #endif
                 if (ex is System.NotSupportedException) // less precise analysis
@@ -294,9 +294,15 @@ namespace CSScripting
             => type.FullName.Contains($"{Globals.RootClassName}+"); // Submission#0+Script
 
         internal static IEnumerable<Type> OrderedUserTypes(this Assembly asm)
-            => asm.ExportedTypes
-                  .Where(t => !t.IsRoslynInternalType())
-                  .OrderBy(t => !t.IsScriptRootClass());  // ScriptRootClass will be on top
+        {
+            var types = asm.ExportedTypes;
+            if (types.Count() == 0)
+                types = asm.GetTypes();
+
+            return types
+                   .Where(t => !t.IsRoslynInternalType())
+                   .OrderBy(t => !t.IsScriptRootClass());  // ScriptRootClass will be on top
+        }
 
         /// <summary>
         /// Returns the first exported user type from the assembly that is assignable to the specified generic

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -54,12 +55,30 @@ namespace EvaluatorTests
     [Collection("Sequential")]
     public class API_Roslyn
     {
-        public string GetTempFileName(string seed)
-            => $"{this.GetHashCode()}.{seed}".GetFullPath();
-
-        public string GetTempScript(string seed, string content)
+        public API_Roslyn()
         {
-            var script = GetTempFileName(seed);
+            // force to load the assembly in the current appdomain so the scripts don't have to reference it explicitly
+            Debug.WriteLine(typeof(Console).Assembly.FullName);
+            Globals.DefaultRoslynCompilationToScript = false;
+        }
+
+        string testTempFile(string fileName, [CallerMemberName] string caller = null)
+        {
+            var rootDir = "TestData".PathJoin(nameof(API_Roslyn), caller).GetFullPath().EnsureDir();
+            if (fileName == "asm.hidden-from-xunit-dll-file")
+            {
+                File.AppendAllText(
+                    @"D:\dev\cs-script\src\Tests.CSScriptLib\bin\Debug\net10.0\TestData\test-error.log",
+                    rootDir.PathJoin(fileName) + Environment.NewLine);
+                Debugger.Launch(); // asm.dll is a special file name that xUnit locks just because it was present in the local dir. So avoid using it in the tests.
+            }
+
+            return Path.Combine(rootDir, fileName);
+        }
+
+        public string GetTempScript(string content, [CallerMemberName] string caller = null)
+        {
+            var script = testTempFile("script.cs", caller);
             File.WriteAllText(script, content);
             return script;
         }
@@ -74,9 +93,8 @@ namespace EvaluatorTests
         [Fact]
         public void CompileFileWithImports()
         {
-            var rootDir = Environment.CurrentDirectory;
-            var primaryScript = rootDir.PathJoin($"{nameof(CompileCodeWithImports)}.cs");
-            var dependencyScript = rootDir.PathJoin($"dep{nameof(CompileCodeWithImports)}.cs");
+            var primaryScript = testTempFile("script.cs");
+            var dependencyScript = testTempFile($"dep_script.cs");
 
             File.WriteAllText(primaryScript, $@"//css_inc {dependencyScript}
                                                using System;
@@ -106,7 +124,7 @@ namespace EvaluatorTests
         [Fact]
         public void CompileCodeWithImports()
         {
-            var dependencyScript = $"dep{nameof(CompileCodeWithImports)}.cs".GetFullPath();
+            var dependencyScript = testTempFile("dependency.cs");
 
             File.WriteAllText(dependencyScript, @"using System;
                                             public class Calc
@@ -134,8 +152,8 @@ namespace EvaluatorTests
         [InlineData(false)]
         public void CompileCodeWithNestedImports(bool isRoslyn)
         {
-            var dependencyScript1 = $"dep{nameof(CompileCodeWithNestedImports)}1.cs".GetFullPath();
-            var dependencyScript2 = $"dep{nameof(CompileCodeWithNestedImports)}2.cs".GetFullPath();
+            var dependencyScript1 = testTempFile("dep1.cs");
+            var dependencyScript2 = testTempFile("dep2.cs");
 
             File.WriteAllText(dependencyScript2, @"
                                             using System;
@@ -166,13 +184,13 @@ namespace EvaluatorTests
         [Fact]
         public void CompileCodeWithRefs()
         {
-            var tempDir = ".\\dependencies".EnsureDir();
-            var calcAsm = tempDir.PathJoin("calc.v1.dll").GetFullPath();
+            var calcAsm = testTempFile("calc.v1.dll");
 
             if (!calcAsm.FileExists()) // try to avoid unnecessary compilations as xUnint keeps locking the loaded assemblies
                 CSScript.CodeDomEvaluator
                         .CompileAssemblyFromCode(@"using System;
-                                                   public class Calc
+
+                                                   public class Calc2
                                                    {
                                                        static public int Sum(int a, int b) => a + b;
                                                    }",
@@ -187,27 +205,34 @@ namespace EvaluatorTests
             var code = @"using System;
                          public class Script
                          {
-                             public int Sum(int a, int b) => Calc.Sum(a, b);
+                             public int Sum(int a, int b) => Calc2.Sum(a, b);
                          }";
 
             try
             {
-                new_evaluator.LoadCode(code);
+                var eval = new_evaluator.Reset(false);
+                eval.LoadCode(code);
 
                 Assert.True(false);
             }
             catch (Exception e)
             {
-                Assert.Contains("The name 'Calc' does not exist in the current context", e.Message);
-            }
+                if (!e.Message.Contains(" does not exist in the current context"))
+                {
+                    // <script>(4,62): error CS0433: The type 'Calc' exists in both '13986044.LoadFile, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' and '20613177.LoadFile, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null'
+                    Debugger.Launch();
+                }
 
-            new_evaluator.LoadCode($"//css_ref {calcAsm}" + Environment.NewLine + code);
+                Assert.Contains("The name 'Calc2' does not exist in the current context", e.Message);
+            }
+            var eval2 = new_evaluator.Reset(false);
+            eval2.LoadCode($"//css_ref {calcAsm}" + Environment.NewLine + code);
         }
 
         [Fact]
         public void LoadCode_detect_error_in_imported_script()
         {
-            var dependencyScript = $"dep{nameof(LoadCode_detect_error_in_imported_script)}.cs".GetFullPath();
+            var dependencyScript = testTempFile("dep.cs");
 
             try
             {
@@ -238,8 +263,8 @@ namespace EvaluatorTests
         [Fact]
         public void LoadFile_detect_error_in_imported_script()
         {
-            var primaryScript = $"{nameof(LoadFile_detect_error_in_imported_script)}.cs".GetFullPath();
-            var dependencyScript = $"dep{nameof(LoadFile_detect_error_in_imported_script)}.cs".GetFullPath();
+            var primaryScript = testTempFile($"script.cs");
+            var dependencyScript = testTempFile($"dep.cs");
 
             try
             {
@@ -247,11 +272,11 @@ namespace EvaluatorTests
                                                     using System;
                                                     public class Script
                                                     {{
-                                                        public int Sum(int a, int b) => Calc.Sum(a ,b);
+                                                        public int Sum(int a, int b) => Calculator.Sum(a ,b);
                                                     }}");
 
                 File.WriteAllText(dependencyScript, @"using System;
-                                                      public class Calc
+                                                      public class Calculator
                                                       {
                                                           static public int Sum(int a, int b)
                                                           {
@@ -270,7 +295,7 @@ namespace EvaluatorTests
         [Fact]
         public void LoadCode_detect_error_in_primary_script()
         {
-            var dependencyScript = $"dep{nameof(LoadCode_detect_error_in_primary_script)}.cs".GetFullPath();
+            var dependencyScript = testTempFile("dep.cs");
 
             try
             {
@@ -319,7 +344,7 @@ namespace EvaluatorTests
         [Fact]
         public void LoadFiule_detect_error_in_script()
         {
-            var script = $"{nameof(LoadFiule_detect_error_in_script)}.cs".GetFullPath();
+            var script = testTempFile("script.cs");
 
             try
             {
@@ -342,8 +367,8 @@ namespace EvaluatorTests
         [Fact]
         public void LoadFile_detect_error_in_primary_script()
         {
-            var primaryScript = $"{nameof(LoadFile_detect_error_in_primary_script)}.cs".GetFullPath();
-            var dependencyScript = $"dep{nameof(LoadFile_detect_error_in_primary_script)}.cs".GetFullPath();
+            var primaryScript = testTempFile("test.cs");
+            var dependencyScript = testTempFile("dep.cs");
 
             try
             {
@@ -404,8 +429,10 @@ namespace EvaluatorTests
             // Note if you give AssemblyFile the name with the extension .dll xUnit runtime will
             // lock the file simply because it was present in the local dir. So hide the assembly by
             // dropping the file extension.
+            var evalContext = new_evaluator.GetType().Name;
 
-            var asm_file = GetTempFileName(nameof(CompileCode_CompileInfo));
+            // the test is executed for both Roslyn and CodeDom evaluators, so make the file name unique to avoid conflicts and locking issues.
+            var asm_file = testTempFile($"asm.{evalContext}.dll");
 
             var info = new CompileInfo { AssemblyFile = asm_file };
 
@@ -441,7 +468,7 @@ namespace EvaluatorTests
             if (new_evaluator is RoslynEvaluator) // Roslyn cannot work with C# files (but in memory streams)
                 return;                       // So asm location does not make sense.
 
-            var asm_file = GetTempFileName(nameof(CompileCode_InmemAsmLocation));
+            var asm_file = testTempFile("asmFile.dll");
 
             var info = new CompileInfo { AssemblyFile = asm_file, PreferLoadingFromFile = false };
 
@@ -508,8 +535,7 @@ namespace EvaluatorTests
         [Fact]
         public void CompileAssemblyFromFile()
         {
-            var script = GetTempScript(nameof(CompileAssemblyFromFile),
-                                       @"using System;
+            var script = GetTempScript(@"using System;
                                        public class Calc
                                        {
                                            public int Sum(int a, int b) => a+b;
@@ -627,8 +653,7 @@ namespace EvaluatorTests
         [Fact]
         public void LoadFile()
         {
-            var script = GetTempScript(nameof(LoadFile),
-                                       @"using System;
+            var script = GetTempScript(@"using System;
                                         public class Calc
                                         {
                                             public int Sum(int a, int b) => a+b;
@@ -643,8 +668,7 @@ namespace EvaluatorTests
         [Fact]
         public void LoadFile_Params()
         {
-            var script = GetTempScript(nameof(LoadFile),
-                                       @"using System;
+            var script = GetTempScript(@"using System;
                                         public class Calc
                                         {
                                             public string Name;
@@ -662,8 +686,8 @@ namespace EvaluatorTests
         [Fact]
         public void LoadFile_T()
         {
-            var script = GetTempScript(nameof(LoadFile),
-                                       @"using System;
+            // testTempFile("test.cs"),
+            var script = GetTempScript(@"using System;
                                         public class Calc : Testing.ICalc
                                         {
                                             public int Sum(int a, int b) => a+b;
