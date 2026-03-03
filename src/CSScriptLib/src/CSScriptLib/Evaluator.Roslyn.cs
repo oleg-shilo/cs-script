@@ -313,11 +313,9 @@ namespace CSScriptLib
 
                 var references = new List<MetadataReference>();
 
-                var refs = AppDomain.CurrentDomain          // all SDK assemblies from appdomain
+                var refs = AppDomain.CurrentDomain
                                     .GetAssemblies()
-                                    .Where(a => !a.IsDynamic &&
-                                                a.Location().HasText() &&
-                                                a.Location().IsSharedAssembly())
+                                    .Where(a => a.IsFrameworkAssembly()) // all SDK assemblies from appdomain
                                     .ToArray();
 
                 var explicitRefs = this.refAssemblies.Except(refs); // from code

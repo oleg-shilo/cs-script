@@ -388,6 +388,42 @@ namespace csscript
         }
 
         /// <summary>
+        /// Determines whether the specified assembly is considered a .NET framework assembly.
+        /// <p>"Framework" in this context implies that the assembly is a standard .NET assembly that comes from
+        /// either .NET Runtime or .NET SDK installation, but not from '.NET Framework' vs '.NET Core'.</p>
+        /// </summary>
+        /// <remarks>An assembly is considered a framework assembly if it is not dynamic and is located in
+        /// standard .NET runtime folders. Assemblies with names matching GUID patterns are typically excluded, as they
+        /// are often dynamically compiled.</remarks>
+        /// <param name="asm">The assembly to evaluate. This parameter cannot be null.</param>
+        /// <returns>true if the assembly is identified as a framework assembly; otherwise, false.</returns>
+        public static bool IsFrameworkAssembly(this Assembly asm)
+        {
+            if (asm.IsDynamic)
+                return false;
+
+            var location = asm.Location ?? "";
+            var isInRuntimeFolder =
+                location.Contains(@"\dotnet\shared\", StringComparison.OrdinalIgnoreCase) ||
+                location.Contains(@"\Microsoft.NET\", StringComparison.OrdinalIgnoreCase);
+
+            if (isInRuntimeFolder)
+                return true;
+
+            var name = asm.GetName();
+
+            // Pattern for GUID with dashes: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+            // Pattern for GUID without dashes: 32 consecutive hex characters
+            var guidPattern = @"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})|([0-9a-fA-F]{32})";
+
+            // Assemblies with GUIDs in their names are typically dynamically compiled
+            if (Regex.IsMatch(name.Name, guidPattern))
+                return false;
+
+            return false;
+        }
+
+        /// <summary>
         /// Determines whether the specified assembly path corresponds to a .NET Framework assembly.
         /// </summary>
         /// <remarks>This method checks for common indicators of .NET Framework assemblies in the provided
