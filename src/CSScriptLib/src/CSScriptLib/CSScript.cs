@@ -6,9 +6,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Emit;
 using CSScripting;
 
 namespace CSScriptLib
@@ -260,23 +262,16 @@ namespace CSScriptLib
         /// Returns the name of the temporary file in the CSSCRIPT subfolder of Path.GetTempPath().
         /// </summary>
         /// <returns>Temporary file name.</returns>
-        static public string GetScriptTempFile()
+        static public string GetScriptTempFile([CallerMemberName] string caller = null)
         {
             lock (typeof(CSScript))
             {
-                return Path.Combine(GetScriptTempDir(), string.Format("{0}.{1}.tmp.cs", Process.GetCurrentProcess().Id, Guid.NewGuid()));
-            }
-        }
+                var fileName = string.Format("{0}.{1}.tmp.cs", Process.GetCurrentProcess().Id, Guid.NewGuid());
 
-        static internal string GetScriptTempFile(string subDir)
-        {
-            lock (typeof(CSScript))
-            {
-                string tempDir = Path.Combine(GetScriptTempDir(), subDir);
-                if (!Directory.Exists(tempDir))
-                    Directory.CreateDirectory(tempDir);
+                // var callerPath = 1.SimpleCallStack() ?? caller;
+                // Globals.DbgLog($"Generating temp file {callerPath}: {fileName}", ".temp_files");
 
-                return Path.Combine(tempDir, string.Format("{0}.{1}.tmp", Process.GetCurrentProcess().Id, Guid.NewGuid()));
+                return GetScriptTempDir().PathJoin(fileName);
             }
         }
 
@@ -370,9 +365,11 @@ namespace CSScriptLib
                     {
                         try
                         {
-                            Debugger.Launch();
                             Runtime.CleanUnusedTmpFiles(CSScript.GetScriptTempDir(), "*????????-????-????-????-????????????.???*", ignoreCurrentProcessScripts);
-                            Runtime.CleanAbandonedCache(CSScript.GetCacheDir());
+                            // Don't do cscs related cleaning, save time.
+                            // CLI engine will do this cleanup anyway on its own and CSScriptLib does not have to do it as well.
+                            // Runtime.CleanSnippets();
+                            // Runtime.CleanAbandonedCache();
                         }
                         catch { }
                         purging = false;

@@ -18,6 +18,15 @@ namespace CSScripting
     /// </summary>
     public static partial class Globals
     {
+#if DEBUG
+
+        internal static void DbgLog(string line, string context = null)
+        {
+            File.AppendAllLines($@"D:\dev\cs-script\src\Tests.CSScriptLib\bin\Debug\net10.0\TestData\error{context}.log", [line]);
+        }
+
+#endif
+
         /// <summary>
         /// Gets or sets a value indicating whether to use the legacy Roslyn compilation method when the default is <c>SourceCodeKind.Regular</c>.
         /// <p>The new approach by default initializes to <c>SourceCodeKind.Script</c>.  </p>

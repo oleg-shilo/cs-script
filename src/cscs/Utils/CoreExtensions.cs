@@ -330,6 +330,34 @@ namespace csscript
         public static bool SamePathAs(this string path1, string path2) =>
             string.Compare(path1, path2, Runtime.IsWin) == 0;
 
+#if DEBUG
+
+        internal static string SimpleCallStack(this object obj, string includeAsms = "cscs.tests,CSScriptLib")
+        {
+            var targetAsms = includeAsms.Split(',').Select(x => x.Trim()).ToArray();
+
+            var frames = new StackTrace().GetFrames()
+                                 .Skip(1)
+                                 .Where(x =>
+                                 {
+                                     if (x.HasMethod())
+                                     {
+                                         var asmName = x.GetMethod()?.DeclaringType?.Assembly?.GetName()?.Name ?? "";
+                                         return targetAsms?.Any() == true && targetAsms.Contains(asmName);
+                                     }
+                                     else
+                                         return false;
+                                 }).ToList();
+            frames.Reverse();
+
+            if (frames.Any())
+                return string.Join("->", frames.Select(f => f.GetMethod().Name));
+            else
+                return null;
+        }
+
+#endif
+
         /// <summary>
         /// Surrounds the specified text into quotation characters.
         /// </summary>
