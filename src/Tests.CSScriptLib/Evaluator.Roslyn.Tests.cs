@@ -443,47 +443,51 @@ namespace EvaluatorTests
         [Fact]
         public void Issue_448()
         {
+            var code = @"using System;
+                         using System.Diagnostics;
+                         public class Util
+                         {
+                             public string foo()
+                             {
+                                 #if test
+                                 return ""test"";
+                                 #else
+                                 return ""not-test"";
+                                 #endif
+                             }
+                         }";
+
+            // =================================
             var info = new CompileInfo { CodeKind = SourceCodeKind.Script, CompilerOptions = "-define:test" };
 
-            var util_asm = CSScript.Evaluator
-                                   .With(e => e.DebugBuild = true)
-                                   .CompileCode(@"using System;
-                                                  using System.Diagnostics;
-                                                  public class Util
-                                                  {
-                                                      public string foo()
-                                                      {
-                                                         #if test
-                                                          return ""test"";
-                                                         #else
-                                                          return ""not-test"";
-                                                         #endif
-                                                      }
-                                                  }", info);
-
-            dynamic util = util_asm.CreateObject("*");
+            dynamic util = CSScript.Evaluator.CompileCode(code, info).CreateObject("*");
             var result = util.foo();
             Assert.Equal("test", result);
 
             // =================================
+            info = new CompileInfo { CodeKind = SourceCodeKind.Regular, CompilerOptions = "-define:test" };
+
+            util = CSScript.Evaluator.CompileCode(code, info).CreateObject("*");
+            result = util.foo();
+            Assert.Equal("test", result);
+
+            // =================================
+            // if we do not specify dll file to create, the assembly will be created with the default name that is the same as for
+            // one of the prev tests And since it is loaded in the appdomain from the file the file will be locked.
+            // This is specific to SourceCodeKind.Regular, which triggers the initialization of CompileInfo.AssemblyFile to the default
+            // name `$"{RootClass}.dll"`.
+
+            info = new CompileInfo { CodeKind = SourceCodeKind.Regular, AssemblyFile = testTempFile("asm1.dll") };
+
+            util = CSScript.Evaluator.CompileCode(code, info).CreateObject("*");
+            result = util.foo();
+            Assert.Equal("not-test", result);
+
+            // =================================
             CSScript.EvaluatorConfig.CompilerOptions = "-define:test";
 
-            dynamic util2 = CSScript.Evaluator
-                                    .With(e => e.DebugBuild = true)
-                                    .LoadCode(@"using System;
-                                                  using System.Diagnostics;
-                                                  public class Util
-                                                  {
-                                                      public string foo()
-                                                      {
-                                                         #if test
-                                                          return ""test"";
-                                                         #else
-                                                          return ""not-test"";
-                                                         #endif
-                                                      }
-                                                  }");
-            var result2 = util2.foo();
+            util = CSScript.Evaluator.LoadCode(code);
+            result = util.foo();
             Assert.Equal("test", result);
         }
 

@@ -40,11 +40,12 @@ namespace CSScripting
         /// which may be necessary for compatibility with older codebases or specific environments. Using the legacy
         /// method may affect performance and limit access to newer Roslyn features. The value is stored in the
         /// "css_roslyn_legacy_compilation" environment variable.</remarks>
-        public static bool DefaultRoslynCompilationToScript
-        {
-            get => Environment.GetEnvironmentVariable("css_complex_roslyn_compilation") != null;
-            set => Environment.SetEnvironmentVariable("css_complex_roslyn_compilation", value ? "true" : null);
-        }
+        public static bool DefaultRoslynCompilationToScript { get; set; } = true;
+
+        // {
+        //     get => Environment.GetEnvironmentVariable("css_complex_roslyn_compilation") != null;
+        //     set => Environment.SetEnvironmentVariable("css_complex_roslyn_compilation", value ? "true" : null);
+        // }
 
         static internal string DynamicWrapperClassName = "DynamicClass";
         static internal string RootClassName = "css_root";

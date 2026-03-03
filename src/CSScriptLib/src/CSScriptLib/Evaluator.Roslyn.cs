@@ -341,14 +341,24 @@ namespace CSScriptLib
                     default:
                         {
                             if (Globals.DefaultRoslynCompilationToScript)
+                            {
+                                // The old pre v4.14.0 behavior that for the all info?.CodeKind that is null or
+                                // not SourceCodeKind.Script, the CSharpScript.Create was invoked, which is
+                                // effectively a script compilation and not a regular compilation.
+                                // This is preserved for backward compatibility but it is not the default behavior
+                                // as it can be confusing and can cause issues with some scenarios like
+                                // PublishSingleFile apps where script compilation is the only option.
                                 compilation = CSharpScript.Create(scriptText, scriptOptions)
-                                                  .GetCompilation();
+                                                          .GetCompilation();
+                            }
                             else
+                            {
                                 compilation = CSharpCompilation.Create(
                                               assemblyName: "Script" + Guid.NewGuid(),
                                               syntaxTrees: new[] { syntaxTree },
                                               references: references,
                                               options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                            }
                         }
                         break;
                 }
