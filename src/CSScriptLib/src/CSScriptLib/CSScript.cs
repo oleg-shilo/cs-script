@@ -366,10 +366,7 @@ namespace CSScriptLib
                         try
                         {
                             Runtime.CleanUnusedTmpFiles(CSScript.GetScriptTempDir(), "*????????-????-????-????-????????????.???*", ignoreCurrentProcessScripts);
-                            // Don't do cscs related cleaning, save time.
-                            // CLI engine will do this cleanup anyway on its own and CSScriptLib does not have to do it as well.
-                            // Runtime.CleanSnippets();
-                            // Runtime.CleanAbandonedCache();
+                            Runtime.CleanAbandonedCache();
                         }
                         catch { }
                         purging = false;

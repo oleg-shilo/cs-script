@@ -42,11 +42,6 @@ namespace CSScripting
         /// "css_roslyn_legacy_compilation" environment variable.</remarks>
         public static bool DefaultRoslynCompilationToScript { get; set; } = true;
 
-        // {
-        //     get => Environment.GetEnvironmentVariable("css_complex_roslyn_compilation") != null;
-        //     set => Environment.SetEnvironmentVariable("css_complex_roslyn_compilation", value ? "true" : null);
-        // }
-
         static internal string DynamicWrapperClassName = "DynamicClass";
         static internal string RootClassName = "css_root";
         // Roslyn still does not support anything else but `Submission#0` (17 Jul 2019) [update]

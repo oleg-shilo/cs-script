@@ -57,17 +57,18 @@ Special thank you to @maettu-this who helped with the requirements for all these
 
 ### CSScriptLib
 
-- Enabled abandoned cache cleanup to prevent endless growth of `csscript.lib` directory
-- Cache directories are now automatically cleaned when source script directories no longer exist
+- #434: Could not load file or assembly 'Microsoft.CodeAnalysis, Version=4.14.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35' or one of its dependencies
+- #435: /share compiler flag causes CS2007 error after upgrading to 4.13.1
 - #436: SerializationException: Type 'CSScripting.CodeDom.CompilerError' in assembly 'CSScriptLib...
 - #437: updated wrong resource referencing.
-- #435: /share compiler flag causes CS2007 error after upgrading to 4.13.1
-- #448: Using preprocessor directives with Roslyn / SourceCodeKind.Regular
-- #434: Could not load file or assembly 'Microsoft.CodeAnalysis, Version=4.14.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35' or one of its dependencies
-- #445: Missing information on resulting compilation details?
 * #441: Change CodeDomEvaluator.IsCachingEnabled default to true
+- #445: Missing information on resulting compilation details?
+- #448: Using preprocessor directives with Roslyn / SourceCodeKind.Regular
+- #449: RoslynEvaluator ignores disabling referencing AppDomain assemblies.
 - #447: Proposing EvaluatorBase.CompileFile for consistency with EvaluatorBase.CompileAssemblyFromFile
         Add AttachedProperties and project context to compilation
+- Enabled abandoned cache cleanup to prevent endless growth of `csscript.lib` directory
+- Cache directories are now automatically cleaned when source script directories no longer exist
 - Added NugetPackageDownloader and unified compiler discovery
 - Deprecated CompilerLastOutput; add CompilerInput/Output
 - Added DownloadLatestSdkToolset to NugetPackageDownloader for automated retrieval of compilers and reference assemblies. It improves support for environments without .NET SDK.

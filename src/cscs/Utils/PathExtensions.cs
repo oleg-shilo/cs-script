@@ -182,12 +182,6 @@ namespace CSScripting
 
         internal static string DeleteIfExists(this string path, bool recursive = false)
         {
-            if (Globals.TestData.HasText())
-            {
-                if (Globals.TestData == path)
-                {
-                }
-            }
             if (Directory.Exists(path))
             {
                 Directory.GetFiles(path, "*", SearchOption.AllDirectories)
