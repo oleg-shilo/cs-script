@@ -489,6 +489,17 @@ namespace EvaluatorTests
             util = CSScript.Evaluator.LoadCode(code);
             result = util.foo();
             Assert.Equal("test", result);
+
+            // =================================
+
+            var scriptFile = testTempFile("script1.cs");
+            File.WriteAllText(scriptFile, code);
+            var scriptAsmFile = testTempFile("script1.cs.dll");
+            var resultAsm = CSScript.Evaluator.CompileAssemblyFromFile(scriptFile, scriptAsmFile);
+            util = Assembly.LoadFrom(resultAsm).CreateObject("*");
+
+            result = util.foo();
+            Assert.Equal("test", result);
         }
 
         [Fact]

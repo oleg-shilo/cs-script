@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.14.0</Version>
+    <Version>4.14.2</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2026 Oleg Shilo</Copyright>
@@ -19,11 +19,11 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.14.0</AssemblyVersion>
-    <FileVersion>4.14.0</FileVersion>
+    <AssemblyVersion>4.14.2</AssemblyVersion>
+    <FileVersion>4.14.2</FileVersion>
     <PackageReleaseNotes>---
 
-## Changes
+## Changes (v4.14.0-4.14.2)
 
 The major changes in this release are around improved support for working with external compile engines in CodeDom evaluator mode. Now both, CLI and CSScriptLib APIs allow automatic download and deployment of the latest .NET compilers (nuget packages) on the target system so the user does not have to install the complete .NET SDK.
 
@@ -172,6 +172,7 @@ CS-Script now uses separate temporary directories for better isolation:
   </ItemGroup>
   <PropertyGroup>
     <RollForward>LatestMajor</RollForward>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
     <NoWarn>CA1701;CA1702;CA1860;IDE0130;IDE0057;CA1829;IDE0062;CA2211</NoWarn>

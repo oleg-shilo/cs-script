@@ -42,6 +42,7 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <PackageReadmeFile>package_readme.md</PackageReadmeFile>
     <BaseOutputPath>bin</BaseOutputPath>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <WarningLevel>3</WarningLevel>

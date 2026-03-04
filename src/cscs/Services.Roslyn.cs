@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -152,6 +153,7 @@ namespace CSScripting.CodeDom
             //----------------------------
 
             var all_refs = Directory.GetFiles(gac, "System.*.dll")
+                                    .Where(x => !x.Contains("Native")).ToArray()
                                     .ConcatWith(ref_assemblies);
 
             BuildResult emitResult = Build(single_source, assembly, all_refs, options.IncludeDebugInformation, inprocess);
@@ -242,6 +244,39 @@ namespace CSScripting.CodeDom
             return result;
         }
 
+        static AssemblyMetadata ToMetadataOnCore(string assemblyFile)
+        {
+            try
+            {
+                return AssemblyMetadata.CreateFromFile(assemblyFile);
+            }
+            catch
+            {
+                unsafe
+                {
+                    try
+                    {
+                        var asm = Assembly.LoadFile(assemblyFile);
+                        return ToMetadataOnCore(asm);
+                    }
+                    catch { }
+                }
+                return null;
+            }
+        }
+
+        static AssemblyMetadata ToMetadataOnCore(Assembly asm)
+        {
+            // this way of loading metadata is faster than the one based on reading the assembly file
+            // but TryGetRawMetadata is not available on .NET Framework
+            unsafe
+            {
+                if (asm.TryGetRawMetadata(out var blob, out var length))
+                    return AssemblyMetadata.Create(ModuleMetadata.CreateFromMetadata((IntPtr)blob, length));
+                return null;
+            }
+        }
+
         static BuildResult Build(string sourceFile, string assemblyFile, string[] refs, bool IsDebug, bool buildLocally)
         {
             bool useServer = !buildLocally;
@@ -256,13 +291,74 @@ namespace CSScripting.CodeDom
 
             var scriptText = File.ReadAllText(sourceFile);
             var scriptOptions = ScriptOptions.Default;
+            string mscorelib = 333.GetType().Assembly.Location.GetFileName();
 
             foreach (string file in refs)
-                try { scriptOptions = scriptOptions.AddReferences(Assembly.LoadFile(file)); }
+            {
+                try
+                {
+                    // NOTE: It is important to avoid loading the runtime itself (mscorelib) as it
+                    // will break the code evaluation (compilation).
+                    if (file.GetFileName() != mscorelib)
+                        scriptOptions = scriptOptions.AddReferences(Assembly.LoadFile(file));
+                }
                 catch { }
+            }
 
-            Compilation compilation = CSharpScript.Create(scriptText, scriptOptions)
-                                                  .GetCompilation();
+            var legacyAlgorithm = Environment.GetEnvironmentVariable("css_cli_roslyn_new_algorithm") == null;
+
+            Compilation compilation;
+            if (legacyAlgorithm)
+            {
+                compilation = CSharpScript.Create(scriptText, scriptOptions)
+                                          .GetCompilation();
+            }
+            else
+            {
+                var references = new List<MetadataReference>();
+                foreach (var asm in refs)
+                {
+                    var metadata = ToMetadataOnCore(asm);
+                    if (metadata != null)
+                        references.Add(metadata.GetReference());
+                }
+
+                // below is an alternative algorithm that tries first to use the assemblies that are already loaded
+                // in the AppDomain it is not clear if it has any compatibility benefits but it is more complex
+                // var clrRefs = AppDomain.CurrentDomain
+                //                   .GetAssemblies()
+                //                   .Where(a => a.IsFrameworkAssembly()) // all SDK assemblies from appdomain
+                //                   .Select(x => new { x.Location, Asm = x });
+                //
+                // var explicitRefs = refs.Except(clrRefs.Select(x => x.Location)); // from code
+                //
+                // foreach (var asm in explicitRefs)
+                // {
+                //     var metadata = ToMetadataOnCore(asm);
+                //     if (metadata != null)
+                //         references.Add(metadata.GetReference());
+                // }
+                //
+                // foreach (var item in clrRefs)
+                // {
+                //     var metadata = ToMetadataOnCore(item.Asm);
+                //     if (metadata != null)
+                //         references.Add(metadata.GetReference());
+                // }
+
+                var syntaxTree = SyntaxFactory.ParseSyntaxTree(
+                        scriptText,
+                        new CSharpParseOptions(
+                            kind: SourceCodeKind.Regular,
+                            preprocessorSymbols: ["DEBUG", "TRACE"],
+                            languageVersion: LanguageVersion.Latest));
+
+                compilation = CSharpCompilation.Create(
+                                                assemblyName: "Script" + Guid.NewGuid(),
+                                                syntaxTrees: new[] { syntaxTree },
+                                                references: references,
+                                                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            }
 
             if (IsDebug)
                 compilation = compilation.WithOptions(compilation.Options

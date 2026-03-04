@@ -15,7 +15,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.14.0</Version>
+    <Version>4.14.2</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET</Description>
     <Copyright>(C) 2018-2026 Oleg Shilo</Copyright>
@@ -27,7 +27,7 @@
     <PackageTags>C#, scripting, script, dynamic, .NET. .NET Core</PackageTags>
     <PackageReleaseNotes>---
 
-## Changes
+## Changes (v4.14.0-4.14.2)
 
 The major changes in this release are around improved support for working with external compile engines in CodeDom evaluator mode. Now both, CLI and CSScriptLib APIs allow automatic download and deployment of the latest .NET compilers (nuget packages) on the target system so the user does not have to install the complete .NET SDK.
 
@@ -86,9 +86,9 @@ CS-Script now uses separate temporary directories for better isolation:
     ├── cache\        # Compiled script cache 
     └── tmp files     # Temporary compilation artifacts</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.14.0</AssemblyVersion>
-    <FileVersion>4.14.0</FileVersion>
-    <PackageVersion>4.14.0</PackageVersion>
+    <AssemblyVersion>4.14.2</AssemblyVersion>
+    <FileVersion>4.14.2</FileVersion>
+    <PackageVersion>4.14.2</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>

@@ -312,9 +312,15 @@ namespace CSScripting.CodeDom
 
             // need to remove duplicated assemblies leaving GAC as a preferable reference
             // IE System.Linq.dll exists in GAC and in packages where it can be of a different version so it should not be used.
+            // A special case of System.Windows.Forms.dll coming explicitly because of the //css_winApp, and yet it may not be present in GAC
             var new_ref_assemblies = ref_assemblies
-                .Where(x => !gac_asms.Any(y => Path.GetFileName(y) == Path.GetFileName(x)))
-                .Where(x => !x.IsRuntimeAssembly());
+                .Where(x => !gac_asms.Any(y => Path.GetFileName(y) == Path.GetFileName(x)));
+
+            // Interestingly enough the extra filter !IsRuntimeAssembly filter was introduced in 4.14.0
+            // But it started causing the problems in case of injecting framework assemblies so I covered
+            // the case of "System.Windows.Forms.dll" specifically.
+            // Maybe we don't really need this extra filter. Need to investigate;
+            // .Where(x => !x.IsRuntimeAssembly());
 
             foreach (string file in gac_asms.Concat(new_ref_assemblies))
                 refs_args.Add($"/r:\"{file}\"");

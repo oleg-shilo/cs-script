@@ -1053,8 +1053,8 @@ namespace csscript
                                  "compiling WPF scripts because csc.exe cannot compile XAML.",
                                  "          ${<==}For `csc more detailed information see `css -ng ?` help documentation.",
                                  "roslyn - use `Microsoft.CodeAnalysis.CSharp.Scripting.dll` (Roslyn). ",
-                                 "         ${<==}This compiler shows good performance and does not require .NET SDK. Though, it is not suitable for WPF scripts. " +
-                                 "          ${<==}For `roslyn-inproc` version of this parameter see `css -ng ?` help documentation.",
+                                 "         ${<==}This compiler shows good performance and does not require .NET SDK. Though, it is not suitable for WPF scripts. ",
+                                 "         ${<==}For `roslyn-inproc` version of this parameter see `css -ng ?` help documentation.",
                                  "See [this wiki](https://github.com/oleg-shilo/cs-script/wiki/Choosing-Compiler-Engine) for details.",
                                  "``` ",
                                  " Example: //css_engine csc" + NewLine,
@@ -1149,7 +1149,6 @@ namespace csscript
                                      " ",
                                      " 'CSSCRIPT_INC'",
                                      "${<=6}a system-wide include directory for the all frequently used user scripts.",
-                                     "$(csscript_roslyn)",
                                      " ",
                                      " 'CSSCRIPT_CSC_CMD_LOG'",
                                      "${<=6}the location of the log file that will be created during the script execution with the 'csc' compiler engine." +
@@ -1158,7 +1157,29 @@ namespace csscript
                                      "then no log file will be created.",
                                      "$(csscript_roslyn)",
                                      " ",
+                                     " 'css_cli_roslyn_new_algorithm'",
+                                     "${<=6}a non empty envar will trigger the use of a new algorithm of the Roslyn compiler in CLI scenarios.",
+                                     "${<=6}This algorithm allows using a normal C# syntax that allows namespaces.",
+                                     " ",
+                                     " 'css_csc_file'",
+                                     "${<=6}the location of the csc.dll from the SDK folder. Useful if the default probing algorithm of the script engine cannot find the " +
+                                     "right compiler file.",
+                                     "${<=6}Ie, 'C:\\Program Files\\dotnet\\sdk\\10.0.103\\Roslyn\\bincore\\csc.dll'.",
+                                     " ",
+                                     " 'css_csc_asm_refs_dir'",
+                                     "${<=6}the location of the csc.dll from the SDK folder. Useful if the default probing algorithm of the script engine cannot find the " +
+                                     "right compiler file.",
+                                     "${<=6}Ie, 'C:\\Users\\user\\.nuget\\packages\\microsoft.AspNetCore.app.ref\\10.0.3\\ref\\net10.0'.",
+                                     " ",
+                                     " 'css_prefer_sdk_toolset_nuget'",
+                                     "${<=6}controls whether SDK tools are preferred over the SDK NuGet Toolset package. Used when locating csc.exe/dll compilers.",
+                                     " ",
                                      "---------",
+                                     " ",
+                                     " 'css_csc_file'",
+                                     "${<=6}the location of the csc.dll from the SDK folder.",
+                                     " ",
+
                                      "During the script execution CS-Script always injects a little object inspector class 'dbg'. " +
                                      "This class contains static printing methods that mimic Python's 'print()'. It is particularly useful for object inspection in the absence of a proper debugger.",
                                      " ",

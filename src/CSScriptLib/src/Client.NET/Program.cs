@@ -157,7 +157,8 @@ namespace Client.NET
             // you will need to install the compiler by downloading SDK tools NuGet package.
             // Either manually from
             // https://api.nuget.org/v3-flatcontainer/microsoft.net.sdk.compilers.toolset/10.0.103/microsoft.net.sdk.compilers.toolset.10.0.103.nupkg
-            // or by using CS-Script's own downloader. Uncomment next two lines:
+            // Or by executing `css -deploy-csc` command in the terminal, which will download and extract the package to the default location.
+            // Or by using CS-Script's own downloader. Uncomment next two lines:
             //
             // NugetPackageDownloader.OnProgressOutput = Console.WriteLine;
             // NugetPackageDownloader.DownloadLatestSdkCompiler(includePrereleases: false);
@@ -166,8 +167,8 @@ namespace Client.NET
 
             // Globals.csc is internally initialized the same way. Providing it here for demo purposes only.
             Globals.csc =
-                Globals.FindSdkToolsetPackageCompiler(includePrereleases: false) ?? // from the installed Microsoft.Net.Sdk.Compilers.Toolset package
-                Globals.FindSdKCompiler(); // or from .NET SDK installed on OS
+                Globals.FindSdKCompiler() ?? // or from .NET SDK installed on OS
+                Globals.FindSdkToolsetPackageCompiler(includePrereleases: false); // from the installed Microsoft.Net.Sdk.Compilers.Toolset package
         }
     }
 

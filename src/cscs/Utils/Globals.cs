@@ -342,7 +342,7 @@ namespace CSScripting
         /// </p>
         /// </remarks>
         public static string FindFrameworkToolsetPackageCompiler(bool includePrereleases = false)
-            => FindLatestPackageLocation(FrameworkToolsetPackageName, "csc.exe", includePrereleases).PathJoin("csc.exe");
+            => FindLatestPackageLocation(FrameworkToolsetPackageName, "csc.exe", includePrereleases)?.PathJoin("csc.exe");
 
         /// <summary>
         /// Gets the path to the latest C# compiler (csc.exe) from the Microsoft.Net.Sdk.Compilers.Toolset NuGet package found on the host environment.
@@ -370,7 +370,7 @@ namespace CSScripting
         /// <seealso cref="FindFrameworkToolsetPackageCompiler"/>
         /// <seealso cref="csc"/>
         public static string FindSdkToolsetPackageCompiler(bool includePrereleases = false)
-            => FindLatestPackageLocation(SdkCompilerPackageName, "csc.exe", includePrereleases).PathJoin("csc.exe");
+            => FindLatestPackageLocation(SdkCompilerPackageName, "csc.exe", includePrereleases)?.PathJoin("csc.exe");
 
         /// <summary>
         /// Finds the location of the latest .NET Core references package, optionally including pre-release versions.
@@ -547,13 +547,15 @@ namespace CSScripting
         }
 
         /// <summary>
-        /// Gets a value indicating whether SDK tools are preferred based on the environment variable
-        /// 'css_prefer_sdk_tools'.
+        /// Gets a value indicating whether SDK tools are preferred over other toolsets based on the current environment
+        /// configuration.
+        /// <p>Not applicabe in the .NET Framework scenarios when the toolset package is always prefered.</p>
         /// </summary>
-        /// <remarks>This property evaluates the environment variable and returns <see langword="true"/>
-        /// if it is set to 'true'; otherwise, it returns <see langword="false"/>. Use this property to configure
-        /// application behavior according to the development environment.</remarks>
-        public static bool PreferSdkTools = "css_prefer_sdk_tools".GetEnvar() == "true" ? true : false;
+        /// <remarks>This property determines toolset preference by evaluating the
+        /// 'css_prefer_sdk_toolset_nuget' environment variable. If the variable is set, SDK tools are not preferred;
+        /// otherwise, they are. This can be useful for controlling build and runtime behavior in different deployment
+        /// scenarios.</remarks>
+        public static bool PreferSdkTools = "css_prefer_sdk_toolset_nuget".GetEnvar() != null ? false : true;
 
         /// <summary>
         /// Gets or sets the directory path for assembly references used by the compiler.
@@ -665,8 +667,10 @@ namespace CSScripting
                         // And if not found there, then fallback to the .NET SDK compiler which is more
                         // general but may not be compatible with all SDK versions.
                         csc_file =
-                            FindSdkToolsetPackageCompiler(includePrereleases: false) ??
-                            FindSdKCompiler();
+                            PreferSdkTools ?
+                                (FindSdKCompiler() ?? FindSdkToolsetPackageCompiler(includePrereleases: false))
+                                :
+                                (FindSdkToolsetPackageCompiler(includePrereleases: false) ?? FindSdKCompiler());
                     }
                     else
                     {
@@ -680,8 +684,11 @@ namespace CSScripting
                     }
 #else
                     csc_file =
-                        FindSdkToolsetPackageCompiler(includePrereleases: false) ??
-                        FindSdKCompiler();
+                        PreferSdkTools ?
+                            (FindSdKCompiler() ?? FindSdkToolsetPackageCompiler(includePrereleases: false))
+                            :
+                            (FindSdkToolsetPackageCompiler(includePrereleases: false) ?? FindSdKCompiler());
+
 #endif
                 }
                 return csc_file;
