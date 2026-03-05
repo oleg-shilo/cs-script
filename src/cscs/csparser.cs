@@ -604,10 +604,12 @@ namespace csscript
 
             //analyse precompilers
             foreach (string statement in GetRawStatements("//css_precompiler", endCodePos))
-                precompilers.Add(statement.NormaliseAsDirectiveOf(file));
+                foreach (string item in SplitByDelimiter(statement, ','))
+                    precompilers.Add(item.NormaliseAsDirectiveOf(file));
 
             foreach (string statement in GetRawStatements("//css_pc", endCodePos))
-                precompilers.Add(statement.NormaliseAsDirectiveOf(file));
+                foreach (string item in SplitByDelimiter(statement, ','))
+                    precompilers.Add(item.NormaliseAsDirectiveOf(file));
 
             //analyse assembly references
             foreach (string statement in GetRawStatements("//css_ignore_namespace", endCodePos))
@@ -1365,3 +1367,4 @@ namespace csscript
         }
     }
 }
+

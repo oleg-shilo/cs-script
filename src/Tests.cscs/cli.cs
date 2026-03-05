@@ -282,6 +282,66 @@ namespace CLI
         }
 
         [Fact]
+        public void use_precompiler()
+        {
+            if (SkipIfIncompatibile) return;
+
+            var pre = testTempFile("precompiler.cs");
+            var script = testTempFile("script.cs");
+
+            File.WriteAllText(pre, $@"using System;
+                                      using System.Collections;
+
+                                      public class Sample_Precompiler
+                                      {{
+                                          public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                                          {{
+                                              scriptCode = scriptCode.Replace(""Hello World"", ""Hello from Precompiler"");
+                                              return true;
+                                          }}
+                                      }}");
+
+            File.WriteAllText(script, $@"//css_precompiler {pre}
+                                         System.Console.WriteLine(""Hello World"");");
+
+            var output = cscs_run(script).Replace("return false;", "return false;");
+
+            Assert.Contains("Hello from Precompiler", output);
+        }
+
+        [Fact]
+        public void generate_precompiler()
+        {
+            if (SkipIfIncompatibile) return;
+
+            var pre = testTempFile("precompiler.cs");
+            var script = testTempFile("script.cs");
+
+            var output = cscs_run($"-pc");
+            File.WriteAllText(pre, output);
+
+            File.WriteAllText(script,
+                """
+                //css_precompiler $pre$;
+                using System;
+
+                class Script
+                {
+                    static void Main()
+                    {
+                        Console.WriteLine("Hello World");
+                    }
+                }
+                """.Replace("$pre$", pre));
+
+            output = cscs_run(script);
+
+            var lines = output.GetLines();
+            Assert.Equal("Precompiling script.cs ...", lines[0]);
+            Assert.Equal("Hello World", lines[1]);
+        }
+
+        [Fact]
         public void new_cmd()
         {
             if (SkipIfIncompatibile) return;

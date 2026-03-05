@@ -291,3 +291,4 @@ src/out/*.deb
 /src/cscs/ToolPackage
 /src/cscs/nupkg/add-source.cmd
 /src/csws/Properties/Resources.net8.resx
+/.dotnet_home/.dotnet

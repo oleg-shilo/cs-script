@@ -506,10 +506,12 @@ namespace CSScriptLib
 
             //analyze precompilers
             foreach (string statement in GetRawStatements("//css_precompiler", endCodePos))
-                precompilers.Add(statement.UnescapeExpandTrim());
+                foreach (string item in SplitByDelimiter(statement, ','))
+                    precompilers.Add(item.UnescapeExpandTrim());
 
             foreach (string statement in GetRawStatements("//css_pc", endCodePos))
-                precompilers.Add(statement.UnescapeExpandTrim());
+                foreach (string item in SplitByDelimiter(statement, ','))
+                    precompilers.Add(item.UnescapeExpandTrim());
 
             //analyze compiler options
             foreach (string statement in GetRawStatements("//css_co", endCodePos))
@@ -1312,3 +1314,4 @@ namespace CSScriptLib
         }
     }
 }
+

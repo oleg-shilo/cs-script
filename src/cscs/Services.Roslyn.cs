@@ -307,6 +307,8 @@ namespace CSScripting.CodeDom
 
             var legacyAlgorithm = Environment.GetEnvironmentVariable("css_cli_roslyn_new_algorithm") == null;
 
+            var outputKind = OutputKind.DynamicallyLinkedLibrary;
+
             Compilation compilation;
             if (legacyAlgorithm)
             {
@@ -353,17 +355,20 @@ namespace CSScripting.CodeDom
                             preprocessorSymbols: ["DEBUG", "TRACE"],
                             languageVersion: LanguageVersion.Latest));
 
+                if (syntaxTree.IsTopLevelStatement())
+                    outputKind = OutputKind.ConsoleApplication;
+
                 compilation = CSharpCompilation.Create(
                                                 assemblyName: "Script" + Guid.NewGuid(),
                                                 syntaxTrees: new[] { syntaxTree },
                                                 references: references,
-                                                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                                                options: new CSharpCompilationOptions(outputKind));
             }
 
             if (IsDebug)
                 compilation = compilation.WithOptions(compilation.Options
                                          .WithOptimizationLevel(OptimizationLevel.Debug)
-                                         .WithOutputKind(OutputKind.DynamicallyLinkedLibrary)); // change this line if you need to build excutable
+                                         .WithOutputKind(outputKind)); // change this line if you need to build excutable
 
             return build_locally(compilation, assemblyFile, IsDebug, emitOptions);
         }

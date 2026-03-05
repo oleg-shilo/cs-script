@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -88,6 +88,34 @@ public class Script
 
             Assert.Contains("static void Main() { HostingRuntime.Init(); impl_Main(); } static public void impl_Main()",
                 processedCode);
+        }
+
+        [Fact]
+        public void parse_css_precompiler_directive_with_single_item()
+        {
+            var script = testTempFile("main.cs");
+            File.WriteAllText(script, "//css_precompiler .\\tools\\pre.cs\nclass Script { static void Main(){} }");
+
+            var parser = new CSharpParser(script, true);
+            var expected = script.GetDirName().PathJoin(".\\tools\\pre.cs").GetFullPath();
+
+            Assert.Single(parser.Precompilers);
+            Assert.True(parser.Precompilers[0].SamePathAs(expected));
+        }
+
+        [Fact]
+        public void parse_css_precompiler_directive_with_multiple_items()
+        {
+            var script = testTempFile("main.cs");
+            File.WriteAllText(script, "//css_precompiler .\\tools\\one.cs,.\\tools\\two.cs\nclass Script { static void Main(){} }");
+
+            var parser = new CSharpParser(script, true);
+            var expected1 = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(script), ".\\tools\\one.cs"));
+            var expected2 = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(script), ".\\tools\\two.cs"));
+
+            Assert.Equal(2, parser.Precompilers.Length);
+            Assert.True(parser.Precompilers[0].SamePathAs(expected1));
+            Assert.True(parser.Precompilers[1].SamePathAs(expected2));
         }
 
         [Fact]
