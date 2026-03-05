@@ -405,40 +405,157 @@ namespace CSScripting
         public static string FindNetCoreAsmRefs()
         {
             var runtime = Environment.Version;
-            var refPacksRoot = Environment.SpecialFolder.ProgramFiles.PathJoin("dotnet", "packs", "Microsoft.NETCore.App.Ref");
+            var dotnetRoots = new List<string>();
 
-            if (!Directory.Exists(refPacksRoot))
-                return null;
+            void addRoot(string root)
+            {
+                if (root.IsEmpty())
+                    return;
 
-            // Find all version directories that match the current runtime major version
-            var highestVersion = Directory.GetDirectories(refPacksRoot)
-                .Select(dir => Path.GetFileName(dir))
-                .Where(version => version.StartsWith($"{runtime.Major}."))
-                .Select(version =>
+                try
                 {
-                    try
+                    root = Path.GetFullPath(root);
+                }
+                catch
+                {
+                    return;
+                }
+
+                if (!dotnetRoots.Contains(root, StringComparer.OrdinalIgnoreCase))
+                    dotnetRoots.Add(root);
+            }
+
+            bool tryParseSemanticVersion(string path, out SemanticVersion version)
+            {
+                version = null;
+                try
+                {
+                    version = SemanticVersion.Parse(Path.GetFileName(path));
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            bool tryParseTfm(string tfm, out int major, out int minor)
+            {
+                major = 0;
+                minor = 0;
+
+                if (tfm.IsEmpty() || !tfm.StartsWith("net", StringComparison.OrdinalIgnoreCase))
+                    return false;
+
+                var parts = tfm.Substring(3).Split('.');
+                if (!int.TryParse(parts.FirstOrDefault(), out major))
+                    return false;
+
+                int.TryParse(parts.Skip(1).FirstOrDefault() ?? "0", out minor);
+                return true;
+            }
+
+            // preferred roots
+            addRoot(Environment.GetEnvironmentVariable("DOTNET_ROOT"));
+            addRoot(Environment.GetEnvironmentVariable("DOTNET_ROOT(x86)"));
+            addRoot(Environment.SpecialFolder.ProgramFiles.PathJoin("dotnet"));
+            addRoot(Environment.SpecialFolder.ProgramFilesX86.PathJoin("dotnet"));
+
+            if (Runtime.IsLinux)
+            {
+                addRoot("/usr/share/dotnet");
+                addRoot("/usr/lib/dotnet");
+                addRoot("/usr/local/share/dotnet");
+                addRoot("/snap/dotnet-sdk/current");
+            }
+
+            // infer from dotnet executable path
+            try
+            {
+                var dotnetExe = Globals.dotnet;
+                if (dotnetExe.FileExists())
+                {
+                    var exeDir = dotnetExe.GetDirName();
+                    addRoot(exeDir);
+
+                    // common Linux case: /usr/bin/dotnet -> /usr/share/dotnet/dotnet (symlink)
+                    if (exeDir.EndsWith($"{Path.DirectorySeparatorChar}bin"))
+                        addRoot(exeDir.GetDirName());
+                }
+            }
+            catch { }
+
+            var refCandidates = new List<(string Path, int TfmMajor, int TfmMinor, SemanticVersion PackVersion)>();
+
+            foreach (var root in dotnetRoots)
+            {
+                var refRoot = root.PathJoin("packs", "Microsoft.NETCore.App.Ref");
+                if (!refRoot.DirExists())
+                    continue;
+
+                foreach (var versionDir in Directory.GetDirectories(refRoot))
+                {
+                    if (!tryParseSemanticVersion(versionDir, out var packVersion))
+                        continue;
+
+                    var refDir = versionDir.PathJoin("ref");
+                    if (!refDir.DirExists())
+                        continue;
+
+                    foreach (var tfmDir in Directory.GetDirectories(refDir, "net*"))
                     {
-                        return new
-                        {
-                            Version = SemanticVersion.Parse(version),
-                            VersionString = version
-                        };
+                        var tfmName = tfmDir.GetFileName();
+                        if (tryParseTfm(tfmName, out var tfmMajor, out var tfmMinor))
+                            refCandidates.Add((tfmDir, tfmMajor, tfmMinor, packVersion));
                     }
-                    catch
-                    {
-                        return null; // Skip invalid version strings
-                    }
-                })
-                .Where(x => x != null)
+                }
+            }
+
+            var bestRefPack = refCandidates
+                .Where(x => x.TfmMajor == runtime.Major)
+                .OrderByDescending(x => x.PackVersion)
+                .ThenByDescending(x => x.TfmMinor)
+                .FirstOrDefault();
+
+            if (bestRefPack.Path.HasText())
+                return bestRefPack.Path;
+
+            bestRefPack = refCandidates
+                .OrderByDescending(x => x.TfmMajor)
+                .ThenByDescending(x => x.TfmMinor)
+                .ThenByDescending(x => x.PackVersion)
+                .FirstOrDefault();
+
+            if (bestRefPack.Path.HasText())
+                return bestRefPack.Path;
+
+            // last resort: runtime-shared assemblies (compile against implementation assemblies)
+            var sharedCandidates = new List<(string Path, SemanticVersion Version)>();
+
+            foreach (var root in dotnetRoots)
+            {
+                var sharedRoot = root.PathJoin("shared", "Microsoft.NETCore.App");
+                if (!sharedRoot.DirExists())
+                    continue;
+
+                foreach (var versionDir in Directory.GetDirectories(sharedRoot))
+                    if (tryParseSemanticVersion(versionDir, out var version))
+                        sharedCandidates.Add((versionDir, version));
+            }
+
+            var bestShared = sharedCandidates
+                .Where(x => x.Version.Version.Major == runtime.Major)
                 .OrderByDescending(x => x.Version)
                 .FirstOrDefault();
 
-            if (highestVersion == null)
-                return null;
+            if (bestShared.Path.HasText() == true)
+                return bestShared.Path;
 
-            var refPacks = refPacksRoot.PathJoin(highestVersion.VersionString, "ref", $"net{runtime.Major}.0");
+            bestShared = sharedCandidates
+                .OrderByDescending(x => x.Version)
+                .FirstOrDefault();
 
-            return Directory.Exists(refPacks) ? refPacks : null;
+            return bestShared.Path;
         }
 
         /// <summary>

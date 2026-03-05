@@ -15,7 +15,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.14.2</Version>
+    <Version>4.14.3</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET</Description>
     <Copyright>(C) 2018-2026 Oleg Shilo</Copyright>
@@ -86,9 +86,9 @@ CS-Script now uses separate temporary directories for better isolation:
     ├── cache\        # Compiled script cache 
     └── tmp files     # Temporary compilation artifacts</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.14.2</AssemblyVersion>
-    <FileVersion>4.14.2</FileVersion>
-    <PackageVersion>4.14.2</PackageVersion>
+    <AssemblyVersion>4.14.3</AssemblyVersion>
+    <FileVersion>4.14.3</FileVersion>
+    <PackageVersion>4.14.3</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>

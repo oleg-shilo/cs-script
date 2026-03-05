@@ -41,6 +41,20 @@ namespace CLI
 
     public class cscs_cli : IClassFixture<CliTestFolder>
     {
+        string testTempFile(string fileName, [CallerMemberName] string caller = null)
+        {
+            var rootDir = "TestData".PathJoin(nameof(cscs_cli), caller).GetFullPath().EnsureDir();
+            return Path.Combine(rootDir, fileName);
+        }
+
+        void testLog(string message, [CallerMemberName] string caller = null)
+        {
+            var rootDir = "TestData".PathJoin(nameof(cscs_cli), caller).GetFullPath().EnsureDir();
+
+            var path = Path.Combine(rootDir, "test-log.txt");
+            File.AppendAllText(path, message + NewLine);
+        }
+
         static string preferredCompiler => OperatingSystem.IsWindows() ? "-ng:dotnet" : "-ng:csc";
 
         // the test in VS_xUnit test runner integration works just fine. But assembly loading fails under "dotnet test ..."
@@ -262,8 +276,9 @@ namespace CLI
             var script_file = nameof(new_console);
             var output = cscs_run($"-new:console {script_file}");
 
-            output = cscs_run($"-check {script_file}");
-            Assert.Equal("Compile: OK", output);
+            output = cscs_run($"-verbose -check {script_file}");
+            testLog(output);
+            Assert.Contains("Compile: OK", output);
         }
 
         [Fact]

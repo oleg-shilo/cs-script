@@ -796,6 +796,8 @@ namespace csscript
                         {
                             Console.WriteLine($"  Compiler engine: {options.compilerEngine} ({Globals.csc})");
                             Console.WriteLine($"                        of dotnet ({Globals.dotnet})");
+                            Console.WriteLine($"  AsmRefs:         {Globals.csc_AsmRefs ?? "<not found>"}");
+
                             if (sdkWarning.HasText())
                                 Console.WriteLine($"                    {sdkWarning}");
                         }
