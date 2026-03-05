@@ -301,7 +301,31 @@ namespace CSScripting.CodeDom
                 var refPacks = Globals.csc_AsmRefs;
 
                 if (Directory.Exists(refPacks))
+                {
                     gac_asms = Directory.GetFiles(refPacks, "*.dll").ToList();
+
+                    if (!refPacks.Contains("Microsoft.NETCore.App.Ref", OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine("WARNING: falling back to runtime-shared assemblies for compiler references. " +
+                                          "Reference packs were not found. This mode is less reliable than compiling against Microsoft.NETCore.App.Ref.");
+                    }
+                }
+
+                if (gac_asms.IsEmpty())
+                {
+                    result.Errors.Add(new CompilerError
+                    {
+                        ErrorText =
+                            "Cannot locate .NET reference assemblies required by csc engine.\n" +
+                            $"Resolved refs path: {refPacks ?? "<null>"}\n" +
+                            $"Compiler: {Globals.csc}\n" +
+                            $"Host runtime: {Environment.Version}\n\n" +
+                            "Install .NET SDK reference packs or set css_csc_asm_refs_dir to a valid ref folder.\n" +
+                            "Example: /usr/share/dotnet/packs/Microsoft.NETCore.App.Ref/<version>/ref/net<major>.0"
+                    });
+
+                    return result;
+                }
 
                 if (options.AppType == "Web")
                     if (Globals.csc_AspAsmRefs.DirExists())

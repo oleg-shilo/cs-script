@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
@@ -29,8 +31,20 @@ namespace CLI
         }
     }
 
-    public class CliAlgorithms
+    public partial class CliAlgorithms
     {
+        string testTempFile(string fileName, [CallerMemberName] string caller = null)
+        {
+            var rootDir = "TestData".PathJoin(nameof(CliAlgorithms), caller).GetFullPath().EnsureDir();
+            return Path.Combine(rootDir, fileName);
+        }
+
+        string testTempDir([CallerMemberName] string caller = null)
+        {
+            var rootDir = "TestData".PathJoin(nameof(CliAlgorithms), caller).GetFullPath().EnsureDir();
+            return rootDir;
+        }
+
         string ToCode(string staticMain)
         {
             return @"
@@ -74,6 +88,40 @@ public class Script
 
             Assert.Contains("static void Main() { HostingRuntime.Init(); impl_Main(); } static public void impl_Main()",
                 processedCode);
+        }
+
+        [Fact]
+        public void FindNetCoreAsmRefs_prefers_ref_pack_from_DOTNET_ROOT()
+        {
+            var runtime = Environment.Version;
+            var root = testTempDir();
+
+            var expected = root.PathJoin("packs",
+                                         "Microsoft.NETCore.App.Ref",
+                                         $"{runtime.Major}.9999.0",
+                                         "ref",
+                                         $"net{runtime.Major}.0");
+
+            expected.EnsureDir();
+            File.WriteAllText(expected.PathJoin("System.Runtime.dll"), "test");
+
+            var oldDotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
+
+            try
+            {
+                Environment.SetEnvironmentVariable("DOTNET_ROOT", root);
+
+                var actual = Globals.FindNetCoreAsmRefs();
+
+                Assert.True(actual.HasText(), "Expected non-empty refs path.");
+                Assert.True(actual.SamePathAs(expected),
+                    $"Expected '{expected}' but got '{actual}'.");
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("DOTNET_ROOT", oldDotnetRoot);
+                root.DeleteDir(handleExceptions: true);
+            }
         }
     }
 }

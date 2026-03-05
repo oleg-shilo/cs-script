@@ -2315,12 +2315,15 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
                         {
                             builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Globals.csc})");
                             builder.AppendLine($"                         of dotnet ({Globals.dotnet})");
+                            builder.AppendLine($"   AsmRefs:         {Globals.csc_AsmRefs ?? "<not found>"}");
+
                             if (sdkWarning.HasText())
                                 builder.AppendLine($"                    {sdkWarning}");
                         }
                         else if (settings.DefaultCompilerEngine == Directives.compiler_roslyn)
                         {
                             builder.AppendLine($"   Compiler engine: {settings.DefaultCompilerEngine} ({Microsoft_CodeAnalysis_CSharp_Scripting_CSharpScript_Assembly_Location})");
+                            builder.AppendLine($"   AsmRefs        : {Globals.csc_AsmRefs}");
                         }
                         else if (settings.DefaultCompilerEngine == Directives.compiler_dotnet)
                         {

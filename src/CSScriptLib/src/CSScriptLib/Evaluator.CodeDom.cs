@@ -128,7 +128,7 @@ namespace CSScriptLib
         /// associated with the low level completion. IE non script specific failures of csc.exe.
         /// </para>
         /// </summary>
-        [Obsolete("Instead of checking the last error use compile error exception members `CompilerException.CompilerInput` and `CompilerException.CompilerOutput` instead.", error: false)]
+        [Obsolete("Instead of checking the last error use compile error exception members `CompilerException.CompilerInput` and `CompilerException.CompilerOutput` instead.", error: true)]
         public static string CompilerLastOutput = "";
 
         /// <summary>
@@ -415,8 +415,6 @@ namespace CSScriptLib
 
                 if (std_err.HasText())
                     result.Output.Add($"cmpl_stde: {std_err}");
-
-                CodeDomEvaluator.CompilerLastOutput = result.Output.JoinBy(Environment.NewLine);
 
                 result.ProcessErrors();
 
