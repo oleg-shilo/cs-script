@@ -33,17 +33,22 @@
 //using Microsoft.CodeAnalysis;
 //using Microsoft.CodeAnalysis.CSharp.Scripting
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.Loader;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Scripting;
 using csscript;
 using CSScripting;
 using CSScripting.CodeDom;
@@ -1026,6 +1031,141 @@ namespace CSScriptLib
             foreach (var asm in GetReferencedAssemblies(code, searchDirs))
                 ReferenceAssembly(asm);
             return this;
+        }
+
+        Dictionary<string, (MethodInfo method, MethodInfo legacyMethod)> precompilersCache = new();
+
+        internal PrecompilationContext PrecompileImportedScript(string scriptCode, CSharpParser primaryScript)
+        {
+            string[] searchDirs = [this.GetType().Assembly.Location().GetDirName(), .. primaryScript.ExtraSearchDirs];
+
+            var retval = new PrecompilationContext { SearchDirs = searchDirs };
+
+            Hashtable contextData = new()
+            {
+                ["NewDependencies"] = retval.NewDependencies,
+                ["NewSearchDirs"] = retval.NewSearchDirs,
+                ["NewReferences"] = retval.NewReferences,
+                ["NewIncludes"] = retval.NewIncludes,
+                ["NewCompilerOptions"] = "",
+                ["SearchDirs"] = retval.SearchDirs,
+            };
+
+            var content = scriptCode;
+            var modified = false;
+
+            foreach (string file in primaryScript.Precompilers)
+            {
+                var precompilerPath = Precompiler.FindImlementationFile(file, searchDirs);
+                if (!precompilersCache.ContainsKey(precompilerPath))
+                    throw new Exception("Precompiler " + file + " cache cannot be loaded."); // but it must exist since the script precompilers have been processed already
+
+                var precompiler = precompilersCache[precompilerPath];
+
+                bool result = ApplyPrecompilation(null, retval, contextData, ref content, precompilerPath);
+
+                if (result)
+                {
+                    retval.Content = content;
+                    retval.NewDependencies.Add(file);
+                    modified = true;
+                }
+            }
+            return modified ? retval : null;
+        }
+
+        internal PrecompilationContext PrecompileScript(string script, CSharpParser parser)
+        {
+            string[] searchDirs = [this.GetType().Assembly.Location().GetDirName(), .. parser.ExtraSearchDirs];
+
+            var retval = new PrecompilationContext { SearchDirs = searchDirs };
+
+            Hashtable contextData = new()
+            {
+                ["NewDependencies"] = retval.NewDependencies,
+                ["NewSearchDirs"] = retval.NewSearchDirs,
+                ["NewReferences"] = retval.NewReferences,
+                ["NewIncludes"] = retval.NewIncludes,
+                ["NewCompilerOptions"] = "",
+                ["SearchDirs"] = retval.SearchDirs,
+            };
+
+            var content = parser.Code;
+            var modified = false;
+
+            foreach (string file in parser.Precompilers)
+            {
+                var precompilerPath = Precompiler.FindImlementationFile(file, searchDirs);
+
+                using (SimpleAsmProbing.For(searchDirs))
+                {
+                    if (!precompilersCache.ContainsKey(precompilerPath))
+                    {
+                        (byte[] asm, byte[] pdb, Project project) precompilerInfo = Compile(null, file, null);
+
+                        var precompilerAsm = Assembly.Load(precompilerInfo.asm, precompilerInfo.pdb);
+
+                        var precompilerType = precompilerAsm.GetTypes().FirstOrDefault(x => x.Name.EndsWith("Precompiler"));
+                        if (precompilerType == null)
+                            throw new Exception("Precompiler " + file + " cannot be loaded. CreateInstance returned null.");
+
+                        var methods = precompilerType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
+                                                     .Where(x => x.Name == "Compile");
+
+                        precompilersCache[precompilerPath] =
+                            (
+                                method: methods.FirstOrDefault(x => x.GetParameters().Count() == 1),
+                                legacyMethod: methods.FirstOrDefault(x => x.GetParameters().Count() == 4)
+                            );
+                    }
+
+                    bool result = ApplyPrecompilation(script, retval, contextData, ref content, precompilerPath);
+
+                    if (result)
+                    {
+                        retval.Content = content;
+                        retval.NewDependencies.Add(file);
+                        modified = true;
+                    }
+                }
+            }
+            return modified ? retval : null;
+        }
+
+        private bool ApplyPrecompilation(string script, PrecompilationContext retval, Hashtable contextData, ref string content, string precompilerPath)
+        {
+            var (method, legacyMethod) = precompilersCache[precompilerPath];
+
+            bool result;
+
+            if (method != null)
+            {
+                // bool Compile(dynamic context) bool
+                // Compile(PrecompilationContext context)
+                object compiler = null;
+                if (!method.IsStatic)
+                    compiler = Activator.CreateInstance(method.DeclaringType);
+
+                retval.Content = content;
+
+                result = (bool)method.Invoke(compiler, [retval]);
+
+                if (result)
+                    content = retval.Content;
+            }
+            else
+            {
+                // public static bool Compile(ref string scriptCode, string
+                // scriptFile, bool isPrimaryScript, Hashtable context)
+                var compile = (Precompiler.CompileMethod)Delegate.CreateDelegate(typeof(Precompiler.CompileMethod), legacyMethod);
+
+                result = compile(ref content,
+                                     script,
+                                     IsPrimaryScript: script != null,
+                                     contextData);
+            }
+
+            return result;
         }
 
         /// <summary>

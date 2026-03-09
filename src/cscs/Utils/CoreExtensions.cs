@@ -1,19 +1,15 @@
-using csscript;
-using CSScripting;
-using CSScripting.CodeDom;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using CSScripting;
 
 #if class_lib
 
@@ -375,7 +371,7 @@ namespace csscript
 
         internal static bool IsTopLevelStatement(this SyntaxTree code)
             => //code.GetCompilationUnitRoot().Members.OfType<GlobalStatementSyntax>().Any();
-             code.GetRoot().DescendantNodes().OfType<GlobalStatementSyntax>().Any();
+            code.GetRoot().DescendantNodes().OfType<GlobalStatementSyntax>().Any();
 
         /// <summary>
         /// Determines whether the specified assembly path corresponds to a runtime assembly.

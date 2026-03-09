@@ -122,6 +122,7 @@ CS-Script now uses separate temporary directories for better isolation:
     <Compile Include="..\..\..\cscs\CodeDom\CompilerResults.cs" Link="CodeDom\CompilerResults.cs" />
     <Compile Include="..\..\..\cscs\CodeDom\CompilerError.cs" Link="CodeDom\CompilerError.cs" />
     <Compile Include="..\..\..\cscs\fileparser.cs" Link="fileparser.cs" />
+    <Compile Include="..\..\..\cscs\Precompiler.cs" Link="Precompiler.cs" />
     <Compile Include="..\..\..\cscs\Project.cs" Link="Project.cs" />
     <Compile Include="..\..\..\cscs\ScriptParser.cs" Link="ScriptParser.cs" />
     <Compile Include="..\..\..\cscs\ScriptParsingResult.cs" Link="ScriptParsingResult.cs" />
