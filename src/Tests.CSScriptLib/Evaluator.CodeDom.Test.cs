@@ -290,5 +290,221 @@ namespace EvaluatorTests
         //     dynamic script = asm.CreateObject("*");
         //     var result = script.Sum(7, 3);
         // }
+
+        [Fact]
+        public void Precompiler_for_script_code()
+        {
+            var pre = testTempFile("precompiler.cs");
+
+            File.WriteAllText(pre, @"using System;
+                                     using System.Collections;
+                                     public class Sample_Precompiler
+                                     {
+                                         public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                                         {
+                                             scriptCode = scriptCode.Replace(""Hello World"", ""Hello World!!!"");
+                                             return true;
+                                         }
+                                     }");
+
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .LoadCode($@"//css_precompiler {pre}
+                                                  public class Script
+                                                  {{
+                                                      public string foo()
+                                                          => ""Hello World"";
+                                                  }}");
+
+            var result = script.foo();
+
+            Assert.Equal("Hello World!!!", result);
+        }
+
+        [Fact]
+        public void Precompiler_alt_signature()
+        {
+            var pre = testTempFile("precompiler.cs");
+
+            File.WriteAllText(pre, $@"//css_ref {typeof(PrecompilationContext).Assembly.Location}
+                                     using System;
+                                     using System.Collections;
+                                     public class Sample_Precompiler
+                                     {{
+                                        public bool Compile(csscript.PrecompilationContext context)
+                                        {{
+                                            context.Content = context.Content.Replace(""Hello World"", ""Hello World!!!"");
+                                            return true;
+                                        }}
+                                      }}");
+
+            CSScript.EvaluatorConfig.DebugBuild = true;
+
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .LoadCode($@"//css_precompiler {pre}
+                                                  public class Script
+                                                  {{
+                                                      public string foo()
+                                                          => ""Hello World"";
+                                                  }}");
+
+            var result = script.foo();
+
+            Assert.Contains("Hello World!!!", result);
+        }
+
+        [Fact]
+        public void Precompiler_alt_signature2()
+        {
+            var pre = testTempFile("precompiler.cs");
+
+            File.WriteAllText(pre, @"using System;
+                                     using System.Collections;
+                                     public class Sample_Precompiler
+                                     {
+                                        public bool Compile(dynamic context)
+                                        {
+                                            context.Content = context.Content.Replace(""Hello World"", ""Hello World!!!"");
+                                            return true;
+                                        }
+                                      }");
+
+            CSScript.EvaluatorConfig.DebugBuild = true;
+
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .LoadCode($@"//css_precompiler {pre}
+                                                  public class Script
+                                                  {{
+                                                      public string foo()
+                                                          => ""Hello World"";
+                                                  }}");
+
+            var result = script.foo();
+
+            Assert.Contains("Hello World!!!", result);
+        }
+
+        [Fact]
+        public void Precompiler_imported_scripts()
+        {
+            var pre = testTempFile("precompiler.cs");
+            var importedScript = testTempFile("imported.cs");
+
+            File.WriteAllText(pre,
+                 @"using System;
+                   using System.Collections;
+                   public class Sample_Precompiler
+                   {
+                       public bool Compile(csscript.PrecompilationContext context)
+                       {
+                           context.Content = context.Content.Replace(""Hello World"", ""Hello World!!!"");
+                           return true;
+                       }
+                   }");
+
+            File.WriteAllText(importedScript,
+                @"public class Utils
+                  {
+                      public static string foo()=> ""Hello World"";
+                  }");
+
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .LoadCode($@"//css_precompiler {pre}
+                                                  //css_include {importedScript}
+                                                  public class Script
+                                                  {{
+                                                      public string foo()
+                                                          => ""Hello World"";
+                                                      public string foo2()
+                                                          => Utils.foo();
+                                                  }}");
+
+            var result = script.foo();
+            Assert.Contains("Hello World!!!", result);
+
+            result = script.foo2();
+            Assert.Contains("Hello World!!!", result);
+        }
+
+        [Fact]
+        public void Precompiler_imported_scripts2()
+        {
+            var pre = testTempFile("precompiler.cs");
+            var importedScript = testTempFile("imported.cs");
+
+            File.WriteAllText(pre,
+                 @"using System;
+                   using System.Collections;
+                   public class Sample_Precompiler
+                   {
+                       public static bool Compile(ref string code, string scriptFile, bool isPrimaryScript, Hashtable context)
+                       {
+                           code = code.Replace(""Hello World"", ""Hello World!!!"");
+                           return true;
+                       }
+                   }");
+
+            File.WriteAllText(importedScript,
+                @"public class Utils
+                  {
+                      public static string foo()=> ""Hello World"";
+                  }");
+
+            // CSScript.EvaluatorConfig.DebugBuild = true;
+
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .LoadCode($@"//css_precompiler {pre}
+                                                  //css_include {importedScript}
+                                                  public class Script
+                                                  {{
+                                                      public string foo()
+                                                          => ""Hello World"";
+                                                      public string foo2()
+                                                          => Utils.foo();
+                                                  }}");
+
+            var result = script.foo();
+            Assert.Contains("Hello World!!!", result);
+
+            result = script.foo2();
+            Assert.Contains("Hello World!!!", result);
+        }
+
+        [Fact]
+        public void Precompiler_for_script_file()
+        {
+            var preFile = testTempFile("precompiler.cs");
+            var scriptFile = testTempFile("primary_script.cs");
+
+            File.WriteAllText(preFile, $@"using System;
+                                      using System.Collections;
+                                      public class Sample_Precompiler
+                                      {{
+                                          public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                                          {{
+                                              scriptCode = scriptCode.Replace(""Hello World"", ""Hello World!!!"");
+                                              return true;
+                                          }}
+                                      }}");
+
+            File.WriteAllText(scriptFile, $@"//css_precompiler {preFile}
+                                             public class Script
+                                             {{
+                                                 public string foo()
+                                                     => ""Hello World"";
+                                             }}");
+
+            dynamic script = CSScript.CodeDomEvaluator
+                                     .LoadFile(scriptFile);
+
+            var result = script.foo();
+            Assert.Contains("Hello World!!!", result);
+
+            var scriptAsm = CSScript.CodeDomEvaluator
+                                    .CompileAssemblyFromFile(scriptFile, scriptFile + ".dll");
+            dynamic script2 = Assembly.LoadFrom(scriptAsm).CreateObject("*");
+
+            result = script2.foo();
+            Assert.Contains("Hello World!!!", result);
+        }
     }
 }

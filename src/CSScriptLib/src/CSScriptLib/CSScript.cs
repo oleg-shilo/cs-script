@@ -62,6 +62,8 @@ namespace CSScriptLib
     /// </summary>
     public class Settings
     {
+        internal const string DefaultEncodingName = "default";
+
         /// <summary>
         /// Loads and returns the settings instance.
         /// </summary>

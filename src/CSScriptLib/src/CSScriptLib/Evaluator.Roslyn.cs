@@ -68,30 +68,6 @@ using CSScripting.CodeDom;
 // </summary>
 namespace CSScriptLib
 {
-    static class localExtensions
-    {
-        public static (string file, int line) Translate(this Dictionary<(int, int), (string, int)> mapping, int line)
-        {
-            foreach ((int start, int end) range in mapping.Keys)
-                if (range.start <= line && line <= range.end)
-                {
-                    (string file, int lineOffset) = mapping[range];
-                    return (file, line - range.start + lineOffset);
-                }
-
-            return ("", 0);
-        }
-
-        static public string[] SeparateUsingsFromCode(this string code)
-        {
-            SyntaxTree tree = CSharpSyntaxTree.ParseText(code);
-            CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
-            int pos = root.Usings.FullSpan.End;
-
-            return new[] { code.Substring(0, pos).TrimEnd(), code.Substring(pos) };
-        }
-    }
-
     /// <summary>
     /// </summary>
     /// <seealso cref="CSScriptLib.IEvaluator"/>
@@ -208,11 +184,30 @@ namespace CSScriptLib
                 ////////////////////////////////////////
 
                 var mapping = new Dictionary<(int, int), (string, int)>();
+                var lightParser = new CSharpParser(scriptText, false);
+                List<string> extraRefs = [];
 
-                if (scriptFile == null && new CSharpParser(scriptText, false).Imports.Any())
+                if (scriptFile == null && (lightParser.Imports.Any() || lightParser.Precompilers.Any()))
                 {
                     tempScriptFile = CSScript.GetScriptTempFile();
                     File.WriteAllText(tempScriptFile, scriptText);
+                }
+
+                if (lightParser.Precompilers.Any())
+                {
+                    var precompiliationResult = base.PrecompileScript(scriptFile ?? tempScriptFile, lightParser);
+
+                    if (precompiliationResult != null)
+                    {
+                        tempScriptFile ??= CSScript.GetScriptTempFile();
+                        File.WriteAllText(tempScriptFile, precompiliationResult.Content);
+                        scriptText = precompiliationResult.Content;
+
+                        if (precompiliationResult?.NewIncludes?.Any() == true)
+                        {
+                            extraRefs.AddRange(precompiliationResult.NewReferences);
+                        }
+                    }
                 }
 
                 if (scriptFile == null && tempScriptFile == null)
@@ -247,9 +242,17 @@ namespace CSScriptLib
                     {
                         var parts = File.ReadAllText(file).SeparateUsingsFromCode();
                         var usings = parts[0].GetLines();
-                        var code = parts[1].GetLines();
+                        var code = parts[1];
 
-                        importedSources[file] = (usings.Count(), code);
+                        if (!file.EndsWith(Globals.InjectedAttributesPrefix) && lightParser.Precompilers.Any())
+                        {
+                            var precompResult = base.PrecompileImportedScript(code, lightParser);
+
+                            if (precompResult != null)
+                                code = precompResult.Content;
+                        }
+
+                        importedSources[file] = (usings.Count(), code.GetLines());
                         add_code(file, usings, 0);
                     }
 
@@ -320,7 +323,7 @@ namespace CSScriptLib
 
                 var explicitRefs = this.refAssemblies.Except(refs); // from code
 
-                foreach (var asm in refs.Concat(explicitRefs))
+                foreach (var asm in refs.Concat(explicitRefs).Concat(extraRefs.Select(x => Assembly.LoadFrom(x))))
                 {
                     var metadata = ToMetadata(asm);
                     if (metadata != null)
@@ -669,6 +672,30 @@ namespace CSScriptLib
                 ReferenceDomainAssemblies();
 
             return this;
+        }
+    }
+
+    static class localExtensions
+    {
+        public static (string file, int line) Translate(this Dictionary<(int, int), (string, int)> mapping, int line)
+        {
+            foreach ((int start, int end) range in mapping.Keys)
+                if (range.start <= line && line <= range.end)
+                {
+                    (string file, int lineOffset) = mapping[range];
+                    return (file, line - range.start + lineOffset);
+                }
+
+            return ("", 0);
+        }
+
+        static public string[] SeparateUsingsFromCode(this string code)
+        {
+            SyntaxTree tree = CSharpSyntaxTree.ParseText(code);
+            CompilationUnitSyntax root = tree.GetCompilationUnitRoot();
+            int pos = root.Usings.FullSpan.End;
+
+            return new[] { code.Substring(0, pos).TrimEnd(), code.Substring(pos) };
         }
     }
 }

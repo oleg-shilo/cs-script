@@ -1336,7 +1336,7 @@ class HostingRuntime
 
                 if (precompilerFile != "" && precompilerFile != noDefaultPrecompilerSwitch)
                 {
-                    string sourceFile = FindImlementationFile(precompilerFile, options.searchDirs)
+                    string sourceFile = Precompiler.FindImlementationFile(precompilerFile, options.searchDirs)
                         ?? throw new ApplicationException("Cannot find Precompiler file " + precompilerFile);
 
                     Assembly asm;
@@ -1391,35 +1391,6 @@ class HostingRuntime
             return retval;
         }
 
-        public static string FindFile(string file, string[] searchDirs)
-        {
-            if (File.Exists(file))
-            {
-                return Path.GetFullPath(file);
-            }
-            else if (!Path.IsPathRooted(file))
-            {
-                foreach (string dir in searchDirs)
-                    if (File.Exists(Path.Combine(dir, file)))
-                        return Path.Combine(dir, file);
-            }
-
-            return null;
-        }
-
-        public static string FindImlementationFile(string file, string[] searchDirs)
-        {
-            string retval = FindFile(file, searchDirs);
-
-            if (retval == null && !Path.HasExtension(file))
-            {
-                retval = FindFile(file + ".cs", searchDirs) ??
-                         FindFile(file + ".dll", searchDirs);
-            }
-
-            return retval;
-        }
-
         static void kill(string proc_name)
         {
             try
@@ -1457,7 +1428,7 @@ class HostingRuntime
             {
                 if (file != "")
                 {
-                    sb.Append(FindImlementationFile(file, options.searchDirs))
+                    sb.Append(Precompiler.FindImlementationFile(file, options.searchDirs))
                       .Append(',');
                 }
             }

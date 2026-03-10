@@ -220,6 +220,49 @@ namespace CSScriptLib
                         return scriptCache[scriptHash];
                 }
 
+                /////////////////////////////////////
+                var lightParser = new CSharpParser(scriptFile ?? tempScriptFile, true);
+
+                if (lightParser.Precompilers.Any())
+                {
+                    var actualSources = sources.ToList();
+
+                    var precompiliationResult = base.PrecompileScript(scriptFile ?? tempScriptFile, lightParser);
+
+                    if (precompiliationResult != null)
+                    {
+                        tempScriptFile ??= CSScript.GetScriptTempFile();
+                        File.WriteAllText(tempScriptFile, precompiliationResult.Content);
+                        actualSources[0] = tempScriptFile;
+                    }
+
+                    int index = 1;
+                    foreach (string file in sources.Skip(1))
+                    {
+                        if (!file.EndsWith(Globals.InjectedAttributesPrefix))
+                        {
+                            var code = File.ReadAllText(file);
+
+                            var precompResult = base.PrecompileImportedScript(code, lightParser);
+                            if (precompResult != null)
+                            {
+                                var newFile = file.ChangeExtension(".g.cs");
+                                File.WriteAllText(newFile, precompResult.Content);
+                                actualSources[index] = newFile;
+                            }
+                        }
+                        index++;
+                    }
+
+                    actualSources.AddRange(precompiliationResult?.NewIncludes ?? []);
+                    sources = actualSources.Distinct().ToArray();
+
+                    if (precompiliationResult?.NewIncludes?.Any() == true)
+                    {
+                        refs = refs.Concat(precompiliationResult.NewReferences).ToArray();
+                    }
+                }
+
                 (byte[] asm, byte[] pdb) result = CompileAssemblyFromFileBatch_with_Csc(sources, refs, info?.AssemblyFile, this.IsDebug, info);
 
                 if (IsCachingEnabled)

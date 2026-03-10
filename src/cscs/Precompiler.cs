@@ -1,10 +1,16 @@
-using CSScripting;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using Microsoft.CodeAnalysis;
+using CSScripting;
+using CSScriptLib;
 
 namespace csscript
 {
@@ -51,9 +57,56 @@ namespace csscript
         /// </summary>
         public string[] SearchDirs = new string[0];
 
+        /// <summary>
+        /// Gets or sets the precompilation content associated with this instance.
+        /// </summary>
         public string Content;
+
+        /// <summary>
+        /// Gets or sets the path to the script file used for processing.
+        /// </summary>
+        /// <remarks>This property should contain a valid file path. Ensure that the file exists and is
+        /// accessible before attempting to use it.</remarks>
         public string scriptFile;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this script is the primary script for the associated entity.
+        /// </summary>
         public bool IsPrimaryScript;
+    }
+
+    class Precompiler
+    {
+        public delegate bool CompileMethod(ref string content, string scriptFile, bool IsPrimaryScript, Hashtable context);
+
+        public static string FindImlementationFile(string file, string[] searchDirs)
+        {
+            string retval = FindFile(file, searchDirs);
+
+            if (retval == null && !Path.HasExtension(file))
+            {
+                retval = FindFile(file + ".cs", searchDirs) ??
+                         FindFile(file + ".dll", searchDirs);
+            }
+
+            return retval;
+        }
+
+        public static string FindFile(string file, string[] searchDirs)
+        {
+            if (File.Exists(file))
+            {
+                return Path.GetFullPath(file);
+            }
+            else if (!Path.IsPathRooted(file))
+            {
+                foreach (string dir in searchDirs)
+                    if (File.Exists(Path.Combine(dir, file)))
+                        return Path.Combine(dir, file);
+            }
+
+            return null;
+        }
     }
 
     internal class DefaultPrecompiler
@@ -343,7 +396,7 @@ namespace csscript
                     }
                 }
 
-                if (!autoCodeInjected && entryPointInjectionPos != -1 && !Utils.IsNullOrWhiteSpace(lineText))
+                if (!autoCodeInjected && entryPointInjectionPos != -1 && lineText.HasText())
                 {
                     bracket_count += lineText.Split('{').Length - 1;
                     bracket_count -= lineText.Split('}').Length - 1;

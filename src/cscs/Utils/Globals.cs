@@ -43,6 +43,7 @@ namespace CSScripting
         public static bool DefaultRoslynCompilationToScript { get; set; } = true;
 
         static internal string DynamicWrapperClassName = "DynamicClass";
+        static internal string InjectedAttributesPrefix = ".attr.g.cs";
         static internal string RootClassName = "css_root";
         // Roslyn still does not support anything else but `Submission#0` (17 Jul 2019) [update]
         // Roslyn now does support alternative class names (1 Jan 2020)

@@ -65,13 +65,13 @@ namespace EvaluatorTests
         string testTempFile(string fileName, [CallerMemberName] string caller = null)
         {
             var rootDir = "TestData".PathJoin(nameof(API_Roslyn), caller).GetFullPath().EnsureDir();
-            if (fileName == "asm.hidden-from-xunit-dll-file")
-            {
-                File.AppendAllText(
-                    @"D:\dev\cs-script\src\Tests.CSScriptLib\bin\Debug\net10.0\TestData\test-error.log",
-                    rootDir.PathJoin(fileName) + Environment.NewLine);
-                Debugger.Launch(); // asm.dll is a special file name that xUnit locks just because it was present in the local dir. So avoid using it in the tests.
-            }
+            // if (fileName == "asm.hidden-from-xunit-dll-file")
+            // {
+            //     File.AppendAllText(
+            //         @"D:\dev\cs-script\src\Tests.CSScriptLib\bin\Debug\net10.0\TestData\test-error.log",
+            //         rootDir.PathJoin(fileName) + Environment.NewLine);
+            //     Debugger.Launch(); // asm.dll is a special file name that xUnit locks just because it was present in the local dir. So avoid using it in the tests.
+            // }
 
             return Path.Combine(rootDir, fileName);
         }
