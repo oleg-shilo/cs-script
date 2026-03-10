@@ -4,7 +4,7 @@
     "homepage": "https://github.com/oleg-shilo/cs-script",
     "license": "MIT",
     "url": "https://github.com/oleg-shilo/cs-script/releases/download/v4.14.3.0/cs-script.win.v4.14.3.0.zip",
-    "hash": "sha256:c671c2e07376683924aa7e2cc14e6226549878e7cd8603326b6b105759a82b86",
+    "hash": "sha256:5e44caae23da21f3b877605cd3c4069554d673f4d5bcca239988ac8c8d15386f",
     "bin": [["cscs.exe", "css"]],
     "checkver": {
       "github": "oleg-shilo/cs-script"
