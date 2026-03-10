@@ -1896,7 +1896,7 @@ namespace csscript
             CompilerResults results;
             if (generateExe)
             {
-                var exeCompatibleIjections = filesToInject.Where(x => !x.EndsWith(".attr.g.cs")).ToArray();
+                var exeCompatibleIjections = filesToInject.Where(x => !x.EndsWith(Globals.InjectedAttributesPrefix)).ToArray();
                 filesToCompile = filesToCompile.ConcatWith(exeCompatibleIjections);
                 results = CompileAssembly(compiler, compilerParams, filesToCompile);
             }

@@ -51,7 +51,7 @@ namespace CSScripting.CodeDom
                      .EnsureDir();
 
             string firstScript = fileNames.First();
-            string attr_file = fileNames.FirstOrDefault(x => x.EndsWith(".attr.g.cs", StringComparison.OrdinalIgnoreCase) || x.EndsWith(".attr.g.vb", StringComparison.OrdinalIgnoreCase));
+            string attr_file = fileNames.FirstOrDefault(x => x.EndsWith(Globals.InjectedAttributesPrefix) || x.EndsWith(".attr.g.vb"));
             string dbg_inject_file = fileNames.FirstOrDefault(x => x.GetFileName().StartsWith("dbg.inject.", StringComparison.OrdinalIgnoreCase));
 
             string single_source = build_dir.PathJoin(firstScript.GetFileName());
