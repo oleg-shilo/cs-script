@@ -259,7 +259,7 @@ namespace CSScriptLib
 
                     if (precompiliationResult?.NewIncludes?.Any() == true)
                     {
-                        refs = refs.Concat(precompiliationResult.NewIncludes).ToArray();
+                        refs = refs.Concat(precompiliationResult.NewReferences).ToArray();
                     }
                 }
 

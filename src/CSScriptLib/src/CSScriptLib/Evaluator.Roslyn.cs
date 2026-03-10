@@ -205,7 +205,7 @@ namespace CSScriptLib
 
                         if (precompiliationResult?.NewIncludes?.Any() == true)
                         {
-                            extraRefs.AddRange(precompiliationResult.NewIncludes);
+                            extraRefs.AddRange(precompiliationResult.NewReferences);
                         }
                     }
                 }
