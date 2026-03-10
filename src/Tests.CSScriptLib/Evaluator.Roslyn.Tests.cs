@@ -157,16 +157,17 @@ namespace EvaluatorTests
         {
             var pre = testTempFile("precompiler.cs");
 
-            File.WriteAllText(pre, @"using System;
+            File.WriteAllText(pre, $@"//css_ref {typeof(PrecompilationContext).Assembly.Location}
+                                     using System;
                                      using System.Collections;
                                      public class Sample_Precompiler
-                                     {
+                                     {{
                                          public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
-                                         {
+                                         {{
                                              scriptCode = scriptCode.Replace(""Hello World"", ""Hello World!!!"");
                                              return true;
-                                         }
-                                     }");
+                                         }}
+                                     }}");
 
             dynamic script = CSScript.RoslynEvaluator
                                      .LoadCode($@"//css_precompiler {pre}
@@ -182,6 +183,37 @@ namespace EvaluatorTests
         }
 
         [Fact]
+        public void Precompiler_alt_signature2()
+        {
+            var pre = testTempFile("precompiler.cs");
+
+            File.WriteAllText(pre, $@"using System;
+                                      using System.Collections;
+                                      public class Sample_Precompiler
+                                      {{
+                                          public bool Compile(dynamic context)
+                                          {{
+                                              context.Content = context.Content.Replace(""Hello World"", ""Hello World!!!"");
+                                              return true;
+                                          }}
+                                      }}");
+
+            CSScript.EvaluatorConfig.DebugBuild = true;
+
+            dynamic script = CSScript.RoslynEvaluator
+                                     .LoadCode($@"//css_precompiler {pre}
+                                                  public class Script
+                                                  {{
+                                                      public string foo()
+                                                          => ""Hello World"";
+                                                  }}");
+
+            var result = script.foo();
+
+            Assert.Contains("Hello World!!!", result);
+        }
+
+        [Fact]
         public void Precompiler_alt_signature()
         {
             var pre = testTempFile("precompiler.cs");
@@ -190,7 +222,7 @@ namespace EvaluatorTests
                                       using System.Collections;
                                       public class Sample_Precompiler
                                       {{
-                                          public bool Compile(csscript.PrecompilationContext context)
+                                          public bool Compile(dynamic context)
                                           {{
                                               context.Content = context.Content.Replace(""Hello World"", ""Hello World!!!"");
                                               return true;
@@ -223,7 +255,7 @@ namespace EvaluatorTests
                    using System.Collections;
                    public class Sample_Precompiler
                    {
-                       public bool Compile(csscript.PrecompilationContext context)
+                       public bool Compile(dynamic context)
                        {
                            context.Content = context.Content.Replace(""Hello World"", ""Hello World!!!"");
                            return true;

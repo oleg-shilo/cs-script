@@ -2,11 +2,11 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using static System.Reflection.BindingFlags;
 using csscript;
 using CSScripting;
 using CSScriptLib;
 using Xunit;
-using static System.Reflection.BindingFlags;
 
 namespace Misc
 {
@@ -19,7 +19,7 @@ namespace Misc
     /// </summary>
     public class TestFolder
     {
-        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test").EnsureDir();
+        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder").EnsureDir();
 
         public TestFolder()
         {
