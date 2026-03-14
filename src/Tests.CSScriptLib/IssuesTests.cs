@@ -16,9 +16,11 @@ namespace Misc
         public string GetTempFileName(string seed)
             => Path.GetFullPath($"{this.GetHashCode()}.{seed}");
 
-        public string GetTempScript(string seed, string content)
+        public string GetTempScript(string content, object seed = null, [CallerMemberName] string caller = null)
         {
-            var script = GetTempFileName(seed);
+            var dir = Path.Combine("TestData", nameof(IssuesTests));
+            Directory.CreateDirectory(dir);
+            var script = Path.Combine(dir, GetTempFileName($"{seed}.{caller}"));
             File.WriteAllText(script, content);
             return script;
         }
@@ -26,27 +28,45 @@ namespace Misc
         [Fact]
         public void issue_445_compile_OK()
         {
-            var script = GetTempScript(nameof(issue_445_compile_OK),
-                                       @"
-                                        //css_res Resources1.resx;
-                                        using System;
-                                        public class Calc
-                                        {
-                                            public int Sum(int a, int b) => a+b;
-                                        }");
+            var thisAsm = this.GetType().Assembly.Location;
+            var workingDir = Path.GetDirectoryName(thisAsm);
+
+            CSScript.GlobalSettings.AddSearchDir(@"c:\test");
+            CSScript.GlobalSettings.AddSearchDir(workingDir);
+
+            var scriptToImport = GetTempScript(@"//css_dir testDir2
+                                                 //css_ref xunit.core.dll",
+                                               "imported");
+
+            var script = GetTempScript(@"//css_dir testDir;
+                                         //css_ref Newtonsoft.Json.dll
+                                         //css_inc " + scriptToImport + @"
+                                         public class Calc
+                                         {
+                                             public int Sum(int a, int b) => a+b;
+                                         }");
+            // ---
             var asm = CSScript.CodeDomEvaluator.CompileFile(script);
-
             var proj = asm.GetAttached<Project>();
-
+            // ---
             Assert.NotNull(proj);
+
             Assert.Equal(script, proj.Files.FirstOrDefault());
+
+            Assert.Equal(4, proj.SearchDirs.Count());
+            Assert.Contains(@"c:\test", proj.SearchDirs);
+            Assert.Contains(workingDir, proj.SearchDirs);
+            Assert.Contains(Path.Combine(workingDir, "testDir"), proj.SearchDirs);
+            Assert.Contains(Path.Combine(workingDir, "testDir2"), proj.SearchDirs);
+
+            Assert.Contains(Path.Combine(workingDir, "Newtonsoft.Json.dll"), proj.Refs);
+            Assert.Contains(Path.Combine(workingDir, "xunit.core.dll"), proj.Refs);
         }
 
         [Fact]
         public void issue_445_compile_Roslyn()
         {
-            var script = GetTempScript(nameof(issue_445_compile_OK),
-                                       @"
+            var script = GetTempScript(@"
                                         //css_res Resources1.resx;
                                         using System;
                                         public class Calc
@@ -79,8 +99,7 @@ namespace Misc
         [Fact]
         public void issue_445_compile_error()
         {
-            var script = GetTempScript(nameof(issue_445_compile_error),
-                                       @"
+            var script = GetTempScript(@"
                                         //css_res Resources1.resx;
                                         using System;
                                         public class Calc
@@ -108,8 +127,7 @@ namespace Misc
         [Fact]
         public void issue_445_compile_error_Roslyn()
         {
-            var script = GetTempScript(nameof(issue_445_compile_error),
-                                       @"
+            var script = GetTempScript(@"
                                         //css_res Resources1.resx;
                                         using System;
                                         public class Calc

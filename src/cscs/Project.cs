@@ -193,20 +193,20 @@ namespace CSScriptLib
 #if !class_lib
                 var addCssAsm = settings.EnableDbgPrint; // requires referencing CS-Script engine assembly
                 items.dirs.AddRange(splitPathItems(settings.SearchDirs));
+
+                if (Assembly.GetExecutingAssembly().Location().HasText())
+                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location()), "lib"));
 #else
                 items.dirs.AddRange(settings.SearchDirs);
                 items.dirs.AddRange(CSScript.GlobalSettings.SearchDirs);
 #endif
 
-                if (Assembly.GetExecutingAssembly().Location().HasText())
-                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location()), "lib"));
-
                 // `Assembly.GetExecutingAssembly().Location` may not be resolved properly so adding the entry assembly location as well
                 if (Environment.GetEnvironmentVariable("CSS_ENTRY_ASM") != null)
                 {
                     var entryAsm = Environment.GetEnvironmentVariable("CSS_ENTRY_ASM");
-                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(entryAsm), "lib"));
 #if !class_lib
+                    items.dirs.Add(Path.Combine(Path.GetDirectoryName(entryAsm), "lib"));
                     if (addCssAsm)
                     {
                         items.asms.Add(entryAsm);
@@ -214,11 +214,13 @@ namespace CSScriptLib
 #endif
                 }
 
+                items.dirs.Add(Assembly.GetEntryAssembly().Location?.GetDirName() ?? "");
+
                 items.asms.AddRange(splitPathItems(settings.DefaultRefAssemblies));
             }
             catch { }
 
-            items.dirs = items.dirs.Distinct().ToList();
+            items.dirs = items.dirs.Where(x => x.HasText()).Distinct().ToList();
             return items;
         }
 
