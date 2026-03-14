@@ -191,7 +191,7 @@ namespace CSScriptLib
                 var settings = Settings.Load(configFile);
 
 #if !class_lib
-                var addCssAsm = settings.EnableDbgPrint; // requires referencing CS-Script engine assemly
+                var addCssAsm = settings.EnableDbgPrint; // requires referencing CS-Script engine assembly
                 items.dirs.AddRange(splitPathItems(settings.SearchDirs));
 #else
                 items.dirs.AddRange(settings.SearchDirs);

@@ -341,7 +341,7 @@ namespace CSScriptLib
         /// <summary>
         /// Returns set of referenced assemblies.
         /// <para>
-        /// Notre: the set of assemblies is cleared on Reset.
+        /// Note: the set of assemblies is cleared on Reset.
         /// </para>
         /// </summary>
         /// <returns>The method result.</returns>

@@ -77,7 +77,7 @@ namespace CSScriptLib
 
         /// <summary>
         /// Loads and returns set of referenced assemblies.
-        /// <para>Notre: the set of assemblies is cleared on Reset.</para>
+        /// <para>Note: the set of assemblies is cleared on Reset.</para>
         /// </summary>
         /// <returns>The method result.</returns>
         public override Assembly[] GetReferencedAssemblies()
