@@ -428,6 +428,7 @@ namespace CSScriptLib
         /// <code>
         /// try
         /// {
+        ///     var info = new CompileInfo { CompilerOptions = "/unsafe" };
         ///     CSScript.Evaluator
         ///             .Check(@"using System;
         ///                      public class Script
@@ -437,7 +438,7 @@ namespace CSScriptLib
         ///                              error
         ///                              return a+b;
         ///                          }
-        ///                      }");
+        ///                      }", info);
         /// }
         /// catch (Exception e)
         /// {
@@ -446,10 +447,65 @@ namespace CSScriptLib
         /// </code>
         /// </example>
         /// <param name="scriptText">The script text.</param>
+        [Obsolete($"This method has bee deprecated. Use {nameof(CheckCode)} instead", false)]
         public void Check(string scriptText)
-        {
-            Compile(scriptText, null, null);
-        }
+            => CheckCode(scriptText, null);
+
+        /// <summary>
+        /// Compiles the specified script text without loading it into the
+        /// AppDomain or writing to the file system.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// try
+        /// {
+        ///     var info = new CompileInfo { CompilerOptions = "/unsafe" };
+        ///     CSScript.Evaluator
+        ///             .Check(@"using System;
+        ///                      public class Script
+        ///                      {
+        ///                          public int Sum(int a, int b)
+        ///                          {
+        ///                              error
+        ///                              return a+b;
+        ///                          }
+        ///                      }", info);
+        /// }
+        /// catch (Exception e)
+        /// {
+        ///     Console.WriteLine("Compile error: " + e.Message);
+        /// }
+        /// </code>
+        /// </example>
+        /// <param name="scriptText">The script text.</param>
+        /// <param name="info">The information about compilation context (e.g. location of the compiler output -
+        /// assembly and pdb file).</param>
+        public void CheckCode(string scriptText, CompileInfo info = null)
+            => Compile(scriptText, null, info);
+
+        /// <summary>
+        /// Compiles the specified script text without loading it into the AppDomain or
+        /// writing to the file system.
+        /// </summary>
+        /// <example>
+        ///<code>
+        /// try
+        /// {
+        ///     var info = new CompileInfo { CompilerOptions = "/unsafe" };
+        ///     CSScript.Evaluator
+        ///             .Check("scriopt.cs", info);
+        /// }
+        /// catch (Exception e)
+        /// {
+        ///     Console.WriteLine("Compile error: " + e.Message);
+        /// }
+        /// </code>
+        /// </example>
+        /// <param name="scriptFile">The script text.</param>
+        /// <param name="info">The information about compilation context (e.g. location of the compiler output -
+        /// assembly and pdb file).</param>
+        public void CheckFile(string scriptFile, CompileInfo info = null)
+            => Compile(null, scriptFile, info);
 
         /// <summary>
         /// Compiles the specified script text.

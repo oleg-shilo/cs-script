@@ -31,6 +31,29 @@ namespace EvaluatorTests
         }
 
         [Fact]
+        public void CompileAssemblyFromCodeWithProject()
+        {
+            string asmFile = CSScript.CodeDomEvaluator
+                                     .CompileAssemblyFromCode(
+                                         @"using System;
+                                                 public class Script
+                                                 {
+                                                     public int Sum(int a, int b)
+                                                     {
+                                                         return a+b;
+                                                     }
+                                                 }",
+                                         "MyScript.asm",
+                                         out Project project);
+
+            Assert.True(File.Exists(asmFile));
+
+            Assert.NotNull(project);
+            Assert.NotEmpty(project.Refs);
+            Assert.NotEmpty(project.Files);
+        }
+
+        [Fact]
         public void CompileCode_CompileInfo_CodeDom()
         {
             var info = new CompileInfo { RootClass = "test" };
@@ -494,7 +517,7 @@ namespace EvaluatorTests
         {
             var ex = Assert.Throws<CompilerException>(() =>
             {
-                new_evaluator.Check(@"using System;
+                new_evaluator.CheckCode(@"using System;
                                   public class Script ??");
             });
 
@@ -504,14 +527,22 @@ namespace EvaluatorTests
         [Fact]
         public void Check_ValidScript()
         {
-            new_evaluator.Check(@"using System;
+            var info = new CompileInfo { CompilerOptions = "-define:test" };
+
+            var scriptCode = @"using System;
                               public class Script
                               {
                                  public int Sum(int a, int b)
                                  {
                                      return a+b;
                                  }
-                              }");
+                              }";
+
+            var scriptFile = GetTempScript(scriptCode);
+
+            new_evaluator.CheckCode(scriptCode, info);
+            new_evaluator.CheckFile(scriptFile, info);
+
             // does not throw
         }
 
@@ -542,6 +573,8 @@ namespace EvaluatorTests
                                        }");
 
             string asmFile = new_evaluator.CompileAssemblyFromFile(script, "MyScript.asm");
+
+            var project = asmFile.GetAttached<Project>();
 
             Assert.True(File.Exists(asmFile));
         }

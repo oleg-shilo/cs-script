@@ -359,7 +359,61 @@ namespace CSScriptLib
         /// </code>
         /// </example>
         /// <param name="scriptText">The script text.</param>
+        [Obsolete($"This method has bee deprecated. Use {nameof(CheckCode)} instead", false)]
         void Check(string scriptText);
+
+        /// <summary>
+        /// Compiles the specified script text without loading it into the AppDomain or
+        /// writing to the file system.
+        /// </summary>
+        /// <example>
+        ///<code>
+        /// try
+        /// {
+        ///     CSScript.Evaluator
+        ///             .Check(@"using System;
+        ///                      public class Script
+        ///                      {
+        ///                          public int Sum(int a, int b)
+        ///                          {
+        ///                              error
+        ///                              return a+b;
+        ///                          }
+        ///                      }");
+        /// }
+        /// catch (Exception e)
+        /// {
+        ///     Console.WriteLine("Compile error: " + e.Message);
+        /// }
+        /// </code>
+        /// </example>
+        /// <param name="scriptText">The script text.</param>
+        /// <param name="info">The information about compilation context (e.g. location of the compiler output -
+        /// assembly and pdb file).</param>
+        void CheckCode(string scriptText, CompileInfo info = null);
+
+        /// <summary>
+        /// Compiles the specified script text without loading it into the AppDomain or
+        /// writing to the file system.
+        /// </summary>
+        /// <example>
+        ///<code>
+        /// try
+        /// {
+        ///     var info = new CompileInfo { CompilerOptions = "/unsafe" };
+        ///     CSScript.Evaluator
+        ///             .Check("scriopt.cs", info);
+        /// }
+        /// catch (Exception e)
+        /// {
+        ///     Console.WriteLine("Compile error: " + e.Message);
+        /// }
+        /// </code>
+        /// </example>
+        /// <param name="scriptfile">The script text.</param>
+        /// <param name="info">The information about compilation context (e.g. location of the compiler output -
+        /// assembly and pdb file).</param>
+        void CheckFile(string scriptfile, CompileInfo info = null);
 
         /// <summary>
         /// Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
@@ -399,18 +453,6 @@ namespace CSScriptLib
         /// <param name="outputFile">The path to the assembly file to be compiled.</param>
         /// <returns>The compiled assembly file path.</returns>
         string CompileAssemblyFromFile(string scriptFile, string outputFile);
-
-        /// <summary>
-        /// Compiles C# file (script) into assembly file according the compiling context
-        /// specified in the <see cref="CompileInfo"/> argument.
-        /// <para>Note, <see cref="CompileInfo.PreferLoadingFromFile"/> value will be ignored since the
-        /// script engine will only build the assembly without loading it.</para>
-        /// </summary>
-        /// <param name="scriptFile">The C# script file.</param>
-        /// <param name="info">The information about compilation context (e.g. location of the compiler output -
-        /// assembly and pdb file).</param>
-        /// <returns>The compiled assembly file path.</returns>
-        string CompileAssemblyFromFile(string scriptFile, CompileInfo info);
 
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>) and evaluates it.

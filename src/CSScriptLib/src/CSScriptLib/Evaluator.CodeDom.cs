@@ -288,6 +288,66 @@ namespace CSScriptLib
             }
         }
 
+        /// <summary>
+        /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// string asmFile = CSScript.CodeDomEvaluator
+        ///                          .CompileAssemblyFromFile(
+        ///                                 "MyScript.cs",
+        ///                                 "MyScript.dll"
+        ///                                 out Project project);
+        /// </code>
+        /// </example>
+        /// <param name="scriptFile">The C# script file.</param>
+        /// <param name="outputFile">The path to the assembly file to be compiled.</param>
+        /// <param name="project">When the method returns, contains the project information generated during compilation.</param>
+        /// <returns>The compiled assembly file path.</returns>
+        public string CompileAssemblyFromFile(string scriptFile, string outputFile, out Project project)
+        {
+            var info = new CompileInfo();
+            info.AssemblyFile = Path.GetFullPath(outputFile);
+            info.PdbFile = Path.ChangeExtension(info.AssemblyFile, ".pdb");
+
+            var result = Compile(null, scriptFile, info);
+            project = result.project;
+            return info.AssemblyFile;
+        }
+
+        /// <summary>
+        /// Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <example>
+        ///<code>
+        /// string asmFile = CSScript.CodeDomEvaluator
+        ///                          .CompileAssemblyFromCode(
+        ///                                 @"using System;
+        ///                                   public class Script
+        ///                                   {
+        ///                                       public int Sum(int a, int b)
+        ///                                       {
+        ///                                           return a+b;
+        ///                                       }
+        ///                                   }",
+        ///                                   "MyScript.dll",
+        ///                                   out Project project);
+        /// </code>
+        /// </example>
+        /// <param name="scriptText">The C# script text.</param>
+        /// <param name="outputFile">The path to the assembly file to be compiled.</param>
+        /// <param name="project">When the method returns, contains the project information generated during compilation.</param>
+        /// <returns>The compiled assembly file path.</returns>
+        public string CompileAssemblyFromCode(string scriptText, string outputFile, out Project project)
+        {
+            var info = new CompileInfo();
+            info.AssemblyFile = Path.GetFullPath(outputFile);
+            info.PdbFile = Path.ChangeExtension(info.AssemblyFile, ".pdb");
+
+            project = Compile(scriptText, null, info).project;
+            return info.AssemblyFile;
+        }
+
         (byte[] asm, byte[] pdb) CompileAssemblyFromFileBatch_with_Csc(string[] fileNames,
                                                                        string[] ReferencedAssemblies,
                                                                        string outAssembly,
