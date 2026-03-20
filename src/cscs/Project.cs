@@ -18,6 +18,7 @@ namespace CSScriptLib
     /// Class that holds all information about the execution context (probing directories and
     /// dependencies) of a script.
     /// </summary>
+    [Serializable]
     public class Project
     {
         /// <summary>
