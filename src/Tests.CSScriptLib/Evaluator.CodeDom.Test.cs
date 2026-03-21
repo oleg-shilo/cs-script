@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using csscript;
@@ -239,6 +240,67 @@ namespace EvaluatorTests
             script.Test(printer);
 
             // does not throw :)
+        }
+
+        [Fact]
+        public void import_script_from_another_scripts_Issue_459()
+        {
+            var oldLoad = Settings.Load;
+            try
+            {
+                var settings = new Settings();
+                settings.AddSearchDir("A");
+                settings.AddSearchDir("B");
+                settings.DefaultRefAssemblies = "System.IO.Pipes;System.IO.Pipelines";
+                Settings.Load = (file) => settings;
+
+                ProjectBuilder.DefaultSearchDirs = "C;D";
+                ProjectBuilder.DefaultNamespaces = "System.IO";
+                ProjectBuilder.DefaultRefAsms = "System.Xml.dll;System.Net.dll";
+
+                var script_math = testTempFile("math.cs");
+                var script_calc = testTempFile("calc.cs");
+
+                File.WriteAllText(script_math,
+                                  @"using System;
+
+                                  public class math
+                                  {
+                                      public static int add(int a, int b) => a+b;
+                                  }");
+
+                File.WriteAllText(script_calc,
+                                  $@"//css_inc {script_math}
+                                   using System;
+
+                                   public class Calc
+                                   {{
+                                        public int Add(int a, int b)
+                                            => math.add(a, b);
+                                   }}");
+
+                var calc = CSScript.CodeDomEvaluator
+                                   .LoadFile(script_calc);
+
+                Project proj = calc.GetType().Assembly.GetAttached<Project>();
+
+                Assert.Contains("A", proj.SearchDirs);
+                Assert.Contains("B", proj.SearchDirs);
+                Assert.Contains("C", proj.SearchDirs);
+                Assert.Contains("D", proj.SearchDirs);
+
+                // from ProjectBuilder.DefaultRefAsms
+                Assert.Contains(proj.Refs, x => x.EndsWith("System.Xml.dll"));
+                Assert.Contains(proj.Refs, x => x.EndsWith("System.Net.dll"));
+
+                // from settings.DefaultRefAssemblies
+                Assert.Contains(proj.Refs, x => x.EndsWith("System.IO.Pipes.dll"));
+                Assert.Contains(proj.Refs, x => x.EndsWith("System.IO.Pipelines.dll"));
+            }
+            finally
+            {
+                Settings.Load = oldLoad;
+            }
         }
 
         [Fact]

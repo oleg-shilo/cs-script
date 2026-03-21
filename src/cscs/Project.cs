@@ -70,18 +70,77 @@ namespace CSScriptLib
 
 #pragma warning disable 649
 
-    internal class ProjectBuilder
+    /// <summary>
+    /// Provides functionality for building and managing CS-Script projects by analyzing scripts and their dependencies,
+    /// resolving references, and managing configuration settings.
+    /// </summary>
+    public class ProjectBuilder
     {
+        /// <summary>
+        /// Initializes the <see cref="ProjectBuilder"/> class by configuring the environment for NuGet package management.
+        /// </summary>
         static ProjectBuilder()
         {
             if (CSharpParser.NeedInitEnvironment)
                 Environment.SetEnvironmentVariable("css_nuget", null);
         }
 
+        /// <summary>
+        /// Gets or sets the default search directories used for resolving script dependencies and assemblies.
+        /// The value is a comma or semicolon separated string of directory paths.
+        /// </summary>
+        /// <value>
+        /// A string containing comma or semicolon separated directory paths that will be used as default search locations.
+        /// </value>
         static public string DefaultSearchDirs;
+
+        /// <summary>
+        /// Gets or sets the default reference assembly paths that are automatically included in script compilation.
+        /// The value is a comma or semicolon separated string of assembly file paths.
+        /// </summary>
+        /// <value>
+        /// A string containing comma or semicolon separated assembly file paths that will be referenced by default.
+        /// </value>
         static public string DefaultRefAsms;
+
+        /// <summary>
+        /// Gets or sets the default namespaces that are automatically imported in scripts.
+        /// The value is a comma or semicolon separated string of namespace names.
+        /// </summary>
+        /// <value>
+        /// A string containing comma or semicolon separated namespace names that will be imported by default.
+        /// </value>
         static public string DefaultNamespaces;
 
+        /// <summary>
+        /// Generates a complete project definition for the specified script by analyzing its dependencies,
+        /// references, and configuration settings.
+        /// </summary>
+        /// <param name="script">The path to the primary script file for which to generate the project.</param>
+        /// <param name="printSearchDirs">
+        /// If set to <c>true</c>, prints the search directories to the console during project generation.
+        /// Default is <c>true</c>.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Project"/> instance containing all resolved files, references, packages, and search directories
+        /// for the specified script.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// This method performs comprehensive script analysis including:
+        /// - Parsing the primary script and all imported/included scripts
+        /// - Resolving NuGet package dependencies
+        /// - Determining assembly references
+        /// - Establishing search directories for dependency resolution
+        /// - Processing precompilation directives
+        /// </para>
+        /// <para>
+        /// The project building algorithm is kept in sync with CSExecutor.Compile to ensure consistency
+        /// between project generation and actual script execution.
+        /// </para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="script"/> is null.</exception>
+        /// <exception cref="FileNotFoundException">Thrown when the specified script file does not exist.</exception>
         static public Project GenerateProjectFor(string script, bool printSearchDirs = true)
         {
             // ********************************************************************************************
@@ -166,13 +225,59 @@ namespace CSScriptLib
             return project;
         }
 
+        /// <summary>
+        /// Represents a collection of configuration items including directories, assemblies, and namespaces
+        /// used for CS-Script project configuration.
+        /// </summary>
         public class ConfigItems
         {
+            /// <summary>
+            /// Gets the list of directory paths used for searching scripts and assemblies.
+            /// </summary>
+            /// <value>
+            /// A list of directory paths that will be searched for dependencies.
+            /// </value>
             public List<string> dirs = new List<string>();
+
+            /// <summary>
+            /// Gets the list of assembly file paths that are referenced by default.
+            /// </summary>
+            /// <value>
+            /// A list of assembly file paths that will be included as references.
+            /// </value>
             public List<string> asms = new List<string>();
+
+            /// <summary>
+            /// Gets the list of namespace names that are imported by default.
+            /// </summary>
+            /// <value>
+            /// A list of namespace names that will be automatically imported.
+            /// </value>
             public List<string> namespaces = new List<string>();
         }
 
+        /// <summary>
+        /// Retrieves the global configuration items from CS-Script settings including default search directories,
+        /// reference assemblies, and imported namespaces.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="ConfigItems"/> instance containing the consolidated configuration from all sources including
+        /// static defaults, environment variables, configuration files, and runtime settings.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// This method aggregates configuration from multiple sources in the following order:
+        /// - Static default values (DefaultSearchDirs, DefaultRefAsms, DefaultNamespaces)
+        /// - CS-Script configuration file settings
+        /// - Environment variables
+        /// - Entry assembly location
+        /// - Global CS-Script settings
+        /// </para>
+        /// <para>
+        /// The method handles environment variable expansion and ensures all paths are properly resolved.
+        /// Duplicate entries are automatically removed from the final configuration.
+        /// </para>
+        /// </remarks>
         static public ConfigItems GetGlobalConfigItems()
         {
             var items = new ConfigItems();
@@ -225,12 +330,35 @@ namespace CSScriptLib
             return items;
         }
 
+        /// <summary>
+        /// Gets a function that returns the path to the CS-Script engine executable (cscs.exe).
+        /// </summary>
+        /// <value>
+        /// A function that returns the full path to the cscs.exe file located in the same directory
+        /// as the currently executing assembly.
+        /// </value>
+        /// <remarks>
+        /// This delegate is used to dynamically resolve the CS-Script engine executable location,
+        /// which is typically needed for launching script compilation and execution processes.
+        /// </remarks>
         public static Func<string> GetEngineExe = () => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "cscs.exe");
 
         /// <summary>
-        /// Gets the CSS configuration. Used by ST3 Syntaxer
+        /// Gets the path to the current CS-Script configuration file.
         /// </summary>
-        /// <returns>Default config file location</returns>
+        /// <returns>
+        /// A string containing the full path to the CS-Script configuration file currently in use.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// This method is primarily used by external tools and IDEs (such as the Sublime Text 3 Syntaxer)
+        /// to locate and read the CS-Script configuration settings.
+        /// </para>
+        /// <para>
+        /// The configuration file contains settings such as default search directories, reference assemblies,
+        /// and other CS-Script runtime options.
+        /// </para>
+        /// </remarks>
         static public string GetCSSConfig()
             => Settings.CurrentConfigFile;
     }
