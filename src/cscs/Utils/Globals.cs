@@ -53,7 +53,7 @@ namespace CSScripting
         /// in all scenarios. This may be useful for debugging or advanced integration scenarios where the project
         /// output is required even if it is not strictly necessary for normal operation.</remarks>
         ///
-        public static bool AlwaysEmitRoslynProject { get; set; } = true;
+        public static bool AlwaysEmitRoslynProject { get; set; } = false;
 
         static internal string DynamicWrapperClassName = "DynamicClass";
         static internal string InjectedAttributesPrefix = ".attr.g.cs";

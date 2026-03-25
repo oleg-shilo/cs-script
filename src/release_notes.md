@@ -4,6 +4,16 @@
 
 ## Changes 
 
+Major change is migration of RoslynEvaluator to the modern Roslyn API, which allows bringing full support for importing dependency scripts and handling pre-processor symbols.
+
+The old behavior (old Roslyn API with `SourceCodeKind.Script`) can be re-enabled by setting `Globals.DefaultRoslynCompilationToScript=true`.
+
+NOTE: if you choose `DefaultRoslynCompilationToScript=true` you will also need to set `CompileInfo.CodeKind` to 'script' if you are executing your script with optional CompileInfo parameter:
+
+```c#
+
+var info = new CompileInfo { CodeKind = SourceCodeKind.Script };
+```` 
 ========================================
 
 
@@ -23,6 +33,9 @@
   - `IEvaluator.CheckFile`(string scriptFile)`
   - `CodeDomEvaluator.CompileAssemblyFromFile(string scriptFile, string outputFile, out Project project)
   - `CodeDomEvaluator.CompileAssemblyFromCode(string scriptCode, string outputFile, out Project project)
+- Changed default Roslyn mode: `Globals.DefaultRoslynCompilationToScript=false`
+- Added `Globals.AlwaysEmitRoslynProject=false`
+- Improve RoslynEvaluator: better script import, error mapping, project attachment, and assembly filtering
 
 
 
