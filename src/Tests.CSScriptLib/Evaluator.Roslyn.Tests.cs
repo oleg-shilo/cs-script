@@ -38,8 +38,8 @@ namespace EvaluatorTests
         public Generic_Roslyn()
         {
             // force to load the assembly in the current appdomain so the scripts don't have to reference it explicitly
-            Debug.WriteLine(typeof(Console).Assembly.FullName);
-            Globals.DefaultRoslynCompilationToScript = false;
+            // Debug.WriteLine(typeof(Console).Assembly.FullName);
+            // Globals.DefaultRoslynCompilationToScript = true;
         }
 
         [Fact(Skip = "xUnit runtime is incompatible. But the test is valid")]
@@ -467,29 +467,42 @@ namespace EvaluatorTests
         [Fact]
         public void use_AssembliesFilter()
         {
-            string[] refAssemblies = null;
+            try
+            {
+                Globals.AlwaysEmitRoslynProject = true;
 
-            var eval = CSScript.RoslynEvaluator;
+                string[] unfilteredRefAssemblies = null;
+                var thisAssemblyPath = Assembly.GetExecutingAssembly().Location;
 
-            dynamic script = eval.ReferenceDomainAssemblies()
-                                 .SetRefAssemblyFilter(asms =>
-                                     {
-                                         refAssemblies = asms.Select(a => a.Location)
-                                                             .Distinct()
-                                                             .ToArray();
+                var eval = CSScript.RoslynEvaluator;
 
-                                         return asms.Where(a => a.FullName != Assembly.GetExecutingAssembly().FullName);
-                                     })
-                                 .LoadMethod(@"public object func()
-                                               {
-                                                   return new[] {0,5};
-                                               }");
+                object script = eval.ReferenceDomainAssemblies()
+                                    .SetRefAssemblyFilter(asms =>
+                                        {
+                                            unfilteredRefAssemblies = asms.Select(a => a.Location())
+                                                                          .ToArray();
 
-            var filteresAssemblies = eval.GetReferencedAssemblies()
-                                         .Select(a => a.Location)
-                                         .ToArray();
+                                            return asms.Where(a => a.FullName != Assembly.GetExecutingAssembly().FullName);
+                                        })
+                                    .LoadMethod(@"public object func()
+                                              {
+                                                  return new[] {0,5};
+                                              }");
 
-            Assert.Equal(1, refAssemblies.Count() - filteresAssemblies.Count());
+                var project = script.GetType().Assembly.GetAttached<Project>();
+
+                // skip next assertions if Globals.DefaultRoslynCompilationToScript as it forces creation of an artificial single script
+                // file (even including imported scripts) what makes the concept of Project incompatible.
+                if (!Globals.DefaultRoslynCompilationToScript)
+                {
+                    Assert.Contains(thisAssemblyPath, unfilteredRefAssemblies);
+                    Assert.DoesNotContain(thisAssemblyPath, project.Refs);
+                }
+            }
+            finally
+            {
+                Globals.AlwaysEmitRoslynProject = false;
+            }
         }
 
         [Fact]
@@ -515,7 +528,8 @@ namespace EvaluatorTests
             {
                 RootClass = "script_a",
                 AssemblyName = "script_a",
-                AssemblyFile = testTempFile("script_a_asm2.dll")
+                AssemblyFile = testTempFile("script_a_asm2.dll"),
+                CodeKind = SourceCodeKind.Script
             };
 
             try
@@ -601,7 +615,7 @@ namespace EvaluatorTests
             {
                 RootClass = "AccountingScript",
                 AssemblyFile = testTempFile("AccountingScript.dll"),
-                // CodeKind = SourceCodeKind.Script
+                CodeKind = SourceCodeKind.Script // for demo purposes only, wrap everything in the RootClass. Otherwise use SourceCodeKind.Regular with a normal class declaration
             };
 
             var accounting_assm2 = CSScript.Evaluator
@@ -700,22 +714,27 @@ namespace EvaluatorTests
             Assert.Equal("not-test", result);
 
             // =================================
-            CSScript.EvaluatorConfig.CompilerOptions = "-define:test";
 
-            util = CSScript.Evaluator.LoadCode(code);
-            result = util.foo();
-            Assert.Equal("test", result);
+            // skip next assertions because DefaultRoslynCompilationToScript when no CompileInfo is passed will trigger the compilation
+            // with CSharpScript.Create, which dows not allow preprocessor symbols
+            if (!Globals.DefaultRoslynCompilationToScript)
+            {
+                CSScript.EvaluatorConfig.CompilerOptions = "-define:test";
+                util = CSScript.Evaluator.LoadCode(code);
+                result = util.foo();
+                Assert.Equal("test", result);
 
-            // =================================
+                // =================================
 
-            var scriptFile = testTempFile("script1.cs");
-            File.WriteAllText(scriptFile, code);
-            var scriptAsmFile = testTempFile("script1.cs.dll");
-            var resultAsm = CSScript.Evaluator.CompileAssemblyFromFile(scriptFile, scriptAsmFile);
-            util = Assembly.LoadFrom(resultAsm).CreateObject("*");
+                var scriptFile = testTempFile("script1.cs");
+                File.WriteAllText(scriptFile, code);
+                var scriptAsmFile = testTempFile("script1.cs.dll");
+                var resultAsm = CSScript.Evaluator.CompileAssemblyFromFile(scriptFile, scriptAsmFile);
+                util = Assembly.LoadFrom(resultAsm).CreateObject("*");
 
-            result = util.foo();
-            Assert.Equal("test", result);
+                result = util.foo();
+                Assert.Equal("test", result);
+            }
         }
 
         [Fact]
@@ -760,7 +779,8 @@ namespace EvaluatorTests
             {
                 RootClass = root_class_name,
                 PreferLoadingFromFile = true,
-                AssemblyFile = testTempFile(root_class_name + ".dll")
+                AssemblyFile = testTempFile(root_class_name + ".dll"),
+                CodeKind = SourceCodeKind.Script // for demo purposes only, wrap everything in the RootClass. Otherwise use SourceCodeKind.Regular with a normal class declaration
             };
 
             try

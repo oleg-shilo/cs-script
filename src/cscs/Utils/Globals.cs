@@ -31,16 +31,29 @@ namespace CSScripting
 
         /// <summary>
         /// Gets or sets a value indicating whether to use the legacy Roslyn compilation method when the default is <c>SourceCodeKind.Regular</c>.
-        /// <p>The new approach by default initializes to <c>SourceCodeKind.Script</c>.  </p>
+        /// <p>The new approach by default initializes to <c>SourceCodeKind.Regular</c>.  </p>
         /// <p>
         /// But you can always set the CodeKind explicitly via <see cref="T:CSScriptLib.CompilerInfo.CodeKind"/>.
         /// </p>
         /// </summary>
         /// <remarks>Set this property to <see langword="true"/> to enable the legacy compilation process,
-        /// which may be necessary for compatibility with older codebases or specific environments. Using the legacy
-        /// method may affect performance and limit access to newer Roslyn features. The value is stored in the
-        /// "css_roslyn_legacy_compilation" environment variable.</remarks>
-        public static bool DefaultRoslynCompilationToScript { get; set; } = true;
+        /// which may be necessary for compatibility with older hosting codebases or specific environments. Using the legacy
+        /// method may affect performance and limit access to newer Roslyn features.
+        /// <p>The side effect of the legacy compilation process is that the compiled assembly will not have the attached Project objects to
+        /// explore the compilation context of the assembly. Also no preprocessor symbols supported. It is the limitation of the old Roslyn
+        /// script API.</p>
+        /// </remarks>
+        public static bool DefaultRoslynCompilationToScript { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether a Roslyn project should always be emitted, regardless of other
+        /// conditions.
+        /// </summary>
+        /// <remarks>Set this property to <see langword="true"/> to force the emission of a Roslyn project
+        /// in all scenarios. This may be useful for debugging or advanced integration scenarios where the project
+        /// output is required even if it is not strictly necessary for normal operation.</remarks>
+        ///
+        public static bool AlwaysEmitRoslynProject { get; set; } = true;
 
         static internal string DynamicWrapperClassName = "DynamicClass";
         static internal string InjectedAttributesPrefix = ".attr.g.cs";

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
+using CSScripting;
 using CSScripting.CodeDom;
 using CSScriptLib;
 using Xunit;
@@ -43,6 +45,7 @@ namespace Misc
                                          //css_inc " + scriptToImport + @"
                                          public class Calc
                                          {
+                                             // comment to avoid caching nased on teh cod ehash
                                              public int Sum(int a, int b) => a+b;
                                          }");
             // ---
@@ -53,7 +56,19 @@ namespace Misc
 
             Assert.Equal(script, proj.Files.FirstOrDefault());
 
+            Debug.Assert(4 == proj.SearchDirs.Count());
+
+            /*
+                D:\dev\cs-script\src\Tests.CSScriptLib\bin\Debug\net10.0
+                C
+                D
+                c:\test
+                D:\dev\cs-script\src\Tests.CSScriptLib\bin\Debug\net10.0\testDir
+                D:\dev\cs-script\src\Tests.CSScriptLib\bin\Debug\net10.0\testDir2
+            */
+
             Assert.Equal(4, proj.SearchDirs.Count());
+
             Assert.Contains(@"c:\test", proj.SearchDirs);
             Assert.Contains(workingDir, proj.SearchDirs);
             Assert.Contains(Path.Combine(workingDir, "testDir"), proj.SearchDirs);
@@ -78,7 +93,12 @@ namespace Misc
 
             var proj = asm.GetAttached<Project>();
 
-            Assert.Null(proj); // Roslyn evaluator does not process CS-Script directives, so no project info is attached
+            // skip next assertions if Globals.DefaultRoslynCompilationToScript as it forces creation of an artificial single script
+            // file (even including imported scripts) what makes the concept of Project incompatible.
+            if (Globals.DefaultRoslynCompilationToScript)
+                Assert.Null(proj);
+            else
+                Assert.NotNull(proj);
         }
 
         [Fact]

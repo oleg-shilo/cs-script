@@ -81,13 +81,13 @@ namespace EvaluatorTests
         public API_Roslyn()
         {
             // force to load the assembly in the current appdomain so the scripts don't have to reference it explicitly
-            Debug.WriteLine(typeof(Console).Assembly.FullName);
-            Globals.DefaultRoslynCompilationToScript = false;
+            // Debug.WriteLine(typeof(Console).Assembly.FullName);
+            // Globals.DefaultRoslynCompilationToScript = false;
         }
 
         string testTempFile(string fileName, [CallerMemberName] string caller = null)
         {
-            var rootDir = "TestData".PathJoin(nameof(API_Roslyn), caller).GetFullPath().EnsureDir();
+            var rootDir = "TestData".PathJoin(this.GetType().Name, caller).GetFullPath().EnsureDir();
             // if (fileName == "asm.hidden-from-xunit-dll-file")
             // {
             //     File.AppendAllText(
@@ -101,7 +101,7 @@ namespace EvaluatorTests
 
         public string GetTempScript(string content, [CallerMemberName] string caller = null)
         {
-            var script = testTempFile("script.cs", caller);
+            var script = testTempFile("script.cs", $"{this.GetType().Name}.{caller}");
             File.WriteAllText(script, content);
             return script;
         }
@@ -248,8 +248,49 @@ namespace EvaluatorTests
 
                 Assert.Contains("The name 'Calc2' does not exist in the current context", e.Message);
             }
+
             var eval2 = new_evaluator.Reset(false);
             eval2.LoadCode($"//css_ref {calcAsm}" + Environment.NewLine + code);
+        }
+
+        [Fact]
+        public void LoadCode_can_import_scripts()
+        {
+            // CSScript.EvaluatorConfig.DebugBuild = true;
+
+            var dependencyScript = testTempFile("dep.cs");
+
+            File.WriteAllText(dependencyScript, @"using System;
+                                                      public class Calc
+                                                      {
+                                                          static public int Sum(int a, int b)
+                                                          {
+                                                              return a+b;
+                                                          }
+                                                      }");
+
+            dynamic script = new_evaluator.LoadCode($@"//css_inc {dependencyScript}
+                                                           using System;
+                                                           public class Script
+                                                           {{
+                                                               public int Sum(int a, int b) => Calc.Sum(a ,b);
+                                                           }}");
+
+            var result = script.Sum(7, 3);
+            Assert.Equal(10, result);
+
+            object scriptAssembly = script.GetType().Assembly;
+            Project project = scriptAssembly.GetAttached<Project>();
+
+            // Roslyn's CodeKind.Script does not support project generation, so the project will be null.
+            // Only CodeKind.Regular and CodeDom evaluator supports project generation for scripts.
+            if (!Globals.DefaultRoslynCompilationToScript)
+            {
+                Assert.NotNull(project);
+                Assert.EndsWith(".tmp.cs", project.Files[0].GetFileName());
+                Assert.Equal(dependencyScript, project.Files[1]);
+                Assert.NotEmpty(project.Refs);
+            }
         }
 
         [Fact]
@@ -360,12 +401,12 @@ namespace EvaluatorTests
             }
             catch (Exception e)
             {
-                Assert.Contains($"(4,80): error CS1002: ; expected", e.Message);
+                Assert.Contains($": error CS1002: ; expected", e.Message);
             }
         }
 
         [Fact]
-        public void LoadFiule_detect_error_in_script()
+        public void LoadFile_detect_error_in_script()
         {
             var script = testTempFile("script.cs");
 
@@ -433,16 +474,6 @@ namespace EvaluatorTests
 
             dynamic script = asm.CreateObject("*");
             var result = script.Sum(7, 3);
-
-            asm = new_evaluator.CompileCode(@"using System;
-                                                   public class Script
-                                                   {
-                                                       public int Sum(int a, int b)
-                                                       {
-                                                           return a+b;
-                                                       }
-                                                   }");
-
             Assert.Equal(10, result);
         }
 

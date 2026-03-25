@@ -1602,9 +1602,9 @@ namespace CSScriptLib
         public string PdbFile { set; get; }
 
         /// <summary>
-        /// Gets or sets the root class name.
+        /// Gets or sets the root class name fro the scripts compiled with `CodeKind: SourceCodeKind.Script`.
         /// <para>
-        /// This setting is required as Roslyn cannot produce compiled scripts with the user script
+        /// This setting is required as Roslyn with SourceCodeKind.Script cannot produce compiled scripts with the user script
         /// class defined as a top level class. Thus all user defined classes are in fact nested
         /// classes with the root class named by Roslyn as "Submission#0". This leads to the
         /// complications when user wants to reference script class in another script. Specifically
@@ -1661,7 +1661,6 @@ namespace CSScriptLib
         /// <value>
         /// The kind of the code.
         /// </value>
-        // public SourceCodeKind CodeKind { set; get; } = SourceCodeKind.Regular;
         public SourceCodeKind CodeKind { set; get; } = Globals.DefaultRoslynCompilationToScript ? SourceCodeKind.Regular : SourceCodeKind.Script;
 
         /// <summary>

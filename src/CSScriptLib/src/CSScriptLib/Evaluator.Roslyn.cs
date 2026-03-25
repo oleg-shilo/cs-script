@@ -31,6 +31,7 @@
 #endregion License...
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -88,9 +89,14 @@ namespace CSScriptLib
             var assemblies = CompilerSettings.MetadataReferences
                                              .OfType<PortableExecutableReference>()
                                              .Select(r => Assembly.LoadFile(r.FilePath))
+                                             .Distinct()
                                              .ToArray();
 
-            return assemblies;
+            if (!assemblies.Any() && refAssemblies.Any())
+                return refAssemblies.Distinct().ToArray();  // new referencing mechanism based on CSharpCompilation.Create(...
+            else
+                return assemblies;    // old referencing mechanism based on CSharpScript.Create(...
+                                      // should be removed when Globals.DefaultRoslynCompilationToScript is permanently false
         }
 
         /// <summary>
@@ -210,9 +216,21 @@ namespace CSScriptLib
                     }
                 }
 
-                if (scriptFile == null && tempScriptFile == null)
+                SourceCodeKind effectiveCodeKind =
+                    info?.CodeKind ?? (Globals.DefaultRoslynCompilationToScript ? SourceCodeKind.Script : SourceCodeKind.Regular);
+
+                bool mergeToSingleSource = Globals.DefaultRoslynCompilationToScript;
+
+                if (!mergeToSingleSource && effectiveCodeKind == SourceCodeKind.Script)
                 {
-                    // if (!DisableReferencingFromCode && info?.CodeKind != SourceCodeKind.Script)
+                    mergeToSingleSource = true; // SourceCodeKind.Script can only work with a single source file
+                }
+
+                ScriptParser primaryScriptParser = null;
+                Dictionary<string, (int usingsCount, string[] code)> importedSources = null; // file, usings count, code lines
+
+                if (scriptFile == null && tempScriptFile == null) // if a script contains imports or precompilers tempScriptFile will not be empty
+                {
                     if (!DisableReferencingFromCode)
                     {
                         var localDir = this.GetType().Assembly.Location()?.GetDirName();
@@ -224,39 +242,25 @@ namespace CSScriptLib
                     {
                         tempScriptFile = CSScript.GetScriptTempFile();
                         File.WriteAllText(tempScriptFile, scriptText);
-                        scriptText = $"#line 1 \"{tempScriptFile}\"{Environment.NewLine}" + scriptText;
                     }
-                    else
-                        scriptText = $"#line 1 \"script\"{Environment.NewLine}" + scriptText;
+
+                    if (mergeToSingleSource)
+                    {
+                        scriptText = $"#line 1 \"{tempScriptFile ?? "script"}\"{Environment.NewLine}" + scriptText;
+                    }
                 }
                 else
                 {
-                    var searchDirs = new[] { scriptFile?.GetDirName(), this.GetType().Assembly.Location()?.GetDirName() };
-                    var parser = new ScriptParser(scriptFile ?? tempScriptFile, searchDirs, false);
+                    importedSources = new();
 
-                    var importedSources = new Dictionary<string, (int, string[])>(); // file, usings count, code lines
+                    var searchDirs = new[] { scriptFile?.GetDirName(), this.GetType().Assembly.Location()?.GetDirName() };
+                    primaryScriptParser = new ScriptParser(scriptFile ?? tempScriptFile, searchDirs, false);
+
                     var combinedScript = new List<string>();
 
-                    var single_source = scriptFile.ChangeExtension(".g" + scriptFile.GetExtension());
-                    foreach (string file in parser.FilesToCompile.Skip(1))
-                    {
-                        var parts = File.ReadAllText(file).SeparateUsingsFromCode();
-                        var usings = parts[0].GetLines();
-                        var code = parts[1];
-
-                        if (!file.EndsWith(Globals.InjectedAttributesPrefix) && lightParser.Precompilers.Any())
-                        {
-                            var precompResult = base.PrecompileImportedScript(code, lightParser);
-
-                            if (precompResult != null)
-                                code = precompResult.Content;
-                        }
-
-                        importedSources[file] = (usings.Count(), code.GetLines());
-                        add_code(file, usings, 0);
-                    }
-
-                    void add_code(string file, string[] codeLines, int lineOffset)
+                    // only needed while we still do mergeToSingleSource, when this option is removed the mapping and the '#line' directives
+                    // will be also removed as they are not needed for correct error reporting as each file will be compiled separately
+                    void add_code_mapping(string file, string[] codeLines, int lineOffset)
                     {
                         int start = combinedScript.Count;
                         combinedScript.AddRange(codeLines);
@@ -264,21 +268,55 @@ namespace CSScriptLib
                         mapping[(start, end)] = (file, lineOffset);
                     }
 
-                    combinedScript.Add($"#line 1 \"{(scriptFile ?? tempScriptFile)}\"");
-                    add_code(scriptFile, scriptText.GetLines(), 0);
-
-                    foreach (string file in importedSources.Keys)
+                    var single_source = scriptFile.ChangeExtension(".g" + scriptFile.GetExtension());
+                    foreach (string file in primaryScriptParser.FilesToCompile.Skip(1))
                     {
-                        (var usings_count, var code) = importedSources[file];
+                        var rawCode = File.ReadAllText(file);
 
-                        combinedScript.Add($"#line {usings_count + 1} \"{file}\""); // zos
-                        add_code(file, code, usings_count);
+                        if (!file.EndsWith(Globals.InjectedAttributesPrefix) && lightParser.Precompilers.Any())
+                        {
+                            var precompResult = base.PrecompileImportedScript(rawCode, lightParser);
+
+                            if (precompResult != null)
+                                rawCode = precompResult.Content;
+                        }
+
+                        if (mergeToSingleSource)
+                        {
+                            var parts = rawCode.SeparateUsingsFromCode();
+                            var usings = parts[0].GetLines();
+                            var code = parts[1];
+
+                            usings = parts[0].GetLines();
+                            code = parts[1];
+
+                            importedSources[file] = (usings.Count(), code.GetLines());
+                            add_code_mapping(file, usings, 0);
+                        }
+                        else
+                        {
+                            importedSources[file] = (0, rawCode.GetLines());
+                        }
                     }
 
-                    scriptText = combinedScript.JoinBy(Environment.NewLine);
+                    if (mergeToSingleSource)
+                    {
+                        combinedScript.Add($"#line 1 \"{(scriptFile ?? tempScriptFile)}\"");
+                        add_code_mapping(scriptFile, scriptText.GetLines(), 0);
+
+                        foreach (string file in importedSources.Keys)
+                        {
+                            (var usings_count, var code) = importedSources[file];
+
+                            combinedScript.Add($"#line {usings_count + 1} \"{file}\"");
+                            add_code_mapping(file, code, usings_count);
+                        }
+
+                        scriptText = combinedScript.JoinBy(Environment.NewLine);
+                    }
 
                     if (!DisableReferencingFromCode)
-                        foreach (var asm in ProbeAssembliesOf(parser, searchDirs))
+                        foreach (var asm in ProbeAssembliesOf(primaryScriptParser, searchDirs))
                             ReferenceAssembly(asm);
                 }
 
@@ -286,13 +324,13 @@ namespace CSScriptLib
 
                 // PrepareRefAssemblies just updates CompilerSettings.MetadataReferences
                 // however SourceCodeKind.Script will require completely different referencing mechanism
-                if (info == null || info.CodeKind != SourceCodeKind.Script)
+                if (info?.CodeKind != SourceCodeKind.Script && Globals.DefaultRoslynCompilationToScript)
                     PrepareRefAssemblies();
 
                 var scriptOptions = CompilerSettings;
 
                 // Apply language version for non-script scenarios
-                if (info?.CodeKind != SourceCodeKind.Script && info?.LanguageVersion != null)
+                if (effectiveCodeKind != SourceCodeKind.Script && info?.LanguageVersion != null)
                 {
                     scriptOptions = scriptOptions.WithLanguageVersion(info.LanguageVersion);
                 }
@@ -307,40 +345,69 @@ namespace CSScriptLib
                 compileSymbols.AddRange(CSScript.EvaluatorConfig.CompilerOptions.GetCompilerOptonsSymbols());
                 compileSymbols.AddRange(info?.CompilerOptions.GetCompilerOptonsSymbols() ?? []);
 
-                var syntaxTree = SyntaxFactory.ParseSyntaxTree(
-                        scriptText,
-                        new CSharpParseOptions(
-                            kind: info?.CodeKind ?? (Globals.DefaultRoslynCompilationToScript ? SourceCodeKind.Script : SourceCodeKind.Regular),
+                var parserOptions = new CSharpParseOptions(
+                        kind: effectiveCodeKind,
                             preprocessorSymbols: compileSymbols,
-                            languageVersion: info?.LanguageVersion ?? LanguageVersion.Latest));
+                            languageVersion: info?.LanguageVersion ?? LanguageVersion.Latest);
 
+                SyntaxTree createTree(string code, string path) =>
+                    SyntaxFactory.ParseSyntaxTree(code, parserOptions, path, encoding: Encoding.Default);
+
+                var scriptSyntaxTrees = new List<SyntaxTree>();
+                scriptSyntaxTrees.Add(createTree(scriptText, scriptFile));
+
+                if (!mergeToSingleSource)
+                {
+                    if (primaryScriptParser != null)
+                    {
+                        foreach (string file in primaryScriptParser.FilesToCompile.Skip(1))
+                        {
+                            // the imported code may have been precompiled as part of the main script
+                            // precompilation so try to get the precompiled code first before reading from file
+                            var importedCode = importedSources?[file].code?.JoinBy(Environment.NewLine) ?? File.ReadAllText(file);
+                            scriptSyntaxTrees.Add(createTree(importedCode, file));
+                        }
+                    }
+                }
                 var references = new List<MetadataReference>();
 
-                var refs = AppDomain.CurrentDomain
-                                    .GetAssemblies()
-                                    .Where(a => a.IsFrameworkAssembly()) // all SDK assemblies from appdomain
-                                    .ToArray();
+                var standardRefs = AppDomain.CurrentDomain
+                                   .GetAssemblies()
+                                   .Where(a => a.IsFrameworkAssembly()) // all SDK assemblies from appdomain
+                                   .ToArray();
 
-                var explicitRefs = this.refAssemblies.Except(refs); // from code
+                var explicitRefs = this.refAssemblies.Except(standardRefs); // standardRefs from host code and script code
 
-                foreach (var asm in refs.Concat(explicitRefs).Concat(extraRefs.Select(x => Assembly.LoadFrom(x))))
+                var allRefs = standardRefs.Concat(explicitRefs).Concat(extraRefs.Select(x => Assembly.LoadFrom(x))).Distinct().ToList();
+
+                allRefs = FilterAssemblies(allRefs).ToList();
+
+                foreach (var asm in allRefs)
                 {
                     var metadata = ToMetadata(asm);
                     if (metadata != null)
                         references.Add(metadata.GetReference());
                 }
 
+                // switch (effectiveCodeKind)
                 switch (info?.CodeKind)
                 {
                     case SourceCodeKind.Script:
                         compilation = CSharpCompilation.CreateScriptCompilation(
                                           assemblyName: "Script" + Guid.NewGuid(),
-                                              syntaxTree,
+                                              scriptSyntaxTrees.First(),
                                               references,
                                               returnType: typeof(object));
                         break;
 
                     case SourceCodeKind.Regular:
+                        compilation = CSharpCompilation.Create(
+                                          assemblyName: "Script" + Guid.NewGuid(),
+                                              syntaxTrees: scriptSyntaxTrees,
+                                              references: references,
+                                              options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                        break;
+
                     default:
                         {
                             if (Globals.DefaultRoslynCompilationToScript)
@@ -349,8 +416,14 @@ namespace CSScriptLib
                                 // not SourceCodeKind.Script, the CSharpScript.Create was invoked, which is
                                 // effectively a script compilation and not a regular compilation.
                                 // This is preserved for backward compatibility but it is not the default behavior
-                                // as it can be confusing and can cause issues with some scenarios like
-                                // PublishSingleFile apps where script compilation is the only option.
+                                // of the current codebase as it can be confusing and can cause issues with some scenarios
+                                // like PublishSingleFile apps where script compilation is the only option.
+                                //
+                                // Note, since modern Roslyn API allows CSharpCompilation.CreateScriptCompilation,
+                                // it is preferred to use it for SourceCodeKind.Script unless Globals.DefaultRoslynCompilationToScript
+                                // dictates otherwise. One of the reasons is that old CSharpScript.Create does not support
+                                // PreprocessorSymbols
+
                                 compilation = CSharpScript.Create(scriptText, scriptOptions)
                                                           .GetCompilation();
                             }
@@ -358,7 +431,7 @@ namespace CSScriptLib
                             {
                                 compilation = CSharpCompilation.Create(
                                               assemblyName: "Script" + Guid.NewGuid(),
-                                              syntaxTrees: new[] { syntaxTree },
+                                              syntaxTrees: scriptSyntaxTrees,
                                               references: references,
                                               options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
                             }
@@ -414,15 +487,18 @@ namespace CSScriptLib
 
                                 int error_line = error_pos.Line + 1;
                                 int error_column = error_pos.Character + 1;
+                                var source = diagnostic.Location.SourceTree.FilePath;
 
-                                var source = "<script>";
-                                if (mapping.Any())
-                                    (source, error_line) = mapping.Translate(error_line);
-                                else
-                                    error_line--; // no mapping as it was a single file so translation is minimal
+                                if (mergeToSingleSource)
+                                {
+                                    // the actual source contains an injected '#line' directive of
+                                    // compiled with debug symbols so increment line after formatting
+                                    if (mapping.Any())
+                                        (source, error_line) = mapping.Translate(error_line);
+                                    else
+                                        error_line--; // no mapping as it was a single file so translation is minimal
+                                }
 
-                                // the actual source contains an injected '#line' directive of
-                                // compiled with debug symbols so increment line after formatting
                                 error_location = $"{(source.HasText() ? source : "<script>")}({error_line},{error_column}): ";
                             }
                             message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
@@ -462,7 +538,39 @@ namespace CSScriptLib
                         if (IsCachingEnabled)
                             scriptCache[scriptHash] = (binaries.asm, binaries.pdb, null);
 
-                        return (binaries.asm, binaries.pdb, null);
+                        if (Globals.AlwaysEmitRoslynProject && scriptFile == null && tempScriptFile == null)
+                        {
+                            tempScriptFile = CSScript.GetScriptTempFile();
+                            File.WriteAllText(tempScriptFile, scriptText);
+                        }
+
+                        var scriptSourceFile = tempScriptFile ?? scriptFile;
+
+                        var project = (mergeToSingleSource || scriptSourceFile == null) ?
+                            null :
+                            ProjectBuilder.GenerateProjectFor(scriptSourceFile, false);
+
+                        if (project != null)
+                        {
+                            var fileBasedAsms = allRefs
+                                .Where(x => !x.IsDynamic && x.Location().HasText())
+                                .Select(x => x.Location())
+                                .Distinct()
+                                .ToArray();
+
+                            // for troubleshooting
+                            // var newAsms = fileBasedAsms.Except(project.Refs).ToList(); // test host, xunit, VSIDE assemblies, etc.
+
+                            // Update project references and imports to be the ones that have been used for compilation.
+                            // Note: we exclude in-memory assemblies as Project can only hold asm paths.
+                            // This is where Project.reft paradigm is incompatible with Roslyn.
+                            // Not a big issue as Project is only used for script analysis and troubleshooting.
+                            project.Refs = fileBasedAsms;
+                            project.Script = scriptSourceFile;
+                            project.Files = primaryScriptParser?.FilesToCompile ?? [scriptSourceFile];
+                        }
+
+                        return (binaries.asm, binaries.pdb, project);
                     }
                 }
             }
@@ -614,13 +722,7 @@ namespace CSScriptLib
                 {
                     if (assembly.Location() == null)
                     {
-                        // unsafe
-                        {
-                            // if (asm.TryGetRawMetadata(out var blob, out var length))
-                            //     references.Add(AssemblyMetadata.Create(ModuleMetadata.CreateFromMetadata((IntPtr)blob, length)).GetReference());
-
-                            CompilerSettings = CompilerSettings.AddReferences(assembly);
-                        }
+                        CompilerSettings = CompilerSettings.AddReferences(assembly);
                     }
                     else
                     {
@@ -640,7 +742,7 @@ namespace CSScriptLib
                 }
             }
 
-            // var refs = CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
+            // var standardRefs = CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>()
             //                            .Select(r => r.FilePath.GetFileName())
             //                            .OrderBy(x => x)
             //                            .ToArray();

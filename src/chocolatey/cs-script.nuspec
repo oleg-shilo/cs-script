@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.14.3</version>
+    <version>4.14.4-Pre</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -30,20 +30,23 @@
 
 ========================================
 
-### Misc
-
-- Support multiple //css_precompiler directives in a single line
-- Marked CompilerLastOutput as obsolete with error enforcement.
 
 ### CLI
 
-- #452: Execution with -ng:csc on Linux fails
-- Implemented support for top-level statement when using Roslyn compiler engine
+- &lt;no changes&gt;
 
 
 ### CSScriptLib
 
-- #455: Add //css_precompiler support for RoslynEvaluator and CodDomEvaluator</releaseNotes>
+- #458: Type 'CSScriptLib.Project' in Assembly 'CSScriptLib, Version=4.14.3.0, Culture=neutral, PublicKeyToken=4c30df19402bb442' is not marked as serializable
+- #459: Possibility to specify default search dirs, assemblies and namespaces in a hosted environment?
+  ProjectBuilder is made public and documented.
+- #444: IEvaluator API update
+  - `IEvaluator.Check(string code)` is marked as `[obsolete]`
+  - `IEvaluator.CheckCode(string scriptCode)`
+  - `IEvaluator.CheckFile`(string scriptFile)`
+  - `CodeDomEvaluator.CompileAssemblyFromFile(string scriptFile, string outputFile, out Project project)
+  - `CodeDomEvaluator.CompileAssemblyFromCode(string scriptCode, string outputFile, out Project project)</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>

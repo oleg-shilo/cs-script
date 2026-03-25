@@ -38,7 +38,7 @@ namespace CSScriptLib
         public string[] Packages;
 
         /// <summary>
-        /// List of assemblies the script of the project is referencing.
+        /// List of assemblies the script of the project is referencing. This includes only file based assemblies but not dynamic ones.
         /// </summary>
         public string[] Refs;
 

@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.14.3.0.
+C# Script execution engine (.NET Core). Version 4.14.4.0.
 Copyright (C) 2004-2026 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]

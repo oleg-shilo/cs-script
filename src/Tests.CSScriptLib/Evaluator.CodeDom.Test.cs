@@ -300,6 +300,9 @@ namespace EvaluatorTests
             finally
             {
                 Settings.Load = oldLoad;
+                ProjectBuilder.DefaultSearchDirs = default;
+                ProjectBuilder.DefaultNamespaces = default;
+                ProjectBuilder.DefaultRefAsms = default;
             }
         }
 
