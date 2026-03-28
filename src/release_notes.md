@@ -1,4 +1,4 @@
-# Release v4.14.4-Pre
+# Release v4.14.4
 
 ---
 
@@ -27,12 +27,14 @@ var info = new CompileInfo { CodeKind = SourceCodeKind.Script };
 - #458: Type 'CSScriptLib.Project' in Assembly 'CSScriptLib, Version=4.14.3.0, Culture=neutral, PublicKeyToken=4c30df19402bb442' is not marked as serializable
 - #459: Possibility to specify default search dirs, assemblies and namespaces in a hosted environment?
   ProjectBuilder is made public and documented.
-- #444: IEvaluator API update
+- #444+#445: IEvaluator API update 
   - `IEvaluator.Check(string code)` is marked as `[obsolete]`
   - `IEvaluator.CheckCode(string scriptCode)`
-  - `IEvaluator.CheckFile`(string scriptFile)`
-  - `CodeDomEvaluator.CompileAssemblyFromFile(string scriptFile, string outputFile, out Project project)
-  - `CodeDomEvaluator.CompileAssemblyFromCode(string scriptCode, string outputFile, out Project project)
+  - `IEvaluator.CheckFile(string scriptFile)`
+  - `IEvaluator.CompileAssemblyFromCode(string scriptCode, CompileInfo info)`
+  - `IEvaluator.CompileAssemblyFromFile(string scriptFile, CompileInfo info)`
+  - `CodeDomEvaluator.CompileAssemblyFromFile(string scriptFile, CompileInfo info, out Project project)`
+  - `CodeDomEvaluator.CompileAssemblyFromCode(string scriptCode, CompileInfo info, out Project project)`
 - Changed default Roslyn mode: `Globals.DefaultRoslynCompilationToScript=false`
 - Added `Globals.AlwaysEmitRoslynProject=false`
 - Improve RoslynEvaluator: better script import, error mapping, project attachment, and assembly filtering

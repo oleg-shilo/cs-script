@@ -312,6 +312,16 @@ namespace CSScriptLib
         /// <param name="info">The information about compilation context (e.g. location of the compiler output -
         /// assembly and pdb file).</param>
         /// <returns>The compiled assembly.</returns>
+        /// <remarks>
+        /// <para>
+        /// The returned assembly may expose compilation input through an attached <see cref="Project"/> object.
+        /// In case of compilation error, the same <see cref="Project"/> object can be accessed from the exception.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success (when project metadata is emitted):</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         Assembly CompileCode(string scriptText, CompileInfo info = null);
 
         /// <summary>
@@ -332,6 +342,16 @@ namespace CSScriptLib
         /// <param name="info">The information about compilation context (e.g. location of the compiler output -
         /// assembly and pdb file).</param>
         /// <returns>The compiled assembly.</returns>
+        /// <remarks>
+        /// <para>
+        /// The returned assembly may expose compilation input through an attached <see cref="Project"/> object.
+        /// In case of compilation error, the same <see cref="Project"/> object can be accessed from the exception.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success (when project metadata is emitted):</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         Assembly CompileFile(string scriptFile, CompileInfo info = null);
 
         /// <summary>
@@ -517,6 +537,16 @@ namespace CSScriptLib
         /// <param name="info">The information about compilation context (e.g. location of the compiler output -
         /// assembly and pdb file).</param>
         /// <returns>The compiled assembly.</returns>
+        /// <remarks>
+        /// <para>
+        /// The returned assembly may expose compilation input through an attached <see cref="Project"/> object.
+        /// In case of compilation error, the same <see cref="Project"/> object can be accessed from the exception.
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description><b>On success (when project metadata is emitted):</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
+        /// </list>
+        /// </remarks>
         Assembly CompileMethod(string code, CompileInfo info = null);
 
         /// <summary>

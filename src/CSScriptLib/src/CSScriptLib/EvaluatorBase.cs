@@ -164,12 +164,11 @@ namespace CSScriptLib
         /// <returns>The compiled assembly.</returns>
         /// <remarks>
         /// <para>
-        /// In case of CodeDomEvaluator, the returned loaded assembly has attached <see cref="Project"/> object that
-        /// can be used to analyse the compilation input. And in case of compilation error the same <see cref="Project"/> object
-        /// can be accessed via exception object.
+        /// The returned assembly may expose compilation input through an attached <see cref="Project"/> object.
+        /// In case of compilation error, the same <see cref="Project"/> object can be accessed from the exception.
         /// </para>
         /// <list type="bullet">
-        ///   <item><description><b>On success:</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
+        ///   <item><description><b>On success (when project metadata is emitted):</b> <c>assembly.GetAttached&lt;Project&gt;()</c></description></item>
         ///   <item><description><b>On error:</b> <c>CompilerException.CompilerInput</c></description></item>
         /// </list>
         /// </remarks>
