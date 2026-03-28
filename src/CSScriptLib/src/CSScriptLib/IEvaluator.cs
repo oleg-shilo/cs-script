@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using Microsoft.CodeAnalysis.Emit;
 
 namespace CSScriptLib
@@ -416,6 +417,38 @@ namespace CSScriptLib
         void CheckFile(string scriptfile, CompileInfo info = null);
 
         /// <summary>
+        /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// string asmFile = CSScript.Evaluator
+        ///                          .CompileAssemblyFromFile(
+        ///                                 "MyScript.cs",
+        ///                                 "MyScript.dll");
+        /// </code>
+        /// </example>
+        /// <param name="scriptFile">The C# script file.</param>
+        /// <param name="outputFile">The path to the assembly file to be compiled.</param>
+        /// <returns>The compiled assembly file path.</returns>
+        [Obsolete("This method is obsolete. Use `CompileAssemblyFromFile(scriptFile, new CompileInfo {AssemblyFile = outputFile})` instead.", false)]
+        string CompileAssemblyFromFile(string scriptFile, string outputFile);
+
+        /// <summary>
+        /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// string asmFile = CSScript.Evaluator
+        ///                          .CompileAssemblyFromFile(
+        ///                                 "MyScript.cs", new CompileInfo { AssemblyFile = "MyScript.dll" });
+        /// </code>
+        /// </example>
+        /// <param name="scriptFile">The path to the script file to compile. Must not be null or empty.</param>
+        /// <param name="info">The compilation settings to use when compiling the script file.</param>
+        /// <returns>The path to the generated assembly file.</returns>
+        string CompileAssemblyFromFile(string scriptFile, CompileInfo info);
+
+        /// <summary>
         /// Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
         /// </summary>
         /// <example>
@@ -436,23 +469,31 @@ namespace CSScriptLib
         /// <param name="scriptText">The C# script text.</param>
         /// <param name="outputFile">The path to the assembly file to be compiled.</param>
         /// <returns>The compiled assembly file path.</returns>
+        [Obsolete("This method is obsolete. Use `CompileAssemblyFromCode(scriptText, new CompileInfo {AssemblyFile = outputFile})` instead.", false)]
         string CompileAssemblyFromCode(string scriptText, string outputFile);
 
         /// <summary>
-        /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing a single or multiple class definition(s).
+        /// Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
         /// </summary>
         /// <example>
-        /// <code>
+        ///<code>
         /// string asmFile = CSScript.Evaluator
-        ///                          .CompileAssemblyFromFile(
-        ///                                 "MyScript.cs",
-        ///                                 "MyScript.dll");
+        ///                          .CompileAssemblyFromCode(
+        ///                                 @"using System;
+        ///                                   public class Script
+        ///                                   {
+        ///                                       public int Sum(int a, int b)
+        ///                                       {
+        ///                                           return a+b;
+        ///                                       }
+        ///                                   }",
+        ///                                   new CompileInfo { AssemblyFile = "MyScript.dll" });
         /// </code>
         /// </example>
-        /// <param name="scriptFile">The C# script file.</param>
-        /// <param name="outputFile">The path to the assembly file to be compiled.</param>
-        /// <returns>The compiled assembly file path.</returns>
-        string CompileAssemblyFromFile(string scriptFile, string outputFile);
+        /// <param name="scriptCode">The source code of the script to compile. Cannot be null or empty.</param>
+        /// <param name="info">An object containing compilation options and settings to control the compilation process. Cannot be null.</param>
+        /// <returns>The file path to the compiled assembly if compilation succeeds; otherwise, an empty string.</returns>
+        string CompileAssemblyFromCode(string scriptCode, CompileInfo info);
 
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>) and evaluates it.

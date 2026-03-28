@@ -589,7 +589,7 @@ namespace EvaluatorTests
                                                    return a+b;
                                                }
                                            }",
-                                           "MyScript.asm");
+                                           CompileInfo.For("MyScript.asm"));
 
             Assert.True(File.Exists(asmFile));
         }
@@ -603,7 +603,7 @@ namespace EvaluatorTests
                                            public int Sum(int a, int b) => a+b;
                                        }");
 
-            string asmFile = new_evaluator.CompileAssemblyFromFile(script, "MyScript.asm");
+            string asmFile = new_evaluator.CompileAssemblyFromFile(script, CompileInfo.For("MyScript.asm"));
 
             var project = asmFile.GetAttached<Project>();
 

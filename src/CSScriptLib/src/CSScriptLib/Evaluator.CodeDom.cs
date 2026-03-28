@@ -296,6 +296,33 @@ namespace CSScriptLib
         /// string asmFile = CSScript.CodeDomEvaluator
         ///                          .CompileAssemblyFromFile(
         ///                                 "MyScript.cs",
+        ///                                 new CompileInfo { AssemblyFile = "MyScript.dll" }
+        ///                                 out Project project);
+        /// </code>
+        /// </example>
+        /// <param name="scriptFile">The C# script file.</param>
+        /// <param name="info">The compilation settings to use when compiling the script file.</param>
+        /// <param name="project">When the method returns, contains the project information generated during compilation.</param>
+        /// <returns>The compiled assembly file path.</returns>
+        public string CompileAssemblyFromFile(string scriptFile, CompileInfo info, out Project project)
+        {
+            info.AssemblyFile = info.AssemblyFile.GetFullPath();
+            if (info.PdbFile.IsEmpty())
+                info.PdbFile = info.AssemblyFile.ChangeExtension(".pdb");
+
+            var result = Compile(null, scriptFile, info);
+            project = result.project;
+            return info.AssemblyFile;
+        }
+
+        /// <summary>
+        /// Compiles C# file (script) into assembly file. The C# contains typical C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// string asmFile = CSScript.CodeDomEvaluator
+        ///                          .CompileAssemblyFromFile(
+        ///                                 "MyScript.cs",
         ///                                 "MyScript.dll"
         ///                                 out Project project);
         /// </code>
@@ -304,16 +331,9 @@ namespace CSScriptLib
         /// <param name="outputFile">The path to the assembly file to be compiled.</param>
         /// <param name="project">When the method returns, contains the project information generated during compilation.</param>
         /// <returns>The compiled assembly file path.</returns>
+        [Obsolete("This method is obsolete. Use `CompileAssemblyFromFile(scriptFile, new CompileInfo {AssemblyFile = outputFile}, out project)` instead.", false)]
         public string CompileAssemblyFromFile(string scriptFile, string outputFile, out Project project)
-        {
-            var info = new CompileInfo();
-            info.AssemblyFile = Path.GetFullPath(outputFile);
-            info.PdbFile = Path.ChangeExtension(info.AssemblyFile, ".pdb");
-
-            var result = Compile(null, scriptFile, info);
-            project = result.project;
-            return info.AssemblyFile;
-        }
+            => CompileAssemblyFromFile(scriptFile, new CompileInfo { AssemblyFile = outputFile }, out project);
 
         /// <summary>
         /// Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
@@ -338,13 +358,41 @@ namespace CSScriptLib
         /// <param name="outputFile">The path to the assembly file to be compiled.</param>
         /// <param name="project">When the method returns, contains the project information generated during compilation.</param>
         /// <returns>The compiled assembly file path.</returns>
+        [Obsolete("This method is obsolete. Use `CompileAssemblyFromCode(scriptText, new CompileInfo {AssemblyFile = outputFile}, out project)` instead.", false)]
         public string CompileAssemblyFromCode(string scriptText, string outputFile, out Project project)
-        {
-            var info = new CompileInfo();
-            info.AssemblyFile = Path.GetFullPath(outputFile);
-            info.PdbFile = Path.ChangeExtension(info.AssemblyFile, ".pdb");
+            => CompileAssemblyFromCode(scriptText, new CompileInfo { AssemblyFile = outputFile }, out project);
 
-            project = Compile(scriptText, null, info).project;
+        /// <summary>
+        /// Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <example>
+        ///<code>
+        /// string asmFile = CSScript.CodeDomEvaluator
+        ///                          .CompileAssemblyFromCode(
+        ///                                 @"using System;
+        ///                                   public class Script
+        ///                                   {
+        ///                                       public int Sum(int a, int b)
+        ///                                       {
+        ///                                           return a+b;
+        ///                                       }
+        ///                                   }",
+        ///                                   new CompileInfo { AssemblyFile = "MyScript.dll" }
+        ///                                   out Project project);
+        /// </code>
+        /// </example>
+        /// <param name="scriptText">The C# script text.</param>
+        /// <param name="info">The compilation settings to use when compiling the script file.</param>
+        /// <param name="project">When the method returns, contains the project information generated during compilation.</param>
+        /// <returns>The compiled assembly file path.</returns>
+        public string CompileAssemblyFromCode(string scriptText, CompileInfo info, out Project project)
+        {
+            info.AssemblyFile = info.AssemblyFile.GetFullPath();
+            if (info.PdbFile.IsEmpty())
+                info.PdbFile = info.AssemblyFile.ChangeExtension(".pdb");
+
+            var result = Compile(scriptText, null, info);
+            project = result.project;
             return info.AssemblyFile;
         }
 

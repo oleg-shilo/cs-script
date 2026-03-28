@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using static System.Environment;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -88,7 +89,7 @@ namespace CLI
         public string cscs_exe;
         public string static_content;
 
-        string cscs_run(string args, string dir = null)
+        string cscs_run(string args, string dir = null, [CallerMemberName] string caller = null)
         {
             // print method input
             // Console.WriteLine($"currdir: {Environment.CurrentDirectory}");
@@ -96,6 +97,15 @@ namespace CLI
             // Console.WriteLine($"==================");
 
             var output = "dotnet".Run($"\"{cscs_exe}\" {args}", dir).output.Trim();
+            var outputLogFile = $@"output-logs\{caller}.log".EnsureFileDir();
+
+            if (outputLogFile.FileExists() &&
+                File.GetLastWriteTimeUtc(outputLogFile).Date == DateTime.Today.AddDays(-1)) // yesterday
+            {
+                File.Delete(outputLogFile);
+                File.Create(outputLogFile);
+            }
+            File.AppendAllLines(outputLogFile, [$"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)}: {output}"]);
 
             return output;
         }
@@ -366,6 +376,7 @@ namespace CLI
             }
         }
 
+        [Fact]
         [FactWinOnly]
         public void syntax_version_10()
         {

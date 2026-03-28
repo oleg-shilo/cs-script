@@ -729,7 +729,7 @@ namespace EvaluatorTests
                 var scriptFile = testTempFile("script1.cs");
                 File.WriteAllText(scriptFile, code);
                 var scriptAsmFile = testTempFile("script1.cs.dll");
-                var resultAsm = CSScript.Evaluator.CompileAssemblyFromFile(scriptFile, scriptAsmFile);
+                var resultAsm = CSScript.Evaluator.CompileAssemblyFromFile(scriptFile, CompileInfo.For(scriptAsmFile));
                 util = Assembly.LoadFrom(resultAsm).CreateObject("*");
 
                 result = util.foo();

@@ -375,12 +375,61 @@ namespace CSScriptLib
         /// </code>
         /// </example>
         public string CompileAssemblyFromFile(string scriptFile, string outputFile)
-        {
-            var info = new CompileInfo();
-            info.AssemblyFile = Path.GetFullPath(outputFile);
-            info.PdbFile = Path.ChangeExtension(info.AssemblyFile, ".pdb");
+            => CompileAssemblyFromFile(scriptFile, new CompileInfo { AssemblyFile = outputFile });
 
+        /// <summary>
+        /// Compiles C# file (script) into assembly file according the compiling
+        /// context specified in the <see cref="CompileInfo"/> argument.
+        /// <para>
+        /// Note, <see cref="CompileInfo.PreferLoadingFromFile"/> value will be
+        /// ignored since the script engine will only build the assembly without
+        /// loading it.
+        /// </para>
+        /// </summary>
+        /// <param name="scriptFile">The C# script file.</param>
+        /// <param name="info">The information about compilation context (e.g.
+        ///     location of the compiler output - assembly and pdb file).
+        ///     </param>
+        /// <returns>The compiled assembly file path.</returns>
+        public string CompileAssemblyFromFile(string scriptFile, CompileInfo info)
+        {
+            info.AssemblyFile = info.AssemblyFile.GetFullPath();
+
+            if (info.PdbFile.IsEmpty())
+                info.PdbFile = info.AssemblyFile.ChangeExtension(".pdb");
             Compile(null, scriptFile, info);
+            return info.AssemblyFile;
+        }
+
+        /// <summary>
+        /// Compiles C# code (script) into assembly file. The C# code is a typical C# code containing a single or multiple class definition(s).
+        /// </summary>
+        /// <example>
+        ///<code>
+        /// string asmFile = CSScript.Evaluator
+        ///                          .CompileAssemblyFromCode(
+        ///                                 @"using System;
+        ///                                   public class Script
+        ///                                   {
+        ///                                       public int Sum(int a, int b)
+        ///                                       {
+        ///                                           return a+b;
+        ///                                       }
+        ///                                   }",
+        ///                                   new CompileInfo { AssemblyFile = "MyScript.dll" });
+        /// </code>
+        /// </example>
+        /// <param name="scriptCode">The source code of the script to compile. Cannot be null or empty.</param>
+        /// <param name="info">An object containing compilation options and settings to control the compilation process. Cannot be null.</param>
+        /// <returns>The file path to the compiled assembly if compilation succeeds; otherwise, an empty string.</returns>
+        public string CompileAssemblyFromCode(string scriptCode, CompileInfo info)
+        {
+            info.AssemblyFile = info.AssemblyFile.GetFullPath();
+
+            if (info.PdbFile.IsEmpty())
+                info.PdbFile = info.AssemblyFile.ChangeExtension(".pdb");
+
+            Compile(scriptCode, null, info);
             return info.AssemblyFile;
         }
 
@@ -1492,26 +1541,6 @@ namespace CSScriptLib
         }
 
         /// <summary>
-        /// Compiles C# file (script) into assembly file according the compiling
-        /// context specified in the <see cref="CompileInfo"/> argument.
-        /// <para>
-        /// Note, <see cref="CompileInfo.PreferLoadingFromFile"/> value will be
-        /// ignored since the script engine will only build the assembly without
-        /// loading it.
-        /// </para>
-        /// </summary>
-        /// <param name="scriptFile">The C# script file.</param>
-        /// <param name="info">The information about compilation context (e.g.
-        ///     location of the compiler output - assembly and pdb file).
-        ///     </param>
-        /// <returns>The compiled assembly file path.</returns>
-        public string CompileAssemblyFromFile(string scriptFile, CompileInfo info)
-        {
-            Compile(null, scriptFile, info);
-            return info.AssemblyFile;
-        }
-
-        /// <summary>
         /// Evaluates (executes) the specified script text, which is a top-level
         /// C# code.
         /// <para>
@@ -1576,6 +1605,13 @@ namespace CSScriptLib
         public string CompilerOptions { get; set; }
 
         string assemblyFile;
+
+        /// <summary>
+        /// Creates a new instance of the CompileInfo class with the specified output file path.
+        /// </summary>
+        /// <param name="outputFile">The path to the output file that will be associated with the CompileInfo instance.</param>
+        /// <returns>A CompileInfo instance with its AssemblyFile property set to the specified output file path.</returns>
+        public static CompileInfo For(string outputFile) => new CompileInfo { AssemblyFile = outputFile };
 
         /// <summary>
         /// The assembly file path. If not specified it will be composed as "&lt;RootClass&gt;.dll".
