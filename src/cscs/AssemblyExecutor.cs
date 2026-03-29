@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using CSScripting;
+using CSScriptLib;
 
 namespace csscript
 {
@@ -222,7 +223,13 @@ namespace csscript
         internal static void SetScriptReflection(Assembly assembly, string location, bool setScriptLocationReflection)
         {
             if (setScriptLocationReflection)
+            {
+                // envvars have limit how many of them process can have so the caller may request not doing it
                 Environment.SetEnvironmentVariable("location:" + assembly.GetHashCode(), location);
+            }
+
+            // do it via attached value as well as it is more reliable and does not have limit on how many of them process can have
+            assembly.SetAttachedValue("AsmLocation", location);
 
             string source = null;
             //Note assembly can contain only single AssemblyDescriptionAttribute
