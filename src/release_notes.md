@@ -11,7 +11,6 @@ The old behavior (old Roslyn API with `SourceCodeKind.Script`) can be re-enabled
 NOTE: if you choose `DefaultRoslynCompilationToScript=true` you will also need to set `CompileInfo.CodeKind` to 'script' if you are executing your script with optional CompileInfo parameter:
 
 ```c#
-
 var info = new CompileInfo { CodeKind = SourceCodeKind.Script };
 ```` 
 ========================================
@@ -19,7 +18,8 @@ var info = new CompileInfo { CodeKind = SourceCodeKind.Script };
 
 ### CLI
 
-- <no changes>
+- Improved script assembly location tracking. 
+  Now even if the script assembly is loaded not from a file but from memory the location can still be resolved in the script via CS-Script own extension method `Assembly.Location()`
 
 
 ### CSScriptLib
@@ -27,7 +27,7 @@ var info = new CompileInfo { CodeKind = SourceCodeKind.Script };
 - #458: Type 'CSScriptLib.Project' in Assembly 'CSScriptLib, Version=4.14.3.0, Culture=neutral, PublicKeyToken=4c30df19402bb442' is not marked as serializable
 - #459: Possibility to specify default search dirs, assemblies and namespaces in a hosted environment?
   ProjectBuilder is made public and documented.
-- #444+#445: IEvaluator API update 
+- #444 + #445: IEvaluator API update 
   - `IEvaluator.Check(string code)` is marked as `[obsolete]`
   - `IEvaluator.CheckCode(string scriptCode)`
   - `IEvaluator.CheckFile(string scriptFile)`
@@ -38,7 +38,3 @@ var info = new CompileInfo { CodeKind = SourceCodeKind.Script };
 - Changed default Roslyn mode: `Globals.DefaultRoslynCompilationToScript=false`
 - Added `Globals.AlwaysEmitRoslynProject=false`
 - Improve RoslynEvaluator: better script import, error mapping, project attachment, and assembly filtering
-
-
-
-

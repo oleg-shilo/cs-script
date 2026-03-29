@@ -19,7 +19,7 @@ namespace Misc
     /// </summary>
     public class TestFolder
     {
-        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder").EnsureDir();
+        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder", "FileParserTest").EnsureDir();
 
         public TestFolder()
         {

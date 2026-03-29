@@ -97,7 +97,7 @@ namespace CLI
             // Console.WriteLine($"==================");
 
             var output = "dotnet".Run($"\"{cscs_exe}\" {args}", dir).output.Trim();
-            var outputLogFile = $@"output-logs\{caller}.log".EnsureFileDir();
+            var outputLogFile = $@"output-logs\{caller}.log".GetFullPath().EnsureFileDir();
 
             if (outputLogFile.FileExists() &&
                 File.GetLastWriteTimeUtc(outputLogFile).Date == DateTime.Today.AddDays(-1)) // yesterday
