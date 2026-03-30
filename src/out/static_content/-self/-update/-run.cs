@@ -1,25 +1,24 @@
 //css_include global-usings
+using System;
+using static System.Console;
+using System.Diagnostics;
+using static System.Environment;
+using static System.IO.Path;
 using System.Runtime.InteropServices;
 using System.Text;
-using System;
-using System.Diagnostics;
+using csscript;
 using CSScripting;
 using static dbg;
-using static System.IO.Path;
-using static System.Console;
-using static System.Environment;
 
 var thisScript = GetEnvironmentVariable("EntryScript");
 
-var help =
-@$"Custom command for updating the installed CS-Script.
-v{thisScript.GetCommandScriptVersion()} ({thisScript})
-  css -self-update
-  (e.g. `css -self-update`)";
-
-if ("?,-?,-help,--help".Split(',').Contains(args.FirstOrDefault()))
+if (args.ContainsAny("?", "-?", "-help", "--help"))
 {
-    WriteLine(help);
+    WriteLine($"""
+        Custom command for updating the installed CS-Script.
+        v{thisScript.GetCommandScriptVersion()} ({thisScript})
+          css -self-update
+        """);
     return;
 }
 
@@ -101,10 +100,10 @@ else if (cscs.Contains(Path.Combine("ProgramData", "chocolatey")))
 else if (cscs.Contains(Path.Combine("WinGet", "Links")))
 {
     update(cscs,
-       pm: "WinGet",
-       cmdExe: "winget",
-       cmdArgs: "update cs-script",
-       noUpdateLogPattern: "No available upgrade found.");
+        pm: "WinGet",
+        cmdExe: "winget",
+        cmdArgs: "update cs-script",
+        noUpdateLogPattern: "No available upgrade found.");
 }
 else
     WriteLine("CS-Script is either not installed or installed by the method that does not support automatic update. You will need to install/update CS-Script manually.");
@@ -122,7 +121,7 @@ void update(string css, string pm, string cmdExe, string cmdArgs, string noUpdat
 
     WriteLine(output);
 
-    if (output.Contains(noUpdateLogPattern))
+    if (false && output.Contains(noUpdateLogPattern))
     {
         WriteLine("No available update found.");
     }
@@ -132,6 +131,8 @@ void update(string css, string pm, string cmdExe, string cmdArgs, string noUpdat
         WriteLine(output);
     }
 }
+
+Exit(0);
 
 string Run(string app, string arguments, bool inExternalConsole = false)
 {
