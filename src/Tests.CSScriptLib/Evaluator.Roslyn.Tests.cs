@@ -297,9 +297,9 @@ namespace EvaluatorTests
                    using System.Collections;
                    public class Sample_Precompiler
                    {
-                       public static bool Compile(ref string code, string scriptFile, bool isPrimaryScript, Hashtable context)
+                       public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
                        {
-                           code = code.Replace(""Hello World"", ""Hello World!!!"");
+                           scriptCode = scriptCode.Replace(""Hello World"", ""Hello World!!!"");
                            return true;
                        }
                    }");
@@ -374,6 +374,53 @@ namespace EvaluatorTests
             {
                 Debug.WriteLine(message);
             }
+        }
+
+        [Fact]
+        public void issue_460()
+        {
+            var calcAsm = testTempFile("calc.issue_460.dll");
+            var scriptFile = testTempFile("script.cs");
+
+            var scriptCode = $@"//css_ref {calcAsm.GetFileName()}
+                                using System;
+                                public class Script
+                                {{
+                                    public int Sum(int a, int b) => Calc.Sum(a, b);
+                                }}";
+
+            var calcCode = @"using System;
+                             public class Calc
+                             {
+                                 static public int Sum(int a, int b) => a + b;
+                             }";
+
+            if (!calcAsm.FileExists()) // try to avoid unnecessary compilations as xUnint keeps locking the loaded assemblies
+                CSScript.CodeDomEvaluator.CompileAssemblyFromCode(calcCode, calcAsm);
+
+            File.WriteAllText(scriptFile, scriptCode);
+
+            var eval = CSScript.RoslynEvaluator.LoadFile(scriptFile);
+        }
+
+        [Fact]
+        public void issue_461()
+        {
+            var calcAsm = testTempFile("script.dll");
+            var scriptFile = testTempFile("script.cs");
+
+            var scriptCode = $@"using System;
+                                namespace Demo
+                                {{
+                                    public class Script
+                                    {{
+                                        public int Sum(int a, int b) => a + b;
+                                    }}
+                                }}";
+
+            File.WriteAllText(scriptFile, scriptCode);
+
+            CSScript.RoslynEvaluator.CompileAssemblyFromFile(scriptFile, calcAsm);
         }
 
         [Fact]

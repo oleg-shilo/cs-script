@@ -480,7 +480,7 @@ namespace csscript
                     using (new CurrentDirGuard())
                     {
                         if (options.local && !options.scriptFileName.IsCustomCommandScript())
-                            Environment.CurrentDirectory = Path.GetDirectoryName(Path.GetFullPath(options.scriptFileName));
+                            Environment.CurrentDirectory = options.scriptFileName.GetFullPath().GetDirName();
 
                         dirs.AddPathIfNotThere(Environment.CurrentDirectory, Settings.local_dirs_section);
                         dirs.AddPathIfNotThere(local_dir, Settings.local_dirs_section);
@@ -564,7 +564,7 @@ namespace csscript
 
                         using (new CurrentDirGuard())
                         {
-                            Environment.CurrentDirectory = Path.GetDirectoryName(Path.GetFullPath(options.scriptFileName));
+                            Environment.CurrentDirectory = options.scriptFileName.GetFullPath().GetDirName();
 
                             var code_probing_dirs = parser.ExtraSearchDirs.Select(x => x.GetFullPath());
 
@@ -599,10 +599,10 @@ namespace csscript
                                         using (new CurrentDirGuard())
                                         {
                                             var impParser = new CSharpParser(file, true, null, options.searchDirs);
-                                            Environment.CurrentDirectory = Path.GetDirectoryName(file);
+                                            Environment.CurrentDirectory = file.GetFullPath().GetDirName();
 
                                             foreach (string dir in impParser.ExtraSearchDirs)
-                                                newSearchDirs.AddIfNotThere(Path.GetFullPath(dir));
+                                                newSearchDirs.AddIfNotThere(dir.GetFullPath());
                                         }
                                         preScripts.AddRange(new CSharpParser(file, true, null, options.searchDirs).CmdScripts);
                                     }

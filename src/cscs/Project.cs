@@ -174,7 +174,7 @@ namespace CSScriptLib
             ScriptParser parser;
             using (new CurrentDirGuard())
             {
-                Environment.CurrentDirectory = Path.GetDirectoryName(script);
+                Environment.CurrentDirectory = script.GetFullPath().GetDirName();
                 parser = new ScriptParser(script, searchDirs.ToArray(), false);
             }
 
