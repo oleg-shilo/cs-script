@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.14.4</Version>
+    <Version>4.14.5.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2026 Oleg Shilo</Copyright>
@@ -16,47 +16,20 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.14.4</AssemblyVersion>
-    <FileVersion>4.14.4</FileVersion>
+    <AssemblyVersion>4.14.5.0</AssemblyVersion>
+    <FileVersion>4.14.5.0</FileVersion>
     <PackageReleaseNotes>---
 
 ## Changes 
 
-Major change is migration of RoslynEvaluator to the modern Roslyn API, which allows bringing full support for importing dependency scripts and handling pre-processor symbols.
-
-The old behavior (old Roslyn API with `SourceCodeKind.Script`) can be re-enabled by setting `Globals.DefaultRoslynCompilationToScript=true`.
-
-NOTE: if you choose `DefaultRoslynCompilationToScript=true` you will also need to set `CompileInfo.CodeKind` to 'script' if you are executing your script with optional CompileInfo parameter:
-
-```c#
-
-var info = new CompileInfo { CodeKind = SourceCodeKind.Script };
-```` 
-========================================
-
-
 ### CLI
 
-- Improved script assembly location tracking. 
-  Now even if the script assembly is loaded not from a file but from memory the location can still be resolved in the script via CS-Script own extension method `Assembly.Location()`
+- Added multi-file and symbol support to Roslyn build pipeline
 
 
 ### CSScriptLib
 
-- #458: Type 'CSScriptLib.Project' in Assembly 'CSScriptLib, Version=4.14.3.0, Culture=neutral, PublicKeyToken=4c30df19402bb442' is not marked as serializable
-- #459: Possibility to specify default search dirs, assemblies and namespaces in a hosted environment?
-  ProjectBuilder is made public and documented.
-- #444 + #445: IEvaluator API update 
-  - `IEvaluator.Check(string code)` is marked as `[obsolete]`
-  - `IEvaluator.CheckCode(string scriptCode)`
-  - `IEvaluator.CheckFile(string scriptFile)`
-  - `IEvaluator.CompileAssemblyFromCode(string scriptCode, CompileInfo info)`
-  - `IEvaluator.CompileAssemblyFromFile(string scriptFile, CompileInfo info)`
-  - `CodeDomEvaluator.CompileAssemblyFromFile(string scriptFile, CompileInfo info, out Project project)`
-  - `CodeDomEvaluator.CompileAssemblyFromCode(string scriptCode, CompileInfo info, out Project project)`
-- Changed default Roslyn mode: `Globals.DefaultRoslynCompilationToScript=false`
-- Added `Globals.AlwaysEmitRoslynProject=false`
-- Improve RoslynEvaluator: better script import, error mapping, project attachment, and assembly filtering</PackageReleaseNotes>
+- Minor improvements: CompileInfo.CodeKind default is changed to `Regular` (related to #461)</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>

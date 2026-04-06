@@ -356,8 +356,8 @@ namespace CSScripting.CodeDom
 
             if (IsDebug)
                 compilation = compilation.WithOptions(compilation.Options
-                                         .WithOptimizationLevel(OptimizationLevel.Debug)
-                                         .WithOutputKind(outputKind)); // change this line if you need to build excutable
+                                                                 .WithOptimizationLevel(OptimizationLevel.Debug)
+                                                                 .WithOutputKind(outputKind)); // change this line if you need to build excutable
 
             return build_locally(compilation, assemblyFile, IsDebug);
         }
