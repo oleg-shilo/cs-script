@@ -320,6 +320,55 @@ namespace CLI
         }
 
         [Fact]
+        public void roslyn_match_csc()
+        {
+            if (SkipIfIncompatibile) return;
+
+            var script = testTempFile("script.cs");
+            var importedScript = testTempFile("imported.cs");
+            var pre = testTempFile("precompiler.cs");
+
+            // use precompiler and imports
+            File.WriteAllText(importedScript, $@"//css_pc {pre}
+                                            public class Printer
+                                            {{
+                                                public static void Print()
+                                                {{
+                                                    System.Console.WriteLine(""Hello from Printer"");
+                                                }}
+                                            }}");
+
+            File.WriteAllText(pre, $@"using System;
+                                      using System.Collections;
+
+                                      public class Sample_Precompiler
+                                      {{
+                                          public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                                          {{
+                                              scriptCode = scriptCode.Replace(""Hello"", ""HELLO"");
+                                              return true;
+                                          }}
+                                      }}");
+
+            File.WriteAllText(script, $@"//css_imp {importedScript}
+                                      using System;
+                                      namespace Testing
+                                      {{
+                                          public class Test
+                                          {{
+                                              public static void Main()
+                                              {{
+                                                  Printer.Print();
+                                              }}
+                                          }}
+                                      }}");
+
+            var output = cscs_run($"-ng:roslyn-inproc {script}");
+
+            Assert.Contains("HELLO from Printer", output);
+        }
+
+        [Fact]
         public void generate_precompiler()
         {
             if (SkipIfIncompatibile) return;

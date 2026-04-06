@@ -24,8 +24,8 @@ namespace compile_server
                                     .ParseAsPort();
 
                 var csc_file = args.Where(x => x.StartsWith("-csc:"))
-                                      .Select(x => x.Substring("-csc:".Length).Trim('"'))
-                                      .FirstOrDefault();
+                                   .Select(x => x.Substring("-csc:".Length).Trim('"'))
+                                       .FirstOrDefault();
 
                 if (!string.IsNullOrEmpty(csc_file))
                 {

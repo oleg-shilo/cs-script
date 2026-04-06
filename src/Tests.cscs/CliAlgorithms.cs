@@ -1,9 +1,12 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.CodeAnalysis;
+using Microsoft.Diagnostics.Symbols;
 using Microsoft.Extensions.Options;
 using csscript;
 using CSScripting;
@@ -69,6 +72,29 @@ public class Script
 
             Assert.Contains("static void Main(string[] args) { HostingRuntime.Init();  impl_Main(args); } static public void impl_Main(string[] args)",
                 processedCode);
+        }
+
+        [Fact]
+        public void serializatuion_of_buildrequest()
+        {
+            var request = new BuildRequest
+            {
+                Source = "file.cs",
+                Assembly = "file.dll",
+                IsDebug = true,
+                References = ["asm1.dll", "asm2.dll"],
+                CompileSymbols = ["a", "b"]
+            };
+
+            var xml = request.Serialize();
+
+            var request2 = xml.Deserialize<BuildRequest>();
+
+            Assert.Equal(request.Source, request2.Source);
+            Assert.Equal(request.Assembly, request2.Assembly);
+            Assert.Equal(request.IsDebug, request2.IsDebug);
+            Assert.Equal(request.References, request2.References);
+            Assert.Equal(request.CompileSymbols, request2.CompileSymbols);
         }
 
         [Fact]

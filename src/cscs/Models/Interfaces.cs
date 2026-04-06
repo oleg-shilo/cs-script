@@ -61,9 +61,11 @@ namespace csscript
     public class BuildRequest
     {
         public string Source;
+        public string[] ImportedSources;
         public string Assembly;
         public bool IsDebug;
         public string[] References;
+        public string[] CompileSymbols;
     }
 
     class UniqueAssemblyLocations

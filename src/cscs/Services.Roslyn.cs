@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -156,7 +158,13 @@ namespace CSScripting.CodeDom
                                     .Where(x => !x.Contains("Native")).ToArray()
                                     .ConcatWith(ref_assemblies);
 
-            BuildResult emitResult = Build(single_source, assembly, all_refs, options.IncludeDebugInformation, inprocess);
+            bool useSingleSourceFile = Environment.GetEnvironmentVariable("css_cli_roslyn_legacy_algorithm")?.ToLower() == "true";
+
+            BuildResult emitResult;
+            if (useSingleSourceFile)
+                emitResult = Build([single_source], assembly, all_refs, options, inprocess);
+            else
+                emitResult = Build(fileNames, assembly, all_refs, options, inprocess);
 
             Profiler.EngineContext = "Building with Roslyn engine...";
 
@@ -273,41 +281,39 @@ namespace CSScripting.CodeDom
             }
         }
 
-        static BuildResult Build(string sourceFile, string assemblyFile, string[] refs, bool IsDebug, bool buildLocally)
+        static BuildResult Build(string[] sourceFiles, string assemblyFile, string[] refs, CompilerParameters compileInfo, bool buildLocally)
         {
             bool useServer = !buildLocally;
-            // useServer = false;
-            var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
+            bool IsDebug = compileInfo.IncludeDebugInformation;
+
             try
             {
                 if (useServer)
-                    return build_remotelly(sourceFile, assemblyFile, refs, IsDebug, emitOptions);
+                    return build_remotelly(sourceFiles, assemblyFile, refs, compileInfo);
             }
             catch { }
 
-            var scriptText = File.ReadAllText(sourceFile);
-            var scriptOptions = ScriptOptions.Default;
-            string mscorelib = 333.GetType().Assembly.Location.GetFileName();
-
-            foreach (string file in refs)
-            {
-                try
-                {
-                    // NOTE: It is important to avoid loading the runtime itself (mscorelib) as it
-                    // will break the code evaluation (compilation).
-                    if (file.GetFileName() != mscorelib)
-                        scriptOptions = scriptOptions.AddReferences(Assembly.LoadFile(file));
-                }
-                catch { }
-            }
-
-            var legacyAlgorithm = Environment.GetEnvironmentVariable("css_cli_roslyn_new_algorithm") == null;
+            var legacyAlgorithm = Environment.GetEnvironmentVariable("css_cli_roslyn_legacy_algorithm")?.ToLower() == "true";
 
             var outputKind = OutputKind.DynamicallyLinkedLibrary;
 
             Compilation compilation;
             if (legacyAlgorithm)
             {
+                string mscorelib = 333.GetType().Assembly.Location.GetFileName();
+                var scriptOptions = ScriptOptions.Default;
+                foreach (string file in refs)
+                {
+                    try
+                    {
+                        // NOTE: It is important to avoid loading the runtime itself (mscorelib) as it
+                        // will break the code evaluation (compilation).
+                        if (file.GetFileName() != mscorelib)
+                            scriptOptions = scriptOptions.AddReferences(Assembly.LoadFile(file));
+                    }
+                    catch { }
+                }
+                var scriptText = File.ReadAllText(sourceFiles.FirstOrDefault());
                 compilation = CSharpScript.Create(scriptText, scriptOptions)
                                           .GetCompilation();
             }
@@ -321,42 +327,29 @@ namespace CSScripting.CodeDom
                         references.Add(metadata.GetReference());
                 }
 
-                // below is an alternative algorithm that tries first to use the assemblies that are already loaded
-                // in the AppDomain it is not clear if it has any compatibility benefits but it is more complex
-                // var clrRefs = AppDomain.CurrentDomain
-                //                   .GetAssemblies()
-                //                   .Where(a => a.IsFrameworkAssembly()) // all SDK assemblies from appdomain
-                //                   .Select(x => new { x.Location, Asm = x });
-                //
-                // var explicitRefs = refs.Except(clrRefs.Select(x => x.Location)); // from code
-                //
-                // foreach (var asm in explicitRefs)
-                // {
-                //     var metadata = ToMetadataOnCore(asm);
-                //     if (metadata != null)
-                //         references.Add(metadata.GetReference());
-                // }
-                //
-                // foreach (var item in clrRefs)
-                // {
-                //     var metadata = ToMetadataOnCore(item.Asm);
-                //     if (metadata != null)
-                //         references.Add(metadata.GetReference());
-                // }
+                var compileSymbols = compileInfo.CompilerOptions.GetCompilerOptonsSymbols();
+                if (compileInfo.IncludeDebugInformation)
+                    compileSymbols = [.. compileSymbols, "DEBUG", "TRACE"];
 
-                var syntaxTree = SyntaxFactory.ParseSyntaxTree(
-                        scriptText,
-                        new CSharpParseOptions(
-                            kind: SourceCodeKind.Regular,
-                            preprocessorSymbols: ["DEBUG", "TRACE"],
-                            languageVersion: LanguageVersion.Latest));
+                SyntaxTree createTree(string code, string path) =>
+                    SyntaxFactory.ParseSyntaxTree(code, new CSharpParseOptions(
+                        kind: SourceCodeKind.Regular,
+                            preprocessorSymbols: compileSymbols,
+                            languageVersion: LanguageVersion.Latest), path, encoding: Encoding.Default);
 
-                if (syntaxTree.IsTopLevelStatement())
+                var syntaxTrees = new List<SyntaxTree>();
+                foreach (var file in sourceFiles)
+                {
+                    var scriptText = File.ReadAllText(file);
+                    syntaxTrees.Add(createTree(scriptText, file));
+                }
+
+                if (syntaxTrees.First().IsTopLevelStatement())
                     outputKind = OutputKind.ConsoleApplication;
 
                 compilation = CSharpCompilation.Create(
                                                 assemblyName: "Script" + Guid.NewGuid(),
-                                                syntaxTrees: new[] { syntaxTree },
+                                                syntaxTrees: syntaxTrees.ToArray(),
                                                 references: references,
                                                 options: new CSharpCompilationOptions(outputKind));
             }
@@ -366,18 +359,20 @@ namespace CSScripting.CodeDom
                                          .WithOptimizationLevel(OptimizationLevel.Debug)
                                          .WithOutputKind(outputKind)); // change this line if you need to build excutable
 
-            return build_locally(compilation, assemblyFile, IsDebug, emitOptions);
+            return build_locally(compilation, assemblyFile, IsDebug);
         }
 
-        static BuildResult build_remotelly(string sourceFile, string assemblyFile, string[] refs, bool IsDebug, EmitOptions emitOptions)
+        static BuildResult build_remotelly(string[] sourceFiles, string assemblyFile, string[] refs, CompilerParameters options)
         {
             //Console.WriteLine("Building remotely");
             var request = new BuildRequest
             {
-                Source = sourceFile,
+                Source = sourceFiles.First(),
+                ImportedSources = sourceFiles.Skip(1).ToArray(),
                 Assembly = assemblyFile,
-                IsDebug = IsDebug,
-                References = refs
+                IsDebug = options.IncludeDebugInformation,
+                References = refs,
+                CompileSymbols = options.CompilerOptions.GetCompilerOptonsSymbols()
             };
 
             try
@@ -412,7 +407,6 @@ namespace CSScripting.CodeDom
         {
             BuildRequest request = request_data.Deserialize<BuildRequest>();
 
-            var scriptText = File.ReadAllText(request.Source);
             ScriptOptions scriptOptions = ScriptOptions.Default;
 
             foreach (string file in request.References)
@@ -425,8 +419,35 @@ namespace CSScripting.CodeDom
                 catch { }
             }
 
-            var compilation = CSharpScript.Create(scriptText, scriptOptions)
-                                          .GetCompilation();
+            SyntaxTree createTree(string code, string path) =>
+                SyntaxFactory.ParseSyntaxTree(code, new CSharpParseOptions(
+                    kind: SourceCodeKind.Regular,
+                        preprocessorSymbols: request.CompileSymbols,
+                        languageVersion: LanguageVersion.Latest), path, encoding: Encoding.Default);
+
+            var syntaxTrees = new List<SyntaxTree>();
+            syntaxTrees.Add(createTree(File.ReadAllText(request.Source), request.Source));
+
+            foreach (var file in request.ImportedSources)
+                syntaxTrees.Add(createTree(File.ReadAllText(file), file));
+
+            var references = new List<MetadataReference>();
+            foreach (var asm in request.References)
+            {
+                var metadata = ToMetadataOnCore(asm);
+                if (metadata != null)
+                    references.Add(metadata.GetReference());
+            }
+
+            var outputKind = syntaxTrees.First().IsTopLevelStatement() ?
+                OutputKind.ConsoleApplication :
+                OutputKind.DynamicallyLinkedLibrary;
+
+            var compilation = CSharpCompilation.Create(
+                                                assemblyName: "Script" + Guid.NewGuid(),
+                                                syntaxTrees: syntaxTrees.ToArray(),
+                                                references: references,
+                                                options: new CSharpCompilationOptions(outputKind));
 
             if (request.IsDebug)
                 compilation = compilation.WithOptions(compilation.Options
@@ -435,7 +456,7 @@ namespace CSScripting.CodeDom
 
             var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
 
-            BuildResult result = build_locally(compilation, request.Assembly, request.IsDebug, emitOptions);
+            BuildResult result = build_locally(compilation, request.Assembly, request.IsDebug);
 
             return result.Serialize();
         }
@@ -477,8 +498,10 @@ class Script
             return null;
         }
 
-        static BuildResult build_locally(Compilation compilation, string assemblyFile, bool IsDebug, EmitOptions emitOptions, bool doNotSave = false)
+        static BuildResult build_locally(Compilation compilation, string assemblyFile, bool IsDebug, bool doNotSave = false)
         {
+            var emitOptions = new EmitOptions(false, DebugInformationFormat.PortablePdb);
+
             using var asm = new MemoryStream();
             using var pdb = new MemoryStream();
 
