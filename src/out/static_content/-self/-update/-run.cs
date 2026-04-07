@@ -50,6 +50,7 @@ if (string.Compare(currentProcessAssembly, cscs, true) == 0)
 
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     {
+        WriteLine("Executing a shadow copy of css -self-update (to avoid locking)");
         Process.Start(new ProcessStartInfo
         {
             FileName = "cmd.exe",
@@ -132,8 +133,6 @@ void update(string css, string pm, string cmdExe, string cmdArgs, string noUpdat
     }
 }
 
-Exit(0);
-
 string Run(string app, string arguments, bool inExternalConsole = false)
 {
     StringBuilder sb = new();
@@ -166,7 +165,7 @@ string Run(string app, string arguments, bool inExternalConsole = false)
         errorThread.Start();
 
         Thread inputThread = new Thread(() => HandleInput(process));
-        inputThread.IsBackground = false;
+        inputThread.IsBackground = true;
         inputThread.Start();
 
         process.WaitForExit();

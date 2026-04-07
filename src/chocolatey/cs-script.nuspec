@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.14.5.0</version>
+    <version>4.14.5.0-pre</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -30,12 +30,12 @@
 
 ### CLI
 
-- Added multi-file and symbol support to Roslyn build pipeline
+- &amp;lt;no changes&amp;gt; 
 
 
 ### CSScriptLib
 
-- Minor improvements: CompileInfo.CodeKind default is changed to `Regular` (related to #461)</releaseNotes>
+- #462: Predefined type 'System.Int32' is not defined or imported starting in v4.14.4</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>

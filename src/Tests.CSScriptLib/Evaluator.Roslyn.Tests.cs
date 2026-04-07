@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -421,6 +422,27 @@ namespace EvaluatorTests
             File.WriteAllText(scriptFile, scriptCode);
 
             CSScript.RoslynEvaluator.CompileAssemblyFromFile(scriptFile, calcAsm);
+        }
+
+        [Fact]
+        public void issue_462()
+        {
+            var scriptFile = testTempFile("script.cs");
+
+            var scriptCode = @"using System;
+					            public class Script
+					            {
+					                public (int, int) CreatePoint(int x, int y)
+					                {
+					                    return (x, y);
+					                }
+					            }";
+
+            dynamic script = CSScript.Evaluator
+                                     .LoadCode(scriptCode);
+
+            // Call method
+            var p = script.CreatePoint(3, 5);
         }
 
         [Fact]

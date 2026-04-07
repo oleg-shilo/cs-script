@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.14.5.0</Version>
+    <Version>4.14.5.0-pre</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2026 Oleg Shilo</Copyright>
@@ -24,12 +24,12 @@
 
 ### CLI
 
-- Added multi-file and symbol support to Roslyn build pipeline
+- &amp;lt;no changes&amp;gt; 
 
 
 ### CSScriptLib
 
-- Minor improvements: CompileInfo.CodeKind default is changed to `Regular` (related to #461)</PackageReleaseNotes>
+- #462: Predefined type 'System.Int32' is not defined or imported starting in v4.14.4</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
