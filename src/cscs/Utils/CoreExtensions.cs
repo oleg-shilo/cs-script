@@ -388,6 +388,9 @@ namespace csscript
                    normalizedPath.Contains("/dotnet/shared/");
         }
 
+        static string RuntimeAssemblyIndicator = Runtime.IsWin ? @"\dotnet\shared\" : "/dotnet/shared/";
+        static string SdkAssemblyIndicator = Runtime.IsWin ? @"\Microsoft.NET" : "/Microsoft.NET";
+
         /// <summary>
         /// Determines whether the specified assembly is considered a .NET framework assembly.
         /// <p>"Framework" in this context implies that the assembly is a standard .NET assembly that comes from
@@ -405,8 +408,8 @@ namespace csscript
 
             var location = asm.Location ?? "";
             var isInRuntimeFolder =
-                location.Contains(@"\dotnet\shared\", StringComparison.OrdinalIgnoreCase) ||
-                location.Contains(@"\Microsoft.NET\", StringComparison.OrdinalIgnoreCase);
+                    location.Contains(RuntimeAssemblyIndicator, StringComparison.OrdinalIgnoreCase) ||
+                    location.Contains(SdkAssemblyIndicator, StringComparison.OrdinalIgnoreCase);
 
             if (isInRuntimeFolder)
                 return true;
