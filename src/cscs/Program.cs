@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using csscript;
 using CSScripting;
 using CSScripting.CodeDom;
+using System.Threading.Tasks;
 
 namespace cscs
 {
@@ -66,11 +67,11 @@ namespace cscs
                 else
                     CSExecutionClient.Run(args);
 
-                ThreadPool.QueueUserWorkItem(x =>
+                Task.Run(() =>
                 {
                     Thread.Sleep(200);
-                    // alive too long on WLS2
-                    Process.GetCurrentProcess().KillSafe(); // some background monitors may keep the app
+                    // can be alive too long on WLS2 and sometimes on Win 
+                    Environment.Exit(Environment.ExitCode); // more forceful exit to avoid the app being kept alive by some background monitors
                 });
 
                 return Environment.ExitCode;
