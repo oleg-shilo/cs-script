@@ -30,9 +30,11 @@ namespace EvaluatorTests
     [Collection("Sequential")]
     public class Generic_Roslyn
     {
+        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder", "TestData").EnsureDir();
+
         string testTempFile(string fileName, [CallerMemberName] string caller = null)
         {
-            var rootDir = "TestData".PathJoin(nameof(Generic_Roslyn), caller).GetFullPath().EnsureDir();
+            var rootDir = root.PathJoin(nameof(Generic_Roslyn), caller).GetFullPath().EnsureDir();
             return Path.Combine(rootDir, fileName);
         }
 

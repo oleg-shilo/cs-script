@@ -15,12 +15,14 @@ namespace Misc
     [Collection("Sequential")]
     public class IssuesTests
     {
+        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder", "TestData").EnsureDir();
+
         public string GetTempFileName(string seed)
             => Path.GetFullPath($"{this.GetHashCode()}.{seed}");
 
         public string GetTempScript(string content, object seed = null, [CallerMemberName] string caller = null)
         {
-            var dir = Path.Combine("TestData", nameof(IssuesTests));
+            var dir = root.PathJoin(nameof(IssuesTests));
             Directory.CreateDirectory(dir);
             var script = Path.Combine(dir, GetTempFileName($"{seed}.{caller}"));
             File.WriteAllText(script, content);

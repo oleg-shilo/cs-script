@@ -1171,7 +1171,7 @@ namespace CSScriptLib
                 if (result)
                 {
                     retval.Content = content;
-                    retval.NewDependencies.Add(file);
+                    retval.NewDependencies.Add(precompilerPath);
                     modified = true;
                 }
             }
@@ -1205,7 +1205,7 @@ namespace CSScriptLib
                 {
                     if (!precompilersCache.ContainsKey(precompilerPath))
                     {
-                        (byte[] asm, byte[] pdb, Project project) precompilerInfo = Compile(null, file, null);
+                        (byte[] asm, byte[] pdb, Project project) precompilerInfo = Compile(null, precompilerPath, null);
 
                         var precompilerAsm = Assembly.Load(precompilerInfo.asm, precompilerInfo.pdb);
 
@@ -1228,7 +1228,7 @@ namespace CSScriptLib
                     if (result)
                     {
                         retval.Content = content;
-                        retval.NewDependencies.Add(file);
+                        retval.NewDependencies.Add(precompilerPath);
                         modified = true;
                     }
                 }

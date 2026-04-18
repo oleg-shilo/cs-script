@@ -319,7 +319,7 @@ namespace csscript
                                              " ls    - lists all cache items.",
                                              " trim  - removes all abandoned cache items.",
                                              " clear - removes all cache items.",
-                                             " script - prints location of the cache folder.",
+                                             " script - prints location of the cache folder for a given script.",
                                              "```");
 
             switch1Help[co] = new ArgInfo("-co:<options>",

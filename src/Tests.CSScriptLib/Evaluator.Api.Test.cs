@@ -78,6 +78,8 @@ namespace EvaluatorTests
     [Collection("Sequential")]
     public class API_Roslyn
     {
+        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder", "TestData").EnsureDir();
+
         public API_Roslyn()
         {
             // force to load the assembly in the current appdomain so the scripts don't have to reference it explicitly
@@ -87,7 +89,7 @@ namespace EvaluatorTests
 
         string testTempFile(string fileName, [CallerMemberName] string caller = null)
         {
-            var rootDir = "TestData".PathJoin(this.GetType().Name, caller).GetFullPath().EnsureDir();
+            var rootDir = root.PathJoin(this.GetType().Name, caller).GetFullPath().EnsureDir();
             // if (fileName == "asm.hidden-from-xunit-dll-file")
             // {
             //     File.AppendAllText(

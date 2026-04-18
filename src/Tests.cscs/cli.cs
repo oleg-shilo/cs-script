@@ -42,15 +42,17 @@ namespace CLI
 
     public class cscs_cli : IClassFixture<CliTestFolder>
     {
+        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder", "TestData").EnsureDir();
+
         string testTempFile(string fileName, [CallerMemberName] string caller = null)
         {
-            var rootDir = "TestData".PathJoin(nameof(cscs_cli), caller).GetFullPath().EnsureDir();
+            var rootDir = root.PathJoin(nameof(cscs_cli), caller).GetFullPath().EnsureDir();
             return Path.Combine(rootDir, fileName);
         }
 
         void testLog(string message, [CallerMemberName] string caller = null)
         {
-            var rootDir = "TestData".PathJoin(nameof(cscs_cli), caller).GetFullPath().EnsureDir();
+            var rootDir = root.PathJoin(nameof(cscs_cli), caller).GetFullPath().EnsureDir();
 
             var path = Path.Combine(rootDir, "test-log.txt");
             File.AppendAllText(path, message + NewLine);

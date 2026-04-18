@@ -15,7 +15,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.14.6.0</Version>
+    <Version>4.14.7.0-hotfix</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET</Description>
     <Copyright>(C) 2018-2026 Oleg Shilo</Copyright>
@@ -36,11 +36,11 @@
 
 ### CSScriptLib
 
-- #462: Predefined type 'System.Int32' is not defined or imported starting in v4.14.4</PackageReleaseNotes>
+- #453: CSScriptLib: allow //css_precompiler directive proessing for Roslyn compiler engine.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.14.6.0</AssemblyVersion>
-    <FileVersion>4.14.6.0</FileVersion>
-    <PackageVersion>4.14.6.0</PackageVersion>
+    <AssemblyVersion>4.14.7.0</AssemblyVersion>
+    <FileVersion>4.14.7.0</FileVersion>
+    <PackageVersion>4.14.7.0-hotfix</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>

@@ -1,4 +1,4 @@
-# Release v4.14.6.0
+# Release v4.14.7.0-hotfix
 
 ---
 
@@ -11,4 +11,4 @@
 
 ### CSScriptLib
 
-- #462: Predefined type 'System.Int32' is not defined or imported starting in v4.14.4
+- #453: CSScriptLib: allow //css_precompiler directive proessing for Roslyn compiler engine. 

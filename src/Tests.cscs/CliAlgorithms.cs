@@ -36,15 +36,17 @@ namespace CLI
 
     public partial class CliAlgorithms
     {
+        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder", "TestData").EnsureDir();
+
         string testTempFile(string fileName, [CallerMemberName] string caller = null)
         {
-            var rootDir = "TestData".PathJoin(nameof(CliAlgorithms), caller).GetFullPath().EnsureDir();
+            var rootDir = root.PathJoin(nameof(CliAlgorithms), caller).GetFullPath().EnsureDir();
             return Path.Combine(rootDir, fileName);
         }
 
         string testTempDir([CallerMemberName] string caller = null)
         {
-            var rootDir = "TestData".PathJoin(nameof(CliAlgorithms), caller).GetFullPath().EnsureDir();
+            var rootDir = root.PathJoin(nameof(CliAlgorithms), caller).GetFullPath().EnsureDir();
             return rootDir;
         }
 

@@ -233,22 +233,6 @@ namespace csscript
             catch { }
         }
 
-        internal static Thread StartMonitor(StreamReader stream, Action<string> action = null)
-        {
-            var thread = new Thread(x =>
-            {
-                try
-                {
-                    string line = null;
-                    while (null != (line = stream.ReadLine()))
-                        action?.Invoke(line);
-                }
-                catch { }
-            });
-            thread.Start();
-            return thread;
-        }
-
         /// <summary>
         /// Selects the first element that satisfies the specified path.
         /// </summary>
