@@ -1,4 +1,4 @@
-# Release v4.14.7.0-hotfix
+# Release v4.14.7.0
 
 ---
 

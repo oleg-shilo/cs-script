@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.14.7.0-hotfix</Version>
+    <Version>4.14.7.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2026 Oleg Shilo</Copyright>
