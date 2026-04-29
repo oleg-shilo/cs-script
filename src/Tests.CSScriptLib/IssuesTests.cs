@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using CSScripting;
 using CSScripting.CodeDom;
 using CSScriptLib;
@@ -101,6 +103,29 @@ namespace Misc
                 Assert.Null(proj);
             else
                 Assert.NotNull(proj);
+        }
+
+        [Fact]
+        public void issue_464()
+        {
+            var assemblyPath = this.GetType().Assembly.Location;
+
+            IEvaluator evaluator = CSScript.Evaluator
+                                           .With(eval => eval.IsAssemblyUnloadingEnabled = true)
+                                           .Reset(referenceDomainAssemblies: false);
+
+            var list1 = evaluator.GetReferencedAssemblies();
+
+            evaluator.ReferenceAssembly(assemblyPath);
+
+            var list2 = evaluator.GetReferencedAssemblies();
+
+            evaluator = evaluator.Reset(false);
+
+            var list3 = evaluator.GetReferencedAssemblies();
+
+            Assert.Equal(list1.Count(), list2.Count() - 1);
+            Assert.Empty(list3);
         }
 
         [Fact]

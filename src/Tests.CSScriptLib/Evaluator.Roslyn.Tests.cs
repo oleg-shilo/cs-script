@@ -426,10 +426,57 @@ namespace EvaluatorTests
             CSScript.RoslynEvaluator.CompileAssemblyFromFile(scriptFile, calcAsm);
         }
 
+#if DEBUG
+
+        // [Fact]
+#endif
+
+        public void issue_464() // manual test
+        {
+            var utilAsmFile1 = @"D:\dev\cs-script\support\#464\util\util\bin\Debug\v1.0.0\util.dll";
+            var utilAsmFile2 = @"D:\dev\cs-script\support\#464\util\util\bin\Debug\v1.0.1\util.dll";
+
+            var utilAsmFile = utilAsmFile1;
+
+            AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
+            {
+                if (args.Name.Contains("util"))
+                {
+                    return Assembly.LoadFrom(utilAsmFile);
+                }
+                return null;
+            };
+
+            var evaluator = CSScript.Evaluator;
+
+            // ================================
+            var scriptCode = @"using System;
+					           public class Script
+					           {
+					                   public string GetGreeting(string name) => new Util().GetGreeting(name);
+					           }";
+
+            dynamic script = evaluator.ReferenceAssembly(utilAsmFile)
+                                      .LoadCode(scriptCode);
+
+            var msg = script.GetGreeting("Bender");
+
+            Assert.Equal("Hello, Bender (v1.0.0.0)!", msg);
+
+            // ================================
+            utilAsmFile = utilAsmFile2;
+            evaluator.Reset(false);
+
+            script = evaluator.ReferenceAssembly(utilAsmFile)
+                              .LoadCode(scriptCode);
+
+            msg = script.GetGreeting("Bender");
+        }
+
         [Fact]
         public void issue_462()
         {
-            var scriptFile = testTempFile("script.cs");
+            // var scriptFile = testTempFile("script.cs");
 
             var scriptCode = @"using System;
 					            public class Script

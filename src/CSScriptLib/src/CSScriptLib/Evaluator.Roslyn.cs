@@ -768,6 +768,7 @@ namespace CSScriptLib
         /// <returns>The freshly initialized instance of the <see cref="T:CSScriptLib.IEvaluator"/>.</returns>
         public override IEvaluator Reset(bool referenceDomainAssemblies = true)
         {
+            refAssemblies.Clear();
             CompilerSettings = ScriptOptions.Default;
 
             if (referenceDomainAssemblies)
