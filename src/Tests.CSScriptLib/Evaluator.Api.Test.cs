@@ -43,7 +43,7 @@ namespace EvaluatorTests
                                                          return a+b;
                                                      }
                                                  }",
-                                         "MyScript.asm",
+                                         new CompileInfo { AssemblyFile = "MyScript.asm" },
                                          out Project project);
 
             Assert.True(File.Exists(asmFile));

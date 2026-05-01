@@ -1280,9 +1280,10 @@ namespace CSScriptLib
         /// </para>
         /// </summary>
         /// <param name="assembly">The path to the assembly file.</param>
+        /// <param name="aliases">The optional aliases for the assembly.</param>
         /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to
         ///     allow fluent interface.</returns>
-        public IEvaluator ReferenceAssembly(string assembly)
+        public IEvaluator ReferenceAssembly(string assembly, string[] aliases = null)
         {
             var globalProbingDirs = CSScript.GlobalSettings.SearchDirs.ToList();
 
@@ -1291,7 +1292,7 @@ namespace CSScriptLib
             string asmFile = AssemblyResolver.FindAssembly(assembly, dirs).FirstOrDefault()
                 ?? throw new Exception("Cannot find referenced assembly '" + assembly + "'");
 
-            ReferenceAssembly(Assembly.LoadFile(asmFile));
+            ReferenceAssembly(Assembly.LoadFile(asmFile), aliases);
             return this;
         }
 
@@ -1309,9 +1310,10 @@ namespace CSScriptLib
         /// </para>
         /// </summary>
         /// <param name="assembly">The assembly instance.</param>
+        /// <param name="aliases">The optional aliases for the assembly.</param>
         /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to
         ///     allow fluent interface.</returns>
-        public virtual IEvaluator ReferenceAssembly(Assembly assembly)
+        public virtual IEvaluator ReferenceAssembly(Assembly assembly, string[] aliases = null)
             => throw new NotImplementedException();
 
         /// <summary>

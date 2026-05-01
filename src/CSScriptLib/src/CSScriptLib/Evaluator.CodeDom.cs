@@ -635,6 +635,7 @@ namespace CSScriptLib
         /// </para>
         /// </summary>
         /// <param name="assembly">The assembly instance.</param>
+        /// <param name="aliases">The optional aliases for the assembly.</param>
         /// <returns>
         /// The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
         /// </returns>
@@ -642,7 +643,7 @@ namespace CSScriptLib
         /// Current version of {EngineName} doesn't support referencing assemblies " + "which are
         /// not loaded from the file location.
         /// </exception>
-        public override IEvaluator ReferenceAssembly(Assembly assembly)
+        public override IEvaluator ReferenceAssembly(Assembly assembly, string[] aliases = null)
         {
             if (assembly != null)//this check is needed when trying to load partial name assemblies that result in null
             {

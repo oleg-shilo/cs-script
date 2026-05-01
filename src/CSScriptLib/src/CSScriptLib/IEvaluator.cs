@@ -875,10 +875,11 @@ namespace CSScriptLib
         /// </para>
         /// </summary>
         /// <param name="assembly">The path to the assembly file.</param>
+        /// <param name="aliases">The optional aliases for the assembly.</param>
         /// <returns>
         /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
         /// </returns>
-        IEvaluator ReferenceAssembly(string assembly);
+        IEvaluator ReferenceAssembly(string assembly, string[] aliases = null);
 
         /// <summary>
         /// References the given assembly.
@@ -888,10 +889,11 @@ namespace CSScriptLib
         /// </para>
         /// </summary>
         /// <param name="assembly">The assembly instance.</param>
+        /// <param name="aliases">The optional aliases for the assembly.</param>
         /// <returns>
         /// The instance of the <see cref="CSScriptLib.IEvaluator"/> to allow fluent interface.
         /// </returns>
-        IEvaluator ReferenceAssembly(Assembly assembly);
+        IEvaluator ReferenceAssembly(Assembly assembly, string[] aliases = null);
 
         /// <summary>
         /// References the name of the assembly by its partial name.
