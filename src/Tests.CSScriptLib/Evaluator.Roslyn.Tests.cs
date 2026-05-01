@@ -426,7 +426,7 @@ namespace EvaluatorTests
             CSScript.RoslynEvaluator.CompileAssemblyFromFile(scriptFile, calcAsm);
         }
 
-        [Fact]
+        // [Fact]
         public void Can_use_sassembly_aliases() // manual test
         {
             var utilAsmFile = @"D:\dev\cs-script\support\#464\util\util\bin\Debug\v1.0.0\util.dll";
@@ -457,6 +457,57 @@ namespace EvaluatorTests
             var msg = script.GetGreeting("Bender");
 
             Assert.Equal("Hello, Bender (v1.0.0.0)!", msg);
+        }
+
+        [Fact]
+        public void issue_464_sidebyside() // manual test
+        {
+            var utilAsmFile1 = @"D:\dev\cs-script\support\#464\util\util\bin\Debug\v1.0.0\util.dll";
+            var utilAsmFile2 = @"D:\dev\cs-script\support\#464\util\util\bin\Debug\v1.0.1\util.dll";
+
+            var utilAsmFile = utilAsmFile1;
+
+            var assembly = Assembly.LoadFrom(utilAsmFile);
+
+            AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
+            {
+                if (args.Name.Contains("util"))
+                {
+                    // return assembly;// NotSupportedException: Resolving to a collectible assembly is not supported.
+                    // return Assembly.LoadFrom(utilAsmFile); // FileLoadException: 'Could not load file or assembly '<path>'. The located assembly's manifest definition does not match the assembly reference. (0x80131040)'
+                    return Assembly.LoadFile(utilAsmFile); // will lock the assembly to the current AppDomain so it cannot be unloaded
+                }
+                return null;
+            };
+
+            var evaluator = CSScript.RoslynEvaluator;
+            // ================================
+            var scriptCode = @"extern alias util_v1;
+                               using Util1 = util_v1::Util;
+                               using System;
+					           public class Script
+					           {
+					               public string GetGreeting(string name) => new Util1().GetGreeting(name);
+					           }";
+
+            evaluator.Reset(false);
+
+            dynamic script = evaluator.ReferenceAssembly(utilAsmFile, ["util_v1"])
+                                      .LoadCode(scriptCode);
+
+            var msg = script.GetGreeting("Bender");
+
+            Assert.Equal("Hello, Bender (v1.0.0.0)!", msg);
+
+            // ================================
+            utilAsmFile = utilAsmFile2;
+            evaluator.Reset(false);
+
+            script = evaluator.ReferenceAssembly(utilAsmFile, ["util_v2"])
+                              .LoadCode(scriptCode.Replace("util_v1", "util_v2"));
+
+            msg = script.GetGreeting("Bender");
+            Assert.Equal("Hello, Bender (v1.0.1.0)!", msg);
         }
 
         [Fact]
