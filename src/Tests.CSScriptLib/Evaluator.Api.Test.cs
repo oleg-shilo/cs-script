@@ -330,36 +330,28 @@ namespace EvaluatorTests
             {
                 // prepare
                 var utilCode = @"using System;
-                             using System.Reflection;
-                             [assembly: AssemblyVersion(""1.0.$asmVersion$.0"")]
-                             public class Util
-                             {
-                                 public string GetGreeting(string name)
+                                 using System.Reflection;
+                                 [assembly: AssemblyVersion(""1.0.$asmVersion$.0"")]
+                                 public class Util
                                  {
-                                     var version = this.GetType().Assembly.GetName().Version.ToString();
-                                     return $""Hello, {name} (v{version})!"";
-                                 }
-                             }";
+                                     public string GetGreeting(string name)
+                                     {
+                                         var version = this.GetType().Assembly.GetName().Version.ToString();
+                                         return $""Hello, {name} (v{version})!"";
+                                     }
+                                 }";
 
-                var utilAsm1 = testTempFile($"util.v0.dll");
-                var utilAsm2 = testTempFile($"util.v1.dll");
-
-                // try to avoid unnecessary compilations as xUnint keeps locking the loaded assemblies
-                if (!utilAsm1.FileExists())
-                    CSScript.CodeDomEvaluator
-                            .CompileAssemblyFromCode(utilCode.Replace("$asmVersion$", "0"),
-                                                     utilAsm1);
-
-                if (!utilAsm2.FileExists())
-                    CSScript.CodeDomEvaluator
-                            .CompileAssemblyFromCode(utilCode.Replace("$asmVersion$", "1"),
-                                                     utilAsm2);
+                var utilAsm1 = testTempDll(utilCode.Replace("$asmVersion$", "0"),
+                                           $"util.v0.dll");
+                var utilAsm2 = testTempDll(utilCode.Replace("$asmVersion$", "1"),
+                                           $"util.v1.dll");
 
                 var code = @"using System;
-                         public class Script
-                         {
-                             public string GetGreeting(string name) => new Util().GetGreeting(name);
-                         }";
+                             public class Script
+                             {
+                                 public string GetGreeting(string name)
+                                    => new Util().GetGreeting(name);
+                             }";
 
                 var eval = this.new_evaluator;
                 eval.IsCachingEnabled = false;
@@ -368,12 +360,14 @@ namespace EvaluatorTests
 
                 eval.Reset(false);
                 currentUtilFile = utilAsm1;
-                dynamic script1 = eval.ReferenceAssembly(currentUtilFile).LoadCode(code);
+                dynamic script1 = eval.ReferenceAssembly(currentUtilFile)
+                                      .LoadCode(code);
                 var result1 = script1.GetGreeting("John");
 
                 eval.Reset(false);
                 currentUtilFile = utilAsm2;
-                dynamic script2 = eval.ReferenceAssembly(currentUtilFile).LoadCode(code);
+                dynamic script2 = eval.ReferenceAssembly(currentUtilFile)
+                                      .LoadCode(code);
                 var result2 = script2.GetGreeting("John");
 
                 // assert
