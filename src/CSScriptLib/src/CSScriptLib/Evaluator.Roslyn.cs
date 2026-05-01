@@ -384,9 +384,19 @@ namespace CSScriptLib
 
                 foreach (var asm in allRefs)
                 {
-                    var metadata = ToMetadata(asm);
+                    AssemblyMetadata metadata = ToMetadata(asm);
+
                     if (metadata != null)
-                        references.Add(metadata.GetReference());
+                    {
+                        var mdRef = metadata.GetReference();
+
+                        var aliases = AliasesOf(asm);
+
+                        if (aliases.Any() && mdRef is PortableExecutableReference peRef)
+                            mdRef = peRef.WithProperties(peRef.Properties.WithAliases(aliases));
+
+                        references.Add(mdRef);
+                    }
                 }
 
                 // switch (effectiveCodeKind)
@@ -591,6 +601,7 @@ namespace CSScriptLib
         /// </para>
         /// </summary>
         /// <param name="assembly">The assembly instance.</param>
+        /// <param name="aliases">The optional aliases for the assembly.</param>
         /// <returns>
         /// The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
         /// </returns>
@@ -598,7 +609,7 @@ namespace CSScriptLib
         /// Current version of {EngineName} doesn't support referencing assemblies " + "which are
         /// not loaded from the file location.
         /// </exception>
-        public override IEvaluator ReferenceAssembly(Assembly assembly)
+        public override IEvaluator ReferenceAssembly(Assembly assembly, string[] aliases = null)
         {
             //Microsoft.Net.Compilers.1.2.0 - beta
             if (assembly.Location.IsEmpty() && !Runtime.IsSingleFileApplication)
@@ -607,7 +618,11 @@ namespace CSScriptLib
                      "which are not loaded from the file location.");
 
             if (!refAssemblies.Contains(assembly))
+            {
                 refAssemblies.Add(assembly);
+                if (aliases != null)
+                    refAssembliesAliases[assembly] = aliases;
+            }
             return this;
         }
 
@@ -711,6 +726,9 @@ namespace CSScriptLib
         }
 
         List<Assembly> refAssemblies = new List<Assembly>();
+        Dictionary<Assembly, string[]> refAssembliesAliases = new Dictionary<Assembly, string[]>();
+
+        string[] AliasesOf(Assembly assembly) => refAssembliesAliases.TryGetValue(assembly, out var aliases) ? aliases : [];
 
         IEvaluator PrepareRefAssemblies()
         {
@@ -731,11 +749,18 @@ namespace CSScriptLib
                         {
                             if (!CompilerSettings.MetadataReferences.OfType<PortableExecutableReference>().Any(r => r.FilePath.SamePathAs(assembly.Location)))
                             {
-                                // Future assembly aliases support:
-                                // MetadataReference.CreateFromFile("asm.dll", new
-                                // MetadataReferenceProperties().WithAliases(new[] { "lib_a",
-                                // "external_lib_a" } })
-                                CompilerSettings = CompilerSettings.AddReferences(assembly);
+                                var aliases = AliasesOf(assembly);
+
+                                if (aliases.Any())
+                                {
+                                    var mdRef = MetadataReference.CreateFromFile(
+                                        assembly.Location(),
+                                        new MetadataReferenceProperties().WithAliases(aliases));
+
+                                    CompilerSettings = CompilerSettings.AddReferences(mdRef);
+                                }
+                                else
+                                    CompilerSettings = CompilerSettings.AddReferences(assembly);
                             }
                         }
                     }
@@ -769,12 +794,45 @@ namespace CSScriptLib
         public override IEvaluator Reset(bool referenceDomainAssemblies = true)
         {
             refAssemblies.Clear();
+            refAssembliesAliases.Clear();
             CompilerSettings = ScriptOptions.Default;
 
             if (referenceDomainAssemblies)
                 ReferenceDomainAssemblies();
 
             return this;
+        }
+
+        /// <summary>
+        /// Clones itself as <see cref="CSScriptLib.IEvaluator"/>.
+        /// <para>
+        /// This method returns a freshly initialized copy of the
+        /// <see cref="CSScriptLib.IEvaluator"/>. The cloning 'depth' can be
+        /// controlled by the <paramref name="copyRefAssemblies"/>.
+        /// </para>
+        /// <para>
+        /// This method is a convenient technique when multiple
+        /// <see cref="CSScriptLib.IEvaluator"/> instances are required (e.g.
+        /// for concurrent script evaluation).
+        /// </para>
+        /// </summary>
+        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced
+        ///     assemblies from the parent <see cref="CSScriptLib.IEvaluator"/>
+        ///     will be referenced in the cloned copy.</param>
+        /// <returns>The freshly initialized instance of the
+        ///     <see cref="CSScriptLib.IEvaluator"/>.</returns>
+        public override IEvaluator Clone(bool copyRefAssemblies = true)
+        {
+            var clone = new RoslynEvaluator();
+            if (copyRefAssemblies)
+            {
+                clone.Reset(false);
+                foreach (var a in this.GetReferencedAssemblies())
+                    clone.ReferenceAssembly(a);
+
+                clone.refAssembliesAliases.AddItems(this.refAssembliesAliases);
+            }
+            return clone;
         }
     }
 

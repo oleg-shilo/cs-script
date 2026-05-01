@@ -38,6 +38,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using Microsoft.CodeAnalysis.Scripting;
 using csscript;
 using CSScripting;
 using CSScripting.CodeDom;
@@ -165,6 +166,66 @@ namespace CSScriptLib
                 throw new CSScriptException("CompileInfo.RootClass property should only be used with Roslyn evaluator as " +
                     "it addresses the limitation associated with Roslyn. Specifically wrapping ALL scripts in the illegally " +
                     "named parent class. You are using CodeDomEvaluator so you should not set CompileInfo.RootClass to any custom value");
+        }
+
+        /// <summary>
+        /// Resets Evaluator.
+        /// <para>
+        /// Resetting means clearing all referenced assemblies, recreating evaluation infrastructure
+        /// (e.g. compiler setting) and reconnection to or recreation of the underlying compiling services.
+        /// </para>
+        /// <para>
+        /// Optionally the default current AppDomain assemblies can be referenced automatically with
+        /// <paramref name="referenceDomainAssemblies"/>.
+        /// </para>
+        /// </summary>
+        /// <param name="referenceDomainAssemblies">
+        /// if set to <c>true</c> the default assemblies of the current AppDomain will be referenced
+        /// (see <see
+        /// cref="M:CSScriptLib.EvaluatorBase`1.ReferenceDomainAssemblies(CSScriptLib.DomainAssemblies)"/> method).
+        /// </param>
+        /// <returns>The freshly initialized instance of the <see cref="T:CSScriptLib.IEvaluator"/>.</returns>
+        public override IEvaluator Reset(bool referenceDomainAssemblies = true)
+        {
+            referencedAssemblies.Clear();
+            referencedAssembliesAliases.Clear();
+
+            if (referenceDomainAssemblies)
+                ReferenceDomainAssemblies();
+
+            return this;
+        }
+
+        /// <summary>
+        /// Clones itself as <see cref="CSScriptLib.IEvaluator"/>.
+        /// <para>
+        /// This method returns a freshly initialized copy of the
+        /// <see cref="CSScriptLib.IEvaluator"/>. The cloning 'depth' can be
+        /// controlled by the <paramref name="copyRefAssemblies"/>.
+        /// </para>
+        /// <para>
+        /// This method is a convenient technique when multiple
+        /// <see cref="CSScriptLib.IEvaluator"/> instances are required (e.g.
+        /// for concurrent script evaluation).
+        /// </para>
+        /// </summary>
+        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced
+        ///     assemblies from the parent <see cref="CSScriptLib.IEvaluator"/>
+        ///     will be referenced in the cloned copy.</param>
+        /// <returns>The freshly initialized instance of the
+        ///     <see cref="CSScriptLib.IEvaluator"/>.</returns>
+        public override IEvaluator Clone(bool copyRefAssemblies = true)
+        {
+            var clone = new CodeDomEvaluator();
+            if (copyRefAssemblies)
+            {
+                clone.Reset(false);
+                foreach (var a in this.GetReferencedAssemblies())
+                    clone.ReferenceAssembly(a);
+                clone.referencedAssembliesAliases.AddItems(this.referencedAssembliesAliases);
+            }
+
+            return clone;
         }
 
         /// <summary>
@@ -468,7 +529,14 @@ namespace CSScriptLib
                     gac_asms.AddRange(Directory.GetFiles(gac, "Microsoft.*.dll").Where(x => !x.Contains("Native")));
 
                     foreach (string file in gac_asms.Concat(ref_assemblies).Distinct())
-                        refs_args.Add($"/r:\"{file}\"");
+                    {
+                        var aliasesList = "";
+
+                        var aliases = AliasesOf(file);
+                        if (aliases.Any())
+                            aliasesList = aliases.JoinBy(",") + "=";
+                        refs_args.Add($"/r:{aliasesList}\"{file}\"");
+                    }
                 }
                 else
                 {
@@ -626,6 +694,9 @@ namespace CSScriptLib
         }
 
         List<string> referencedAssemblies = new List<string>();
+        Dictionary<string, string[]> referencedAssembliesAliases = new();
+
+        string[] AliasesOf(string assembly) => referencedAssembliesAliases.TryGetValue(assembly, out var aliases) ? aliases : [];
 
         /// <summary>
         /// References the given assembly.
@@ -635,6 +706,7 @@ namespace CSScriptLib
         /// </para>
         /// </summary>
         /// <param name="assembly">The assembly instance.</param>
+        /// <param name="aliases">The optional aliases for the assembly.</param>
         /// <returns>
         /// The instance of the <see cref="T:CSScriptLib.IEvaluator"/> to allow fluent interface.
         /// </returns>
@@ -642,7 +714,7 @@ namespace CSScriptLib
         /// Current version of {EngineName} doesn't support referencing assemblies " + "which are
         /// not loaded from the file location.
         /// </exception>
-        public override IEvaluator ReferenceAssembly(Assembly assembly)
+        public override IEvaluator ReferenceAssembly(Assembly assembly, string[] aliases = null)
         {
             if (assembly != null)//this check is needed when trying to load partial name assemblies that result in null
             {
@@ -655,6 +727,9 @@ namespace CSScriptLib
 
                 if (referencedAssemblies.FirstOrDefault(x => asmFile.SamePathAs(x)) == null)
                     referencedAssemblies.Add(asmFile);
+
+                if (aliases != null)
+                    referencedAssembliesAliases[asmFile] = aliases;
             }
             return this;
         }

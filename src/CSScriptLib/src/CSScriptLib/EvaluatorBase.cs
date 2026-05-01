@@ -62,33 +62,14 @@ namespace CSScriptLib
     public class EvaluatorBase<T> : IEvaluator where T : IEvaluator, new()
     {
         /// <summary>
-        /// Clones itself as <see cref="CSScriptLib.IEvaluator"/>.
-        /// <para>
-        /// This method returns a freshly initialized copy of the
-        /// <see cref="CSScriptLib.IEvaluator"/>. The cloning 'depth' can be
-        /// controlled by the <paramref name="copyRefAssemblies"/>.
-        /// </para>
-        /// <para>
-        /// This method is a convenient technique when multiple
-        /// <see cref="CSScriptLib.IEvaluator"/> instances are required (e.g.
-        /// for concurrent script evaluation).
-        /// </para>
+        /// Clones the current instance of the evaluator.
         /// </summary>
-        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced
-        ///     assemblies from the parent <see cref="CSScriptLib.IEvaluator"/>
-        ///     will be referenced in the cloned copy.</param>
-        /// <returns>The freshly initialized instance of the
-        ///     <see cref="CSScriptLib.IEvaluator"/>.</returns>
-        public IEvaluator Clone(bool copyRefAssemblies = true)
+        /// <param name="copyRefAssemblies"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public virtual IEvaluator Clone(bool copyRefAssemblies = true)
         {
-            var clone = new T();
-            if (copyRefAssemblies)
-            {
-                clone.Reset(false);
-                foreach (var a in this.GetReferencedAssemblies())
-                    clone.ReferenceAssembly(a);
-            }
-            return clone;
+            throw new NotImplementedException();
         }
 
         static Assembly mscorelib = 333.GetType().Assembly;
@@ -1280,9 +1261,10 @@ namespace CSScriptLib
         /// </para>
         /// </summary>
         /// <param name="assembly">The path to the assembly file.</param>
+        /// <param name="aliases">The optional aliases for the assembly.</param>
         /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to
         ///     allow fluent interface.</returns>
-        public IEvaluator ReferenceAssembly(string assembly)
+        public IEvaluator ReferenceAssembly(string assembly, string[] aliases = null)
         {
             var globalProbingDirs = CSScript.GlobalSettings.SearchDirs.ToList();
 
@@ -1291,7 +1273,7 @@ namespace CSScriptLib
             string asmFile = AssemblyResolver.FindAssembly(assembly, dirs).FirstOrDefault()
                 ?? throw new Exception("Cannot find referenced assembly '" + assembly + "'");
 
-            ReferenceAssembly(Assembly.LoadFile(asmFile));
+            ReferenceAssembly(Assembly.LoadFile(asmFile), aliases);
             return this;
         }
 
@@ -1309,9 +1291,10 @@ namespace CSScriptLib
         /// </para>
         /// </summary>
         /// <param name="assembly">The assembly instance.</param>
+        /// <param name="aliases">The optional aliases for the assembly.</param>
         /// <returns>The instance of the <see cref="CSScriptLib.IEvaluator"/> to
         ///     allow fluent interface.</returns>
-        public virtual IEvaluator ReferenceAssembly(Assembly assembly)
+        public virtual IEvaluator ReferenceAssembly(Assembly assembly, string[] aliases = null)
             => throw new NotImplementedException();
 
         /// <summary>
