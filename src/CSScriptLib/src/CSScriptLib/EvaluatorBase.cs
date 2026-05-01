@@ -62,33 +62,14 @@ namespace CSScriptLib
     public class EvaluatorBase<T> : IEvaluator where T : IEvaluator, new()
     {
         /// <summary>
-        /// Clones itself as <see cref="CSScriptLib.IEvaluator"/>.
-        /// <para>
-        /// This method returns a freshly initialized copy of the
-        /// <see cref="CSScriptLib.IEvaluator"/>. The cloning 'depth' can be
-        /// controlled by the <paramref name="copyRefAssemblies"/>.
-        /// </para>
-        /// <para>
-        /// This method is a convenient technique when multiple
-        /// <see cref="CSScriptLib.IEvaluator"/> instances are required (e.g.
-        /// for concurrent script evaluation).
-        /// </para>
+        /// Clones the current instance of the evaluator.
         /// </summary>
-        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced
-        ///     assemblies from the parent <see cref="CSScriptLib.IEvaluator"/>
-        ///     will be referenced in the cloned copy.</param>
-        /// <returns>The freshly initialized instance of the
-        ///     <see cref="CSScriptLib.IEvaluator"/>.</returns>
-        public IEvaluator Clone(bool copyRefAssemblies = true)
+        /// <param name="copyRefAssemblies"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public virtual IEvaluator Clone(bool copyRefAssemblies = true)
         {
-            var clone = new T();
-            if (copyRefAssemblies)
-            {
-                clone.Reset(false);
-                foreach (var a in this.GetReferencedAssemblies())
-                    clone.ReferenceAssembly(a);
-            }
-            return clone;
+            throw new NotImplementedException();
         }
 
         static Assembly mscorelib = 333.GetType().Assembly;

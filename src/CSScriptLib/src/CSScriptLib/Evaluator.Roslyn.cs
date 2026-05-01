@@ -620,7 +620,8 @@ namespace CSScriptLib
             if (!refAssemblies.Contains(assembly))
             {
                 refAssemblies.Add(assembly);
-                refAssembliesAliases[assembly] = aliases ?? [];
+                if (aliases != null)
+                    refAssembliesAliases[assembly] = aliases;
             }
             return this;
         }
@@ -800,6 +801,38 @@ namespace CSScriptLib
                 ReferenceDomainAssemblies();
 
             return this;
+        }
+
+        /// <summary>
+        /// Clones itself as <see cref="CSScriptLib.IEvaluator"/>.
+        /// <para>
+        /// This method returns a freshly initialized copy of the
+        /// <see cref="CSScriptLib.IEvaluator"/>. The cloning 'depth' can be
+        /// controlled by the <paramref name="copyRefAssemblies"/>.
+        /// </para>
+        /// <para>
+        /// This method is a convenient technique when multiple
+        /// <see cref="CSScriptLib.IEvaluator"/> instances are required (e.g.
+        /// for concurrent script evaluation).
+        /// </para>
+        /// </summary>
+        /// <param name="copyRefAssemblies">if set to <c>true</c> all referenced
+        ///     assemblies from the parent <see cref="CSScriptLib.IEvaluator"/>
+        ///     will be referenced in the cloned copy.</param>
+        /// <returns>The freshly initialized instance of the
+        ///     <see cref="CSScriptLib.IEvaluator"/>.</returns>
+        public override IEvaluator Clone(bool copyRefAssemblies = true)
+        {
+            var clone = new RoslynEvaluator();
+            if (copyRefAssemblies)
+            {
+                clone.Reset(false);
+                foreach (var a in this.GetReferencedAssemblies())
+                    clone.ReferenceAssembly(a);
+
+                clone.refAssembliesAliases.AddItems(this.refAssembliesAliases);
+            }
+            return clone;
         }
     }
 

@@ -101,6 +101,18 @@ namespace EvaluatorTests
             return Path.Combine(rootDir, fileName);
         }
 
+        public string testTempDll(string code, string fileName, [CallerMemberName] string caller = null)
+        {
+            var rootDir = root.PathJoin(this.GetType().Name, caller).GetFullPath().EnsureDir();
+            var filePath = Path.Combine(rootDir, fileName);
+            // try to avoid unnecessary compilations as xUnint keeps locking the loaded assemblies
+            if (!fileName.FileExists())
+                CSScript.CodeDomEvaluator
+                        .CompileAssemblyFromCode(code, filePath);
+
+            return filePath;
+        }
+
         public string GetTempScript(string content, [CallerMemberName] string caller = null)
         {
             var script = testTempFile("script.cs", $"{this.GetType().Name}.{caller}");
@@ -253,6 +265,126 @@ namespace EvaluatorTests
 
             var eval2 = new_evaluator.Reset(false);
             eval2.LoadCode($"//css_ref {calcAsm}" + Environment.NewLine + code);
+        }
+
+        [Fact]
+        public void CompileCodeWithRefAliases()
+        {
+            var utilAsm = testTempDll(
+                    @"using System;
+                      using System.Reflection;
+                      public class Util
+                      {
+                          public string GetGreeting(string name)
+                          {
+                              return $""Hello, {name}!"";
+                          }
+                      }",
+                    "util.alias.dll");
+
+            Assembly resolve(object sender, ResolveEventArgs args)
+                => Assembly.LoadFile(utilAsm);
+
+            AppDomain.CurrentDomain.AssemblyResolve += resolve;
+
+            try
+            {
+                // prepare
+
+                var code = @"extern alias util_v1;
+                         using Util1 = util_v1::Util;
+                         using System;
+                         public class Script
+                         {
+                             public string GetGreeting(string name) => new Util1().GetGreeting(name);
+                         }";
+
+                var eval = this.new_evaluator;
+
+                // test
+
+                dynamic script = new_evaluator.ReferenceAssembly(utilAsm, ["util_v1"]).LoadCode(code);
+                var result = script.GetGreeting("John");
+
+                // assert
+
+                Assert.Equal("Hello, John!", result);
+            }
+            finally
+            {
+                AppDomain.CurrentDomain.AssemblyResolve -= resolve;
+            }
+        }
+
+        [Fact]
+        public void CompileCodeWithRefMultipleVersions()
+        {
+            var currentUtilFile = "";
+
+            Assembly resolve(object sender, ResolveEventArgs args)
+                => Assembly.LoadFile(currentUtilFile);
+
+            AppDomain.CurrentDomain.AssemblyResolve += resolve;
+
+            try
+            {
+                // prepare
+                var utilCode = @"using System;
+                             using System.Reflection;
+                             [assembly: AssemblyVersion(""1.0.$asmVersion$.0"")]
+                             public class Util
+                             {
+                                 public string GetGreeting(string name)
+                                 {
+                                     var version = this.GetType().Assembly.GetName().Version.ToString();
+                                     return $""Hello, {name} (v{version})!"";
+                                 }
+                             }";
+
+                var utilAsm1 = testTempFile($"util.v0.dll");
+                var utilAsm2 = testTempFile($"util.v1.dll");
+
+                // try to avoid unnecessary compilations as xUnint keeps locking the loaded assemblies
+                if (!utilAsm1.FileExists())
+                    CSScript.CodeDomEvaluator
+                            .CompileAssemblyFromCode(utilCode.Replace("$asmVersion$", "0"),
+                                                     utilAsm1);
+
+                if (!utilAsm2.FileExists())
+                    CSScript.CodeDomEvaluator
+                            .CompileAssemblyFromCode(utilCode.Replace("$asmVersion$", "1"),
+                                                     utilAsm2);
+
+                var code = @"using System;
+                         public class Script
+                         {
+                             public string GetGreeting(string name) => new Util().GetGreeting(name);
+                         }";
+
+                var eval = this.new_evaluator;
+                eval.IsCachingEnabled = false;
+
+                // test
+
+                eval.Reset(false);
+                currentUtilFile = utilAsm1;
+                dynamic script1 = eval.ReferenceAssembly(currentUtilFile).LoadCode(code);
+                var result1 = script1.GetGreeting("John");
+
+                eval.Reset(false);
+                currentUtilFile = utilAsm2;
+                dynamic script2 = eval.ReferenceAssembly(currentUtilFile).LoadCode(code);
+                var result2 = script2.GetGreeting("John");
+
+                // assert
+
+                Assert.Equal("Hello, John (v1.0.0.0)!", result1);
+                Assert.Equal("Hello, John (v1.0.1.0)!", result2);
+            }
+            finally
+            {
+                AppDomain.CurrentDomain.AssemblyResolve -= resolve;
+            }
         }
 
         [Fact]
