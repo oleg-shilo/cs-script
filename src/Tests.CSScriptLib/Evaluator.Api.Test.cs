@@ -322,7 +322,7 @@ namespace EvaluatorTests
             var currentUtilFile = "";
 
             Assembly resolve(object sender, ResolveEventArgs args)
-                => Assembly.LoadFile(currentUtilFile);
+                => Assembly.LoadFile(currentUtilFile); // very simplistic probing algorithm for testing only
 
             AppDomain.CurrentDomain.AssemblyResolve += resolve;
 

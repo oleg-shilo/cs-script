@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.14.7.0</version>
+    <version>4.14.8.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -35,7 +35,10 @@
 
 ### CSScriptLib
 
-- #453: CSScriptLib: allow //css_precompiler directive proessing for Roslyn compiler engine.</releaseNotes>
+- #465: allow referencing assemblies with aliases
+- #464: It seems that IEvaluator.Reset does not actually clear the referenced assemblies
+- Minor updates to allow side-my-side referencing of multiple versions of the same dependency assembly
+#464: It seems that IEvaluator.Reset does not actually clear the referenced assemblies</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>

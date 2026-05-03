@@ -1,4 +1,4 @@
-# Release v4.14.7.0
+# Release v4.14.8.0
 
 ---
 
@@ -11,4 +11,7 @@
 
 ### CSScriptLib
 
-- #453: CSScriptLib: allow //css_precompiler directive proessing for Roslyn compiler engine. 
+- #465: allow referencing assemblies with aliases
+- #464: It seems that IEvaluator.Reset does not actually clear the referenced assemblies
+- Minor updates to allow side-my-side referencing of multiple versions of the same dependency assembly
+#464: It seems that IEvaluator.Reset does not actually clear the referenced assemblies
