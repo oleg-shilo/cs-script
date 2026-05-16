@@ -30,7 +30,7 @@ namespace CSScripting
 #endif
 
         /// <summary>
-        /// Gets or sets a value indicating whether to use the legacy Roslyn compilation method when the default is <c>SourceCodeKind.Regular</c>.
+        /// Gets or sets a value indicating whether to use the legacy Roslyn compilation method when the default is <c>SourceCodeKind.Script</c>.
         /// <p>The new approach by default initializes to <c>SourceCodeKind.Regular</c>.  </p>
         /// <p>
         /// But you can always set the CodeKind explicitly via <see cref="T:CSScriptLib.CompilerInfo.CodeKind"/>.
@@ -39,6 +39,9 @@ namespace CSScripting
         /// <remarks>Set this property to <see langword="true"/> to enable the legacy compilation process,
         /// which may be necessary for compatibility with older hosting codebases or specific environments. Using the legacy
         /// method may affect performance and limit access to newer Roslyn features.
+        /// <p>
+        /// Note, <c>SourceCodeKind.Script</c> is also required for the SelfContained hosting mode.
+        /// </p>
         /// <p>The side effect of the legacy compilation process is that the compiled assembly will not have the attached Project objects to
         /// explore the compilation context of the assembly. Also no preprocessor symbols supported. It is the limitation of the old Roslyn
         /// script API.</p>
