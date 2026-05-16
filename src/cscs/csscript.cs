@@ -150,11 +150,11 @@ namespace csscript
                 Task.Run(() =>
                     Utils.CleanAbandonedProcessDirs(ScriptVsDir));
             }
-            else if (request == AppArgs.proj || request == AppArgs.proj_dbg || request == AppArgs.proj_csproj)
+            else if (request.IsOneOf(AppArgs.proj, AppArgs.proj_dbg, AppArgs.proj_csproj, AppArgs.proj_out))
             {
                 var project = Project.GenerateProjectInCliOutput(options.scriptFileName);
 
-                if (request == AppArgs.proj_csproj)
+                if (request == AppArgs.proj_csproj || request == AppArgs.proj_out)
                 {
                     var compileParams = new CompilerParameters();
                     compileParams.ReferencedAssemblies.AddRange(project.Refs);
@@ -163,6 +163,16 @@ namespace csscript
                     compileParams.GenerateExecutable = true;
 
                     var projectFile = CSharpCompiler.CreateProject(compileParams, project.Files);
+
+                    if (request == AppArgs.proj_out)
+                    {
+                        // convert csproj in the build dir to the isolated, self-sufficient project file in the script dir
+                        if (projectFile != null)
+                        {
+                            projectFile = VSExtensions.IsolateProject(projectFile, options.scriptFileName.GetDirName());
+                        }
+                    }
+
                     print("project:" + projectFile);
                 }
                 else

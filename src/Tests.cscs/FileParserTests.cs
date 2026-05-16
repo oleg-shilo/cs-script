@@ -4,13 +4,87 @@ using System.Linq;
 using System.Reflection;
 using static System.Reflection.BindingFlags;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using csscript;
 using CSScripting;
+using CSScripting.CodeDom;
 using CSScriptLib;
 using Xunit;
 
 namespace Misc
 {
+    public class CSharpCompilerTests
+    {
+        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder", "FileParserTest").EnsureDir();
+
+        [Fact]
+        public void IsolateProject()
+        {
+            var scriptFile = root.PathJoin("script.cs");
+            var importedScriptFile = root.PathJoin("imported", "util.cs");
+            var interferingFile = root.PathJoin("dummy.cs");
+            var srcProj = root.PathJoin("script.csproj.buid-dir-version");
+            var isolatedProj = root.PathJoin("script.csproj");
+
+            importedScriptFile.EnsureFileDir();
+
+            File.WriteAllText(scriptFile, "//css_inc imported\\util.cs;\r\nSystem.Console.WriteLine(\"Hello World!\");");
+            File.WriteAllText(importedScriptFile, "public class Test {}");
+            File.WriteAllText(interferingFile, "System.Console.WriteLine(\"Hello World Again!\");");
+            File.WriteAllText(srcProj, $"""
+                <Project Sdk="Microsoft.NET.Sdk">
+                  <PropertyGroup>
+                    <OutputType>Exe</OutputType>
+                    <TargetFramework>net10.0</TargetFramework>
+                    <ImplicitUsings>enable</ImplicitUsings>
+                    <Nullable>enable</Nullable>
+                    <AssemblyName>test</AssemblyName>
+                  </PropertyGroup>
+                  <PropertyGroup>
+                    <DefineConstants>TRACE;NETCORE;CS_SCRIPT;NET10_0_OR_GREATER;NET10</DefineConstants>
+                    <UseSharedCompilation>true</UseSharedCompilation>
+                  </PropertyGroup>
+                      <ItemGroup>
+                       <Reference Include="Newtonsoft.Json.dll">
+                        <HintPath>C:\Users\user\.nuget\packages\newtonsoft.json\13.0.4\lib\net6.0\Newtonsoft.Json.dll</HintPath>
+                      </Reference>
+                      <Reference Include="RestSharp.dll">
+                        <HintPath>C:\Users\user\.nuget\packages\restsharp\112.1.0\lib\net8.0\RestSharp.dll</HintPath>
+                      </Reference>
+                      <Reference Include="cscs.dll">
+                        <HintPath>C:\Users\user\.dotnet\tools\.store\cs-script.cli\4.14.5\cs-script.cli\4.14.5\tools\net10.0\any\cscs.dll</HintPath>
+                      </Reference>
+                    </ItemGroup>
+                    <ItemGroup>
+                      <Compile Include="{scriptFile}" Link="generate.cs" />
+                      <Compile Include="{importedScriptFile}" Link="util.cs" />
+                      <Compile Include="C:\ProgramData\cs-script\inc\global-usings.cs" Link="global-usings.cs" />
+                  </ItemGroup>
+                </Project>
+                """);
+
+            var isolatedProject = VSExtensions.IsolateProject(srcProj, scriptFile.GetDirName());
+
+            var projXml = XDocument.Load(isolatedProject);
+
+            bool OnlyOne(string element, (string attribute, string value)[] expectedAttributes) =>
+                projXml.Root.Descendants(element).Count(x => expectedAttributes.All(attr => x.Attribute(attr.attribute)?.Value == attr.value)) == 1;
+
+            Assert.Equal(scriptFile.ChangeExtension(".csproj"), isolatedProject);
+
+            // nuget asm refs converted to package refs
+            Assert.True(OnlyOne("PackageReference", [("Include", "newtonsoft.json"), ("Version", "13.0.4")]));
+            Assert.True(OnlyOne("PackageReference", [("Include", "restsharp"), ("Version", "112.1.0")]));
+            Assert.True(OnlyOne("PackageReference", [("Include", "cs-script"), ("Version", "*")]));
+
+            // script.cs and utils.s files included, but dummy.cs is not
+            Assert.True(OnlyOne("Compile", [("Remove", "dummy.cs")]));
+            Assert.True(OnlyOne("Compile", [("Include", @"C:\ProgramData\cs-script\inc\global-usings.cs"), ("Link", "global-usings.cs")]));
+            Assert.False(OnlyOne("Compile", [("Include", @"script.cs")]));
+            Assert.False(OnlyOne("Compile", [("Include", @"imported\util.cs")]));
+        }
+    }
+
     /// <summary>
     /// "!temp.cs" - Git: exclude 'temp.cs'
     /// "!" option does not work for cs-script as git uses a state machine for directives and effectively combines

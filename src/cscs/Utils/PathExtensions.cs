@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 
 namespace CSScripting
@@ -148,7 +149,7 @@ namespace CSScripting
         /// path. Segments can be strings or objects convertible to string.</param>
         /// <returns>A string representing the full path created by joining the special folder path with the specified segments.</returns>
         public static string PathJoin(this Environment.SpecialFolder folder, params object[] parts)
-        => folder.GetPath().PathJoin(parts);
+            => folder.GetPath().PathJoin(parts);
 
         /// <summary>
         /// Gets the special folder path combined with an array of strings into a path.

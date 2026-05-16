@@ -1026,6 +1026,8 @@ class HostingRuntime
 
                         if (argValue == "csproj")
                             options.nonExecuteOpRquest = AppArgs.proj_csproj;
+                        if (argValue == "out")
+                            options.nonExecuteOpRquest = AppArgs.proj_out;
 
                         options.processFile = false;
                     }

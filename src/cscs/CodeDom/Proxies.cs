@@ -250,6 +250,7 @@ namespace CSScripting.CodeDom
             var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
                                                              .Where(Path.IsPathRooted)
                                                              .Where(not_facade_asm_in_engine_dir)
+                                                             .Distinct()
                                                              .ToList();
 
             void setTargetFremeworkWin(string framework) => project_element.Element("PropertyGroup")

@@ -98,6 +98,7 @@ namespace csscript
 
         internal const string proj_dbg = "proj:dbg";    // for internal use only
         internal const string proj_csproj = "proj:csproj";    // for internal use only
+        internal const string proj_out = "proj:out";
         static public string SyntaxHelp { get { return syntaxHelp.ToConsoleLines(0).Replace("&#96;", "`"); } }
 
         static public string SyntaxHelpMd
@@ -296,7 +297,9 @@ namespace csscript
                                              "Checks script for errors without execution.");
             switch1Help[proj] = new ArgInfo("-proj",
                                             "Shows script 'project info' - script and all its dependencies.",
-                                            "An internal-use version of this command '-proj:csproj' can be also useful for troubleshooting.");
+                                            " -proj:out - create a Visual Studio project file for building the exe file from the script",
+                                            "             An internal version of this command -proj:csproj can be also useful for troubleshooting",
+                                            "             Visual Studio integration (see -vs command).");
             switch1Help[vs_init] =
             switch1Help[vs] = new ArgInfo("-vs <script>|-vs:init [index_of_detected_VS_executable]",
                                           "Generates .NET project file and opens it in Visual Studio.",

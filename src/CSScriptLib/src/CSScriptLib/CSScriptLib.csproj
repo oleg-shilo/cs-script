@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="..\..\..\cscs\CodeDom\CompilerResults.cs" Link="CodeDom\CompilerResults.cs" />
     <Compile Include="..\..\..\cscs\CodeDom\CompilerError.cs" Link="CodeDom\CompilerError.cs" />
+    <Compile Include="..\..\..\cscs\dbg.cs" Link="dbg.cs" />
     <Compile Include="..\..\..\cscs\fileparser.cs" Link="fileparser.cs" />
     <Compile Include="..\..\..\cscs\Precompiler.cs" Link="Precompiler.cs" />
     <Compile Include="..\..\..\cscs\Project.cs" Link="Project.cs" />

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -11,6 +12,96 @@ using CSScripting.CodeDom;
 /// <summary>
 /// Credit to https://stackoverflow.com/questions/298830/split-string-containing-command-line-parameters-into-string-in-c-sharp/298990#298990
 /// </summary>
+public static class VSExtensions
+{
+    public static string IsolateProject(string srcProjectFile, string destDir)
+    {
+        var projXml = XDocument.Load(srcProjectFile);
+
+        var nugetPackages = projXml
+            .Descendants("Reference")
+            .Where(x => x.Element("HintPath")?.Value?.Contains(".nuget".PathJoin("packages")) == true)
+            .ToList();
+
+        var scriptEngineReference = projXml
+            .Descendants("Reference")
+            .Where(x => x.Attribute("Include")?.Value?.IsOneOf("cscs.dll", "wscs.dll") == true)
+            .ToList();
+
+        var sources = projXml
+            .Descendants("Compile")
+            .Where(x => x.Attribute("Include")?.Value != null)
+            .ToList();
+
+        var sourceFiles = sources.Select(x => x.Attribute("Include").Value).ToList();
+        var scriptFile = sourceFiles.First();
+        var isolatedProjectFile = destDir.PathJoin(scriptFile.GetFileName().ChangeExtension(".csproj"));
+
+        // replace referencing nuget assemblies with PackageReference
+        if (nugetPackages.Any())
+        {
+            var itemGroup = new XElement("ItemGroup");
+
+            foreach (var nugetRef in nugetPackages)
+            {
+                var hintPath = nugetRef.Element("HintPath").Value;
+                var packageInfo = hintPath.Split(Path.DirectorySeparatorChar).SkipWhile(x => x != "packages").Skip(1).Take(2).ToArray();
+
+                itemGroup.Add(new XElement("PackageReference",
+                                  new XAttribute("Include", packageInfo[0]),
+                                  new XAttribute("Version", packageInfo[1])));
+                nugetRef.Remove();
+            }
+
+            if (scriptEngineReference.Any())
+            {
+                itemGroup.Add(new XElement("PackageReference",
+                                  new XAttribute("Include", "cs-script"),
+                                  new XAttribute("Version", "*")));
+
+                scriptEngineReference.ForEach(x => x.Remove());
+            }
+
+            projXml.Root.Add(itemGroup);
+        }
+
+        // replace any source link includes that point to the script dir with the direct includes (not links)
+        if (sources.Any())
+        {
+            foreach (var source in sources)
+            {
+                var path = source.Attribute("Include");
+                var linkName = source.Attribute("Link");
+
+                if (path != null && path.Value.StartsWith(destDir))
+                {
+                    // will be picked by dotnet.exe anyway simply because it is in the nested folder(s)
+                    // this is just to clean up the project file and avoid confusion
+                    path.Parent.Remove();
+                }
+            }
+        }
+
+        var sourcesToBeExcluded = Directory.GetFiles(destDir, "*.cs", SearchOption.AllDirectories)
+            .Except(sourceFiles)
+            .Select(f => f.Substring(destDir.Length).TrimStart(Path.DirectorySeparatorChar))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (sourcesToBeExcluded.Any())
+        {
+            var itemGroup = new XElement("ItemGroup");
+            foreach (var source in sourcesToBeExcluded)
+            {
+                itemGroup.Add(new XElement("Compile", new XAttribute("Remove", source)));
+            }
+            projXml.Root.Add(itemGroup);
+        }
+
+        projXml.Save(isolatedProjectFile);
+        return isolatedProjectFile;
+    }
+}
+
 public static class CLIExtensions
 {
     public static string TrimMatchingQuotes(this string input, char quote)
