@@ -486,7 +486,6 @@ namespace CSScriptLib
                     {
                         IEnumerable<Diagnostic> failures = result.Diagnostics.Where(d => d.IsWarningAsError ||
                                                                                          d.Severity == DiagnosticSeverity.Error);
-
                         var message = new StringBuilder();
                         foreach (Diagnostic diagnostic in failures)
                         {
@@ -512,6 +511,18 @@ namespace CSScriptLib
                                 error_location = $"{(source.HasText() ? source : "<script>")}({error_line},{error_column}): ";
                             }
                             message.AppendLine($"{error_location}error {diagnostic.Id}: {diagnostic.GetMessage()}");
+                        }
+
+                        bool cs0518_Object = failures.Any(x => x.Id == "CS0518" && x.GetMessage().Contains("'System.Object'"));
+                        bool cs0518_Void = failures.Any(x => x.Id == "CS0518" && x.GetMessage().Contains("'System.Void'"));
+                        bool cs0012_CoreLib = failures.Any(x => x.Id == "CS0012" && x.GetMessage().Contains("System.Private.CoreLib"));
+
+                        if (cs0518_Object && cs0518_Void && cs0012_CoreLib && effectiveCodeKind == SourceCodeKind.Regular)
+                        {
+                            message.AppendLine();
+                            message.AppendLine("This error can be caused by Roslyn compilation using SourceCodeKind being set to Regular. " +
+                                               "Try to specify SourceCodeKind.Script with the RoslynEvaluator.Compile(...) or set it " +
+                                               "globally with `Globals.DefaultRoslynCompilationToScript = true`");
                         }
 
                         var errors = message.ToString();
