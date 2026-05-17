@@ -15,16 +15,17 @@ namespace Misc
 {
     public class CSharpCompilerTests
     {
-        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder", "FileParserTest").EnsureDir();
+        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder", "CSharpCompilerTests").EnsureDir();
 
         [Fact]
         public void IsolateProject()
         {
-            var scriptFile = root.PathJoin("script.cs");
-            var importedScriptFile = root.PathJoin("imported", "util.cs");
-            var interferingFile = root.PathJoin("dummy.cs");
-            var srcProj = root.PathJoin("script.csproj.buid-dir-version");
-            var isolatedProj = root.PathJoin("script.csproj");
+            var baseDir = root.EnsureDir();
+            var scriptFile = baseDir.PathJoin("script.cs");
+            var importedScriptFile = baseDir.PathJoin("imported", "util.cs");
+            var interferingFile = baseDir.PathJoin("dummy.cs");
+            var srcProj = baseDir.PathJoin("script.csproj.buid-dir-version");
+            var isolatedProj = baseDir.PathJoin("script.csproj");
 
             importedScriptFile.EnsureFileDir();
 

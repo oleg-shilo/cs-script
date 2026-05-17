@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.14.8.0.
+C# Script execution engine (.NET Core). Version 4.14.9.0.
 Copyright (C) 2004-2026 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -68,7 +68,9 @@ params	Specifies optional parameters for a script file to be run.
 
 -proj
     Shows script 'project info' - script and all its dependencies.
-    An internal-use version of this command '-proj:csproj' can be also useful for troubleshooting.
+     -proj:out - create a Visual Studio project file for building the exe file from the script
+                 An internal version of this command -proj:csproj can be also useful for troubleshooting
+                 Visual Studio integration (see -vs command).
 
 -vs <script>|-vs:init [index_of_detected_VS_executable]
     Generates .NET project file and opens it in Visual Studio.

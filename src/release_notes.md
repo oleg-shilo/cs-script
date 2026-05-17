@@ -1,4 +1,4 @@
-# Release v4.14.8.0
+# Release v4.14.9.0
 
 ---
 
@@ -6,12 +6,14 @@
 
 ### CLI
 
-- &lt;no changes&gt; 
+- Added `-proj:out` to create a Visual Studio project file for building the exe file from the script."
+- Improved cache cleanup collision control management
+#467: SelfContained does not work anymore since version 4.14.4
+  - updated XML docs
+  - added a case specific warning.
 
 
 ### CSScriptLib
 
-- #465: allow referencing assemblies with aliases
-- #464: It seems that IEvaluator.Reset does not actually clear the referenced assemblies
-- Minor updates to allow side-my-side referencing of multiple versions of the same dependency assembly
-#464: It seems that IEvaluator.Reset does not actually clear the referenced assemblies
+- Improved cache cleanup collision control management
+- Added/exposed `dbg` and `dbg_extensions` available when running CLI scripts. This is to match convenience API like `object.print()`

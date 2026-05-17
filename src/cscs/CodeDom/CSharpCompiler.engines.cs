@@ -213,6 +213,12 @@ namespace CSScripting.CodeDom
                 sources.Add(new_file);
             });
 
+            if (fileNames.Any())
+            {
+                CoreExtensions.SaveInfoFile(fileNames.FirstOrDefault(), build_dir);
+                File.WriteAllText(build_dir.PathJoin("info.txt"), "Cache debugable sources for csc engine builds. See CompileAssemblyFromFileBatch_with_Csc(...)");
+            }
+
             // See CSharpCompiler.CreateProject for facade asm exclusion reasoning
             bool not_facade_asm_in_engine_dir(string asm)
                 => !(asm.GetDirName() == engine_dir && asm.IsPossibleFacadeAssembly());

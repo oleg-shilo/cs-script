@@ -23,6 +23,59 @@ namespace csscript
     /// </summary>
     public static partial class CoreExtensions
     {
+        internal static void SaveInfoFile(this string srcDir, string destDir)
+        {
+            // Create info file
+            string infoFile = Path.Combine(destDir, "css_info.txt");
+            if (!File.Exists(infoFile))
+            {
+                try
+                {
+                    using (var sw = new StreamWriter(infoFile))
+                    {
+                        sw.WriteLine(Environment.Version.ToString());
+                        sw.WriteLine(srcDir.GetFullPath());
+                    }
+                }
+                catch
+                {
+                    // There can be many reasons for failure (e.g. file locked by another writer)
+                    // In most cases this does not constitute an error
+                }
+            }
+        }
+
+        internal static bool IsValidCacheFile(this string cachedFile)
+        {
+            // Read info file
+            string infoFile = cachedFile.GetDirName().PathJoin("css_info.txt");
+            if (!File.Exists(infoFile))
+                return false;
+
+            try
+            {
+                var info = File.ReadAllLines(infoFile);
+                if (info.Length < 2)
+                    return false;
+
+                var sourceEnvVersion = info[0];
+                var sourceDir = info[1];
+
+                if (sourceEnvVersion == Environment.Version.ToString() &&
+                    sourceDir.PathJoin(cachedFile.GetFileName()).FileExists())
+
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                // There can be many reasons for failure (e.g. file locked by another writer)
+                // In most cases this does not constitute an error
+            }
+            return false;
+        }
+
         internal static Process RunAsync(this string exe, string args, string dir = null)
         {
             var process = InitProc(exe, args, dir);

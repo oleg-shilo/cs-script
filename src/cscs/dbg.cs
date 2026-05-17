@@ -9,14 +9,31 @@ using System.Text.RegularExpressions;
 #pragma warning disable IDE1006 // Naming Styles
 #pragma warning disable CA1050 // Declare types in namespaces
 
+/// <summary>
+/// Provides debug-oriented extension methods for quick object printing/dumping.
+/// </summary>
 public static class dbg_extensions
 {
+    /// <summary>
+    /// Prints the current object to the debug output and returns the same object for fluent usage.
+    /// </summary>
+    /// <typeparam name="T">The object type.</typeparam>
+    /// <param name="object">The object to print.</param>
+    /// <param name="args">Optional additional values to print after the object.</param>
+    /// <returns>The same <paramref name="object"/> instance/value.</returns>
     public static T dump<T>(this T @object, params object[] args)
     {
         dbg.print(@object, args);
         return @object;
     }
 
+    /// <summary>
+    /// Prints the current object to the debug output and returns the same object for fluent usage.
+    /// </summary>
+    /// <typeparam name="T">The object type.</typeparam>
+    /// <param name="object">The object to print.</param>
+    /// <param name="args">Optional additional values to print after the object.</param>
+    /// <returns>The same <paramref name="object"/> instance/value.</returns>
     public static T print<T>(this T @object, params object[] args)
     {
         dbg.print(@object, args);
@@ -24,13 +41,36 @@ public static class dbg_extensions
     }
 }
 
+/// <summary>
+/// Provides lightweight runtime object inspection and formatted debug output helpers.
+/// </summary>
 public class dbg
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether only public instance members are displayed.
+    /// </summary>
     public static bool publicOnly = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether only properties are displayed (fields excluded).
+    /// </summary>
     public static bool propsOnly = false;
+
+    /// <summary>
+    /// Gets or sets the maximum number of collection items to print before truncation.
+    /// </summary>
     public static int max_items = 25;
+
+    /// <summary>
+    /// Gets or sets the maximum traversal depth for nested objects.
+    /// </summary>
     public static int depth = 1;
 
+    /// <summary>
+    /// Formats a message with <see cref="string.Format(string, object[])"/> and prints it.
+    /// </summary>
+    /// <param name="format">The composite format string.</param>
+    /// <param name="args">The arguments to format.</param>
     public static void printf(string format, params object[] args)
     {
         try
@@ -40,6 +80,11 @@ public class dbg
         catch { }
     }
 
+    /// <summary>
+    /// Prints an object or concatenated values to the configured debug output sink.
+    /// </summary>
+    /// <param name="object">The primary object/value to print.</param>
+    /// <param name="args">Optional additional values.</param>
     public static void print(object @object, params object[] args)
     {
         try
@@ -65,31 +110,38 @@ public class dbg
     }
 
     //===============================
-    private int level = 0;
+    int level = 0;
 
-    private string indent = "  ";
+    string indent = "  ";
 
+    /// <summary>
+    /// Gets or sets the line-output delegate used by this debug helper.
+    /// </summary>
     public static Action<string> WriteLine = Console.Out.WriteLine;
+
+    /// <summary>
+    /// Gets or sets the inline-output delegate used by this debug helper.
+    /// </summary>
     public static Action<string> Write = Console.Out.Write;
 
-    private void write(object @object = null)
+    void write(object @object = null)
     {
         if (@object != null)
             Write(@object.ToString().ReplaceClrAliaces());
     }
 
-    private void writeLine(object @object = null)
+    void writeLine(object @object = null)
     {
         write(@object);
         WriteLine("");
     }
 
-    private string Indent
+    string Indent
     {
         get { return new string('0', level).Replace("0", indent); }
     }
 
-    private string DisplayName(IEnumerable obj)
+    string DisplayName(IEnumerable obj)
     {
         if (obj is Array)
         {
@@ -113,9 +165,12 @@ public class dbg
         }
     }
 
+    /// <summary>
+    /// Semicolon-separated full type names that should be treated as primitive values.
+    /// </summary>
     public static string CustomPrimitiveTypes = "Newtonsoft.Json.Linq.JValue;";
 
-    private static bool isPrimitive(object obj)
+    static bool isPrimitive(object obj)
     {
         if (obj == null || obj.GetType().IsPrimitive || obj is decimal || obj is string)
             return true;
@@ -124,7 +179,7 @@ public class dbg
         return false;
     }
 
-    private void WriteObject(object obj)
+    void WriteObject(object obj)
     {
         level++;
         if (isPrimitive(obj))
@@ -188,7 +243,7 @@ public class dbg
         level--;
     }
 
-    private object GetMemberValue(object element, MemberInfo m)
+    object GetMemberValue(object element, MemberInfo m)
     {
         FieldInfo f = m as FieldInfo;
         PropertyInfo p = m as PropertyInfo;
@@ -208,7 +263,7 @@ public class dbg
         return null;
     }
 
-    private void WriteValue(object o)
+    void WriteValue(object o)
     {
         if (o == null)
             write("{null}");
@@ -228,7 +283,7 @@ public class dbg
             write("{" + o.ToString().TrimStart('{').TrimEnd('}') + "}");
     }
 
-    private MemberInfo[] GetMembers(object obj)
+    MemberInfo[] GetMembers(object obj)
     {
         Func<MemberInfo, bool> relevant_types = x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property;
 

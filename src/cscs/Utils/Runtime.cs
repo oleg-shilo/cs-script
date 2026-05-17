@@ -142,6 +142,13 @@ namespace csscript
                 foreach (var cacheDir in Directory.GetDirectories(rootDir))
                     try
                     {
+#if DEBUG
+                        // if (cacheDir.Contains(".build"))
+                        // {
+                        //     // Debugger.Launch();
+                        //     continue;
+                        // }
+#endif
                         // line 0: <clr version> line 1: <dir>
                         var infoFile = cacheDir.PathJoin("css_info.txt");
                         var sourceDir = File.Exists(infoFile) ? File.ReadAllLines(infoFile)[1] : null;

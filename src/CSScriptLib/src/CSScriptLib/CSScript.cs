@@ -544,24 +544,7 @@ namespace CSScriptLib
                 }
             }
 
-            // Create info file
-            string infoFile = Path.Combine(cacheDir, "css_info.txt");
-            if (!File.Exists(infoFile))
-            {
-                try
-                {
-                    using (var sw = new StreamWriter(infoFile))
-                    {
-                        sw.WriteLine(Environment.Version.ToString());
-                        sw.WriteLine(directoryPath);
-                    }
-                }
-                catch
-                {
-                    // There can be many reasons for failure (e.g. file locked by another writer)
-                    // In most cases this does not constitute an error
-                }
-            }
+            CoreExtensions.SaveInfoFile(directoryPath, cacheDir);
 
             return cacheDir;
         }

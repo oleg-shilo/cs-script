@@ -15,7 +15,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.14.8.0</Version>
+    <Version>4.14.9.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET</Description>
     <Copyright>(C) 2018-2026 Oleg Shilo</Copyright>
@@ -31,19 +31,21 @@
 
 ### CLI
 
-- &amp;lt;no changes&amp;gt; 
+- Added `-proj:out` to create a Visual Studio project file for building the exe file from the script."
+- Improved cache cleanup collision control management
+#467: SelfContained does not work anymore since version 4.14.4
+  - updated XML docs
+  - added a case specific warning.
 
 
 ### CSScriptLib
 
-- #465: allow referencing assemblies with aliases
-- #464: It seems that IEvaluator.Reset does not actually clear the referenced assemblies
-- Minor updates to allow side-my-side referencing of multiple versions of the same dependency assembly
-#464: It seems that IEvaluator.Reset does not actually clear the referenced assemblies</PackageReleaseNotes>
+- Improved cache cleanup collision control management
+- Added/exposed `dbg` and `dbg_extensions` available when running CLI scripts. This is to match convenience API like `object.print()`</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.14.8.0</AssemblyVersion>
-    <FileVersion>4.14.8.0</FileVersion>
-    <PackageVersion>4.14.8.0</PackageVersion>
+    <AssemblyVersion>4.14.9.0</AssemblyVersion>
+    <FileVersion>4.14.9.0</FileVersion>
+    <PackageVersion>4.14.9.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>

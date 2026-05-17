@@ -42,7 +42,7 @@ namespace CLI
 
     public class cscs_cli : IClassFixture<CliTestFolder>
     {
-        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test", "TestFolder", "TestData").EnsureDir();
+        public static string root = Assembly.GetExecutingAssembly().Location.GetDirName().PathJoin("test.cli", "TestFolder", "TestData").EnsureDir();
 
         string testTempFile(string fileName, [CallerMemberName] string caller = null)
         {
@@ -74,16 +74,22 @@ namespace CLI
 #else
             var config = "Release";
 #endif
-            cscs_exe = Environment.GetEnvironmentVariable("css_test_asm") ?? $@"..\..\..\..\..\cscs\bin\{config}\net{Environment.Version.Major}.0\cscs.dll".GetFullPath();
+            cscs_exe = Environment.GetEnvironmentVariable("css_test_asm") ?? $@"{root}\..\..\..\..\..\..\..\cscs\bin\{config}\net{Environment.Version.Major}.0\cscs.dll".GetFullPath();
+
+            if (!File.Exists(cscs_exe))
+                Assert.Fail($"Cannot locate cscs.dll in {cscs_exe}");
 
             var cmd_dir = cscs_exe.ChangeFileName("-self");
 
             if (cmd_dir.DirExists())
                 static_content = cmd_dir.GetDirName();
             else
-                static_content = $@"..\..\..\..\..\out\static_content".GetFullPath();
+                static_content = $@"{root}\..\..\..\..\..\..\..\out\static_content".GetFullPath();
 
-            ".".PathJoin("temp").EnsureDir();
+            if (!Directory.Exists(static_content))
+                Assert.Fail($"Cannot locate static_content in {static_content}");
+
+            root.PathJoin("temp").EnsureDir();
 
             output.WriteLine($"Running under {(SkipIfIncompatibile ? "DOTNET" : "VS")}");
         }
@@ -682,6 +688,10 @@ global using global::System.Threading.Tasks;");
             var output = cscs_run($"-new {script_file}");
 
             var output1 = cscs_run($"-check {script_file}");
+
+            // Assert.Equal("CurrentDir", Environment.CurrentDirectory);
+            if ("Compile: OK" != output1)
+                Debugger.Launch();
 
             Assert.Equal("Compile: OK", output1);
         }
