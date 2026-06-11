@@ -1,19 +1,17 @@
-# Release v4.14.9.0
+# Release v4.14.10.0
 
 ---
 
-## Changes 
+## Changes
 
 ### CLI
 
-- Added `-proj:out` to create a Visual Studio project file for building the exe file from the script."
-- Improved cache cleanup collision control management
-#467: SelfContained does not work anymore since version 4.14.4
-  - updated XML docs
-  - added a case specific warning.
-
+- Improvements in the `-csproj` and `-vs` command implementation.
+  - Added handling Web projects.
+  - Improved invalid directory handling in the command handlers.
 
 ### CSScriptLib
 
-- Improved cache cleanup collision control management
-- Added/exposed `dbg` and `dbg_extensions` available when running CLI scripts. This is to match convenience API like `object.print()`
+- #467 triggered null-ref bug
+   Add null-safety for Scoop install check in Runtime.cs.
+- SelfContained example updated with the correct comments in Program.cs, including Roslyn limitations.

@@ -38,7 +38,7 @@ var output = "css".run($"-proj:csproj \"{script}\"");
 var inputDir = output.Replace("project:", "").GetDirName(); // "project:c:\temp.test.csproj"
 
 var outputDir = Path.Combine(
-        script.GetDirName(),
+        script.GetFullPath().GetDirName(),
         script.GetFileNameWithoutExtension());
 
 inputDir.copyFilesTo(outputDir);

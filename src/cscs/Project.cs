@@ -22,6 +22,11 @@ namespace CSScriptLib
     public class Project
     {
         /// <summary>
+        ///
+        /// </summary>
+        public bool IsWebApp;
+
+        /// <summary>
         /// Primary script that defines the project.
         /// </summary>
         public string Script;
@@ -162,6 +167,9 @@ namespace CSScriptLib
 
 #if !class_lib
 
+            printSearchDirs = false; // for now hiding the search dirs in CLI output. It just adds noise.
+            // Will consider adding a separate command to print the effective search dirs if there will be demand for that.
+
             if (printSearchDirs)
             {
                 foreach (var item in defaultSearchDirs)
@@ -177,6 +185,8 @@ namespace CSScriptLib
                 Environment.CurrentDirectory = script.GetFullPath().GetDirName();
                 parser = new ScriptParser(script, searchDirs.ToArray(), false);
             }
+
+            project.IsWebApp = parser.IsWebApp;
 
 #if !class_lib
 

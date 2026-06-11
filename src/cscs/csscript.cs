@@ -71,6 +71,8 @@ namespace csscript
                     compileParams.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location());
                 compileParams.GenerateExecutable = true;
 
+                compileParams.AppType = project.IsWebApp ? "Web" : null;
+
                 var projectFile = CSharpCompiler.CreateProject(compileParams, project.Files, ScriptVsDir);
 
                 var envarName = request == AppArgs.vs ? "CSSCRIPT_VSEXE" : "CSSCRIPT_VSCODEEXE";

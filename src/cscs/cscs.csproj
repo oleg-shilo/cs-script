@@ -6,7 +6,7 @@
     <AssemblyName>cscs</AssemblyName>
     <RootNamespace>CSScripting</RootNamespace>
     <StartupObject />
-    <Version>4.14.9.0</Version>
+    <Version>4.14.10.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Product>CS-Script</Product>
     <Copyright>(C) 2004-2026 Oleg Shilo</Copyright>
@@ -16,25 +16,21 @@
     <RepositoryUrl>https://github.com/oleg-shilo/cs-script</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>C# script dynamic</PackageTags>
-    <AssemblyVersion>4.14.9.0</AssemblyVersion>
-    <FileVersion>4.14.9.0</FileVersion>
+    <AssemblyVersion>4.14.10.0</AssemblyVersion>
+    <FileVersion>4.14.10.0</FileVersion>
     <PackageReleaseNotes>---
 
-## Changes 
+## Changes
 
 ### CLI
 
-- Added `-proj:out` to create a Visual Studio project file for building the exe file from the script."
-- Improved cache cleanup collision control management
-#467: SelfContained does not work anymore since version 4.14.4
-  - updated XML docs
-  - added a case specific warning.
-
+- &lt;no changes&gt;
 
 ### CSScriptLib
 
-- Improved cache cleanup collision control management
-- Added/exposed `dbg` and `dbg_extensions` available when running CLI scripts. This is to match convenience API like `object.print()`</PackageReleaseNotes>
+- #467 triggered null-ref bug
+   Add null-safety for Scoop install check in Runtime.cs.
+- SelfContained example updated with the correct comments in Program.cs, including Roslyn limitations.</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <ApplicationIcon>css_logo.ico</ApplicationIcon>
