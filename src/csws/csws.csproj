@@ -27,7 +27,9 @@
 
 ### CLI
 
-- &lt;no changes&gt;
+- Improvements in the `-csproj` and `-vs` command implementation.
+  - Added handling Web projects.
+  - Improved invalid directory handling in the command handlers.
 
 ### CSScriptLib
 
