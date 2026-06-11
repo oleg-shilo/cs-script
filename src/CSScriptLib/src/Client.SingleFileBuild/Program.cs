@@ -9,10 +9,10 @@ using CSScriptLib;
 // dotnet publish --configuration Release --output .\publish --self-contained true
 //
 // You may need to experiment with the publish options to get the desired result.
-// The code below will inly work for `--self-contained false`
+// The code below will only work for `--self-contained false`
 // But if you want to use `--self-contained true` you may need to isolate this code into a library
 // and reference it from your entry assembly.
-// See this discussion: https://github.com/oleg-shilo/cs-script/issues/343#issuecomment-2841878623.
+// See this discussion for the example: https://github.com/oleg-shilo/cs-script/issues/343#issuecomment-2841878623.
 
 // ---------------------------
 // evaluation of a simple expression
@@ -29,7 +29,14 @@ var calc = CSScript.Evaluator
                            {
                                public int Sum(int a, int b)
                                {
-                                   Console.WriteLine(Settings.Value);
+                                   // only allowed for non-self-contained build;
+                                   // limitation of Roslyn that does not allow referencing assemblies
+                                   // that are not loaded from the file (e.g. single file executable)
+
+                                   // But you can use the host application types if you pass the host
+                                   // application object to the script method.
+
+                                   // Console.WriteLine(Settings.Value);
                                    return a+b;
                                }
                            }

@@ -612,7 +612,7 @@ namespace csscript
             }
         }
 
-        internal static bool IsScoopInstalled = Assembly.GetExecutingAssembly().Location().StartsWith(Environment.SpecialFolder.UserProfile.GetPath().PathJoin("scoop", "apps", "cs-script"));
+        internal static bool IsScoopInstalled = Assembly.GetExecutingAssembly().Location()?.StartsWith(Environment.SpecialFolder.UserProfile.GetPath().PathJoin("scoop", "apps", "cs-script")) ?? false;
 
         static internal string CustomCommandsDir
             => "CSSCRIPT_COMMANDS".GetEnvar() ??
@@ -621,9 +621,9 @@ namespace csscript
                                          .EnsureDir(false);
 
         static internal string DefaultCommandsDir
-          => "CSSCRIPT_ROOT".GetEnvar() ??
-             "ENTRY_ASM".GetEnvar().GetDirName() ??
-             Assembly.GetExecutingAssembly().Location()?.GetDirName();
+            => "CSSCRIPT_ROOT".GetEnvar() ??
+            "ENTRY_ASM".GetEnvar().GetDirName() ??
+            Assembly.GetExecutingAssembly().Location()?.GetDirName();
 
         static internal string GlobalIncludsDir
         {
