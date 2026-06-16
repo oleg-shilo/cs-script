@@ -286,7 +286,7 @@ namespace CSScriptLib
         /// <summary>
         /// Global instance of <see cref="CSScriptLib.RoslynEvaluator"/>. This object is to be used for
         /// dynamic loading of the  C# code by using Roslyn "compiler as service".
-        /// <para>If you need to use multiple instances of th evaluator then you will need to call
+        /// <para>If you need to use multiple instances of the evaluator then you will need to call
         /// <see cref="CSScriptLib.IEvaluator"/>.Clone().
         /// </para>
         /// </summary>

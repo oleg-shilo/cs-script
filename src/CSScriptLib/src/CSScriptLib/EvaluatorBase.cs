@@ -1161,7 +1161,8 @@ namespace CSScriptLib
 
         internal PrecompilationContext PrecompileScript(string script, CSharpParser parser)
         {
-            string[] searchDirs = [this.GetType().Assembly.Location().GetDirName(), .. parser.ExtraSearchDirs];
+            string[] searchDirs = [script.GetFullPath().GetDirName(), this.GetType().Assembly.Location().GetDirName(), .. parser.ExtraSearchDirs];
+            searchDirs = searchDirs.RemovePathDuplicates();
 
             var retval = new PrecompilationContext { SearchDirs = searchDirs };
 
