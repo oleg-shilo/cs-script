@@ -15,7 +15,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.14.10.0</Version>
+    <Version>4.14.11.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET</Description>
     <Copyright>(C) 2018-2026 Oleg Shilo</Copyright>
@@ -31,19 +31,15 @@
 
 ### CLI
 
-- Improvements in the `-csproj` and `-vs` command implementation.
-  - Added handling Web projects.
-  - Improved invalid directory handling in the command handlers.
+no changes
 
 ### CSScriptLib
 
-- #467 triggered null-ref bug
-   Add null-safety for Scoop install check in Runtime.cs.
-- SelfContained example updated with the correct comments in Program.cs, including Roslyn limitations.</PackageReleaseNotes>
+- #455: Add //css_precompiler support for RoslynEvaluator and CodDomEvaluator</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.14.10.0</AssemblyVersion>
-    <FileVersion>4.14.10.0</FileVersion>
-    <PackageVersion>4.14.10.0</PackageVersion>
+    <AssemblyVersion>4.14.11.0</AssemblyVersion>
+    <FileVersion>4.14.11.0</FileVersion>
+    <PackageVersion>4.14.11.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>
