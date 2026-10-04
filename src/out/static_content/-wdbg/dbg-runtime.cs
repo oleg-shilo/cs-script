@@ -564,7 +564,7 @@ static class dbg_extensions
     public static string TruncateWithElipses(this string text, int maxLength)
     {
         if (text.Length > maxLength - 3)
-            return text.Substring(maxLength - 3) + "...";
+            return text.Substring(0, maxLength - 3) + "...";
         return text;
     }
 }
