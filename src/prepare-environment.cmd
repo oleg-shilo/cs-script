@@ -4,6 +4,11 @@ setlocal
 set snk_name=sgKey.snk
 set is_new_snk=no
 
+if not "%OneDriveConsumer%"=="" (
+    echo "Mappig the snk-folder to OneDrive...""
+    set snk-folder=%OneDriveConsumer%\Dev\signing-keys\
+)
+
 :: Check if the 'snk-folder' environment variable exists
 if "%snk-folder%"=="" (
     echo Environment variable 'snk-folder' not found. Generating new SNK file...
