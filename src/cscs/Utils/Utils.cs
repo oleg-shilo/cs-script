@@ -1435,9 +1435,14 @@ class HostingRuntime
                 }
             }
 
+            // removing the first serach dir as it is the script file dir and it should not matter where we are running the script from
+            var serachDirs = options.searchDirs.SkipWhile(string.IsNullOrEmpty).Skip(1).ToArray();
+
             sb.Append(',')
               .Append(options.compilerOptions) // parser.CompilerOptions can be ignored as if they are changed the whole script timestamp is also changed
-              .Append(string.Join("|", options.searchDirs)); // "Incorrect work of cache #86"
+              .Append(string.Join("|", serachDirs)); // "Incorrect work of cache #86"
+
+            Runtime.Trace("Compilation context input: " + sb.ToString());
 
             return sb.ToString().GetHashCodeEx();
         }

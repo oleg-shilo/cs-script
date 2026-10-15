@@ -133,12 +133,20 @@ namespace csscript
         static int pid = Process.GetCurrentProcess().Id;
         public static void Trace(string message)
         {
-            return; // disabled for now
-            var traceString = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}:{pid:D6}]: {message}";
-            // Console.WriteLine(traceString);
-            var logFile = Runtime.CacheDir.PathJoin("trace.log");
-            logFile = @"C:\Users\olegs\OneDrive\Desktop\css.log";
-            File.AppendAllText(logFile, traceString + Environment.NewLine);
+            return;
+            // disabled until fine debugging is needed
+            // bool logToFile = true;
+            // var traceString = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}:{pid:D6}]: {message}";
+            // if (logToFile)
+            // {
+            //     var logFile = Runtime.CacheDir.PathJoin("trace.log");
+            //     logFile = @"C:\Users\olegs\OneDrive\Desktop\css.log";
+            //     File.AppendAllText(logFile, traceString + Environment.NewLine);
+            // }
+            // else
+            // {
+            //     Console.WriteLine(traceString);
+            // }
         }
 
         internal static void ReleaseOwnership(Mutex pathLock)
