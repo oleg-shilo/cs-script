@@ -15,7 +15,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>4.14.11.0</Version>
+    <Version>4.14.12.0</Version>
     <Authors>Oleg Shilo</Authors>
     <Description>CS-Script engine Class Library for .NET</Description>
     <Copyright>(C) 2018-2026 Oleg Shilo</Copyright>
@@ -31,15 +31,17 @@
 
 ### CLI
 
-no changes
+- Fixed problem with `.build` directory being cleared/removed before another process using finishes the work. 
+- Fixed problem with false positive if IsOutdated test for script caching. Was caused by the inclusion of the current dir in the evaluation. 
+  This dir should not be considered as it is possible to execute global scripts from the multiple processes (with different currdirs) concurrently.
 
 ### CSScriptLib
 
-- #455: Add //css_precompiler support for RoslynEvaluator and CodDomEvaluator</PackageReleaseNotes>
+no changes</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.14.11.0</AssemblyVersion>
-    <FileVersion>4.14.11.0</FileVersion>
-    <PackageVersion>4.14.11.0</PackageVersion>
+    <AssemblyVersion>4.14.12.0</AssemblyVersion>
+    <FileVersion>4.14.12.0</FileVersion>
+    <PackageVersion>4.14.12.0</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>css_logo.png</PackageIcon>
     <SignAssembly>True</SignAssembly>

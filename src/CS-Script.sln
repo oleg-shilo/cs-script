@@ -4,13 +4,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 18.2.11415.280
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSScriptLib", "CSScriptLib\src\CSScriptLib\CSScriptLib.csproj", "{55C76AC3-5FD6-4974-AF40-E4966126D09F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E8820B6C-D866-7D8C-C672-D08B2600DAFE} = {E8820B6C-D866-7D8C-C672-D08B2600DAFE}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cscs", "cscs\cscs.csproj", "{847D3D48-443D-42F6-BB42-9467EC22994B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{856DEA01-07B4-472D-9B82-73B37BBD1A25} = {856DEA01-07B4-472D-9B82-73B37BBD1A25}
+		{E8820B6C-D866-7D8C-C672-D08B2600DAFE} = {E8820B6C-D866-7D8C-C672-D08B2600DAFE}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "csws", "csws\csws.csproj", "{856DEA01-07B4-472D-9B82-73B37BBD1A25}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E8820B6C-D866-7D8C-C672-D08B2600DAFE} = {E8820B6C-D866-7D8C-C672-D08B2600DAFE}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.CLI", "Tests.cscs\Tests.CLI.csproj", "{52B0AD60-8BA7-40EB-B07B-5661057DBBBA}"
 EndProject

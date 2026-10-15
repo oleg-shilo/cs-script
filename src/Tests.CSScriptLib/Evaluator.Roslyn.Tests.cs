@@ -1,3 +1,5 @@
+// Ignore Spelling: Precompiler Calc sidebyside
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -439,7 +441,7 @@ namespace EvaluatorTests
         }
 
         [Fact]
-        public void Can_use_sassembly_aliases() // manual test
+        public void Can_use_assembly_aliases() // manual test
         {
             var utilAsmFile = testTempDll(@"using System;
                                  using System.Reflection;

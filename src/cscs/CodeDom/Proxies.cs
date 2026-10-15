@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Ignore Spelling: Exe
+
+using System;
 using System.Collections.Generic;
 using static System.Environment;
 using System.IO;

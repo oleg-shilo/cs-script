@@ -1,3 +1,5 @@
+// Ignore Spelling: Pid Tmp csscript TFM RID
+
 using CSScripting;
 using System;
 using System.Collections.Generic;
@@ -131,7 +133,8 @@ namespace csscript
         static string tempDir = null;
 
         static int pid = Process.GetCurrentProcess().Id;
-        public static void Trace(string message)
+
+        internal static void Trace(string message)
         {
             return;
             // disabled until fine debugging is needed
@@ -522,7 +525,7 @@ namespace csscript
         /// </summary>
         /// <param name="dir">The dir.</param>
         /// <param name="pattern">The pattern.</param>
-        /// <param name="verifyPid">if set to <c>true</c> [verify pid].</param>
+        /// <param name="verifyPid">if set to <c>true</c> verifies the process id (pid).</param>
         public static void CleanUnusedTmpFiles(string dir, string pattern, bool verifyPid)
         {
             if (!Directory.Exists(dir))
@@ -594,7 +597,7 @@ namespace csscript
             }
         }
 
-        public static string RID_cpu_nutral
+        public static string RID_cpu_neutral
         {
             get
             {

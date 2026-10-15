@@ -1,3 +1,5 @@
+// Ignore Spelling: Exe nuget csscript
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -685,8 +687,8 @@ namespace csscript
 
                 if ("CSS_FEATURE_DISABLE_NUGET_RUNTIMES_SUPPORT".GetEnvar() == null)
                 {
-                    allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID_cpu_nutral, "lib", Runtime.TFM_Any)));
-                    allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID_cpu_nutral, "lib", Runtime.TFM)));
+                    allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID_cpu_neutral, "lib", Runtime.TFM_Any)));
+                    allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID_cpu_neutral, "lib", Runtime.TFM)));
                     allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID, "lib", Runtime.TFM_Any)));
                     allRefAssemblies.AddRange(locateAssemblies(projectDir.PathJoin("publish", "runtimes", Runtime.RID, "lib", Runtime.TFM)));
                 }
