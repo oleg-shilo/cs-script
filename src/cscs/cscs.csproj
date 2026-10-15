@@ -121,6 +121,8 @@ no changes
     <Content Include="..\out\static_content\-mkshim\**\*" Link="ToolPackage/-mkshim" Pack="true" PackagePath="tools/net8.0/any/-mkshim" />
     <Content Include="..\out\static_content\-pkill\**\*" Link="ToolPackage/-pkill" Pack="true" PackagePath="tools/net10.0/any/-pkill" />
     <Content Include="..\out\static_content\-pkill\**\*" Link="ToolPackage/-pkill" Pack="true" PackagePath="tools/net8.0/any/-pkill" />
+    <Content Include="..\out\static_content\-port\**\*" Link="ToolPackage/-port" Pack="true" PackagePath="tools/net10.0/any/-port" />
+    <Content Include="..\out\static_content\-port\**\*" Link="ToolPackage/-port" Pack="true" PackagePath="tools/net8.0/any/-port" />
     <Content Include="..\out\static_content\-runas\**\*" Link="ToolPackage/-runas" Pack="true" PackagePath="tools/net10.0/any/-runas" />
     <Content Include="..\out\static_content\-runas\**\*" Link="ToolPackage/-runas" Pack="true" PackagePath="tools/net8.0/any/-runas" />
     <Content Include="..\out\static_content\-scramble\**\*" Link="ToolPackage/-scramble" Pack="true" PackagePath="tools/net10.0/any/-scramble" />

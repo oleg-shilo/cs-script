@@ -197,6 +197,14 @@ namespace csscript
                         var infoFile = cacheDir.PathJoin("css_info.txt");
                         var sourceDir = File.Exists(infoFile) ? File.ReadAllLines(infoFile)[1] : null;
 
+                        // C:\Users\user\AppData\Local\Temp\csscript.core\cache\.build
+                        //  - cache dir for input for csc.exe compiler engine. File access is mutex protected
+                        // C:\Users\user\AppData\Local\Temp\csscript.core\cache\628225162
+                        //  - cache dir for script execution. Compilation is mutex protected. css_info.txt is present to link the cache dir to the source script dir.
+                        //    If the source script dir is deleted then the cache dir is considered abandoned and can be cleaned up.
+                        // C:\Users\user\AppData\Local\Temp\csscript.core\cache\628225162\.build
+                        //  - is a dotnet.exe build dir for the script compilation associated with the of the parent folder. Protected by the same mechanism as the parent folder.
+
                         if (sourceDir.IsEmpty() || // script dir is empty
                             !Directory.Exists(sourceDir) || //script dir is deleted
                             !Directory.GetFiles(cacheDir).Any(x => x != infoFile)) // cache dir is empty (only info file is left)
