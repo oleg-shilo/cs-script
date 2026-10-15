@@ -1,3 +1,4 @@
+using CSScripting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +10,6 @@ using System.Runtime.Loader;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
-using CSScripting;
 
 #if class_lib
 
@@ -130,6 +130,42 @@ namespace csscript
 
         static string tempDir = null;
 
+        static int pid = Process.GetCurrentProcess().Id;
+        public static void Trace(string message)
+        {
+            return; // disabled for now
+            var traceString = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}:{pid:D6}]: {message}";
+            // Console.WriteLine(traceString);
+            var logFile = Runtime.CacheDir.PathJoin("trace.log");
+            logFile = @"C:\Users\olegs\OneDrive\Desktop\css.log";
+            File.AppendAllText(logFile, traceString + Environment.NewLine);
+        }
+
+        internal static void ReleaseOwnership(Mutex pathLock)
+        {
+            try
+            {
+                pathLock.ReleaseMutex();
+                pathLock.Dispose();
+                Runtime.Trace($"released&disposed build_dir lock");
+            }
+            catch { }
+        }
+
+        internal static (Mutex mutex, bool acquired) TakeOwnership(string path)
+        {
+            try
+            {
+                var mutex = new Mutex(false, "CSSCRIPT_PATH_MUTEX_" + path);
+                bool acquired = mutex.WaitOne();
+                return (mutex, acquired);
+            }
+            catch
+            {
+                return (null, false);
+            }
+        }
+
         /// <summary>
         /// Cleans the abandoned script execution cache.
         /// </summary>
@@ -153,9 +189,23 @@ namespace csscript
                         var infoFile = cacheDir.PathJoin("css_info.txt");
                         var sourceDir = File.Exists(infoFile) ? File.ReadAllLines(infoFile)[1] : null;
 
-                        if (sourceDir.IsEmpty() || !Directory.Exists(sourceDir) || !Directory.GetFiles(cacheDir).Any(x => x != infoFile))
+                        if (sourceDir.IsEmpty() || // script dir is empty
+                            !Directory.Exists(sourceDir) || //script dir is deleted
+                            !Directory.GetFiles(cacheDir).Any(x => x != infoFile)) // cache dir is empty (only info file is left)
                         {
-                            cacheDir.DeleteDir();
+                            var (dirlock, acquired) = Runtime.TakeOwnership(cacheDir);
+                            if (acquired)
+                            {
+                                try
+                                {
+                                    // Runtime.Trace($"deleting from CleanAbandonedCache('{cacheDir}')");
+                                    cacheDir.DeleteDir();
+                                }
+                                finally
+                                {
+                                    Runtime.ReleaseOwnership(dirlock);
+                                }
+                            }
                         }
                         else
                         {

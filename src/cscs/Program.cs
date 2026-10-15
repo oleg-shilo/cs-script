@@ -26,6 +26,11 @@ namespace cscs
             // Environment.SetEnvironmentVariable("CSS_RESTORE_NUGET_PACKAGES", "true");
             // Environment.SetEnvironmentVariable("CSSCRIPT_NUGET_PACKAGES", @"D:\temp\nuget");
 #endif
+            // if (Environment.CommandLine.Contains("-break"))
+            // {
+            //     Debugger.Launch();
+            // }
+
             try
             {
                 try { SetEnvironmentVariable("Console.WindowWidth", Console.WindowWidth.ToString()); } catch { }

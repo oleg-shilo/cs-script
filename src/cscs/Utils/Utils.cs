@@ -1848,6 +1848,8 @@ class HostingRuntime
                 w.Write((Int32)Environment.Version.ToString().GetHashCodeEx());
 
                 w.Write((Int32)stampID);
+
+                Runtime.Trace($"Stamping with {stampID} based on {Assembly.GetExecutingAssembly().FullName}");
             }
             catch (Exception ex)
             {
@@ -1885,24 +1887,29 @@ class HostingRuntime
 
                 int offset = 0;
                 int stamp = ReadIntBackwards(r, ref offset);
-
+                Runtime.Trace($"Reading stampId ({stamp}) vs {stampID} (based on {Assembly.GetExecutingAssembly().FullName})");
                 if (stamp == stampID)
                 {
+                    Runtime.Trace($"StampId match, reading meta data...");
+
                     int value = ReadIntBackwards(r, ref offset);
                     if (value != Environment.Version.ToString().GetHashCodeEx())
                     {
+                        Runtime.Trace($"Metadata mismatch: Env.Version");
                         return false;
                     }
 
                     value = ReadIntBackwards(r, ref offset);
                     if (value != CSExecutor.options.compilationContext)
                     {
+                        Runtime.Trace($"Metadata mismatch: compilationContext {CSExecutor.options.compilationContext}");
                         return false;
                     }
 
                     value = ReadIntBackwards(r, ref offset);
                     if (value != (CSExecutor.options.DBG ? 1 : 0))
                     {
+                        Runtime.Trace($"Metadata mismatch: DBG");
                         return false;
                     }
 
@@ -1913,6 +1920,8 @@ class HostingRuntime
 
                         string metadataItem = Encoding.UTF8.GetString(r.ReadBytes(dataSize));
                         var result = this.Deserialize(metadataItem);
+                        if (!result)
+                            Runtime.Trace($"Metadata metadata: metadataItem itself");
                         return result;
                     }
                     else

@@ -189,421 +189,433 @@ namespace CSScripting.CodeDom
             var cache_dir = Runtime.CacheDir; // C:\Users\user\AppData\Local\Temp\csscript.core\cache\1822444284
             var build_dir = cache_dir.PathJoin(".build", projectName);
 
-            build_dir.DeleteDir(handleExceptions: true)
-                     .EnsureDir();
+            // protect build_dir from being deleted by other processes (e.g. build server) while it is being used by this process
+            var (dirLock, acquired) = Runtime.TakeOwnership(build_dir);
 
-            var sources = new List<string>();
-
-            fileNames.ForEach((string source) =>
+            try
             {
-                // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the
-                // only format that is supported by both .NET debugger (VS) and .NET Core debugger (VSCode).
+                // Runtime.Trace($"Locking (acquired: {acquired}) {build_dir}");
+                build_dir.DeleteDir(handleExceptions: true)
+                         .EnsureDir();
 
-                // However PortablePDB does not store the full source path but file name only (at
-                // least for now). It works fine in typical .Core scenario where the all sources are
-                // in the root directory but if they are not (e.g. scripting or desktop app) then
-                // debugger cannot resolve sources without user input.
+                var sources = new List<string>();
 
-                // The only solution (ugly one) is to inject the full file path at startup with
-                // #line directive
-
-                var new_file = build_dir.PathJoin(source.GetFileName());
-                var sourceText = $"#line 1 \"{source}\"{Environment.NewLine}" + File.ReadAllText(source);
-                File.WriteAllText(new_file, sourceText);
-                sources.Add(new_file);
-            });
-
-            if (fileNames.Any())
-            {
-                CoreExtensions.SaveInfoFile(fileNames.FirstOrDefault(), build_dir);
-                File.WriteAllText(build_dir.PathJoin("info.txt"), "Cache debugable sources for csc engine builds. See CompileAssemblyFromFileBatch_with_Csc(...)");
-            }
-
-            // See CSharpCompiler.CreateProject for facade asm exclusion reasoning
-            bool not_facade_asm_in_engine_dir(string asm)
-                => !(asm.GetDirName() == engine_dir && asm.IsPossibleFacadeAssembly());
-
-            var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
-                                                             .Where(Path.IsPathRooted)
-                                                             .Where(not_facade_asm_in_engine_dir)
-                                                             .ToList();
-
-            if (CSExecutor.options.enableDbgPrint && !CSExecutor.options.isNetFx)
-                ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
-
-            var refs = new StringBuilder();
-            var assembly = build_dir.PathJoin(projectName + ".dll");
-
-            if (CSExecutor.options.runExternal)
-                assembly = options.OutputAssembly;
-
-            var result = new CompilerResults();
-
-            var needCompileXaml = fileNames.Any(x => x.EndsWith(".xaml", OrdinalIgnoreCase));
-            if (needCompileXaml)
-            {
-                result.Errors.Add(new CompilerError
+                fileNames.ForEach((string source) =>
                 {
-                    ErrorText = $"In order to compile XAML you need to use 'dotnet' compiler. " + NewLine +
-                                        $"You can set it by any of this methods:" + NewLine +
-                                        $"- for a specific script from code with \"//css_engine dotnet\" directive" + NewLine +
-                                        $"- for the process with a CLI argument \"dotnet .{Path.DirectorySeparatorChar}cscs.dll -engine:dotnet <script>\"" + NewLine +
-                                        $"- globally as a config value \"dotnet .{Path.DirectorySeparatorChar}cscs.dll -config:set:DefaultCompilerEngine=dotnet\""
-                }); ;
+                    // As per dotnet.exe v2.1.26216.3 the pdb get generated as PortablePDB, which is the
+                    // only format that is supported by both .NET debugger (VS) and .NET Core debugger (VSCode).
 
-                return result;
-            }
+                    // However PortablePDB does not store the full source path but file name only (at
+                    // least for now). It works fine in typical .Core scenario where the all sources are
+                    // in the root directory but if they are not (e.g. scripting or desktop app) then
+                    // debugger cannot resolve sources without user input.
 
-            //----------------------------
+                    // The only solution (ugly one) is to inject the full file path at startup with
+                    // #line directive
 
-            //pseudo-gac as .NET core does not support GAC but rather common assemblies.
-            // C:\Program Files\dotnet\shared\Microsoft.NETCore.App\5.0.4
-            // var gac = typeof(string).Assembly.Location.GetDirName();
+                    var new_file = build_dir.PathJoin(source.GetFileName());
+                    var sourceText = $"#line 1 \"{source}\"{Environment.NewLine}" + File.ReadAllText(source);
+                    File.WriteAllText(new_file, sourceText);
+                    sources.Add(new_file);
+                });
 
-            // C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\5.0.4
+                if (fileNames.Any())
+                {
+                    CoreExtensions.SaveInfoFile(fileNames.FirstOrDefault(), build_dir);
+                    File.WriteAllText(build_dir.PathJoin("info.txt"), "Cache debugable sources for csc engine builds. See CompileAssemblyFromFileBatch_with_Csc(...)");
+                }
 
-            var refs_args = new List<string>();
-            var source_args = new List<string>();
-            var common_args = new List<string>
+                // See CSharpCompiler.CreateProject for facade asm exclusion reasoning
+                bool not_facade_asm_in_engine_dir(string asm)
+                    => !(asm.GetDirName() == engine_dir && asm.IsPossibleFacadeAssembly());
+
+                var ref_assemblies = options.ReferencedAssemblies.Where(x => !x.IsSharedAssembly())
+                                                                 .Where(Path.IsPathRooted)
+                                                                 .Where(not_facade_asm_in_engine_dir)
+                                                                 .ToList();
+
+                if (CSExecutor.options.enableDbgPrint && !CSExecutor.options.isNetFx)
+                    ref_assemblies.Add(Assembly.GetExecutingAssembly().Location());
+
+                var refs = new StringBuilder();
+                var assembly = build_dir.PathJoin(projectName + ".dll");
+
+                if (CSExecutor.options.runExternal)
+                    assembly = options.OutputAssembly;
+
+                var result = new CompilerResults();
+
+                var needCompileXaml = fileNames.Any(x => x.EndsWith(".xaml", OrdinalIgnoreCase));
+                if (needCompileXaml)
+                {
+                    result.Errors.Add(new CompilerError
+                    {
+                        ErrorText = $"In order to compile XAML you need to use 'dotnet' compiler. " + NewLine +
+                                            $"You can set it by any of this methods:" + NewLine +
+                                            $"- for a specific script from code with \"//css_engine dotnet\" directive" + NewLine +
+                                            $"- for the process with a CLI argument \"dotnet .{Path.DirectorySeparatorChar}cscs.dll -engine:dotnet <script>\"" + NewLine +
+                                            $"- globally as a config value \"dotnet .{Path.DirectorySeparatorChar}cscs.dll -config:set:DefaultCompilerEngine=dotnet\""
+                    }); ;
+
+                    return result;
+                }
+
+                //----------------------------
+
+                //pseudo-gac as .NET core does not support GAC but rather common assemblies.
+                // C:\Program Files\dotnet\shared\Microsoft.NETCore.App\5.0.4
+                // var gac = typeof(string).Assembly.Location.GetDirName();
+
+                // C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\5.0.4
+
+                var refs_args = new List<string>();
+                var source_args = new List<string>();
+                var common_args = new List<string>
             {
                 "/utf8output",
                 "/nostdlib+"
             };
 
-            if (options.GenerateExecutable)
-                common_args.Add("/t:exe");
-            else
-                common_args.Add("/t:library");
+                if (options.GenerateExecutable)
+                    common_args.Add("/t:exe");
+                else
+                    common_args.Add("/t:library");
 
-            if (options.IncludeDebugInformation)
-                common_args.Add("/debug:portable");  // on .net full it is "/debug+"
+                if (options.IncludeDebugInformation)
+                    common_args.Add("/debug:portable");  // on .net full it is "/debug+"
 
-            if (options.CompilerOptions.HasText())
-                common_args.Add(options.CompilerOptions);
+                if (options.CompilerOptions.HasText())
+                    common_args.Add(options.CompilerOptions);
 
-            common_args.Add("-define:TRACE;CS_SCRIPT");
+                common_args.Add("-define:TRACE;CS_SCRIPT");
 
-            var gac_asms = new List<string>();
-
-            if (ExecuteOptions.options.isNetFx)
-            {
-                common_args.Add("-define:NETFRAMEWORK");
-                gac_asms.Add("mscorlib.dll");
-            }
-            else
-            {
-                common_args.Add("-define:NETCORE");
-                common_args.Add("/shared"); // available only for .NET Core family
-
-                if (options.GetTargetPlatform() == "x86" && Environment.Is64BitProcess)
-                {
-                    throw new CLIException("Executing scripts targeting x86 platform with `csc` compiling engine is not supported due to the " +
-                        "limitations of the MS `csc.exe` compiler. The compiler does not support generation of the appropriate native application host (.exe).\n" +
-                        "You can either change the compilation engine to the dotnet (`-ng:dotnet`) or execute the script under .NET Framework runtime (`-netfx`). " +
-                        "Find more details in `compile_x86_script_csc` unit test.");
-                }
-
-                // <=============================
-                var refPacks = Globals.csc_AsmRefs;
-
-                if (Directory.Exists(refPacks))
-                {
-                    gac_asms = Directory.GetFiles(refPacks, "*.dll").ToList();
-
-                    if (!refPacks.Contains("Microsoft.NETCore.App.Ref", OrdinalIgnoreCase))
-                    {
-                        Console.WriteLine("WARNING: falling back to runtime-shared assemblies for compiler references. " +
-                                          "Reference packs were not found. This mode is less reliable than compiling against Microsoft.NETCore.App.Ref.");
-                    }
-                }
-
-                if (gac_asms.IsEmpty())
-                {
-                    result.Errors.Add(new CompilerError
-                    {
-                        ErrorText =
-                            "Cannot locate .NET reference assemblies required by csc engine.\n" +
-                            $"Resolved refs path: {refPacks ?? "<null>"}\n" +
-                            $"Compiler: {Globals.csc}\n" +
-                            $"Host runtime: {Environment.Version}\n\n" +
-                            "Install .NET SDK reference packs or set css_csc_asm_refs_dir to a valid ref folder.\n" +
-                            "Example: /usr/share/dotnet/packs/Microsoft.NETCore.App.Ref/<version>/ref/net<major>.0"
-                    });
-
-                    return result;
-                }
-
-                if (options.AppType == "Web")
-                    if (Globals.csc_AspAsmRefs.DirExists())
-                        gac_asms.AddRange(Directory.GetFiles(Globals.csc_AspAsmRefs, "*.dll"));
-                    else
-                        Console.WriteLine($"WARNING: no Microsoft.AspNetCore.App assemblies were found on your PC. Ensure .NET SDK or ({Globals.NetCoreAsmRefsPackageName} package is installed.");
-            }
-
-            // need to remove duplicated assemblies leaving GAC as a preferable reference
-            // IE System.Linq.dll exists in GAC and in packages where it can be of a different version so it should not be used.
-            // A special case of System.Windows.Forms.dll coming explicitly because of the //css_winApp, and yet it may not be present in GAC
-            var new_ref_assemblies = ref_assemblies
-                .Where(x => !gac_asms.Any(y => Path.GetFileName(y) == Path.GetFileName(x)));
-
-            // Interestingly enough the extra filter !IsRuntimeAssembly filter was introduced in 4.14.0
-            // But it started causing the problems in case of injecting framework assemblies so I covered
-            // the case of "System.Windows.Forms.dll" specifically.
-            // Maybe we don't really need this extra filter. Need to investigate;
-            // .Where(x => !x.IsRuntimeAssembly());
-
-            foreach (string file in gac_asms.Concat(new_ref_assemblies))
-                refs_args.Add($"/r:\"{file}\"");
-
-            foreach (string file in sources)
-                source_args.Add($"\"{file}\"");
-
-            // running build server on Linux is problematic as if it is started from here it will be
-            // killed when the parent process (this) exits
-            // bool compile_on_server = Runtime.IsWin && buidOnServer;
-            // But after working on #349 this behaver is no longer observed at least on WSL.
-            bool compile_on_server = buidOnServer;
-
-            string cmd = "";
-            string std_err = "";
-
-            Profiler.get("compiler").Start();
-            if (compile_on_server)
-                compile_on_server = Globals.BuildServerIsDeployed && !ExecuteOptions.options.isNetFx;
-
-            var cmpl_cmd = "";
-
-            void log_cmd(string cmd)
-            {
-                var logFile = Environment.GetEnvironmentVariable("CSSCRIPT_CSC_CMD_LOG");
-                if (logFile.HasText())
-                    try
-                    {
-                        File.WriteAllText(logFile, cmd);
-                    }
-                    catch { } // just ignore as log_cmd it does not reflect any functional requirement
-            }
-
-            if (compile_on_server)
-            {
-                Profiler.EngineContext = "Building with csc engine server (Build server)...";
-
-                // using sockets directly
-
-                var fileType = $"{sources.FirstOrDefault()?.GetExtension().Trim('.')}".ToLower();
-
-                var compiler = (fileType.StartsWith("vb") ? "vbc" : "csc");   // all other scripts will be treated as C#
-
-                var request = $@"{compiler} {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}"
-                              .SplitCommandLine();
-
-                cmpl_cmd = request.JoinBy(" ");
-
-                log_cmd(cmpl_cmd);
-
-                // ensure server running it will gracefully exit if another instance is running
-                var startBuildServerCommand = $"\"{Globals.build_server}\" -listen -port:{BuildServer.serverPort} -csc:\"{Globals.csc}\"";
-
-                dotnet.RunAsync(startBuildServerCommand);
-                Thread.Sleep(30);
-
-                (string response, int exitCode) = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
-
-                bool buildServerNotRunning() => response.GetLines()
-                                                        .FirstOrDefault()?
-                                                        .Contains("System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10061)")
-                                                        == true;
-
-                for (int i = 0; i < 10 && buildServerNotRunning(); i++)
-                {
-                    Thread.Sleep(100);
-                    (response, exitCode) = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
-                }
-
-                if (buildServerNotRunning())
-                    throw new CompilerException("CS-Script build server is not running:\n" +
-                                                $"Try to start server manually with 'cscs -server:start'");
-
-                result.NativeCompilerReturnValue = exitCode;
-                result.Output.AddRange(response.GetLines());
-            }
-            else
-            {
-                Profiler.EngineContext = "Building with raw csc engine...";
+                var gac_asms = new List<string>();
 
                 if (ExecuteOptions.options.isNetFx)
                 {
-                    var entryScript = source_args.First().Trim('"'); // entry script with 'static main'
-
-                    var newCode = CSSUtils.InjectModuleInitializer(File.ReadAllText(entryScript), "HostingRuntime.Init();");
-
-                    var newSourceFile = build_dir.PathJoin(entryScript.ChangeExtension(".g.cs"));
-                    File.WriteAllText(newSourceFile, newCode);
-
-                    string[] newSources = new[] { $"\"{newSourceFile}\"" }.AddItems(source_args.Skip(1)).ToArray();
-                    cmd = $@"{common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {newSources.JoinBy(" ")}";
-                    cmpl_cmd = cmd;
-
-                    log_cmd($"\"{Globals.csc_FX}\" {cmpl_cmd}");
-
-                    result.NativeCompilerReturnValue = Globals.csc_FX.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+                    common_args.Add("-define:NETFRAMEWORK");
+                    gac_asms.Add("mscorlib.dll");
                 }
                 else
                 {
-                    var compiler = Globals.GetCompilerFor(sources.FirstOrDefault());
-                    bool isCompilerNativeExe = compiler?.ChangeExtension("runtimeconfig.json").FileExists() == false;
+                    common_args.Add("-define:NETCORE");
+                    common_args.Add("/shared"); // available only for .NET Core family
 
-                    // is .NET 10 compiler (e.g. C:\Program Files\dotnet\sdk\10.0.101\Roslyn\bincore\csc.dll)
-                    if (compiler.Split("sdk").Last().TrimStart(Path.DirectorySeparatorChar).Split('.').First() == "10")
-                        common_args.Add("-define:NET10_0_OR_GREATER;NET10");
-
-                    var resp = build_dir.PathJoin("csc.resp");
-                    File.WriteAllLines(resp, refs_args);
-
-                    string exe = Globals.dotnet;
-                    if (isCompilerNativeExe)
+                    if (options.GetTargetPlatform() == "x86" && Environment.Is64BitProcess)
                     {
-                        exe = compiler;
-                        // cmd = $@"{common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
-                        cmd = $@"{common_args.JoinBy(" ")} /out:{assembly.EnquoteArg()} @{resp.EnquoteArg()} {source_args.JoinBy(" ")}";
+                        throw new CLIException("Executing scripts targeting x86 platform with `csc` compiling engine is not supported due to the " +
+                            "limitations of the MS `csc.exe` compiler. The compiler does not support generation of the appropriate native application host (.exe).\n" +
+                            "You can either change the compilation engine to the dotnet (`-ng:dotnet`) or execute the script under .NET Framework runtime (`-netfx`). " +
+                            "Find more details in `compile_x86_script_csc` unit test.");
+                    }
+
+                    // <=============================
+                    var refPacks = Globals.csc_AsmRefs;
+
+                    if (Directory.Exists(refPacks))
+                    {
+                        gac_asms = Directory.GetFiles(refPacks, "*.dll").ToList();
+
+                        if (!refPacks.Contains("Microsoft.NETCore.App.Ref", OrdinalIgnoreCase))
+                        {
+                            Console.WriteLine("WARNING: falling back to runtime-shared assemblies for compiler references. " +
+                                              "Reference packs were not found. This mode is less reliable than compiling against Microsoft.NETCore.App.Ref.");
+                        }
+                    }
+
+                    if (gac_asms.IsEmpty())
+                    {
+                        result.Errors.Add(new CompilerError
+                        {
+                            ErrorText =
+                                "Cannot locate .NET reference assemblies required by csc engine.\n" +
+                                $"Resolved refs path: {refPacks ?? "<null>"}\n" +
+                                $"Compiler: {Globals.csc}\n" +
+                                $"Host runtime: {Environment.Version}\n\n" +
+                                "Install .NET SDK reference packs or set css_csc_asm_refs_dir to a valid ref folder.\n" +
+                                "Example: /usr/share/dotnet/packs/Microsoft.NETCore.App.Ref/<version>/ref/net<major>.0"
+                        });
+
+                        return result;
+                    }
+
+                    if (options.AppType == "Web")
+                        if (Globals.csc_AspAsmRefs.DirExists())
+                            gac_asms.AddRange(Directory.GetFiles(Globals.csc_AspAsmRefs, "*.dll"));
+                        else
+                            Console.WriteLine($"WARNING: no Microsoft.AspNetCore.App assemblies were found on your PC. Ensure .NET SDK or ({Globals.NetCoreAsmRefsPackageName} package is installed.");
+                }
+
+                // need to remove duplicated assemblies leaving GAC as a preferable reference
+                // IE System.Linq.dll exists in GAC and in packages where it can be of a different version so it should not be used.
+                // A special case of System.Windows.Forms.dll coming explicitly because of the //css_winApp, and yet it may not be present in GAC
+                var new_ref_assemblies = ref_assemblies
+                    .Where(x => !gac_asms.Any(y => Path.GetFileName(y) == Path.GetFileName(x)));
+
+                // Interestingly enough the extra filter !IsRuntimeAssembly filter was introduced in 4.14.0
+                // But it started causing the problems in case of injecting framework assemblies so I covered
+                // the case of "System.Windows.Forms.dll" specifically.
+                // Maybe we don't really need this extra filter. Need to investigate;
+                // .Where(x => !x.IsRuntimeAssembly());
+
+                foreach (string file in gac_asms.Concat(new_ref_assemblies))
+                    refs_args.Add($"/r:\"{file}\"");
+
+                foreach (string file in sources)
+                    source_args.Add($"\"{file}\"");
+
+                // running build server on Linux is problematic as if it is started from here it will be
+                // killed when the parent process (this) exits
+                // bool compile_on_server = Runtime.IsWin && buidOnServer;
+                // But after working on #349 this behaver is no longer observed at least on WSL.
+                bool compile_on_server = buidOnServer;
+
+                string cmd = "";
+                string std_err = "";
+
+                Profiler.get("compiler").Start();
+                if (compile_on_server)
+                    compile_on_server = Globals.BuildServerIsDeployed && !ExecuteOptions.options.isNetFx;
+
+                var cmpl_cmd = "";
+
+                void log_cmd(string cmd)
+                {
+                    var logFile = Environment.GetEnvironmentVariable("CSSCRIPT_CSC_CMD_LOG");
+                    if (logFile.HasText())
+                        try
+                        {
+                            File.WriteAllText(logFile, cmd);
+                        }
+                        catch { } // just ignore as log_cmd it does not reflect any functional requirement
+                }
+
+                if (compile_on_server)
+                {
+                    Profiler.EngineContext = "Building with csc engine server (Build server)...";
+
+                    // using sockets directly
+
+                    var fileType = $"{sources.FirstOrDefault()?.GetExtension().Trim('.')}".ToLower();
+
+                    var compiler = (fileType.StartsWith("vb") ? "vbc" : "csc");   // all other scripts will be treated as C#
+
+                    var request = $@"{compiler} {common_args.JoinBy(" ")}  /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}"
+                                  .SplitCommandLine();
+
+                    cmpl_cmd = request.JoinBy(" ");
+
+                    log_cmd(cmpl_cmd);
+
+                    // ensure server running it will gracefully exit if another instance is running
+                    var startBuildServerCommand = $"\"{Globals.build_server}\" -listen -port:{BuildServer.serverPort} -csc:\"{Globals.csc}\"";
+
+                    dotnet.RunAsync(startBuildServerCommand);
+                    Thread.Sleep(30);
+
+                    (string response, int exitCode) = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
+
+                    bool buildServerNotRunning() => response.GetLines()
+                                                            .FirstOrDefault()?
+                                                            .Contains("System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (10061)")
+                                                            == true;
+
+                    for (int i = 0; i < 10 && buildServerNotRunning(); i++)
+                    {
+                        Thread.Sleep(100);
+                        (response, exitCode) = BuildServer.SendBuildRequest(request, BuildServer.serverPort);
+                    }
+
+                    if (buildServerNotRunning())
+                        throw new CompilerException("CS-Script build server is not running:\n" +
+                                                    $"Try to start server manually with 'cscs -server:start'");
+
+                    result.NativeCompilerReturnValue = exitCode;
+                    result.Output.AddRange(response.GetLines());
+                }
+                else
+                {
+                    Profiler.EngineContext = "Building with raw csc engine...";
+
+                    if (ExecuteOptions.options.isNetFx)
+                    {
+                        var entryScript = source_args.First().Trim('"'); // entry script with 'static main'
+
+                        var newCode = CSSUtils.InjectModuleInitializer(File.ReadAllText(entryScript), "HostingRuntime.Init();");
+
+                        var newSourceFile = build_dir.PathJoin(entryScript.ChangeExtension(".g.cs"));
+                        File.WriteAllText(newSourceFile, newCode);
+
+                        string[] newSources = new[] { $"\"{newSourceFile}\"" }.AddItems(source_args.Skip(1)).ToArray();
+                        cmd = $@"{common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {newSources.JoinBy(" ")}";
+                        cmpl_cmd = cmd;
+
+                        log_cmd($"\"{Globals.csc_FX}\" {cmpl_cmd}");
+
+                        result.NativeCompilerReturnValue = Globals.csc_FX.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
                     }
                     else
                     {
-                        exe = Globals.dotnet;
-                        // cmd = $@"""{compiler}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
-                        cmd = $@"""{compiler}"" {common_args.JoinBy(" ")} /out:""{assembly}"" @{resp.EnquoteArg()} {source_args.JoinBy(" ")}";
-                    }
+                        var compiler = Globals.GetCompilerFor(sources.FirstOrDefault());
+                        bool isCompilerNativeExe = compiler?.ChangeExtension("runtimeconfig.json").FileExists() == false;
 
-                    cmpl_cmd = $"\"{exe}\" {cmd}";
+                        // is .NET 10 compiler (e.g. C:\Program Files\dotnet\sdk\10.0.101\Roslyn\bincore\csc.dll)
+                        if (compiler.Split("sdk").Last().TrimStart(Path.DirectorySeparatorChar).Split('.').First() == "10")
+                            common_args.Add("-define:NET10_0_OR_GREATER;NET10");
 
-                    result.NativeCompilerReturnValue = exe.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
-                }
+                        var resp = build_dir.PathJoin("csc.resp");
+                        File.WriteAllLines(resp, refs_args);
 
-                log_cmd(cmpl_cmd);
-            }
-
-            if (std_err.HasText())
-                result.Output.Add($"cmpl_stde: {std_err}");
-
-            Profiler.get("compiler").Stop();
-
-            if (CSExecutor.options.verbose)
-            {
-                if (Environment.GetEnvironmentVariable("echo_compiler_cli") == null)
-                {
-                    Console.WriteLine("    csc.dll: " + Profiler.get("compiler").Elapsed);
-                }
-                else
-                {
-                    // File.WriteAllTe();
-                    Console.WriteLine("> ================");
-                    Console.WriteLine("csc.dll run: ");
-                    Console.WriteLine($"  current_dir: {build_dir}");
-                    Console.WriteLine($"  cmd: dotnet \"{Globals.csc}\" {cmpl_cmd}");
-                    Console.WriteLine($"  output: {NewLine}{result.Output.JoinBy(NewLine)}");
-                    Console.WriteLine("> ================");
-                }
-            }
-
-            result.ProcessErrors();
-
-            result.Errors
-                   .ForEach(x =>
-                    {
-                        // by default x.FileName is a file name only
-                        x.FileName = fileNames.FirstOrDefault(f => f.EndsWith(x.FileName ?? "")) ?? x.FileName;
-                    });
-
-            if (result.NativeCompilerReturnValue == 0 && File.Exists(assembly))
-            {
-                if (Runtime.IsLinux)
-                {
-                    result.PathToAssembly = options.OutputAssembly;
-                    File.Copy(assembly, result.PathToAssembly, true);
-                }
-                else
-                {
-                    result.PathToAssembly = options.OutputAssembly;
-                    if (!assembly.SamePathAs(result.PathToAssembly))
-                        try { File.Copy(assembly, result.PathToAssembly, true); } catch { }
-                }
-
-                if (options.BuildExe)
-                {
-                    var runtimeconfig = "{'runtimeOptions': {'framework': {'name': 'Microsoft.NETCore.App', 'version': '{version}'}}}"
-                            .Replace("'", "\"")
-                            .Replace("{version}", Environment.Version.ToString());
-
-                    File.WriteAllText(result.PathToAssembly.ChangeExtension(".runtimeconfig.json"), runtimeconfig);
-                    try
-                    {
-                        // CSUtils.
-                        if (Runtime.IsLinux)
-                            File.Move(result.PathToAssembly, result.PathToAssembly.RemoveAssemblyExtension(), true);
-                        else
-                            File.Move(result.PathToAssembly, result.PathToAssembly.ChangeExtension(".exe"), true);
-                    }
-                    catch { }
-                }
-                else
-                {
-                    if (!assembly.SamePathAs(result.PathToAssembly))
-                        File.Copy(assembly, result.PathToAssembly, true);
-                }
-
-                if (options.IncludeDebugInformation)
-                    File.Copy(assembly.ChangeExtension(".pdb"),
-                              result.PathToAssembly.ChangeExtension(".pdb"),
-                              true);
-            }
-            else
-            {
-                if (result.Errors.Any(x => x.ErrorNumber == "CS2012") && Runtime.IsLinux && compile_on_server)
-                {
-                    // When running on Linux as sudo CS-Script creates temp folders (e.g. cache)
-                    // that automatically get write-protected if accessed by not sudo-process. On
-                    // Windows these folders are always not protected. Meaning that if the build
-                    // server is running as non root (sudo) it will fail to place the output to
-                    // these folders. The solution is to either restart build server as sudo or use
-                    // dotnet engine as it always starts and stops with the cscs.exe executable and
-                    // always inherits its root context.
-
-                    var outputDir = assembly.GetDirName();
-
-                    bool serverCanWrite = BuildServer.Request($"-is_writable_dir:{outputDir}", BuildServer.serverPort) == true.ToString();
-                    bool hostCanWrite = outputDir.IsWritable();
-
-                    if (hostCanWrite && !serverCanWrite)
-                        result.Errors.Add(new CompilerError
+                        string exe = Globals.dotnet;
+                        if (isCompilerNativeExe)
                         {
-                            ErrorText = "The build server have less permissions to write to the temporary output directories " +
-                            "than host process (cs-script process). " + NewLine +
-                            "permissions comparing to the build server. " + NewLine + NewLine +
-                            "If you are running cs-script with root privileges you may need to " +
-                            "restart the build server with root privileges too:" + NewLine + NewLine +
-                            "  sudo css -server:restart" + NewLine + NewLine +
-                            "Alternatively you can switch to dotnet engine, which is always " +
-                            "aligned with the script engine permissions context. " + NewLine +
-                            "(e.g. `cscs -ng:dotnet <script_path>`)"
-                        });
+                            exe = compiler;
+                            // cmd = $@"{common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                            cmd = $@"{common_args.JoinBy(" ")} /out:{assembly.EnquoteArg()} @{resp.EnquoteArg()} {source_args.JoinBy(" ")}";
+                        }
+                        else
+                        {
+                            exe = Globals.dotnet;
+                            // cmd = $@"""{compiler}"" {common_args.JoinBy(" ")} /out:""{assembly}"" {refs_args.JoinBy(" ")} {source_args.JoinBy(" ")}";
+                            cmd = $@"""{compiler}"" {common_args.JoinBy(" ")} /out:""{assembly}"" @{resp.EnquoteArg()} {source_args.JoinBy(" ")}";
+                        }
+
+                        cmpl_cmd = $"\"{exe}\" {cmd}";
+
+                        result.NativeCompilerReturnValue = exe.Run(cmd, build_dir, x => result.Output.Add(x), x => std_err += x);
+
+                        if (result.NativeCompilerReturnValue != 0)
+                        {
+                            if (!resp.FileExists())
+                                Runtime.Trace($"Resp is deleted by someone");
+                        }
+                    }
+
+                    log_cmd(cmpl_cmd);
                 }
 
-                if (result.Errors.IsEmpty())
+                if (std_err.HasText())
+                    result.Output.Add($"cmpl_stde: {std_err}");
+
+                Profiler.get("compiler").Stop();
+
+                if (CSExecutor.options.verbose)
                 {
-                    // unknown error; e.g. invalid compiler params
-                    result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
+                    if (Environment.GetEnvironmentVariable("echo_compiler_cli") == null)
+                    {
+                        Console.WriteLine("    csc.dll: " + Profiler.get("compiler").Elapsed);
+                    }
+                    else
+                    {
+                        // File.WriteAllTe();
+                        Console.WriteLine("> ================");
+                        Console.WriteLine("csc.dll run: ");
+                        Console.WriteLine($"  current_dir: {build_dir}");
+                        Console.WriteLine($"  cmd: dotnet \"{Globals.csc}\" {cmpl_cmd}");
+                        Console.WriteLine($"  output: {NewLine}{result.Output.JoinBy(NewLine)}");
+                        Console.WriteLine("> ================");
+                    }
                 }
-            }
 
-            build_dir.DeleteDir(handleExceptions: true);
+                result.ProcessErrors();
 
-            if (CSExecutor.options.runExternal)
-            {
-                var runtime = Environment.Version;
-                var targetFramework = $"net{runtime.Major}.{runtime.Minor}";
+                result.Errors
+                       .ForEach(x =>
+                        {
+                            // by default x.FileName is a file name only
+                            x.FileName = fileNames.FirstOrDefault(f => f.EndsWith(x.FileName ?? "")) ?? x.FileName;
+                        });
 
-                File.WriteAllText(options.OutputAssembly.ChangeExtension(".runtimeconfig.json"),
-                    @"{
+                if (result.NativeCompilerReturnValue == 0 && File.Exists(assembly))
+                {
+                    if (Runtime.IsLinux)
+                    {
+                        result.PathToAssembly = options.OutputAssembly;
+                        File.Copy(assembly, result.PathToAssembly, true);
+                    }
+                    else
+                    {
+                        result.PathToAssembly = options.OutputAssembly;
+                        if (!assembly.SamePathAs(result.PathToAssembly))
+                            try { File.Copy(assembly, result.PathToAssembly, true); } catch { }
+                    }
+
+                    if (options.BuildExe)
+                    {
+                        var runtimeconfig = "{'runtimeOptions': {'framework': {'name': 'Microsoft.NETCore.App', 'version': '{version}'}}}"
+                                .Replace("'", "\"")
+                                .Replace("{version}", Environment.Version.ToString());
+
+                        File.WriteAllText(result.PathToAssembly.ChangeExtension(".runtimeconfig.json"), runtimeconfig);
+                        try
+                        {
+                            // CSUtils.
+                            if (Runtime.IsLinux)
+                                File.Move(result.PathToAssembly, result.PathToAssembly.RemoveAssemblyExtension(), true);
+                            else
+                                File.Move(result.PathToAssembly, result.PathToAssembly.ChangeExtension(".exe"), true);
+                        }
+                        catch { }
+                    }
+                    else
+                    {
+                        if (!assembly.SamePathAs(result.PathToAssembly))
+                            File.Copy(assembly, result.PathToAssembly, true);
+                    }
+
+                    if (options.IncludeDebugInformation)
+                        File.Copy(assembly.ChangeExtension(".pdb"),
+                                  result.PathToAssembly.ChangeExtension(".pdb"),
+                                  true);
+                }
+                else
+                {
+                    if (result.Errors.Any(x => x.ErrorNumber == "CS2012") && Runtime.IsLinux && compile_on_server)
+                    {
+                        // When running on Linux as sudo CS-Script creates temp folders (e.g. cache)
+                        // that automatically get write-protected if accessed by not sudo-process. On
+                        // Windows these folders are always not protected. Meaning that if the build
+                        // server is running as non root (sudo) it will fail to place the output to
+                        // these folders. The solution is to either restart build server as sudo or use
+                        // dotnet engine as it always starts and stops with the cscs.exe executable and
+                        // always inherits its root context.
+
+                        var outputDir = assembly.GetDirName();
+
+                        bool serverCanWrite = BuildServer.Request($"-is_writable_dir:{outputDir}", BuildServer.serverPort) == true.ToString();
+                        bool hostCanWrite = outputDir.IsWritable();
+
+                        if (hostCanWrite && !serverCanWrite)
+                            result.Errors.Add(new CompilerError
+                            {
+                                ErrorText = "The build server have less permissions to write to the temporary output directories " +
+                                "than host process (cs-script process). " + NewLine +
+                                "permissions comparing to the build server. " + NewLine + NewLine +
+                                "If you are running cs-script with root privileges you may need to " +
+                                "restart the build server with root privileges too:" + NewLine + NewLine +
+                                "  sudo css -server:restart" + NewLine + NewLine +
+                                "Alternatively you can switch to dotnet engine, which is always " +
+                                "aligned with the script engine permissions context. " + NewLine +
+                                "(e.g. `cscs -ng:dotnet <script_path>`)"
+                            });
+                    }
+
+                    if (result.Errors.IsEmpty())
+                    {
+                        // unknown error; e.g. invalid compiler params
+                        result.Errors.Add(new CompilerError { ErrorText = "Unknown compiler error" });
+                    }
+                }
+
+                build_dir.DeleteDir(handleExceptions: true);
+
+                if (CSExecutor.options.runExternal)
+                {
+                    var runtime = Environment.Version;
+                    var targetFramework = $"net{runtime.Major}.{runtime.Minor}";
+
+                    File.WriteAllText(options.OutputAssembly.ChangeExtension(".runtimeconfig.json"),
+                        @"{
   ""runtimeOptions"": {
     ""tfm"": """ + targetFramework + @""",
     ""framework"": {
@@ -616,9 +628,14 @@ namespace CSScripting.CodeDom
     }
   }
 }");
-            }
+                }
 
-            return result;
+                return result;
+            }
+            finally
+            {
+                Runtime.ReleaseOwnership(dirLock);
+            }
         }
     }
 }
