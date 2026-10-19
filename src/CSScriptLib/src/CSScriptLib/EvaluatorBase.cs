@@ -1203,14 +1203,25 @@ namespace CSScriptLib
 
                         var precompiler = precompilerAsm.LocatePrecompiler(entryPoint, precompilerPath);
 
-                        var methods = precompiler.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
-                                                 .Where(x => x.Name == "Compile");
-
-                        precompilersCache[precompilerPath] =
-                            (
-                                method: methods.FirstOrDefault(x => x.GetParameters().Count() == 1),
-                                legacyMethod: methods.FirstOrDefault(x => x.GetParameters().Count() == 4)
-                            );
+                        if (precompiler.IsLambdaHolder())
+                        {
+                            MethodInfo lambdaMethod = precompiler.FindLambda(methodName: entryPoint?.Split(':')?.LastOrDefault(), args: [new PrecompilationContext()]);
+                            precompilersCache[precompilerPath] =
+                                (
+                                    method: lambdaMethod,
+                                    legacyMethod: null
+                                );
+                        }
+                        else
+                        {
+                            var methods = precompiler.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
+                                                     .Where(x => x.Name == "Compile");
+                            precompilersCache[precompilerPath] =
+                                (
+                                    method: methods.FirstOrDefault(x => x.GetParameters().Count() == 1),
+                                    legacyMethod: methods.FirstOrDefault(x => x.GetParameters().Count() == 4)
+                                );
+                        }
                     }
 
                     bool result = ApplyPrecompilation(script, retval, contextData, ref content, precompilerPath);

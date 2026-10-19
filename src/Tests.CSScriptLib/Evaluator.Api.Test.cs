@@ -120,6 +120,18 @@ namespace EvaluatorTests
             File.WriteAllText(script, content);
             return script;
         }
+        public string GetPrecompilerScript(string code, [CallerMemberName] string caller = null)
+            => GetTempScript("""
+                using System.Collections;
+                public class Sample_Precompiler 
+                {
+                    public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                    {
+                        {$code}
+                        return true;
+                    }
+                }
+                """.Replace("{$code}", code));
 
         public Func<IEvaluator> GetEvaluator = () => CSScript.RoslynEvaluator;
         public IEvaluator new_evaluator => GetEvaluator();
@@ -769,6 +781,35 @@ namespace EvaluatorTests
         }
 
         [Fact]
+        public void LoadMethodWithLambdaPrecompiler()
+        {
+            var precompiler = Precompiler.FromLambda(
+                context =>
+                {
+                    context.Content = "#define MY_DEFINE" + System.Environment.NewLine + context.Content;
+                    return true;
+                });
+
+            var code =
+                $"{precompiler.ToCssDirective()}" + Environment.NewLine +
+                """
+                string foo()
+                {
+                    #if MY_DEFINE
+                    return "MY_DEFINE is defined";
+                    #else
+                    return "MY_DEFINE is not defined";
+                    #endif
+                }
+                """;
+
+            dynamic script = new_evaluator.LoadMethod(code);
+            var result = script.foo();
+
+            Assert.Equal("MY_DEFINE is defined", result);
+        }
+
+        [Fact]
         public void LoadMethodWithPrecompilerFromHost()
         {
             var code =
@@ -792,11 +833,57 @@ namespace EvaluatorTests
         }
 
         [Fact]
+        public void LoadMethodWithPrecompilerEndPointsShort()
+        {
+            var precompilerScript = GetPrecompilerScript("scriptCode = \"#define MY_DEFINE\" + System.Environment.NewLine + scriptCode;");
+
+            dynamic script = new_evaluator.LoadMethod(
+                $"//css_pc {precompilerScript}|Sample_Precompiler" + Environment.NewLine +
+                """
+                string foo()
+                    {
+                #if MY_DEFINE
+                        return "MY_DEFINE is defined";
+                #else
+                        return "MY_DEFINE is not defined";
+                #endif
+                    }
+                """);
+            var result = script.foo();
+
+            Assert.Equal("MY_DEFINE is defined", result);
+        }
+
+        [Fact]
+        public void LoadMethodWithPrecompilerEndPointsFull()
+        {
+            var precompilerScript = GetPrecompilerScript("scriptCode = \"#define MY_DEFINE\" + System.Environment.NewLine + scriptCode;");
+
+            dynamic script = new_evaluator.LoadMethod(
+                $"//css_pc {precompilerScript}|Sample_Precompiler:Compile" + Environment.NewLine +
+                """
+                string foo()
+                    {
+                #if MY_DEFINE
+                        return "MY_DEFINE is defined";
+                #else
+                        return "MY_DEFINE is not defined";
+                #endif
+                    }
+                """);
+            var result = script.foo();
+
+            Assert.Equal("MY_DEFINE is defined", result);
+        }
+
+        [Fact]
         public void LoadMethodWithPrecompiler()
         {
+            var precompilerScript = GetPrecompilerScript("scriptCode = \"#define MY_DEFINE\" + System.Environment.NewLine + scriptCode;");
+
             dynamic script = new_evaluator.LoadMethod(
+                $"//css_pc {precompilerScript}" + Environment.NewLine +
                 """
-                //css_pc D:\Galos\support\cs-script.#470\pc.cs|Sample_Precompiler
                 string foo()
                     {
                 #if MY_DEFINE

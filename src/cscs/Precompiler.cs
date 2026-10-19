@@ -1,16 +1,18 @@
+using CSScripting;
+using CSScriptLib;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Microsoft.CodeAnalysis;
-using CSScripting;
-using CSScriptLib;
 
 namespace csscript
 {
@@ -117,12 +119,17 @@ namespace csscript
             return (fileName, entryPoint);
         }
 
+        internal static string ToCssDirective(this (Type Type, MethodInfo Method) precompiler)
+            => $"//css_pc {precompiler.Type.Assembly.Location}|{precompiler.Type.FullName}:{precompiler.Method.Name}";
+
         internal static Type LocatePrecompiler(this Assembly precompilerAsm, string entryPoint, string precompilerContext)
         {
-            var precompilerClass = precompilerAsm.GetTypes().FirstOrDefault(x => x.FullName == entryPoint);
+            var className = entryPoint?.Split(':')?.FirstOrDefault(); // <class-name>:<method-name>
+
+            var precompilerClass = precompilerAsm.GetTypes().FirstOrDefault(x => x.FullName == className);
 
             if (entryPoint != null && precompilerClass == null)
-                throw new Exception($"Precompiler entry point {entryPoint} in {precompilerContext} cannot be loaded.");
+                throw new Exception($"Precompiler entry point {className} in {precompilerContext} cannot be loaded.");
 
             if (precompilerClass == null)
             {
@@ -133,6 +140,15 @@ namespace csscript
 
             return precompilerClass;
         }
+
+        public static (Type Type, MethodInfo Method) GetMethod(Delegate lambda)
+        {
+            if (lambda is null) throw new ArgumentNullException(nameof(lambda));
+            return (lambda.Method.DeclaringType!, lambda.Method);
+        }
+
+        public static (Type Type, MethodInfo Method) FromLambda(Func<PrecompilationContext, bool> lambda) => GetMethod((Delegate)lambda);
+
     }
 
     internal class DefaultPrecompiler

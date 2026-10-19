@@ -124,7 +124,7 @@ namespace CSScripting
         /// <param name="ignoreCase"></param>
         /// <returns></returns>
         public static bool EndsWithAny(this string text, string[] patterns, bool ignoreCase = false)
-            => patterns.Any(x => x.EndsWith(text, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture));
+            => patterns.Any(x => text.EndsWith(x, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture));
 
         /// <summary>
         /// Joins strings the by the specified separator.

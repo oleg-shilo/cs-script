@@ -1,12 +1,13 @@
+using CSScriptLib;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using CSScriptLib;
 
 namespace CSScripting
 {
@@ -304,7 +305,7 @@ namespace CSScripting
                    .OrderBy(t => !t.IsScriptRootClass());  // ScriptRootClass will be on top
         }
 
-        
+
         /// <summary>
         /// Returns the first exported user type from the assembly that is assignable to the specified generic
         /// type parameter <typeparamref name="T"/>. The search excludes Roslyn internal types and prefers
@@ -333,6 +334,67 @@ namespace CSScripting
                 return asm.GetType().FullName.EndsWith("AssemblyBuilder") || asm.Location == null || asm.Location == "";
             }
             catch { return false; }
+        }
+
+
+        const BindingFlags All = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+
+        /// <summary>
+        /// True for compiler-generated lambda holders: the "&lt;&gt;c" singleton class
+        /// (non-capturing lambdas) and "&lt;&gt;c__DisplayClassN_M" closure classes (capturing lambdas).
+        /// </summary>
+        public static bool IsLambdaHolder(this Type type)
+            => type.IsDefined(typeof(CompilerGeneratedAttribute), inherit: false)
+               && type.Name.StartsWith("<>c", StringComparison.Ordinal);
+
+        /// <summary>Lambda bodies are emitted as methods named like "&lt;Main&gt;b__0_0".</summary>
+        public static IReadOnlyList<MethodInfo> GetLambdaMethods(this Type holder)
+            => holder.GetMethods(All)
+                     .Where(m => m.Name.Contains(">b__", StringComparison.Ordinal))
+                     .ToList();
+        /// <summary>
+        /// Finds the lambda method in the type. If the type holds several lambdas, the optional
+        /// methodName and the argument list are used to disambiguate.
+        /// </summary>
+        public static MethodInfo FindLambda(this Type holder, string? methodName = null, object?[]? args = null)
+        {
+            if (!IsLambdaHolder(holder))
+                throw new ArgumentException($"'{holder.FullName}' is not a compiler-generated lambda holder.");
+
+            IEnumerable<MethodInfo> candidates = GetLambdaMethods(holder);
+
+            if (args != null)
+                candidates = candidates.Where(m => Accepts(m, args));
+
+            if (methodName != null)
+                candidates = candidates.Where(m => m.Name == methodName);
+
+            var list = candidates.ToList();
+            return list.Count switch
+            {
+                1 => list[0],
+                0 => throw new MissingMethodException($"No matching lambda found in '{holder.FullName}'."),
+                _ => throw new AmbiguousMatchException(
+                         $"'{holder.FullName}' contains {list.Count} matching lambdas: " +
+                         string.Join(", ", list.Select(m => m.Name)) +
+                         ". Specify the method name.")
+            };
+        }
+
+        internal static bool Accepts(MethodInfo m, object?[] args)
+        {
+            var ps = m.GetParameters();
+            if (ps.Length != args.Length) return false;
+            for (int i = 0; i < ps.Length; i++)
+            {
+                var pt = ps[i].ParameterType;
+                if (args[i] is null)
+                {
+                    if (pt.IsValueType && Nullable.GetUnderlyingType(pt) == null) return false;
+                }
+                else if (!pt.IsInstanceOfType(args[i])) return false;
+            }
+            return true;
         }
     }
 }
