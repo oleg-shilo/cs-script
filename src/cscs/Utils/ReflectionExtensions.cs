@@ -304,6 +304,7 @@ namespace CSScripting
                    .OrderBy(t => !t.IsScriptRootClass());  // ScriptRootClass will be on top
         }
 
+        
         /// <summary>
         /// Returns the first exported user type from the assembly that is assignable to the specified generic
         /// type parameter <typeparamref name="T"/>. The search excludes Roslyn internal types and prefers

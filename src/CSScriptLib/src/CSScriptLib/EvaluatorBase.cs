@@ -1179,24 +1179,32 @@ namespace CSScriptLib
             var content = parser.Code;
             var modified = false;
 
-            foreach (string file in parser.Precompilers)
+            foreach (string precompilerFile in parser.Precompilers)
             {
-                var precompilerPath = Precompiler.FindImlementationFile(file, searchDirs);
+                var (fileName, entryPoint) = precompilerFile.ExtractPrecompilerInfo();
+
+                var precompilerPath = Precompiler.FindImlementationFile(fileName, searchDirs);
 
                 using (SimpleAsmProbing.For(searchDirs))
                 {
                     if (!precompilersCache.ContainsKey(precompilerPath))
                     {
-                        (byte[] asm, byte[] pdb, Project project) precompilerInfo = Compile(null, precompilerPath, null);
+                        Assembly precompilerAsm;
 
-                        var precompilerAsm = Assembly.Load(precompilerInfo.asm, precompilerInfo.pdb);
+                        if (precompilerPath.EndsWithAny([".dll", ".exe"], ignoreCase: true))
+                        {
+                            precompilerAsm = Assembly.LoadFile(precompilerPath);
+                        }
+                        else
+                        {
+                            (byte[] asm, byte[] pdb, Project project) precompilerInfo = Compile(null, precompilerPath, null);
+                            precompilerAsm = Assembly.Load(precompilerInfo.asm, precompilerInfo.pdb);
+                        }
 
-                        var precompilerType = precompilerAsm.GetTypes().FirstOrDefault(x => x.Name.EndsWith("Precompiler"));
-                        if (precompilerType == null)
-                            throw new Exception("Precompiler " + file + " cannot be loaded. CreateInstance returned null.");
+                        var precompiler = precompilerAsm.LocatePrecompiler(entryPoint, precompilerPath);
 
-                        var methods = precompilerType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
-                                                     .Where(x => x.Name == "Compile");
+                        var methods = precompiler.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
+                                                 .Where(x => x.Name == "Compile");
 
                         precompilersCache[precompilerPath] =
                             (

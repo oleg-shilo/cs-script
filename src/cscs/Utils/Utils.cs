@@ -1208,7 +1208,7 @@ class HostingRuntime
                 ["CompilerOptions"] = options.compilerOptions
             };
 
-            Dictionary<string, List<object>> precompilers = CSSUtils.LoadPrecompilers(options);
+            Dictionary<string, List<Type>> precompilers = CSSUtils.LoadPrecompilers(options);
 
             if (precompilers.Count != 0)
             {
@@ -1224,7 +1224,7 @@ class HostingRuntime
 
                     foreach (string precompilerFile in precompilers.Keys)
                     {
-                        foreach (object precompiler in precompilers[precompilerFile])
+                        foreach (Type precompiler in precompilers[precompilerFile])
                         {
                             if (options.verbose && i == 0)
                             {
@@ -1232,12 +1232,11 @@ class HostingRuntime
                                 int index = 0;
 
                                 foreach (string file in filesToCompile)
-                                    CSSUtils.VerbosePrint("   " + index++ + " - " + Path.GetFileName(file) + " -> " + precompiler.GetType() + NewLine + "           from " + precompilerFile, options);
+                                    CSSUtils.VerbosePrint("   " + index++ + " - " + Path.GetFileName(file) + " -> " + precompiler + NewLine + "           from " + precompilerFile, options);
                                 CSSUtils.VerbosePrint("", options);
                             }
 
-                            var methods = precompiler.GetType()
-                                                     .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
+                            var methods = precompiler.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
                                                      .Where(x => x.Name == "Compile");
 
                             MethodInfo method_dynamic = methods.FirstOrDefault(x => x.GetParameters().Count() == 1);
@@ -1312,12 +1311,12 @@ class HostingRuntime
                 return Assembly.LoadFile(file);
         }
 
-        internal static Dictionary<string, List<object>> LoadPrecompilers(ExecuteOptions options)
+        internal static Dictionary<string, List<Type>> LoadPrecompilers(ExecuteOptions options)
         {
-            Dictionary<string, List<object>> retval = [];
+            Dictionary<string, List<Type>> retval = [];
 
             if (!options.preCompilers.StartsWith(noDefaultPrecompilerSwitch)) //no defaults
-                retval.Add(Assembly.GetExecutingAssembly().Location, [new DefaultPrecompiler()]);
+                retval.Add(Assembly.GetExecutingAssembly().Location, [typeof(DefaultPrecompiler)]);
 
             if (options.autoClass)
             {
@@ -1327,9 +1326,9 @@ class HostingRuntime
 
                 AutoclassPrecompiler.injectBreakPoint = options.autoClass_InjectBreakPoint;
                 if (retval.ContainsKey(Assembly.GetExecutingAssembly().Location))
-                    retval[Assembly.GetExecutingAssembly().Location].Add(new AutoclassPrecompiler());
+                    retval[Assembly.GetExecutingAssembly().Location].Add(typeof(AutoclassPrecompiler));
                 else
-                    retval.Add(Assembly.GetExecutingAssembly().Location, [new AutoclassPrecompiler()]);
+                    retval.Add(Assembly.GetExecutingAssembly().Location, [typeof(AutoclassPrecompiler)]);
             }
 
             foreach (string precompiler in options.preCompilers.Split([',']).Distinct())
@@ -1338,12 +1337,14 @@ class HostingRuntime
 
                 if (precompilerFile != "" && precompilerFile != noDefaultPrecompilerSwitch)
                 {
-                    string sourceFile = Precompiler.FindImlementationFile(precompilerFile, options.searchDirs)
-                        ?? throw new ApplicationException("Cannot find Precompiler file " + precompilerFile);
+                    var (fileName, entryPoint) = precompilerFile.ExtractPrecompilerInfo();
+
+                    string sourceFile = Precompiler.FindImlementationFile(fileName, options.searchDirs)
+                        ?? throw new ApplicationException("Cannot find Precompiler file " + fileName);
 
                     Assembly asm;
 
-                    if (sourceFile.EndsWith(".dll", true, CultureInfo.InvariantCulture))
+                    if (sourceFile.EndsWithAny([".dll", ".exe"], ignoreCase: true))
                     {
                         string dbg = Utils.DbgFileOf(sourceFile);
 
@@ -1359,34 +1360,11 @@ class HostingRuntime
                     else
                         asm = CompilePrecompilerScript(sourceFile, options.searchDirs);
 
-                    object precompilerObj = null;
-
-                    // var executor = new LocalExecutor(ExecuteOptions.options.searchDirs);
-
-                    // var executor = new AssemblyExecutor(precompilerAsm, "AsmExecution"); executor.Execute("".Split('|'));
-
                     using (SimpleAsmProbing.For(options.searchDirs))
                     {
-                        foreach (Module m in asm.GetModules())
-                        {
-                            if (precompilerObj != null)
-                                break;
-
-                            foreach (Type t in m.GetTypes())
-                            {
-                                if (t.Name.EndsWith("Precompiler"))
-                                {
-                                    precompilerObj = asm.CreateInstance(t.Name);
-                                    if (precompilerObj == null)
-                                        throw new Exception("Precompiler " + sourceFile + " cannot be loaded. CreateInstance returned null.");
-                                    break;
-                                }
-                            }
-                        }
+                        var precompilerType = asm.LocatePrecompiler(entryPoint, sourceFile);
+                        retval.Add(sourceFile, [precompilerType]);
                     }
-
-                    if (precompilerObj != null)
-                        retval.Add(sourceFile, [precompilerObj]);
                 }
             }
 

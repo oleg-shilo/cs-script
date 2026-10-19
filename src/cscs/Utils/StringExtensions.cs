@@ -117,6 +117,16 @@ namespace CSScripting
             => patterns.Any(x => x == text);
 
         /// <summary>
+        ///  Determines whether the end of this string instance matches any of the specified string patterns.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="patterns"></param>
+        /// <param name="ignoreCase"></param>
+        /// <returns></returns>
+        public static bool EndsWithAny(this string text, string[] patterns, bool ignoreCase = false)
+            => patterns.Any(x => x.EndsWith(text, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture));
+
+        /// <summary>
         /// Joins strings the by the specified separator.
         /// </summary>
         /// <param name="values">The values.</param>

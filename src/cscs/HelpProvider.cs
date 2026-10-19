@@ -654,26 +654,30 @@ namespace csscript
                                                     "You can use the reserved word 'show' as a directory name to print the configured probing directories.",
                                                     "(e.g. `" + AppInfo.AppName + " -dir:C:\\MyLibraries myScript.cs; " + AppInfo.AppName + " -dir:show`).");
             switch2Help[pc] =
-                switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
-                                                       "Specifies custom precompiler. This can be either script or assembly file.",
-                                                   alias_prefix + "pc[:<file 1>,<file N>]",
-                                                       "If no file(s) specified prints the code template for the custom precompiler. The special value 'print' has " +
-                                                           "the same effect (e.g. " + AppInfo.AppName + " -pc:print).",
-                                                           "There is a special reserved word '" + CSSUtils.noDefaultPrecompilerSwitch + "' to be used as a file name. " +
-                                                           "It instructs script engine to prevent loading any built-in precompilers " +
-                                                           "like the one for removing shebang before the execution.",
-                                                           $"(see {help_url}/precompilers.html)");
+            switch2Help[precompiler] = new ArgInfo("-precompiler[:<file 1>,<file N>]",
+                                                    "Specifies custom precompiler. This can be either script or assembly file.",
+                                                alias_prefix + "pc[:<file 1>,<file N>][|entry-point]",
+                                                    "You can specify precompiler as a C# (*.cs) file or as an assembly.",
+                                                    "If no file(s) specified prints the code template for the custom precompiler. The special value 'print' has " +
+                                                    "the same effect (e.g. " + AppInfo.AppName + " -pc:print).",
+                                                    "There is a special reserved word '" + CSSUtils.noDefaultPrecompilerSwitch + "' to be used as a file name. " +
+                                                    "It instructs script engine to prevent loading any built-in precompilers " +
+                                                    "like the one for removing shebang before the execution.",
+                                                    "If it is desired, you may pass a specific class name for be used from the precompiler file (e.g. -pc:app.exe|MyPrecompiler)." +
+                                                    "Though the | character may interfere with your terminal. If it does, you wil need to switch to teh inlne precompile directive " +
+                                                    "`//css_pc...`",
+                                                    $"(see {help_url}/precompilers.html)");
             switch2Help[pvdr] =
-                switch2Help[provider] = new ArgInfo("-pvdr|-provider:<file>",
-                                                    "Location of the alternative/custom code provider assembly.",
-                                                alias_prefix + "pvdr:<file>",
-                                                             "If set it forces script engine to use an alternative code compiler.",
-                                                             " ",
-                                                             "C#7 support is implemented via Roslyn based provider: '-pvdr:CSSRoslynProvider.dll'." +
-                                                             "If the switch is not specified CSSRoslynProvider.dll file will be use as a code provider " +
-                                                             "if it is found in the same folder where the script engine is. Automatic CSSRoslynProvider.dll " +
-                                                             "loading can be disabled with a special 'none' argument: -pvdr:none.",
-                                                            $"(see {help_url}/help/non_cs_compilers.html)");
+            switch2Help[provider] = new ArgInfo("-pvdr|-provider:<file>",
+                                                "Location of the alternative/custom code provider assembly.",
+                                            alias_prefix + "pvdr:<file>",
+                                                            "If set it forces script engine to use an alternative code compiler.",
+                                                            " ",
+                                                            "C#7 support is implemented via Roslyn based provider: '-pvdr:CSSRoslynProvider.dll'." +
+                                                            "If the switch is not specified CSSRoslynProvider.dll file will be use as a code provider " +
+                                                            "if it is found in the same folder where the script engine is. Automatic CSSRoslynProvider.dll " +
+                                                            "loading can be disabled with a special 'none' argument: -pvdr:none.",
+                                                        $"(see {help_url}/help/non_cs_compilers.html)");
             switch2Help[nuget] = new ArgInfo("-nuget[:restore]",
                                              "Installs new or updates existing NuGet packages. It is a very close equivalent of `dotnet restore` command",
                                                  "Note, using nuget directives in the script text offers more flexibility (e.g. version support. See `cscs -syntax //css_nuget` ",
@@ -894,15 +898,16 @@ namespace csscript
                                  "directory. Using more specific wildcards is arguably more practical (e.g. 'utils/*.dll', '*Helper.dll', './*.dll')",
                                  " ",
                          section_sep, //------------------------------------
-                             "`//css_precompiler <file 1>,<file 2>;`",
+                             "`//css_precompiler <file 1>,<file 2>[|entry-point];`",
                                  " ",
                          alias_prefix + "`//css_pc`",
                              " ",
                                  "`file` - name of the script or assembly file implementing precompiler.",
                                  " ",
-                                 "This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time just " +
+                                 "This directive is used to specify the CS-Script precompilers (.cs or .dll) to be loaded and exercised against script at run time just " +
                                  "before compiling it. Precompilers are typically used to alter the script coder before the execution. Thus CS-Script uses " +
                                  "built-in precompiler to decorate classless scripts executed with -autoclass switch.",
+                                 "If it is desired, you may pass a specific class name for be used from the precompiler file (e.g. //css_pc app.exe|MyPrecompiler).",
                                  "(see http://www.csscript.net/help/precompilers.html)",
                          section_sep, //------------------------------------
                              "`//css_searchdir <directory>;`",

@@ -262,11 +262,17 @@ namespace CSScriptLib
 
         internal static string[] ResolveFilesDefault(string file, string[] extraDirs, bool throwOnError)
         {
-            string[] retval = FindFiles(file, extraDirs, "");
+            // Path with entry point format: <file>|<entry-point>
+            var parts = file.Split(new[] { '|' }, 2);
+
+            var fileName = parts[0]; //detach entry point from the file name (if any)
+            var entryPoint = parts.Length > 1 ? parts[1] : null;
+
+            string[] retval = FindFiles(fileName, extraDirs, "");
             if (retval.Length == 0)
-                retval = FindFiles(file, extraDirs, ".cs");
+                retval = FindFiles(fileName, extraDirs, ".cs");
             if (retval.Length == 0)
-                retval = FindFiles(file, extraDirs, ".csl"); //script link file
+                retval = FindFiles(fileName, extraDirs, ".csl"); //script link file
             if (retval.Length == 0)
             {
                 // a complex command folder. IE:
@@ -279,12 +285,12 @@ namespace CSScriptLib
                 // └── test_definitions.cs.
 
                 // possible CLI command: css -self-test css -self-test-run css -self-test-log
-                if (file.GetFileName().StartsWith("-"))
+                if (fileName.GetFileName().StartsWith("-"))
                 {
                     // ensure we
-                    var prefix = new string(file.TakeWhile(x => x == '-').ToArray());
+                    var prefix = new string(fileName.TakeWhile(x => x == '-').ToArray());
 
-                    var filePath = prefix + file.TrimStart('-').Replace("-", $"{Path.DirectorySeparatorChar}-");
+                    var filePath = prefix + fileName.TrimStart('-').Replace("-", $"{Path.DirectorySeparatorChar}-");
                     retval = FindFiles(filePath, extraDirs, "");
 
                     if (retval.IsEmpty())
@@ -309,12 +315,17 @@ namespace CSScriptLib
             if (retval.Length == 0)
             {
                 if (throwOnError)
-                    throw new FileNotFoundException(string.Format("Could not find file \"{0}\".{1}Ensure it is in one of the CS-Script search/probing directories.", file, Environment.NewLine));
+                    throw new FileNotFoundException(string.Format("Could not find file \"{0}\".{1}Ensure it is in one of the CS-Script search/probing directories.", fileName, Environment.NewLine));
 
-                if (!file.EndsWith(".cs"))
-                    retval = new string[] { file + ".cs" };
+                if (!fileName.EndsWith(".cs"))
+                    retval = new string[] { fileName + ".cs" };
                 else
-                    retval = new string[] { file };
+                    retval = new string[] { fileName };
+            }
+
+            if (entryPoint != null)
+            {
+                retval = retval.Select(x => x + "|" + entryPoint).ToArray(); // re-attach entry point to the resolved file path 
             }
 
             return retval;

@@ -75,7 +75,7 @@ namespace csscript
         public bool IsPrimaryScript;
     }
 
-    class Precompiler
+    static class Precompiler
     {
         public delegate bool CompileMethod(ref string content, string scriptFile, bool IsPrimaryScript, Hashtable context);
 
@@ -106,6 +106,32 @@ namespace csscript
             }
 
             return null;
+        }
+
+        internal static (string fileName, string entryPoint) ExtractPrecompilerInfo(this string precompilerStatement)
+        {
+            // extract precompiler entry point if any
+            var parts = precompilerStatement.Split(['|'], 2);
+            var fileName = parts[0]; //detach entry point from the file name (if any)
+            var entryPoint = parts.Length > 1 ? parts[1] : null;
+            return (fileName, entryPoint);
+        }
+
+        internal static Type LocatePrecompiler(this Assembly precompilerAsm, string entryPoint, string precompilerContext)
+        {
+            var precompilerClass = precompilerAsm.GetTypes().FirstOrDefault(x => x.FullName == entryPoint);
+
+            if (entryPoint != null && precompilerClass == null)
+                throw new Exception($"Precompiler entry point {entryPoint} in {precompilerContext} cannot be loaded.");
+
+            if (precompilerClass == null)
+            {
+                precompilerClass = precompilerAsm.GetTypes().FirstOrDefault(x => x.Name.EndsWith("Precompiler"));
+                if (precompilerClass == null)
+                    throw new Exception("Precompiler " + precompilerContext + " cannot be loaded. No precompiler class found.");
+            }
+
+            return precompilerClass;
         }
     }
 

@@ -1,17 +1,18 @@
+using csscript;
+using CSScripting;
+using CSScriptLib;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Scripting;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using csscript;
-using CSScripting;
-using CSScriptLib;
-using Scripting;
 using Testing;
 using Xunit;
 
@@ -756,6 +757,58 @@ namespace EvaluatorTests
             var result = calc.Sum(7, 3);
 
             Assert.Equal(10, result);
+        }
+
+        public class Sample_Precompiler
+        {
+            public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+            {
+                scriptCode = "#define MY_DEFINE" + System.Environment.NewLine + scriptCode;
+                return true;
+            }
+        }
+
+        [Fact]
+        public void LoadMethodWithPrecompilerFromHost()
+        {
+            var code =
+                $"//css_pc {Assembly.GetExecutingAssembly().Location}|{typeof(Sample_Precompiler).FullName}" + Environment.NewLine +
+                """
+                
+                string foo()
+                {
+                    #if MY_DEFINE
+                    return "MY_DEFINE is defined";
+                    #else
+                    return "MY_DEFINE is not defined";
+                    #endif
+                }
+                """;
+
+            dynamic script = new_evaluator.LoadMethod(code);
+            var result = script.foo();
+
+            Assert.Equal("MY_DEFINE is defined", result);
+        }
+
+        [Fact]
+        public void LoadMethodWithPrecompiler()
+        {
+            dynamic script = new_evaluator.LoadMethod(
+                """
+                //css_pc D:\Galos\support\cs-script.#470\pc.cs|Sample_Precompiler
+                string foo()
+                    {
+                #if MY_DEFINE
+                        return "MY_DEFINE is defined";
+                #else
+                        return "MY_DEFINE is not defined";
+                #endif
+                    }
+                """);
+            var result = script.foo();
+
+            Assert.Equal("MY_DEFINE is defined", result);
         }
 
         [Fact]
