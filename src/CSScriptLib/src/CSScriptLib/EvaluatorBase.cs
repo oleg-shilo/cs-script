@@ -52,6 +52,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using csscript;
 using CSScripting;
 using CSScripting.CodeDom;
+using static System.Environment;
 
 namespace CSScriptLib
 {
@@ -266,11 +267,18 @@ namespace CSScriptLib
 
         Assembly CompileCode(string scriptText, string scriptFile, CompileInfo info)
         {
+            var scriptCode = scriptText;
+
+            if (this.Directives?.Any() == true && scriptCode.IsNotEmpty())
+            {
+                scriptCode = this.Directives.JoinBy(NewLine) + NewLine + scriptCode;
+            }
+
             Validate(info);
 
             // scriptFile is needed to allow injection of the debug information
 
-            int scriptHash = GetHashFor(scriptText, scriptFile);
+            int scriptHash = GetHashFor(scriptCode, scriptFile);
 
             if (IsCachingEnabled)
             {
@@ -278,7 +286,7 @@ namespace CSScriptLib
                     return loadedScriptsCache[scriptHash];
             }
 
-            (byte[] asm, byte[] pdb, Project project) = Compile(scriptText, scriptFile, info);
+            (byte[] asm, byte[] pdb, Project project) = Compile(scriptCode, scriptFile, info);
 
             Assembly scriptAssembly;
 
@@ -1158,6 +1166,7 @@ namespace CSScriptLib
             }
             return modified ? retval : null;
         }
+        public List<string> Directives { get; set; } = new();
 
         internal PrecompilationContext PrecompileScript(string script, CSharpParser parser)
         {

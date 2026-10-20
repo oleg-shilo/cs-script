@@ -1,9 +1,12 @@
+using csscript;
+using CSScripting;
+using Microsoft.CodeAnalysis.Emit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
-using Microsoft.CodeAnalysis.Emit;
+using System.Xml.Linq;
 
 namespace CSScriptLib
 {
@@ -814,6 +817,8 @@ namespace CSScriptLib
         /// <returns>Instance of the first class defined in the script assembly.</returns>
         object LoadMethod(string code);
 
+        List<string> Directives { get; set; }
+
         /// <summary>
         /// Wraps C# code fragment into auto-generated class (type name <c>DynamicClass</c>),
         /// evaluates it and loads the class to the current AppDomain.
@@ -1044,6 +1049,14 @@ namespace CSScriptLib
         /// <returns></returns>
         public static IEvaluator ExcludeReferencedAssemblies(this IEvaluator evaluator, IEnumerable<Assembly> excludedAssemblies)
             => evaluator.SetRefAssemblyFilter(asms => asms.Where(a => !excludedAssemblies.Contains(a)));
+
+
+        public static IEvaluator WithPrecompiler(this IEvaluator evaluator, Func<PrecompilationContext, bool> lambda)
+        {
+            var precompiler = Precompiler.FromLambda(lambda);
+            evaluator.Directives.Add(precompiler.ToCssDirective());
+            return evaluator;
+        }
 
         /// <summary>
         /// Sets referenced assemblies filter for exclusion of some "undesired" assemblies. It is a

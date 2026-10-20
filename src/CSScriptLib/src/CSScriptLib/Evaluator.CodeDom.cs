@@ -43,6 +43,7 @@ using csscript;
 using CSScripting;
 using CSScripting.CodeDom;
 using static CSScripting.Globals;
+using static System.Environment;
 using Scripting;
 
 namespace CSScriptLib
@@ -232,24 +233,33 @@ namespace CSScriptLib
         /// Compiles the specified script text.
         /// </summary>
         /// <param name="scriptText">The script text.</param>
-        /// <param name="scriptFile">The script file.</param>
+        /// <param name="scriptFilePath">The script file.</param>
         /// <param name="info">The information.</param>
         /// <returns>The method result.</returns>
         override protected (byte[] asm, byte[] pdb, Project project) Compile(string scriptText, string scriptFile, CompileInfo info)
         {
+            string scriptFilePath = scriptFile;
             string tempScriptFile = null;
             string injection_file = null;
             Project project = null;
 
             try
             {
-                if (scriptFile == null)
+                if (scriptFilePath == null)
                 {
                     tempScriptFile = CSScript.GetScriptTempFile();
                     File.WriteAllText(tempScriptFile, scriptText);
                 }
 
-                project = Project.GenerateProjectFor(tempScriptFile ?? scriptFile);
+                if (!scriptFile.IsEmpty() && this.Directives.Any()) // if scriptText is not empty then it already has the directives
+                {
+                    var scriptCode = scriptText ?? (this.Directives.JoinBy(NewLine) + NewLine + File.ReadAllText(scriptFilePath));
+                    scriptFilePath = scriptFilePath + ".proj-script.cs";
+                    File.WriteAllText(scriptFilePath, scriptCode);
+                }
+
+                project = Project.GenerateProjectFor(tempScriptFile ?? scriptFilePath);
+
                 var refs = project.Refs.Concat(this.GetReferencedAssembliesFiles()).Distinct().ToArray();
 
                 refs = FilterAssembliesLocations(refs).ToArray();
@@ -265,28 +275,28 @@ namespace CSScriptLib
                 if (IsCachingEnabled)
                 {
                     var hashableCode = new StringBuilder();
-                    hashableCode.Append($"{scriptText}.{scriptFile?.GetFullPath()}");
+                    hashableCode.Append($"{scriptText}.{scriptFilePath?.GetFullPath()}");
                     foreach (string dependencyScript in sources)
                         hashableCode.Append(File.ReadAllText(dependencyScript).GetHashCode());
 
-                    scriptHash = $"{scriptText}.{scriptFile?.GetFullPath()}".GetHashCode(); // not very sophisticated (e.g. not all ref asms are
-                                                                                            // included
-                                                                                            // in
-                                                                                            // hashing)
-                                                                                            // but adequate
+                    scriptHash = $"{scriptText}.{scriptFilePath?.GetFullPath()}".GetHashCode(); // not very sophisticated (e.g. not all ref asms are
+                                                                                                // included
+                                                                                                // in
+                                                                                                // hashing)
+                                                                                                // but adequate
 
                     if (scriptCache.ContainsKey(scriptHash))
                         return scriptCache[scriptHash];
                 }
 
                 /////////////////////////////////////
-                var lightParser = new CSharpParser(scriptFile ?? tempScriptFile, true);
+                var lightParser = new CSharpParser(scriptFilePath ?? tempScriptFile, true);
 
                 if (lightParser.Precompilers.Any())
                 {
                     var actualSources = sources.ToList();
 
-                    var precompiliationResult = base.PrecompileScript(scriptFile ?? tempScriptFile, lightParser);
+                    var precompiliationResult = base.PrecompileScript(scriptFilePath ?? tempScriptFile, lightParser);
 
                     if (precompiliationResult != null)
                     {

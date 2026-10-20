@@ -55,6 +55,7 @@ using Microsoft.CodeAnalysis.Text;
 using csscript;
 using CSScripting;
 using CSScripting.CodeDom;
+using static System.Environment;
 
 // <summary>
 //<package id="Microsoft.Net.Compilers" version="1.2.0-beta-20151211-01" targetFramework="net45" developmentDependency="true" />
@@ -176,8 +177,14 @@ namespace CSScriptLib
 
             try
             {
-                if (scriptText == null && scriptFile != null)
+                if (scriptText == null && scriptFile != null) // if scriptText is not empty then the directives are already there
+                {
                     scriptText = File.ReadAllText(scriptFile);
+                    if (this.Directives.Any() && scriptText.IsNotEmpty())
+                    {
+                        scriptText = this.Directives.JoinBy(NewLine) + NewLine + scriptText;
+                    }
+                }
 
                 int scriptHash = base.GetHashFor(scriptText, scriptFile);
 
