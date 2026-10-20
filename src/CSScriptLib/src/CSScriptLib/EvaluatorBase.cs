@@ -1246,7 +1246,7 @@ namespace CSScriptLib
             return modified ? retval : null;
         }
 
-        private bool ApplyPrecompilation(string script, PrecompilationContext retval, Hashtable contextData, ref string content, string precompilerPath)
+        bool ApplyPrecompilation(string script, PrecompilationContext retval, Hashtable contextData, ref string content, string precompilerPath)
         {
             var (method, legacyMethod) = precompilersCache[precompilerPath];
 
@@ -1261,11 +1261,9 @@ namespace CSScriptLib
                     compiler = Activator.CreateInstance(method.DeclaringType);
 
                 retval.Content = content;
-
-                result = (bool)method.Invoke(compiler, [retval]);
-
-                if (result)
-                    content = retval.Content;
+                retval.IsChanged = false;
+                method.Invoke(compiler, [retval]);
+                result = retval.IsChanged;
             }
             else
             {
@@ -1273,10 +1271,14 @@ namespace CSScriptLib
                 // scriptFile, bool isPrimaryScript, Hashtable context)
                 var compile = (Precompiler.CompileMethod)Delegate.CreateDelegate(typeof(Precompiler.CompileMethod), legacyMethod);
 
-                result = compile(ref content,
+                var contentOut = content;
+                compile(ref contentOut,
                                      script,
                                      IsPrimaryScript: script != null,
                                      contextData);
+                result = contentOut != content;
+                //result = context.GetContentHash();
+                content = contentOut;
             }
 
             return result;

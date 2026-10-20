@@ -1051,7 +1051,7 @@ namespace CSScriptLib
             => evaluator.SetRefAssemblyFilter(asms => asms.Where(a => !excludedAssemblies.Contains(a)));
 
 
-        public static IEvaluator WithPrecompiler(this IEvaluator evaluator, Func<PrecompilationContext, bool> lambda)
+        public static IEvaluator WithPrecompiler(this IEvaluator evaluator, Action<PrecompilationContext> lambda)
         {
             var precompiler = Precompiler.FromLambda(lambda);
             evaluator.Directives.Add(precompiler.ToCssDirective());

@@ -1,3 +1,5 @@
+// Ignore Spelling: Precompilation Dirs
+
 using CSScripting;
 using CSScriptLib;
 using Microsoft.CodeAnalysis;
@@ -23,6 +25,10 @@ namespace csscript
     /// </summary>
     public class PrecompilationContext
     {
+        /// <summary>
+        /// </summary>
+        public PrecompilationContext() => IsChanged = false;
+
         /// <summary>
         /// Collection of the referenced assemblies to be added to the process script referenced assemblies.
         /// <para>You may want to add new items to the referenced assemblies because of the pre-compilation logic (e.g. some code using assemblies not referenced by the primary script
@@ -75,6 +81,25 @@ namespace csscript
         /// Gets or sets a value indicating whether this script is the primary script for the associated entity.
         /// </summary>
         public bool IsPrimaryScript;
+
+        int hash;
+        public bool IsChanged
+        {
+            set
+            {
+                if (!value)
+                {
+                    hash = Content?.GetHashCode() ?? 0;
+                }
+            }
+            get =>
+                hash != Content.GetHashCode() ||
+                NewCompilerOptions.Any() ||
+                NewDependencies.Any() ||
+                NewIncludes.Any() ||
+                NewReferences.Any() ||
+                NewSearchDirs.Any();
+        }
     }
 
     static class Precompiler
@@ -147,7 +172,7 @@ namespace csscript
             return (lambda.Method.DeclaringType!, lambda.Method);
         }
 
-        public static (Type Type, MethodInfo Method) FromLambda(Func<PrecompilationContext, bool> lambda) => GetMethod((Delegate)lambda);
+        public static (Type Type, MethodInfo Method) FromLambda(Action<PrecompilationContext> lambda) => GetMethod((Delegate)lambda);
 
     }
 

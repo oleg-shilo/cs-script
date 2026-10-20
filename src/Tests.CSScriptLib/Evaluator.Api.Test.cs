@@ -923,7 +923,6 @@ namespace EvaluatorTests
                 context =>
                 {
                     context.Content = "#define MY_DEFINE" + System.Environment.NewLine + context.Content;
-                    return true;
                 });
 
             var code =
@@ -952,7 +951,6 @@ namespace EvaluatorTests
                 context =>
                 {
                     context.Content = "#define MY_DEFINE" + System.Environment.NewLine + context.Content;
-                    return true;
                 });
 
             dynamic script = new_evaluator
@@ -980,7 +978,6 @@ namespace EvaluatorTests
                 .WithPrecompiler(script =>
                                  {
                                      script.Content = "#define MY_DEFINE" + NewLine + script.Content;
-                                     return true;
                                  })
                 .LoadMethod("""
                     string foo()
@@ -1005,7 +1002,6 @@ namespace EvaluatorTests
                 context =>
                 {
                     context.Content = "#define MY_DEFINE" + System.Environment.NewLine + context.Content;
-                    return true;
                 });
 
             var code = GetTempScript(@" using System;
