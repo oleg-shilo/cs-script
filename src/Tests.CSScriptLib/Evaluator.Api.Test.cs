@@ -126,10 +126,20 @@ namespace EvaluatorTests
                 using System.Collections;
                 public class Sample_Precompiler 
                 {
+                    public static void Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                    {
+                        {$code}
+                    }
+                }
+                """.Replace("{$code}", code));
+        public string GetPrecompilerScriptLegacy(string code, [CallerMemberName] string caller = null)
+            => GetTempScript("""
+                using System.Collections;
+                public class Sample_Precompiler 
+                {
                     public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
                     {
                         {$code}
-                        return true;
                     }
                 }
                 """.Replace("{$code}", code));
@@ -1097,6 +1107,28 @@ namespace EvaluatorTests
         public void Precompiler_LoadMethod()
         {
             var precompilerScript = GetPrecompilerScript("scriptCode = \"#define MY_DEFINE\" + System.Environment.NewLine + scriptCode;");
+
+            dynamic script = new_evaluator.LoadMethod(
+                $"//css_pc {precompilerScript}" + Environment.NewLine +
+                """
+                string foo()
+                    {
+                #if MY_DEFINE
+                        return "MY_DEFINE is defined";
+                #else
+                        return "MY_DEFINE is not defined";
+                #endif
+                    }
+                """);
+            var result = script.foo();
+
+            Assert.Equal("MY_DEFINE is defined", result);
+        }
+
+        [Fact]
+        public void Precompiler_LoadMethod_LegacySignature()
+        {
+            var precompilerScript = GetPrecompilerScriptLegacy("scriptCode = \"#define MY_DEFINE\" + System.Environment.NewLine + scriptCode; return true;");
 
             dynamic script = new_evaluator.LoadMethod(
                 $"//css_pc {precompilerScript}" + Environment.NewLine +

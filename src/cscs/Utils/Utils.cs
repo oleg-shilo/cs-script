@@ -1217,7 +1217,7 @@ class HostingRuntime
                     string content = File.ReadAllText(filesToCompile[i]);
 
                     context.Content = content;
-                    context.scriptFile = filesToCompile[i];
+                    context.ScriptFile = filesToCompile[i];
                     context.IsPrimaryScript = (filesToCompile[i] == scriptFile);
 
                     bool modified = false;
@@ -1239,40 +1239,40 @@ class HostingRuntime
                             var methods = precompiler.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)
                                                      .Where(x => x.Name == "Compile");
 
-                            MethodInfo method_dynamic = methods.FirstOrDefault(x => x.GetParameters().Count() == 1);
-                            MethodInfo method = methods.FirstOrDefault(x => x.GetParameters().Count() == 4);
+                            MethodInfo method = methods.FirstOrDefault(x => x.GetParameters().Count() == 1);
+                            MethodInfo methodLegacy = methods.FirstOrDefault(x => x.GetParameters().Count() == 4);
 
-                            bool result;
+                            bool scriptUpdated;
 
                             using (SimpleAsmProbing.For(options.searchDirs))
                             {
-                                if (method_dynamic != null)
+                                if (method != null)
                                 {
-                                    // bool Compile(dynamic context) bool
-                                    // Compile(PrecompilationContext context)
+                                    // bool/void Compile(dynamic context) 
+                                    // bool/void Compile(PrecompilationContext context)
                                     object compiler = null;
-                                    if (!method_dynamic.IsStatic)
-                                        compiler = Activator.CreateInstance(method_dynamic.DeclaringType);
+                                    if (!method.IsStatic)
+                                        compiler = Activator.CreateInstance(method.DeclaringType);
 
-                                    result = (bool)method_dynamic.Invoke(compiler, [context]);
+                                    context.Content = content;
+                                    context.IsChanged = false;
 
-                                    if (result)
-                                        content = context.Content;
+                                    method.Invoke(compiler, [context]);
+
+                                    content = context.Content;
+                                    scriptUpdated = context.IsChanged;
                                 }
                                 else
                                 {
-                                    // public static bool Compile(ref string scriptCode, string
-                                    // scriptFile, bool isPrimaryScript, Hashtable context)
-                                    var compile = (CompileMethod)Delegate.CreateDelegate(typeof(CompileMethod), method);
-
-                                    result = compile(ref content,
-                                                         filesToCompile[i],
-                                                         filesToCompile[i] == scriptFile,
-                                                         contextData);
+                                    scriptUpdated = Precompiler.InvokeLegacyCompileProxy(methodLegacy,
+                                                        ref content,
+                                                        filesToCompile[i],
+                                                        filesToCompile[i] == scriptFile,
+                                                        contextData);
                                 }
                             }
 
-                            if (result)
+                            if (scriptUpdated)
                             {
                                 context.NewDependencies.Add(precompilerFile);
                                 modified = true;

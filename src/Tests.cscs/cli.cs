@@ -300,7 +300,60 @@ namespace CLI
         }
 
         [Fact]
+        public void use_precompiler_new_signature()
+        {
+            if (SkipIfIncompatibile) return;
+
+            var pre = testTempFile("precompiler.cs");
+            var script = testTempFile("script.cs");
+
+            File.WriteAllText(pre, $@"using System;
+                                      using System.Collections;
+
+                                      public class Sample_Precompiler
+                                      {{
+                                          public static void Compile(csscript.PrecompilationContext context)
+                                          {{
+                                              context.Content = context.Content.Replace(""Hello World"", ""Hello from Precompiler"");
+                                          }}
+                                      }}");
+
+            File.WriteAllText(script, $@"//css_precompiler {pre}
+                                         System.Console.WriteLine(""Hello World"");");
+
+            var output = cscs_run(script).Replace("return false;", "return false;");
+
+            Assert.Contains("Hello from Precompiler", output);
+        }
+        [Fact]
         public void use_precompiler()
+        {
+            if (SkipIfIncompatibile) return;
+
+            var pre = testTempFile("precompiler.cs");
+            var script = testTempFile("script.cs");
+
+            File.WriteAllText(pre, $@"using System;
+                                      using System.Collections;
+
+                                      public class Sample_Precompiler
+                                      {{
+                                          public static void Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                                          {{
+                                              scriptCode = scriptCode.Replace(""Hello World"", ""Hello from Precompiler"");
+                                          }}
+                                      }}");
+
+            File.WriteAllText(script, $@"//css_precompiler {pre}
+                                         System.Console.WriteLine(""Hello World"");");
+
+            var output = cscs_run(script).Replace("return false;", "return false;");
+
+            Assert.Contains("Hello from Precompiler", output);
+        }
+
+        [Fact]
+        public void use_precompiler_legacy_signature()
         {
             if (SkipIfIncompatibile) return;
 
@@ -558,7 +611,7 @@ global using global::System.Threading.Tasks;");
             // SkipException just does not work
             // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
 
-            var script_file = ".".PathJoin("temp", $"{nameof(compile_netfx_script_dotnet)}");
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_netfx_script_dotnet)}").EnsureFileDir();
             File.WriteAllText(script_file,
                 @"using System;
                   class Program
@@ -612,7 +665,7 @@ global using global::System.Threading.Tasks;");
             // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
             if (SkipIfIncompatibile) return;
 
-            var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_dotnet)}");
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_dotnet)}").EnsureFileDir();
             File.WriteAllText(script_file,
                 @"using System;
                   class Program
@@ -636,7 +689,7 @@ global using global::System.Threading.Tasks;");
             // throw SkipException.ForSkip("DOTNET TEST does not play nice with nested child processes");
             if (SkipIfIncompatibile) return;
 
-            var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_csc)}");
+            var script_file = ".".PathJoin("temp", $"{nameof(compile_x86_script_csc)}").EnsureFileDir();
             File.WriteAllText(script_file,
                  @"using System;
                    class Program

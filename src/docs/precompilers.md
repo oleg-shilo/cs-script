@@ -1,6 +1,40 @@
 # Precompilers
 
-A precompiler transforms script source immediately before CS-Script compiles it. Use one to add generated code, directives, or references. Return `true` when the precompiler changed the source; return `false` otherwise.
+A precompiler is a user defined C# routine that transforms script source (and compilation context) immediately before CS-Script compiles it. A precompiler can be either an assembly or a script fle. It is also available in both CLI and Hosted script execution.
+At runtime script engine loads the prcompiler, locates the routine that corresponds Precompiler's `Compile` method signature and executes it against the script being executed.
+
+Precompiler allos controlling script execution by letting the user manipulating the properties of the `PrecompilationContext context` object being available the `Compile` method:
+
+```csharp
+void Compile(PrecompilationContext context)
+```
+
+- *context.NewDependencies: `List<string>`*
+    Collection of file names that should be checked for the modification every time the primary script is executed and the decision needs to be made whether to load the script from the cache or compile it from the sources if any source file (dependency) has been modified since the last execution.
+
+- *context.NewSearchDirs: `List<string>`*
+    Collection of extra directories that should be used for assembly and script probing during actual script compilation after precompilation is done.
+
+- *context.NewReferences:  `List<string>`*
+    Collection of extra referenced assemblies that should be used for assembly and script probing during actual script compilation after precompilation is done.
+
+- *context.SearchDirs: `string[]`*
+    Collection of directories that are used for assembly and script probing during actual script compilation after precompilation is done. This is a fixed collection, which is defined by the global CS-Script configuration.
+
+- *context.CompilerOptions: `string`*
+    String containing compiler options that are passed to the C# compiler during the compilation of the primary script.
+
+Note: the legacy Compile signature is still supported even though it is no longer a preferred option:
+
+```csharp
+bool Compile(
+    ref string code, 
+    string scriptFile, 
+    bool IsPrimaryScript, 
+    Hashtable context)
+```
+
+ A standalone precompiler source file must reference the CS-Script assembly that defines `csscript.PrecompilationContext`. It's done by script engine automatically. But if you want to compile your precompiler into an assembly you will need to reference `cscs.dll` (the script engine assembly).
 
 ## CLI
 
@@ -10,47 +44,20 @@ Place the precompiler in a `.cs`, `.dll`, or `.exe` file and register it from th
 
 ```csharp
 //css_pc precompiler.cs
-
 Console.WriteLine(Greeting);
 ```
 
 `precompiler.cs`:
 
 ```csharp
-using System.Collections;
-
 class GreetingPrecompiler
 {
-    public static bool Compile(
-        ref string code,
-        string scriptFile,
-        bool isPrimaryScript,
-        Hashtable context)
+    public void Compile(csscript.PrecompilationContext context)
     {
-        code = "const string Greeting = \"Hello from a precompiler\";\n" + code;
-        return true;
+        context.Content = "const string Greeting = \"Hello from a precompiler\";\n" + context.Content;
     }
 }
 ```
-
-### Typed context signature
-
-As an alternative to the legacy four-argument method, a precompiler can expose `bool Compile(csscript.PrecompilationContext context)`. The method may be static or an instance method. CS-Script initializes `context.Content` with the source being compiled; update that property and return `true` to use the changed content.
-
-```csharp
-class GreetingPrecompiler
-{
-    public bool Compile(csscript.PrecompilationContext context)
-    {
-        context.Content =
-            "const string Greeting = \"Hello from a precompiler\";\n" +
-            context.Content;
-        return true;
-    }
-}
-```
-
-The typed context also provides `scriptFile`, `IsPrimaryScript`, and `SearchDirs`, plus `NewReferences`, `NewDependencies`, `NewIncludes`, `NewSearchDirs`, and `NewCompilerOptions` for generated compilation inputs. A standalone precompiler source file using this signature must reference the CS-Script assembly that defines `csscript.PrecompilationContext`.
 
 Run the script normally:
 
@@ -72,7 +79,6 @@ dynamic script = CSScript.RoslynEvaluator
     {
         context.Content =
             "#define GENERATED\n" + context.Content;
-        return true;
     })
     .LoadMethod("""
         string Message()
@@ -86,6 +92,6 @@ dynamic script = CSScript.RoslynEvaluator
 Console.WriteLine(script.Message());
 ```
 
-The callback receives `PrecompilationContext`. Its `Content` property holds the current source; it also exposes `NewReferences`, `NewDependencies`, `NewIncludes`, `NewSearchDirs`, and `NewCompilerOptions` for precompilers that need to describe generated compilation inputs. In CLI execution, dependencies also let cached scripts be recompiled when their inputs change.
+In CLI execution, dependencies also let cached scripts be recompiled when their inputs change.
 
-For a reusable file or assembly precompiler in a hosted application, add the same `//css_pc` directive to the loaded script. A context-based precompiler can expose `bool Compile(PrecompilationContext context)` (or `dynamic context`) instead of the legacy four-argument signature shown above.
+For a reusable file or assembly precompiler in a hosted application, add the same `//css_pc` directive to the loaded script. A context-based precompiler can expose `void Compile(PrecompilationContext context)` (or `dynamic context`) instead of the legacy four-argument signature shown above.

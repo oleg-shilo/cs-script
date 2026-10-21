@@ -1246,11 +1246,11 @@ namespace CSScriptLib
             return modified ? retval : null;
         }
 
-        bool ApplyPrecompilation(string script, PrecompilationContext retval, Hashtable contextData, ref string content, string precompilerPath)
+        bool ApplyPrecompilation(string script, PrecompilationContext contextObject, Hashtable contextData, ref string content, string precompilerPath)
         {
             var (method, legacyMethod) = precompilersCache[precompilerPath];
 
-            bool result;
+            bool scriptUpdated;
 
             if (method != null)
             {
@@ -1260,28 +1260,23 @@ namespace CSScriptLib
                 if (!method.IsStatic)
                     compiler = Activator.CreateInstance(method.DeclaringType);
 
-                retval.Content = content;
-                retval.IsChanged = false;
-                method.Invoke(compiler, [retval]);
-                result = retval.IsChanged;
+                contextObject.Content = content;
+                contextObject.IsChanged = false; // clear change status
+
+                method.Invoke(compiler, [contextObject]);
+                content = contextObject.Content;
+
+                scriptUpdated = contextObject.IsChanged;
+            }
+            else if (legacyMethod != null)
+            {
+                // public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                scriptUpdated = Precompiler.InvokeLegacyCompileProxy(legacyMethod, ref content, script, isPrimaryScript: script != null, contextData);
             }
             else
-            {
-                // public static bool Compile(ref string scriptCode, string
-                // scriptFile, bool isPrimaryScript, Hashtable context)
-                var compile = (Precompiler.CompileMethod)Delegate.CreateDelegate(typeof(Precompiler.CompileMethod), legacyMethod);
+                throw new Exception("Precompiler " + precompilerPath + " does not have a valid Compile method.");
 
-                var contentOut = content;
-                compile(ref contentOut,
-                                     script,
-                                     IsPrimaryScript: script != null,
-                                     contextData);
-                result = contentOut != content;
-                //result = context.GetContentHash();
-                content = contentOut;
-            }
-
-            return result;
+            return scriptUpdated;
         }
 
         /// <summary>

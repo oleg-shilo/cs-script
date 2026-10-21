@@ -75,7 +75,10 @@ namespace csscript
         /// </summary>
         /// <remarks>This property should contain a valid file path. Ensure that the file exists and is
         /// accessible before attempting to use it.</remarks>
-        public string scriptFile;
+        public string ScriptFile;
+
+        [Obsolete("Use ScriptFile property instead.")]
+        public string scriptFile { set => ScriptFile = value; get => ScriptFile; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this script is the primary script for the associated entity.
@@ -83,6 +86,12 @@ namespace csscript
         public bool IsPrimaryScript;
 
         int hash;
+
+        /// <summary>
+        /// Gets a value indicating whether there are updates to content, compiler options, dependencies,
+        /// includes, references, or search directories. Setting the value to <see langword="false"/> resets the content
+        /// change baseline.
+        /// </summary>
         public bool IsChanged
         {
             set
@@ -94,7 +103,7 @@ namespace csscript
             }
             get =>
                 hash != Content.GetHashCode() ||
-                NewCompilerOptions.Any() ||
+                NewCompilerOptions?.Any() == true ||
                 NewDependencies.Any() ||
                 NewIncludes.Any() ||
                 NewReferences.Any() ||
@@ -104,7 +113,57 @@ namespace csscript
 
     static class Precompiler
     {
+        public static int GetContentHash(this Hashtable context)
+        {
+            // Hashtable contextData = new()
+            // {
+            //    ["NewDependencies"] - List<string>
+            //    ["NewSearchDirs"] - List<string>
+            //    ["NewReferences"] - List<string>
+            //    ["NewIncludes"] - List<string>
+            //    ["NewCompilerOptions"] - string
+            //    ["SearchDirs"] = -List<string>
+            // }
+
+            var hashString = new StringBuilder();
+            foreach (var item in context)
+            {
+                if (item is List<string> list)
+                    foreach (var listItem in list)
+                        hashString.Append(listItem);
+                else if (item is string str)
+                    hashString.Append(str);
+            }
+
+            return hashString.ToString().GetHashCode();
+        }
+
+
         public delegate bool CompileMethod(ref string content, string scriptFile, bool IsPrimaryScript, Hashtable context);
+        public delegate void CompileMethodVoid(ref string content, string scriptFile, bool IsPrimaryScript, Hashtable context);
+
+        internal static bool InvokeLegacyCompileProxy(MethodInfo legacyMethod, ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+        {
+            if (legacyMethod.ReturnType == typeof(bool))
+            {
+                // public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                var compile = Delegate.CreateDelegate(typeof(Precompiler.CompileMethod), legacyMethod) as Precompiler.CompileMethod;
+                return compile(ref scriptCode, scriptFile, isPrimaryScript, context);
+            }
+            else
+            {
+                // return type is void, so we need to wrap it into a bool returning call
+                // public static void Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+                var compile = Delegate.CreateDelegate(typeof(Precompiler.CompileMethodVoid), legacyMethod) as Precompiler.CompileMethodVoid;
+
+                var contentHash = scriptCode.GetHashCode();
+                var contextHash = context.GetContentHash();
+
+                compile(ref scriptCode, scriptFile, isPrimaryScript, context);
+                return contentHash != scriptCode.GetHashCode() || contextHash != context.GetContentHash();
+            }
+
+        }
 
         public static string FindImlementationFile(string file, string[] searchDirs)
         {

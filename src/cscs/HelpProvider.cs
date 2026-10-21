@@ -2220,32 +2220,17 @@ using System.Collections.Generic;
 
 public class Sample_Precompiler //precompiler class name must end with 'Precompiler'
 {
-    // Supported signatures are `bool Compile(dynamic context)` and `bool Compile(csscript.PrecompilationContext context)`
+    // Supported signatures are `void Compile(dynamic context)` and `void Compile(csscript.PrecompilationContext context)`
 
-    public static bool Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)
+    public void Compile(csscript.PrecompilationContext context)
     {
-        // The context items (Hashtable keys) are:
-        // - out context:
-        //     NewDependencies
-        //     NewSearchDirs
-        //     NewReferences
-        //     NewIncludes
-        // - in context:
-        //     SearchDirs
-        //     ConsoleEncoding
-        //     CompilerOptions
+        // if new assemblies are to be referenced add them as below
+        // context.NewReferences(\""System.Xml.dll\"");
 
-        // if new assemblies are to be referenced add them (see 'Precompilers' in the documentation) as below
-        // var newReferences = (List<string>)context[\""NewReferences\""];
-        // newReferences.Add(\""System.Xml.dll\"");
+        // if the script code needs to be altered, then modify context.Content property, that holds the code of the main script
+        //context.Content = \""code after pre-compilation\"";
 
-        // if scriptCode needs to be altered assign scriptCode the new value and return true. Otherwise return false
-
-        //scriptCode = \""code after pre-compilation\"";
-        //return true; // return `true` if the scriptCode was modified. Otherwise return `false`
-
-        Console.WriteLine($""Precompiling {Path.GetFileName(scriptFile)} ..."");
-        return false;
+        Console.WriteLine($""Precompiling {Path.GetFileName(context.ScriptFile )} ..."");
     }
 }".NormalizeNewLines();
         }
