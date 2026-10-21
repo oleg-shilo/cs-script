@@ -2220,17 +2220,19 @@ using System.Collections.Generic;
 
 public class Sample_Precompiler //precompiler class name must end with 'Precompiler'
 {
-    // Supported signatures are `void Compile(dynamic context)` and `void Compile(csscript.PrecompilationContext context)`
+    // Supported signatures are `void Compile(dynamic context)` and 
+    // `void Compile(csscript.PrecompilationContext context)`
 
     public void Compile(csscript.PrecompilationContext context)
     {
         // if new assemblies are to be referenced add them as below
         // context.NewReferences(\""System.Xml.dll\"");
 
-        // if the script code needs to be altered, then modify context.Content property, that holds the code of the main script
-        //context.Content = \""code after pre-compilation\"";
+        // if the script code needs to be altered, then modify context.Content property, 
+        // that holds the code of the main script
+        // context.Content = ""code after pre-compilation"";
 
-        Console.WriteLine($""Precompiling {Path.GetFileName(context.ScriptFile )} ..."");
+        Console.WriteLine($""Precompiling { Path.GetFileName(context.ScriptFile)}..."");
     }
 }".NormalizeNewLines();
         }
