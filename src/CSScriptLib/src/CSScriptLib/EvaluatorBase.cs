@@ -1,3 +1,4 @@
+// Ignore Spelling: Dirs Autogen Pdb
 #region License...
 
 //-----------------------------------------------------------------------------
@@ -1149,7 +1150,7 @@ namespace CSScriptLib
 
             foreach (string file in primaryScript.Precompilers)
             {
-                var precompilerPath = Precompiler.FindImlementationFile(file, searchDirs);
+                var precompilerPath = Precompiler.FindImplementationFile(file, searchDirs);
                 if (!precompilersCache.ContainsKey(precompilerPath))
                     throw new Exception("Precompiler " + file + " cache cannot be loaded."); // but it must exist since the script precompilers have been processed already
 
@@ -1166,6 +1167,10 @@ namespace CSScriptLib
             }
             return modified ? retval : null;
         }
+
+        /// <summary>
+        /// Gets or sets the collection of directives.
+        /// </summary>
         public List<string> Directives { get; set; } = new();
 
         internal PrecompilationContext PrecompileScript(string script, CSharpParser parser)
@@ -1192,7 +1197,7 @@ namespace CSScriptLib
             {
                 var (fileName, entryPoint) = precompilerFile.ExtractPrecompilerInfo();
 
-                var precompilerPath = Precompiler.FindImlementationFile(fileName, searchDirs);
+                var precompilerPath = Precompiler.FindImplementationFile(fileName, searchDirs);
 
                 using (SimpleAsmProbing.For(searchDirs))
                 {

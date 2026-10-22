@@ -1,4 +1,4 @@
-// Ignore Spelling: Precompilation Dirs
+// Ignore Spelling: Precompilation Dirs csscript
 
 using CSScripting;
 using CSScriptLib;
@@ -77,6 +77,11 @@ namespace csscript
         /// accessible before attempting to use it.</remarks>
         public string ScriptFile;
 
+        /// <summary>
+        /// Gets or sets the path to the script file used for processing.
+        /// </summary>
+        /// <remarks>This property should contain a valid file path. Ensure that the file exists and is
+        /// accessible before attempting to use it.</remarks>
         [Obsolete("Use ScriptFile property instead.")]
         public string scriptFile { set => ScriptFile = value; get => ScriptFile; }
 
@@ -165,7 +170,7 @@ namespace csscript
 
         }
 
-        public static string FindImlementationFile(string file, string[] searchDirs)
+        public static string FindImplementationFile(string file, string[] searchDirs)
         {
             string retval = FindFile(file, searchDirs);
 

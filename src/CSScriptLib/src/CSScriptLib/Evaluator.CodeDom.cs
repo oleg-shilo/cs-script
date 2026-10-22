@@ -233,7 +233,7 @@ namespace CSScriptLib
         /// Compiles the specified script text.
         /// </summary>
         /// <param name="scriptText">The script text.</param>
-        /// <param name="scriptFilePath">The script file.</param>
+        /// <param name="scriptFile">The script file.</param>
         /// <param name="info">The information.</param>
         /// <returns>The method result.</returns>
         override protected (byte[] asm, byte[] pdb, Project project) Compile(string scriptText, string scriptFile, CompileInfo info)

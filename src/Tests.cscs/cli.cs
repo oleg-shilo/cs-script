@@ -1,3 +1,5 @@
+// Ignore Spelling: Cli cscs nuget dlls distro exe
+#pragma warning disable VSSpell001 // Spell Check
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

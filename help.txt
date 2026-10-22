@@ -1,4 +1,4 @@
-C# Script execution engine (.NET Core). Version 4.14.12.0.
+C# Script execution engine (.NET Core). Version 4.14.13.0.
 Copyright (C) 2004-2026 Oleg Shilo.
 
 Usage: cscs <switch 1> <switch 2> <file> [params] [//x]
@@ -415,11 +415,15 @@ params	Specifies optional parameters for a script file to be run.
 
 -precompiler[:<file 1>,<file N>]
     Specifies custom precompiler. This can be either script or assembly file.
-    Alias - pc[:<file 1>,<file N>]
+    Alias - pc[:<file 1>,<file N>][|entry-point]
+    You can specify precompiler as a C# (*.cs) file or as an assembly.
     If no file(s) specified prints the code template for the custom precompiler. The special value 'print' has the
     same effect (e.g. cscs -pc:print).
     There is a special reserved word 'nodefault' to be used as a file name. It instructs script engine to prevent
     loading any built-in precompilers like the one for removing shebang before the execution.
+    If it is desired, you may pass a specific class name for be used from the precompiler file (e.g.
+    -pc:app.exe|MyPrecompiler).Though the | character may interfere with your terminal. If it does, you wil need to
+    switch to teh inlne precompile directive //css_pc...
     (see https://www.cs-script.net/cs-script/help-legacy/precompilers.html)
 
 -pvdr|-provider:<file>
@@ -503,7 +507,7 @@ Engine directives:
 - //css_nuget [-force] [-ver:<version>] [-pre|--prerelease] package0[,package1]..[,packageN];
 - //css_args arg0[,arg1]..[,argN];
 - //css_reference <file>;
-- //css_precompiler <file 1>,<file 2>;
+- //css_precompiler <file 1>,<file 2>[|entry-point];
 - //css_searchdir <directory>;
 - //css_winapp
 - //css_webapp
@@ -675,15 +679,17 @@ is typically a current directory. Using more specific wildcards is arguably more
 '*Helper.dll', './*.dll')
  
 ------------------------------------
-//css_precompiler <file 1>,<file 2>;
+//css_precompiler <file 1>,<file 2>[|entry-point];
  
 Alias - //css_pc
  
 file - name of the script or assembly file implementing precompiler.
  
-This directive is used to specify the CS-Script precompilers to be loaded and exercised against script at run time
-just before compiling it. Precompilers are typically used to alter the script coder before the execution. Thus
-CS-Script uses built-in precompiler to decorate classless scripts executed with -autoclass switch.
+This directive is used to specify the CS-Script precompilers (.cs or .dll) to be loaded and exercised against script
+at run time just before compiling it. Precompilers are typically used to alter the script coder before the execution.
+Thus CS-Script uses built-in precompiler to decorate classless scripts executed with -autoclass switch.
+If it is desired, you may pass a specific class name for be used from the precompiler file (e.g. //css_pc
+app.exe|MyPrecompiler).
 (see http://www.csscript.net/help/precompilers.html)
 ------------------------------------
 //css_searchdir <directory>;

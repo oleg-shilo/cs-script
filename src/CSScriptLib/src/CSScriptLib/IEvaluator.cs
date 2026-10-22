@@ -1,3 +1,5 @@
+// Ignore Spelling: Pdb Refernce Asemblies
+
 using csscript;
 using CSScripting;
 using Microsoft.CodeAnalysis.Emit;
@@ -817,6 +819,9 @@ namespace CSScriptLib
         /// <returns>Instance of the first class defined in the script assembly.</returns>
         object LoadMethod(string code);
 
+        /// <summary>
+        /// Gets or sets the collection of `//css_*` directives.
+        /// </summary>
         List<string> Directives { get; set; }
 
         /// <summary>
@@ -1051,6 +1056,13 @@ namespace CSScriptLib
             => evaluator.SetRefAssemblyFilter(asms => asms.Where(a => !excludedAssemblies.Contains(a)));
 
 
+        /// <summary>
+        /// Adds a precompiler directive created from the specified precompilation action to the evaluator.
+        /// </summary>
+        /// <remarks>Modifies the <c>Directives</c> collection of the provided evaluator.</remarks>
+        /// <param name="evaluator">The evaluator to configure.</param>
+        /// <param name="lambda">An action that defines the precompilation logic.</param>
+        /// <returns>The same evaluator instance with the precompiler directive added.</returns>
         public static IEvaluator WithPrecompiler(this IEvaluator evaluator, Action<PrecompilationContext> lambda)
         {
             var precompiler = Precompiler.FromLambda(lambda);

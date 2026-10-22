@@ -1,3 +1,5 @@
+// Ignore Spelling: inproc outproc dotnet roslyn csscript
+
 using CSScriptLib;
 using Microsoft.CodeAnalysis;
 using System;
@@ -352,11 +354,12 @@ namespace CSScripting
             => holder.GetMethods(All)
                      .Where(m => m.Name.Contains(">b__", StringComparison.Ordinal))
                      .ToList();
+
         /// <summary>
         /// Finds the lambda method in the type. If the type holds several lambdas, the optional
         /// methodName and the argument list are used to disambiguate.
         /// </summary>
-        public static MethodInfo FindLambda(this Type holder, string? methodName = null, object?[]? args = null)
+        public static MethodInfo FindLambda(this Type holder, string methodName = null, object[] args = null)
         {
             if (!IsLambdaHolder(holder))
                 throw new ArgumentException($"'{holder.FullName}' is not a compiler-generated lambda holder.");
@@ -381,7 +384,7 @@ namespace CSScripting
             };
         }
 
-        internal static bool Accepts(MethodInfo m, object?[] args)
+        internal static bool Accepts(MethodInfo m, object[] args)
         {
             var ps = m.GetParameters();
             if (ps.Length != args.Length) return false;

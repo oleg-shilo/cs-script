@@ -1,3 +1,5 @@
+// Ignore Spelling: csscript dbg autoclass sconfig netfx nuget pvdr vscode dbgprint nathash proj
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -2232,7 +2234,7 @@ public class Sample_Precompiler //precompiler class name must end with 'Precompi
         // that holds the code of the main script
         // context.Content = ""code after pre-compilation"";
 
-        Console.WriteLine($""Precompiling { Path.GetFileName(context.ScriptFile)}..."");
+        Console.WriteLine($""Precompiling { Path.GetFileName(context.ScriptFile)} ..."");
     }
 }".NormalizeNewLines();
         }
