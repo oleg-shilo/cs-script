@@ -680,7 +680,7 @@ namespace csscript
             return Environment.ExpandEnvironmentVariables(text).Trim();
         }
 
-        internal static string[] GetCompilerOptonsSymbols(this string compilerOptions)
+        internal static string[] GetCompilerOptionsSymbols(this string compilerOptions)
         {
             if (compilerOptions.IsEmpty())
                 return [];

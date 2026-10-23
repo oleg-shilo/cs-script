@@ -327,7 +327,7 @@ namespace CSScripting.CodeDom
                         references.Add(metadata.GetReference());
                 }
 
-                var compileSymbols = compileInfo.CompilerOptions.GetCompilerOptonsSymbols();
+                var compileSymbols = compileInfo.CompilerOptions.GetCompilerOptionsSymbols();
                 if (compileInfo.IncludeDebugInformation)
                     compileSymbols = [.. compileSymbols, "DEBUG", "TRACE"];
 
@@ -372,7 +372,7 @@ namespace CSScripting.CodeDom
                 Assembly = assemblyFile,
                 IsDebug = options.IncludeDebugInformation,
                 References = refs,
-                CompileSymbols = options.CompilerOptions.GetCompilerOptonsSymbols()
+                CompileSymbols = options.CompilerOptions.GetCompilerOptionsSymbols()
             };
 
             try

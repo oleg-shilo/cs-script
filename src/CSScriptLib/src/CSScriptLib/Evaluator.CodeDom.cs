@@ -330,6 +330,14 @@ namespace CSScriptLib
                     {
                         refs = refs.Concat(precompiliationResult.NewReferences).ToArray();
                     }
+
+                    // process new compiler options directives (if any) and add them to the CompileInfo.CompilerOptions
+                    if (precompiliationResult?.NewCompilerOptions?.Any() == true)
+                    {
+                        info ??= new CompileInfo();
+                        info.CompilerOptions = info.CompilerOptions + " " + precompiliationResult.NewCompilerOptions;
+                    }
+
                 }
 
                 (byte[] asm, byte[] pdb) result = CompileAssemblyFromFileBatch_with_Csc(sources, refs, info?.AssemblyFile, this.IsDebug, info);
@@ -505,13 +513,10 @@ namespace CSScriptLib
                 common_args.Add("/nostdlib+");
                 // common_args.Add("/nostdlib");
                 common_args.Add("-t:library");
-                common_args.Add(CSScript.EvaluatorConfig.CompilerOptions);
+                common_args.Add(CSScript.EvaluatorConfig.CompilerOptions); // global compiler options
+                common_args.Add(info?.CompilerOptions ?? "");              // this execution specific compiler options
 
-                if (info?.CompilerOptions.HasText() == true)
-                    common_args.Add(info.CompilerOptions);
-
-                // common_args.Add("/t:exe"); // need always build exe so "top-class" feature is
-                // supported even when building dlls
+                // common_args.Add("/t:exe"); // need always build exe so "top-class" feature is supported even when building dlls
 
                 if (IncludeDebugInformation)
                 {
@@ -580,7 +585,7 @@ namespace CSScriptLib
                 foreach (string file in sources)
                     source_args.Add($"\"{file}\"");
 
-                common_args = common_args.Select(x => x.Trim()).ToList();
+                common_args = common_args.Select(x => x.Trim()).Where(x => x.HasText()).ToList();
 
                 var exclusionPrefix = "!no";
                 var excludedArgs = common_args.Where(x => x.StartsWith(exclusionPrefix)).ToArray();

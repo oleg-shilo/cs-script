@@ -174,6 +174,7 @@ namespace CSScriptLib
             // http://www.michalkomorowski.com/2016/10/roslyn-how-to-create-custom-debuggable_27.html
 
             string tempScriptFile = null;
+            var compileSymbols = new List<string>();
 
             try
             {
@@ -219,6 +220,12 @@ namespace CSScriptLib
                         if (precompiliationResult?.NewIncludes?.Any() == true)
                         {
                             extraRefs.AddRange(precompiliationResult.NewReferences);
+                        }
+
+                        if (precompiliationResult?.NewCompilerOptions.HasText() ?? false)
+                        {
+                            info ??= new CompileInfo();
+                            info.CompilerOptions += " " + precompiliationResult.NewCompilerOptions;
                         }
                     }
                 }
@@ -344,13 +351,12 @@ namespace CSScriptLib
 
                 Compilation compilation;
 
-                var compileSymbols = new List<string>();
 
                 if (IsDebug)
                     compileSymbols.AddRange(["DEBUG", "TRACE"]);
 
-                compileSymbols.AddRange(CSScript.EvaluatorConfig.CompilerOptions.GetCompilerOptonsSymbols());
-                compileSymbols.AddRange(info?.CompilerOptions.GetCompilerOptonsSymbols() ?? []);
+                compileSymbols.AddRange(CSScript.EvaluatorConfig.CompilerOptions.GetCompilerOptionsSymbols()); // global compiler options
+                compileSymbols.AddRange(info?.CompilerOptions.GetCompilerOptionsSymbols() ?? []);              // this execution specific compiler options
 
                 var parserOptions = new CSharpParseOptions(
                         kind: effectiveCodeKind,
