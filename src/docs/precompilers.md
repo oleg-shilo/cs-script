@@ -77,8 +77,9 @@ using CSScriptLib;
 dynamic script = CSScript.RoslynEvaluator
     .WithPrecompiler(context =>
     {
-        context.Content =
-            "#define GENERATED\n" + context.Content;
+        context.Content = "#define GENERATED\n" + context.Content;
+        //or
+        context.NewCompilerOptions = "-define:MY_DEFINE";
     })
     .LoadMethod("""
         string Message()
