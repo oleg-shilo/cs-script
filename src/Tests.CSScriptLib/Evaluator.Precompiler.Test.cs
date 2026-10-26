@@ -4,18 +4,19 @@ using CSScriptLib;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Scripting;
 using Scripting;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using static System.Environment;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Testing;
 using Xunit;
+using static System.Environment;
 
 namespace EvaluatorTests
 {
@@ -239,6 +240,23 @@ namespace EvaluatorTests
             var result = script.foo();
 
             Assert.Equal("MY_DEFINE is defined", result);
+        }
+
+        [Fact]
+        public void Precompiler_LoadFile()
+        {
+            var script = GetTempScript(@"using System;
+                                         public class Calc
+                                         {
+                                             public int Sum(int a, int b) => a+b;
+                                         }");
+
+            dynamic calc = new_evaluator
+                .WithPrecompiler(ctx => { /* */ })
+                .LoadFile(script);
+            var result = calc.Sum(1, 2);
+
+            Assert.Equal(3, result);
         }
 
         [Fact]

@@ -96,3 +96,14 @@ Console.WriteLine(script.Message());
 In CLI execution, dependencies also let cached scripts be recompiled when their inputs change.
 
 For a reusable file or assembly precompiler in a hosted application, add the same `//css_pc` directive to the loaded script. A context-based precompiler can expose `void Compile(PrecompilationContext context)` (or `dynamic context`) instead of the legacy four-argument signature shown above.
+
+## Environment variables and conditional compilation symbols
+
+Precompilers are typically used to implement AOP and other cross-cutting concerns and to implement build environment configuration.
+
+However, sometimes build environment configuration can be implemented in a more direct way with other CS-Script features:
+
+- CS-Script expands environment variables embedded in the paths of `//css_*` : `//css_dir %CERTIFICATES_DIR%`.
+- CS-Script also allows evaluating conditional symbols supplied as compiler options. This allows compiler symbols to be included in the directives, such as `//css_dir #if (PRODUCTION) .\bin\Production`, while remaining available to normal C# conditional compilation. 
+
+See: [Conditional Compilation Symbols](https://github.com/oleg-shilo/cs-script/wiki/Script-Syntax/#conditional-compilation-symbols) and [Environment Variables](https://github.com/oleg-shilo/cs-script/wiki/Script-Syntax/#environment-variables)

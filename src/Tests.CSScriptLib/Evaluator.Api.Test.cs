@@ -1,3 +1,5 @@
+// Ignore Spelling: envars
+
 using csscript;
 using CSScripting;
 using CSScriptLib;
@@ -412,20 +414,20 @@ namespace EvaluatorTests
             var dependencyScript = testTempFile("dep.cs");
 
             File.WriteAllText(dependencyScript, @"using System;
-                                                      public class Calc
+                                                  public class Calc
+                                                  {
+                                                      static public int Sum(int a, int b)
                                                       {
-                                                          static public int Sum(int a, int b)
-                                                          {
-                                                              return a+b;
-                                                          }
-                                                      }");
+                                                          return a+b;
+                                                      }
+                                                  }");
 
             dynamic script = new_evaluator.LoadCode($@"//css_inc {dependencyScript}
-                                                           using System;
-                                                           public class Script
-                                                           {{
-                                                               public int Sum(int a, int b) => Calc.Sum(a ,b);
-                                                           }}");
+                                                       using System;
+                                                       public class Script
+                                                       {{
+                                                           public int Sum(int a, int b) => Calc.Sum(a ,b);
+                                                       }}");
 
             var result = script.Sum(7, 3);
             Assert.Equal(10, result);
@@ -443,6 +445,70 @@ namespace EvaluatorTests
                 Assert.NotEmpty(project.Refs);
             }
         }
+
+        [Fact]
+        public void Process_envars_in_directives()
+        {
+            var code = @"//css_inc %MY_ENVAR%
+                         using System;
+                         public class Script
+                         {
+                           public int Sum(int a, int b) => a + b;
+                         }";
+
+            try
+            {
+                new_evaluator.LoadCode(code);
+            }
+            catch (Exception e)
+            {
+                Assert.Contains($@"Could not find file '{CurrentDirectory}\%MY_ENVAR%", e.Message);
+            }
+
+            // =================
+
+            var dependencyScript = testTempFile("dep.cs");
+            File.WriteAllText(dependencyScript, ""); // empty script is enough to test the conditional symbols processing
+
+            Environment.SetEnvironmentVariable("MY_ENVAR", dependencyScript);
+
+
+            Assert.Fail("Expected compile error was not detected");
+        }
+
+        [Fact]
+        public void Process_conditional_symbols_in_directives()
+        {
+            var code = @"//css_dir #if (PRODUCTION) %MY_ENVAR%
+                         using System;
+                         public class Script
+                         {
+                           public int Sum(int a, int b) => a + b;
+                         }";
+
+            Environment.SetEnvironmentVariable("PRODUCTION", "true");
+            try
+            {
+                new_evaluator.LoadCode(code);
+            }
+            catch (Exception e)
+            {
+                Assert.Contains($@"Could not find file '{CurrentDirectory}\%MY_ENVAR%", e.Message);
+            }
+
+            // =================
+
+            var dependencyScript = testTempFile("dep.cs");
+            File.WriteAllText(dependencyScript, ""); // empty script is enough to test the conditional symbols processing
+            //new_evaluator.CompileCode(code, new CompileInfo { CompilerOptions = $"-d:{}" });
+
+
+            Environment.SetEnvironmentVariable("MY_ENVAR", dependencyScript);
+
+
+            Assert.Fail("Expected compile error was not detected");
+        }
+
 
         [Fact]
         public void LoadCode_detect_error_in_imported_script()

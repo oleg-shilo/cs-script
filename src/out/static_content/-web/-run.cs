@@ -1,4 +1,5 @@
 //css_ng csc
+//css_args -l:0
 //css_webapp
 //css_include global-usings
 using System;
