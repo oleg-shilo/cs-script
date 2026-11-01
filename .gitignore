@@ -292,3 +292,4 @@ src/out/*.deb
 /src/cscs/nupkg/add-source.cmd
 /src/csws/Properties/Resources.net8.resx
 /.dotnet_home/.dotnet
+/src/out/Windows/csws.runtimeconfig.json
