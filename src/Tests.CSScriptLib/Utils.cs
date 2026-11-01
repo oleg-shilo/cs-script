@@ -17,6 +17,10 @@ class Profiler
     static public Stopwatch Stopwatch = new Stopwatch();
 }
 
+static class Extensions
+{
+    public static int Abs(this int value) => Math.Abs(value);
+}
 public static class CSScriptPolyfills
 {
     internal static string[] GetRawStatements(this CSScriptLib.CSharpParser parser, string codeToAnalyze, string pattern, int endIndex, bool ignoreComments)

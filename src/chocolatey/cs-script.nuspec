@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>cs-script</id>
-    <version>4.14.13.0</version>
+    <version>4.14.14.0</version>
     <title>CS-Script</title>
     <authors>Oleg Shilo</authors>
     <owners>Oleg Shilo</owners>
@@ -28,19 +28,14 @@
 
 ## Changes
 
-The following changes have been made in the implementation of Precompiler.
-- The default expected precompiler method signature now is `void Compile(PrecompilationContext context)` 
-- Its alternative return type variation `bool Compile(PrecompilationContext context)` signature is still supported for backward compatibility but the return value will be ignored.
-- The old precompiler syntax `bool/void Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context)` is made obsolete, though it will be supported for timebeing.
 
 ### CLI
 
-- Precompiler changes
+&amp;lt;no changes&amp;gt;
  
 ### CSScriptLib
 
-- Precompiler changes
-- #470 Hosted Script Preprocessors.</releaseNotes>
+- Fixed problem with precompiling imported scripts (part of #470)</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>

@@ -109,6 +109,7 @@ namespace csscript
             value < min ? min :
             value > max ? max :
             value;
+        
 
         static string[] newLineSeparators = { Environment.NewLine, "\n", "\r" };
 

@@ -907,7 +907,32 @@ namespace CSScriptLib
                 }
                 pos = codeToAnalyze.IndexOf(pattern, pos + 1);
             }
-            return retval.ToArray();
+            return retval.Select(ProcessConditionalSymbols).Where(x => x.IsNotEmpty()).ToArray();
+        }
+
+        static char[] LineWhiteSpaceCharacters = " \t\v".ToCharArray();
+
+        string ProcessConditionalSymbols(string text)
+        {
+            if (text.StartsWith("#if"))
+            {
+                var tokens = text.Split(LineWhiteSpaceCharacters, 3);
+                if (tokens.Count() == 3)
+                {
+                    if (tokens[0] == "#if")
+                    {
+#if DEBUG
+                         // System.Diagnostics.Debugger.Launch();
+#endif
+                        var symbolName = tokens[1].TrimSingle('(', ')');
+                        if (Environment.GetEnvironmentVariable(symbolName) != null)
+                            return tokens[2];
+                        else
+                            return "";
+                    }
+                }
+            }
+            return text;
         }
 
         int[] AllRawIndexOf(string pattern, int startIndex, int endIndex) //all raw matches

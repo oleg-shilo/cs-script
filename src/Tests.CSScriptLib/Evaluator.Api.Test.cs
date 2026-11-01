@@ -449,64 +449,71 @@ namespace EvaluatorTests
         [Fact]
         public void Process_envars_in_directives()
         {
-            var code = @"//css_inc %MY_ENVAR%
-                         using System;
-                         public class Script
-                         {
-                           public int Sum(int a, int b) => a + b;
-                         }";
+            // need to seed envar names to avoid envars being global during the test 
+            var testId = Guid.NewGuid().GetHashCode().Abs();
+            var envarName = $"envar{testId}";
+
+            var code = $@"//css_inc %{envarName}%
+                          using System;
+                          public class Script
+                          {{
+                              public int Sum(int a, int b) => a + b;
+                          }}";
 
             try
             {
                 new_evaluator.LoadCode(code);
+                Assert.Fail("Expected compile error was not detected");
             }
-            catch (Exception e)
+            catch (FileNotFoundException e)
             {
-                Assert.Contains($@"Could not find file '{CurrentDirectory}\%MY_ENVAR%", e.Message);
+                Assert.Contains(envarName, e.Message);
             }
 
             // =================
 
-            var dependencyScript = testTempFile("dep.cs");
+            var dependencyScript = testTempFile($"dep.cs");
             File.WriteAllText(dependencyScript, ""); // empty script is enough to test the conditional symbols processing
 
-            Environment.SetEnvironmentVariable("MY_ENVAR", dependencyScript);
-
-
-            Assert.Fail("Expected compile error was not detected");
+            Environment.SetEnvironmentVariable(envarName, dependencyScript);
+            new_evaluator.LoadCode(code);
         }
 
         [Fact]
         public void Process_conditional_symbols_in_directives()
         {
-            var code = @"//css_dir #if (PRODUCTION) %MY_ENVAR%
+            // need to seed envar names to avoid envars being global during the test 
+            var testId = Guid.NewGuid().GetHashCode().Abs();
+
+            var envarName = $"envar{testId}";
+            var condition = $"PRODUCTION{testId}";
+
+            var code = $@"//css_inc #if ({condition}) %{envarName}%
                          using System;
                          public class Script
-                         {
+                         {{
                            public int Sum(int a, int b) => a + b;
-                         }";
+                         }}";
 
-            Environment.SetEnvironmentVariable("PRODUCTION", "true");
+            Environment.SetEnvironmentVariable(condition, "true");
+
+            //LoadCode loads old file with dep.c
+
             try
             {
-                new_evaluator.LoadCode(code);
+                new_evaluator
+                    //.WithPrecompiler(script => script.NewCompilerOptions = $"-define:{condition}")
+                    .LoadCode(code);
+                Assert.Fail("Expected compile error was not detected");
             }
-            catch (Exception e)
+            catch (FileNotFoundException e)
             {
-                Assert.Contains($@"Could not find file '{CurrentDirectory}\%MY_ENVAR%", e.Message);
+                Assert.Contains(envarName, e.Message);
             }
 
             // =================
-
-            var dependencyScript = testTempFile("dep.cs");
-            File.WriteAllText(dependencyScript, ""); // empty script is enough to test the conditional symbols processing
-            //new_evaluator.CompileCode(code, new CompileInfo { CompilerOptions = $"-d:{}" });
-
-
-            Environment.SetEnvironmentVariable("MY_ENVAR", dependencyScript);
-
-
-            Assert.Fail("Expected compile error was not detected");
+            Environment.SetEnvironmentVariable(condition, null);
+            new_evaluator.LoadCode(code);
         }
 
 
