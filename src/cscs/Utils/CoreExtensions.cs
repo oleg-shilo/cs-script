@@ -680,6 +680,17 @@ namespace csscript
             return Environment.ExpandEnvironmentVariables(text).Trim();
         }
 
+        /// <summary>
+        ///  Make all `symbols` into non empty ("true") environment variables.
+        /// </summary>
+        /// <param name="symbols"></param>
+        public static void TunnelToEnvironmentVariables(this string[] symbols)
+        {
+            foreach (string item in symbols ?? [])
+                if (Environment.GetEnvironmentVariable(item) == null)
+                    Environment.SetEnvironmentVariable(item, "true");
+        }
+
         internal static string[] GetCompilerOptionsSymbols(this string compilerOptions)
         {
             if (compilerOptions.IsEmpty())

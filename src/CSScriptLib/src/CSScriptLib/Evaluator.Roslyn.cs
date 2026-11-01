@@ -217,7 +217,7 @@ namespace CSScriptLib
                         File.WriteAllText(tempScriptFile, precompiliationResult.Content);
                         scriptText = precompiliationResult.Content;
 
-                        if (precompiliationResult?.NewIncludes?.Any() == true)
+                        if (precompiliationResult?.NewReferences?.Any() == true)
                         {
                             extraRefs.AddRange(precompiliationResult.NewReferences);
                         }
@@ -228,6 +228,8 @@ namespace CSScriptLib
                             info.CompilerOptions += " " + precompiliationResult.NewCompilerOptions;
                         }
                     }
+
+                    info?.CompilerOptions.GetCompilerOptionsSymbols().TunnelToEnvironmentVariables();
                 }
 
                 SourceCodeKind effectiveCodeKind =

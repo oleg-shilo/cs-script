@@ -1059,7 +1059,10 @@ namespace CSScriptLib
         /// <summary>
         /// Adds a precompiler directive created from the specified precompilation action to the evaluator.
         /// </summary>
-        /// <remarks>Modifies the <c>Directives</c> collection of the provided evaluator.</remarks>
+        /// <remarks>Modifies the <c>Directives</c> collection of the provided evaluator.
+        /// <p> Note, the lambda will not capture the caller context as closure due to the precompiler (lambda) being 
+        /// loaded as an external assembly. 
+        /// </p></remarks>
         /// <param name="evaluator">The evaluator to configure.</param>
         /// <param name="lambda">An action that defines the precompilation logic.</param>
         /// <returns>The same evaluator instance with the precompiler directive added.</returns>

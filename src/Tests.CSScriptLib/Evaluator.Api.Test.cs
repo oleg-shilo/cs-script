@@ -480,7 +480,7 @@ namespace EvaluatorTests
         }
 
         [Fact]
-        public void Process_conditional_symbols_in_directives()
+        public void Process_conditional_symbols_in_directives_via_envar()
         {
             // need to seed envar names to avoid envars being global during the test 
             var testId = Guid.NewGuid().GetHashCode().Abs();
@@ -488,32 +488,93 @@ namespace EvaluatorTests
             var envarName = $"envar{testId}";
             var condition = $"PRODUCTION{testId}";
 
-            var code = $@"//css_inc #if ({condition}) %{envarName}%
+            var code = $@"//css_inc #if ({condition}) my-dummy-dcript.cs
                          using System;
                          public class Script
                          {{
                            public int Sum(int a, int b) => a + b;
                          }}";
 
-            Environment.SetEnvironmentVariable(condition, "true");
-
-            //LoadCode loads old file with dep.c
-
+            // --------------------
+            // expected the exceptin as no exception here since the invalid //css_inc directive
+            // is activated by setting the envar
             try
             {
+                Environment.SetEnvironmentVariable(condition, "true");
                 new_evaluator
-                    //.WithPrecompiler(script => script.NewCompilerOptions = $"-define:{condition}")
                     .LoadCode(code);
                 Assert.Fail("Expected compile error was not detected");
             }
             catch (FileNotFoundException e)
             {
-                Assert.Contains(envarName, e.Message);
+                Assert.Contains("my-dummy-dcript.cs", e.Message);
             }
 
-            // =================
+            // --------------------
+            // expected no exception here since the //css_inc directive is deactivated
+            // by removing envar
             Environment.SetEnvironmentVariable(condition, null);
             new_evaluator.LoadCode(code);
+        }
+
+
+        [Fact]
+        public void Process_conditional_symbols_in_directives_via_compiler_options()
+        {
+            if (this is API_CodeDom)
+            {
+                // Conditional directives are not supported by the CodeDom evaluator due to the limited architectural compatibility
+                // of compiler symbols in case of CodeDOM evaluator - CodeDom captures the imported scripts before precompiler is executed
+                // and potentially excluded some of the imports.
+                // Roslyn evaluator supports them fully.
+                return;
+            }
+            // -------------------
+            // need to seed envar names to avoid envars being global during the test 
+            var condition = "PRODUCTION_BUILD";
+
+            var code = $@"//css_inc #if ({condition}) my-dummy-dcript.cs
+                         using System;
+                         public class Script
+                         {{
+                             public int Sum(int a, int b) => a + b;
+                         }}";
+
+            Environment.SetEnvironmentVariable("condition_value", condition);
+            // --------------------
+
+            try
+            {
+                new_evaluator
+                    .WithPrecompiler(script =>
+                    {
+                        // note, the `condition` will be null since the lambda will not capture it as closure
+                        // due to the precompiler (lambda) being loaded as an external assembly.
+                        // So either use hardcoded alternative or read the value from global storage (e.g. envars).
+
+                        var symbol = condition;
+
+                        if (symbol.IsEmpty())
+                        {
+                            var useHardcodded = true;
+                            useHardcodded = false;
+                            if (useHardcodded)
+                                script.NewCompilerOptions = $"-define:PRODUCTION_BUILD";
+                            else
+                                script.NewCompilerOptions = $"-define:{Environment.GetEnvironmentVariable("condition_value")}";
+                        }
+                        else
+                        {
+                            script.NewCompilerOptions = $"-define:{symbol}";
+                        }
+                    })
+                    .LoadCode(code);
+                Assert.Fail("Expected compile error was not detected");
+            }
+            catch (FileNotFoundException e)
+            {
+                Assert.Contains("my-dummy-dcript.cs", e.Message);
+            }
         }
 
 

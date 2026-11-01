@@ -305,6 +305,11 @@ namespace CSScriptLib
                         actualSources[0] = tempScriptFile;
                     }
 
+                    // Conditional directives are not supported by the CodeDom evaluator due to the limited architectural compatibility
+                    // of compiler symbols in case of CodeDOM evaluator - CodeDom captures the imported scripts before precompiler is executed
+                    // and potentially excluded some of the imports.
+                    // Roslyn evaluator supports them fully.
+
                     int index = 1;
                     foreach (string file in sources.Skip(1))
                     {
@@ -326,7 +331,7 @@ namespace CSScriptLib
                     actualSources.AddRange(precompiliationResult?.NewIncludes ?? []);
                     sources = actualSources.Distinct().ToArray();
 
-                    if (precompiliationResult?.NewIncludes?.Any() == true)
+                    if (precompiliationResult?.NewReferences?.Any() == true)
                     {
                         refs = refs.Concat(precompiliationResult.NewReferences).ToArray();
                     }
