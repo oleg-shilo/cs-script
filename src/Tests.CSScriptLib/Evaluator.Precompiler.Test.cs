@@ -258,6 +258,30 @@ namespace EvaluatorTests
 
             Assert.Equal(3, result);
         }
+        [Fact]
+        public void Precompiler_LoadFile_with_css_include()
+        {
+            var script = GetTempScript(@"//css_include Globals.cs 
+                                         using System;
+                                         public class Calc
+                                         {
+                                             public int Sum(int a, int b) => a + b + Globals.offset;
+                                         }");
+
+            var dependencyScript = GetTempScript(@"using System;
+                                         public class Globals
+                                         {
+                                             public static int offset = -2;
+                                         }",
+                                         fileName: "Globals.cs");
+
+            dynamic calc = new_evaluator
+                .WithPrecompiler(ctx => { /* */ })
+                .LoadFile(script);
+            var result = calc.Sum(1, 2);
+
+            Assert.Equal(1, result);
+        }
 
         [Fact]
         public void Precompiler_LoadMethod()

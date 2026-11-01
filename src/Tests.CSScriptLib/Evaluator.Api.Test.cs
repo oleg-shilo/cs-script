@@ -116,9 +116,9 @@ namespace EvaluatorTests
             return filePath;
         }
 
-        public string GetTempScript(string content, [CallerMemberName] string caller = null)
+        public string GetTempScript(string content, [CallerMemberName] string caller = null, string fileName = "script.cs")
         {
-            var script = testTempFile("script.cs", $"{this.GetType().Name}.{caller}");
+            var script = testTempFile(fileName, $"{this.GetType().Name}.{caller}");
             File.WriteAllText(script, content);
             return script;
         }

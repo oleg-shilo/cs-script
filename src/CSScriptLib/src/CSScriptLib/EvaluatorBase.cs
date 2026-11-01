@@ -1150,9 +1150,15 @@ namespace CSScriptLib
 
             foreach (string file in primaryScript.Precompilers)
             {
-                var precompilerPath = Precompiler.FindImplementationFile(file, searchDirs);
-                if (!precompilersCache.ContainsKey(precompilerPath))
-                    throw new Exception("Precompiler " + file + " cache cannot be loaded."); // but it must exist since the script precompilers have been processed already
+                var (fileName, entryPoint) = file.ExtractPrecompilerInfo();
+
+                var precompilerPath = Precompiler.FindImplementationFile(fileName, searchDirs);
+
+                if (precompilersCache?.ContainsKey(precompilerPath) != true)
+                {
+                    // but it must exist in the cache since the script precompilers have been processed already
+                    throw new Exception("Precompiler " + file + " cache cannot be loaded.");
+                }
 
                 var precompiler = precompilersCache[precompilerPath];
 
@@ -1167,11 +1173,6 @@ namespace CSScriptLib
             }
             return modified ? retval : null;
         }
-
-        /// <summary>
-        /// Gets or sets the collection of directives.
-        /// </summary>
-        public List<string> Directives { get; set; } = new();
 
         internal PrecompilationContext PrecompileScript(string script, CSharpParser parser)
         {
@@ -1250,6 +1251,11 @@ namespace CSScriptLib
             }
             return modified ? retval : null;
         }
+
+        /// <summary>
+        /// Gets or sets the collection of directives.
+        /// </summary>
+        public List<string> Directives { get; set; } = new();
 
         bool ApplyPrecompilation(string script, PrecompilationContext contextObject, Hashtable contextData, ref string content, string precompilerPath)
         {
