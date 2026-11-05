@@ -25,17 +25,10 @@
 </description>
     <summary>CS-Script</summary>
     <releaseNotes>---
-
-## Changes
-
-
-### CLI
-
-&amp;lt;no changes&amp;gt;
- 
-### CSScriptLib
-
-- Fixed problem with precompiling imported scripts (part of #470)</releaseNotes>
+- The default expected precompiler method signature is now void Compile(PrecompilationContext context)
+- Its alternative return type variation bool Compile(PrecompilationContext context) signature is still supported for backward compatibility but the return value will be ignored.
+- The old precompiler syntax bool/void Compile(ref string scriptCode, string scriptFile, bool isPrimaryScript, Hashtable context) is made obsolete, though it will be supported for the time being.
+</releaseNotes>
     <copyright>Oleg Shilo</copyright>
     <tags>cs-script C# script dynamic hosting</tags>
     <dependencies>
